@@ -834,7 +834,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	public LocalDateTime getReferenceDate() {
-		return LocalDateTime.of(forwardRateCurve.getReferenceDate(), LocalTime.of(17, 0));
+		return forwardRateCurve.getReferenceDate() != null ? forwardRateCurve.getReferenceDate().atStartOfDay() : null;
 	}
 
 	/**
@@ -869,21 +869,52 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					numerairesProcess = getProcess();
 				}
 
-				RandomVariable deterministicNumeraireAdjustment = numeraireAdjustments.get(time);
+				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				if(deterministicNumeraireAdjustment == null) {
-					// This includes a control for zero bonds
-					//					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
-					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
-					//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
-
-					numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
-				}
-
-				numeraire = numeraire.mult(numeraire.invert().average().div(deterministicNumeraireAdjustment));
+				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
+//				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;
+	}
+
+	private RandomVariable getNumeraireAdjustment(double time) {
+		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
+		
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+
+		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
+		if(timeIndex >= 0) {
+			return getNumeraireAdjustment(timeIndex);
+		}
+		else {
+			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
+			int timeIndexNext = timeIndexPrev+1;
+			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
+			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
+			RandomVariable numeraireAdjustmentPrev = getNumeraireAdjustment(timeIndexPrev);
+			RandomVariable numeraireAdjustmentNext = getNumeraireAdjustment(timeIndexNext);
+			return numeraireAdjustmentPrev.mult(numeraireAdjustmentNext.div(numeraireAdjustmentPrev).pow((time-timePrev)/(timeNext-timePrev)));
+		}
+	}
+
+	private RandomVariable getNumeraireAdjustment(int timeIndex) {
+		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
+		
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+
+		double time = timeDiscretizationForCurves.getTime(timeIndex);
+		
+		RandomVariable deterministicNumeraireAdjustment = numeraireAdjustments.get(time);
+		if(deterministicNumeraireAdjustment == null) {
+			// This includes a control for zero bonds
+								deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+			//deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+			//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
+
+			numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
+		}
+		return deterministicNumeraireAdjustment;
 	}
 
 	protected RandomVariable getNumerairetUnAdjusted(double time) throws CalculationException {
