@@ -49,7 +49,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 		super();
 
 		LocalDateTime referenceDate = legSchedule.getReferenceDate().atStartOfDay();
-		
+
 		/*
 		 * Create components.
 		 *

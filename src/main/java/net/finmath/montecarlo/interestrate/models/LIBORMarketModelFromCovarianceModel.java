@@ -853,7 +853,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(time < 0) {
 			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
 		}
-		
+
 		RandomVariable numeraire = getNumerairetUnAdjusted(time);
 		/*
 		 * Adjust for discounting, i.e. funding or collateralization
@@ -873,9 +873,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				if(deterministicNumeraireAdjustment == null) {
 					// This includes a control for zero bonds
-//					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
+					//					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time));
 					deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
-//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
+					//					deterministicNumeraireAdjustment = numeraire.invert().div(discountCurve.getDiscountFactor(curveModel, time));
 
 					numeraireAdjustments.put(time, deterministicNumeraireAdjustment);
 				}

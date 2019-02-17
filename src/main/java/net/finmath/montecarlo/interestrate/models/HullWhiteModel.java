@@ -140,7 +140,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private final List<RandomVariable> discountFactorCache = new ArrayList<>();
 	private final List<RandomVariable> discountFactorFromForwardCurveCache = new ArrayList<>();
 	private final List<RandomVariable> forwardRateCache = new ArrayList<>();
-	
+
 	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;;
 
 	/**
@@ -323,7 +323,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		RandomVariable logNum = getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
-		
+
 		RandomVariable numeraireNormalized = logNum.exp();
 
 		// Control variate on zero bond
@@ -884,7 +884,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		return discountFactorFromForwardCurveCache.get(timeIndex);
 	}
-	
+
 	private RandomVariable getForwardRateInitialValue(int timeIndex) {
 		synchronized(forwardRateCache) {
 			if(forwardRateCache.size() <= timeIndex) {
