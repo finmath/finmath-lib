@@ -928,7 +928,7 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(deviationHWLMM >= 0);
+		Assert.assertEquals("Valuation of put on MMA", valueSimulationLMM.getAverage(), valueSimulationHW.getAverage(), 1E-5);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationModel liborMarketModel, Schedule fixLeg, Schedule floatLeg, String tenorCode) {
