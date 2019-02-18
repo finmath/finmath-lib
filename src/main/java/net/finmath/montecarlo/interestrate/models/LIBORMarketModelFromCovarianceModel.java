@@ -26,6 +26,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.marketdata2.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
@@ -870,8 +871,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
-				//				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
+				//numeraire = numeraire.mult((new DiscountCurveFromForwardCurve(forwardRateCurve)).getDiscountFactor(curveModel, time)).div(deterministicNumeraireAdjustment);
+				//numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
+				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;
@@ -1211,7 +1213,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
@@ -1236,7 +1237,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), periodStart, nextStartTime-periodStart);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);

@@ -327,7 +327,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable numeraireNormalized = logNum.exp();
 
 		// Control variate on zero bond
-		numeraireNormalized.div(numeraireNormalized.invert().average());
+		numeraireNormalized.div(numeraireNormalized.invert().getAverage());
 
 		// Apply discount factor scaling
 		RandomVariable discountFactor;
