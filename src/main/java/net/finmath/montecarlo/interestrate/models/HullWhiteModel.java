@@ -332,7 +332,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		// Apply discount factor scaling
 		RandomVariable discountFactor;
 		if(discountCurve != null) {
-			discountFactor =  getDiscountFactor(time);
+			discountFactor =  getDiscountFactor(time).div(getDiscountFactorFromForwardCurve(time).getAverage()).mult(getDiscountFactorFromForwardCurve(time));
 		}
 		else {
 			discountFactor =  getDiscountFactorFromForwardCurve(time);
@@ -477,11 +477,14 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		RandomVariable zeroRate = getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
 
-		RandomVariable alpha = getDV(0, time).add(zeroRate);
+		RandomVariable alpha = getDV(0, time);
 
 		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
 		value = value.add(alpha);
-
+//		value = value.sub(Math.log(value.exp().getAverage()));
+		
+		value = value.add(zeroRate);
+		
 		return value;
 	}
 
@@ -490,7 +493,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		if(timeIndex < 0) {
 			int timeIndexLo = -timeIndex-1-1;
 			double timeLo = getProcess().getTime(timeIndexLo);
-			return getZeroCouponBond(timeLo, maturity).mult(getShortRate(timeIndexLo).mult(time-timeLo).exp());
+			return getZeroCouponBond(timeLo, maturity).div(getZeroCouponBond(timeLo, time));
 		}
 		RandomVariable shortRate = getShortRate(timeIndex);
 		RandomVariable A = getA(time, maturity);
