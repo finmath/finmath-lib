@@ -876,7 +876,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
+				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;

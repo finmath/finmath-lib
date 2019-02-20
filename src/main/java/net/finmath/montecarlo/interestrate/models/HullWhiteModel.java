@@ -334,7 +334,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		// Apply discount factor scaling
 		RandomVariable discountFactor;
 		if(discountCurve != null) {
-			discountFactor =  getDiscountFactor(time);
+			discountFactor =  getDiscountFactor(time).div(getDiscountFactorFromForwardCurve(time).getAverage()).mult(getDiscountFactorFromForwardCurve(time));
+//			discountFactor =  getDiscountFactor(time);
 		}
 		else {
 			discountFactor =  getDiscountFactorFromForwardCurve(time);
