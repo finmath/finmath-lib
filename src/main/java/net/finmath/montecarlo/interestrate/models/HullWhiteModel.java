@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
@@ -137,7 +138,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final Map<String, Object>	properties;
 
-	private final List<RandomVariable> discountFactorCache = new ArrayList<>();
+	private final List<RandomVariable> numeraireDiscountFactors = new ArrayList<>();
+	private final List<RandomVariable> numeraireDiscountFactorForwardRates = new ArrayList<>();
 	private final List<RandomVariable> discountFactorFromForwardCurveCache = new ArrayList<>();
 	private final List<RandomVariable> forwardRateCache = new ArrayList<>();
 
@@ -332,7 +334,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		// Apply discount factor scaling
 		RandomVariable discountFactor;
 		if(discountCurve != null) {
-			discountFactor =  getDiscountFactor(time).div(getDiscountFactorFromForwardCurve(time).getAverage()).mult(getDiscountFactorFromForwardCurve(time));
+			discountFactor =  getDiscountFactor(time);
 		}
 		else {
 			discountFactor =  getDiscountFactorFromForwardCurve(time);
@@ -806,8 +808,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 
 		// Add numeraire adjustments
-		for(int timeIndex=0; timeIndex<timeDiscretizationForCurves.getNumberOfTimes(); timeIndex++) {
-			modelParameters.put("DISCOUNTFACTOR("+ timeDiscretizationForCurves.getTime(timeIndex) + ")", getDiscountFactor(timeIndex));
+		// TODO: Trigger lazy init
+		// Add initial values
+		for(int timeIndex=0; timeIndex<timeDiscretizationForCurves.getNumberOfTimes()-1; timeIndex++) {
+			modelParameters.put("NUMERAIREADJUSTMENTFORWARD("+ timeDiscretizationForCurves.getTime(timeIndex) + ")", numeraireDiscountFactorForwardRates.get(timeIndex));
 		}
 
 		return modelParameters;
@@ -820,6 +824,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			return getDiscountFactor(timeIndex);
 		}
 		else {
+			// Interpolation
 			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 			int timeIndexNext = timeIndexPrev+1;
 			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
@@ -831,20 +836,30 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	private RandomVariable getDiscountFactor(int timeIndex) {
-		synchronized(discountFactorCache) {
-			if(discountFactorCache.size() <= timeIndex+1) {
-				TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
-				// Initialize cache
-				for(int i=discountFactorCache.size(); i<= timeIndex; i++) {
-					double df = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
-					RandomVariable dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
-					discountFactorCache.add(dfAsRandomVariable);
+		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		double time = timeDiscretizationForCurves.getTime(timeIndex);
+
+		synchronized(numeraireDiscountFactorForwardRates) {
+			if(numeraireDiscountFactors.size() == 0) {
+				double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));
+				RandomVariable deterministicNumeraireAdjustment
+				 = randomVariableFactory.createRandomVariable(dfInitial);
+				numeraireDiscountFactors.add(0, deterministicNumeraireAdjustment);
+
+				for(int i=0; i<timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {
+					double dfPrev = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
+					double dfNext = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
+					double timeStep = timeDiscretizationForCurves.getTimeStep(i);
+					double timeNext = timeDiscretizationForCurves.getTime(i+1);
+					RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
+					numeraireDiscountFactorForwardRates.add(i, forwardRate);
+					deterministicNumeraireAdjustment = deterministicNumeraireAdjustment.discount(forwardRate, timeStep);
+					numeraireDiscountFactors.add(i+1, deterministicNumeraireAdjustment);
 				}
 			}
-
+			RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(timeIndex);
+			return deterministicNumeraireAdjustment;
 		}
-
-		return discountFactorCache.get(timeIndex);
 	}
 
 	private RandomVariable getDiscountFactorFromForwardCurve(double time) {
