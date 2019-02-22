@@ -138,12 +138,15 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final Map<String, Object>	properties;
 
-	private final List<RandomVariable> numeraireDiscountFactors = new ArrayList<>();
-	private final List<RandomVariable> numeraireDiscountFactorForwardRates = new ArrayList<>();
-	private final List<RandomVariable> discountFactorFromForwardCurveCache = new ArrayList<>();
-	private final List<RandomVariable> forwardRateCache = new ArrayList<>();
-
 	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;;
+
+	/*
+	 * Cache
+	 */
+	private transient List<RandomVariable> numeraireDiscountFactors = new ArrayList<>();
+	private transient List<RandomVariable> numeraireDiscountFactorForwardRates = new ArrayList<>();
+	private transient List<RandomVariable> discountFactorFromForwardCurveCache = new ArrayList<>();
+	private transient List<RandomVariable> forwardRateCache = new ArrayList<>();
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.

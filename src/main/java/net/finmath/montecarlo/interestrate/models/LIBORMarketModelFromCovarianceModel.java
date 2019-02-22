@@ -179,9 +179,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	// Cache for the numeraires, needs to be invalidated if process changes - move out of the object (to process?)
 	private transient MonteCarloProcess						numerairesProcess = null;
-	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
-	private final ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates;
-	private final ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors;
+	private transient ConcurrentHashMap<Integer, RandomVariable>	numeraires = new ConcurrentHashMap<>();
+	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
+	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors = new ConcurrentHashMap<>();
 
 
 
@@ -505,10 +505,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		else {
 			this.covarianceModel	= covarianceModel;
 		}
-
-		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
-		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
-		numeraireDiscountFactors = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 	}
 
 	/**
@@ -876,7 +872,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
+				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;
