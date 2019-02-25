@@ -867,6 +867,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				if (getProcess() != numerairesProcess) {
 					numeraires.clear();
 					numeraireDiscountFactorForwardRates.clear();
+					numeraireDiscountFactors.clear();
 					numerairesProcess = getProcess();
 				}
 
@@ -988,6 +989,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			if (getProcess() != numerairesProcess) {
 				numeraires.clear();
 				numeraireDiscountFactorForwardRates.clear();
+				numeraireDiscountFactors.clear();
 				numerairesProcess = getProcess();
 			}
 
