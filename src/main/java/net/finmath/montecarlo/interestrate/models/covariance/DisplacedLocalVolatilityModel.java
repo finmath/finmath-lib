@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -190,5 +191,9 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	public RandomVariable getDisplacement() {
+		return displacement;
 	}
 }
