@@ -873,7 +873,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				numeraire = numeraire.mult(numeraire.invert().average()).div(deterministicNumeraireAdjustment);
+				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 			}
 		}
 		return numeraire;
@@ -1523,6 +1523,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		 * Init transient fields
 		 */
 		integratedLIBORCovarianceLazyInitLock = new Object();
+		numeraires = new ConcurrentHashMap<>();
+		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
+		numeraireDiscountFactors = new ConcurrentHashMap<>();
 	}
 
 	@Override
