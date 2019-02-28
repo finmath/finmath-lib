@@ -77,6 +77,8 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambbda) {
+		if(lambbda == 0) return solveLinearEquationLeastSquare(matrixA, b);
+
 		/*
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
 		 * And SVD is an alternative to this method.
@@ -95,8 +97,9 @@ public class LinearAlgebra {
 			matrixRegularized[rows+j][j] = lambbda;
 		}
 
-		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
-		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
+		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
+//		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+//		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
 	}
 
 	/**
