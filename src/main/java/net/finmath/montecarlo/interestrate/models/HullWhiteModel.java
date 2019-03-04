@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
@@ -921,6 +924,29 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			}
 		}
 		return forwardRateCache.get(timeIndex);
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+
+		/*
+		 * Init transient fields
+		 */
+		numeraireDiscountFactors = new ArrayList<>();
+		numeraireDiscountFactorForwardRates = new ArrayList<>();
+		discountFactorFromForwardCurveCache = new ArrayList<>();
+		forwardRateCache = new ArrayList<>();
+	}
+
+	@Override
+	public String toString() {
+		return "HullWhiteModel [liborPeriodDiscretization=" + liborPeriodDiscretization + ", forwardCurveName="
+				+ forwardCurveName + ", analyticModel=" + analyticModel + ", forwardRateCurve=" + forwardRateCurve
+				+ ", discountCurve=" + discountCurve + ", discountCurveFromForwardCurve="
+				+ discountCurveFromForwardCurve + ", randomVariableFactory=" + randomVariableFactory
+				+ ", volatilityModel=" + volatilityModel + ", properties=" + properties
+				+ ", isInterpolateDiscountFactorsOnLiborPeriodDiscretization="
+				+ isInterpolateDiscountFactorsOnLiborPeriodDiscretization + "]";
 	}
 
 }
