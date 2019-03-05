@@ -466,8 +466,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 		}
 
-		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
-		ShortRateVolatilityModel newVolatilityModel = (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
+		AbstractRandomVariableFactory	newRandomVariableFactory	= (AbstractRandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		ShortRateVolatilityModel		newVolatilityModel			= (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
 
 		return new HullWhiteModel(newRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, newVolatilityModel, properties);
 	}
