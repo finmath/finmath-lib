@@ -1449,37 +1449,39 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	@Override
 	public LIBORMarketModelFromCovarianceModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
+		AbstractRandomVariableFactory 	randomVariableFactory	= this.randomVariableFactory;
 		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
 		AnalyticModel			analyticModel				= this.curveModel;
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
 		DiscountCurve			discountCurve				= this.discountCurve;
 		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
-		AbstractSwaptionMarketData		swaptionMarketData			= null;		// No recalibration, unless new swaption data is specified
 		Map<String, Object>				properties					= new HashMap<>();
 		properties.put("measure",		measure.name());
 		properties.put("stateSpace",	stateSpace.name());
 
-		if(dataModified != null && dataModified.containsKey("liborPeriodDiscretization")) {
-			liborPeriodDiscretization = (TimeDiscretization)dataModified.get("liborPeriodDiscretization");
-		}
-		if(dataModified != null && dataModified.containsKey("forwardRateCurve")) {
-			forwardRateCurve = (ForwardCurve)dataModified.get("forwardRateCurve");
-		}
-		if(dataModified != null && dataModified.containsKey("discountCurve")) {
-			discountCurve = (DiscountCurve)dataModified.get("discountCurve");
-		}
-		if(dataModified != null && dataModified.containsKey("forwardRateShift")) {
-			throw new RuntimeException("Forward rate shift clone currently disabled.");
-		}
-		if(dataModified != null && dataModified.containsKey("covarianceModel")) {
-			covarianceModel = (LIBORCovarianceModel)dataModified.get("covarianceModel");
-		}
-		if(dataModified != null && dataModified.containsKey("swaptionMarketData")) {
-			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
+		if(dataModified != null) {
+			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			analyticModel = (AnalyticModel)dataModified.getOrDefault("analyticModel", analyticModel);
+			forwardRateCurve = (ForwardCurve)dataModified.getOrDefault("forwardRateCurve", forwardRateCurve);
+			discountCurve = (DiscountCurve)dataModified.getOrDefault("discountCurve", discountCurve);
+			covarianceModel = (LIBORCovarianceModel)dataModified.getOrDefault("covarianceModel", covarianceModel);
+			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.getOrDefault("swaptionMarketData", swaptionMarketData);
+
+			if(dataModified.containsKey("swaptionMarketData")) {
+				throw new RuntimeException("Swaption market data as input for getCloneWithModifiedData not supported.");
+			}
+
+			if(dataModified.containsKey("forwardRateShift")) {
+				throw new RuntimeException("Forward rate shift clone currently disabled.");
+			}
+			if(dataModified != null && dataModified.containsKey("swaptionMarketData")) {
+				swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
+			}
+			
 		}
 
-		LIBORMarketModelFromCovarianceModel newModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, curveModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, properties);
-		newModel.curveModel = analyticModel;
+		LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, null, properties);
 		return newModel;
 	}
 
