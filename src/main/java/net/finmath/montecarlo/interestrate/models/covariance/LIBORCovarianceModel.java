@@ -5,6 +5,10 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -104,8 +108,7 @@ public interface LIBORCovarianceModel {
 	 * @param realizationAtTimeIndex The realization of the stochastic process.
 	 * @return The instantaneous covariance between component <i>i</i> and  <i>j</i>.
 	 */
-	RandomVariable getCovariance(int timeIndex, int component1, int component2,
-			RandomVariable[] realizationAtTimeIndex);
+	RandomVariable getCovariance(int timeIndex, int component1, int component2, RandomVariable[] realizationAtTimeIndex);
 
 	/**
 	 * The simulation time discretization associated with this model.
@@ -125,4 +128,17 @@ public interface LIBORCovarianceModel {
 	 * @return the numberOfFactors
 	 */
 	int getNumberOfFactors();
+
+	/**
+	 * Create a clone of this model modifying some of its properties (if any).
+	 * 
+	 * The properties that should be modified correspond to arguments of constructors. A constructor is then called
+	 * with where all arguments that are not found in the key value map are being set to this objects values.
+	 * 
+	 * @param dataModified The data which should be changed in the new model. This is a key value may, where the key corresponds to the name of a property in one of the objects constructors.
+	 * @return Returns a clone of this object, with some data modified (then it is no longer a clone :-)
+	 */
+	default LIBORCovarianceModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		throw new UnsupportedOperationException("Method not implemented");
+	}
 }

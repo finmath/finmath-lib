@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -91,4 +93,9 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 		return model;
 	}
 
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		throw new UnsupportedOperationException("Method not implemented");
+	}
 }

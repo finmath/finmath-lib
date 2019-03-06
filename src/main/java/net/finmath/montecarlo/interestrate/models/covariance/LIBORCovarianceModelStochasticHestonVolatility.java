@@ -271,4 +271,10 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		return null;
 	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		throw new UnsupportedOperationException("Method not implemented");
+	}
 }

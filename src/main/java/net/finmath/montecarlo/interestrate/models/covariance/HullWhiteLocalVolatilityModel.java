@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -79,6 +81,12 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		return new HullWhiteLocalVolatilityModel(covarianceModel.getCloneWithModifiedParameters(parameters), periodLength);
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	@Override

@@ -5,7 +5,10 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -172,6 +175,12 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	@Override

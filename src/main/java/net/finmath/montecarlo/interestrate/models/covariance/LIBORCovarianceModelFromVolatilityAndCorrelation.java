@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -170,5 +171,11 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 	public LIBORCorrelationModel getCorrelationModel() {
 		return correlationModel;
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		throw new UnsupportedOperationException("Method not implemented");
 	}
 }

@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -255,6 +257,17 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
+	}
+	
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+
+		if(dataModified == null) return this;
+
+		if(!dataModified.containsKey("randomVariableFactory")) throw new IllegalArgumentException("Only cloning with new randomVariableFactory supported");
+
+		AbstractRandomVariableFactory newRandomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		return new BlendedLocalVolatilityModel(newRandomVariableFactory, covarianceModel, forwardCurve, displacement.doubleValue(), isCalibrateable);
 	}
 
 	@Override
