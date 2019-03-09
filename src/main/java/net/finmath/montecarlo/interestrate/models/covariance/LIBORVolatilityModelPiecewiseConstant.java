@@ -221,7 +221,8 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 				timeIndexTimeToMaturity--;
 			}
 
-			return volatility[indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity)];
+			int parameterIndex = indexMap.get(timeIndexSimulationTime).get(timeIndexTimeToMaturity);
+			return volatility[parameterIndex];
 		}
 	}
 
