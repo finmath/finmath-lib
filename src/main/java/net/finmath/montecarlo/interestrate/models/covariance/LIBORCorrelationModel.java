@@ -80,7 +80,6 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	 *
 	 * @param dataModified Key-value-map of parameters to modify.
 	 * @return A clone of this model (or a new instance of this model if no parameter was modified).
-	 * @throws CalculationException Thrown when the model could not be created.
 	 */
 	public abstract LIBORCorrelationModel getCloneWithModifiedData(Map<String, Object> dataModified);
 }
