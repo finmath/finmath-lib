@@ -37,9 +37,6 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 		super(null);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct#getValue(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel)
-	 */
 	@Override
 	public abstract RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
 
@@ -48,9 +45,6 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 		return this.getValue(evaluationTime, monteCarloSimulationModel.getCloneWithModifiedData(dataModified));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct#getValues(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel)
-	 */
 	@Override
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable value = getValue(evaluationTime, model);
@@ -73,11 +67,8 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct#getFactorDrift(net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel)
-	 */
 	@Override
 	public FactorDriftInterface getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme) {
-		return null;
+		throw new UnsupportedOperationException("Method not implemented.");
 	}
 }
