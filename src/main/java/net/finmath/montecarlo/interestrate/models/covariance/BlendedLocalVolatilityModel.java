@@ -7,6 +7,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Map;
 
+import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -258,17 +259,6 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
 	}
-	
-	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
-
-		if(dataModified == null) return this;
-
-		if(!dataModified.containsKey("randomVariableFactory")) throw new IllegalArgumentException("Only cloning with new randomVariableFactory supported");
-
-		AbstractRandomVariableFactory newRandomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
-		return new BlendedLocalVolatilityModel(newRandomVariableFactory, covarianceModel, forwardCurve, displacement.doubleValue(), isCalibrateable);
-	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
@@ -294,5 +284,37 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	@Override
 	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		AbstractRandomVariableFactory randomVariableFactory = this.randomVariableFactory;
+		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
+		ForwardCurve forwardCurve = this.forwardCurve;
+		double displacement = this.displacement.doubleValue();
+		boolean isCalibrateable = this.isCalibrateable;
+		
+		if(dataModified != null) {
+			if (!dataModified.containsKey("covarianceModel")) {
+				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
+
+			// Explicitly passed covarianceModel has priority
+			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
+			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
+			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			forwardCurve = (ForwardCurve)dataModified.getOrDefault("forwardCurve", forwardCurve);
+			
+			// Explicitly passed RVFactory has priority (consistency)
+			if((dataModified.getOrDefault("displacement", displacement) instanceof RandomVariable)) {
+				displacement = ((RandomVariable)dataModified.get("displacement")).doubleValue();
+			}else {
+				displacement = (double)dataModified.getOrDefault("displacement", displacement);
+			}
+		}
+		
+		AbstractLIBORCovarianceModelParametric newModel = new DisplacedLocalVolatilityModel(covarianceModel, displacement, isCalibrateable);
+		return newModel;
 	}
 }

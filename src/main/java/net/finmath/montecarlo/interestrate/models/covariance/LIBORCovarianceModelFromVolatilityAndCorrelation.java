@@ -8,6 +8,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 import java.util.Arrays;
 import java.util.Map;
 
+import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
@@ -174,8 +175,31 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
-
-		throw new UnsupportedOperationException("Method not implemented");
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		LIBORVolatilityModel volatilityModel = this.volatilityModel;
+		LIBORCorrelationModel correlationModel = this.correlationModel;
+		
+		
+		if(dataModified != null) {
+			if((dataModified.containsKey("timeDiscretization")||dataModified.containsKey("liborPeriodDiscretization")||dataModified.containsKey("randomVariableFactory"))) {
+				if(!dataModified.containsKey("volatilityModel"))
+					volatilityModel = volatilityModel.getCloneWithModifiedData(dataModified);
+				if(!dataModified.containsKey("correlationModel"))
+					correlationModel = correlationModel.getCloneWithModifiedData(dataModified);
+			}
+			
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			
+			// the discretizations have to be compatible to the volatilityModels!
+			volatilityModel = (LIBORVolatilityModel)dataModified.getOrDefault("volatilityModel", volatilityModel);
+			correlationModel = (LIBORCorrelationModel)dataModified.getOrDefault("correlationModel", correlationModel);
+		}
+		
+		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization, liborPeriodDiscretization, volatilityModel, correlationModel);
+		return newModel;
 	}
 }

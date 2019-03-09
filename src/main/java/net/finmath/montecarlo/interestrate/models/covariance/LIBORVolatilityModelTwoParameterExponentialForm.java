@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -144,5 +146,11 @@ public class LIBORVolatilityModelTwoParameterExponentialForm extends LIBORVolati
 				b,
 				isCalibrateable
 				);
+	}
+
+	@Override
+	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

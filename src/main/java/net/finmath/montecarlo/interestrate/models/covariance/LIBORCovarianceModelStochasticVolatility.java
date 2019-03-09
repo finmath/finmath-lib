@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.model.ProcessModel;
@@ -274,8 +275,46 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		BrownianMotion brownianMotion = this.brownianMotion;
+		RandomVariable nu = this.nu;
+		RandomVariable rho = this.rho;
+		boolean isCalibrateable = this.isCalibrateable;
+		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
+		AbstractRandomVariableFactory randomVariableFactory = null;
+		
+		if(dataModified != null) {
+			if(dataModified.containsKey("randomVariableFactory")) {
+				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
+				nu = randomVariableFactory.createRandomVariable(nu.doubleValue());
+				rho = randomVariableFactory.createRandomVariable(rho.doubleValue());
+			}
+			if (!dataModified.containsKey("covarianceModel"))
+				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
 
-		throw new UnsupportedOperationException("Method not implemented");
+			// Explicitly passed covarianceModel has priority
+			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
+			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
+			brownianMotion = (BrownianMotion)dataModified.getOrDefault("brownianMotion", brownianMotion);
+			
+			if(dataModified.getOrDefault("nu", nu) instanceof RandomVariable) {
+				nu = (RandomVariable)dataModified.getOrDefault("nu", nu);
+			}else if(randomVariableFactory == null){
+				nu = new Scalar((double)dataModified.get("nu"));
+			}else {
+				nu = randomVariableFactory.createRandomVariable((double)dataModified.get("nu"));
+			}
+			if(dataModified.getOrDefault("rho", rho) instanceof RandomVariable) {
+				rho = (RandomVariable)dataModified.getOrDefault("rho", rho);
+			}else if(randomVariableFactory == null){
+				rho = new Scalar((double)dataModified.get("rho"));
+			}else {
+				rho = randomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
+			}
+		}
+		
+		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticVolatility(covarianceModel, brownianMotion, nu, rho, isCalibrateable);
+		return newModel;
 	}
 }
