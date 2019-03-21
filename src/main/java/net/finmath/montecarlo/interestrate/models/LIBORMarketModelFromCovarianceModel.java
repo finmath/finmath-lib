@@ -12,9 +12,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.exception.CalculationException;
@@ -181,7 +183,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private transient ConcurrentHashMap<Integer, RandomVariable>	numeraires = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors = new ConcurrentHashMap<>();
-	private transient RandomVariable[]								interpolationDriftAdjustmentsTerminal;
+	private transient Vector<RandomVariable>						interpolationDriftAdjustmentsTerminal = new Vector<RandomVariable>();
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
@@ -277,10 +279,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		this.discountCurve			= discountCurve;
 		this.randomVariableFactory	= randomVariableFactory;
 		this.covarianceModel	= covarianceModel;
-
-		numeraires = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
-		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
-		numeraireDiscountFactors = new ConcurrentHashMap<>(liborPeriodDiscretization.getNumberOfTimes());
 	}
 
 	/**
@@ -858,21 +856,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if (discountCurve != null) {
-			synchronized (numeraires) {
-				/*
-				 * Check if numeraire cache is valid (i.e. process did not change)
-				 */
-				if (getProcess() != numerairesProcess) {
-					numeraires.clear();
-					numeraireDiscountFactorForwardRates.clear();
-					numeraireDiscountFactors.clear();
-					numerairesProcess = getProcess();
-				}
+			RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
 
-				RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
-
-				numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
-			}
+			numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
 		}
 		return numeraire;
 	}
@@ -905,6 +891,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		double time = timeDiscretizationForCurves.getTime(timeIndex);
 
 		synchronized(numeraireDiscountFactorForwardRates) {
+			ensureCacheConsistency();
+
 			RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(time);
 			if(deterministicNumeraireAdjustment == null) {
 				double dfInitial = discountCurve.getDiscountFactor(curveModel, timeDiscretizationForCurves.getTime(0));
@@ -924,6 +912,20 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				deterministicNumeraireAdjustment = numeraireDiscountFactors.get(time);
 			}
 			return deterministicNumeraireAdjustment;
+		}
+	}
+
+	private void ensureCacheConsistency() {
+		/*
+		 * Check if caches are valid (i.e. process did not change)
+		 */
+		if (getProcess() != numerairesProcess) {
+			// Clear caches
+			numeraires.clear();
+			numeraireDiscountFactorForwardRates.clear();
+			numeraireDiscountFactors.clear();
+			numerairesProcess = getProcess();
+			interpolationDriftAdjustmentsTerminal.clear();
 		}
 	}
 
@@ -984,12 +986,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			/*
 			 * Check if numeraire cache is valid (i.e. process did not change)
 			 */
-			if (getProcess() != numerairesProcess) {
-				numeraires.clear();
-				numeraireDiscountFactorForwardRates.clear();
-				numeraireDiscountFactors.clear();
-				numerairesProcess = getProcess();
-			}
+			ensureCacheConsistency();
 
 			/*
 			 * Check if numeraire is part of the cache
@@ -1223,7 +1220,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, periodStart, nextEndTime).mult(nextEndTime - periodStart).add(1.0);
 			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodEnd, previousEndIndex)
-															.mult(nextEndTime - periodEnd).add(1.0);
+					.mult(nextEndTime - periodEnd).add(1.0);
 			return onePlusLongLIBORdt.div(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
 
@@ -1233,10 +1230,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			double nextStartTime	 = getLiborPeriod(previousStartIndex+1);
 			RandomVariable onePlusLongLIBORdt         = periodEnd > nextStartTime ?
 					getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0) :
-					getRandomVariableForConstant(1.0);
-			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStart, previousStartIndex)
-															.mult(nextStartTime - periodStart).add(1.0);
-			return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
+						getRandomVariableForConstant(1.0);
+					RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStart, previousStartIndex)
+							.mult(nextStartTime - periodStart).add(1.0);
+					return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
 
 		if(periodStartIndex < 0 || periodEndIndex < 0) {
@@ -1297,19 +1294,19 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		RandomVariable onePlusInterpolatedLIBORDt;
 		switch(interpolationMethod)
 		{
-			case LINEAR:
-				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.mult(alpha).add(1 - alpha);
-				break;
-			case LOG_LINEAR_UNCORRECTED:
-				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).exp();
-				break;
-			case LOG_LINEAR_CORRECTED:
-				double adjustmentCoefficient     = 0.5 * smallDt * (tenorPeriodStartTime - periodStartTime);
-				RandomVariable adjustment        = getInterpolationDriftAdjustment(timeIndex, liborPeriodIndex);
-				adjustment = adjustment.mult(adjustmentCoefficient);
-				onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).sub(adjustment).exp();
-				break;
-			default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
+		case LINEAR:
+			onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.mult(alpha).add(1 - alpha);
+			break;
+		case LOG_LINEAR_UNCORRECTED:
+			onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).exp();
+			break;
+		case LOG_LINEAR_CORRECTED:
+			double adjustmentCoefficient     = 0.5 * smallDt * (tenorPeriodStartTime - periodStartTime);
+			RandomVariable adjustment        = getInterpolationDriftAdjustment(timeIndex, liborPeriodIndex);
+			adjustment = adjustment.mult(adjustmentCoefficient);
+			onePlusInterpolatedLIBORDt = onePlusLongLIBORDt.log().mult(alpha).sub(adjustment).exp();
+			break;
+		default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 		}
 
 		{
@@ -1317,20 +1314,20 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
 			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticOnePlusLongLIBORDt   = 1 + getForwardRateCurve().getForward(getAnalyticModel(), tenorPeriodStartTime, tenorDt)
-														* tenorDt;
+					* tenorDt;
 			double analyticOnePlusShortLIBORDt	= 1 + getForwardRateCurve().getForward(getAnalyticModel(), periodStartTime, smallDt)
-														* smallDt;
+					* smallDt;
 			double analyticOnePlusInterpolatedLIBORDt;
 			switch(interpolationMethod)
 			{
-				case LINEAR:
-					analyticOnePlusInterpolatedLIBORDt = analyticOnePlusLongLIBORDt * alpha + (1-alpha);
-					break;
-				case LOG_LINEAR_UNCORRECTED:
-				case LOG_LINEAR_CORRECTED:
-					analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(analyticOnePlusLongLIBORDt) * alpha);
-					break;
-				default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
+			case LINEAR:
+				analyticOnePlusInterpolatedLIBORDt = analyticOnePlusLongLIBORDt * alpha + (1-alpha);
+				break;
+			case LOG_LINEAR_UNCORRECTED:
+			case LOG_LINEAR_CORRECTED:
+				analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(analyticOnePlusLongLIBORDt) * alpha);
+				break;
+			default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 			}
 			onePlusInterpolatedLIBORDt = onePlusInterpolatedLIBORDt.mult(analyticOnePlusShortLIBORDt / analyticOnePlusInterpolatedLIBORDt);
 		}
@@ -1349,83 +1346,99 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	{
 		switch(interpolationMethod)
 		{
-			case LINEAR:
-			case LOG_LINEAR_UNCORRECTED:
-				return getRandomVariableForConstant(0.0);
+		case LINEAR:
+		case LOG_LINEAR_UNCORRECTED:
+			return null;
 
-			case LOG_LINEAR_CORRECTED:
-				RandomVariable driftAdjustment = getRandomVariableForConstant(0.0);
+		case LOG_LINEAR_CORRECTED:
+			double tenorPeriodStartTime  = getLiborPeriod(liborIndex);
+			int    tenorPeriodStartIndex = getTimeIndex(tenorPeriodStartTime);
 
-				double tenorPeriodStartTime  = getLiborPeriod(liborIndex);
-				double tenorPeriodEndTime    = getLiborPeriod(liborIndex + 1);
-				double tenorDt               = tenorPeriodEndTime - tenorPeriodStartTime;
-				int    tenorPeriodStartIndex = getTimeIndex(tenorPeriodStartTime);
+			// Lazy init of interpolationDriftAdjustmentsTerminal
+			if(evaluationTimeIndex == tenorPeriodStartIndex) {
+				synchronized(interpolationDriftAdjustmentsTerminal) {
+					// Invalidate cache if process has changed
+					ensureCacheConsistency();
 
-				//Check for Cache for Terminal Adjustment
-				if(interpolationDriftAdjustmentsTerminal == null)
-				{
-					interpolationDriftAdjustmentsTerminal =  new RandomVariable[getNumberOfLibors()];
+					// Check if value is cached
+					if(interpolationDriftAdjustmentsTerminal.size() <= liborIndex) {
+						interpolationDriftAdjustmentsTerminal.setSize(getNumberOfLibors());
+					}
+
+					RandomVariable interpolationDriftAdjustment = interpolationDriftAdjustmentsTerminal.get(liborIndex);
+					if(interpolationDriftAdjustment == null);
+					{
+						interpolationDriftAdjustment = getInterpolationDriftAdjustmentEvaluated(evaluationTimeIndex, liborIndex);
+						interpolationDriftAdjustmentsTerminal.set(liborIndex, interpolationDriftAdjustment);
+					}
+
+					return interpolationDriftAdjustment;
 				}
-				if(interpolationDriftAdjustmentsTerminal[liborIndex] != null && evaluationTimeIndex == tenorPeriodStartIndex)
-				{
-					return interpolationDriftAdjustmentsTerminal[liborIndex];
-				}
-				//not Cached
-
-				//integral approximation with trapezoid method.
-				RandomVariable previousIntegrand = getRandomVariableForConstant(0.0);
-				{
-					RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
-					for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
-					{
-						realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(0, liborIndexForRealization);
-					}
-					RandomVariable[] factorLoading = getFactorLoading(0, liborIndex, realizationsAtTimeIndex);
-					//o_{Li}(t)
-					for(RandomVariable oneFactor : factorLoading)
-					{
-						previousIntegrand = previousIntegrand.add(oneFactor.squared());
-					}
-					previousIntegrand = previousIntegrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
-					if(stateSpace == StateSpace.LOGNORMAL)
-					{
-						previousIntegrand = previousIntegrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
-					}
-				}
-
-				for(int sumTimeIndex = 1; sumTimeIndex <= evaluationTimeIndex; sumTimeIndex++)
-				{
-					RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
-					for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
-					{
-						int evaluationTimeIndexForRealizations = Math.min(sumTimeIndex, getTimeIndex(getLiborPeriod(liborIndexForRealization)));
-						realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
-					}
-					RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
-					//o_{Li}(t)
-					RandomVariable   integrand = getRandomVariableForConstant(0.0);
-					for ( RandomVariable oneFactor: factorLoading)
-					{
-						integrand = integrand.add(oneFactor.squared());
-					}
-					integrand = integrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
-					if(stateSpace == StateSpace.LOGNORMAL)
-					{
-						integrand = integrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
-					}
-					double integralDt = 0.5 * (getTime(sumTimeIndex) - getTime(sumTimeIndex - 1));
-					driftAdjustment = driftAdjustment.add( (integrand.add(previousIntegrand)).mult(integralDt) );
-					previousIntegrand = integrand;
-				}
-				//Cache for fixing time
-				if(evaluationTimeIndex == tenorPeriodStartIndex)
-				{
-					interpolationDriftAdjustmentsTerminal[liborIndex] = driftAdjustment;
-				}
-				return driftAdjustment;
-
-			default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
+			}
+			else {
+				return getInterpolationDriftAdjustmentEvaluated(evaluationTimeIndex, liborIndex);
+			}
+		default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 		}
+	}
+
+	private RandomVariable getInterpolationDriftAdjustmentEvaluated(int evaluationTimeIndex, int liborIndex) throws CalculationException
+	{
+
+		double tenorPeriodStartTime  = getLiborPeriod(liborIndex);
+		double tenorPeriodEndTime    = getLiborPeriod(liborIndex + 1);
+		double tenorDt               = tenorPeriodEndTime - tenorPeriodStartTime;
+
+		RandomVariable driftAdjustment = getRandomVariableForConstant(0.0);
+
+		//integral approximation with trapezoid method.
+		RandomVariable previousIntegrand = getRandomVariableForConstant(0.0);
+		{
+			RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
+			for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
+			{
+				realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(0, liborIndexForRealization);
+			}
+			RandomVariable[] factorLoading = getFactorLoading(0, liborIndex, realizationsAtTimeIndex);
+			//o_{Li}(t)
+			for(RandomVariable oneFactor : factorLoading)
+			{
+				previousIntegrand = previousIntegrand.add(oneFactor.squared());
+			}
+			previousIntegrand = previousIntegrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
+			if(stateSpace == StateSpace.LOGNORMAL)
+			{
+				previousIntegrand = previousIntegrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
+			}
+		}
+
+		for(int sumTimeIndex = 1; sumTimeIndex <= evaluationTimeIndex; sumTimeIndex++)
+		{
+			RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
+			for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
+			{
+				int evaluationTimeIndexForRealizations = Math.min(sumTimeIndex, getTimeIndex(getLiborPeriod(liborIndexForRealization)));
+				realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
+			}
+			RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
+			//o_{Li}(t)
+			RandomVariable   integrand = getRandomVariableForConstant(0.0);
+			for ( RandomVariable oneFactor: factorLoading)
+			{
+				integrand = integrand.add(oneFactor.squared());
+			}
+			integrand = integrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
+			if(stateSpace == StateSpace.LOGNORMAL)
+			{
+				integrand = integrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
+			}
+			double integralDt = 0.5 * (getTime(sumTimeIndex) - getTime(sumTimeIndex - 1));
+			driftAdjustment = driftAdjustment.add( (integrand.add(previousIntegrand)).mult(integralDt) );
+			previousIntegrand = integrand;
+		}
+
+		return driftAdjustment;
+
 	}
 
 	@Override
@@ -1653,6 +1666,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		numeraires = new ConcurrentHashMap<>();
 		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 		numeraireDiscountFactors = new ConcurrentHashMap<>();
+		interpolationDriftAdjustmentsTerminal = new Vector<RandomVariable>();
 	}
 
 	@Override
