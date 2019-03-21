@@ -1227,11 +1227,14 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	/**
-	 * @param timeIndex
-	 * @param periodStartTimeIndex
-	 * @param liborPeriodIndex
-	 * @return
-	 * @throws CalculationException
+	 * Implement the interpolation of the forward rate in tenor time.
+	 * The method provides the forward rate \( F(t_{i}, S, T_{j+1}) \) where \( S \in [T_{j}, T_{j+1}] \).
+	 * 
+	 * @param timeIndex The time index associated with the simulation time. The index i in \( t_{i} \).
+	 * @param periodStartTime The period start time S (on which we interpolate).
+	 * @param liborPeriodIndex The period index j for which \( S \in [T_{j}, T_{j+1}] \) (to avoid another lookup).
+	 * @return The interpolated forward rate.
+	 * @throws CalculationException Thrown if valuation failed.
 	 */
 	private RandomVariable getInterpolatedLIBOR(int timeIndex, double periodStartTime, int liborPeriodIndex) throws CalculationException
 	{
