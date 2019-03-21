@@ -5,6 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -103,5 +108,37 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	@Override
 	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+			TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+			TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+			int numberOfFactors = this.getNumberOfFactors();
+			RandomVariable[] parameter = this.parameter;
+			AbstractRandomVariableFactory randomVariableFactory = null;
+			
+			if(dataModified != null) {
+				if(dataModified.containsKey("randomVariableFactory")) {
+					randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
+					parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(para -> para.doubleValue()).toArray());
+				}
+				
+				timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+				liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+				numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
+				
+				if(dataModified.getOrDefault("parameter", parameter) instanceof RandomVariable[]) {
+					parameter = (RandomVariable[])dataModified.getOrDefault("parameter", parameter);
+				}else if(randomVariableFactory==null){
+					parameter = Scalar.arrayOf((double[])dataModified.get("parameter"));
+				}else {
+					parameter = randomVariableFactory.createRandomVariableArray((double[])dataModified.get("parameter"));
+				}
+			}
+			
+			AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
+			return newModel;
 	}
 }

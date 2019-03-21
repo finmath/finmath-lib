@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -125,4 +128,22 @@ public interface LIBORCovarianceModel {
 	 * @return the numberOfFactors
 	 */
 	int getNumberOfFactors();
+	
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 *
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 * 
+	 * Furthermore the structure of the covariance model has to match changed data.
+	 * A change of the time discretizations may requires a change in the parameters
+	 * but this function will just insert the new time discretization without
+	 * changing the parameters. An exception may not be thrown.
+	 *
+	 * @param dataModified Key-value-map of parameters to modify.
+	 * @return A clone of this model (or a new instance of this model if no parameter was modified).
+	 * @throws CalculationException Thrown when the model could not be created.
+	 */
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
-import net.finmath.modelling.Product;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -19,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractMonteCarloProduct implements Product, MonteCarloProduct {
+public abstract class AbstractMonteCarloProduct implements MonteCarloProduct {
 
 	private final String currency;
 

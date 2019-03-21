@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +17,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -187,7 +192,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						@Override
 						public RandomVariable call() {
 							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).average();
+								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
 							} catch (CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
@@ -309,6 +314,21 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		return calibrationCovarianceModel;
 	}
 
+	class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
+		private final int priority;
+		FutureTaskWithPriority(Callable<T> callable, int priority) {
+			super(callable);
+			this.priority = priority;
+		}
+		public int getPriority() {
+			return priority;
+		}
+		public int compareTo(FutureTaskWithPriority<T> o) {
+			return this.getPriority() < o.getPriority() ? -1 : this.getPriority() == o.getPriority() ? 0 : 1;
+		}
+
+	};
+
 	public AbstractLIBORCovarianceModelParametric getCloneCalibratedLegazy(final LIBORMarketModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		if(calibrationParameters == null) {
@@ -347,8 +367,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
-		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
+		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<Runnable>();
+		final ExecutorService executorForProductValuation = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*zero.length, 5, TimeUnit.SECONDS, queue);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
@@ -365,28 +385,26 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
-						@Override
-						public RandomVariable call() {
-							try {
-								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return null;
-							} catch (Exception e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return null;
-							}
-						}
-					};
-					if(executor != null) {
-						Future<RandomVariable> valueFuture = executor.submit(worker);
+
+					// Define the task to be executed in parallel
+					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<RandomVariable>(
+							() -> {
+								try {
+									return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
+								} catch (Exception e) {
+									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+									return null;
+								}
+							},
+							calibrationProducts[workerCalibrationProductIndex].getPriority());
+
+					if(executorForProductValuation != null) {
+						executorForProductValuation.execute(valueFuture);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
-						valueFutureTask.run();
-						valueFutures.add(calibrationProductIndex, valueFutureTask);
+						valueFuture.run();
+						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
@@ -406,32 +424,49 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
+
+			// Diagnostic output
+			if (logger.isLoggable(Level.FINE)) {
+				Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
+
+				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
+
+				double[] bestParameters = optimizer.getBestFitParameters();
+				String logString = "Best parameters:";
+				for(int i=0; i<bestParameters.length; i++) {
+					logString += "\tparameter["+i+"]: " + bestParameters[i];
+				}
+				logger.fine(logString);
+
+				double[] bestValues = new double[calibrationProducts.length];
+				calibrationError.setValues(bestParameters, bestValues);
+				String logString2 = "Best values:";
+				for(int i=0; i<calibrationProducts.length; i++) {
+					logString2 += "\n\t" + calibrationProducts[i].getName() + ": ";
+					logString2 += "value["+i+"]: " + formatterSci3.format(bestValues[i]);
+				}
+				logger.fine(logString2);
+			}
+
+			// Get covariance model corresponding to the best parameter set.
+			double[] bestParameters = optimizer.getBestFitParameters();
+			AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
+
+			return calibrationCovarianceModel;
 		}
 		catch(SolverException e) {
 			throw new CalculationException(e);
 		}
+		catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 		finally {
-			if(executor != null) {
-				executor.shutdown();
+			if(executorForProductValuation != null) {
+				executorForProductValuation.shutdown();
 			}
 		}
 
-		// Get covariance model corresponding to the best parameter set.
-		double[] bestParameters = optimizer.getBestFitParameters();
-		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
-
-		// Diagnostic output
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
-
-			String logString = "Best parameters:";
-			for(int i=0; i<bestParameters.length; i++) {
-				logString += "\tparameter["+i+"]: " + bestParameters[i];
-			}
-			logger.fine(logString);
-		}
-
-		return calibrationCovarianceModel;
 	}
 
 	@Override

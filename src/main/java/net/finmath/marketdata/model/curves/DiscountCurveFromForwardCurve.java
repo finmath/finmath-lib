@@ -69,7 +69,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
 	public DiscountCurveFromForwardCurve(ForwardCurve forwardCurve, double periodLengthTimeScaling) {
-		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", null);
+		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", forwardCurve.getReferenceDate());
 
 		this.forwardCurve	= forwardCurve;
 		this.timeScaling	= periodLengthTimeScaling;
@@ -103,9 +103,6 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		this(forwardCurve, 1.0);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
-	 */
 	@Override
 	public double getDiscountFactor(double maturity) {
 		return getDiscountFactor(null, maturity);

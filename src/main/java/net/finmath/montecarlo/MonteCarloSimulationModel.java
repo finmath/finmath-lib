@@ -92,9 +92,12 @@ public interface MonteCarloSimulationModel extends Model {
 
 	/**
 	 * Create a clone of this simulation modifying some of its properties (if any).
-	 *
-	 * @param dataModified The data which should be changed in the new model
-	 * @return Returns a clone of this model, with some data modified (then it is no longer a clone :-)
+	 * 
+	 * The properties that should be modified correspond to arguments of constructors. A constructor is then called
+	 * with where all arguments that are not found in the key value map are being set to this objects values.
+	 * 
+	 * @param dataModified The data which should be changed in the new model. This is a key value may, where the key corresponds to the name of a property in one of the objects constructors.
+	 * @return Returns a clone of this object, with some data modified (then it is no longer a clone :-)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	MonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;

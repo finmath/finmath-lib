@@ -133,11 +133,13 @@ public class Period extends AbstractPeriod {
 
 		double productToModelTimeOffset = 0;
 		try {
-			if(this.getReferenceDate() != null) {
+			if(this.getReferenceDate() != null && model.getReferenceDate() != null) {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), this.getReferenceDate());
 			}
 		}
-		catch(UnsupportedOperationException e) {};
+		catch(UnsupportedOperationException e) {
+			// @TODO: Models that do not provide a reference date will become disfunctional in future releases.
+		};
 
 		if(evaluationTime >= productToModelTimeOffset + getPaymentDate()) {
 			return new RandomVariableFromDoubleArray(0.0);

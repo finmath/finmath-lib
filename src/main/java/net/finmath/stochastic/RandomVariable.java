@@ -598,7 +598,21 @@ public interface RandomVariable extends Serializable {
 	 * @param factor1 The factor 1. A list of random variables (compatible with this random variable).
 	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
 	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable addSumProduct(RandomVariable[] factor1, RandomVariable[] factor2)
+	{
+		RandomVariable result = this;
+		for(int i=0; i<factor1.length; i++) {
+			result = result.addProduct(factor1[i], factor2[i]);
+		}
+		return result;
+	}
 
+	/**
+	 * Applies \( x \mapsto x + \sum_{i=0}^{n-1} factor1_{i} * factor2_{i}
+	 * @param factor1 The factor 1. A list of random variables (compatible with this random variable).
+	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
+	 * @return New random variable with the result of the function.
 	 */
 	default RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
 	{

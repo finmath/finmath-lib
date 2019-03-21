@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -17,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface MonteCarloProduct {
+public interface MonteCarloProduct extends Product {
 
 	/**
 	 * Returns the currency string of this product.

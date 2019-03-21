@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Locale;
@@ -174,7 +175,7 @@ public class InterestRateProductTest {
 		System.out.println("Bond prices:");
 		System.out.println("Maturity      Simulation       Analytic        Deviation");
 
-		LocalDateTime referenceDate = LocalDateTime.of(2012,1,12,17,0);
+		LocalDateTime referenceDate = LocalDate.of(2012,1,12).atStartOfDay();
 		for(int maturityIndex = 0; maturityIndex<=liborMarketModel.getNumberOfLibors(); maturityIndex++) {
 			double maturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(maturity) + "          ");

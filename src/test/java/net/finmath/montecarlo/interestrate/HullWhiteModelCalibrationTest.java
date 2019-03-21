@@ -36,7 +36,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
-import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractShortRateVolatilityModel;
@@ -192,12 +192,12 @@ public class HullWhiteModelCalibrationTest {
 
 		AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
 
-		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+		BrownianMotionLazyInit brownianMotion = new BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 		//		//Create map (mainly use calibration defaults)
 		Map<String, Object> properties = new HashMap<>();
-		Map<String,Object> calibrationParameters = new HashMap<>();
+		Map<String, Object> calibrationParameters = new HashMap<>();
 		calibrationParameters.put("brownianMotion", brownianMotion);
 		properties.put("calibrationParameters", calibrationParameters);
 

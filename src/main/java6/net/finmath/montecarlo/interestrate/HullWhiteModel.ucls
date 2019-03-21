@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class-diagram version="1.2.2" icons="true" automaticImage="SVG" always-add-relationships="false" generalizations="true" 
-  realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="net.finmath.montecarlo.interestrate.models.HullWhiteModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/HullWhiteModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
@@ -23,19 +23,7 @@
     </display>  
   </class>  
   <interface id="3" language="java" 
-    name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelInterface" project="finmath lib" 
-    
-    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelInterface.java" 
-    binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1964" y="1388"/>    
-    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="false" protected="false" private="false" static="true"/>      
-      <operations public="true" package="false" protected="false" private="false" static="true"/>    
-    </display>  
-  </interface>  
-  <class id="4" language="java" name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel" 
-    project="finmath lib" 
+    name="net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="2189" y="1600"/>    
@@ -44,8 +32,8 @@
       <attributes public="true" package="false" protected="false" private="false" static="true"/>      
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
-  </class>  
-  <class id="5" language="java" name="net.finmath.montecarlo.model.AbstractProcessModel" project="finmath lib" 
+  </interface>  
+  <class id="4" language="java" name="net.finmath.montecarlo.model.AbstractProcessModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/model/AbstractProcessModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="854" y="1044"/>    
@@ -55,7 +43,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="6" language="java" name="net.finmath.montecarlo.model.ProcessModel" project="finmath lib" 
+  <interface id="5" language="java" name="net.finmath.montecarlo.model.ProcessModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/model/ProcessModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="846" y="685"/>    
@@ -65,7 +53,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <interface id="7" language="java" name="net.finmath.montecarlo.process.MonteCarloProcess" project="finmath lib" 
+  <interface id="6" language="java" name="net.finmath.montecarlo.process.MonteCarloProcess" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/process/MonteCarloProcess.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="173" y="990"/>    
@@ -75,7 +63,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <class id="8" language="java" name="net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel" 
+  <class id="7" language="java" name="net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel" 
     project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/process/MonteCarloProcessFromProcessModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -86,7 +74,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="9" language="java" name="net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel" 
+  <interface id="8" language="java" name="net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel" 
     project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/LIBORModelMonteCarloSimulationModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -97,7 +85,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <interface id="10" language="java" name="net.finmath.montecarlo.interestrate.LIBORModel" project="finmath lib" 
+  <interface id="9" language="java" name="net.finmath.montecarlo.interestrate.LIBORModel" project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/LIBORModel.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="1460" y="676"/>    
@@ -107,7 +95,7 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </interface>  
-  <class id="11" language="java" name="net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel" 
+  <class id="10" language="java" name="net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel" 
     project="finmath lib" 
     file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/LIBORMonteCarloSimulationFromLIBORModel.java" 
     binary="false" corner="BOTTOM_RIGHT">    
@@ -118,80 +106,60 @@
       <operations public="true" package="false" protected="false" private="false" static="true"/>    
     </display>  
   </class>  
-  <realization id="12">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="3"/>  
-  </realization>  
-  <realization id="13">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="7"/>  
-  </realization>  
-  <realization id="14">    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="9"/>  
-  </realization>  
-  <realization id="15">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="3"/>  
-  </realization>  
-  <association id="16">    
-    <end type="SOURCE" refId="8" navigable="false" variant="ASSOCIATION">      
-      <attribute id="17" name="model">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="18" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="6" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <realization id="19">    
-    <end type="SOURCE" refId="5"/>    
+  <realization id="11">    
+    <end type="SOURCE" refId="7"/>    
     <end type="TARGET" refId="6"/>  
   </realization>  
-  <association id="20">    
-    <end type="SOURCE" refId="11" navigable="false" variant="ASSOCIATION">      
-      <attribute id="21" name="model">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="22" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="10" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
-  <generalization id="23">    
+  <generalization id="12">    
     <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="5"/>  
+    <end type="TARGET" refId="4"/>  
   </generalization>  
-  <realization id="24">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="10"/>  
+  <realization id="13">    
+    <end type="SOURCE" refId="10"/>    
+    <end type="TARGET" refId="8"/>  
   </realization>  
-  <association id="25">    
-    <end type="SOURCE" refId="1" navigable="false" variant="ASSOCIATION">      
-      <attribute id="26" name="volatilityModel">        
+  <association id="14">    
+    <end type="SOURCE" refId="10" navigable="false">      
+      <attribute id="15" name="model">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="27" minimum="0" maximum="1">        
+      <multiplicity id="16" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="9" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="28">    
-    <end type="SOURCE" refId="5" navigable="false" variant="ASSOCIATION">      
-      <attribute id="29" name="process">        
+  <association id="17">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="18" name="process">        
         <position height="0" width="0" x="8" y="92"/>      
       </attribute>      
-      <multiplicity id="30" minimum="0" maximum="1">        
+      <multiplicity id="19" minimum="0" maximum="1">        
         <position height="0" width="0" x="8" y="92"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <realization id="20">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="5"/>  
+  </realization>  
+  <realization id="21">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="9"/>  
+  </realization>  
+  <association id="22">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="23" name="model">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="24" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 

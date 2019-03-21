@@ -5,9 +5,8 @@
  */
 package net.finmath.montecarlo.process;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -163,10 +162,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		 * The evolution is performed multi-threadded.
 		 * Each component of the vector runs in its own thread.
 		 */
-
-		// We do not allocate more threads the twice the number of processors.
-		int numberOfThreads = Math.min(Math.max(2 * Runtime.getRuntime().availableProcessors(),1),numberOfComponents);
-		executor = Executors.newFixedThreadPool(numberOfThreads);
+		executor = Executors.newCachedThreadPool();
 
 		// Evolve process
 		for (int timeIndex2 = 1; timeIndex2 < getTimeDiscretization().getNumberOfTimeSteps()+1; timeIndex2++) {
@@ -175,7 +171,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);
 
 			// Fetch drift vector
-			RandomVariable[] drift = null;
+			final RandomVariable[] drift;
 			try {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
@@ -183,9 +179,11 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 				throw new RuntimeException("Drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
 			}
 
+			// Fetch brownianIncrement vector
+			final RandomVariable[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
+
 			// Calculate new realization
-			Vector<Future<RandomVariable>> discreteProcessAtCurrentTimeIndex = new Vector<>(numberOfComponents);
-			discreteProcessAtCurrentTimeIndex.setSize(numberOfComponents);
+			ArrayList<Future<RandomVariable>> discreteProcessAtCurrentTimeIndex = new ArrayList<>(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
@@ -193,6 +191,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 				// Check if the component process has stopped to evolve
 				if (driftOfComponent == null) {
+					discreteProcessAtCurrentTimeIndex.add(componentIndex, null);
 					continue;
 				}
 
@@ -216,8 +215,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 						}
 
 						// Apply diffusion
-						RandomVariable[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
-						currentState[componentIndex] = currentState[componentIndex].addSumProduct(Arrays.asList(factorLoadings), Arrays.asList(brownianIncrement));
+						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement);
 
 						// Transform the state space to the value space and return it.
 						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
@@ -240,7 +238,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 				}
 
 				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
-				discreteProcessAtCurrentTimeIndex.set(componentIndex, result);
+				discreteProcessAtCurrentTimeIndex.add(componentIndex, result);
 			}
 
 			// Fetch results and move to discreteProcess[timeIndex]

@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -82,6 +85,23 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	@Override
 	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		int numberOfFactors = this.getNumberOfFactors();
+		
+		if(dataModified != null) {
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
+		}
+		
+		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
+		return newModel;
 	}
 
 }

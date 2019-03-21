@@ -527,7 +527,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	/**
 	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
 	 */
-	public void setErrorMeanSquaredCurrent(double errorMeanSquaredCurrent) {
+	private void setErrorMeanSquaredCurrent(double errorMeanSquaredCurrent) {
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
@@ -717,9 +717,11 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 				// Log iteration
 				if (logger.isLoggable(Level.FINE))
 				{
-					String logString = "Iteration: " + iteration + "\tLambda="
-							+ lambda + "\tError Current:" + errorMeanSquaredCurrent
-							+ "\tError Change:" + errorRootMeanSquaredChange + "\t";
+					String logString =
+							"Iteration: " + iteration +
+							"\tLambda=" + lambda +
+							"\tError Current (RMS):" + Math.sqrt(errorMeanSquaredCurrent) +
+							"\tError Change:" + errorRootMeanSquaredChange + "\t";
 					for (int i = 0; i < parameterCurrent.length; i++) {
 						logString += "[" + i + "] = " + parameterCurrent[i] + "\t";
 					}

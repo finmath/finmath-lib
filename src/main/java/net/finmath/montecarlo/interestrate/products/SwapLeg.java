@@ -48,6 +48,8 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 	public SwapLeg(Schedule legSchedule, AbstractNotional notional, AbstractIndex index, double spread, boolean couponFlow, boolean isNotionalExchanged, boolean isNotionalAccruing) {
 		super();
 
+		LocalDateTime referenceDate = legSchedule.getReferenceDate() != null ? legSchedule.getReferenceDate().atStartOfDay() : null;
+
 		/*
 		 * Create components.
 		 *
@@ -82,7 +84,7 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 				coupon = new FixedCoupon(spread);
 			}
 
-			Period period = new Period(fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false);
+			Period period = new Period(referenceDate, fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false, false);
 			periods.add(period);
 
 			if(isNotionalAccruing) {

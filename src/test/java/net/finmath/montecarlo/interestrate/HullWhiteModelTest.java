@@ -19,8 +19,15 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
@@ -36,14 +43,16 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceMode
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelAsGiven;
+import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.Caplet;
-import net.finmath.montecarlo.interestrate.products.SimpleSwap;
 import net.finmath.montecarlo.interestrate.products.SimpleZeroSwap;
+import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.Numeraire;
@@ -59,7 +68,12 @@ import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.ScheduleGenerator.DaycountConvention;
+import net.finmath.time.ScheduleGenerator.Frequency;
+import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.ScheduleMetaData;
 import net.finmath.time.TimeDiscretizationFromArray;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
@@ -80,9 +94,10 @@ public class HullWhiteModelTest {
 	private final double correlationDecay = 0.0;	// For LMM Model. If 1 factor, parameter has no effect.
 
 	// Hull White parameters (example: sigma = 0.02, a = 0.1 or sigma = 0.05, a = 0.5)
-	private final double shortRateVolatility = 0.02;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
+	private final double shortRateVolatility = 0.005;	// Investigating LIBOR in Arrears, use a high volatility here (e.g. 0.1)
 	private final double shortRateMeanreversion = 0.1;
-	private final LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
+	private final LocalDate referenceDate = LocalDate.of(2017, 6, 15);
+	//	private final LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 	private LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation;
 	private LIBORModelMonteCarloSimulationModel liborMarketModelSimulation;
@@ -107,19 +122,35 @@ public class HullWhiteModelTest {
 		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
+		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
+				"discount curve",
+				referenceDate,
+				new double[] {0.5, 40.00}	/* zero rate end points */,
+				new double[] {0.03,  0.04}	/* zeros */,
+				new boolean[] {false,  false},
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.LOG_OF_VALUE_PER_TIME
+				);
+
+		AnalyticModel curveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve });
+
+		// Create the forward curve (initial value of the LIBOR market model)
 		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				referenceDate,
 				"6M",
 				ForwardCurveInterpolation.InterpolationEntityForward.FORWARD,
-				null,
-				null,
+				"discount curve",
+				curveModel,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
-				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */
+				new double[] {0.05, 0.06, 0.07, 0.07, 0.08}	/* forwards */
 				);
 
 		// Create the discount curve
-		DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve);
+		ForwardCurve forwardCurve2 = new ForwardCurveFromDiscountCurve(discountCurve.getName(),referenceDate,"6M");
+
+		curveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve2 });
 
 		/*
 		 * Create a simulation time discretization
@@ -141,9 +172,12 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);
 
+			Map<String, Object> properties = new HashMap<String, Object>();
+			properties.put("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", false);
+
 			// TODO Left hand side type should be TermStructureModel once interface are refactored
 			LIBORModel hullWhiteModel = new HullWhiteModel(
-					liborPeriodDiscretization, null, forwardCurve, null /*discountCurve*/, volatilityModel, null);
+					liborPeriodDiscretization, curveModel, forwardCurve2, discountCurve, volatilityModel, properties);
 
 			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
@@ -225,7 +259,7 @@ public class HullWhiteModelTest {
 			 * Create corresponding LIBOR Market Model
 			 */
 			LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
-					liborPeriodDiscretization, forwardCurve, null /*discountCurve*/, covarianceModel2, calibrationItems, properties);
+					liborPeriodDiscretization, curveModel, forwardCurve2, discountCurve, covarianceModel2, calibrationItems, properties);
 
 			BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
@@ -302,44 +336,63 @@ public class HullWhiteModelTest {
 		 */
 
 		System.out.println("Par-Swap prices:\n");
-		System.out.println("Swap             \tValue (HW)       Value (LMM)     Deviation");
+		System.out.println("Swap                             \tValue (HW)       Value (LMM)     Deviation");
 
 		long startMillis	= System.currentTimeMillis();
 
+
+		/*
+		 * Set up the derivative
+		 */
+		//Set properties of input swaptions
+		ScheduleMetaData fixMetaSchedule = new ScheduleMetaData(
+				Frequency.ANNUAL,
+				DaycountConvention.E30_360,
+				ShortPeriodConvention.FIRST,
+				BusinessdayCalendar.DateRollConvention.MODIFIED_FOLLOWING,
+				new BusinessdayCalendarExcludingTARGETHolidays(),
+				0,
+				0,
+				false);
+
+		ScheduleMetaData floatMetaSchedule = new ScheduleMetaData(
+				Frequency.SEMIANNUAL,
+				DaycountConvention.ACT_360,
+				ShortPeriodConvention.FIRST,
+				BusinessdayCalendar.DateRollConvention.MODIFIED_FOLLOWING,
+				new BusinessdayCalendarExcludingTARGETHolidays(),
+				0,
+				0,
+				false);
+
 		double maxAbsDeviation = 0.0;
-		for (int maturityIndex = 1; maturityIndex <= hullWhiteModelSimulation.getNumberOfLibors() - 10; maturityIndex++) {
+		double maxMaturity = hullWhiteModelSimulation.getLiborPeriod(hullWhiteModelSimulation.getNumberOfLibors()-1) - 10.0;
+		for (int maturityIndex = 1; maturityIndex <= maxMaturity*12; maturityIndex++) {
 
-			double startDate = hullWhiteModelSimulation.getLiborPeriod(maturityIndex);
+			LocalDate startDate = referenceDate.plusMonths(maturityIndex);
+			LocalDate endDate = startDate.plusYears(5);
 
-			int numberOfPeriods = 10;
+			Schedule fixLegSchedule = fixMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
+			Schedule floatLegSchedule = floatMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 
-			// Create a swap
-			double[]	fixingDates			= new double[numberOfPeriods];
-			double[]	paymentDates		= new double[numberOfPeriods];
-			double[]	swapTenor			= new double[numberOfPeriods + 1];
-			double		swapPeriodLength	= 0.5;
-			String		tenorCode			= "6M";
-
-			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
-				fixingDates[periodStartIndex]	= startDate + periodStartIndex * swapPeriodLength;
-				paymentDates[periodStartIndex]	= startDate + (periodStartIndex + 1) * swapPeriodLength;
-				swapTenor[periodStartIndex]		= startDate + periodStartIndex * swapPeriodLength;
-			}
-			swapTenor[numberOfPeriods] = startDate + numberOfPeriods * swapPeriodLength;
-
-			System.out.print("(" + formatterMaturity.format(swapTenor[0]) + "," + formatterMaturity.format(swapTenor[numberOfPeriods-1]) + "," + swapPeriodLength + ")" + "\t");
+			ForwardCurve forwardCurve = liborMarketModelSimulation.getModel().getForwardRateCurve();
+			//hullWhiteModelSimulation.getModel().getForwardRateCurve();
+			AnalyticModel model = hullWhiteModelSimulation.getModel().getAnalyticModel();
 
 			// Par swap rate
-			double swaprate = getParSwaprate(hullWhiteModelSimulation, swapTenor, tenorCode);
+			double swaprate = net.finmath.marketdata.products.Swap.getForwardSwapRate(fixLegSchedule, floatLegSchedule, forwardCurve, model);
 
-			// Set swap rates for each period
-			double[] swaprates = new double[numberOfPeriods];
-			for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
-				swaprates[periodStartIndex] = swaprate;
-			}
+			//Create libor index for Monte-Carlo swap
+			AbstractIndex libor = new LIBORIndex(forwardCurve.getName(), "EUR", "6M", floatMetaSchedule.getBusinessdayCalendar(), floatMetaSchedule.getDateRollConvention());
 
-			// Create a swap
-			SimpleSwap swap = new SimpleSwap(fixingDates, paymentDates, swaprates);
+			//Create legs
+			TermStructureMonteCarloProduct floatLeg = new SwapLeg(floatLegSchedule, new Notional(1.0), libor, 0, false);
+			TermStructureMonteCarloProduct fixLeg = new SwapLeg(fixLegSchedule, new Notional(1.0), null, swaprate, false);
+
+			//Create swap
+			AbstractLIBORMonteCarloProduct swap = new Swap(floatLeg, fixLeg);
+
+			System.out.print("(" + startDate + "," + endDate + "," + floatMetaSchedule.getFrequency().name() + ")" + "\t");
 
 			// Value with Hull-White Model Monte Carlo
 			double valueSimulationHW = swap.getValue(hullWhiteModelSimulation);
@@ -401,10 +454,10 @@ public class HullWhiteModelTest {
 				throw new IllegalArgumentException("Unsupported period length.");
 			}
 
-			double strike = 0.05;
-
 			double forward			= getParSwaprate(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}, tenorCode);
 			double discountFactor	= getSwapAnnuity(hullWhiteModelSimulation, new double[] { periodStart , periodEnd}) / periodLength;
+
+			double strike = forward + 0.01;
 
 			// Create a caplet
 			Caplet caplet = new Caplet(optionMaturity, periodLength, strike, daycountFraction, false /* isFloorlet */, Caplet.ValueUnit.VALUE);
@@ -639,6 +692,8 @@ public class HullWhiteModelTest {
 
 	@Test
 	public void testCapletSmile() throws CalculationException {
+		System.out.println("Checking that the two models generate the same smiles.");
+
 		/*
 		 * Value a caplet
 		 */
@@ -703,7 +758,7 @@ public class HullWhiteModelTest {
 
 			System.out.println();
 
-			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWAnalytic));
+			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviationHWLMM));
 		}
 
 		long endMillis		= System.currentTimeMillis();
@@ -873,15 +928,22 @@ public class HullWhiteModelTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertTrue(deviationHWLMM >= 0);
+		Assert.assertEquals("Valuation of put on MMA", valueSimulationLMM.getAverage(), valueSimulationHW.getAverage(), 1E-5);
+	}
+
+	private static double getParSwaprate(LIBORModelMonteCarloSimulationModel liborMarketModel, Schedule fixLeg, Schedule floatLeg, String tenorCode) {
+		ForwardCurve forwardCurve = liborMarketModel.getModel().getForwardRateCurve();
+		AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();
+		return net.finmath.marketdata.products.Swap.getForwardSwapRate(fixLeg, floatLeg, forwardCurve, analyticModel);
 	}
 
 	private static double getParSwaprate(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor, String tenorCode) {
-		DiscountCurve modelCurve = new DiscountCurveFromForwardCurve(liborMarketModel.getModel().getForwardRateCurve());
-		ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(modelCurve.getName(), liborMarketModel.getModel().getForwardRateCurve().getReferenceDate(), tenorCode);
+		DiscountCurve discountCurve = liborMarketModel.getModel().getDiscountCurve();
+		ForwardCurve forwardCurve = liborMarketModel.getModel().getForwardRateCurve();
+		AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor),
 				forwardCurve,
-				modelCurve);
+				discountCurve);
 	}
 
 	private static double getSwapAnnuity(LIBORModelMonteCarloSimulationModel liborMarketModel, double[] swapTenor) {

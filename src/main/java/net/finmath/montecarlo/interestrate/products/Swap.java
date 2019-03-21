@@ -93,4 +93,8 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return "Swap [legReceiver=" + legReceiver + ", legPayer=" + legPayer + "]";
+	}
 }

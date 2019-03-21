@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -160,6 +162,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		} else {
 			driftFormula = DriftFormula.DISCRETE;
 		}
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+		return LocalDateTime.of(discountCurve.getReferenceDate(), LocalTime.of(0, 0));
 	}
 
 	@Override
@@ -380,6 +387,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 
 	private RandomVariable getZeroCouponBond(double time, double maturity) throws CalculationException {
 		int timeIndex = getProcess().getTimeIndex(time);
+		if(timeIndex < 0) {
+			int timeIndexLo = -timeIndex-1-1;
+			double timeLo = getProcess().getTime(timeIndexLo);
+			return getZeroCouponBond(timeLo, maturity).mult(getShortRate(timeIndexLo).mult(time-timeLo).exp());
+		}
 		RandomVariable shortRate = getShortRate(timeIndex);
 		double A = getA(time, maturity);
 		double B = getB(time, maturity);
