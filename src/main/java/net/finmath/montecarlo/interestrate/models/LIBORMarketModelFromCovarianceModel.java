@@ -169,7 +169,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_CORRECTED;
+	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
@@ -181,10 +181,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private transient ConcurrentHashMap<Integer, RandomVariable>	numeraires = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors = new ConcurrentHashMap<>();
+	private transient RandomVariable[]								interpolationDriftAdjustmentsTerminal;
 
-
-
-	private RandomVariable      interpolationDriftAdjustmentsTerminal[];
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
 	 *
@@ -1208,6 +1206,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		int periodEndIndex      = getLiborPeriodIndex(periodEnd);
 
+		// If time is beyond fixing, use the fixing time.
 		time = Math.min(time, periodStart);
 		int timeIndex           = getTimeIndex(time);
 		// If time is not part of the discretization, use the latest available point.
@@ -1217,7 +1216,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
 
-		// Interpolation on tenor, consistent with interpolation on numeraire (log-linear): interpolate end date
+		// Interpolation on tenor using interpolationMethod
 		if(periodEndIndex < 0) {
 			int		previousEndIndex	= (-periodEndIndex-1)-1;
 			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
