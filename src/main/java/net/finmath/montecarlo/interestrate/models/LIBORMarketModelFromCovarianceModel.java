@@ -1218,8 +1218,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, periodStart, nextEndTime).mult(nextEndTime - periodStart).add(1.0);
-			RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodEnd, previousEndIndex)
-					.mult(nextEndTime - periodEnd).add(1.0);
+			RandomVariable onePlusInterpolatedLIBORDt = getOnePlusInterpolatedLIBORDt(timeIndex, periodEnd, previousEndIndex);
 			return onePlusLongLIBORdt.div(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
 
@@ -1231,8 +1230,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			RandomVariable onePlusLongLIBORdt         = periodEnd > nextStartTime ?
 					getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0) :
 						getRandomVariableForConstant(1.0);
-					RandomVariable onePlusInterpolatedLIBORDt = getInterpolatedLIBOR(timeIndex, periodStart, previousStartIndex)
-							.mult(nextStartTime - periodStart).add(1.0);
+					RandomVariable onePlusInterpolatedLIBORDt = getOnePlusInterpolatedLIBORDt(timeIndex, periodStart, previousStartIndex);
 					return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);
 		}
 
@@ -1279,7 +1277,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @return The interpolated forward rate.
 	 * @throws CalculationException Thrown if valuation failed.
 	 */
-	private RandomVariable getInterpolatedLIBOR(int timeIndex, double periodStartTime, int liborPeriodIndex) throws CalculationException
+	private RandomVariable getOnePlusInterpolatedLIBORDt(int timeIndex, double periodStartTime, int liborPeriodIndex) throws CalculationException
 	{
 		double tenorPeriodStartTime       = getLiborPeriod(liborPeriodIndex);
 		double tenorPeriodEndTime         = getLiborPeriod(liborPeriodIndex + 1);
@@ -1334,7 +1332,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			onePlusInterpolatedLIBORDt = onePlusInterpolatedLIBORDt.mult(analyticOnePlusShortLIBORDt / analyticOnePlusInterpolatedLIBORDt);
 		}
 
-		return onePlusInterpolatedLIBORDt.sub(1.0).div(smallDt);
+		return onePlusInterpolatedLIBORDt;
 	}
 
 	/**
