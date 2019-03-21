@@ -101,14 +101,14 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		int numberOfFactors = this.getNumberOfFactors();
 		double[] parameter = this.parameter;
-		
+
 		if(dataModified != null) {
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
 			parameter = (double[])dataModified.getOrDefault("parameter", parameter);
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelBH(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
 		return newModel;
 	}

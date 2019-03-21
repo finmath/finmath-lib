@@ -122,7 +122,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	public int getNumberOfFactors() {
 		return numberOfFactors;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCloneWithModifiedData()
 	 */

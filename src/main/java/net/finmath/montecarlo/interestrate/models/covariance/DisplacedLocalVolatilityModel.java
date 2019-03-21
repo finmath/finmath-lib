@@ -207,7 +207,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 		AbstractRandomVariableFactory randomVariableFactory = null;
-		
+
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
@@ -216,11 +216,11 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
 			}
-			
+
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
-			
+
 			if (dataModified.getOrDefault("displacement", displacement) instanceof RandomVariable) {
 				displacement = (RandomVariable) dataModified.getOrDefault("displacement", displacement);
 			} else if (randomVariableFactory == null) {
@@ -229,7 +229,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 				displacement = randomVariableFactory.createRandomVariable((double) dataModified.get("displacement"));
 			}
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new DisplacedLocalVolatilityModel(covarianceModel, displacement, isCalibrateable);
 		return newModel;
 	}

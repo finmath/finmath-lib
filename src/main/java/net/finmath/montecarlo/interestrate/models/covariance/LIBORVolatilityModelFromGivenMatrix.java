@@ -202,14 +202,14 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		RandomVariable[][] volatility = this.volatility;
 		boolean isCalibrateable = this.isCalibrateable;
-		
+
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
-			
+
 			if(dataModified.containsKey("randomVariableFactory")) {
 				// Possible to do this using streams?
 				for(int i=0;i<volatility.length;i++) {
@@ -219,7 +219,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 				}
 			}
 		}
-		
+
 		LIBORVolatilityModel newModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility, isCalibrateable);
 		return newModel;
 	}

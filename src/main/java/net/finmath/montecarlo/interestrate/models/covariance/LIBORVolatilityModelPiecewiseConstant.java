@@ -266,7 +266,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 				volatility[i][j] = this.volatility[indexMap.get(i).get(j)].doubleValue();
 			}
 		}
-		
+
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
@@ -275,14 +275,14 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 			simulationTimeDiscretization = (TimeDiscretization)dataModified.getOrDefault("simulationTimeDiscretization", simulationTimeDiscretization);
 			timeToMaturityDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeToMaturityDiscretization", timeToMaturityDiscretization);
 
-			
+
 			if(dataModified.getOrDefault("volatility", volatility) instanceof double[][]) {
 				volatility = (double[][])dataModified.getOrDefault("volatility", volatility);
 			}else {
 				// TODO Implement handling for double[], double, RV[], RV
 			}
 		}
-		
+
 		LIBORVolatilityModel newModel = new LIBORVolatilityModelPiecewiseConstant(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, simulationTimeDiscretization, timeToMaturityDiscretization, volatility, isCalibrateable);
 		return newModel;
 	}

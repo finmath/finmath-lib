@@ -283,7 +283,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 		AbstractRandomVariableFactory randomVariableFactory = null;
-		
+
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
@@ -297,7 +297,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 			brownianMotion = (BrownianMotion)dataModified.getOrDefault("brownianMotion", brownianMotion);
-			
+
 			if(dataModified.getOrDefault("nu", nu) instanceof RandomVariable) {
 				nu = (RandomVariable)dataModified.getOrDefault("nu", nu);
 			}else if(randomVariableFactory == null){
@@ -313,7 +313,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 				rho = randomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
 			}
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticVolatility(covarianceModel, brownianMotion, nu, rho, isCalibrateable);
 		return newModel;
 	}
