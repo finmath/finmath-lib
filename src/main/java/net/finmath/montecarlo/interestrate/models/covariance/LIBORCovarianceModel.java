@@ -145,5 +145,5 @@ public interface LIBORCovarianceModel {
 	 * @return A clone of this model (or a new instance of this model if no parameter was modified).
 	 * @throws CalculationException Thrown when the model could not be created.
 	 */
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
+	AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

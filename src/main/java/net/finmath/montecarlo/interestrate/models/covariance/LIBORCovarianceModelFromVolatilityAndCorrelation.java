@@ -185,10 +185,12 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 
 		if(dataModified != null) {
 			if((dataModified.containsKey("timeDiscretization")||dataModified.containsKey("liborPeriodDiscretization")||dataModified.containsKey("randomVariableFactory"))) {
-				if(!dataModified.containsKey("volatilityModel"))
+				if(!dataModified.containsKey("volatilityModel")) {
 					volatilityModel = volatilityModel.getCloneWithModifiedData(dataModified);
-				if(!dataModified.containsKey("correlationModel"))
+				}
+				if(!dataModified.containsKey("correlationModel")) {
 					correlationModel = correlationModel.getCloneWithModifiedData(dataModified);
+				}
 			}
 
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);

@@ -290,8 +290,9 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 				nu = randomVariableFactory.createRandomVariable(nu.doubleValue());
 				rho = randomVariableFactory.createRandomVariable(rho.doubleValue());
 			}
-			if (!dataModified.containsKey("covarianceModel"))
+			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
 
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);

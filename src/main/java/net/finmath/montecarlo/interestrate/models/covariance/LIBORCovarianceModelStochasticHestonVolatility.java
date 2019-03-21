@@ -291,8 +291,9 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 				theta = randomVariableFactory.createRandomVariable(theta.doubleValue());
 				xi = randomVariableFactory.createRandomVariable(xi.doubleValue());
 			}
-			if(!dataModified.containsKey("covarianceModel"))
+			if(!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
 
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
