@@ -1352,7 +1352,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		case LOG_LINEAR_CORRECTED:
 			double tenorPeriodStartTime  = getLiborPeriod(liborIndex);
 			int    tenorPeriodStartIndex = getTimeIndex(tenorPeriodStartTime);
-
+			if(tenorPeriodStartIndex < 0)
+			{
+				tenorPeriodStartIndex = - tenorPeriodStartIndex - 2;
+			}
 			// Lazy init of interpolationDriftAdjustmentsTerminal
 			if(evaluationTimeIndex == tenorPeriodStartIndex) {
 				synchronized(interpolationDriftAdjustmentsTerminal) {
@@ -1417,6 +1420,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
 			{
 				int evaluationTimeIndexForRealizations = Math.min(sumTimeIndex, getTimeIndex(getLiborPeriod(liborIndexForRealization)));
+				if(evaluationTimeIndexForRealizations < 0)
+				{
+					evaluationTimeIndexForRealizations = - evaluationTimeIndexForRealizations - 2;
+				}
 				realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
 			}
 			RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
