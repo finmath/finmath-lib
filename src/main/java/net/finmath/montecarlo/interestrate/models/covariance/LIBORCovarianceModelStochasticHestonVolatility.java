@@ -283,7 +283,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		RandomVariable xi = this.xi;
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractRandomVariableFactory randomVariableFactory = null;
-		
+
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
@@ -293,12 +293,12 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 			}
 			if(!dataModified.containsKey("covarianceModel"))
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
-			
+
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 			brownianMotion = (BrownianMotion)dataModified.getOrDefault("brownianMotion", brownianMotion);
-			
+
 			if(dataModified.getOrDefault("kappa", kappa) instanceof RandomVariable) {
 				kappa = (RandomVariable)dataModified.getOrDefault("kappa", kappa);
 			}else if(randomVariableFactory==null){
@@ -321,7 +321,7 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 				xi = randomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
 			}
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticHestonVolatility(covarianceModel, brownianMotion, kappa, theta, xi, isCalibrateable);
 		return newModel;
 	}

@@ -128,14 +128,14 @@ public interface LIBORCovarianceModel {
 	 * @return the numberOfFactors
 	 */
 	int getNumberOfFactors();
-	
+
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.
 	 *
 	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
 	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
 	 * no exception may be thrown.
-	 * 
+	 *
 	 * Furthermore the structure of the covariance model has to match changed data.
 	 * A change of the time discretizations may requires a change in the parameters
 	 * but this function will just insert the new time discretization without

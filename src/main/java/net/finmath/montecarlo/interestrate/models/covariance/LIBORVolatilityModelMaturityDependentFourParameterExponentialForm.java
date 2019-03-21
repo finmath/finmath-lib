@@ -191,14 +191,14 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 		double[] b = Arrays.stream(this.b).mapToDouble(x -> x.doubleValue()).toArray();
 		double[] c = Arrays.stream(this.c).mapToDouble(x -> x.doubleValue()).toArray();
 		double[] d = Arrays.stream(this.d).mapToDouble(x -> x.doubleValue()).toArray();
-		
+
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 
-			
+
 			if(dataModified.getOrDefault("a", a) instanceof RandomVariable[]) {
 				a = Arrays.stream((RandomVariable[])dataModified.getOrDefault("a", a)).mapToDouble(param -> param.doubleValue()).toArray();
 			}else {
@@ -220,7 +220,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 				d = (double[])dataModified.get("d");
 			}
 		}
-		
+
 		LIBORVolatilityModel newModel = new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d);
 		return newModel;
 	}

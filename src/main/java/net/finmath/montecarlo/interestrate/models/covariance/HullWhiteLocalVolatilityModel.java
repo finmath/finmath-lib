@@ -108,15 +108,15 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 			throws CalculationException {
 		double periodLength = this.periodLength;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
-		
+
 		if(dataModified != null) {
 			if(!dataModified.containsKey("covarianceModel"))covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
-			
+
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
 			periodLength = (double)dataModified.getOrDefault("periodLength", periodLength);
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new HullWhiteLocalVolatilityModel(covarianceModel, periodLength);
 		return newModel;
 	}

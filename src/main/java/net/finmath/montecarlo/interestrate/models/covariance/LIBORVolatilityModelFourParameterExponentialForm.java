@@ -218,14 +218,14 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		RandomVariable c = this.c;
 		RandomVariable d = this.d;
 		boolean isCalibrateable = this.isCalibrateable;
-		
+
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
-			
+
 			if(dataModified.getOrDefault("a", a) instanceof RandomVariable) {
 				a = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("a", a)).doubleValue());
 			}else {
@@ -247,7 +247,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 				d = randomVariableFactory.createRandomVariable((double)dataModified.get("d"));
 			}
 		}
-		
+
 		LIBORVolatilityModel newModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
 		return newModel;
 	}

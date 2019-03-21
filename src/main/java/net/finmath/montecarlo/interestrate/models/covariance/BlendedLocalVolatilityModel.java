@@ -294,7 +294,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		ForwardCurve forwardCurve = this.forwardCurve;
 		double displacement = this.displacement.doubleValue();
 		boolean isCalibrateable = this.isCalibrateable;
-		
+
 		if(dataModified != null) {
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -305,7 +305,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			forwardCurve = (ForwardCurve)dataModified.getOrDefault("forwardCurve", forwardCurve);
-			
+
 			// Explicitly passed RVFactory has priority (consistency)
 			if((dataModified.getOrDefault("displacement", displacement) instanceof RandomVariable)) {
 				displacement = ((RandomVariable)dataModified.get("displacement")).doubleValue();
@@ -313,7 +313,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 				displacement = (double)dataModified.getOrDefault("displacement", displacement);
 			}
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new DisplacedLocalVolatilityModel(covarianceModel, displacement, isCalibrateable);
 		return newModel;
 	}

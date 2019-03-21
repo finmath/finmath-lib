@@ -339,7 +339,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable discountFactor;
 		if(discountCurve != null) {
 			discountFactor =  getDiscountFactor(time).div(getDiscountFactorFromForwardCurve(time).getAverage()).mult(getDiscountFactorFromForwardCurve(time));
-//			discountFactor =  getDiscountFactor(time);
+			//			discountFactor =  getDiscountFactor(time);
 		}
 		else {
 			discountFactor =  getDiscountFactorFromForwardCurve(time);
@@ -488,10 +488,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
 		value = value.add(alpha);
-//		value = value.sub(Math.log(value.exp().getAverage()));
-		
+		//		value = value.sub(Math.log(value.exp().getAverage()));
+
 		value = value.add(zeroRate);
-		
+
 		return value;
 	}
 
@@ -848,7 +848,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			if(numeraireDiscountFactors.size() == 0) {
 				double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));
 				RandomVariable deterministicNumeraireAdjustment
-				 = randomVariableFactory.createRandomVariable(dfInitial);
+				= randomVariableFactory.createRandomVariable(dfInitial);
 				numeraireDiscountFactors.add(0, deterministicNumeraireAdjustment);
 
 				for(int i=0; i<timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {

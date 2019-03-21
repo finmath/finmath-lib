@@ -93,13 +93,13 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		int numberOfFactors = this.getNumberOfFactors();
-		
+
 		if(dataModified != null) {
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
 		}
-		
+
 		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		return newModel;
 	}

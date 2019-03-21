@@ -114,7 +114,7 @@ public class LinearAlgebra {
 	 * using a Tikhonov regularization, i.e., we solve in the least square sense
 	 *   A* x = b*
 	 * where A* = (A^T, lambda0 I, lambda1 S, lambda2 C)^T and b* = (b^T , 0 , 0 , 0)^T.
-	 * 
+	 *
 	 * The matrix I is the identity matrix, effectively reducing the level of the solution vector.
 	 * The matrix S is the first order central finite difference matrix with -lambda1 on the element [i][i-1] and +lambda1 on the element [i][i+1]
 	 * The matrix C is the second order central finite difference matrix with -0.5 lambda2 on the element [i][i-1] and [i][i+1] and lambda2 on the element [i][i].

@@ -168,7 +168,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		double b = this.b;
 		double c = this.c;
 		boolean isCalibrateable = this.isCalibrateable;
-		
+
 		if(dataModified != null) {
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
@@ -178,7 +178,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 			c = (double)dataModified.getOrDefault("a", c);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 		}
-		
+
 		LIBORCorrelationModel newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, b, c, isCalibrateable);
 		return newModel;
 	}

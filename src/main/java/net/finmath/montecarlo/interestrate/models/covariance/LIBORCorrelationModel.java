@@ -8,7 +8,6 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 import java.io.Serializable;
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.RandomVariableArrayImplementation;
 import net.finmath.time.TimeDiscretization;
@@ -72,7 +71,7 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
 	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
 	 * no exception may be thrown.
-	 * 
+	 *
 	 * Furthermore the structure of the correlation model has to match changed data.
 	 * A change of the time discretizations may requires a change in the parameters
 	 * but this function will just insert the new time discretization without
