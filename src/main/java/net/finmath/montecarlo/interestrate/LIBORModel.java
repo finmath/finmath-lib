@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -20,6 +21,14 @@ import net.finmath.time.TimeDiscretization;
  */
 public interface LIBORModel extends TermStructureModel, IndependentModelParameterProvider {
 
+	/**
+	 * Return the forward rate at a given timeIndex and for a given liborIndex.
+	 * 
+	 * @param timeIndex The time index (associated with {@link ProcessModel#getTimeDiscretization()}.
+	 * @param liborIndex The forward rate index (associated with {@link LIBORModel#getLiborPeriodDiscretization()}.
+	 * @return The forward rate.
+	 * @throws CalculationException Thrown if calculation failed.
+	 */
 	RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
