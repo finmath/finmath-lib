@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -1272,7 +1271,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	/**
 	 * Implement the interpolation of the forward rate in tenor time.
 	 * The method provides the forward rate \( F(t_{i}, S, T_{j+1}) \) where \( S \in [T_{j}, T_{j+1}] \).
-	 * 
+	 *
 	 * @param timeIndex The time index associated with the simulation time. The index i in \( t_{i} \).
 	 * @param periodStartTime The period start time S (on which we interpolate).
 	 * @param liborPeriodIndex The period index j for which \( S \in [T_{j}, T_{j+1}] \) (to avoid another lookup).
