@@ -73,11 +73,11 @@ public class LinearAlgebra {
 	 *
 	 * @param matrixA The matrix A (left hand side of the linear equation).
 	 * @param b The vector (right hand of the linear equation).
-	 * @param lambbda The parameter lambda of the Tikhonov regularization. Lambda effectively measures which small numbers are considered zero.
+	 * @param lambda The parameter lambda of the Tikhonov regularization. Lambda effectively measures which small numbers are considered zero.
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambbda) {
-		if(lambbda == 0) return solveLinearEquationLeastSquare(matrixA, b);
+	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda) {
+		if(lambda == 0) return solveLinearEquationLeastSquare(matrixA, b);
 
 		/*
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
@@ -86,20 +86,87 @@ public class LinearAlgebra {
 		int rows = matrixA.length;
 		int cols = matrixA[0].length;
 		double[][] matrixRegularized = new double[rows+cols][cols];
-		double[] bRegularized = new double[rows+cols];
+		double[] bRegularized = new double[rows+cols];					// Note the JVM initializes arrays to zero.
 		for(int i=0; i<rows; i++) {
-			for(int j=0; j<cols; j++) {
-				matrixRegularized[i][j] = matrixA[i][j];
-			}
-			bRegularized[i] = b[i];
+			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);
 		}
+		System.arraycopy(b, 0, bRegularized, 0, rows);
+
 		for(int j=0; j<cols; j++) {
-			matrixRegularized[rows+j][j] = lambbda;
+			double[] matrixRow = matrixRegularized[rows+j];
+
+			matrixRow[j] = lambda;
 		}
 
-		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
-//		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
-//		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
+
+		//		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
+		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * <ul>
+	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>b is an m - vector given as double[m],</li>
+	 * <li>x is an n - vector given as double[n],</li>
+	 * </ul>
+	 * using a Tikhonov regularization, i.e., we solve in the least square sense
+	 *   A* x = b*
+	 * where A* = (A^T, lambda0 I, lambda1 S, lambda2 C)^T and b* = (b^T , 0 , 0 , 0)^T.
+	 * 
+	 * The matrix I is the identity matrix, effectively reducing the level of the solution vector.
+	 * The matrix S is the first order central finite difference matrix with -lambda1 on the element [i][i-1] and +lambda1 on the element [i][i+1]
+	 * The matrix C is the second order central finite difference matrix with -0.5 lambda2 on the element [i][i-1] and [i][i+1] and lambda2 on the element [i][i].
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @param lambda0 The parameter lambda0 of the Tikhonov regularization. Reduces the norm of the solution vector.
+	 * @param lambda1 The parameter lambda1 of the Tikhonov regularization. Reduces the slope of the solution vector.
+	 * @param lambda2 The parameter lambda1 of the Tikhonov regularization. Reduces the curvature of the solution vector.
+	 * @return
+	 */
+	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda0, double lambda1, double lambda2) {
+		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) return solveLinearEquationLeastSquare(matrixA, b);
+
+		/*
+		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
+		 * And SVD is an alternative to this method.
+		 */
+		int rows = matrixA.length;
+		int cols = matrixA[0].length;
+		double[][] matrixRegularized = new double[rows+3*cols][cols];
+		double[] bRegularized = new double[rows+3*cols];					// Note the JVM initializes arrays to zero.
+		for(int i=0; i<rows; i++) {
+			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);
+		}
+		System.arraycopy(b, 0, bRegularized, 0, rows);
+
+		for(int j=0; j<cols; j++) {
+			double[] matrixRow = matrixRegularized[rows+0*cols+j];
+
+			matrixRow[j] = lambda0;
+		}
+
+		for(int j=0; j<cols; j++) {
+			double[] matrixRow = matrixRegularized[rows+1*cols+j];
+
+			matrixRow[j] = 0;
+			if(j>0) matrixRow[j-1] = lambda1;
+			if(j<cols-1) matrixRow[j+1] = -lambda1;
+		}
+
+		for(int j=0; j<cols; j++) {
+			double[] matrixRow = matrixRegularized[rows+2*cols+j];
+
+			matrixRow[j] = lambda2;
+			if(j>0) matrixRow[j-1] = -0.5 * lambda2;
+			if(j<cols-1) matrixRow[j+1] = -0.5 * lambda2;
+		}
+
+		//		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
+		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
 	}
 
 	/**
