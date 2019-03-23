@@ -18,6 +18,14 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMertonModel;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
+/**
+ * Unit test for the Merton Jump diffusion model.
+ * 
+ * We test the standard Fourier pricer, the Carr Madan Fast Fourier Transform and the Monte Carlo approach.
+ * 
+ * @author Alessandro Gnoatto
+ *
+ */
 public class MertonJumpDiffusionCallOptionTest {
 
 	private static final double initialValue	= 100.0;
