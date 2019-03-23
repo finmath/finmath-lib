@@ -27,8 +27,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	private final double jumpSizeStdDev;
 
 	/**
-	 * Construct a Merton jump diffusion model with discount curves for the forward price 
-	 * (i.e. repo rate minus dividend yield) and for discounting.
+	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
 	 * 
 	 * @param initialValue
 	 * @param discountCurveForForwardRate
@@ -55,8 +54,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	}
 
 	/**
-	 * Construct a Merton jump diffusion model with constant rates for the forward price 
-	 * (i.e. repo rate minus dividend yield) and for the discount curve.
+	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
 	 * 
 	 * @param initialValue
 	 * @param riskFreeRate
@@ -91,8 +89,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param jumpSizeMean
 	 * @param jumpSizeStdDev
 	 */
-	public MertonModel(double initialValue, double riskFreeRate, 
-			double volatility,
+	public MertonModel(double initialValue, double riskFreeRate, double volatility,
 			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev) {
 		this(initialValue,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev,riskFreeRate);
 	}
@@ -109,10 +106,8 @@ public class MertonModel implements CharacteristicFunctionModel{
 					.add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));
 
 			Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);
-            //phiJ_u = lambda*(exp(1i*u*alpha_j-0.5*u.*u*sigma_j^2)-1);
-            //phiJ_i = lambda*(exp(alpha_j+0.5*sigma_j^2)-1);
-			double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
 
+			double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
 
 			return	iargument
 					.multiply(
