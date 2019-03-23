@@ -170,7 +170,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private InterpolationMethod interpolationMethod			= InterpolationMethod.LINEAR;//.LOG_LINEAR_UNCORRECTED;
+	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
