@@ -10,6 +10,8 @@ finmath lib Release Notes
 
 ### General
 
+ - The `getCloneWithModifiedData` allows to create a copy of models with modified random variable factory. This allow to create AAD enabled models from model without AAD support. The typical use is to perform a model calibration without AAD random variables, then inject the AAD dependency and calculate sensitivities.
+ 
  - Minor updates to documentation.
 
 ### Interest Rate Models
