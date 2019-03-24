@@ -6,6 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.7 (24.03.2019)
+
+### General
+
+ - Minor updates to documentation.
+
+### Interest Rate Models
+
+ - Added support for different interest rate curve interpolation methods.
+
+
 ## 4.0.5 (27.01.2019)
 
 ### General
