@@ -917,7 +917,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
 		RandomVariable inverseForwardBondAsOfTime = getLIBOR(time, time, maturity).mult(maturity-time).add(1.0);
 		RandomVariable inverseForwardBondAsOfZero = getLIBOR(0.0, time, maturity).mult(maturity-time).add(1.0);
-		RandomVariable forwardDiscountBondAsOfZero = getNumeraireAdjustment(maturity).div(time);
+		RandomVariable forwardDiscountBondAsOfZero = getNumeraireAdjustment(maturity).div(getNumeraireAdjustment(time));
 		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);
 	}
 
