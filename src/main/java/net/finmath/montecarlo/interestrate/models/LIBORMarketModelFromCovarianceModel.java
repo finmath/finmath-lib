@@ -1236,7 +1236,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			double nextStartTime	 = getLiborPeriod(previousStartIndex+1);
 			if(nextStartTime > periodEnd) throw new AssertionError("Interpolation not possible.");
 			if(nextStartTime == periodEnd) return getOnePlusInterpolatedLIBORDt(timeIndex, periodStart, previousStartIndex).sub(1.0).div(periodEnd - periodStart);
-//			RandomVariable onePlusLongLIBORdt         = getLIBOR(Math.min(prevStartTime, time), nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0);
+			//			RandomVariable onePlusLongLIBORdt         = getLIBOR(Math.min(prevStartTime, time), nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0);
 			RandomVariable onePlusLongLIBORdt         = getLIBOR(time, nextStartTime, periodEnd).mult(periodEnd - nextStartTime).add(1.0);
 			RandomVariable onePlusInterpolatedLIBORDt = getOnePlusInterpolatedLIBORDt(timeIndex, periodStart, previousStartIndex);
 			return onePlusLongLIBORdt.mult(onePlusInterpolatedLIBORDt).sub(1.0).div(periodEnd - periodStart);

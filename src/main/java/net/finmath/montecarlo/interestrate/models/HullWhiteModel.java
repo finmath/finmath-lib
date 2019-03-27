@@ -355,7 +355,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable forwardDiscountBondAsOfZero = getDiscountFactorFromForwardCurve(maturity).div(getDiscountFactorFromForwardCurve(time));
 		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);
 	}
-	
+
 	@Override
 	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
 
