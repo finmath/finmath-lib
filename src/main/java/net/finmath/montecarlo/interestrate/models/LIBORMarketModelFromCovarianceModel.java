@@ -1212,9 +1212,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		// If time is beyond fixing, use the fixing time.
 		time = Math.min(time, periodStart);
 		int timeIndex           = getTimeIndex(time);
-		// If time is not part of the discretization, use the latest available point.
+		// If time is not part of the discretization, use the nearest available point.
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex-2;
+			if(time-getTime(timeIndex) > getTime(timeIndex+1)-time) timeIndex++;
 		}
 
 		// The forward rates are provided on fractional tenor discretization points using linear interpolation. See ISBN 0470047224.
