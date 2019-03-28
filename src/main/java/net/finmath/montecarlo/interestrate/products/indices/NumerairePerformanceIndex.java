@@ -64,7 +64,7 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 		LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
 		double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
 
-		double periodLength = daycountConvention.getDaycount(fixingDate.toLocalDate(), paymentDate);
+		double periodLength = daycountConvention.getDaycountFraction(fixingDate.toLocalDate(), paymentDate);
 
 		/*
 		 * Fetch numeraire performance rate from model
