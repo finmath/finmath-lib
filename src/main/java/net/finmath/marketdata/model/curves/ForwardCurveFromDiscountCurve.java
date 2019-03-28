@@ -174,7 +174,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 		}
 
 		double daycount = (daycountConvention != null ?
-				daycountConvention.getDaycount(
+				daycountConvention.getDaycountFraction(
 						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime),
 						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime+paymentOffset)
 						)
