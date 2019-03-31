@@ -22,13 +22,17 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationModel
+ * Implements the Monte-Carlo valuation of a swaption under a LIBORModelMonteCarloSimulationModel.
+ * 
+ * Note: This implementation is based on model relative times (using ACT/365 floating point offsets).
+ * An implementation using dates and exact swap schedules is provided by {@link SwaptionFromSwapSchedules}.
  *
  * Important: If the LIBOR Market Model is a multi-curve model in the sense that the
  * numeraire is not calculated from the forward curve, then this valuation does
  * assume that the basis deterministic. For the valuation of a fully generalize swaption,
  * you have to use the <code>Option</code> component on a <code>Swap</code>.
  *
+ * @see net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules
  * @author Christian Fries
  * @version 1.3
  */
