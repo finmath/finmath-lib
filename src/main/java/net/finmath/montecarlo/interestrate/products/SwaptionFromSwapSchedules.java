@@ -1,0 +1,217 @@
+package net.finmath.montecarlo.interestrate.products;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
+import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Implementation of a Monte-Carlo vauation of a swaption valuation being compatible with AAD.
+ *
+ * The valuation internally uses an analytic valuation of a swap such that the {@link #getValue(double, LIBORModelMonteCarloSimulationModel)} method
+ * returns an valuation being \( \mathcal{F}_{t} \}-measurable where \( t \) is the evaluationTime argument.
+ *
+ * @author Christian Fries
+ */
+public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct {
+
+	public enum ValueUnit {
+		VALUE,
+		VOLATILITYNORMAL,
+		VOLATILITYLOGNORMAL,
+		VOLATILITYNORMALATM
+	}
+
+	public enum SwaptionType{
+		PAYER,
+		RECEIVER
+	}
+
+	private final SwaptionType swaptionType;
+	private final LocalDate exerciseDate;
+	private final Schedule scheduleFixedLeg;
+	private final Schedule scheduleFloatLeg;
+	private final double swaprate;
+	private final double notional;
+	private final ValueUnit valueUnit;
+	private final LocalDateTime referenceDate;
+
+	public SwaptionFromSwapSchedules(
+			LocalDateTime referenceDate,
+			SwaptionType swaptionType,
+			LocalDate exerciseDate,
+			Schedule scheduleFixedLeg,
+			Schedule scheduleFloatLeg,
+			double swaprate,
+			double notional,
+			ValueUnit valueUnit) {
+
+		this.referenceDate = referenceDate;
+		this.swaptionType = swaptionType;
+		this.exerciseDate = exerciseDate;
+		this.scheduleFixedLeg = scheduleFixedLeg;
+		this.scheduleFloatLeg = scheduleFloatLeg;
+		this.swaprate = swaprate;
+		this.notional = notional;
+		this.valueUnit = valueUnit;
+	}
+
+	@Override
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model)
+			throws CalculationException {
+
+		LocalDate modelReferenceDate = null;
+		try {
+			modelReferenceDate = model.getReferenceDate().toLocalDate();
+			if(modelReferenceDate == null) {
+				modelReferenceDate = referenceDate.toLocalDate();
+			}
+		}
+		catch(UnsupportedOperationException e) {}
+
+		double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
+
+		RandomVariable discountedCashflowFixLeg			= getValueOfLegAnalytic(exerciseTime, model, scheduleFixedLeg, false, swaprate, notional);
+		RandomVariable discountedCashflowFloatingLeg	= getValueOfLegAnalytic(exerciseTime, model, scheduleFloatLeg, true, 0.0, notional);
+
+		// Distinguish whether the swaption is of type "Payer" or "Receiver":
+		RandomVariable values;
+		if(swaptionType.equals(SwaptionType.PAYER)){
+			values = discountedCashflowFloatingLeg.sub(discountedCashflowFixLeg);
+		}
+		else if(swaptionType.equals(SwaptionType.RECEIVER)){
+			values = discountedCashflowFixLeg.sub(discountedCashflowFloatingLeg);
+		}
+		else {
+			throw new IllegalArgumentException("Unkown swaptionType " + swaptionType);
+		}
+
+		// Floor at zero
+		values = values.floor(0.0);
+
+		RandomVariable	numeraire = model.getNumeraire(exerciseTime);
+		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(exerciseTime);
+		values = values.div(numeraire).mult(monteCarloProbabilities);
+
+		// Note that values is a relative price - no numeraire division is required
+		RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
+		RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+
+		if(valueUnit == ValueUnit.VALUE) {
+			return values;
+		}
+
+		/*
+		 * Need to convert value to different value unit.
+		 */
+
+		// Use analytic formula to calculate the options black/bachelier implied vol using the MC price from above:
+		double atmSwaprate 	= Swap.getForwardSwapRate(scheduleFixedLeg, scheduleFloatLeg, model.getModel().getForwardRateCurve(), model.getModel().getAnalyticModel());
+		double forward = atmSwaprate;
+		double optionStrike = swaprate;
+		double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
+
+		double[] swapTenor = new double[scheduleFixedLeg.getNumberOfPeriods() + 1];
+		for(int i = 0; i < scheduleFixedLeg.getNumberOfPeriods(); i++) {
+			swapTenor[i] = scheduleFixedLeg.getFixing(i);
+		}
+		swapTenor[scheduleFixedLeg.getNumberOfPeriods()] = scheduleFixedLeg.getPayment(scheduleFixedLeg.getNumberOfPeriods() - 1);
+
+		double swapAnnuity      = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getModel().getDiscountCurve());
+
+		switch(valueUnit) {
+		case VALUE:
+			return values;
+		case VOLATILITYNORMAL:
+			double volatitliy = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, swapAnnuity, values.getAverage());
+			return model.getRandomVariableForConstant(volatitliy);
+		case VOLATILITYLOGNORMAL:
+			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, swapAnnuity, values.getAverage()));
+		case VOLATILITYNORMALATM:
+			RandomVariable annuity = getValueOfLegAnalytic(evaluationTime, model, scheduleFixedLeg, false, 1.0, notional);
+			annuity = annuity.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+			return values.div(Math.sqrt(optionMaturity / Math.PI / 2.0)).div(annuity.average());
+		default:
+			throw new IllegalArgumentException("Unsupported valueUnit " + valueUnit.name());
+		}
+	}
+
+	/**
+	 * @return the exercise date
+	 */
+	public LocalDate getExerciseDate() {
+		return exerciseDate;
+	}
+
+
+	/**
+	 * Determines the discounted cashflow of a leg (can handle fix or float).
+	 *
+	 * @param model The monte carlo model
+	 * @param schedule The schedule of the fixed leg
+	 * @param notional The notional
+	 * @return discountedCashflowFloatingLeg
+	 * @throws CalculationException
+	 */
+	private RandomVariable getValueOfLegAnalytic(double exerciseTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
+
+		LocalDate modelReferenceDate = null;
+		try {
+			modelReferenceDate = model.getReferenceDate().toLocalDate();
+			if(modelReferenceDate == null) {
+				modelReferenceDate = referenceDate.toLocalDate();
+			}
+		}
+		catch(UnsupportedOperationException e) {}
+
+		RandomVariable discountedCashflowFloatingLeg	= model.getRandomVariableForConstant(0.0);
+		for(int peridIndex = schedule.getNumberOfPeriods() - 1; peridIndex >= 0; peridIndex--) {
+			Period period = schedule.getPeriod(peridIndex);
+			double paymentTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getPayment());
+			double fixingTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getFixing());
+			double periodLength		= schedule.getPeriodLength(peridIndex);
+
+			RandomVariable discountingAdjusted= null;
+			if(model.getModel() instanceof LIBORMarketModelFromCovarianceModel) {
+				discountingAdjusted = ((LIBORMarketModelFromCovarianceModel)(model.getModel())).getForwardDiscountBond(exerciseTime, paymentTime);
+			}else if(model.getModel() instanceof HullWhiteModel) {
+				discountingAdjusted = ((HullWhiteModel)(model.getModel())).getForwardDiscountBond(exerciseTime, paymentTime);
+			}else {
+				throw new IllegalArgumentException("The passed model is not compatible with this class. Please provide an instance of LIBORMarketModelFromCovarianceModel or HullWhiteModel.");
+			}
+
+			if(paysFloatingRate) {
+				RandomVariable libor	= model.getLIBOR(exerciseTime, fixingTime, paymentTime);
+				RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
+				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountingAdjusted));
+			}
+			if(fixRate != 0) {
+				RandomVariable periodCashFlow = model.getRandomVariableForConstant(swaprate * periodLength * notional);
+				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountingAdjusted));
+			}
+		}
+		return discountedCashflowFloatingLeg;
+
+	}
+
+	@Override
+	public String toString() {
+		return "SwaptionConditionalAnalytic [swaptionType=" + swaptionType + ", referenceDate=" + referenceDate + ", exerciseDate="
+				+ exerciseDate + ", swaprate=" + swaprate + ", valueUnit=" + valueUnit
+				+ ", fixMetaSchedule=" + scheduleFixedLeg + ", floatMetaSchedule="
+				+ scheduleFloatLeg + ", notional=" + notional + "]";
+	}
+
+}
