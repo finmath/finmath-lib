@@ -46,7 +46,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	public RandomVariableUniqueVariable(int variableID, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType) {
 		this.variableID = variableID;
 		this.isConstant = isConstant;
-		this.parentsVariables = parentVariables;
+		parentsVariables = parentVariables;
 		this.parentOperatorType = parentOperatorType;
 	}
 
@@ -93,9 +93,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 		RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;
 
 		/* now we have access to the internal variables of the new RandomVarialeUniqueVariable */
-		this.variableID = newrandomvariableuniquevariable.getVariableID();
+		variableID = newrandomvariableuniquevariable.getVariableID();
 		this.isConstant = newrandomvariableuniquevariable.isConstant();
-		this.parentsVariables = newrandomvariableuniquevariable.getParentVariables();
+		parentsVariables = newrandomvariableuniquevariable.getParentVariables();
 		this.parentOperatorType = newrandomvariableuniquevariable.getParentOperatorType();
 	}
 
@@ -103,7 +103,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 
 	private int[] getParentIDs(){
 
-		if(parentsVariables == null) return null;
+		if(parentsVariables == null) {
+			return null;
+		}
 
 		int[] parentIDs = new int[parentsVariables.size()];
 
@@ -789,7 +791,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 */
 	private RandomVariable getPartialDerivative(int functionIndex, int variableIndex) {
 
-		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) return new RandomVariableFromDoubleArray(0.0);
+		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) {
+			return new RandomVariableFromDoubleArray(0.0);
+		}
 
 		RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
 		ArrayList<RandomVariable> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();

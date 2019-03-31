@@ -65,7 +65,7 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 		this.b = b;
 		this.c = c;
 		this.d = d;
-		this.quotingConvention = QuotingConvention.VOLATILITYNORMAL;	// Preferred qc
+		quotingConvention = QuotingConvention.VOLATILITYNORMAL;	// Preferred qc
 	}
 
 	@Override

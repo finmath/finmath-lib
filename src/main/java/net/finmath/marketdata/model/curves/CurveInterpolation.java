@@ -126,10 +126,10 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		@Override
 		public int compareTo(Point point) {
 			// Ordering of the curve points with respect to time.
-			if(this.time < point.time) {
+			if(time < point.time) {
 				return -1;
 			}
-			if(this.time > point.time) {
+			if(time > point.time) {
 				return +1;
 			}
 
@@ -338,8 +338,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 				rationalFunctionInterpolation = new RationalFunctionInterpolation(
 						pointsArray,
 						valuesArray,
-						RationalFunctionInterpolation.InterpolationMethod.valueOf(this.interpolationMethod.toString()),
-						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(this.extrapolationMethod.toString())
+						RationalFunctionInterpolation.InterpolationMethod.valueOf(interpolationMethod.toString()),
+						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(extrapolationMethod.toString())
 						);
 			}
 		}
@@ -391,8 +391,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 					pointsBeingParameters.add(-parameterIndex-1, point);
 				}
 			}
-			this.rationalFunctionInterpolation = null;
-			this.curveCacheReference = null;
+			rationalFunctionInterpolation = null;
+			curveCacheReference = null;
 		}
 	}
 
@@ -451,8 +451,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
 		}
-		this.rationalFunctionInterpolation = null;
-		this.curveCacheReference = null;
+		rationalFunctionInterpolation = null;
+		curveCacheReference = null;
 	}
 
 	private double interpolationEntityFromValue(double value, double time) {

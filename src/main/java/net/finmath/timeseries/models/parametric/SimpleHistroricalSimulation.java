@@ -28,8 +28,8 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
 	public SimpleHistroricalSimulation(double[] values) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 
 	}
 
@@ -46,7 +46,7 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 	 */
 	@Override
 	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
-		return new SimpleHistroricalSimulation(this.values, windowIndexStart, windowIndexEnd);
+		return new SimpleHistroricalSimulation(values, windowIndexStart, windowIndexEnd);
 	}
 
 	public double[] getSzenarios(int relAbsFlag) {

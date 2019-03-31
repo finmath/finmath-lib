@@ -83,10 +83,10 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 */
 	public Portfolio(AnalyticProduct product, double weight) {
 		super();
-		this.products = new ArrayList<>();
-		this.weights = new ArrayList<>();
-		this.products.add(product);
-		this.weights.add(weight);
+		products = new ArrayList<>();
+		weights = new ArrayList<>();
+		products.add(product);
+		weights.add(weight);
 	}
 
 	/**

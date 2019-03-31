@@ -44,14 +44,14 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	public CalibratableHestonModel(HestonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
-		this.volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
-		this.thetaInfo =new ScalarParameterInformationImplementation(true, new Unconstrained());
-		this.kappaInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
-		this.xiInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
-		this.rhoInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
-		this.applyFellerConstraint = false;
-		this.parameterUpperBounds = extractUpperBounds();
-		this.parameterLowerBounds = extractLowerBounds();
+		volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		thetaInfo =new ScalarParameterInformationImplementation(true, new Unconstrained());
+		kappaInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		xiInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		rhoInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
+		applyFellerConstraint = false;
+		parameterUpperBounds = extractUpperBounds();
+		parameterLowerBounds = extractLowerBounds();
 	}
 
 	/**
@@ -73,14 +73,14 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 			ScalarParameterInformation thetaConstraint, ScalarParameterInformation kappaConstraint, ScalarParameterInformation xiConstraint,
 			ScalarParameterInformation rhoConstraint, boolean applyFellerConstraint) {
 		this.descriptor = descriptor;
-		this.volatilityInfo = volatilityConstraint;
-		this.thetaInfo = thetaConstraint;
-		this.kappaInfo = kappaConstraint;
-		this.xiInfo = xiConstraint;
-		this.rhoInfo = rhoConstraint;
+		volatilityInfo = volatilityConstraint;
+		thetaInfo = thetaConstraint;
+		kappaInfo = kappaConstraint;
+		xiInfo = xiConstraint;
+		rhoInfo = rhoConstraint;
 		this.applyFellerConstraint = applyFellerConstraint;
-		this.parameterUpperBounds = extractUpperBounds();
-		this.parameterLowerBounds = extractLowerBounds();
+		parameterUpperBounds = extractUpperBounds();
+		parameterLowerBounds = extractLowerBounds();
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForForwardRate(),
 				volatility, theta, kappa, xi, rho);
 
-		return new CalibratableHestonModel(newDescriptor,this.volatilityInfo,this.thetaInfo,this.kappaInfo,this.xiInfo,this.rhoInfo,this.applyFellerConstraint);
+		return new CalibratableHestonModel(newDescriptor,volatilityInfo,thetaInfo,kappaInfo,xiInfo,rhoInfo,applyFellerConstraint);
 	}
 
 	@Override

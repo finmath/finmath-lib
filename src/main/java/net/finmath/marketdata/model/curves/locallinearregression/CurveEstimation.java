@@ -77,19 +77,19 @@ public class CurveEstimation{
 		this.bandwidth = bandwidth;
 		this.independentValues = independentValues;
 		this.dependentValues = dependentValues;
-		this.partition = new Partition(partitionValues.clone(), weight);
+		partition = new Partition(partitionValues.clone(), weight);
 
 
 		switch(distribution) {
 		case LAPLACE:
-			this.kernel=new LaplaceDistribution(0,1);
+			kernel=new LaplaceDistribution(0,1);
 			break;
 		case CAUCHY:
-			this.kernel=new CauchyDistribution();
+			kernel=new CauchyDistribution();
 			break;
 		case NORMAL:
 		default:
-			this.kernel=new NormalDistribution();
+			kernel=new NormalDistribution();
 			break;
 		}
 

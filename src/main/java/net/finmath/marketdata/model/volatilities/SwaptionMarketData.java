@@ -36,8 +36,8 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
 	public SwaptionMarketData(double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
 		super();
-		this.forwardCurve = null;		// Implied vol only.
-		this.discountCurve = null;		// Implied vol only.
+		forwardCurve = null;		// Implied vol only.
+		discountCurve = null;		// Implied vol only.
 		this.optionMaturities = new TimeDiscretizationFromArray(optionMaturities);
 		this.tenor = new TimeDiscretizationFromArray(tenor);
 		this.swapPeriodLength = swapPeriodLength;
@@ -58,7 +58,7 @@ public class SwaptionMarketData implements AbstractSwaptionMarketData {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
-		this.optionMaturities = optionMatruities;
+		optionMaturities = optionMatruities;
 		this.tenor = tenor;
 		this.swapPeriodLength = swapPeriodLength;
 		this.impliedVolatilities = impliedVolatilities;

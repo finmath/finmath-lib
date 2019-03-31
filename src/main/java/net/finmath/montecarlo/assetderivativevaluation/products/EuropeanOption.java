@@ -45,10 +45,10 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 */
 	public EuropeanOption(String underlyingName, double maturity, double strike) {
 		super();
-		this.nameOfUnderliyng	= underlyingName;
+		nameOfUnderliyng	= underlyingName;
 		this.maturity			= maturity;
 		this.strike				= strike;
-		this.underlyingIndex		= 0;
+		underlyingIndex		= 0;
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.underlyingIndex	= underlyingIndex;
-		this.nameOfUnderliyng	= null;		// Use underlyingIndex
+		nameOfUnderliyng	= null;		// Use underlyingIndex
 	}
 
 	/**

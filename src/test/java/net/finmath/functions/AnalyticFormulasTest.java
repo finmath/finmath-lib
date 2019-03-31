@@ -43,7 +43,9 @@ public class AnalyticFormulasTest {
 					double optionValue = AnalyticFormulas.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 					double impliedVolatility = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
-					if(isPrintOutVerbose) System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
+					if(isPrintOutVerbose) {
+						System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
+					}
 					Assert.assertEquals(volatility, impliedVolatility, 1E-3);
 				}
 			}
@@ -70,7 +72,9 @@ public class AnalyticFormulasTest {
 					double epsilon = 1E-5*forward;
 					double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
 
-					if(isPrintOutVerbose) System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionDelta) + " \t" + formatterReal2.format(optionDeltaFiniteDifference));
+					if(isPrintOutVerbose) {
+						System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionDelta) + " \t" + formatterReal2.format(optionDeltaFiniteDifference));
+					}
 					Assert.assertEquals(optionDelta, optionDeltaFiniteDifference, 1E-8);
 				}
 			}
@@ -121,7 +125,9 @@ public class AnalyticFormulasTest {
 
 			double[] bestParameters = lm.getBestFitParameters();
 
-			if(isPrintOutVerbose) System.out.println(givenVolatilities[0] + "\t" + lm.getRootMeanSquaredError() + "\t" + Arrays.toString(bestParameters));
+			if(isPrintOutVerbose) {
+				System.out.println(givenVolatilities[0] + "\t" + lm.getRootMeanSquaredError() + "\t" + Arrays.toString(bestParameters));
+			}
 		}
 	}
 

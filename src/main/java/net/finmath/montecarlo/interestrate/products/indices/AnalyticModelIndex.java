@@ -38,7 +38,7 @@ public class AnalyticModelIndex extends AbstractIndex {
 	public AnalyticModelIndex(String name, String curveName, double fixingOffset) {
 		super(name);
 		this.curveName = curveName;
-		this.fixingOffet = fixingOffset;
+		fixingOffet = fixingOffset;
 	}
 
 	@Override

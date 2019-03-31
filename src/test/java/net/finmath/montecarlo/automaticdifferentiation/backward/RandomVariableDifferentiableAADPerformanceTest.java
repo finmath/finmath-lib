@@ -534,7 +534,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 	public RandomVariableDifferentiableAADPerformanceTest(String name, Object[] testCase, AbstractRandomVariableFactory testMethod) {
 		this.testCase = testCase;
-		this.randomVariableFactory = testMethod;
+		randomVariableFactory = testMethod;
 	}
 
 	@Test

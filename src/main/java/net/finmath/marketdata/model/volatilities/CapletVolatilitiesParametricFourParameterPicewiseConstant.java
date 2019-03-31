@@ -47,7 +47,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 		this.c = c;
 		this.d = d;
 		this.timeDiscretization = timeDiscretization;
-		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+		quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
 	}
 
 	/* (non-Javadoc)

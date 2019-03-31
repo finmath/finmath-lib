@@ -54,7 +54,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		super("DiscountCurveFromForwardCurve(" + forwardCurveName + ")", null);
 
 		this.forwardCurveName	= forwardCurveName;
-		this.timeScaling		= periodLengthTimeScaling;
+		timeScaling		= periodLengthTimeScaling;
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", forwardCurve.getReferenceDate());
 
 		this.forwardCurve	= forwardCurve;
-		this.timeScaling	= periodLengthTimeScaling;
+		timeScaling	= periodLengthTimeScaling;
 	}
 
 	/**

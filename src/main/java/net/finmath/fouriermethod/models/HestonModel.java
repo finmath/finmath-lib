@@ -91,9 +91,9 @@ public class HestonModel implements CharacteristicFunctionModel {
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate = Double.NaN; // For safety
+		riskFreeRate = Double.NaN; // For safety
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = Double.NaN; // For safety
+		discountRate = Double.NaN; // For safety
 		this.volatility = volatility;
 		this.theta = theta;
 		this.kappa = kappa;
@@ -132,11 +132,11 @@ public class HestonModel implements CharacteristicFunctionModel {
 	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
 			double xi, double rho) {
 		super();
-		this.referenceDate = null;
+		referenceDate = null;
 		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
 		this.volatility = volatility;
 		this.theta = theta;

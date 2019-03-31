@@ -125,7 +125,9 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 	public double[] getParameterAsDouble() {
 		RandomVariable[] parameters = getParameter();
 		double[] parametersAsDouble = new double[parameters.length];
-		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		for(int i=0; i<parameters.length; i++) {
+			parametersAsDouble[i] = parameters[i].doubleValue();
+		}
 		return parametersAsDouble;
 	}
 

@@ -234,8 +234,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		this.parameterSteps		= parameterSteps;
 		this.maxIteration		= maxIteration;
 		this.errorTolerance		= errorTolerance;
-		this.executor = executorService;
-		this.executorShutdownWhenDone = (executorService == null);
+		executor = executorService;
+		executorShutdownWhenDone = (executorService == null);
 	}
 
 	/**

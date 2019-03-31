@@ -49,7 +49,7 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
 	 */
 	public DayCountConvention_ACT_ACT_ISDA(boolean isCountFirstDayNotLast) {
 		super();
-		this.isCountLastDayNotFirst = isCountFirstDayNotLast;
+		isCountLastDayNotFirst = isCountFirstDayNotLast;
 	}
 
 	/**

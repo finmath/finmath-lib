@@ -105,7 +105,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		this.inverseCumulativeDistributionFunctions = inverseCumulativeDistributionFunctions;
 		this.randomVariableFactory = randomVariableFactory;
 
-		this.increments	= null; 	// Lazy initialization
+		increments	= null; 	// Lazy initialization
 	}
 
 	/**

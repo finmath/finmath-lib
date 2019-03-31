@@ -42,7 +42,7 @@ public class LinearInterpolatedTimeDiscreteProcess implements Process {
 	 */
 	public LinearInterpolatedTimeDiscreteProcess(Map<Double, RandomVariable> realizations) {
 		super();
-		this.timeDiscretization = new TimeDiscretizationFromArray(realizations.keySet());
+		timeDiscretization = new TimeDiscretizationFromArray(realizations.keySet());
 		this.realizations = new HashMap<>();
 		this.realizations.putAll(realizations);
 	}

@@ -189,8 +189,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			}
 		}
 
-		this.isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) this.properties.getOrDefault("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", Boolean.valueOf(true));
-		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
+		isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) this.properties.getOrDefault("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", Boolean.valueOf(true));
+		discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 	}
 
 	/**

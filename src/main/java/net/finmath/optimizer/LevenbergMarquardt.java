@@ -246,12 +246,12 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		this.targetValues		= targetValues;
 		this.maxIteration		= maxIteration;
 
-		this.weights			= new double[targetValues.length];
+		weights			= new double[targetValues.length];
 		java.util.Arrays.fill(weights, 1.0);
 
-		this.executor = executorService;
-		this.executorShutdownWhenDone = (executorService == null);
-		this.numberOfThreads = 1;
+		executor = executorService;
+		executorShutdownWhenDone = (executorService == null);
+		numberOfThreads = 1;
 	}
 
 	/**
@@ -440,7 +440,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		if(done()) {
 			throw new UnsupportedOperationException("Solver cannot be modified after it has run.");
 		}
-		this.errorRootMeanSquaredTolerance = errorTolerance;
+		errorRootMeanSquaredTolerance = errorTolerance;
 		return this;
 	}
 

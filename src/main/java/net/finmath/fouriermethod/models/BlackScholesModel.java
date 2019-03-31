@@ -37,19 +37,19 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 		super();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate = Double.NaN;
+		riskFreeRate = Double.NaN;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = Double.NaN;
+		discountRate = Double.NaN;
 		this.volatility = volatility;
 	}
 
 	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility, double discountRate) {
 		super();
 		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
 	}
 

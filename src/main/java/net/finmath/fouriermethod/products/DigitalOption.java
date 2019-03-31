@@ -37,7 +37,7 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
-		this.nameOfUnderlying	= null;		// Use asset with index 0
+		nameOfUnderlying	= null;		// Use asset with index 0
 	}
 
 	/* (non-Javadoc)

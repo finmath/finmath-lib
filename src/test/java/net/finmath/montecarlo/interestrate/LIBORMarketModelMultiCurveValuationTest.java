@@ -617,7 +617,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
 
 		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
-				this.liborMarketModel.getLiborPeriodDiscretization(),
+				liborMarketModel.getLiborPeriodDiscretization(),
 				forwardCurve, discountCurve, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), null);
 
 		/*

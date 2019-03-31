@@ -44,7 +44,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		super();
 		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
 		this.fixingDates = fixingDates;
-		this.periodLengths = periodLength;
+		periodLengths = periodLength;
 		this.paymentDates = paymentDates;
 		this.periodNotionals = periodNotionals;
 		this.swaprates = swaprates;

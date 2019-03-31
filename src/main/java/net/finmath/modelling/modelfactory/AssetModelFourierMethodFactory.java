@@ -74,7 +74,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 					descriptor.getDiscountCurveForDiscountRate()
 					);
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override
@@ -118,7 +118,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 					descriptor.getRho()
 					);
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override

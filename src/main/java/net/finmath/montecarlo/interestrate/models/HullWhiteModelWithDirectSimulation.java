@@ -144,12 +144,12 @@ public class HullWhiteModelWithDirectSimulation extends AbstractProcessModel imp
 			) {
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		this.curveModel					= analyticModel;
+		curveModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
 
-		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
+		discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
 		numeraires = new ConcurrentHashMap<>();
 	}

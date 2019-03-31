@@ -63,7 +63,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 		}
 		OperatorTreeNode(OperatorType operator, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues) {
 			super();
-			this.id = indexOfNextRandomVariable.getAndIncrement();
+			id = indexOfNextRandomVariable.getAndIncrement();
 			this.operator = operator;
 			this.arguments = arguments;
 			// This is the simple modification which reduces memory requirements.
@@ -92,7 +92,9 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 
 		private RandomVariable getPartialDerivative(OperatorTreeNode differential){
 
-			if(!arguments.contains(differential)) return new RandomVariableFromDoubleArray(0.0);
+			if(!arguments.contains(differential)) {
+				return new RandomVariableFromDoubleArray(0.0);
+			}
 
 			int differentialIndex = arguments.indexOf(differential);
 			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
@@ -281,7 +283,7 @@ public class RandomVariableDifferentiableAADPathwise implements RandomVariableDi
 	private RandomVariableDifferentiableAADPathwise(RandomVariable values, List<RandomVariable> arguments, OperatorType operator) {
 		super();
 		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments);
+		operatorTreeNode = new OperatorTreeNode(operator, arguments);
 	}
 
 	public RandomVariable getRandomVariable() {

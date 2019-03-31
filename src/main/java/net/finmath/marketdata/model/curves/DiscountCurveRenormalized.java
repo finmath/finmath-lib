@@ -36,7 +36,7 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 		this.referenceDate = referenceDate;
 		this.spotDate = spotDate;
 		this.baseCurveName = baseCurveName;
-		this.spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
+		spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
 	}
 
 	@Override
@@ -98,6 +98,6 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
-		this.spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
+		spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);
 	}
 }

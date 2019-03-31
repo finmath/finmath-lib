@@ -37,7 +37,7 @@ public class LaggedIndex extends AbstractIndex {
 		this.index = index;
 		this.fixingOffsetCode = fixingOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
-		this.fixingOffset = 0;
+		fixingOffset = 0;
 	}
 
 	/**
@@ -49,8 +49,8 @@ public class LaggedIndex extends AbstractIndex {
 	public LaggedIndex(AbstractProductComponent index, double fixingOffset) {
 		super();
 		this.index			= index;
-		this.fixingOffsetCode = null;
-		this.paymentBusinessdayCalendar = null;
+		fixingOffsetCode = null;
+		paymentBusinessdayCalendar = null;
 		this.fixingOffset	= fixingOffset;
 	}
 

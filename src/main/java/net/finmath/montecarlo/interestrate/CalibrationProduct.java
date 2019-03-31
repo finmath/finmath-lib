@@ -63,8 +63,11 @@ public class CalibrationProduct {
 	 * @return A short name for this calibration product. If no short name was given, the method returns <code>getProduct().toString()</code>
 	 */
 	public String getName() {
-		if(name != null) return name;
-		else return product.toString();
+		if(name != null) {
+			return name;
+		} else {
+			return product.toString();
+		}
 	}
 
 	/**

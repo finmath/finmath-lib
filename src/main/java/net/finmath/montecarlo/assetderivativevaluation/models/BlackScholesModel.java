@@ -71,9 +71,9 @@ public class BlackScholesModel extends AbstractProcessModel {
 		this.randomVariableFactory = randomVariableFactory;
 
 		// Cache
-		this.initialState = new RandomVariable[] { initialValue.log() };
-		this.drift = new RandomVariable[] { riskFreeRate.sub(volatility.squared().div(2)) };
-		this.factorLoadings = new RandomVariable[] { volatility };
+		initialState = new RandomVariable[] { initialValue.log() };
+		drift = new RandomVariable[] { riskFreeRate.sub(volatility.squared().div(2)) };
+		factorLoadings = new RandomVariable[] { volatility };
 	}
 
 	/**

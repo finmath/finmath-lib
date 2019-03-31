@@ -58,9 +58,9 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
 	 */
 	public SwaptionSimple(double swaprate, double[] swapTenor, ValueUnit valueUnit) {
 		super();
-		this.tenor = new TimeDiscretizationFromArray(swapTenor);
+		tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.swaprate = swaprate;
-		this.swaption	= new Swaption(swapTenor[0], tenor, swaprate);
+		swaption	= new Swaption(swapTenor[0], tenor, swaprate);
 		this.valueUnit	= valueUnit;
 	}
 

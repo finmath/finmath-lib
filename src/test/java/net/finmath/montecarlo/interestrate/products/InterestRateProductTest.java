@@ -81,7 +81,7 @@ public class InterestRateProductTest {
 		super();
 
 		LocalDateTime referenceDate = LocalDateTime.of(2012,01,12, 17, 00);
-		this.liborMarketModel = createLIBORMarketModel(referenceDate, 10000 /* numberOfPaths */, 8, 0.02);
+		liborMarketModel = createLIBORMarketModel(referenceDate, 10000 /* numberOfPaths */, 8, 0.02);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(

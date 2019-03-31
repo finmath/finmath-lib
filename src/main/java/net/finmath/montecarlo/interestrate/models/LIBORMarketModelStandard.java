@@ -843,7 +843,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	@Override
 	public LIBORMarketModelStandard getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
 		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
-		AnalyticModel			analyticModel				= this.curveModel;
+		AnalyticModel			analyticModel				= curveModel;
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
 		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
 		AbstractSwaptionMarketData		swaptionMarketData			= null;

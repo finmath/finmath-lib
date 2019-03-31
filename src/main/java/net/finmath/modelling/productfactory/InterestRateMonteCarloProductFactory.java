@@ -161,9 +161,9 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		public SwapMonteCarlo(InterestRateSwapProductDescriptor descriptor, LocalDate referenceDate) {
 			InterestRateMonteCarloProductFactory factory	= new InterestRateMonteCarloProductFactory(referenceDate);
 			InterestRateProductDescriptor legDescriptor 	= (InterestRateProductDescriptor) descriptor.getLegReceiver();
-			this.legReceiver 								= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
+			legReceiver 								= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
 			legDescriptor 									= (InterestRateProductDescriptor) descriptor.getLegPayer();
-			this.legPayer 									= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
+			legPayer 									= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
 		}
 
 		@Override

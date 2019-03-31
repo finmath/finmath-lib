@@ -26,7 +26,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 
 	public SwaptionATM(double[] swapTenor, ValueUnit valueUnit) {
 		super();
-		this.tenor = new TimeDiscretizationFromArray(swapTenor);
+		tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.valueUnit = valueUnit;
 	}
 

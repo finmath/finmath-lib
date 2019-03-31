@@ -85,7 +85,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		this.b = b;
 		this.c = c;
 		this.d = d;
-		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
+		quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
 	}
 
 	/**

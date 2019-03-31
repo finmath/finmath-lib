@@ -25,7 +25,7 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 
 	public RandomVariableFactory() {
 		super();
-		this.isUseDoublePrecisionFloatingPointImplementation = true;
+		isUseDoublePrecisionFloatingPointImplementation = true;
 	}
 
 	public RandomVariableFactory(boolean isUseDoublePrecisionFloatingPointImplementation) {

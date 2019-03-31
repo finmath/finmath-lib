@@ -121,7 +121,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 				randomVariableFactory,
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.timeToMaturityDiscretization,
+				timeToMaturityDiscretization,
 				parameter
 				);
 	}
@@ -161,8 +161,8 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 		return new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.timeToMaturityDiscretization,
-				this.volatility.clone()
+				timeToMaturityDiscretization,
+				volatility.clone()
 				);
 	}
 

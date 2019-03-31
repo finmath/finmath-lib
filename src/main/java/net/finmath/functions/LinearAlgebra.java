@@ -56,7 +56,9 @@ public class LinearAlgebra {
 			}
 		}
 
-		if(!isJBlasAvailable) isSolverUseApacheCommonsMath = true;
+		if(!isJBlasAvailable) {
+			isSolverUseApacheCommonsMath = true;
+		}
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
 
@@ -77,7 +79,9 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda) {
-		if(lambda == 0) return solveLinearEquationLeastSquare(matrixA, b);
+		if(lambda == 0) {
+			return solveLinearEquationLeastSquare(matrixA, b);
+		}
 
 		/*
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
@@ -127,7 +131,9 @@ public class LinearAlgebra {
 	 * @return
 	 */
 	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda0, double lambda1, double lambda2) {
-		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) return solveLinearEquationLeastSquare(matrixA, b);
+		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) {
+			return solveLinearEquationLeastSquare(matrixA, b);
+		}
 
 		/*
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
@@ -152,16 +158,24 @@ public class LinearAlgebra {
 			double[] matrixRow = matrixRegularized[rows+1*cols+j];
 
 			matrixRow[j] = 0;
-			if(j>0) matrixRow[j-1] = lambda1;
-			if(j<cols-1) matrixRow[j+1] = -lambda1;
+			if(j>0) {
+				matrixRow[j-1] = lambda1;
+			}
+			if(j<cols-1) {
+				matrixRow[j+1] = -lambda1;
+			}
 		}
 
 		for(int j=0; j<cols; j++) {
 			double[] matrixRow = matrixRegularized[rows+2*cols+j];
 
 			matrixRow[j] = lambda2;
-			if(j>0) matrixRow[j-1] = -0.5 * lambda2;
-			if(j<cols-1) matrixRow[j+1] = -0.5 * lambda2;
+			if(j>0) {
+				matrixRow[j-1] = -0.5 * lambda2;
+			}
+			if(j<cols-1) {
+				matrixRow[j+1] = -0.5 * lambda2;
+			}
 		}
 
 		//		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);

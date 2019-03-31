@@ -45,21 +45,21 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 
 	public DisplacedLognormal(double[] values) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 
 		double valuesMin = Double.MAX_VALUE;
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
 			valuesMin = Math.min(values[i], valuesMin);
 		}
-		this.lowerBoundDisplacement = -valuesMin+1;
+		lowerBoundDisplacement = -valuesMin+1;
 
 	}
 
 	public DisplacedLognormal(double[] values, double lowerBoundDisplacement) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 
 		double valuesMin = Double.MAX_VALUE;
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
@@ -78,7 +78,7 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
 			valuesMin = Math.min(values[i], valuesMin);
 		}
-		this.lowerBoundDisplacement = -valuesMin+1;
+		lowerBoundDisplacement = -valuesMin+1;
 	}
 
 	public DisplacedLognormal(double[] values, double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
@@ -95,11 +95,11 @@ public class DisplacedLognormal implements HistoricalSimulationModel {
 
 	@Override
 	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
-		return new DisplacedLognormal(this.values, windowIndexStart, windowIndexEnd);
+		return new DisplacedLognormal(values, windowIndexStart, windowIndexEnd);
 	}
 
 	public HistoricalSimulationModel getCloneWithWindow(double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
-		return new DisplacedLognormal(this.values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);
+		return new DisplacedLognormal(values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);
 	}
 
 	public double getLogLikelihoodForParameters(double omega, double alpha, double beta, double displacement)

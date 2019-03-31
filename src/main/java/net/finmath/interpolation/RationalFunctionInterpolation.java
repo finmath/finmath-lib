@@ -100,8 +100,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 */
 		RationalFunction(double[] coefficients) {
 			super();
-			this.coefficientsNumerator = coefficients;
-			this.coefficientsDenominator = null;
+			coefficientsNumerator = coefficients;
+			coefficientsDenominator = null;
 		}
 
 		/**
@@ -202,9 +202,9 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		// Check for extrapolation
 		if(intervallIndex < 0) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[0];
-			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[0]+(values[1]-values[0])/(points[1]-points[0])*(x-points[0]);
 			} else {
 				intervallIndex = 0;
@@ -212,9 +212,9 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		}
 		else if(intervallIndex > points.length-2) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[points.length-1];
-			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[points.length-1]+(values[points.length-2]-values[points.length-1])/(points[points.length-2]-points[points.length-1])*(x-points[points.length-1]);
 			} else {
 				intervallIndex = points.length-2;

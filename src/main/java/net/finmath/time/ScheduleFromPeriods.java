@@ -45,7 +45,9 @@ public class ScheduleFromPeriods implements Schedule {
 
 	public ScheduleFromPeriods(LocalDate referenceDate, List<Period> periods, DayCountConvention daycountconvention) {
 		super();
-		if(referenceDate == null) throw new IllegalArgumentException("referenceDate must not be null.");
+		if(referenceDate == null) {
+			throw new IllegalArgumentException("referenceDate must not be null.");
+		}
 
 		this.referenceDate = referenceDate;
 		this.periods = periods;

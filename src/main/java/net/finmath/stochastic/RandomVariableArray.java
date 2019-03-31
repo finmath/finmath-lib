@@ -48,13 +48,17 @@ public interface RandomVariableArray extends RandomVariable {
 	default Object toDoubleArray() {
 		if(getLevel() == 1) {
 			double[] doubleArray = new double[getNumberOfElements()];
-			for(int i=0; i<getNumberOfElements(); i++) doubleArray[i] = getElement(i).doubleValue();
+			for(int i=0; i<getNumberOfElements(); i++) {
+				doubleArray[i] = getElement(i).doubleValue();
+			}
 			return doubleArray;
 		}
 		else {
 			// TODO: The following code requires a consistent level on all elements
 			Object[] doubleArray = new Object[getNumberOfElements()];
-			for(int i=0; i<getNumberOfElements(); i++) doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();
+			for(int i=0; i<getNumberOfElements(); i++) {
+				doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();
+			}
 			return doubleArray;
 		}
 	}

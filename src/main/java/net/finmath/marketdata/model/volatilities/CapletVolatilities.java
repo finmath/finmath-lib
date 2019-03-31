@@ -65,7 +65,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 		super(name, referenceDate);
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
-		this.quotingConvention = volatilityConvention;
+		quotingConvention = volatilityConvention;
 
 		if(maturities.length != strikes.length || maturities.length != volatilities.length) {
 			throw new IllegalArgumentException("Length of vectors is not equal.");

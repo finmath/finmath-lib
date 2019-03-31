@@ -263,7 +263,7 @@ public class SwaptionDataLattice implements Serializable {
 		}
 
 		//Reverse sign of moneyness, if switching between payer and receiver convention.
-		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (this.quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
+		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
 
 		List<Integer> maturities	= new ArrayList<>();
 		List<Integer> tenors		= new ArrayList<>();
@@ -277,8 +277,8 @@ public class SwaptionDataLattice implements Serializable {
 			values.add(getValue(key.maturity, key.tenor, key.moneyness, targetConvention, displacement, model));
 		}
 
-		return new SwaptionDataLattice(this.referenceDate, targetConvention, displacement,
-				this.forwardCurveName, this.discountCurveName, this.floatMetaSchedule, this.fixMetaSchedule,
+		return new SwaptionDataLattice(referenceDate, targetConvention, displacement,
+				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule,
 				maturities.stream().mapToInt(Integer::intValue).toArray(),
 				tenors.stream().mapToInt(Integer::intValue).toArray(),
 				moneynesss.stream().mapToInt(Integer::intValue).toArray(),
@@ -595,7 +595,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(double maturity, double tenor, double moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -613,7 +613,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(int maturityInMonths, int tenorInMonths, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturityInMonths, tenorInMonths, moneynessBP);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -630,7 +630,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(String tenorCode, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(tenorCode, moneynessBP);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -669,7 +669,7 @@ public class SwaptionDataLattice implements Serializable {
 		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		double optionMaturity = floatSchedule.getFixing(0);
 		double offset = key.moneyness /10000.0;
-		double optionStrike = forward + (this.quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
+		double optionStrike = forward + (quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
 		double payoffUnit = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
 		if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL)) {
@@ -800,8 +800,8 @@ public class SwaptionDataLattice implements Serializable {
 		DataKey(String tenorCode, int moneyness) {
 			super();
 			String[] inputs = tenorCode.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)", 4);
-			this.maturity	= Integer.parseInt(inputs[0]) * (inputs[1].equalsIgnoreCase("Y")? 12 : inputs[1].equalsIgnoreCase("M")? 1 : 0 );
-			this.tenor		= Integer.parseInt(inputs[2]) * (inputs[3].equalsIgnoreCase("Y")? 12 : inputs[3].equalsIgnoreCase("M")? 1 : 0 );
+			maturity	= Integer.parseInt(inputs[0]) * (inputs[1].equalsIgnoreCase("Y")? 12 : inputs[1].equalsIgnoreCase("M")? 1 : 0 );
+			tenor		= Integer.parseInt(inputs[2]) * (inputs[3].equalsIgnoreCase("Y")? 12 : inputs[3].equalsIgnoreCase("M")? 1 : 0 );
 			this.moneyness	= moneyness;
 		}
 

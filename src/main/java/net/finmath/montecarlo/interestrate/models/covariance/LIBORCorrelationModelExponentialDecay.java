@@ -62,7 +62,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 
 		this.numberOfFactors	= numberOfFactors;
 		this.a					= a;
-		this.isCalibrateable	= false;
+		isCalibrateable	= false;
 
 		initialize(numberOfFactors, a);
 	}

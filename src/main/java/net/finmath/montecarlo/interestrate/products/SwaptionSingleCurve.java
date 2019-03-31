@@ -71,7 +71,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 		this.exerciseDate = exerciseDate;
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
-		this.periodLengths = null;
+		periodLengths = null;
 		this.swaprates = swaprates;
 	}
 
@@ -89,16 +89,16 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 		super();
 		this.exerciseDate = exerciseDate;
 
-		this.fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
-		this.paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			fixingDates[periodIndex] = swapTenor.getTime(periodIndex);
 			paymentDates[periodIndex] = swapTenor.getTime(periodIndex+1);
 		}
 
-		this.periodLengths = null;
+		periodLengths = null;
 
-		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
+		swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
 	}
 

@@ -48,21 +48,21 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 	public DisplacedLognormalGARCH(double[] values) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 
 		double valuesMin = Double.MAX_VALUE;
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
 			valuesMin = Math.min(values[i], valuesMin);
 		}
-		this.lowerBoundDisplacement = -valuesMin+1;
+		lowerBoundDisplacement = -valuesMin+1;
 
 	}
 
 	public DisplacedLognormalGARCH(double[] values, double lowerBoundDisplacement) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 
 		double valuesMin = Double.MAX_VALUE;
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
@@ -81,7 +81,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		for (int i = windowIndexStart; i <= windowIndexEnd; i++) {
 			valuesMin = Math.min(values[i], valuesMin);
 		}
-		this.lowerBoundDisplacement = -valuesMin+1;
+		lowerBoundDisplacement = -valuesMin+1;
 	}
 
 	public DisplacedLognormalGARCH(double[] values, double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
@@ -98,11 +98,11 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 	@Override
 	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
-		return new DisplacedLognormalGARCH(this.values, windowIndexStart, windowIndexEnd);
+		return new DisplacedLognormalGARCH(values, windowIndexStart, windowIndexEnd);
 	}
 
 	public HistoricalSimulationModel getCloneWithWindow(double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
-		return new DisplacedLognormalGARCH(this.values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);
+		return new DisplacedLognormalGARCH(values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);
 	}
 
 	public double getLogLikelihoodForParameters(double omega, double alpha, double beta, double displacement)

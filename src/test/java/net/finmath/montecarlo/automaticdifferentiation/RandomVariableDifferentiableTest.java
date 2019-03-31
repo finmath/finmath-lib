@@ -46,7 +46,7 @@ public class RandomVariableDifferentiableTest {
 	private final AbstractRandomVariableDifferentiableFactory randomVariableFactory;
 
 	public RandomVariableDifferentiableTest(AbstractRandomVariableDifferentiableFactory factory) {
-		this.randomVariableFactory = factory;
+		randomVariableFactory = factory;
 	}
 
 	@Test

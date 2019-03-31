@@ -54,7 +54,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
 
-		this.paymentOffset = Double.NaN;
+		paymentOffset = Double.NaN;
 
 		this.discountCurveName = discountCurveName;
 	}
@@ -86,9 +86,9 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		this.paymentOffset = paymentOffset;
 		this.discountCurveName = discountCurveName;
 
-		this.paymentOffsetCode = null;
-		this.paymentBusinessdayCalendar = null;
-		this.paymentDateRollConvention = null;
+		paymentOffsetCode = null;
+		paymentBusinessdayCalendar = null;
+		paymentDateRollConvention = null;
 	}
 
 	/* (non-Javadoc)

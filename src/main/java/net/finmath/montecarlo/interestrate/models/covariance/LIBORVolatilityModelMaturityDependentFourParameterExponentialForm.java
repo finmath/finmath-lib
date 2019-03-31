@@ -37,7 +37,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 			RandomVariable[] parameterC,
 			RandomVariable[] parameterD) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.randomVariableFactory = new RandomVariableFactory();
+		randomVariableFactory = new RandomVariableFactory();
 		a = parameterA;
 		b = parameterB;
 		c = parameterC;

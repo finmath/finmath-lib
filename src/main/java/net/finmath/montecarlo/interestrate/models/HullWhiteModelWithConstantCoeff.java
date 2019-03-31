@@ -76,13 +76,13 @@ public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implem
 			) {
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		this.curveModel					= analyticModel;
+		curveModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.meanReversion		= meanReversion;
 		this.volatility			= volatility;
 
-		this.discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
+		discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);
 
 		numeraires = new ConcurrentHashMap<>();
 	}

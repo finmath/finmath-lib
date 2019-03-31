@@ -30,7 +30,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	public ScalarParameterInformationImplementation(boolean isParameterToCalibrate) {
 		super();
 		this.isParameterToCalibrate = isParameterToCalibrate;
-		this.constraint = new Unconstrained();
+		constraint = new Unconstrained();
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	 */
 	public ScalarParameterInformationImplementation(ScalarConstraint constraint) {
 		super();
-		this.isParameterToCalibrate = true;
+		isParameterToCalibrate = true;
 		this.constraint = constraint;
 	}
 

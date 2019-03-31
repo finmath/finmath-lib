@@ -60,7 +60,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 		 */
 		public Builder(SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
 			super((CurveInterpolation)(seasonalCurve.baseCurve));
-			this.curve = seasonalCurve;
+			curve = seasonalCurve;
 		}
 
 		@Override
@@ -93,7 +93,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 			seasonTimes[j] = j/12.0;
 			seasonValue[j] = seasonValueCummulated;
 		}
-		this.baseCurve = new CurveInterpolation(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
+		baseCurve = new CurveInterpolation(name + "-seasonal-base", referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue);
 	}
 
 	/**

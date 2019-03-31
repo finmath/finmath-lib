@@ -16,7 +16,7 @@ public class GammaDistribution {
 
 	public GammaDistribution(double shape, double scale) {
 		super();
-		this.gammaDistribution = new org.apache.commons.math3.distribution.GammaDistribution(shape, scale);
+		gammaDistribution = new org.apache.commons.math3.distribution.GammaDistribution(shape, scale);
 	}
 
 	/**

@@ -53,9 +53,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
-		this.drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
-		this.volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
+		initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
+		drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
+		volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
 	}
 
 	/**
@@ -85,9 +85,9 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
 		 * We construct the corresponding random variables here and will return (immutable) references to them.
 		 */
-		this.initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
-		this.drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
-		this.volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
+		initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);
+		drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);
+		volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);
 	}
 
 	@Override

@@ -89,7 +89,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	public RandomVariable[]	getParameter() {
 		double[] parameterAsDouble = this.getParameterAsDouble();
 		RandomVariable[] parameter = new RandomVariable[parameterAsDouble.length];
-		for(int i=0; i<parameter.length; i++) parameter[i] = new Scalar(parameterAsDouble[i]);
+		for(int i=0; i<parameter.length; i++) {
+			parameter[i] = new Scalar(parameterAsDouble[i]);
+		}
 		return parameter;
 	};
 
@@ -114,7 +116,9 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 */
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		double[] parameterAsDouble = new double[parameters.length];
-		for(int i=0; i<parameterAsDouble.length; i++) parameterAsDouble[i] = parameters[i].doubleValue();
+		for(int i=0; i<parameterAsDouble.length; i++) {
+			parameterAsDouble[i] = parameters[i].doubleValue();
+		}
 		return getCloneWithModifiedParameters(parameterAsDouble);
 	}
 

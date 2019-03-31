@@ -31,9 +31,9 @@ public class WorstOfExpressCertificate implements Product {
 			double[] redemption, double redemptionFinal) {
 		super();
 		this.maturity = maturity;
-		this.strikeLevels = baseLevels;
+		strikeLevels = baseLevels;
 		this.exerciseDates = exerciseDates;
-		this.triggerPerformanceLevel = triggerLevels;
+		triggerPerformanceLevel = triggerLevels;
 		this.redemption = redemption;
 		this.redemptionFinal = redemptionFinal;
 	}

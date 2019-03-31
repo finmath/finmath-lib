@@ -15,8 +15,8 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 	private final double strike;
 
 	public FDMEuropeanCallOption(double optionMaturity, double optionStrike) {
-		this.maturity = optionMaturity;
-		this.strike = optionStrike;
+		maturity = optionMaturity;
+		strike = optionStrike;
 	}
 
 	@Override

@@ -40,9 +40,9 @@ public class FDMThetaMethod {
 		this.center = center;
 		this.theta = theta;
 
-		this.gamma = (2 * model.getRiskFreeRate()) / Math.pow(model.getVolatility(), 2);
-		this.alpha = -0.5 * (gamma - 1);
-		this.beta = -0.25 * Math.pow((gamma + 1), 2);
+		gamma = (2 * model.getRiskFreeRate()) / Math.pow(model.getVolatility(), 2);
+		alpha = -0.5 * (gamma - 1);
+		beta = -0.25 * Math.pow((gamma + 1), 2);
 	}
 
 	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator valueAtMaturity) {

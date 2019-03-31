@@ -153,8 +153,8 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 				numberOfFactors,
 				a, b, c, isCalibrateable);
 
-		newModel.correlationMatrix	= this.correlationMatrix;
-		newModel.factorMatrix		= this.factorMatrix;
+		newModel.correlationMatrix	= correlationMatrix;
+		newModel.factorMatrix		= factorMatrix;
 
 		return newModel;
 	}

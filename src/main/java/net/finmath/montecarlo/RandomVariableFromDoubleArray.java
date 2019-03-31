@@ -59,10 +59,10 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 */
 	public RandomVariableFromDoubleArray(RandomVariable value) {
 		super();
-		this.time = value.getFiltrationTime();
-		this.realizations = value.isDeterministic() ? null : value.getRealizations();
-		this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
-		this.typePriority = typePriorityDefault;
+		time = value.getFiltrationTime();
+		realizations = value.isDeterministic() ? null : value.getRealizations();
+		valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
+		typePriority = typePriorityDefault;
 	}
 
 	/**
@@ -82,10 +82,10 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 */
 	public RandomVariableFromDoubleArray(RandomVariable value, DoubleUnaryOperator function) {
 		super();
-		this.time = value.getFiltrationTime();
-		this.realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();
-		this.valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
-		this.typePriority = typePriorityDefault;
+		time = value.getFiltrationTime();
+		realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();
+		valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
+		typePriority = typePriorityDefault;
 	}
 
 
@@ -99,8 +99,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	public RandomVariableFromDoubleArray(double time, double value, int typePriority) {
 		super();
 		this.time = time;
-		this.realizations = null;
-		this.valueIfNonStochastic = value;
+		realizations = null;
+		valueIfNonStochastic = value;
 		this.typePriority = typePriority;
 	}
 
@@ -125,10 +125,10 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	public RandomVariableFromDoubleArray(double time, int numberOfPath, double value) {
 		super();
 		this.time = time;
-		this.realizations = new double[numberOfPath];
-		java.util.Arrays.fill(this.realizations, value);
-		this.valueIfNonStochastic = Double.NaN;
-		this.typePriority = typePriorityDefault;
+		realizations = new double[numberOfPath];
+		java.util.Arrays.fill(realizations, value);
+		valueIfNonStochastic = Double.NaN;
+		typePriority = typePriorityDefault;
 	}
 
 	/**
@@ -145,8 +145,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	public RandomVariableFromDoubleArray(double time, double[] realisations, int typePriority) {
 		super();
 		this.time = time;
-		this.realizations = realisations;
-		this.valueIfNonStochastic = Double.NaN;
+		realizations = realisations;
+		valueIfNonStochastic = Double.NaN;
 		this.typePriority = typePriority;
 		//		for(double value : realisations) if(Double.isNaN(value)) {
 		//			throw new ArithmeticException("Not a Numbber");
@@ -179,7 +179,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		super();
 		this.time = time;
 		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
-		this.valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
+		valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
 		if(size > 1) {
 			IntStream.range(0,size).parallel().forEach(i ->
 			this.realizations[i] = realizations.applyAsDouble(i)
@@ -201,11 +201,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 
 	@Override
 	public boolean equals(RandomVariable randomVariable) {
-		if(this.time != randomVariable.getFiltrationTime()) {
+		if(time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
 		if(this.isDeterministic() && randomVariable.isDeterministic()) {
-			return this.valueIfNonStochastic == randomVariable.get(0);
+			return valueIfNonStochastic == randomVariable.get(0);
 		}
 
 		if(this.isDeterministic() != randomVariable.isDeterministic()) {
@@ -649,7 +649,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		else
 		{
 			// Still faster than a parallel stream (2014.04)
-			double[] result = new double[this.realizations.length];
+			double[] result = new double[realizations.length];
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i]);
 			}
@@ -1264,8 +1264,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		newTime = Math.max(newTime, valueIfTriggerNegative.getFiltrationTime());
 
 		if(isDeterministic()) {
-			if(valueIfNonStochastic >= 0) return valueIfTriggerNonNegative;
-			else return valueIfTriggerNegative;
+			if(valueIfNonStochastic >= 0) {
+				return valueIfTriggerNonNegative;
+			} else {
+				return valueIfTriggerNegative;
+			}
 		}
 		else {
 			int numberOfPaths = this.size();

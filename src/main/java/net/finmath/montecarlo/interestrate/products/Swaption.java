@@ -103,19 +103,19 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		super();
 		this.exerciseDate = exerciseDate;
 
-		this.fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
-		this.paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			fixingDates[periodIndex] = swapTenor.getTime(periodIndex);
 			paymentDates[periodIndex] = swapTenor.getTime(periodIndex+1);
 		}
 
-		this.periodLengths = null;
+		periodLengths = null;
 
-		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
+		swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
 
-		this.notional = 1.0;
+		notional = 1.0;
 	}
 
 	/**
@@ -238,26 +238,26 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	}
 
 	public double getExerciseDate(){
-		return this.exerciseDate;
+		return exerciseDate;
 	}
 
 	public double[]  getFixingDates(){
-		return this.fixingDates;
+		return fixingDates;
 	}
 
 	public double[] getPaymentDates(){
-		return this.paymentDates;
+		return paymentDates;
 	}
 
 	public double[] getPeriodLengths(){
-		return this.periodLengths;
+		return periodLengths;
 	}
 
 	public double[] getSwaprates(){
-		return this.swaprates;
+		return swaprates;
 	}
 
 	public double getNotional(){
-		return this.notional;
+		return notional;
 	}
 }

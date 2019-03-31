@@ -43,8 +43,8 @@ public class Portfolio extends AbstractProductComponent {
 	 */
 	public Portfolio(AbstractLIBORMonteCarloProduct product, double weight) {
 		super(product.getCurrency());
-		this.products = new AbstractLIBORMonteCarloProduct[] { product };
-		this.weights = new double[] { weight };
+		products = new AbstractLIBORMonteCarloProduct[] { product };
+		weights = new double[] { weight };
 	}
 
 	/**

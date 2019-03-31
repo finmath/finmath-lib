@@ -110,47 +110,47 @@ public class OptionSurfaceData {
 
 			mySurface.put(maturity, smiles[t]);
 		}
-		this.underlying = myUnderlying;
-		this.referenceDate = myReferenceDate;
+		underlying = myUnderlying;
+		referenceDate = myReferenceDate;
 		this.discountCurve = discountCurve;
 		this.equityForwardCurve = equityForwardCurve;
-		this.surface = mySurface;
-		this.convention = myConvention;
-		this.maturities = mats;
+		surface = mySurface;
+		convention = myConvention;
+		maturities = mats;
 
 	}
 
 	public DiscountCurve getDiscountCurve() {
-		return this.discountCurve;
+		return discountCurve;
 	}
 
 	public DiscountCurve getEquityForwardCurve() {
-		return this.equityForwardCurve;
+		return equityForwardCurve;
 	}
 
 
 	public String getName() {
-		return this.underlying;
+		return underlying;
 	}
 
 	public LocalDate getReferenceDate() {
-		return this.referenceDate;
+		return referenceDate;
 	}
 
 	public QuotingConvention getQuotingConvention() {
-		return this.convention;
+		return convention;
 	}
 
 	public HashMap<Double, OptionSmileData> getSurface(){
-		return this.surface;
+		return surface;
 	}
 
 	public double[] getMaturities() {
-		return this.maturities;
+		return maturities;
 	}
 
 	public double getValue(double maturity, double strike){
-		return getValue(maturity, strike, this.convention);
+		return getValue(maturity, strike, convention);
 	}
 
 
@@ -162,23 +162,23 @@ public class OptionSurfaceData {
 
 	public double getValue(AnalyticModel model, double maturity, double strike,
 			QuotingConvention quotingConvention) {
-		if(quotingConvention.equals(this.convention)) {
-			OptionSmileData relevantSmile = this.surface.get(maturity);
+		if(quotingConvention.equals(convention)) {
+			OptionSmileData relevantSmile = surface.get(maturity);
 
 			return relevantSmile.getSmile().get(strike).getValue();
 		} else {
-			if(quotingConvention == QuotingConvention.PRICE && this.convention == QuotingConvention.VOLATILITYLOGNORMAL) {
+			if(quotingConvention == QuotingConvention.PRICE && convention == QuotingConvention.VOLATILITYLOGNORMAL) {
 
 				double forwardPrice = equityForwardCurve.getValue(maturity);
 				double discountBond = discountCurve.getValue(maturity);
-				OptionSmileData relevantSmile = this.surface.get(maturity);
+				OptionSmileData relevantSmile = surface.get(maturity);
 				double volatility = relevantSmile.getSmile().get(strike).getValue();
 				return net.finmath.functions.AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardPrice, volatility, maturity, strike, discountBond);
 
-			} else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL && this.convention == QuotingConvention.PRICE) {
+			} else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL && convention == QuotingConvention.PRICE) {
 				double forwardPrice = equityForwardCurve.getValue(maturity);
 				double discountBond = discountCurve.getValue(maturity);
-				OptionSmileData relevantSmile = this.surface.get(maturity);
+				OptionSmileData relevantSmile = surface.get(maturity);
 				double price = relevantSmile.getSmile().get(strike).getValue();
 				return net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forwardPrice,maturity,strike,discountBond,price);
 

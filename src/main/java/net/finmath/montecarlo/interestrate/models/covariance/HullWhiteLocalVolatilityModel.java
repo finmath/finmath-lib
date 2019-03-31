@@ -110,7 +110,9 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 
 		if(dataModified != null) {
-			if(!dataModified.containsKey("covarianceModel"))covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			if(!dataModified.containsKey("covarianceModel")) {
+				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
 
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);

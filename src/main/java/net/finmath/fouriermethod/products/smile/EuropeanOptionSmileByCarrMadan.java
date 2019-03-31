@@ -50,18 +50,18 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 	//Constructors
 	public EuropeanOptionSmileByCarrMadan(double maturity, double[] strikes) {
 		super(maturity, strikes);
-		this.numberOfPoints = 4096;
-		this.gridSpacing = 0.1;
-		this.intMethod =InterpolationMethod.HARMONIC_SPLINE;
-		this.extMethod = ExtrapolationMethod.CONSTANT;
+		numberOfPoints = 4096;
+		gridSpacing = 0.1;
+		intMethod =InterpolationMethod.HARMONIC_SPLINE;
+		extMethod = ExtrapolationMethod.CONSTANT;
 	}
 
 	public EuropeanOptionSmileByCarrMadan(String underlyingName, double maturity, double[] strikes) {
 		super(underlyingName, maturity, strikes);
-		this.numberOfPoints = 4096;
-		this.gridSpacing = 0.1;
-		this.intMethod =InterpolationMethod.HARMONIC_SPLINE;
-		this.extMethod = ExtrapolationMethod.CONSTANT;
+		numberOfPoints = 4096;
+		gridSpacing = 0.1;
+		intMethod =InterpolationMethod.HARMONIC_SPLINE;
+		extMethod = ExtrapolationMethod.CONSTANT;
 	}
 
 

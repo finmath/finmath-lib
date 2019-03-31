@@ -55,10 +55,10 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 		LIBORCovarianceModelExponentialForm7Param model = (LIBORCovarianceModelExponentialForm7Param)this.clone();
 
 		model.parameter = parameters;
-		if(parameters[0] != this.parameter[0] || parameters[1] != this.parameter[1] || parameters[2] != this.parameter[2] || parameters[3] != this.parameter[3]) {
+		if(parameters[0] != parameter[0] || parameters[1] != parameter[1] || parameters[2] != parameter[2] || parameters[3] != parameter[3]) {
 			model.volatilityModel	= new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3]);
 		}
-		if(parameters[4] != this.parameter[4] || parameters[5] != this.parameter[5] || parameters[6] != this.parameter[6]) {
+		if(parameters[4] != parameter[4] || parameters[5] != parameter[5] || parameters[6] != parameter[6]) {
 			model.correlationModel	= new LIBORCorrelationModelThreeParameterExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameters[4], parameters[5], parameters[6], false);
 		}
 

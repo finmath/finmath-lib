@@ -83,7 +83,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		this.initialValues	= initialValues;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatilities	= volatilities;
-		this.factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
 
 
 		/*
@@ -98,11 +98,11 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		drift = new RandomVariable[getNumberOfComponents()];
 		factorLoadingOnPaths = new RandomVariable[getNumberOfComponents()][];
 		for(int underlyingIndex = 0; underlyingIndex<initialValues.length; underlyingIndex++) {
-			this.initialStates[underlyingIndex]				= process.getStochasticDriver().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
-			this.drift[underlyingIndex]						= process.getStochasticDriver().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
-			this.factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[process.getNumberOfFactors()];
+			initialStates[underlyingIndex]				= process.getStochasticDriver().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
+			drift[underlyingIndex]						= process.getStochasticDriver().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
+			factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[process.getNumberOfFactors()];
 			for(int factorIndex = 0; factorIndex<process.getNumberOfFactors(); factorIndex++) {
-				this.factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getStochasticDriver().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
+				factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getStochasticDriver().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
 			}
 		}
 

@@ -18,9 +18,6 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
-import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * A (floating) rate index representing the performance of the numeraire asset.
@@ -30,7 +27,7 @@ import net.finmath.time.daycount.DayCountConvention;
  * where \( s \) denotes the period start and  \( t \) denotes the period end and dc is a given daycount convention.
  *
  * The index fetches fixing, payment and daycount conventions, etc. from a given schedule.
- * The index fails to evaluate 
+ * The index fails to evaluate
  *
  * @author Christian Fries
  * @version 1.1
@@ -40,7 +37,7 @@ public class NumerairePerformanceOnScheduleIndex extends AbstractIndex {
 	private static final long serialVersionUID = 1L;
 
 	private final Schedule schedule;
-	
+
 	public NumerairePerformanceOnScheduleIndex(String name, String currency, Schedule schedule) {
 		super(name, currency);
 		this.schedule = schedule;

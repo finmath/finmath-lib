@@ -223,8 +223,8 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 			}
 		}
 
-		this.executor = executorService;
-		this.executorShutdownWhenDone = (executorService == null);
+		executor = executorService;
+		executorShutdownWhenDone = (executorService == null);
 	}
 
 	/**
@@ -529,13 +529,13 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 
 				// Lazy init of lambda and isParameterCurrentDerivativeValid
-				this.numberOfPaths = isPointAccepted.size();		// @TODO: check for parameter and target value sizes!
+				numberOfPaths = isPointAccepted.size();		// @TODO: check for parameter and target value sizes!
 				if(lambda == null) {
-					this.lambda = new double[numberOfPaths];
+					lambda = new double[numberOfPaths];
 					Arrays.fill(lambda, lambdaInitialValue);
 				}
 				if(isParameterCurrentDerivativeValid == null) {
-					this.isParameterCurrentDerivativeValid = new boolean[numberOfPaths];
+					isParameterCurrentDerivativeValid = new boolean[numberOfPaths];
 					Arrays.fill(isParameterCurrentDerivativeValid, false);
 				}
 

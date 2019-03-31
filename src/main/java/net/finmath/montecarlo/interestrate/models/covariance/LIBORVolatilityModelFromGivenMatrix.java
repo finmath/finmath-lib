@@ -73,7 +73,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 			boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
-		this.randomVariableFactory = new RandomVariableFactory();
+		randomVariableFactory = new RandomVariableFactory();
 		this.volatility = volatility.clone();
 		this.isCalibrateable = isCalibrateable;
 	}

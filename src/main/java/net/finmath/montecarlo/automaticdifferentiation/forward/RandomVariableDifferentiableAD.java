@@ -86,7 +86,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, Object operator) {
 			super();
-			this.id = indexOfNextRandomVariable.getAndIncrement();
+			id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
 			this.arguments = arguments;
 			this.operator = operator;
@@ -148,7 +148,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		}
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
-			if(arguments == null) return;
+			if(arguments == null) {
+				return;
+			}
 			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
 				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
@@ -182,7 +184,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 		private RandomVariable getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
-			if(!arguments.contains(differential)) return zero;
+			if(!arguments.contains(differential)) {
+				return zero;
+			}
 
 			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
 			RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
@@ -397,9 +401,9 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	public RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator, int methodArgumentTypePriority) {
 		super();
 		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
+		operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
 
-		this.typePriority = methodArgumentTypePriority;
+		typePriority = methodArgumentTypePriority;
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {

@@ -31,7 +31,9 @@ public class Scalar implements RandomVariable {
 
 	public static Scalar[] arrayOf(double[] arrayOfDoubles) {
 		Scalar[] array = new Scalar[arrayOfDoubles.length];
-		for(int i=0; i<arrayOfDoubles.length; i++) array[i] = new Scalar(arrayOfDoubles[i]);
+		for(int i=0; i<arrayOfDoubles.length; i++) {
+			array[i] = new Scalar(arrayOfDoubles[i]);
+		}
 		return array;
 	}
 
@@ -318,8 +320,11 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
-		if(value >= 0) return valueIfTriggerNonNegative;
-		else return valueIfTriggerNegative;
+		if(value >= 0) {
+			return valueIfTriggerNonNegative;
+		} else {
+			return valueIfTriggerNegative;
+		}
 	}
 
 	@Override

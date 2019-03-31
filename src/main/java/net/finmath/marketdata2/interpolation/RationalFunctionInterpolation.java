@@ -94,8 +94,8 @@ public class RationalFunctionInterpolation  {
 		 */
 		RationalFunction(RandomVariable[] coefficients) {
 			super();
-			this.coefficientsNumerator = coefficients;
-			this.coefficientsDenominator = null;
+			coefficientsNumerator = coefficients;
+			coefficientsDenominator = null;
 		}
 
 		/**
@@ -197,9 +197,9 @@ public class RationalFunctionInterpolation  {
 		// Check for extrapolation
 		if(intervallIndex < 0) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[0];
-			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[0].add((values[1].sub(values[0])).div(points[1]-points[0]).mult(x-points[0]));
 			} else {
 				intervallIndex = 0;
@@ -207,9 +207,9 @@ public class RationalFunctionInterpolation  {
 		}
 		else if(intervallIndex > points.length-2) {
 			// Extrapolation
-			if(this.extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[points.length-1];
-			} else if(this.extrapolationMethod == ExtrapolationMethod.LINEAR) {
+			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[points.length-1].add((values[points.length-2].sub(values[points.length-1])).div(points[points.length-2]-points[points.length-1]).mult(x-points[points.length-1]));
 			} else {
 				intervallIndex = points.length-2;

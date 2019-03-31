@@ -73,7 +73,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);
 
 		lowerBound = new double[] { 0, 							0, 0, 							0, 							0, this.lowerBoundDisplacement };
-		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, this.upperBoundDisplacement };
+		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, upperBoundDisplacement };
 	}
 
 	public DisplacedLognormalGJRGARCH(TimeSeries timeSeries, double lowerBoundDisplacement, double upperBoundDisplacement) {

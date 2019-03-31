@@ -97,7 +97,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 					randomVariableFactory),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override
@@ -137,7 +137,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, randomVariableFactory),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override

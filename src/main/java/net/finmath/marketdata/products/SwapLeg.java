@@ -62,7 +62,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 		this.forwardCurveName = forwardCurveName;
 		this.spreads = spreads;
 		this.discountCurveName = discountCurveName;
-		this.discountCurveForNotionalResetName = discountCurveName;
+		discountCurveForNotionalResetName = discountCurveName;
 		this.isNotionalExchanged = isNotionalExchanged;
 		this.notionals = notionals;
 	}

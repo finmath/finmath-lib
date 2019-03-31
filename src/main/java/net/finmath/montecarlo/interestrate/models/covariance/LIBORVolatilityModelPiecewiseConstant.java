@@ -36,7 +36,7 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 	public LIBORVolatilityModelPiecewiseConstant(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, TimeDiscretization simulationTimeDiscretization, TimeDiscretization timeToMaturityDiscretization, RandomVariable[] volatility, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
-		this.randomVariableFactory = new RandomVariableFactory();
+		randomVariableFactory = new RandomVariableFactory();
 
 		/*
 		 * Build index map
@@ -138,7 +138,9 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		}
 		else if(volatility.length == volatilityIndex) {
 			this.volatility = new RandomVariable[volatilityIndex];
-			for(int i=0; i<volatility.length; i++) this.volatility[i] = randomVariableFactory.createRandomVariable(volatility[i]);
+			for(int i=0; i<volatility.length; i++) {
+				this.volatility[i] = randomVariableFactory.createRandomVariable(volatility[i]);
+			}
 		}
 		else {
 			throw new IllegalArgumentException("Volatility length does not match number of free parameters.");
@@ -182,10 +184,10 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		return new LIBORVolatilityModelPiecewiseConstant(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.simulationTimeDiscretization,
-				this.timeToMaturityDiscretization,
+				simulationTimeDiscretization,
+				timeToMaturityDiscretization,
 				parameter,
-				this.isCalibrateable
+				isCalibrateable
 				);
 	}
 
@@ -231,10 +233,10 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 		return new LIBORVolatilityModelPiecewiseConstant(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.simulationTimeDiscretization,
-				this.timeToMaturityDiscretization,
-				this.volatility.clone(),
-				this.isCalibrateable
+				simulationTimeDiscretization,
+				timeToMaturityDiscretization,
+				volatility.clone(),
+				isCalibrateable
 				);
 	}
 

@@ -66,7 +66,7 @@ public class Solver {
 		this.parameterTransformation = parameterTransformation;
 		this.evaluationTime = evaluationTime;
 		this.optimizerFactory = optimizerFactory;
-		this.calibrationAccuracy = 0.0;
+		calibrationAccuracy = 0.0;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class Solver {
 		this.parameterTransformation = parameterTransformation;
 		this.evaluationTime = evaluationTime;
 		this.calibrationAccuracy = calibrationAccuracy;
-		this.optimizerFactory = null;
+		optimizerFactory = null;
 	}
 
 	/**
