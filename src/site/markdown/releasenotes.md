@@ -10,7 +10,7 @@ finmath lib Release Notes
 
 ### Interest Rate Models
 
- - Added net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules - an implementation of Monte-Carlo valuatio of a swaption based on swap scheduled, being compatible with AAD.
+ - Added `net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules` - an implementation of a Monte-Carlo valuation of a swaption based on swap schedules, being compatible with AAD.
 
 
 ## 4.0.7 (24.03.2019)
