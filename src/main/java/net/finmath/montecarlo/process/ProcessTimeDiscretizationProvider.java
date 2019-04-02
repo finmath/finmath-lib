@@ -22,5 +22,11 @@ import net.finmath.time.TimeDiscretization;
  */
 public interface ProcessTimeDiscretizationProvider {
 
+	/**
+	 * Returns a suggestion for a time discretization which is suited (or required) for the processing (e.g valuation) of this object.
+	 * 
+	 * @param referenceDate A reference date relative to which the discretization is generated.
+	 * @return A time discretization.
+	 */
 	TimeDiscretization getProcessTimeDiscretization(LocalDateTime referenceDate);
 }
