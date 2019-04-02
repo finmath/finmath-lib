@@ -2,6 +2,12 @@ package net.finmath.montecarlo.interestrate.products;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
@@ -10,21 +16,23 @@ import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
+import net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.Period;
 import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * Implementation of a Monte-Carlo vauation of a swaption valuation being compatible with AAD.
+ * Implementation of a Monte-Carlo valuation of a swaption valuation being compatible with AAD.
  *
  * The valuation internally uses an analytic valuation of a swap such that the {@link #getValue(double, LIBORModelMonteCarloSimulationModel)} method
  * returns an valuation being \( \mathcal{F}_{t} \}-measurable where \( t \) is the evaluationTime argument.
  *
  * @author Christian Fries
  */
-public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct {
+public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements ProcessTimeDiscretizationProvider {
 
 	public enum ValueUnit {
 		VALUE,
@@ -148,6 +156,19 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct {
 		}
 	}
 
+	@Override
+	public TimeDiscretization getProcessTimeDiscretization(LocalDateTime referenceDate) {
+		Set<Double> times = new HashSet<>();
+
+		times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDate.atStartOfDay()));
+		
+		Function<Period, Double> periodToTime = period -> { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); };
+		times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
+		times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
+
+		return new TimeDiscretizationFromArray(times);
+	}
+
 	/**
 	 * @return the exercise date
 	 */
@@ -213,5 +234,4 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct {
 				+ ", fixMetaSchedule=" + scheduleFixedLeg + ", floatMetaSchedule="
 				+ scheduleFloatLeg + ", notional=" + notional + "]";
 	}
-
 }
