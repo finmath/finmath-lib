@@ -2,9 +2,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -161,7 +159,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 		Set<Double> times = new HashSet<>();
 
 		times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDate.atStartOfDay()));
-		
+
 		Function<Period, Double> periodToTime = period -> { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); };
 		times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 		times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));

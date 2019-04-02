@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Implements the Monte-Carlo valuation of a swaption under a LIBORModelMonteCarloSimulationModel.
- * 
+ *
  * Note: This implementation is based on model relative times (using ACT/365 floating point offsets).
  * An implementation using dates and exact swap schedules is provided by {@link SwaptionFromSwapSchedules}.
  *
