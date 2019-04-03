@@ -18,7 +18,7 @@ public interface Swaption {
 	 * 
 	 * @author Christian Fries
 	 */
-	public enum ValueUnit {
+	enum ValueUnit {
 		/** Returns the value of the swaption **/
 		VALUE,
 		/** Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i> **/
