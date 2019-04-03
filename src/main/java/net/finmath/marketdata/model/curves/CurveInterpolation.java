@@ -95,6 +95,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 	/**
 	 * Possible interpolation entities.
+	 * 
 	 * @author Christian Fries
 	 */
 	public enum InterpolationEntity {
@@ -106,6 +107,11 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		LOG_OF_VALUE_PER_TIME
 	}
 
+	/**
+	 * Representation of a 2D curve point including the boolean property if the point is fixed or calibrateable.
+	 * 
+	 * @author Christian Fries
+	 */
 	public static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
