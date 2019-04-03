@@ -575,7 +575,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private RandomVariable getMRTime(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
-			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point
 		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
@@ -610,7 +610,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private RandomVariable getB(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
-			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point
 		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
@@ -654,7 +654,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
-			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point
 		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
@@ -700,7 +700,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
-			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to next point
 		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
@@ -751,7 +751,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	public RandomVariable getShortRateConditionalVariance(double time, double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
-			timeIndexStart = -timeIndexStart-1;	// Get timeIndex corresponding to next point
+			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to next point
 		}
 
 		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);
