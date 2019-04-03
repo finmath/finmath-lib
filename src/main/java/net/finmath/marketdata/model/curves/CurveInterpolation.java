@@ -13,6 +13,8 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -104,7 +106,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		LOG_OF_VALUE_PER_TIME
 	}
 
-	private static class Point implements Comparable<Point>, Serializable {
+	public static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
 		public double time;
@@ -346,7 +348,6 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		return rationalFunctionInterpolation.getValue(time);
 	}
 
-
 	/**
 	 * Add a point to this curve. The method will throw an exception if the point
 	 * is already part of the curve.
@@ -421,6 +422,15 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	 */
 	public InterpolationEntity getInterpolationEntity() {
 		return interpolationEntity;
+	}
+
+	/**
+	 * Returns the interpolation points.
+	 * 
+	 * @return An unmodifiable list of points.
+	 */
+	public List<Point> getPoints() {
+		return Collections.unmodifiableList(points);
 	}
 
 	protected int getTimeIndex(double time) {
