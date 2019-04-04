@@ -149,7 +149,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
 			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
-			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModel.getModel()).getInitialValue()[0];
 			RandomVariable deltaAAD = derivative.get(initialValue.getID());
 
 			results.put("delta.aad", deltaAAD);
@@ -173,7 +173,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
 			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
-			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModel.getModel()).getInitialValue()[0];
 
 			RandomVariable deltaRegression = derivative.get(initialValue.getID());
 

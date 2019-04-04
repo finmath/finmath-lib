@@ -181,7 +181,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		if(properties != null) {
 			for(Map.Entry<String,?> property : properties.entrySet()) {
 				if(Serializable.class.isAssignableFrom(property.getValue().getClass())) {
-					properties.put(property.getKey(), (Serializable)property.getValue());
+					properties.put(property.getKey(), property.getValue());
 				}
 				else {
 					logger.warning("Ignored non serializable property under the key " + property.getKey() + ":" + property.getValue());

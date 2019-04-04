@@ -239,6 +239,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		return parametersAsDouble;
 	}
 
+	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		if(parameters == null || parameters.length == 0) {
 			return this;

@@ -267,7 +267,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				new LIBORMarketModelNormalAADSensitivitiesTest(
 						(String)data[0],
 						(AbstractLIBORMonteCarloProduct)data[1],
-						Optional.of((int)i), //(int)data[2]
+						Optional.of(i), //(int)data[2]
 						false
 						).testDelta();
 			}
@@ -540,8 +540,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 		System.out.println("number of vegas (theoretical)...: " + numberOfVegasTheoretical);
 		System.out.println("number of vegas (effective).....: " + numberOfVegasEffective);
-		System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
-		System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
+		System.out.println("memory (AAD)....................: " + formatReal1.format((memoryEnd-memoryStart)/1024.0/1024.0) + " M");
+		System.out.println("memory (check)-.................: " + formatReal1.format((memoryEnd2-memoryStart)/1024.0/1024.0) + " M");
 		System.out.println("\n");
 
 		Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
@@ -697,8 +697,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 			System.out.println("number of Deltas (theoretical)...: " + numberOfDeltasTheoretical);
 			System.out.println("number of Deltas (effective).....: " + numberOfDeltasEffective);
-			System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
-			System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("memory (AAD)....................: " + formatReal1.format((memoryEnd-memoryStart)/1024.0/1024.0) + " M");
+			System.out.println("memory (check)-.................: " + formatReal1.format((memoryEnd2-memoryStart)/1024.0/1024.0) + " M");
 			System.out.println("\n");
 
 			Assert.assertEquals("Valuation", valueSimulation2, valueSimulation, 0.0 /* delta */);
@@ -826,8 +826,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			System.out.println("derivative (AAD).(all buckets)..: " + formatReal1.format((timingGradientEnd-timingGradientStart)/1000.0) + " s");
 			System.out.println("number of Deltas (theoretical)...: " + numberOfDeltasTheoretical);
 			System.out.println("number of Deltas (effective).....: " + numberOfDeltasEffective);
-			System.out.println("memory (AAD)....................: " + formatReal1.format(((double)(memoryEnd-memoryStart))/1024.0/1024.0) + " M");
-			System.out.println("memory (check)-.................: " + formatReal1.format(((double)(memoryEnd2-memoryStart))/1024.0/1024.0) + " M");
+			System.out.println("memory (AAD)....................: " + formatReal1.format((memoryEnd-memoryStart)/1024.0/1024.0) + " M");
+			System.out.println("memory (check)-.................: " + formatReal1.format((memoryEnd2-memoryStart)/1024.0/1024.0) + " M");
 			System.out.println("\n");
 
 			/*

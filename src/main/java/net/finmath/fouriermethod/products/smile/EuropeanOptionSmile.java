@@ -61,6 +61,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 		return -1;
 	}
 
+	@Override
 	public abstract Map<String, Function<Double,Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException;
 
 	/**

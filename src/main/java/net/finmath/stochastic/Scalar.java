@@ -27,9 +27,9 @@ public class Scalar implements RandomVariable {
 	public Scalar(double value) {
 		super();
 		this.value = value;
-		if(Double.isNaN(value)) {
-			throw new ArithmeticException("Not a Numbber");
-		}
+//		if(Double.isNaN(value)) {
+//			throw new ArithmeticException("Not a Numbber");
+//		}
 	}
 
 	public static Scalar[] arrayOf(double[] arrayOfDoubles) {

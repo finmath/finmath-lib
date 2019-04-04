@@ -327,6 +327,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		public int getPriority() {
 			return priority;
 		}
+		@Override
 		public int compareTo(FutureTaskWithPriority<T> o) {
 			return this.getPriority() < o.getPriority() ? -1 : this.getPriority() == o.getPriority() ? 0 : 1;
 		}

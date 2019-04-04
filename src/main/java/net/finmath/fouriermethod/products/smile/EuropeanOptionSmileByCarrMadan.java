@@ -74,6 +74,7 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 		this.extMethod = extMethod;
 	}
 
+	@Override
 	public Map<String, Function<Double, Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException {
 
 		CharacteristicFunction modelCF = model.apply(getMaturity());

@@ -27,8 +27,10 @@ public interface MonteCarloProduct extends Product {
 	 */
 	String getCurrency();
 
+	@Override
 	Object getValue(double evaluationTime, Model model);
 
+	@Override
 	Map<String, Object> getValues(double evaluationTime, Model model);
 
 	/**

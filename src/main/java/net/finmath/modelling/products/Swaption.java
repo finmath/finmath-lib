@@ -48,7 +48,13 @@ public interface Swaption {
 		 * Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i>
 		 * @deprecated Use VOLATILITYLOGNORMAL instead
 		 */
-		VOLATILITY
+		VOLATILITY,
+		
+		/**
+		 * The Bachelier implied volatility, assuming an ATM option.
+		 * The value is obtained by multiplying VALUE with 1.0 / Math.sqrt(optionMaturity / Math.PI / 2.0) / annuity
+		 */
+		VOLATILITYNORMALATM
 
 	}
 }

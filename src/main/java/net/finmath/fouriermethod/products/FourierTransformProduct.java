@@ -19,8 +19,10 @@ import net.finmath.modelling.Product;
  */
 public interface FourierTransformProduct extends Product {
 
+	@Override
 	Double getValue(double evaluationTime, Model model);
 
+	@Override
 	Map<String, Object> getValues(double evaluationTime, Model model);
 
 	/**
