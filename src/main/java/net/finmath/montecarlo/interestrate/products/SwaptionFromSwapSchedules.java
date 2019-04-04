@@ -30,7 +30,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  *
  * @author Christian Fries
  */
-public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements ProcessTimeDiscretizationProvider {
+public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements ProcessTimeDiscretizationProvider, net.finmath.modelling.products.Swaption {
 
 	public enum ValueUnit {
 		VALUE,

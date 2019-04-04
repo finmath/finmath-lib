@@ -58,7 +58,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 17.05.2007.
  * @version 1.0
  */
-public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
+public class SwaptionGeneralizedAnalyticApproximation extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	public enum StateSpace { //state space of the underlying LMM
 		NORMAL,

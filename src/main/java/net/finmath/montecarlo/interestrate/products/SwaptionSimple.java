@@ -24,17 +24,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Christian Fries
  * @version 1.2
  */
-public class SwaptionSimple extends AbstractLIBORMonteCarloProduct {
-
-	public enum ValueUnit {
-		VALUE,
-		INTEGRATEDLOGNORMALVARIANCE,
-		INTEGRATEDNORMALVARIANCE,
-		INTEGRATEDVARIANCE,	/// Backward compatibility, same as INTEGRATEDLOGNORMALVARIANCE
-		VOLATILITYLOGNORMAL,
-		VOLATILITYNORMAL,
-		VOLATILITY	/// Backward compatibility, same as VOLATILITY_LOGNORMAL
-	}
+public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final TimeDiscretization	tenor;
 	private final double						swaprate;

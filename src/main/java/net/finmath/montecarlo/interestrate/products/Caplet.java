@@ -20,11 +20,11 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,
-		/*
+		/**
 		 * @deprecated Use INTEGRATEDLOGNORMALVARIANCE
 		 */
 		INTEGRATEDVARIANCE,
-		/*
+		/**
 		 * @deprecated Use LOGNORMALVOLATILITY
 		 */
 		VOLATILITY,
