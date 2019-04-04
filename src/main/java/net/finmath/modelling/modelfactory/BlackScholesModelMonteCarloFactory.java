@@ -71,7 +71,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			@Override
 			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor(productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();

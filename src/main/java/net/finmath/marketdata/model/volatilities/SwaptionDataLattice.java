@@ -823,7 +823,7 @@ public class SwaptionDataLattice implements Serializable {
 
 		@Override
 		public int hashCode() {
-			return (int) (maturity + 100* tenor + 10000* moneyness);
+			return maturity + 100* tenor + 10000* moneyness;
 		}
 	}
 }

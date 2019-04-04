@@ -449,6 +449,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @deprecated Use LIBORMarketModelFromCovarianceModel.of() instead.
 	 */
+	@Deprecated
 	public LIBORMarketModelFromCovarianceModel(
 			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModel			analyticModel,
@@ -495,7 +496,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				throw new ClassCastException("Calibration restricted to covariance models implementing LIBORCovarianceModelCalibrateable.");
 			}
 
-			this.covarianceModel    = (LIBORCovarianceModel) covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);
+			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);
 		}
 		else {
 			this.covarianceModel	= covarianceModel;
@@ -566,6 +567,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @deprecated Use LIBORMarketModelFromCovarianceModel.of() instead.
 	 */
+	@Deprecated
 	public LIBORMarketModelFromCovarianceModel(
 			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModel				analyticModel,
@@ -747,6 +749,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @deprecated Use LIBORMarketModelFromCovarianceModel.of() instead.
 	 */
+	@Deprecated
 	public LIBORMarketModelFromCovarianceModel(
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurve				forwardRateCurve,
@@ -829,6 +832,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		return calibrationProducts.toArray(new CalibrationProduct[calibrationProducts.size()]);
 	}
 
+	@Override
 	public LocalDateTime getReferenceDate() {
 		return forwardRateCurve.getReferenceDate() != null ? forwardRateCurve.getReferenceDate().atStartOfDay() : null;
 	}

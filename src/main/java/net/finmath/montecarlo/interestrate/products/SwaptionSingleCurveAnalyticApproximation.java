@@ -10,7 +10,6 @@ import java.util.Map;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;

@@ -37,6 +37,7 @@ public abstract class AbstractShortRateVolatilityModel implements ShortRateVolat
 	 *
 	 * @return the timeDiscretizationFromArray
 	 */
+	@Override
 	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
