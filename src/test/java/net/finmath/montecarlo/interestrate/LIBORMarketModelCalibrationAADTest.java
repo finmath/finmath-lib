@@ -623,6 +623,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					new RandomVariableFromDoubleArray(swapannuity)).doubleValue();
 			calibrationProduct  = new CalibrationProduct(swaptionMonteCarlo, targetPrice, weight);
 			break;
+		case INTEGRATEDVARIANCENORMAL:
 		case INTEGRATEDNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYNORMAL:
@@ -671,6 +672,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), discountCurve));
 			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, weight);
 			break;
+		case INTEGRATEDVARIANCELOGNORMAL:
 		case INTEGRATEDLOGNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYLOGNORMAL:

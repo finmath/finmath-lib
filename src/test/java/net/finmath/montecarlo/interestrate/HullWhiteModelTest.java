@@ -576,7 +576,7 @@ public class HullWhiteModelTest {
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value with analytic formula (approximate, using Bachelier formula)
-			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 			double volatilityAnalytic = swaptionAnalytic.getValue(liborMarketModelSimulation);
 			double valueAnalytic = AnalyticFormulas.bachelierOptionValue(swaprate, volatilityAnalytic, exerciseDate, swaprate, swapAnnuity);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
@@ -664,7 +664,7 @@ public class HullWhiteModelTest {
 			System.out.print(formatterValue.format(valueSimulationLMM) + "          ");
 
 			// Value the underlying swaption with analytic formula (approximate, using Bachelier formula)
-			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+			SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 			double volatilityAnalytic = swaptionAnalytic.getValue(liborMarketModelSimulation);
 			double valueAnalytic = AnalyticFormulas.bachelierOptionValue(swaprate, volatilityAnalytic, exerciseDate, swaprate, swapAnnuity);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");

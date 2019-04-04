@@ -807,7 +807,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				}
 
 				if(isUseAnalyticApproximation) {
-					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+					AbstractLIBORMonteCarloProduct swaption = new SwaptionAnalyticApproximation(swaprate, swapTenorTimes, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 					double impliedVolatility = swaptionMarketData.getVolatility(exerciseDate, swapLength, swaptionMarketData.getSwapPeriodLength(), swaprate);
 
 					calibrationProducts.add(new CalibrationProduct(swaption, impliedVolatility, 1.0));

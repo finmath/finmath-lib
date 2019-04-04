@@ -80,7 +80,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements ne
 		double strikeSwaprate = swaprate;
 		double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
 
-		if(valueUnit == ValueUnit.VOLATILITY || valueUnit == ValueUnit.VOLATILITYLOGNORMAL) {
+		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
 			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
 		}
@@ -88,11 +88,11 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements ne
 			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
 		}
-		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCE  || valueUnit == ValueUnit.INTEGRATEDLOGNORMALVARIANCE) {
+		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE  || valueUnit == ValueUnit.INTEGRATEDLOGNORMALVARIANCE) {
 			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}
-		else if(valueUnit == ValueUnit.INTEGRATEDNORMALVARIANCE) {
+		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCENORMAL || valueUnit == ValueUnit.INTEGRATEDNORMALVARIANCE) {
 			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}

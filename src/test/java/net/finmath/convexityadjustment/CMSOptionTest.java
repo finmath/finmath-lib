@@ -80,7 +80,7 @@ public class CMSOptionTest {
 		 */
 
 		// Calculate approximate swaprate volatility from LIBOR market model (analytic).
-		SwaptionAnalyticApproximation swaptionAnalytic	= new SwaptionAnalyticApproximation(strike, swapTenor, SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCE);
+		SwaptionAnalyticApproximation swaptionAnalytic	= new SwaptionAnalyticApproximation(strike, swapTenor, SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCELOGNORMAL);
 		double swaprateIntegratedVariance				= swaptionAnalytic.getValue(liborMarketModelMonteCarloSimulation);
 		double swaprateVolatility						= Math.sqrt(swaprateIntegratedVariance/exerciseDate);
 

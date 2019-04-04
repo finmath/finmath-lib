@@ -16,6 +16,7 @@ import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.modelling.products.Swaption.ValueUnit;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -145,14 +146,14 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		}
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+		if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
 			return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateVariance);
 		}
 
 		double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.VOLATILITY) {
+		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
 			return new RandomVariableFromDoubleArray(evaluationTime, volatility);
 		}
 

@@ -587,7 +587,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				boolean isUseAnalyticCalibration = false;
 				if(isUseAnalyticCalibration) {
 					// Use an analytic approximation to the swaption - much faster
-					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 
 					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}

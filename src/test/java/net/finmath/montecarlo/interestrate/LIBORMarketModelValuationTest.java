@@ -727,13 +727,13 @@ public class LIBORMarketModelValuationTest {
 				boolean isUseAnalyticCalibration = true;
 				if(isUseAnalyticCalibration) {
 					// Use an analytic approximation to the swaption - much faster
-					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 
 					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
 				else {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
-					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITY);
+					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITYLOGNORMAL);
 					calibrationProducts.add(new CalibrationProduct(swaptionMonteCarlo, targetValueVolatilty, 1.0));
 
 					// Alternative: Calibration to prices
