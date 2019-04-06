@@ -71,7 +71,7 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.ScheduleMetaData;
+import net.finmath.time.SchedulePrototype;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
@@ -345,7 +345,7 @@ public class HullWhiteModelTest {
 		 * Set up the derivative
 		 */
 		//Set properties of input swaptions
-		ScheduleMetaData fixMetaSchedule = new ScheduleMetaData(
+		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.E30_360,
 				ShortPeriodConvention.FIRST,
@@ -355,7 +355,7 @@ public class HullWhiteModelTest {
 				0,
 				false);
 
-		ScheduleMetaData floatMetaSchedule = new ScheduleMetaData(
+		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.FIRST,

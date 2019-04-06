@@ -19,7 +19,7 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleMetaData;
+import net.finmath.time.SchedulePrototype;
 
 /**
  * Saves market data of swaption on a lattice of option maturity x swap tenor x option moneyness.
@@ -62,8 +62,8 @@ public class SwaptionDataLattice implements Serializable {
 	private final String							forwardCurveName;
 	private final String							discountCurveName;
 
-	private final ScheduleMetaData					floatMetaSchedule;
-	private final ScheduleMetaData 					fixMetaSchedule;
+	private final SchedulePrototype					floatMetaSchedule;
+	private final SchedulePrototype 					fixMetaSchedule;
 
 	private final		Map<DataKey, Double>		entryMap = new HashMap<>();
 	private transient	Map<Integer, int[][]>		keyMap;
@@ -83,7 +83,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -107,7 +107,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -130,7 +130,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -155,7 +155,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturitiesInMonths.length; i++) {
@@ -179,7 +179,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
@@ -202,7 +202,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynessBP, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < tenorCodes.length; i++) {
@@ -222,7 +222,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 */
 	private SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule) {
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule) {
 		super();
 		this.referenceDate		= referenceDate;
 		this.quotingConvention	= quotingConvention;
@@ -741,14 +741,14 @@ public class SwaptionDataLattice implements Serializable {
 	/**
 	 * @return The schedule meta data for the float leg of the swaptions.
 	 */
-	public ScheduleMetaData getFloatMetaSchedule() {
+	public SchedulePrototype getFloatMetaSchedule() {
 		return floatMetaSchedule;
 	}
 
 	/**
 	 * @return The schedule meta data for the fix leg of the swaptions.
 	 */
-	public ScheduleMetaData getFixMetaSchedule() {
+	public SchedulePrototype getFixMetaSchedule() {
 		return fixMetaSchedule;
 	}
 
