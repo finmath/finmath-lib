@@ -427,15 +427,15 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 			double paymentOffset = getPaymentOffset(fixingTime);
 			interpolationEntitiyTime = fixingTime+paymentOffset;
 			interpolationEntityForwardValue = forward.mult(paymentOffset).add(1.0).log().div(paymentOffset);
+			break;
 		}
-		break;
 		case DISCOUNTFACTOR:
 		{
 			double paymentOffset = getPaymentOffset(fixingTime);
 			interpolationEntitiyTime		= fixingTime+paymentOffset;
 			interpolationEntityForwardValue = getValue(fixingTime).div(forward.mult(paymentOffset).add(1.0));
+			break;
 		}
-		break;
 		}
 		super.addPoint(interpolationEntitiyTime, interpolationEntityForwardValue, isParameter);
 	}

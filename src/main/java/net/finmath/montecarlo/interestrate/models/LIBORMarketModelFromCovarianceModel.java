@@ -1333,28 +1333,25 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 		}
 
+		// Analytic adjustment for the interpolation
+		// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
+		// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+		double analyticOnePlusLongLIBORDt   = 1 + getForwardRateCurve().getForward(getAnalyticModel(), tenorPeriodStartTime, tenorDt) * tenorDt;
+		double analyticOnePlusShortLIBORDt	= 1 + getForwardRateCurve().getForward(getAnalyticModel(), periodStartTime, smallDt) * smallDt;
+
+		double analyticOnePlusInterpolatedLIBORDt;
+		switch(interpolationMethod)
 		{
-			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
-			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
-			double analyticOnePlusLongLIBORDt   = 1 + getForwardRateCurve().getForward(getAnalyticModel(), tenorPeriodStartTime, tenorDt)
-					* tenorDt;
-			double analyticOnePlusShortLIBORDt	= 1 + getForwardRateCurve().getForward(getAnalyticModel(), periodStartTime, smallDt)
-					* smallDt;
-			double analyticOnePlusInterpolatedLIBORDt;
-			switch(interpolationMethod)
-			{
-			case LINEAR:
-				analyticOnePlusInterpolatedLIBORDt = analyticOnePlusLongLIBORDt * alpha + (1-alpha);
-				break;
-			case LOG_LINEAR_UNCORRECTED:
-			case LOG_LINEAR_CORRECTED:
-				analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(analyticOnePlusLongLIBORDt) * alpha);
-				break;
-			default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
-			}
-			onePlusInterpolatedLIBORDt = onePlusInterpolatedLIBORDt.mult(analyticOnePlusShortLIBORDt / analyticOnePlusInterpolatedLIBORDt);
+		case LINEAR:
+			analyticOnePlusInterpolatedLIBORDt = analyticOnePlusLongLIBORDt * alpha + (1-alpha);
+			break;
+		case LOG_LINEAR_UNCORRECTED:
+		case LOG_LINEAR_CORRECTED:
+			analyticOnePlusInterpolatedLIBORDt = Math.exp(Math.log(analyticOnePlusLongLIBORDt) * alpha);
+			break;
+		default: throw new IllegalArgumentException("Method for enum " + interpolationMethod.name() + " not implemented!");
 		}
+		onePlusInterpolatedLIBORDt = onePlusInterpolatedLIBORDt.mult(analyticOnePlusShortLIBORDt / analyticOnePlusInterpolatedLIBORDt);
 
 		return onePlusInterpolatedLIBORDt;
 	}
@@ -1394,9 +1391,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 					RandomVariable interpolationDriftAdjustment = interpolationDriftAdjustmentsTerminal.get(liborIndex);
 					if(interpolationDriftAdjustment == null) {
-						;
-					}
-					{
 						interpolationDriftAdjustment = getInterpolationDriftAdjustmentEvaluated(evaluationTimeIndex, liborIndex);
 						interpolationDriftAdjustmentsTerminal.set(liborIndex, interpolationDriftAdjustment);
 					}
@@ -1420,27 +1414,34 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 		RandomVariable driftAdjustment = getRandomVariableForConstant(0.0);
 
-		//integral approximation with trapezoid method.
+		/*
+		 * Integral approximation with trapezoid method.
+		 */
 		RandomVariable previousIntegrand = getRandomVariableForConstant(0.0);
+
+		/*
+		 * Value in 0
+		 */
+		RandomVariable[] realizationsAtZero = new RandomVariable[getNumberOfLibors()];
+		for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
 		{
-			RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
-			for(int liborIndexForRealization = 0; liborIndexForRealization < getNumberOfLibors(); liborIndexForRealization++)
-			{
-				realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(0, liborIndexForRealization);
-			}
-			RandomVariable[] factorLoading = getFactorLoading(0, liborIndex, realizationsAtTimeIndex);
-			//o_{Li}(t)
-			for(RandomVariable oneFactor : factorLoading)
-			{
-				previousIntegrand = previousIntegrand.add(oneFactor.squared());
-			}
-			previousIntegrand = previousIntegrand.div( (realizationsAtTimeIndex[liborIndex].mult(tenorDt).add(1.0)).squared() );
-			if(stateSpace == StateSpace.LOGNORMAL)
-			{
-				previousIntegrand = previousIntegrand.mult( realizationsAtTimeIndex[liborIndex].squared() );
-			}
+			realizationsAtZero[liborIndexForRealization] = getLIBOR(0, liborIndexForRealization);
+		}
+		RandomVariable[] factorLoading = getFactorLoading(0, liborIndex, realizationsAtZero);
+		//o_{Li}(t)
+		for(RandomVariable oneFactor : factorLoading)
+		{
+			previousIntegrand = previousIntegrand.add(oneFactor.squared());
+		}
+		previousIntegrand = previousIntegrand.div( (realizationsAtZero[liborIndex].mult(tenorDt).add(1.0)).squared() );
+		if(stateSpace == StateSpace.LOGNORMAL)
+		{
+			previousIntegrand = previousIntegrand.mult( realizationsAtZero[liborIndex].squared() );
 		}
 
+		/*
+		 * Integration
+		 */
 		for(int sumTimeIndex = 1; sumTimeIndex <= evaluationTimeIndex; sumTimeIndex++)
 		{
 			RandomVariable[] realizationsAtTimeIndex = new RandomVariable[getNumberOfLibors()];
@@ -1453,10 +1454,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				}
 				realizationsAtTimeIndex[liborIndexForRealization] = getLIBOR(evaluationTimeIndexForRealizations, liborIndexForRealization);
 			}
-			RandomVariable[] factorLoading = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
+			RandomVariable[] factorLoadingAtTimeIndex = getFactorLoading(sumTimeIndex, liborIndex, realizationsAtTimeIndex);
 			//o_{Li}(t)
 			RandomVariable   integrand = getRandomVariableForConstant(0.0);
-			for ( RandomVariable oneFactor: factorLoading)
+			for ( RandomVariable oneFactor: factorLoadingAtTimeIndex)
 			{
 				integrand = integrand.add(oneFactor.squared());
 			}
@@ -1471,7 +1472,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		return driftAdjustment;
-
 	}
 
 	@Override
