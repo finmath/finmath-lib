@@ -1,9 +1,5 @@
 package net.finmath.time;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
-import net.finmath.modelling.descriptor.ScheduleDescriptor;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
@@ -17,7 +13,13 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConventi
  * @author Roland Bachl
  * @deprecated
  */
+@Deprecated
 public class ScheduleMetaData extends SchedulePrototype {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 2208562942537781355L;
 
 	/**
 	 * Construct the ScheduleMetaData.
