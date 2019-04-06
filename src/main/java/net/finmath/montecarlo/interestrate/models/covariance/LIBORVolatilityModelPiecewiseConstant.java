@@ -280,8 +280,10 @@ public class LIBORVolatilityModelPiecewiseConstant extends LIBORVolatilityModel 
 
 			if(dataModified.getOrDefault("volatility", volatility) instanceof double[][]) {
 				volatility = (double[][])dataModified.getOrDefault("volatility", volatility);
-			}else {
+			}
+			else {
 				// TODO Implement handling for double[], double, RV[], RV
+				throw new UnsupportedOperationException("volatility parameter type not supported.");
 			}
 		}
 
