@@ -201,7 +201,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			}else if(model.getModel() instanceof HullWhiteModel) {
 				discountingAdjusted = ((HullWhiteModel)(model.getModel())).getForwardDiscountBond(exerciseTime, paymentTime);
 			}else {
-				throw new IllegalArgumentException("The passed model is not compatible with this class. Please provide an instance of LIBORMarketModelFromCovarianceModel or HullWhiteModel.");
+				throw new IllegalArgumentException("The passed model is not compatible with this class. Please provide an instance where getModel() is either LIBORMarketModelFromCovarianceModel or HullWhiteModel.");
 			}
 
 			if(paysFloatingRate) {
