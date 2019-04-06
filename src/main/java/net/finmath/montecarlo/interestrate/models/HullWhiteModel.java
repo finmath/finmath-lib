@@ -349,6 +349,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return numeraire;
 	}
 
+	@Override
 	public RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
 		RandomVariable inverseForwardBondAsOfTime = getLIBOR(time, time, maturity).mult(maturity-time).add(1.0);
 		RandomVariable inverseForwardBondAsOfZero = getLIBOR(0.0, time, maturity).mult(maturity-time).add(1.0);
