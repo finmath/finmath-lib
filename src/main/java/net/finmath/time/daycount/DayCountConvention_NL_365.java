@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.chrono.IsoChronology;
@@ -23,7 +24,9 @@ import java.time.chrono.IsoChronology;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_NL_365 implements DayCountConvention {
+public class DayCountConvention_NL_365 implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = -8175671041380283261L;
 
 	/**
 	 * Create an NL/365 day count convention.

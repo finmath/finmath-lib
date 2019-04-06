@@ -6,6 +6,7 @@
 
 package net.finmath.time;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,7 +27,9 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Christian Fries
  * @version 1.0
  */
-public class ScheduleFromPeriods implements Schedule {
+public class ScheduleFromPeriods implements Schedule, Serializable {
+
+	private static final long serialVersionUID = 4460864939790714361L;
 
 	private			LocalDate					referenceDate;
 

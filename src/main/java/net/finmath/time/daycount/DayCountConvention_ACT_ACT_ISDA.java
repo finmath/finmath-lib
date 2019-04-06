@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -38,7 +39,9 @@ import java.time.Month;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = -3351464849368249181L;
 
 	private final boolean isCountLastDayNotFirst;
 

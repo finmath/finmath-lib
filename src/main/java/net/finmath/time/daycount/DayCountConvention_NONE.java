@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -19,7 +20,9 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_NONE implements DayCountConvention {
+public class DayCountConvention_NONE implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = 1234679674480984332L;
 
 	/**
 	 * Create a day count convention with a constant year fraction of 1.0 for all periods.

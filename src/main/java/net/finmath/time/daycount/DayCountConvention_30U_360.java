@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -31,7 +32,9 @@ import java.time.Month;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_30U_360 implements DayCountConvention {
+public class DayCountConvention_30U_360 implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = -1362506929067333038L;
 
 	private boolean isEndOfMonth =  true;
 

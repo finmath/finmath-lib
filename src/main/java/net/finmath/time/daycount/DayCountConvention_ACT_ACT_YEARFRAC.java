@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 
@@ -40,7 +41,9 @@ import java.time.Month;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = -970929056011501752L;
 
 	/**
 	 * Create an ACT/ACT YEARFRAC daycount convention.

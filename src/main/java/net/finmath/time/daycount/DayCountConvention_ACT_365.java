@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -27,7 +28,9 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_365 extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_365 extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = 6805037680877652658L;
 
 	/**
 	 * Create an ACT/365 day count convention.
@@ -35,10 +38,6 @@ public class DayCountConvention_ACT_365 extends DayCountConvention_ACT {
 	public DayCountConvention_ACT_365() {
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.util.GregorianCalendar, java.util.GregorianCalendar)
-	 */
 	@Override
 	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {

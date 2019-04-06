@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -14,7 +15,9 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConventionFactory {
+public class DayCountConventionFactory implements Serializable {
+
+	private static final long serialVersionUID = -3477824315144792988L;
 
 	/**
 	 * Factory methods for day count conventions.

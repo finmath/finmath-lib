@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -29,7 +30,9 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConvention {
+public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = -2141383519298897543L;
 
 	/**
 	 * Create an ACT/360 day count convention.
