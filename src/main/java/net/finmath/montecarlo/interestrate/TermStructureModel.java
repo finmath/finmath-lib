@@ -24,7 +24,7 @@ public interface TermStructureModel extends ProcessModel {
 
 	/**
 	 * Returns the time \( t \) forward rate on the models forward curve.
-	 * 
+	 *
 	 * Note: It is guaranteed that the random variable returned by this method is \( \mathcal{F}_{t} ) \)-measurable.
 	 * @param time The evaluation time.
 	 * @param periodStart The period start of the forward rate.
@@ -36,9 +36,9 @@ public interface TermStructureModel extends ProcessModel {
 
 	/**
 	 * Returns the time \( t \) forward bond derived from the numeraire, i.e., \( P(T;t) = E( \frac{N(t)}{N(T)} \vert \mathcal{F}_{t} ) \).
-	 * 
+	 *
 	 * Note: It is guaranteed that the random variabble returned by this method is \( \mathcal{F}_{t} ) \)-measurable.
-	 * 
+	 *
 	 * @param time The evaluation time.
 	 * @param maturity The maturity.
 	 * @return The forward bond P(T;t).
