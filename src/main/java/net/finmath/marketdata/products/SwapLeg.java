@@ -82,6 +82,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 * @deprecated
 	 */
+	@Deprecated
 	public SwapLeg(Optional<LocalDateTime> cashFlowEffectiveDate, Schedule legSchedule, String forwardCurveName, double[] notionals, double[] spreads, String discountCurveName, boolean isNotionalExchanged) {
 		this(cashFlowEffectiveDate.orElse(null), legSchedule, forwardCurveName, notionals, spreads, discountCurveName, isNotionalExchanged);
 	}
