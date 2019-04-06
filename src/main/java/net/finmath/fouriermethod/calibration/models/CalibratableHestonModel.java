@@ -96,8 +96,6 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 		if(applyFellerConstraint && 2*kappa*theta < xi*xi) {
 			//bump long term volatility so that the Feller test is satisfied.
 			theta = xi*xi / (2 * kappa) + 1E-9;
-		}else {
-			//nothing to do;
 		}
 
 		HestonModelDescriptor newDescriptor = new HestonModelDescriptor(descriptor.getReferenceDate(),
