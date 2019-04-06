@@ -195,23 +195,18 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			double fixingTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getFixing());
 			double periodLength		= schedule.getPeriodLength(peridIndex);
 
-			RandomVariable discountingAdjusted= null;
-			if(model.getModel() instanceof LIBORMarketModelFromCovarianceModel) {
-				discountingAdjusted = ((LIBORMarketModelFromCovarianceModel)(model.getModel())).getForwardDiscountBond(exerciseTime, paymentTime);
-			}else if(model.getModel() instanceof HullWhiteModel) {
-				discountingAdjusted = ((HullWhiteModel)(model.getModel())).getForwardDiscountBond(exerciseTime, paymentTime);
-			}else {
-				throw new IllegalArgumentException("The passed model is not compatible with this class. Please provide an instance where getModel() is either LIBORMarketModelFromCovarianceModel or HullWhiteModel.");
-			}
-
+			/*
+			 * Note that it is important that getForwardDiscountBond and getLIBOR are called with evaluationTime = exerciseTime.
+			 */
+			RandomVariable discountBond = model.getModel().getForwardDiscountBond(exerciseTime, paymentTime);
 			if(paysFloatingRate) {
 				RandomVariable libor	= model.getLIBOR(exerciseTime, fixingTime, paymentTime);
 				RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
-				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountingAdjusted));
+				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 			if(fixRate != 0) {
 				RandomVariable periodCashFlow = model.getRandomVariableForConstant(swaprate * periodLength * notional);
-				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountingAdjusted));
+				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 		}
 		return discountedCashflowFloatingLeg;
