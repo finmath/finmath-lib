@@ -128,7 +128,7 @@ public class LinearAlgebra {
 	 * @param lambda0 The parameter lambda0 of the Tikhonov regularization. Reduces the norm of the solution vector.
 	 * @param lambda1 The parameter lambda1 of the Tikhonov regularization. Reduces the slope of the solution vector.
 	 * @param lambda2 The parameter lambda1 of the Tikhonov regularization. Reduces the curvature of the solution vector.
-	 * @return
+	 * @return The solution x of the equation A* x = b*
 	 */
 	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda0, double lambda1, double lambda2) {
 		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) {
