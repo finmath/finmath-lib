@@ -9,7 +9,6 @@ package net.finmath.marketdata.model.volatilities;
 import java.time.LocalDate;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.time.TimeDiscretization;
 
 /**

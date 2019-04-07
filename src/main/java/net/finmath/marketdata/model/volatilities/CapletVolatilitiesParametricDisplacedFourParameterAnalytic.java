@@ -12,7 +12,6 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 
 /**
  * A parametric caplet volatility surface created form the four parameter model

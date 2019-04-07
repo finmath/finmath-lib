@@ -109,7 +109,18 @@ public class ScheduleDescriptor {
 	 * @return The number of periods.
 	 */
 	public int getNumberOfPeriods() {
-		return descriptor.getSchedule(LocalDate.parse("1970-01-01")).getNumberOfPeriods();
+		// Note: the reference date is irrelevant for the periods.
+		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getNumberOfPeriods();
+	}
+
+	/**
+	 * The periods of a schedule generated from this descriptor.
+	 *
+	 * @return The periods.
+	 */
+	public List<Period> getPeriods() {
+		// Note: the reference date is irrelevant for the periods.
+		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getPeriods();
 	}
 
 	/**
