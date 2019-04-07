@@ -38,7 +38,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  */
 public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements ProcessTimeDiscretizationProvider, Swaption {
 
-	Logger logger = Logger.getLogger("net.finmath");
+	private static Logger logger = Logger.getLogger("net.finmath");
 
 	public enum SwaptionType{
 		PAYER,
