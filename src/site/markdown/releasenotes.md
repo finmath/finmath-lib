@@ -6,6 +6,29 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.9 (07.04.2019)
+
+### General
+
+ - Introduced the interface `net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider` which can be implemented by products to give a hint on a preferred time discretization of a model.
+ 
+ - Stricter checkstyle rules: checking for visibility of filed. Fields have to be private.
+
+### Market Data
+
+ - Improved serialization for ScheduleDescriptors.
+
+ - Improved serialization for Swaps.
+ 
+### Interest Rate Models
+
+ - Added `net.finmath.montecarlo.interestrate.products.BermudanSwaptionFromSwapSchedules` - an implementation of a Monte-Carlo valuation of a Bermudan swaption using exact swap schedules.
+ 
+ - `SwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
+
+ - `BermudanSwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
+
+ 
 ## 4.0.8 (31.03.2019)
 
 ### Interest Rate Models
