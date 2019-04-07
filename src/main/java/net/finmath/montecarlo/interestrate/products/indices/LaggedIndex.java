@@ -30,7 +30,7 @@ public class LaggedIndex extends AbstractIndex {
 	private final String fixingOffsetCode;
 	private final BusinessdayCalendar paymentBusinessdayCalendar;
 
-	final double					fixingOffset;
+	private final double					fixingOffset;
 
 	public LaggedIndex(AbstractProductComponent index, String fixingOffsetCode,
 			BusinessdayCalendar paymentBusinessdayCalendar) {

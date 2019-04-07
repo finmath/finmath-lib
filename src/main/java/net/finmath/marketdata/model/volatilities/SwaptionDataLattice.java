@@ -779,9 +779,9 @@ public class SwaptionDataLattice implements Serializable {
 
 		private static final long serialVersionUID = -8284316295640713492L;
 
-		final int maturity;
-		final int tenor;
-		final int moneyness;
+		private final int maturity;
+		private final int tenor;
+		private final int moneyness;
 
 		DataKey(int maturity, int tenor, int moneyness) {
 			super();

@@ -195,11 +195,10 @@
 		<module name="HideUtilityClassConstructor" />
 		<module name="InterfaceIsType" />
 		-->
-		<!--
+
 		<module name="VisibilityModifier">
 			<property name="allowPublicImmutableFields" value="true"/>
 		</module>
-		-->
 
 		<!-- Miscellaneous other checks. -->
 		<!-- See http://checkstyle.sf.net/config_misc.html -->

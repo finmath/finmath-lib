@@ -23,8 +23,8 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	private static final long serialVersionUID = -5353191308059733179L;
 
-	final double	fixingOffset;
-	final double[]	periodLengths;
+	private final double	fixingOffset;
+	private final double[]	periodLengths;
 
 	/**
 	 * Create a CMS index with given fixing offset and given period lengths.

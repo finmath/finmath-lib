@@ -24,16 +24,16 @@ public class JNumberField extends JTextField implements ActionListener {
 
 	private static final long serialVersionUID = -138039675088007707L;
 
-	Number value = new Double(0.0);
-	DecimalFormat formatter = new DecimalFormat("0.000");
+	private Number value = new Double(0.0);
+	private DecimalFormat formatter = new DecimalFormat("0.000");
 
 	// Guards access to read or write of the text field
-	Object updateLock = new Object();
+	private Object updateLock = new Object();
 
-	double		preferedValueIncrement = 0.0;
-	double[]	admissibleValues = null;
-	double lowerBound = -Double.MAX_VALUE;
-	double upperBound = Double.MAX_VALUE;
+	private double		preferedValueIncrement = 0.0;
+	private double[]	admissibleValues = null;
+	private double lowerBound = -Double.MAX_VALUE;
+	private double upperBound = Double.MAX_VALUE;
 
 	public JNumberField() {
 		super();

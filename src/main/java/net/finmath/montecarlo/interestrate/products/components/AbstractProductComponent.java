@@ -38,7 +38,7 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	 */
 	private static final long serialVersionUID = -916286619811716575L;
 
-	protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(
+	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(
 			Runtime.getRuntime().availableProcessors(),
 			Runtime.getRuntime().availableProcessors(),
 			10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
@@ -71,5 +71,9 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 		Map<String, Object> result = new HashMap<>();
 		result.put("value", value);
 		return result;
+	}
+
+	protected static ThreadPoolExecutor getExecutor() {
+		return executor;
 	}
 }

@@ -1,6 +1,7 @@
 package net.finmath.modelling.descriptor;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import net.finmath.time.Period;
@@ -153,6 +154,13 @@ public class ScheduleDescriptor {
 			return new ScheduleFromPeriods(referenceDate, periods, daycountConvention);
 		}
 
+		public List<Period> getPeriods() {
+			return Collections.unmodifiableList(periods);
+		}
+
+		public DayCountConvention getDaycountConvention() {
+			return daycountConvention;
+		}
 	}
 
 	/**

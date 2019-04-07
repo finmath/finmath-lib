@@ -19,12 +19,12 @@ import net.finmath.stochastic.Scalar;
  */
 public class WorstOfExpressCertificate implements Product {
 
-	final double maturity;
-	final double[] strikeLevels;
-	final double[] exerciseDates;
-	final double[] triggerPerformanceLevel;
-	final double[] redemption;
-	final double redemptionFinal;
+	private final double maturity;
+	private final double[] strikeLevels;
+	private final double[] exerciseDates;
+	private final double[] triggerPerformanceLevel;
+	private final double[] redemption;
+	private final double redemptionFinal;
 
 	public WorstOfExpressCertificate(double maturity, double[] baseLevels,
 			double[] exerciseDates, double[] triggerLevels,

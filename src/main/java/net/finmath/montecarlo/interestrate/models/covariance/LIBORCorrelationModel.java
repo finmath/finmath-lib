@@ -28,8 +28,8 @@ public abstract class LIBORCorrelationModel implements Serializable {
 
 	private static final long serialVersionUID = -6780424108470638825L;
 
-	final TimeDiscretization	timeDiscretization;
-	final TimeDiscretization	liborPeriodDiscretization;
+	private final TimeDiscretization	timeDiscretization;
+	private final TimeDiscretization	liborPeriodDiscretization;
 
 	public LIBORCorrelationModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
 		super();

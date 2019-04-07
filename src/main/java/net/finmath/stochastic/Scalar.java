@@ -22,7 +22,7 @@ public class Scalar implements RandomVariable {
 
 	private static final long serialVersionUID = -729437972787062992L;
 
-	final double value;
+	private final double value;
 
 	public Scalar(double value) {
 		super();

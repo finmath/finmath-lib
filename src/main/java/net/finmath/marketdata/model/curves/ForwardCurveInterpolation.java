@@ -308,7 +308,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 			if(model==null) {
 				throw new IllegalArgumentException("model==null. Not allowed for interpolationEntityForward " + interpolationEntityForward);
 			}
-			return interpolationEntityForwardValue / model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+paymentOffset);
+			return interpolationEntityForwardValue / model.getDiscountCurve(getDiscountCurveName()).getValue(model, fixingTime+paymentOffset);
 		case ZERO:
 		{
 			double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
@@ -365,7 +365,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 			break;
 		case FORWARD_TIMES_DISCOUNTFACTOR:
 			interpolationEntitiyTime = fixingTime;
-			interpolationEntityForwardValue = forward * model.getDiscountCurve(discountCurveName).getValue(model, fixingTime+getPaymentOffset(fixingTime));
+			interpolationEntityForwardValue = forward * model.getDiscountCurve(getDiscountCurveName()).getValue(model, fixingTime+getPaymentOffset(fixingTime));
 			break;
 		case ZERO:
 		{

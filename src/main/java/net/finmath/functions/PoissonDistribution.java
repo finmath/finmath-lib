@@ -11,7 +11,7 @@ package net.finmath.functions;
  * @version 1.0
  */
 public class PoissonDistribution {
-	final double lambda;
+	private final double lambda;
 
 	public PoissonDistribution(double lambda) {
 		super();

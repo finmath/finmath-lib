@@ -25,10 +25,21 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 	private	final	LocalDate	referenceDate;
 	private final	String		name;
 
-	protected ForwardCurve forwardCurve;
-	protected DiscountCurve discountCurve;
-	protected QuotingConvention quotingConvention;
-	protected DayCountConvention daycountConvention;
+	private ForwardCurve forwardCurve;
+	private DiscountCurve discountCurve;
+	private QuotingConvention quotingConvention;
+	private DayCountConvention daycountConvention;
+
+	public AbstractVolatilitySurface(String name, LocalDate referenceDate, ForwardCurve forwardCurve,
+			DiscountCurve discountCurve, QuotingConvention quotingConvention, DayCountConvention daycountConvention) {
+		super();
+		this.name = name;
+		this.referenceDate = referenceDate;
+		this.forwardCurve = forwardCurve;
+		this.discountCurve = discountCurve;
+		this.quotingConvention = quotingConvention;
+		this.daycountConvention = daycountConvention;
+	}
 
 	public AbstractVolatilitySurface(String name, LocalDate referenceDate) {
 		super();
@@ -78,29 +89,29 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 			return value;
 		}
 
-		if(discountCurve == null) {
+		if(getDiscountCurve() == null) {
 			throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
-		if(forwardCurve == null) {
+		if(getForwardCurve() == null) {
 			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
 
 		double periodStart = optionMaturity;
-		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);
+		double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
 
-		double forward = forwardCurve.getForward(model, periodStart);
+		double forward = getForwardCurve().getForward(model, periodStart);
 
 		double daycountFraction;
-		if(daycountConvention != null) {
+		if(getDaycountConvention() != null) {
 			LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));
 			LocalDate endDate   = referenceDate.plusDays((int)Math.round(periodEnd*365));
-			daycountFraction = daycountConvention.getDaycountFraction(startDate, endDate);
+			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);
 		}
 		else {
-			daycountFraction = forwardCurve.getPaymentOffset(periodStart);
+			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);
 		}
 
-		double payoffUnit = discountCurve.getDiscountFactor(optionMaturity+forwardCurve.getPaymentOffset(optionMaturity)) * daycountFraction;
+		double payoffUnit = getDiscountCurve().getDiscountFactor(optionMaturity+getForwardCurve().getPaymentOffset(optionMaturity)) * daycountFraction;
 
 		if(toQuotingConvention.equals(QuotingConvention.PRICE) && fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
@@ -131,5 +142,17 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 	 */
 	public double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
 		return convertFromTo(null, optionMaturity, optionStrike, value, fromQuotingConvention, toQuotingConvention);
+	}
+
+	public ForwardCurve getForwardCurve() {
+		return forwardCurve;
+	}
+
+	public DiscountCurve getDiscountCurve() {
+		return discountCurve;
+	}
+
+	public DayCountConvention getDaycountConvention() {
+		return daycountConvention;
 	}
 }

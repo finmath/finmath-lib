@@ -12,7 +12,7 @@ package net.finmath.functions;
  */
 public class GammaDistribution {
 
-	final org.apache.commons.math3.distribution.GammaDistribution gammaDistribution;
+	private final org.apache.commons.math3.distribution.GammaDistribution gammaDistribution;
 
 	public GammaDistribution(double shape, double scale) {
 		super();

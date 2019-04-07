@@ -45,19 +45,18 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 * @param quotingConvention The quoting convention reflected by the parametetric form (e.g. lognormal or normal).
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
+	public CapletVolatilitiesParametric(
+			String name,
+			LocalDate referenceDate,
 			ForwardCurve forwardCurve,
 			DiscountCurve discountCurve,
 			double a, double b, double c, double d, double timeScaling, QuotingConvention quotingConvention) {
-		super(name, referenceDate);
-		this.forwardCurve = forwardCurve;
-		this.discountCurve = discountCurve;
+		super(name, referenceDate, forwardCurve, discountCurve, quotingConvention, null);
 		this.timeScaling = timeScaling;
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.d = d;
-		this.quotingConvention = quotingConvention;
 	}
 
 	/**
@@ -77,15 +76,12 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 			ForwardCurve forwardCurve,
 			DiscountCurve discountCurve,
 			double a, double b, double c, double d, double timeScaling) {
-		super(name, referenceDate);
-		this.forwardCurve = forwardCurve;
-		this.discountCurve = discountCurve;
+		super(name, referenceDate, forwardCurve, discountCurve, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.timeScaling = timeScaling;
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.d = d;
-		quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
 	}
 
 	/**
@@ -162,7 +158,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		}
 
 		double value = Math.sqrt(integratedVariance/maturity);
-		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
+		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);
 	}
 
 	@Override
@@ -183,7 +179,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], value[1], value[2], value[3], timeScaling, quotingConvention);
+		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), value[0], value[1], value[2], value[3], timeScaling, getQuotingConvention());
 	}
 
 }

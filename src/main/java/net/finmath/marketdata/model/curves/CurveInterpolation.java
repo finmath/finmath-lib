@@ -115,9 +115,9 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	public static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
-		public double time;
-		public double value;
-		public boolean isParameter;
+		private double time;
+		private double value;
+		private boolean isParameter;
 
 		/**
 		 * @param time The time (or x-value) of the point.
@@ -255,7 +255,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	private transient SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
-	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
+	private static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
 
 
 	/**

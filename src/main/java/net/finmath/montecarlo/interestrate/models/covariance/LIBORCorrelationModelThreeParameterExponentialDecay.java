@@ -112,12 +112,12 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		b = Math.min(Math.max(b, 0.0), 1.0);
 		c = Math.max(c, 0.0);
 
-		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		correlationMatrix = new double[getLiborPeriodDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 		for(int row=0; row<correlationMatrix.length; row++) {
 			for(int col=row+1; col<correlationMatrix[row].length; col++) {
 				// Exponentially decreasing instantaneous correlation
-				double T1 = liborPeriodDiscretization.getTime(row);
-				double T2 = liborPeriodDiscretization.getTime(col);
+				double T1 = getLiborPeriodDiscretization().getTime(row);
+				double T2 = getLiborPeriodDiscretization().getTime(col);
 				double correlation = b + (1-b) * Math.exp(-a * Math.abs(T1 - T2) - c * Math.max(T1, T2));
 				correlationMatrix[row][col] = correlation;
 				correlationMatrix[col][row] = correlation;

@@ -102,7 +102,7 @@ public class ProductCollection extends AbstractProductComponent {
 		for(final MonteCarloProduct product : products) {
 			Future<RandomVariable> valueFuture;
 			try {
-				valueFuture = executor.submit(
+				valueFuture = getExecutor().submit(
 						new Callable<RandomVariable>() {
 							@Override
 							public RandomVariable call() throws CalculationException {

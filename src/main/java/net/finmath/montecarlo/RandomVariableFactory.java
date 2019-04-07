@@ -21,7 +21,7 @@ public class RandomVariableFactory extends AbstractRandomVariableFactory {
 
 	private static final long serialVersionUID = 9124600813005863273L;
 
-	final boolean isUseDoublePrecisionFloatingPointImplementation;
+	private final boolean isUseDoublePrecisionFloatingPointImplementation;
 
 	public RandomVariableFactory() {
 		super();

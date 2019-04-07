@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class SwapWithComponents extends AbstractLIBORMonteCarloProduct {
 
-	ProductCollection underlying;
+	private ProductCollection underlying;
 
 	/**
 	 * @param fixingDates Vector of fixing dates

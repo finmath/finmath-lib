@@ -73,12 +73,12 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 			return this;
 		}
 
-		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter[0].doubleValue());
+		return new LIBORCorrelationModelExponentialDecay(getTimeDiscretization(), getLiborPeriodDiscretization(), numberOfFactors, parameter[0].doubleValue());
 	}
 
 	@Override
 	public Object clone() {
-		return new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, isCalibrateable);
+		return new LIBORCorrelationModelExponentialDecay(getTimeDiscretization(), getLiborPeriodDiscretization(), numberOfFactors, a, isCalibrateable);
 	}
 
 	@Override
@@ -104,11 +104,11 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		// Negative values of a do not make sense.
 		a = Math.max(a, 0);
 
-		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		correlationMatrix = new double[getLiborPeriodDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 		for(int row=0; row<correlationMatrix.length; row++) {
 			for(int col=0; col<correlationMatrix[row].length; col++) {
 				// Exponentially decreasing instantaneous correlation
-				correlationMatrix[row][col] = Math.exp(-a * Math.abs(liborPeriodDiscretization.getTime(row)-liborPeriodDiscretization.getTime(col)));
+				correlationMatrix[row][col] = Math.exp(-a * Math.abs(getLiborPeriodDiscretization().getTime(row)-getLiborPeriodDiscretization().getTime(col)));
 			}
 		}
 

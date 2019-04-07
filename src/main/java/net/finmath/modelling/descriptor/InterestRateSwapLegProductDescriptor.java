@@ -21,9 +21,9 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	private final ScheduleDescriptor			legSchedule;
 	private final double[]						notionals;
 	private final double[]						spreads;
-	//	private final boolean						couponFlow;
+//	private final boolean						couponFlow;
 	private final boolean						isNotionalExchanged;
-	//	private final boolean						isNotionalAccruing;
+//	private final boolean						isNotionalAccruing;
 
 	/**
 	 * Create the descriptor with period uniform notional and spread.
