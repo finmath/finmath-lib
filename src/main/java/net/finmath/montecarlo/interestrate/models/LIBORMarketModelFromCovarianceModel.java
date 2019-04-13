@@ -1309,6 +1309,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(tenorPeriodStartTime < getTime(timeIndex)) {
 			//Fixed at Long LIBOR period Start.
 			timeIndex  = Math.min(timeIndex, getTimeIndex(tenorPeriodStartTime));
+			if(timeIndex < 0) {
+				throw new IllegalArgumentException("Tenor discretization not part of time discretization.");
+			}
 		}
 		RandomVariable onePlusLongLIBORDt = getLIBOR(timeIndex , liborPeriodIndex).mult(tenorDt).add(1.0);
 
