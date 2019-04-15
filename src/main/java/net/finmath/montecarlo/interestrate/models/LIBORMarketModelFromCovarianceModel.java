@@ -1571,18 +1571,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	@Override
-	public Object clone() {
-		try {
-			Map<String, Object> properties = new HashMap<>();
-			properties.put("measure",		measure.name());
-			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModelFromCovarianceModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, new CalibrationProduct[0], properties);
-		} catch (CalculationException e) {
-			return null;
-		}
-	}
-
-	@Override
 	public AnalyticModel getAnalyticModel() {
 		return curveModel;
 	}
@@ -1609,6 +1597,20 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	@Override
 	public LIBORCovarianceModel getCovarianceModel() {
 		return covarianceModel;
+	}
+
+	@Override
+	public Object clone() {
+		try {
+			Map<String, Object>				properties					= new HashMap<>();
+			properties.put("measure",		measure.name());
+			properties.put("stateSpace",	stateSpace.name());
+			properties.put("interpolationMethod", interpolationMethod.name());
+			properties.put("liborCap", liborCap);
+			return LIBORMarketModelFromCovarianceModel.of(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, null, properties);
+		} catch (CalculationException e) {
+			return null;
+		}
 	}
 
 	/**
