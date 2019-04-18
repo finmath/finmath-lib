@@ -1307,8 +1307,12 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		double tenorPeriodEndTime         = getLiborPeriod(liborPeriodIndex + 1);
 		double tenorDt                    = tenorPeriodEndTime - tenorPeriodStartTime;
 		if(tenorPeriodStartTime < getTime(timeIndex)) {
-			//Fixed at Long LIBOR period Start.
+			// Fixed at Long LIBOR period Start.
 			timeIndex  = Math.min(timeIndex, getTimeIndex(tenorPeriodStartTime));
+			if(timeIndex < 0) {
+//				timeIndex = -timeIndex-2;			// mapping to last known fixing.
+				throw new IllegalArgumentException("Tenor discretization not part of time discretization.");
+			}
 		}
 		RandomVariable onePlusLongLIBORDt = getLIBOR(timeIndex , liborPeriodIndex).mult(tenorDt).add(1.0);
 
@@ -1567,18 +1571,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	@Override
-	public Object clone() {
-		try {
-			Map<String, Object> properties = new HashMap<>();
-			properties.put("measure",		measure.name());
-			properties.put("stateSpace",	stateSpace.name());
-			return new LIBORMarketModelFromCovarianceModel(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, new CalibrationProduct[0], properties);
-		} catch (CalculationException e) {
-			return null;
-		}
-	}
-
-	@Override
 	public AnalyticModel getAnalyticModel() {
 		return curveModel;
 	}
@@ -1607,6 +1599,20 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		return covarianceModel;
 	}
 
+	@Override
+	public Object clone() {
+		try {
+			Map<String, Object>				properties					= new HashMap<>();
+			properties.put("measure",		measure.name());
+			properties.put("stateSpace",	stateSpace.name());
+			properties.put("interpolationMethod", interpolationMethod.name());
+			properties.put("liborCap", liborCap);
+			return LIBORMarketModelFromCovarianceModel.of(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, null, properties);
+		} catch (CalculationException e) {
+			return null;
+		}
+	}
+
 	/**
 	 * @param covarianceModel A covariance model
 	 * @return A new <code>LIBORMarketModelFromCovarianceModel</code> using the specified covariance model.
@@ -1626,9 +1632,12 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
 		DiscountCurve			discountCurve				= this.discountCurve;
 		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
+
 		Map<String, Object>				properties					= new HashMap<>();
 		properties.put("measure",		measure.name());
 		properties.put("stateSpace",	stateSpace.name());
+		properties.put("interpolationMethod", interpolationMethod.name());
+		properties.put("liborCap", liborCap);
 
 		if(dataModified != null) {
 			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
@@ -1637,7 +1646,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			forwardRateCurve = (ForwardCurve)dataModified.getOrDefault("forwardRateCurve", forwardRateCurve);
 			discountCurve = (DiscountCurve)dataModified.getOrDefault("discountCurve", discountCurve);
 			covarianceModel = (LIBORCovarianceModel)dataModified.getOrDefault("covarianceModel", covarianceModel);
-			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.getOrDefault("swaptionMarketData", swaptionMarketData);
 
 			if(dataModified.containsKey("swaptionMarketData")) {
 				throw new RuntimeException("Swaption market data as input for getCloneWithModifiedData not supported.");
@@ -1646,10 +1654,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			if(dataModified.containsKey("forwardRateShift")) {
 				throw new RuntimeException("Forward rate shift clone currently disabled.");
 			}
-			if(dataModified != null && dataModified.containsKey("swaptionMarketData")) {
-				swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
-			}
-
 		}
 
 		LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, null, properties);
