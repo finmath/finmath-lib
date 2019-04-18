@@ -128,8 +128,7 @@ public class CalibratedModel {
 					}
 
 				}
-				for(int i = 0; i<values.length; i++)
-				  values[i] = vals.get(i);
+				for(int i = 0; i<values.length; i++) {values[i] = vals.get(i);}
 			}
 		};
 
