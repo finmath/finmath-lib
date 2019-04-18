@@ -86,6 +86,8 @@ public class CalibratedModel {
 
 				QuotingConvention targetConvention = surface.getQuotingConvention();
 
+				ArrayList<Double> vals = new ArrayList<Double>();
+
 				for(int t = 0; t<numberOfMaturities; t++) {
 
 					double[] currentStrikes = surface.getSmile(mats[t]).getStrikes();
@@ -104,7 +106,7 @@ public class CalibratedModel {
 								double optionStrike = currentStrikes[i];
 								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
 								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
-								values[i] = net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+								vals.add(net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));
 
 
 							}else if(targetConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
@@ -114,10 +116,10 @@ public class CalibratedModel {
 								double optionStrike = currentStrikes[i];
 								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
 								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
-								values[i] = net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+								vals.add(net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));
 							}else {
 								//just output the prices
-								values[i] = currentModelPrices.get("valuePerStrike").apply(currentStrikes[i]);
+								vals.add(currentModelPrices.get("valuePerStrike").apply(currentStrikes[i]));
 							}
 
 						}
@@ -126,6 +128,7 @@ public class CalibratedModel {
 					}
 
 				}
+				for(int i = 0; i<values.length; i++) {values[i] = vals.get(i);}
 			}
 		};
 
