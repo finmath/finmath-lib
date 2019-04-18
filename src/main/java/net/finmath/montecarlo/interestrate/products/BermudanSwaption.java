@@ -53,7 +53,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		super();
 		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;
 		this.fixingDates = fixingDates;
-		this.periodLengths = periodLength;
+		periodLengths = periodLength;
 		this.paymentDates = paymentDates;
 		this.periodNotionals = periodNotionals;
 		this.swaprates = swaprates;
@@ -286,19 +286,19 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public double[] getPaymentDates(){
-		return this.paymentDates;
+		return paymentDates;
 	}
 
 	public double[] getPeriodNotionals(){
-		return this.periodNotionals;
+		return periodNotionals;
 	}
 
 	public double[] getSwapRates(){
-		return this.swaprates;
+		return swaprates;
 	}
 
 	public double[] getPeriodLengths(){
-		return this.periodLengths;
+		return periodLengths;
 	}
 
 	public double getFinalMaturity() {
@@ -306,7 +306,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public boolean getIsCallable(){
-		return this.isCallable;
+		return isCallable;
 	}
 }
 

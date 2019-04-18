@@ -32,7 +32,9 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	private RandomVariableArrayImplementation(RandomVariable[] elements) {
 		super();
 
-		if(elements.length == 0) throw new IllegalArgumentException("Empty array.");
+		if(elements.length == 0) {
+			throw new IllegalArgumentException("Empty array.");
+		}
 
 		// Ensure that all elements
 		int level = getLevel(elements[0]);

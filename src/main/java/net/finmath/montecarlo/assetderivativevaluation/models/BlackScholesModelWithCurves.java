@@ -73,9 +73,9 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
 		this.randomVariableFactory = randomVariableFactory;
 
-		this.initialState = new RandomVariable[] { initialValue.log() };
-		this.driftAdjustment = volatility.squared().div(-2.0);
-		this.factorLoadings = new RandomVariable[] { volatility };
+		initialState = new RandomVariable[] { initialValue.log() };
+		driftAdjustment = volatility.squared().div(-2.0);
+		factorLoadings = new RandomVariable[] { volatility };
 	}
 
 	/**

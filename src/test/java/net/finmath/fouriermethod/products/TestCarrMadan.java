@@ -33,8 +33,9 @@ public class TestCarrMadan {
 
 		double[] strikes = new double[20];
 
-		for(int i = 0; i<20;i++)
+		for(int i = 0; i<20;i++) {
 			strikes[i] = 10 + i*10;
+		}
 
 		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 

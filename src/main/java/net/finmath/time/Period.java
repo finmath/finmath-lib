@@ -6,6 +6,7 @@
 
 package net.finmath.time;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -23,7 +24,9 @@ import java.time.LocalDate;
  * @author Christian Fries
  * @version 1.0
  */
-public class Period implements Comparable<Period> {
+public class Period implements Comparable<Period>, Serializable {
+
+	private static final long serialVersionUID = 4622662040390651119L;
 
 	private LocalDate fixing;
 	private LocalDate payment;

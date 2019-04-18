@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -163,7 +164,9 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	public double[] getParameterAsDouble() {
 		RandomVariable[] parameters = getParameter();
 		double[] parametersAsDouble = new double[parameters.length];
-		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		for(int i=0; i<parameters.length; i++) {
+			parametersAsDouble[i] = parameters[i].doubleValue();
+		}
 		return parametersAsDouble;
 	}
 
@@ -270,5 +273,59 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 	@Override
 	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		return null;
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
+		BrownianMotion brownianMotion = this.brownianMotion;
+		RandomVariable kappa = this.kappa;
+		RandomVariable theta = this.theta;
+		RandomVariable xi = this.xi;
+		boolean isCalibrateable = this.isCalibrateable;
+		AbstractRandomVariableFactory randomVariableFactory = null;
+
+		if(dataModified != null) {
+			if(dataModified.containsKey("randomVariableFactory")) {
+				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
+				kappa = randomVariableFactory.createRandomVariable(kappa.doubleValue());
+				theta = randomVariableFactory.createRandomVariable(theta.doubleValue());
+				xi = randomVariableFactory.createRandomVariable(xi.doubleValue());
+			}
+			if(!dataModified.containsKey("covarianceModel")) {
+				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
+
+			// Explicitly passed covarianceModel has priority
+			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
+			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
+			brownianMotion = (BrownianMotion)dataModified.getOrDefault("brownianMotion", brownianMotion);
+
+			if(dataModified.getOrDefault("kappa", kappa) instanceof RandomVariable) {
+				kappa = (RandomVariable)dataModified.getOrDefault("kappa", kappa);
+			}else if(randomVariableFactory==null){
+				kappa = new Scalar((double)dataModified.get("kappa"));
+			}else {
+				kappa = randomVariableFactory.createRandomVariable((double)dataModified.get("kappa"));
+			}
+			if(dataModified.getOrDefault("theta", theta) instanceof RandomVariable) {
+				theta = (RandomVariable)dataModified.getOrDefault("rho", theta);
+			}else if(randomVariableFactory==null){
+				theta = new Scalar((double)dataModified.get("theta"));
+			}else {
+				theta = randomVariableFactory.createRandomVariable((double)dataModified.get("theta"));
+			}
+			if(dataModified.getOrDefault("xi", xi) instanceof RandomVariable) {
+				xi = (RandomVariable)dataModified.getOrDefault("xi", xi);
+			}else if(randomVariableFactory==null){
+				xi = new Scalar((double)dataModified.get("xi"));
+			}else {
+				xi = randomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
+			}
+		}
+
+		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticHestonVolatility(covarianceModel, brownianMotion, kappa, theta, xi, isCalibrateable);
+		return newModel;
 	}
 }

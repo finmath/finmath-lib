@@ -57,7 +57,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
 
-			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
+			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
 
 			BlackScholesMonteCarloModel(ProcessModel model, MonteCarloProcess process) {
 				super(model, process);
@@ -71,7 +71,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			@Override
 			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor(productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();

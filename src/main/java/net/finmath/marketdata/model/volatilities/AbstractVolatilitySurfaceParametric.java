@@ -21,9 +21,12 @@ import net.finmath.marketdata.calibration.ParameterObject;
 import net.finmath.marketdata.calibration.ParameterTransformation;
 import net.finmath.marketdata.calibration.Solver;
 import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.SolverException;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.
@@ -34,6 +37,11 @@ import net.finmath.optimizer.SolverException;
 public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObject {
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
+
+
+	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate, ForwardCurve forwardCurve, DiscountCurve discountCurve, QuotingConvention quotingConvention, DayCountConvention daycountConvention) {
+		super(name, referenceDate, forwardCurve, discountCurve, quotingConvention, daycountConvention);
+	}
 
 	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate) {
 		super(name, referenceDate);

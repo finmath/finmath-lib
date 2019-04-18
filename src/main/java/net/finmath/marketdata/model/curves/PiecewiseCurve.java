@@ -48,7 +48,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 		 */
 		public Builder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
 			super((CurveInterpolation)(piecewiseCurve.baseCurve));
-			this.curve = piecewiseCurve;
+			curve = piecewiseCurve;
 		}
 
 		@Override
@@ -64,7 +64,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 			Curve fixedPartCurve, double fixedPartStartTime,
 			double fixedPartEndTime) {
 		super(curve.getName(), curve.getReferenceDate());
-		this.baseCurve = curve;
+		baseCurve = curve;
 		this.fixedPartCurve = fixedPartCurve;
 		this.fixedPartStartTime = fixedPartStartTime;
 		this.fixedPartEndTime = fixedPartEndTime;
@@ -125,7 +125,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 
 	@Override
 	public double getValue(AnalyticModel model, double time) {
-		if(time >fixedPartStartTime && time < this.fixedPartEndTime) {
+		if(time >fixedPartStartTime && time < fixedPartEndTime) {
 			return fixedPartCurve.getValue(model, time);
 		}
 		else {

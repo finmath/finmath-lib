@@ -1,6 +1,7 @@
 package net.finmath.modelling.descriptor;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import net.finmath.time.Period;
@@ -108,7 +109,18 @@ public class ScheduleDescriptor {
 	 * @return The number of periods.
 	 */
 	public int getNumberOfPeriods() {
-		return descriptor.getSchedule(LocalDate.parse("1970-01-01")).getNumberOfPeriods();
+		// Note: the reference date is irrelevant for the periods.
+		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getNumberOfPeriods();
+	}
+
+	/**
+	 * The periods of a schedule generated from this descriptor.
+	 *
+	 * @return The periods.
+	 */
+	public List<Period> getPeriods() {
+		// Note: the reference date is irrelevant for the periods.
+		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getPeriods();
 	}
 
 	/**
@@ -153,6 +165,13 @@ public class ScheduleDescriptor {
 			return new ScheduleFromPeriods(referenceDate, periods, daycountConvention);
 		}
 
+		public List<Period> getPeriods() {
+			return Collections.unmodifiableList(periods);
+		}
+
+		public DayCountConvention getDaycountConvention() {
+			return daycountConvention;
+		}
 	}
 
 	/**

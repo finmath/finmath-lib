@@ -49,8 +49,8 @@ public class GARCH implements HistoricalSimulationModel {
 	 */
 	public GARCH(double[] values) {
 		this.values = values;
-		this.windowIndexStart	= 0;
-		this.windowIndexEnd		= values.length-1;
+		windowIndexStart	= 0;
+		windowIndexEnd		= values.length-1;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class GARCH implements HistoricalSimulationModel {
 
 	@Override
 	public GARCH getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
-		return new GARCH(this.values, windowIndexStart, windowIndexEnd);
+		return new GARCH(values, windowIndexStart, windowIndexEnd);
 	}
 
 	/**

@@ -42,10 +42,10 @@ public abstract class LogNormalProcess {
 			int numberOfComponents,
 			BrownianMotion brownianMotion) {
 		super();
-		this.timeDiscretization	= brownianMotion.getTimeDiscretization();
+		timeDiscretization	= brownianMotion.getTimeDiscretization();
 		this.numberOfComponents	= numberOfComponents;
-		this.numberOfFactors	= brownianMotion.getNumberOfFactors();
-		this.numberOfPaths		= brownianMotion.getNumberOfPaths();
+		numberOfFactors	= brownianMotion.getNumberOfFactors();
+		numberOfPaths		= brownianMotion.getNumberOfPaths();
 		this.brownianMotion		= brownianMotion;
 	}
 
@@ -63,7 +63,7 @@ public abstract class LogNormalProcess {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfComponents = numberOfComponents;
-		this.numberOfFactors = 1;
+		numberOfFactors = 1;
 		this.numberOfPaths = numberOfPaths;
 
 		// Create a Brownian motion

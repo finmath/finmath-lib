@@ -78,8 +78,8 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 */
 	public MonteCarloConditionalExpectationRegression(RandomVariable[] basisFunctions) {
 		this();
-		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctions));
-		this.basisFunctionsPredictor = basisFunctionsEstimator;
+		basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctions));
+		basisFunctionsPredictor = basisFunctionsEstimator;
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
 		// Calculate estimate, i.e. X x
-		RandomVariable[] basisFunctions = this.basisFunctionsPredictor.getBasisFunctions();
+		RandomVariable[] basisFunctions = basisFunctionsPredictor.getBasisFunctions();
 		RandomVariable conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
 		for(int i=1; i<basisFunctions.length; i++) {
 			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);

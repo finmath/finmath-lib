@@ -42,7 +42,9 @@ public class LIBORBond extends AbstractLIBORMonteCarloProduct {
 	 */
 	@Override
 	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		if(evaluationTime > maturity) return new Scalar(0);
+		if(evaluationTime > maturity) {
+			return new Scalar(0);
+		}
 
 		return model.getLIBOR(evaluationTime, evaluationTime, maturity).mult(maturity - evaluationTime).add(1.0).invert();
 	}

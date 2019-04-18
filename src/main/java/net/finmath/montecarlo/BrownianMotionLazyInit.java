@@ -78,7 +78,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 
 		this.randomVariableFactory = randomVariableFactory;
 
-		this.brownianIncrements	= null; 	// Lazy initialization
+		brownianIncrements	= null; 	// Lazy initialization
 	}
 
 	/**

@@ -177,23 +177,23 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	}
 
 	public double getStartTime(){
-		return this.fixingDates[0];
+		return fixingDates[0];
 	}
 
 	public double[] getFixingDates(){
-		return this.fixingDates;
+		return fixingDates;
 	}
 
 	public double[] getNotional(){
-		return this.notional;
+		return notional;
 	}
 
 	public double[] getSwapRates(){
-		return this.swaprates;
+		return swaprates;
 	}
 
 	public double[] getPaymentDates(){
-		return this.paymentDates;
+		return paymentDates;
 	}
 
 	public double[] getPeriodLengths(){

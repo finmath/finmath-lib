@@ -90,7 +90,7 @@ public class MertonModel extends AbstractProcessModel {
 		this.volatility		= volatility;
 		this.jumpIntensity	= jumpIntensity;
 		this.jumpSizeMean	= jumpSizeMean;
-		this.jumpSizeStdDev	= jumpSizeStDev;
+		jumpSizeStdDev	= jumpSizeStDev;
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	public ForwardCurveFromDiscountCurve(String name, String referenceDiscountCurveName, String discountCurveName, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentOffsetBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention, double daycountScaling, double periodOffset) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
-		this.referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
+		referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
 		this.daycountScaling = daycountScaling;
 		this.periodOffset = periodOffset;
 	}

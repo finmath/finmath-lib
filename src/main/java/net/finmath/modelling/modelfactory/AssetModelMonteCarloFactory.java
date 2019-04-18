@@ -4,7 +4,6 @@ import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
 import net.finmath.modelling.ProductDescriptor;
-import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
@@ -97,7 +96,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 					randomVariableFactory),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override
@@ -107,7 +106,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-			return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}
 
@@ -137,7 +136,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, randomVariableFactory),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor 	= descriptor;
-			this.productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
 
 		@Override
@@ -147,7 +146,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
-			return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}
 }

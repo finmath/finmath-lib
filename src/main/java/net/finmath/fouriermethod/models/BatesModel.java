@@ -119,7 +119,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 		this.k				= k;
 		this.delta			= delta;
 
-		this.numberOfFactors = alpha.length;
+		numberOfFactors = alpha.length;
 	}
 
 	/**

@@ -587,7 +587,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				boolean isUseAnalyticCalibration = false;
 				if(isUseAnalyticCalibration) {
 					// Use an analytic approximation to the swaption - much faster
-					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 
 					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
@@ -617,7 +617,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
 
 		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
-				this.liborMarketModel.getLiborPeriodDiscretization(),
+				liborMarketModel.getLiborPeriodDiscretization(),
 				forwardCurve, discountCurve, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), null);
 
 		/*

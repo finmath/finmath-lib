@@ -71,7 +71,7 @@ public class BrownianBridge implements BrownianMotion {
 	public BrownianBridge(TimeDiscretization timeDiscretization, int numberOfPaths, int seed, RandomVariable[] start, RandomVariable[] end) {
 		super();
 		this.timeDiscretization = timeDiscretization;
-		this.numberOfFactors = start.length;
+		numberOfFactors = start.length;
 		this.numberOfPaths = numberOfPaths;
 		this.seed = seed;
 		this.start = start;

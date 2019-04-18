@@ -174,8 +174,9 @@ public class HestonDaxCalibrationTest {
 
 		ArrayList<String> errorsOverview = result.getCalibrationOutput();
 
-		for(String myString : errorsOverview)
+		for(String myString : errorsOverview) {
 			System.out.println(myString);
+		}
 
 		Assert.assertEquals(result.getRootMeanSquaredError() < 1.0, true);
 

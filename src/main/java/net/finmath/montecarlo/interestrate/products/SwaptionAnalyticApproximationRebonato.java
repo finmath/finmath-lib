@@ -58,16 +58,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 17.05.2007.
  * @version 1.0
  */
-public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCarloProduct {
-
-	public enum ValueUnit {
-		/** Returns the value of the swaption **/
-		VALUE,
-		/** Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i> **/
-		INTEGRATEDVARIANCE,
-		/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i> **/
-		VOLATILITY
-	}
+public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final double      swaprate;
 	private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
@@ -154,14 +145,14 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		}
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+		if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
 			return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateVariance);
 		}
 
 		double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.VOLATILITY) {
+		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
 			return new RandomVariableFromDoubleArray(evaluationTime, volatility);
 		}
 

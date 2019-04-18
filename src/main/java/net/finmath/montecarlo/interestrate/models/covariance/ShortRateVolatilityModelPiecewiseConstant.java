@@ -151,36 +151,36 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	@Override
 	public Object clone() {
 		return new ShortRateVolatilityModelPiecewiseConstant(
-				this.randomVariableFactory,
+				randomVariableFactory,
 				super.getTimeDiscretization(),
-				this.volatilityTimeDiscretization,
-				this.volatility,
-				this.meanReversion,
-				this.isVolatilityCalibrateable
+				volatilityTimeDiscretization,
+				volatility,
+				meanReversion,
+				isVolatilityCalibrateable
 				);
 	}
 
 	@Override
 	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
 		return new ShortRateVolatilityModelPiecewiseConstant(
-				this.randomVariableFactory,
+				randomVariableFactory,
 				super.getTimeDiscretization(),
-				this.volatilityTimeDiscretization,
+				volatilityTimeDiscretization,
 				parameters,
-				this.meanReversion,
-				this.isVolatilityCalibrateable
+				meanReversion,
+				isVolatilityCalibrateable
 				);
 	}
 
 	@Override
 	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(double[] parameters) {
 		return new ShortRateVolatilityModelPiecewiseConstant(
-				this.randomVariableFactory,
+				randomVariableFactory,
 				super.getTimeDiscretization(),
-				this.volatilityTimeDiscretization,
+				volatilityTimeDiscretization,
 				randomVariableFactory.createRandomVariableArray(parameters),
-				this.meanReversion,
-				this.isVolatilityCalibrateable
+				meanReversion,
+				isVolatilityCalibrateable
 				);
 	}
 

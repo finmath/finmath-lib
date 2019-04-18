@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.chrono.IsoChronology;
@@ -27,7 +28,10 @@ import java.time.chrono.IsoChronology;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_365A extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_365A extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = 2721876966484669015L;
+
 
 	/**
 	 * Create an ACT/365 day count convention.

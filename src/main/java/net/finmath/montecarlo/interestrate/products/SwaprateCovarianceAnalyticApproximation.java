@@ -22,8 +22,8 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
 
-	final double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
-	final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
+	private final double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
+	private final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
 
 	/**
 	 * Create the product implementing the analytic approximation of a swap rate covariance in a forward rate model.

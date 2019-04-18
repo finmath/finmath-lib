@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -119,7 +121,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 				randomVariableFactory,
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.timeToMaturityDiscretization,
+				timeToMaturityDiscretization,
 				parameter
 				);
 	}
@@ -159,8 +161,14 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 		return new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
-				this.timeToMaturityDiscretization,
-				this.volatility.clone()
+				timeToMaturityDiscretization,
+				volatility.clone()
 				);
+	}
+
+	@Override
+	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

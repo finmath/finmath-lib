@@ -33,9 +33,9 @@ public class Partition {
 		this.points=points;
 		this.weight=weight;
 		Arrays.sort(this.points);
-		this.referencePoints=new double[points.length-1];
+		referencePoints=new double[points.length-1];
 		for(int i=0; i<referencePoints.length;i++) {
-			this.referencePoints[i]=(1-weight)*points[i]+weight*points[i+1];
+			referencePoints[i]=(1-weight)*points[i]+weight*points[i+1];
 		}
 	}
 

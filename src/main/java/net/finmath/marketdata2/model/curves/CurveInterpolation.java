@@ -110,9 +110,9 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	private static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
-		public double time;
-		public RandomVariable value;
-		public boolean isParameter;
+		private double time;
+		private RandomVariable value;
+		private boolean isParameter;
 
 		/**
 		 * @param time The time (or x-value) of the point.
@@ -129,10 +129,10 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		@Override
 		public int compareTo(Point point) {
 			// Ordering of the curveFromInterpolationPoints points with respect to time.
-			if(this.time < point.time) {
+			if(time < point.time) {
 				return -1;
 			}
-			if(this.time > point.time) {
+			if(time > point.time) {
 				return +1;
 			}
 
@@ -247,7 +247,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 
 	private static final long serialVersionUID = -4126228588123963885L;
-	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
+	private static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
 
 
 	/**
@@ -352,8 +352,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 				rationalFunctionInterpolation = new RationalFunctionInterpolation(
 						pointsArray,
 						valuesArray,
-						RationalFunctionInterpolation.InterpolationMethod.valueOf(this.interpolationMethod.toString()),
-						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(this.extrapolationMethod.toString())
+						RationalFunctionInterpolation.InterpolationMethod.valueOf(interpolationMethod.toString()),
+						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(extrapolationMethod.toString())
 						);
 			}
 		}
@@ -407,8 +407,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 					pointsBeingParameters.add(-parameterIndex-1, point);
 				}
 			}
-			this.rationalFunctionInterpolation = null;
-			this.curveCacheReference = null;
+			rationalFunctionInterpolation = null;
+			curveCacheReference = null;
 		}
 	}
 
@@ -470,8 +470,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
 		}
-		this.rationalFunctionInterpolation = null;
-		this.curveCacheReference = null;
+		rationalFunctionInterpolation = null;
+		curveCacheReference = null;
 	}
 
 	private RandomVariable interpolationEntityFromValue(RandomVariable value, double time) {

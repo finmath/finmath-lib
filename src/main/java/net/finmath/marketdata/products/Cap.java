@@ -75,7 +75,7 @@ public class Cap extends AbstractAnalyticProduct {
 		this.strike = strike;
 		this.isStrikeMoneyness = isStrikeMoneyness;
 		this.discountCurveName = discountCurveName;
-		this.volatiltiySufaceName = volatilitySurfaceName;
+		volatiltiySufaceName = volatilitySurfaceName;
 		this.quotingConvention = quotingConvention;
 	}
 

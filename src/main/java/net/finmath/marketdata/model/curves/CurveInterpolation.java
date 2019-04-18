@@ -13,6 +13,8 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,6 +95,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 	/**
 	 * Possible interpolation entities.
+	 *
 	 * @author Christian Fries
 	 */
 	public enum InterpolationEntity {
@@ -104,12 +107,17 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		LOG_OF_VALUE_PER_TIME
 	}
 
-	private static class Point implements Comparable<Point>, Serializable {
+	/**
+	 * Representation of a 2D curve point including the boolean property if the point is fixed or calibrateable.
+	 *
+	 * @author Christian Fries
+	 */
+	public static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
-		public double time;
-		public double value;
-		public boolean isParameter;
+		private double time;
+		private double value;
+		private boolean isParameter;
 
 		/**
 		 * @param time The time (or x-value) of the point.
@@ -126,10 +134,10 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		@Override
 		public int compareTo(Point point) {
 			// Ordering of the curve points with respect to time.
-			if(this.time < point.time) {
+			if(time < point.time) {
 				return -1;
 			}
-			if(this.time > point.time) {
+			if(time > point.time) {
 				return +1;
 			}
 
@@ -247,7 +255,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	private transient SoftReference<Map<Double, Double>> curveCacheReference = null;
 
 	private static final long serialVersionUID = -4126228588123963885L;
-	static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
+	private static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);
 
 
 	/**
@@ -338,14 +346,13 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 				rationalFunctionInterpolation = new RationalFunctionInterpolation(
 						pointsArray,
 						valuesArray,
-						RationalFunctionInterpolation.InterpolationMethod.valueOf(this.interpolationMethod.toString()),
-						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(this.extrapolationMethod.toString())
+						RationalFunctionInterpolation.InterpolationMethod.valueOf(interpolationMethod.toString()),
+						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(extrapolationMethod.toString())
 						);
 			}
 		}
 		return rationalFunctionInterpolation.getValue(time);
 	}
-
 
 	/**
 	 * Add a point to this curve. The method will throw an exception if the point
@@ -391,8 +398,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 					pointsBeingParameters.add(-parameterIndex-1, point);
 				}
 			}
-			this.rationalFunctionInterpolation = null;
-			this.curveCacheReference = null;
+			rationalFunctionInterpolation = null;
+			curveCacheReference = null;
 		}
 	}
 
@@ -423,6 +430,15 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		return interpolationEntity;
 	}
 
+	/**
+	 * Returns the interpolation points.
+	 *
+	 * @return An unmodifiable list of points.
+	 */
+	public List<Point> getPoints() {
+		return Collections.unmodifiableList(points);
+	}
+
 	protected int getTimeIndex(double time) {
 		Point point = new Point(time, Double.NaN, false);
 		return java.util.Collections.binarySearch(points, point);
@@ -451,8 +467,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
 		}
-		this.rationalFunctionInterpolation = null;
-		this.curveCacheReference = null;
+		rationalFunctionInterpolation = null;
+		curveCacheReference = null;
 	}
 
 	private double interpolationEntityFromValue(double value, double time) {

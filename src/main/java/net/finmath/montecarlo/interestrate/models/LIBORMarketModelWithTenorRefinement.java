@@ -151,7 +151,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 		this.liborPeriodDiscretizations	= liborPeriodDiscretizations;
 		this.numberOfDiscretizationIntervalls = numberOfDiscretizationIntervalls;
-		this.curveModel					= analyticModel;
+		curveModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.covarianceModel	= covarianceModel;

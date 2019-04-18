@@ -395,7 +395,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 		// Check if the LMM uses a discount curve which is created from a forward curve
 		if(model.getModel().getDiscountCurve()==null || model.getModel().getDiscountCurve().getName().toLowerCase().contains("DiscountCurveFromForwardCurve".toLowerCase())){
 			return new DiscountCurveFromForwardCurve(ForwardCurveInterpolation.createForwardCurveFromMonteCarloLiborModel(forwardCurveName, model, startTime));
-		} else {
+		}
+		else {
 			// i.e. forward curve of Libor Model not OIS. In this case return the OIS curve.
 			// Only at startTime 0!
 			return (DiscountCurveInterface) model.getModel().getDiscountCurve();
@@ -415,7 +416,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 		int indexOffset;
 		double periodStart;
 		double periodEnd;
-		if(model.getLiborPeriodDiscretization().getTime(firstLiborIndex)>time){
+
+		if(model.getLiborPeriodDiscretization().getTime(firstLiborIndex)>time) {
 			periodStart = time;
 			periodEnd   = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 			forwardRates = new RandomVariable[remainingLibors+1];
@@ -423,11 +425,13 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 			indexOffset = 1;
 			liborTimes = new double[forwardRates.length+1];
 			liborTimes[0] = 0;
-		} else {
+		}
+		else {
 			forwardRates = new RandomVariable[remainingLibors];
 			indexOffset = 0;
 			liborTimes = new double[forwardRates.length+1];
 		}
+
 		for(int liborIndex=firstLiborIndex;liborIndex<model.getNumberOfLibors();liborIndex++){
 			periodStart = model.getLiborPeriodDiscretization().getTime(liborIndex);
 			periodEnd   = model.getLiborPeriodDiscretization().getTime(liborIndex+1);

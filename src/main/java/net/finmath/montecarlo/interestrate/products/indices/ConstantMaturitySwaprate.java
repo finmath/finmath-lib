@@ -23,8 +23,8 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 
 	private static final long serialVersionUID = -5353191308059733179L;
 
-	final double	fixingOffset;
-	final double[]	periodLengths;
+	private final double	fixingOffset;
+	private final double[]	periodLengths;
 
 	/**
 	 * Create a CMS index with given fixing offset and given period lengths.
@@ -77,8 +77,8 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		if(numberOfPeriods * periodLength != maturity) {
 			throw new IllegalArgumentException("matruity not divisible by periodLength");
 		}
-		this.periodLengths = new double[numberOfPeriods];
-		Arrays.fill(this.periodLengths,periodLength);
+		periodLengths = new double[numberOfPeriods];
+		Arrays.fill(periodLengths,periodLength);
 	}
 
 	/**

@@ -6,7 +6,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.TimeDiscretization;
@@ -19,14 +18,14 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Christian Fries
  * @version 1.0
  */
-public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
+public class SwaptionATM extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final TimeDiscretization	tenor;
 	private final ValueUnit						valueUnit;
 
 	public SwaptionATM(double[] swapTenor, ValueUnit valueUnit) {
 		super();
-		this.tenor = new TimeDiscretizationFromArray(swapTenor);
+		tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.valueUnit = valueUnit;
 	}
 
@@ -53,6 +52,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct {
 			return optionValue;
 		case VOLATILITYNORMAL:
 			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity);
+		case INTEGRATEDVARIANCENORMAL:
 		case INTEGRATEDNORMALVARIANCE:
 			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity).squared().mult(optionMaturity);
 		default:

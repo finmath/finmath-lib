@@ -18,8 +18,8 @@ import net.finmath.time.FloatingpointDate;
  */
 public class AccruingNotional implements AbstractNotional {
 
-	AbstractNotional	previousPeriodNotional;
-	AbstractPeriod		previousPeriod;
+	private AbstractNotional	previousPeriodNotional;
+	private AbstractPeriod		previousPeriod;
 
 	/**
 	 * Creates a notion where the notional of the period start is calculated as

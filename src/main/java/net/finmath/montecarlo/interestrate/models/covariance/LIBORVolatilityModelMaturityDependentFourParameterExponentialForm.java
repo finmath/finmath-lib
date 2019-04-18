@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -36,7 +37,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 			RandomVariable[] parameterC,
 			RandomVariable[] parameterD) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.randomVariableFactory = new RandomVariableFactory();
+		randomVariableFactory = new RandomVariableFactory();
 		a = parameterA;
 		b = parameterB;
 		c = parameterC;
@@ -179,5 +180,48 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 				c,
 				d
 				);
+	}
+
+	@Override
+	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		AbstractRandomVariableFactory randomVariableFactory = this.randomVariableFactory;
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		double[] a = Arrays.stream(this.a).mapToDouble(x -> x.doubleValue()).toArray();
+		double[] b = Arrays.stream(this.b).mapToDouble(x -> x.doubleValue()).toArray();
+		double[] c = Arrays.stream(this.c).mapToDouble(x -> x.doubleValue()).toArray();
+		double[] d = Arrays.stream(this.d).mapToDouble(x -> x.doubleValue()).toArray();
+
+		if(dataModified != null) {
+			// Explicitly passed covarianceModel has priority
+			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+
+
+			if(dataModified.getOrDefault("a", a) instanceof RandomVariable[]) {
+				a = Arrays.stream((RandomVariable[])dataModified.getOrDefault("a", a)).mapToDouble(param -> param.doubleValue()).toArray();
+			}else {
+				a = (double[])dataModified.get("a");
+			}
+			if(dataModified.getOrDefault("b", b) instanceof RandomVariable[]) {
+				b = Arrays.stream((RandomVariable[])dataModified.getOrDefault("b", b)).mapToDouble(param -> param.doubleValue()).toArray();
+			}else {
+				b = (double[])dataModified.get("b");
+			}
+			if(dataModified.getOrDefault("c", c) instanceof RandomVariable[]) {
+				c = Arrays.stream((RandomVariable[])dataModified.getOrDefault("c", c)).mapToDouble(param -> param.doubleValue()).toArray();
+			}else {
+				c = (double[])dataModified.get("c");
+			}
+			if(dataModified.getOrDefault("d", d) instanceof RandomVariable[]) {
+				d = Arrays.stream((RandomVariable[])dataModified.getOrDefault("d", d)).mapToDouble(param -> param.doubleValue()).toArray();
+			}else {
+				d = (double[])dataModified.get("d");
+			}
+		}
+
+		LIBORVolatilityModel newModel = new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d);
+		return newModel;
 	}
 }

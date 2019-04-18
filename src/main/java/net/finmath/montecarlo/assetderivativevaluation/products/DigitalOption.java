@@ -46,7 +46,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.underlyingIndex	= underlyingIndex;
-		this.nameOfUnderlying	= null;		// Use underlyingIndex
+		nameOfUnderlying	= null;		// Use underlyingIndex
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		this.nameOfUnderlying = nameOfUnderlying;
 		this.maturity = maturity;
 		this.strike = strike;
-		this.underlyingIndex = 0;
+		underlyingIndex = 0;
 	}
 
 	/**

@@ -5,6 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -34,7 +39,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, RandomVariable[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
-		this.parameter = parameters.clone();
+		parameter = parameters.clone();
 		volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3], false);
 		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4].doubleValue(), false);
 	}
@@ -49,9 +54,9 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	@Override
 	public Object clone() {
 		LIBORCovarianceModelExponentialForm5Param model = new LIBORCovarianceModelExponentialForm5Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameter());
-		model.parameter = this.parameter;
-		model.volatilityModel = this.volatilityModel;
-		model.correlationModel = this.correlationModel;
+		model.parameter = parameter;
+		model.volatilityModel = volatilityModel;
+		model.correlationModel = correlationModel;
 		return model;
 	}
 
@@ -60,10 +65,10 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();
 
 		model.parameter = parameters;
-		if(parameters[0] != this.parameter[0] || parameters[1] != this.parameter[1] || parameters[2] != this.parameter[2] || parameters[3] != this.parameter[3]) {
+		if(parameters[0] != parameter[0] || parameters[1] != parameter[1] || parameters[2] != parameter[2] || parameters[3] != parameter[3]) {
 			model.volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3], false);
 		}
-		if(parameters[4] != this.parameter[4]) {
+		if(parameters[4] != parameter[4]) {
 			model.correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameters[4].doubleValue(), false);
 		}
 
@@ -84,7 +89,9 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	public double[] getParameterAsDouble() {
 		RandomVariable[] parameters = getParameter();
 		double[] parametersAsDouble = new double[parameters.length];
-		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		for(int i=0; i<parameters.length; i++) {
+			parametersAsDouble[i] = parameters[i].doubleValue();
+		}
 		return parametersAsDouble;
 	}
 
@@ -103,5 +110,37 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	@Override
 	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		int numberOfFactors = this.getNumberOfFactors();
+		RandomVariable[] parameter = this.parameter;
+		AbstractRandomVariableFactory randomVariableFactory = null;
+
+		if(dataModified != null) {
+			if(dataModified.containsKey("randomVariableFactory")) {
+				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
+				parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(para -> para.doubleValue()).toArray());
+			}
+
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
+
+			if(dataModified.getOrDefault("parameter", parameter) instanceof RandomVariable[]) {
+				parameter = (RandomVariable[])dataModified.getOrDefault("parameter", parameter);
+			}else if(randomVariableFactory==null){
+				parameter = Scalar.arrayOf((double[])dataModified.get("parameter"));
+			}else {
+				parameter = randomVariableFactory.createRandomVariableArray((double[])dataModified.get("parameter"));
+			}
+		}
+
+		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
+		return newModel;
 	}
 }

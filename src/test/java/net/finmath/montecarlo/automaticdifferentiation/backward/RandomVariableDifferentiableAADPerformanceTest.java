@@ -414,7 +414,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			double[] notionals = new double[50];
 			double[] strikes = new double[50];
 			for(int periodIndex = 1; periodIndex<=50; periodIndex++) {
-				exerciseDate[periodIndex-1] = (double)periodIndex;
+				exerciseDate[periodIndex-1] = periodIndex;
 				notionals[periodIndex-1] = 1.0;
 				strikes[periodIndex-1] = 1.0 * Math.exp(modelRiskFreeRate*exerciseDate[periodIndex-1]);
 			}
@@ -534,7 +534,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 	public RandomVariableDifferentiableAADPerformanceTest(String name, Object[] testCase, AbstractRandomVariableFactory testMethod) {
 		this.testCase = testCase;
-		this.randomVariableFactory = testMethod;
+		randomVariableFactory = testMethod;
 	}
 
 	@Test

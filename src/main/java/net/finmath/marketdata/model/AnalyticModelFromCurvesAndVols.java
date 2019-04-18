@@ -64,7 +64,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
-		this.referenceDate = null;
+		referenceDate = null;
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
-		this.referenceDate = null;
+		referenceDate = null;
 	}
 
 	/**

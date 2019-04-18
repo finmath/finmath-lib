@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -110,12 +112,12 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		b = Math.min(Math.max(b, 0.0), 1.0);
 		c = Math.max(c, 0.0);
 
-		correlationMatrix = new double[liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		correlationMatrix = new double[getLiborPeriodDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 		for(int row=0; row<correlationMatrix.length; row++) {
 			for(int col=row+1; col<correlationMatrix[row].length; col++) {
 				// Exponentially decreasing instantaneous correlation
-				double T1 = liborPeriodDiscretization.getTime(row);
-				double T2 = liborPeriodDiscretization.getTime(col);
+				double T1 = getLiborPeriodDiscretization().getTime(row);
+				double T2 = getLiborPeriodDiscretization().getTime(col);
 				double correlation = b + (1-b) * Math.exp(-a * Math.abs(T1 - T2) - c * Math.max(T1, T2));
 				correlationMatrix[row][col] = correlation;
 				correlationMatrix[col][row] = correlation;
@@ -151,9 +153,33 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 				numberOfFactors,
 				a, b, c, isCalibrateable);
 
-		newModel.correlationMatrix	= this.correlationMatrix;
-		newModel.factorMatrix		= this.factorMatrix;
+		newModel.correlationMatrix	= correlationMatrix;
+		newModel.factorMatrix		= factorMatrix;
 
+		return newModel;
+	}
+
+	@Override
+	public LIBORCorrelationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		int numberOfFactors = this.getNumberOfFactors();
+		double a = this.a;
+		double b = this.b;
+		double c = this.c;
+		boolean isCalibrateable = this.isCalibrateable;
+
+		if(dataModified != null) {
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
+			a = (double)dataModified.getOrDefault("a", a);
+			b = (double)dataModified.getOrDefault("a", b);
+			c = (double)dataModified.getOrDefault("a", c);
+			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
+		}
+
+		LIBORCorrelationModel newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, b, c, isCalibrateable);
 		return newModel;
 	}
 }

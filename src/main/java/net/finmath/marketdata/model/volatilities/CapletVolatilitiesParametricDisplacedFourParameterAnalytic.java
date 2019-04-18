@@ -55,9 +55,7 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 			DiscountCurve discountCurve,
 			double displacement, boolean isDisplacementCalibrateable,
 			double a, double b, double c, double d, double timeScaling) {
-		super(name, referenceDate);
-		this.forwardCurve = forwardCurve;
-		this.discountCurve = discountCurve;
+		super(name, referenceDate, forwardCurve, discountCurve, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.timeScaling = timeScaling;
 		this.displacement = displacement;
 		this.isDisplacementCalibrateable = isDisplacementCalibrateable;
@@ -65,7 +63,6 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 		this.b = b;
 		this.c = c;
 		this.d = d;
-		this.quotingConvention = QuotingConvention.VOLATILITYNORMAL;	// Preferred qc
 	}
 
 	@Override
@@ -107,29 +104,29 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 
 		double value = Math.sqrt(integratedVariance/maturity);
 
-		if(discountCurve == null) {
+		if(getDiscountCurve() == null) {
 			throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
-		if(forwardCurve == null) {
+		if(getForwardCurve() == null) {
 			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
 
 		double periodStart = maturity;
-		double periodEnd = periodStart + forwardCurve.getPaymentOffset(periodStart);
+		double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
 
-		double forward = forwardCurve.getForward(model, periodStart);
+		double forward = getForwardCurve().getForward(model, periodStart);
 
 		double daycountFraction;
-		if(daycountConvention != null) {
+		if(getDaycountConvention() != null) {
 			LocalDate startDate = getReferenceDate().plusDays((int)Math.round(periodStart*365));
 			LocalDate endDate   = getReferenceDate().plusDays((int)Math.round(periodEnd*365));
-			daycountFraction = daycountConvention.getDaycountFraction(startDate, endDate);
+			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);
 		}
 		else {
-			daycountFraction = forwardCurve.getPaymentOffset(periodStart);
+			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);
 		}
 
-		double payoffUnit = discountCurve.getDiscountFactor(maturity+forwardCurve.getPaymentOffset(maturity)) * daycountFraction;
+		double payoffUnit = getDiscountCurve().getDiscountFactor(maturity+getForwardCurve().getPaymentOffset(maturity)) * daycountFraction;
 
 		double valuePrice = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward+displacement, value, maturity, strike+displacement, payoffUnit);
 
@@ -168,10 +165,10 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	@Override
 	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
 		if(isDisplacementCalibrateable) {
-			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), forwardCurve, discountCurve, value[0], isDisplacementCalibrateable, value[1], value[2], value[3], value[4], timeScaling);
+			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), value[0], isDisplacementCalibrateable, value[1], value[2], value[3], value[4], timeScaling);
 		}
 		else {
-			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), forwardCurve, discountCurve, displacement, isDisplacementCalibrateable, value[0], value[1], value[2], value[3], timeScaling);
+			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), displacement, isDisplacementCalibrateable, value[0], value[1], value[2], value[3], timeScaling);
 		}
 	}
 

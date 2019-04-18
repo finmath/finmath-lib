@@ -82,7 +82,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 		this.shape				= shape;
 		this.scale				= scale;
 
-		this.gammaIncrements	= null; 	// Lazy initialization
+		gammaIncrements	= null; 	// Lazy initialization
 	}
 
 	/**

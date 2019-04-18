@@ -5,6 +5,8 @@
  */
 package net.finmath.marketdata.products;
 
+import java.io.Serializable;
+
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
@@ -30,7 +32,9 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, DescribedProduct<InterestRateSwapProductDescriptor> {
+public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, DescribedProduct<InterestRateSwapProductDescriptor>, Serializable {
+
+	private static final long serialVersionUID = 6546984174616265190L;
 
 	private final AnalyticProduct legReceiver;
 	private final AnalyticProduct legPayer;
@@ -155,7 +159,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 			double payment			= floatSchedule.getPayment(periodIndex);
 			double periodLength		= floatSchedule.getPeriodLength(periodIndex);
 
-			double forward			= forwardCurve.getForward(model, fixing);
+			double forward			= forwardCurve.getForward(model, fixing, payment-fixing);
 			double discountFactor	= discountCurve.getDiscountFactor(model, payment);
 
 			floatLeg += forward * periodLength * discountFactor;

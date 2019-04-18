@@ -168,15 +168,15 @@ public class HestonModel extends AbstractProcessModel {
 
 		this.initialValue	= initialValue;
 		this.discountCurveForForwardRate	= discountCurveForForwardRate;
-		this.riskFreeRate = null;
+		riskFreeRate = null;
 		this.volatility		= volatility;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = null;
+		discountRate = null;
 		this.theta			= theta;
 		this.kappa			= kappa;
 		this.xi				= xi;
 		this.rho			= rho;
-		this.rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
+		rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
 
 		this.scheme			= scheme;
 
@@ -212,16 +212,16 @@ public class HestonModel extends AbstractProcessModel {
 		super();
 
 		this.initialValue	= initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
 		this.discountRate	= discountRate;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.theta			= theta;
 		this.kappa			= kappa;
 		this.xi				= xi;
 		this.rho			= rho;
-		this.rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
+		rhoBar			= rho.squared().sub(1).mult(-1).sqrt();
 
 		this.scheme			= scheme;
 

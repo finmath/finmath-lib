@@ -39,8 +39,8 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 		super();
 		this.accuracy = accuracy;
 		this.maxIterations = maxIterations;
-		this.parameterLowerBound = null;
-		this.parameterUppderBound = null;
+		parameterLowerBound = null;
+		parameterUppderBound = null;
 		this.parameterStandardDeviation = parameterStandardDeviation;
 	}
 
@@ -48,9 +48,9 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 		super();
 		this.accuracy = accuracy;
 		this.maxIterations = maxIterations;
-		this.parameterLowerBound = null;
-		this.parameterUppderBound = null;
-		this.parameterStandardDeviation = null;
+		parameterLowerBound = null;
+		parameterUppderBound = null;
+		parameterStandardDeviation = null;
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 	@Override
 	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, double[] targetValues) {
 		final double[] values = new double[targetValues.length];
-		final double[] effectiveParameterLowerBound			= parameterLowerBound != null ? this.parameterLowerBound : lowerBound;
-		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? this.parameterUppderBound : upperBound;
-		final double[] effectiveParameterStandardDeviation	= parameterStandardDeviation != null ? this.parameterStandardDeviation : parameterStep;
+		final double[] effectiveParameterLowerBound			= parameterLowerBound != null ? parameterLowerBound : lowerBound;
+		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? parameterUppderBound : upperBound;
+		final double[] effectiveParameterStandardDeviation	= parameterStandardDeviation != null ? parameterStandardDeviation : parameterStep;
 
 		// Throw exception if std dev is non null, but lower bound / upper bound are null.
 		return new Optimizer() {

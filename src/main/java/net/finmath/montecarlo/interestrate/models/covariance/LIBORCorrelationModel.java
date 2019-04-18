@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.RandomVariableArrayImplementation;
@@ -27,8 +28,8 @@ public abstract class LIBORCorrelationModel implements Serializable {
 
 	private static final long serialVersionUID = -6780424108470638825L;
 
-	final TimeDiscretization	timeDiscretization;
-	final TimeDiscretization	liborPeriodDiscretization;
+	private final TimeDiscretization	timeDiscretization;
+	private final TimeDiscretization	liborPeriodDiscretization;
 
 	public LIBORCorrelationModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
 		super();
@@ -63,4 +64,21 @@ public abstract class LIBORCorrelationModel implements Serializable {
 
 	@Override
 	public abstract Object clone();
+
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 *
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 *
+	 * Furthermore the structure of the correlation model has to match changed data.
+	 * A change of the time discretizations may requires a change in the parameters
+	 * but this function will just insert the new time discretization without
+	 * changing the parameters. An exception may not be thrown.
+	 *
+	 * @param dataModified Key-value-map of parameters to modify.
+	 * @return A clone of this model (or a new instance of this model if no parameter was modified).
+	 */
+	public abstract LIBORCorrelationModel getCloneWithModifiedData(Map<String, Object> dataModified);
 }

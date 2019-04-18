@@ -105,7 +105,9 @@ public class RandomVariableAAD implements RandomVariable {
 
 	private RandomVariableAAD[] getParentAADRandomVariables(){
 
-		if(getParentIDs() == null) return null;
+		if(getParentIDs() == null) {
+			return null;
+		}
 
 		int[] parentIndices = getParentIDs();
 		RandomVariableAAD[] parentAADRandomVariables = new RandomVariableAAD[getNumberOfParentVariables()];
@@ -300,7 +302,9 @@ public class RandomVariableAAD implements RandomVariable {
 		Arrays.sort(parentIDsSorted);
 
 		/* if random variable not dependent on variable or it is constant anyway return 0.0 */
-		if((Arrays.binarySearch(parentIDsSorted, variableIndex) < 0) || isConstant) return new RandomVariableFromDoubleArray(0.0);
+		if((Arrays.binarySearch(parentIDsSorted, variableIndex) < 0) || isConstant) {
+			return new RandomVariableFromDoubleArray(0.0);
+		}
 
 		RandomVariable resultrandomvariable = null;
 		RandomVariable X,Y,Z;
@@ -655,7 +659,9 @@ public class RandomVariableAAD implements RandomVariable {
 	}
 
 	private int getNumberOfParentVariables(){
-		if(getParentIDs() == null) return 0;
+		if(getParentIDs() == null) {
+			return 0;
+		}
 		return getParentIDs().length;
 	}
 

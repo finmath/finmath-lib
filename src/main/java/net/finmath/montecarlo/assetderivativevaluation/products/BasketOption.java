@@ -44,7 +44,7 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 		this.maturity			= maturity;
 		this.strike				= strike;
 		this.weights			= weights;
-		this.nameOfUnderliyngs	= null;		// Use asset with index 0, 1, 2, 3
+		nameOfUnderliyngs	= null;		// Use asset with index 0, 1, 2, 3
 	}
 
 	/**

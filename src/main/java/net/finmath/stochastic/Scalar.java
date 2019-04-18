@@ -22,16 +22,21 @@ public class Scalar implements RandomVariable {
 
 	private static final long serialVersionUID = -729437972787062992L;
 
-	final double value;
+	private final double value;
 
 	public Scalar(double value) {
 		super();
 		this.value = value;
+		//		if(Double.isNaN(value)) {
+		//			throw new ArithmeticException("Not a Numbber");
+		//		}
 	}
 
 	public static Scalar[] arrayOf(double[] arrayOfDoubles) {
 		Scalar[] array = new Scalar[arrayOfDoubles.length];
-		for(int i=0; i<arrayOfDoubles.length; i++) array[i] = new Scalar(arrayOfDoubles[i]);
+		for(int i=0; i<arrayOfDoubles.length; i++) {
+			array[i] = new Scalar(arrayOfDoubles[i]);
+		}
 		return array;
 	}
 
@@ -318,8 +323,11 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
-		if(value >= 0) return valueIfTriggerNonNegative;
-		else return valueIfTriggerNegative;
+		if(value >= 0) {
+			return valueIfTriggerNonNegative;
+		} else {
+			return valueIfTriggerNegative;
+		}
 	}
 
 	@Override

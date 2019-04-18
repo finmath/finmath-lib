@@ -22,17 +22,21 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * Implements the valuation of a swaption under a LIBORModelMonteCarloSimulationModel
+ * Implements the Monte-Carlo valuation of a swaption under a LIBORModelMonteCarloSimulationModel.
+ *
+ * Note: This implementation is based on model relative times (using ACT/365 floating point offsets).
+ * An implementation using dates and exact swap schedules is provided by {@link SwaptionFromSwapSchedules}.
  *
  * Important: If the LIBOR Market Model is a multi-curve model in the sense that the
  * numeraire is not calculated from the forward curve, then this valuation does
  * assume that the basis deterministic. For the valuation of a fully generalize swaption,
  * you have to use the <code>Option</code> component on a <code>Swap</code>.
  *
+ * @see net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules
  * @author Christian Fries
  * @version 1.3
  */
-public class Swaption extends AbstractLIBORMonteCarloProduct {
+public class Swaption extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 	private final double    exerciseDate;	// Exercise date
 	private final double[]  fixingDates;		// Vector of fixing dates (must be sorted)
 	private final double[]  paymentDates;	// Vector of payment dates (same length as fixing dates)
@@ -103,19 +107,19 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 		super();
 		this.exerciseDate = exerciseDate;
 
-		this.fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
-		this.paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		fixingDates	= new double[swapTenor.getNumberOfTimeSteps()];
+		paymentDates	= new double[swapTenor.getNumberOfTimeSteps()];
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
 			fixingDates[periodIndex] = swapTenor.getTime(periodIndex);
 			paymentDates[periodIndex] = swapTenor.getTime(periodIndex+1);
 		}
 
-		this.periodLengths = null;
+		periodLengths = null;
 
-		this.swaprates = new double[swapTenor.getNumberOfTimeSteps()];
+		swaprates = new double[swapTenor.getNumberOfTimeSteps()];
 		java.util.Arrays.fill(swaprates, swaprate);
 
-		this.notional = 1.0;
+		notional = 1.0;
 	}
 
 	/**
@@ -238,26 +242,26 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 	}
 
 	public double getExerciseDate(){
-		return this.exerciseDate;
+		return exerciseDate;
 	}
 
 	public double[]  getFixingDates(){
-		return this.fixingDates;
+		return fixingDates;
 	}
 
 	public double[] getPaymentDates(){
-		return this.paymentDates;
+		return paymentDates;
 	}
 
 	public double[] getPeriodLengths(){
-		return this.periodLengths;
+		return periodLengths;
 	}
 
 	public double[] getSwaprates(){
-		return this.swaprates;
+		return swaprates;
 	}
 
 	public double getNotional(){
-		return this.notional;
+		return notional;
 	}
 }

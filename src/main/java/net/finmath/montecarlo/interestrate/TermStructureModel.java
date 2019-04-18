@@ -22,7 +22,31 @@ import net.finmath.stochastic.RandomVariable;
  */
 public interface TermStructureModel extends ProcessModel {
 
+	/**
+	 * Returns the time \( t \) forward rate on the models forward curve.
+	 *
+	 * Note: It is guaranteed that the random variable returned by this method is \( \mathcal{F}_{t} ) \)-measurable.
+	 * @param time The evaluation time.
+	 * @param periodStart The period start of the forward rate.
+	 * @param periodEnd The period end of the forward rate.
+	 * @return The forward rate.
+	 * @throws CalculationException Thrown if model fails to calculate the random variable.
+	 */
 	RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+
+	/**
+	 * Returns the time \( t \) forward bond derived from the numeraire, i.e., \( P(T;t) = E( \frac{N(t)}{N(T)} \vert \mathcal{F}_{t} ) \).
+	 *
+	 * Note: It is guaranteed that the random variabble returned by this method is \( \mathcal{F}_{t} ) \)-measurable.
+	 *
+	 * @param time The evaluation time.
+	 * @param maturity The maturity.
+	 * @return The forward bond P(T;t).
+	 * @throws CalculationException Thrown if model fails to calculate the random variable.
+	 */
+	default RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
+		throw new UnsupportedOperationException("The model does not support this method. Note: implemenation will become mandatory is future releases.");
+	}
 
 	/**
 	 * Return the associated analytic model, a collection of market date object like discount curve, forward curve

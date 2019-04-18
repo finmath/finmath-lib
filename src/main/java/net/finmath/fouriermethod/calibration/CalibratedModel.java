@@ -61,8 +61,8 @@ public class CalibratedModel {
 		this.optimizerFactory = optimizerFactory;
 		this.pricer = pricer;
 		this.initialParameters = initialParameters;
-		this.lowerBound = model.getParameterLowerBounds();
-		this.upperBound = model.getParameterUpperBounds();
+		lowerBound = model.getParameterLowerBounds();
+		upperBound = model.getParameterUpperBounds();
 		this.parameterStep = parameterStep;
 	}
 
@@ -289,7 +289,7 @@ public class CalibratedModel {
 		}
 
 		public ArrayList<String> getCalibrationOutput(){
-			return this.calibrationOutput;
+			return calibrationOutput;
 		}
 
 	}

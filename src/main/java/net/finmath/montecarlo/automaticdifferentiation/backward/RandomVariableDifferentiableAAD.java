@@ -96,7 +96,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, Object operator, RandomVariableDifferentiableAADFactory factory) {
 			super();
-			this.id = indexOfNextRandomVariable.getAndIncrement();
+			id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
 			this.arguments = arguments;
 			this.operator = operator;
@@ -159,7 +159,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		}
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
-			if(arguments == null) return;
+			if(arguments == null) {
+				return;
+			}
 			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
 				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
@@ -204,7 +206,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		 */
 		private RandomVariable getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
 
-			if(!arguments.contains(differential)) return zero;
+			if(!arguments.contains(differential)) {
+				return zero;
+			}
 
 			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
 			RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
@@ -573,10 +577,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public RandomVariableDifferentiableAAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory, int methodArgumentTypePriority) {
 		super();
 		this.values = values;
-		this.operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
+		operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
 		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
 
-		this.typePriority = methodArgumentTypePriority;
+		typePriority = methodArgumentTypePriority;
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {

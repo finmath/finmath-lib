@@ -41,13 +41,12 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param timeDiscretization The timeDiscretizationFromArray used in numerical integration.
 	 */
 	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretization timeDiscretization) {
-		super(name, referenceDate);
+		super(name, referenceDate, null, null, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.a = a;
 		this.b = b;
 		this.c = c;
 		this.d = d;
 		this.timeDiscretization = timeDiscretization;
-		this.quotingConvention = QuotingConvention.VOLATILITYLOGNORMAL;
 	}
 
 	/* (non-Javadoc)
@@ -85,7 +84,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 		}
 
 		double value = Math.sqrt(integratedVariance/maturity);
-		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
+		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);
 	}
 
 	@Override

@@ -44,8 +44,8 @@ public class LIBORIndex extends AbstractIndex {
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
-		this.periodStartOffset = 0.0;
-		this.periodLength = Double.NaN;
+		periodStartOffset = 0.0;
+		periodLength = Double.NaN;
 	}
 
 	/**
@@ -57,9 +57,9 @@ public class LIBORIndex extends AbstractIndex {
 	 */
 	public LIBORIndex(String name, double periodStartOffset, double periodLength) {
 		super(name, null);
-		this.paymentOffsetCode = null;
-		this.paymentBusinessdayCalendar = null;
-		this.paymentDateRollConvention = null;
+		paymentOffsetCode = null;
+		paymentBusinessdayCalendar = null;
+		paymentDateRollConvention = null;
 		this.periodStartOffset = periodStartOffset;
 		this.periodLength = periodLength;
 	}

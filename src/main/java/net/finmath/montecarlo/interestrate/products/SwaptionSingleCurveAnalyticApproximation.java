@@ -10,12 +10,12 @@ import java.util.Map;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -37,13 +37,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
-
-	public enum ValueUnit {
-		VALUE,
-		INTEGRATEDVARIANCE,
-		VOLATILITY
-	}
+public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final double      swaprate;
 	private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
@@ -132,15 +126,15 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 		}
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
-			return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateVariance);
+		if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+			return new Scalar(integratedSwapRateVariance);
 		}
 
 		double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.VOLATILITY) {
-			return new RandomVariableFromDoubleArray(evaluationTime, volatility);
+		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
+			return new Scalar(volatility);
 		}
 
 		// Use black formula for swaption to calculate the price
@@ -150,7 +144,7 @@ public class SwaptionSingleCurveAnalyticApproximation extends AbstractLIBORMonte
 		double optionMaturity	= swapStart;
 
 		double valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);
-		return new RandomVariableFromDoubleArray(evaluationTime, valueSwaption);
+		return new Scalar(valueSwaption);
 	}
 
 	/**

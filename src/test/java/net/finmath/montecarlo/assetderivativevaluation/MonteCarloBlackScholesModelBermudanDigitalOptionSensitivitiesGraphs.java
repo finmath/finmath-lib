@@ -100,7 +100,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		 * Calculate sensitivities using finite differences
 		 */
 
-		for(double eps = 8; eps > 1E-6; eps/=1.2) {
+		for(double eps = 0.8; eps > 1E-6; eps/=1.2) {
 			Map<String, Object> dataModifiedInitialValueUp = new HashMap<String, Object>();
 			dataModifiedInitialValueUp.put("initialValue", modelInitialValue+eps);
 			Map<String, Object> dataModifiedInitialValueDn = new HashMap<String, Object>();

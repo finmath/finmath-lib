@@ -6,6 +6,7 @@
 
 package net.finmath.time.daycount;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +48,9 @@ import net.finmath.time.Period;
  * @author Christian Fries
  * @version 1.0
  */
-public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT {
+public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = -6104391125796839417L;
 
 	private final ArrayList<Period>	periods;
 	private final int				frequency;

@@ -149,7 +149,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
 			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
-			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModel.getModel()).getInitialValue()[0];
 			RandomVariable deltaAAD = derivative.get(initialValue.getID());
 
 			results.put("delta.aad", deltaAAD);
@@ -173,7 +173,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 
 			RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
 			Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
-			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModel).getModel()).getInitialValue()[0];
+			RandomVariableDifferentiable initialValue = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModel.getModel()).getInitialValue()[0];
 
 			RandomVariable deltaRegression = derivative.get(initialValue.getID());
 
@@ -258,7 +258,9 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			ArrayList<Double> maskY = new ArrayList<Double>();
 			for(double maskSizeFactor = -0.5; maskSizeFactor<0.505; maskSizeFactor+=0.01) {
 				double maskSize2 = maskSizeFactor * underlyingStdDev;
-				if(Math.abs(maskSizeFactor) < 1E-10) continue;
+				if(Math.abs(maskSizeFactor) < 1E-10) {
+					continue;
+				}
 				RandomVariable maskPos = X.add(Math.max(maskSize2,0)).choose(new Scalar(1.0), new Scalar(0.0));
 				RandomVariable maskNeg = X.add(Math.min(maskSize2,0)).choose(new Scalar(0.0), new Scalar(1.0));
 				RandomVariable mask2 = maskPos.mult(maskNeg);

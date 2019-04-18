@@ -77,7 +77,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 		this.randomVariableFactory = randomVariableFactory;
 
-		this.increments	= null; 	// Lazy initialization
+		increments	= null; 	// Lazy initialization
 	}
 
 	/**

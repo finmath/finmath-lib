@@ -27,12 +27,12 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 
 	private static final long serialVersionUID = 3735595267579329042L;
 
-	protected final String discountCurveName; // The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
+	private final String discountCurveName; // The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
 	private final Map<Double, Double> paymentOffsets = new ConcurrentHashMap<>();
 
-	protected final String paymentOffsetCode;
-	protected final BusinessdayCalendar paymentBusinessdayCalendar;
-	protected final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
+	private final String paymentOffsetCode;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
 
 	private final double paymentOffset;
 
@@ -64,7 +64,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
 		this.paymentDateRollConvention = paymentDateRollConvention;
 
-		this.paymentOffset = Double.NaN;
+		paymentOffset = Double.NaN;
 
 		this.discountCurveName = discountCurveName;
 	}
@@ -101,9 +101,9 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		this.paymentOffset = paymentOffset;
 		this.discountCurveName = discountCurveName;
 
-		this.paymentOffsetCode = null;
-		this.paymentBusinessdayCalendar = null;
-		this.paymentDateRollConvention = null;
+		paymentOffsetCode = null;
+		paymentBusinessdayCalendar = null;
+		paymentDateRollConvention = null;
 	}
 
 	/* (non-Javadoc)
@@ -119,7 +119,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 */
 	@Override
 	public double getPaymentOffset(double fixingTime) {
-		if(paymentOffsetCode == null) {
+		if(getPaymentOffsetCode() == null) {
 			return paymentOffset;
 		}
 
@@ -134,7 +134,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 			 */
 			LocalDate referenceDate = getReferenceDate();
 			LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
-			LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);
+			LocalDate paymentDate = getPaymentBusinessdayCalendar().getAdjustedDate(fixingDate, getPaymentOffsetCode(), getPaymentDateRollConvention());
 			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, paymentDate);
 			paymentOffsets.put(fixingTime, paymentTime-fixingTime);
 			return paymentTime-fixingTime;
@@ -161,6 +161,18 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 
 	@Override
 	public String toString() {
-		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + discountCurveName + ", paymentOffsetCode=" + paymentOffsetCode + ", paymentBusinessdayCalendar=" + paymentBusinessdayCalendar + ", paymentDateRollConvention=" + paymentDateRollConvention + "]";
+		return "AbstractForwardCurve [" + super.toString() + ", discountCurveName=" + getDiscountCurveName() + ", paymentOffsetCode=" + getPaymentOffsetCode() + ", paymentBusinessdayCalendar=" + getPaymentBusinessdayCalendar() + ", paymentDateRollConvention=" + getPaymentDateRollConvention() + "]";
+	}
+
+	public String getPaymentOffsetCode() {
+		return paymentOffsetCode;
+	}
+
+	public BusinessdayCalendar getPaymentBusinessdayCalendar() {
+		return paymentBusinessdayCalendar;
+	}
+
+	protected BusinessdayCalendar.DateRollConvention getPaymentDateRollConvention() {
+		return paymentDateRollConvention;
 	}
 }

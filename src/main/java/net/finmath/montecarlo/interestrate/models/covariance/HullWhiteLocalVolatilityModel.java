@@ -5,6 +5,9 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -98,5 +101,25 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	@Override
 	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+			throws CalculationException {
+		double periodLength = this.periodLength;
+		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
+
+		if(dataModified != null) {
+			if(!dataModified.containsKey("covarianceModel")) {
+				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
+			}
+
+			// Explicitly passed covarianceModel has priority
+			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
+			periodLength = (double)dataModified.getOrDefault("periodLength", periodLength);
+		}
+
+		AbstractLIBORCovarianceModelParametric newModel = new HullWhiteLocalVolatilityModel(covarianceModel, periodLength);
+		return newModel;
 	}
 }

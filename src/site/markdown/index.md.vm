@@ -64,19 +64,22 @@ Distribution
 
 finmath lib is distributed through the central maven repository. It's coordinates are:
 
-For the Java 6 version:
-
-	<groupId>net.finmath</groupId>
-	<artifactId>finmath-lib</artifactId>
-	<version>${project.version}</version>
-	<classifier>java6</classifier>
-
 For the Java 8 version:
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
 	<version>${project.version}</version>
 	
+For the Java 6 version:
+
+	<groupId>net.finmath</groupId>
+	<artifactId>finmath-lib</artifactId>
+	<version>3.6.3</version>
+	<classifier>java6</classifier>
+
+*Note: finmath-lib Version 4 is currently not available for Java 6.*
+
+
 You may build the Java 8 version via Maven using
 
 	mvn -P java-8

@@ -24,16 +24,16 @@ public class JNumberField extends JTextField implements ActionListener {
 
 	private static final long serialVersionUID = -138039675088007707L;
 
-	Number value = new Double(0.0);
-	DecimalFormat formatter = new DecimalFormat("0.000");
+	private Number value = new Double(0.0);
+	private DecimalFormat formatter = new DecimalFormat("0.000");
 
 	// Guards access to read or write of the text field
-	Object updateLock = new Object();
+	private Object updateLock = new Object();
 
-	double		preferedValueIncrement = 0.0;
-	double[]	admissibleValues = null;
-	double lowerBound = -Double.MAX_VALUE;
-	double upperBound = Double.MAX_VALUE;
+	private double		preferedValueIncrement = 0.0;
+	private double[]	admissibleValues = null;
+	private double lowerBound = -Double.MAX_VALUE;
+	private double upperBound = Double.MAX_VALUE;
 
 	public JNumberField() {
 		super();
@@ -90,9 +90,9 @@ public class JNumberField extends JTextField implements ActionListener {
 	}
 
 	public void setAdmissibleValues(TimeDiscretization timeDiscretization) {
-		this.admissibleValues = new double[timeDiscretization.getNumberOfTimeSteps()+1];
+		admissibleValues = new double[timeDiscretization.getNumberOfTimeSteps()+1];
 		for(int i=0; i<admissibleValues.length; i++) {
-			this.admissibleValues[i] = timeDiscretization.getTime(i);
+			admissibleValues[i] = timeDiscretization.getTime(i);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class JNumberField extends JTextField implements ActionListener {
 			}
 
 			// Apply bounds
-			this.value = new Double(Math.min(Math.max(lowerBound,value.doubleValue()),upperBound));
+			value = new Double(Math.min(Math.max(lowerBound,value.doubleValue()),upperBound));
 
 			// Write and resize field
 			this.setText(formatter.format(value));
@@ -183,7 +183,7 @@ public class JNumberField extends JTextField implements ActionListener {
 
 	private int getAdmissibleValueIndex() {
 		// Constrain to admissibleValues
-		if(this.admissibleValues != null && admissibleValues.length > 0) {
+		if(admissibleValues != null && admissibleValues.length > 0) {
 			int index = java.util.Arrays.binarySearch(admissibleValues, value.doubleValue());
 			if(index < 0) {
 				index = -index-1;

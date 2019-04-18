@@ -51,8 +51,8 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
-		this.timeTickSize = tickSize;
-		this.timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
+		timeTickSize = tickSize;
+		timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
 	}
 
 	/**

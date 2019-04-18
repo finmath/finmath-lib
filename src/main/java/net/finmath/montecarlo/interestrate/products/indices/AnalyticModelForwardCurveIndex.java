@@ -39,7 +39,7 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 	public AnalyticModelForwardCurveIndex(String name, String curveName, double fixingOffset, double paymentOffset) {
 		super(name);
 		this.curveName = curveName;
-		this.fixingOffet = fixingOffset;
+		fixingOffet = fixingOffset;
 		this.paymentOffset = paymentOffset;
 	}
 

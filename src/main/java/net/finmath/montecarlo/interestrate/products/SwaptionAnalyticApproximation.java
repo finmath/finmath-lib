@@ -55,16 +55,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 17.05.2007.
  * @version 1.0
  */
-public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduct {
-
-	public enum ValueUnit {
-		/** Returns the value of the swaption **/
-		VALUE,
-		/** Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i> **/
-		INTEGRATEDVARIANCE,
-		/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i> **/
-		VOLATILITY
-	}
+public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final double      swaprate;
 	private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
@@ -158,14 +149,14 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 		}
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
+		if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
 			return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateVariance);
 		}
 
 		double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
 		// Return integratedSwapRateVariance if requested
-		if(valueUnit == ValueUnit.VOLATILITY) {
+		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
 			return new RandomVariableFromDoubleArray(evaluationTime, volatility);
 		}
 
@@ -212,11 +203,10 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 			/*
 			 * Small workaround for the case that the discount curve is not set. This part will be removed later.
 			 */
-			AnalyticModelFromCurvesAndVols model = null;
 			if(discountCurve == null) {
 				discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
-				model					= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 			}
+			AnalyticModelFromCurvesAndVols model = new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 
 			double swapStart    = swapTenor[0];
 			double swapEnd      = swapTenor[swapTenor.length-1];
@@ -234,7 +224,7 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
 			// Calculate discount factors for swap period ends (used for swap annuity)
 			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex < swapEndIndex; liborPeriodIndex++) {
-				double libor = forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));
+				double libor = forwardCurve.getForward(model, liborPeriodDiscretization.getTime(liborPeriodIndex));
 
 				forwardRates[liborPeriodIndex-swapStartIndex]       = libor;
 				discountFactors[liborPeriodIndex-swapStartIndex+1]  = discountCurve.getDiscountFactor(model, liborPeriodDiscretization.getTime(liborPeriodIndex+1));

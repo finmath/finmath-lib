@@ -297,8 +297,8 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 * Reset all precalculated values
 	 */
 	private synchronized void reset() {
-		this.discreteProcess = null;
-		this.discreteProcessWeights = null;
+		discreteProcess = null;
+		discreteProcessWeights = null;
 	}
 
 	/**
@@ -306,7 +306,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 */
 	@Override
 	public int getNumberOfPaths() {
-		return this.stochasticDriver.getNumberOfPaths();
+		return stochasticDriver.getNumberOfPaths();
 	}
 
 	/**
@@ -314,7 +314,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 */
 	@Override
 	public int getNumberOfFactors() {
-		return this.stochasticDriver.getNumberOfFactors();
+		return stochasticDriver.getNumberOfFactors();
 	}
 
 	/**

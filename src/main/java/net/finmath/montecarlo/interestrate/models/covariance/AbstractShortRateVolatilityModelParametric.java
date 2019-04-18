@@ -75,16 +75,20 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 *
 	 * @return Parameter vector.
 	 */
+	@Override
 	public abstract RandomVariable[]	getParameter();
 
 
 	@Override
 	public abstract Object clone();
 
+	@Override
 	public double[] getParameterAsDouble() {
 		RandomVariable[] parameters = getParameter();
 		double[] parametersAsDouble = new double[parameters.length];
-		for(int i=0; i<parameters.length; i++) parametersAsDouble[i] = parameters[i].doubleValue();
+		for(int i=0; i<parameters.length; i++) {
+			parametersAsDouble[i] = parameters[i].doubleValue();
+		}
 		return parametersAsDouble;
 	}
 
@@ -95,6 +99,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractShortRateVolatilityModel with modified parameters.
 	 */
+	@Override
 	public abstract AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(double[] parameters);
 
 	/**
@@ -104,6 +109,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractShortRateVolatilityModel with modified parameters.
 	 */
+	@Override
 	public abstract AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters);
 
 	/**
@@ -127,6 +133,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelCalibrateable#getCloneCalibrated(net.finmath.montecarlo.interestrate.ShortRateModel, net.finmath.montecarlo.interestrate.CalibrationProduct[], java.util.Map)
 	 */
+	@Override
 	public AbstractShortRateVolatilityModelParametric getCloneCalibrated(final ShortRateModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
 		return getCloneCalibratedLegazy(calibrationModel, calibrationProducts, calibrationParameters);

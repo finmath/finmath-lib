@@ -45,7 +45,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
-			final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
+			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
 
 			/**
 			 * @param model
@@ -63,7 +63,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			@Override
 			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
-					return productFactory.getProductFromDescriptor((SingleAssetProductDescriptor) productDescriptor);
+					return productFactory.getProductFromDescriptor(productDescriptor);
 				}
 				else {
 					String name = modelDescriptor.name();

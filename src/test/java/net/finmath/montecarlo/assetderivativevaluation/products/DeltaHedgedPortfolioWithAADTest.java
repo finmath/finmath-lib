@@ -99,7 +99,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		super();
 
 		this.model = model;
-		this.option = product;
+		option = product;
 	}
 
 	public static AssetModelMonteCarloSimulationModel getBlackScholesModel()

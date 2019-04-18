@@ -6,7 +6,9 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -39,9 +41,6 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 		this.numberOfFactors			= numberOfFactors;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getFactorLoading(double, double, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public	RandomVariable[]	getFactorLoading(double time, double component, RandomVariable[] realizationAtTimeIndex) {
 		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);
@@ -109,27 +108,24 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	}
 
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getTimeDiscretization()
-	 */
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
 		return timeDiscretization;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getLiborPeriodDiscretization()
-	 */
 	@Override
 	public TimeDiscretization getLiborPeriodDiscretization() {
 		return liborPeriodDiscretization;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getNumberOfFactors()
-	 */
 	@Override
 	public int getNumberOfFactors() {
 		return numberOfFactors;
 	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCloneWithModifiedData()
+	 */
+	@Override
+	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

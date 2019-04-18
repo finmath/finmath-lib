@@ -26,6 +26,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
+import net.finmath.modelling.products.Swaption.ValueUnit;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -45,7 +46,6 @@ import net.finmath.montecarlo.interestrate.products.SimpleSwap;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
-import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -727,13 +727,13 @@ public class LIBORMarketModelValuationTest {
 				boolean isUseAnalyticCalibration = true;
 				if(isUseAnalyticCalibration) {
 					// Use an analytic approximation to the swaption - much faster
-					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITY);
+					SwaptionAnalyticApproximation swaptionAnalytic = new SwaptionAnalyticApproximation(swaprate, swapTenor, SwaptionAnalyticApproximation.ValueUnit.VOLATILITYLOGNORMAL);
 
 					calibrationProducts.add(new CalibrationProduct(swaptionAnalytic, targetValueVolatilty, 1.0));
 				}
 				else {
 					// You may also use full Monte-Carlo calibration - more accurate. Also possible for displaced diffusion.
-					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITY);
+					SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, ValueUnit.VOLATILITYLOGNORMAL);
 					calibrationProducts.add(new CalibrationProduct(swaptionMonteCarlo, targetValueVolatilty, 1.0));
 
 					// Alternative: Calibration to prices
@@ -769,7 +769,7 @@ public class LIBORMarketModelValuationTest {
 		properties.put("calibrationParameters", calibrationParameters);
 
 		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
-				this.liborMarketModel.getLiborPeriodDiscretization(),
+				liborMarketModel.getLiborPeriodDiscretization(),
 				forwardCurve, null, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), properties);
 
 		/*

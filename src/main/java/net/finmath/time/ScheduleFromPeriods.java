@@ -6,6 +6,7 @@
 
 package net.finmath.time;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,7 +27,9 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Christian Fries
  * @version 1.0
  */
-public class ScheduleFromPeriods implements Schedule {
+public class ScheduleFromPeriods implements Schedule, Serializable {
+
+	private static final long serialVersionUID = 4460864939790714361L;
 
 	private			LocalDate					referenceDate;
 
@@ -45,7 +48,9 @@ public class ScheduleFromPeriods implements Schedule {
 
 	public ScheduleFromPeriods(LocalDate referenceDate, List<Period> periods, DayCountConvention daycountconvention) {
 		super();
-		if(referenceDate == null) throw new IllegalArgumentException("referenceDate must not be null.");
+		if(referenceDate == null) {
+			throw new IllegalArgumentException("referenceDate must not be null.");
+		}
 
 		this.referenceDate = referenceDate;
 		this.periods = periods;

@@ -45,6 +45,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.modelling.products.Swaption.ValueUnit;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -61,7 +62,6 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityMode
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionATM;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
-import net.finmath.montecarlo.interestrate.products.SwaptionSimple.ValueUnit;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.optimizer.SolverException;
@@ -623,6 +623,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					new RandomVariableFromDoubleArray(swapannuity)).doubleValue();
 			calibrationProduct  = new CalibrationProduct(swaptionMonteCarlo, targetPrice, weight);
 			break;
+		case INTEGRATEDVARIANCENORMAL:
 		case INTEGRATEDNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYNORMAL:
@@ -671,6 +672,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), discountCurve));
 			calibrationProduct = new CalibrationProduct(swaptionMonteCarlo, targetValuePrice, weight);
 			break;
+		case INTEGRATEDVARIANCELOGNORMAL:
 		case INTEGRATEDLOGNORMALVARIANCE:
 			targetVolatility = targetVolatility * targetVolatility * swapTenor[0];
 		case VOLATILITYLOGNORMAL:

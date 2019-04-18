@@ -74,7 +74,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 		this.strikePrice	= strikePrice;
 		this.underlying		= underlying;
 		this.isCall			= isCall;
-		this.strikeProduct	= null;
+		strikeProduct	= null;
 		this.regressionBasisFunctionsProvider = regressionBasisFunctionsProvider;
 	}
 
@@ -90,7 +90,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	public Option(double exerciseDate, boolean isCall,  TermStructureMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
-		this.strikePrice	= Double.NaN;
+		strikePrice	= Double.NaN;
 		this.strikeProduct	= strikeProduct;
 		this.underlying		= underlying;
 		this.isCall			= isCall;

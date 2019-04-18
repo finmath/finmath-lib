@@ -56,10 +56,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	public RandomVariableLazyEvaluation(RandomVariable value) {
 		super();
-		this.time = value.getFiltrationTime();
-		this.realizations = value.isDeterministic() ? null : value::get;
-		this.size = value.size();
-		this.valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
+		time = value.getFiltrationTime();
+		realizations = value.isDeterministic() ? null : value::get;
+		size = value.size();
+		valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
 	}
 
 	/**
@@ -79,10 +79,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	public RandomVariableLazyEvaluation(RandomVariable value, DoubleUnaryOperator function) {
 		super();
-		this.time = value.getFiltrationTime();
-		this.realizations = value.isDeterministic() ? null : i -> function.applyAsDouble(value.get(i));
-		this.size = value.size();
-		this.valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
+		time = value.getFiltrationTime();
+		realizations = value.isDeterministic() ? null : i -> function.applyAsDouble(value.get(i));
+		size = value.size();
+		valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
 	}
 
 	/**
@@ -94,9 +94,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariableLazyEvaluation(double time, double value) {
 		super();
 		this.time = time;
-		this.realizations = null;
-		this.size = 1;
-		this.valueIfNonStochastic = value;
+		realizations = null;
+		size = 1;
+		valueIfNonStochastic = value;
 	}
 
 	/**
@@ -109,9 +109,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariableLazyEvaluation(double time, int numberOfPath, double value) {
 		super();
 		this.time = time;
-		this.size = numberOfPath;
-		this.realizations = i -> value;
-		this.valueIfNonStochastic = Double.NaN;
+		size = numberOfPath;
+		realizations = i -> value;
+		valueIfNonStochastic = Double.NaN;
 	}
 
 	/**
@@ -123,10 +123,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariableLazyEvaluation(double time, double[] realisations) {
 		super();
 		this.time = time;
-		this.size = realisations.length;
-		this.realizations = i->realisations[i];
-		this.valueIfNonStochastic = Double.NaN;
-		this.realizationsArray = realisations;
+		size = realisations.length;
+		realizations = i->realisations[i];
+		valueIfNonStochastic = Double.NaN;
+		realizationsArray = realisations;
 	}
 
 	/**
@@ -139,9 +139,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariableLazyEvaluation(double time, IntToDoubleFunction realisations, int size) {
 		super();
 		this.time = time;
-		this.realizations = realisations;
+		realizations = realisations;
 		this.size = size;
-		this.valueIfNonStochastic = Double.NaN;
+		valueIfNonStochastic = Double.NaN;
 	}
 
 	/* (non-Javadoc)
@@ -149,11 +149,11 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public boolean equals(RandomVariable randomVariable) {
-		if(this.time != randomVariable.getFiltrationTime()) {
+		if(time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
 		if(this.isDeterministic() && randomVariable.isDeterministic()) {
-			return this.valueIfNonStochastic == randomVariable.get(0);
+			return valueIfNonStochastic == randomVariable.get(0);
 		}
 
 		if(this.isDeterministic() != randomVariable.isDeterministic()) {

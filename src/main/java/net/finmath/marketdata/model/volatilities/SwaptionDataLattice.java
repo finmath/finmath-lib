@@ -19,7 +19,7 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleMetaData;
+import net.finmath.time.SchedulePrototype;
 
 /**
  * Saves market data of swaption on a lattice of option maturity x swap tenor x option moneyness.
@@ -62,8 +62,8 @@ public class SwaptionDataLattice implements Serializable {
 	private final String							forwardCurveName;
 	private final String							discountCurveName;
 
-	private final ScheduleMetaData					floatMetaSchedule;
-	private final ScheduleMetaData 					fixMetaSchedule;
+	private final SchedulePrototype					floatMetaSchedule;
+	private final SchedulePrototype 					fixMetaSchedule;
 
 	private final		Map<DataKey, Double>		entryMap = new HashMap<>();
 	private transient	Map<Integer, int[][]>		keyMap;
@@ -83,7 +83,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -107,7 +107,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -130,7 +130,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule,
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule,
 			String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
@@ -155,7 +155,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, int[] maturitiesInMonths, int[] tenorsInMonths, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturitiesInMonths.length; i++) {
@@ -179,7 +179,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, double[] maturities, double[] tenors, double[] moneynesss, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < maturities.length; i++) {
@@ -202,7 +202,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param values The values to be stored.
 	 */
 	public SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement, String forwardCurveName, String discountCurveName,
-			ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule, String[] tenorCodes, int[] moneynessBP, double[] values) {
+			SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule, String[] tenorCodes, int[] moneynessBP, double[] values) {
 		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
 
 		for(int i = 0; i < tenorCodes.length; i++) {
@@ -222,7 +222,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
 	 */
 	private SwaptionDataLattice(LocalDate referenceDate, QuotingConvention quotingConvention, double displacement,
-			String forwardCurveName, String discountCurveName, ScheduleMetaData floatMetaSchedule, ScheduleMetaData fixMetaSchedule) {
+			String forwardCurveName, String discountCurveName, SchedulePrototype floatMetaSchedule, SchedulePrototype fixMetaSchedule) {
 		super();
 		this.referenceDate		= referenceDate;
 		this.quotingConvention	= quotingConvention;
@@ -263,7 +263,7 @@ public class SwaptionDataLattice implements Serializable {
 		}
 
 		//Reverse sign of moneyness, if switching between payer and receiver convention.
-		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (this.quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
+		int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;
 
 		List<Integer> maturities	= new ArrayList<>();
 		List<Integer> tenors		= new ArrayList<>();
@@ -277,8 +277,8 @@ public class SwaptionDataLattice implements Serializable {
 			values.add(getValue(key.maturity, key.tenor, key.moneyness, targetConvention, displacement, model));
 		}
 
-		return new SwaptionDataLattice(this.referenceDate, targetConvention, displacement,
-				this.forwardCurveName, this.discountCurveName, this.floatMetaSchedule, this.fixMetaSchedule,
+		return new SwaptionDataLattice(referenceDate, targetConvention, displacement,
+				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule,
 				maturities.stream().mapToInt(Integer::intValue).toArray(),
 				tenors.stream().mapToInt(Integer::intValue).toArray(),
 				moneynesss.stream().mapToInt(Integer::intValue).toArray(),
@@ -595,7 +595,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(double maturity, double tenor, double moneyness, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturity, tenor, moneyness);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -613,7 +613,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(int maturityInMonths, int tenorInMonths, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(maturityInMonths, tenorInMonths, moneynessBP);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -630,7 +630,7 @@ public class SwaptionDataLattice implements Serializable {
 	 */
 	public double getValue(String tenorCode, int moneynessBP, QuotingConvention convention, double displacement, AnalyticModel model) {
 		DataKey key = new DataKey(tenorCode, moneynessBP);
-		return convertToConvention(getValue(key), key, convention, displacement, this.quotingConvention, this.displacement, model);
+		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);
 	}
 
 	/**
@@ -669,7 +669,7 @@ public class SwaptionDataLattice implements Serializable {
 		double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		double optionMaturity = floatSchedule.getFixing(0);
 		double offset = key.moneyness /10000.0;
-		double optionStrike = forward + (this.quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
+		double optionStrike = forward + (quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);
 		double payoffUnit = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 
 		if(toConvention.equals(QuotingConvention.PAYERPRICE) && fromConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL)) {
@@ -741,14 +741,14 @@ public class SwaptionDataLattice implements Serializable {
 	/**
 	 * @return The schedule meta data for the float leg of the swaptions.
 	 */
-	public ScheduleMetaData getFloatMetaSchedule() {
+	public SchedulePrototype getFloatMetaSchedule() {
 		return floatMetaSchedule;
 	}
 
 	/**
 	 * @return The schedule meta data for the fix leg of the swaptions.
 	 */
-	public ScheduleMetaData getFixMetaSchedule() {
+	public SchedulePrototype getFixMetaSchedule() {
 		return fixMetaSchedule;
 	}
 
@@ -779,9 +779,9 @@ public class SwaptionDataLattice implements Serializable {
 
 		private static final long serialVersionUID = -8284316295640713492L;
 
-		final int maturity;
-		final int tenor;
-		final int moneyness;
+		private final int maturity;
+		private final int tenor;
+		private final int moneyness;
 
 		DataKey(int maturity, int tenor, int moneyness) {
 			super();
@@ -800,8 +800,8 @@ public class SwaptionDataLattice implements Serializable {
 		DataKey(String tenorCode, int moneyness) {
 			super();
 			String[] inputs = tenorCode.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)", 4);
-			this.maturity	= Integer.parseInt(inputs[0]) * (inputs[1].equalsIgnoreCase("Y")? 12 : inputs[1].equalsIgnoreCase("M")? 1 : 0 );
-			this.tenor		= Integer.parseInt(inputs[2]) * (inputs[3].equalsIgnoreCase("Y")? 12 : inputs[3].equalsIgnoreCase("M")? 1 : 0 );
+			maturity	= Integer.parseInt(inputs[0]) * (inputs[1].equalsIgnoreCase("Y")? 12 : inputs[1].equalsIgnoreCase("M")? 1 : 0 );
+			tenor		= Integer.parseInt(inputs[2]) * (inputs[3].equalsIgnoreCase("Y")? 12 : inputs[3].equalsIgnoreCase("M")? 1 : 0 );
 			this.moneyness	= moneyness;
 		}
 
@@ -823,7 +823,7 @@ public class SwaptionDataLattice implements Serializable {
 
 		@Override
 		public int hashCode() {
-			return (int) (maturity + 100* tenor + 10000* moneyness);
+			return maturity + 100* tenor + 10000* moneyness;
 		}
 	}
 }

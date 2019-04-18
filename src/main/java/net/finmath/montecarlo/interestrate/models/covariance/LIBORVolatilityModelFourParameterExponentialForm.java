@@ -5,6 +5,8 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.util.Map;
+
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -204,5 +206,49 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 				d,
 				isCalibrateable
 				);
+	}
+
+	@Override
+	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+		AbstractRandomVariableFactory randomVariableFactory = this.randomVariableFactory;
+		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
+		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
+		RandomVariable a = this.a;
+		RandomVariable b = this.b;
+		RandomVariable c = this.c;
+		RandomVariable d = this.d;
+		boolean isCalibrateable = this.isCalibrateable;
+
+		if(dataModified != null) {
+			// Explicitly passed covarianceModel has priority
+			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
+			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
+			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
+
+			if(dataModified.getOrDefault("a", a) instanceof RandomVariable) {
+				a = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("a", a)).doubleValue());
+			}else {
+				a = randomVariableFactory.createRandomVariable((double)dataModified.get("a"));
+			}
+			if(dataModified.getOrDefault("b", b) instanceof RandomVariable) {
+				b = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("b", b)).doubleValue());
+			}else {
+				b = randomVariableFactory.createRandomVariable((double)dataModified.get("b"));
+			}
+			if(dataModified.getOrDefault("c", c) instanceof RandomVariable) {
+				c = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("c", c)).doubleValue());
+			}else {
+				c = randomVariableFactory.createRandomVariable((double)dataModified.get("c"));
+			}
+			if(dataModified.getOrDefault("d", d) instanceof RandomVariable) {
+				d = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("d", d)).doubleValue());
+			}else {
+				d = randomVariableFactory.createRandomVariable((double)dataModified.get("d"));
+			}
+		}
+
+		LIBORVolatilityModel newModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
+		return newModel;
 	}
 }

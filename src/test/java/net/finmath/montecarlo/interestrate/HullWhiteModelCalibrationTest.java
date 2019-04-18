@@ -5,7 +5,6 @@
  */
 package net.finmath.montecarlo.interestrate;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;

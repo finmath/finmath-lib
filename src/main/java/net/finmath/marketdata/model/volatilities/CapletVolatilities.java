@@ -62,10 +62,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 			double[] volatilities,
 			QuotingConvention volatilityConvention,
 			DiscountCurve discountCurve)  {
-		super(name, referenceDate);
-		this.forwardCurve = forwardCurve;
-		this.discountCurve = discountCurve;
-		this.quotingConvention = volatilityConvention;
+		super(name, referenceDate, forwardCurve, discountCurve, volatilityConvention, null);
 
 		if(maturities.length != strikes.length || maturities.length != volatilities.length) {
 			throw new IllegalArgumentException("Length of vectors is not equal.");
@@ -146,12 +143,12 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 			// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
 			// Interpolation / extrapolation is performed on iso-moneyness lines.
-			double adjustedStrike = forwardCurve.getValue(model, maturityGreaterOfEqual) + (strike - forwardCurve.getValue(model, maturity));
+			double adjustedStrike = getForwardCurve().getValue(model, maturityGreaterOfEqual) + (strike - getForwardCurve().getValue(model, maturity));
 
 			value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);
 		}
 
-		return convertFromTo(model, maturity, strike, value, this.quotingConvention, quotingConvention);
+		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);
 	}
 
 	public static AbstractVolatilitySurface fromFile(File inputFile) throws FileNotFoundException {
