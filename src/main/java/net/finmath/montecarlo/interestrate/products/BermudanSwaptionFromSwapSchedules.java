@@ -309,11 +309,22 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		RandomVariable basisFunction = one;
 		basisFunctions.add(basisFunction);
 
+		/*
+		 * Add swap rates of underlyings.
+		 */
+		for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying<exerciseDates.length; exerciseIndexUnderlying++) {
+			RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
+			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
+			RandomVariable swapRate = floatLeg.div(annuity);
+			basisFunctions.add(swapRate);
+			basisFunctions.add(swapRate.pow(2.0));
+		}
+		
 		// forward rate to the next period
 		RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 		basisFunctions.add(rateShort);
 		basisFunctions.add(rateShort.pow(2.0));
-
+		
 		// forward rate to the end of the product
 		RandomVariable rateLong = model.getLIBOR(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);
 		basisFunctions.add(rateLong);
