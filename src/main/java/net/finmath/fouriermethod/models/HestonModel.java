@@ -71,8 +71,6 @@ public class HestonModel implements CharacteristicFunctionModel {
 	private final double xi;
 	private final double rho;
 
-
-
 	/**
 	 * Create a Heston model (characteristic function)
 	 *

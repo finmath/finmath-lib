@@ -29,13 +29,13 @@ public class MertonModel implements CharacteristicFunctionModel{
 	/**
 	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
 	 * 
-	 * @param initialValue
-	 * @param discountCurveForForwardRate
-	 * @param volatility
-	 * @param jumpIntensity
-	 * @param jumpSizeMean
-	 * @param jumpSizeStdDev
-	 * @param discountCurveForDiscountRate
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 */
 	public MertonModel(double initialValue, DiscountCurve discountCurveForForwardRate,
 			double volatility,
@@ -56,13 +56,13 @@ public class MertonModel implements CharacteristicFunctionModel{
 	/**
 	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
 	 * 
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param jumpIntensity
-	 * @param jumpSizeMean
-	 * @param jumpSizeStdDev
-	 * @param discountRate
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
+	 * @param discountRate The constant rate used for discounting.
 	 */
 	public MertonModel(double initialValue, double riskFreeRate,
 			double volatility,
@@ -82,12 +82,13 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a single curve Merton jump diffusion model.
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param volatility
-	 * @param jumpIntensity
-	 * @param jumpSizeMean
-	 * @param jumpSizeStdDev
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying). It is also used for discounting.
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
 	 */
 	public MertonModel(double initialValue, double riskFreeRate, double volatility,
 			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev) {
