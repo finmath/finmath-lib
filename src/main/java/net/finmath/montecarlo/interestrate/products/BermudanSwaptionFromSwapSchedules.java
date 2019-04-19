@@ -265,7 +265,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
 	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double exerciseTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getBasisFunctions(exerciseTime, model));
+		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
 		return condExpEstimator;
 	}
 
