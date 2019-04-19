@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import java.util.Arrays;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
@@ -198,7 +199,12 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 
 	public double[] getPeriodLengths(){
 		double[] periodLengths = new double[paymentDates.length];
-		periodLengths = IntStream.range(0, periodLengths.length).mapToDouble(i -> paymentDates[i]-fixingDates[i]).toArray();
+		periodLengths = IntStream.range(0, periodLengths.length).mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int i) {
+				return paymentDates[i]-fixingDates[i];
+			}
+		}).toArray();
 		return periodLengths;
 	}
 

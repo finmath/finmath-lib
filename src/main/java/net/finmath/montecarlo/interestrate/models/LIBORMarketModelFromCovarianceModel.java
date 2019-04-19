@@ -1310,7 +1310,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			// Fixed at Long LIBOR period Start.
 			timeIndex  = Math.min(timeIndex, getTimeIndex(tenorPeriodStartTime));
 			if(timeIndex < 0) {
-//				timeIndex = -timeIndex-2;			// mapping to last known fixing.
+				//				timeIndex = -timeIndex-2;			// mapping to last known fixing.
 				throw new IllegalArgumentException("Tenor discretization not part of time discretization.");
 			}
 		}

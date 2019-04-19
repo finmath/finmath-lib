@@ -7,6 +7,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.ToDoubleFunction;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
@@ -124,7 +125,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(para -> para.doubleValue()).toArray());
+				parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+					@Override
+					public double applyAsDouble(RandomVariable para) {
+						return para.doubleValue();
+					}
+				}).toArray());
 			}
 
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);

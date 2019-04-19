@@ -1,6 +1,7 @@
 package net.finmath.integration;
 
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -61,8 +62,18 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		// Create random number sequence generator (we use MersenneTwister)
 		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
-		DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(i -> mersenneTwister.nextDouble());
+		DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int i) {
+				return mersenneTwister.nextDouble();
+			}
+		});
 
-		return randomNumberSequence.map(x -> (integrand.applyAsDouble(lowerBound + x * range))).sum() * range / numberOfEvaluationPoints;
+		return randomNumberSequence.map(new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return (integrand.applyAsDouble(lowerBound + x * range));
+			}
+		}).sum() * range / numberOfEvaluationPoints;
 	}
 }

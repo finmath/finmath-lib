@@ -151,7 +151,10 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 
 		times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDate.atStartOfDay()));
 
-		Function<Period, Double> periodToTime = period -> { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); };
+		Function<Period, Double> periodToTime = new Function<Period, Double>() {
+			@Override
+			public Double apply(Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
+		};
 		times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 		times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 

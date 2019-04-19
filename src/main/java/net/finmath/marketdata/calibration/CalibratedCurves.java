@@ -456,8 +456,18 @@ public class CalibratedCurves {
 			forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 		}
 		else {
-			Predicate<String> discountCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
-			Predicate<String> forwardCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
+			Predicate<String> discountCurveMissing = new Predicate<String>() {
+				@Override
+				public boolean test(String curveName) {
+					return curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
+				}
+			};
+			Predicate<String> forwardCurveMissing = new Predicate<String>() {
+				@Override
+				public boolean test(String curveName) {
+					return curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
+				}
+			};
 			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) {
 				throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurveReceiverName + " missing. Needs to be part of model " + model + ".");
 			}

@@ -7,6 +7,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.ToDoubleFunction;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -187,10 +188,30 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 		AbstractRandomVariableFactory randomVariableFactory = this.randomVariableFactory;
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
-		double[] a = Arrays.stream(this.a).mapToDouble(x -> x.doubleValue()).toArray();
-		double[] b = Arrays.stream(this.b).mapToDouble(x -> x.doubleValue()).toArray();
-		double[] c = Arrays.stream(this.c).mapToDouble(x -> x.doubleValue()).toArray();
-		double[] d = Arrays.stream(this.d).mapToDouble(x -> x.doubleValue()).toArray();
+		double[] a = Arrays.stream(this.a).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+			@Override
+			public double applyAsDouble(RandomVariable x) {
+				return x.doubleValue();
+			}
+		}).toArray();
+		double[] b = Arrays.stream(this.b).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+			@Override
+			public double applyAsDouble(RandomVariable x) {
+				return x.doubleValue();
+			}
+		}).toArray();
+		double[] c = Arrays.stream(this.c).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+			@Override
+			public double applyAsDouble(RandomVariable x) {
+				return x.doubleValue();
+			}
+		}).toArray();
+		double[] d = Arrays.stream(this.d).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+			@Override
+			public double applyAsDouble(RandomVariable x) {
+				return x.doubleValue();
+			}
+		}).toArray();
 
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
@@ -200,22 +221,42 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 
 			if(dataModified.getOrDefault("a", a) instanceof RandomVariable[]) {
-				a = Arrays.stream((RandomVariable[])dataModified.getOrDefault("a", a)).mapToDouble(param -> param.doubleValue()).toArray();
+				a = Arrays.stream((RandomVariable[])dataModified.getOrDefault("a", a)).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+					@Override
+					public double applyAsDouble(RandomVariable param) {
+						return param.doubleValue();
+					}
+				}).toArray();
 			}else {
 				a = (double[])dataModified.get("a");
 			}
 			if(dataModified.getOrDefault("b", b) instanceof RandomVariable[]) {
-				b = Arrays.stream((RandomVariable[])dataModified.getOrDefault("b", b)).mapToDouble(param -> param.doubleValue()).toArray();
+				b = Arrays.stream((RandomVariable[])dataModified.getOrDefault("b", b)).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+					@Override
+					public double applyAsDouble(RandomVariable param) {
+						return param.doubleValue();
+					}
+				}).toArray();
 			}else {
 				b = (double[])dataModified.get("b");
 			}
 			if(dataModified.getOrDefault("c", c) instanceof RandomVariable[]) {
-				c = Arrays.stream((RandomVariable[])dataModified.getOrDefault("c", c)).mapToDouble(param -> param.doubleValue()).toArray();
+				c = Arrays.stream((RandomVariable[])dataModified.getOrDefault("c", c)).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+					@Override
+					public double applyAsDouble(RandomVariable param) {
+						return param.doubleValue();
+					}
+				}).toArray();
 			}else {
 				c = (double[])dataModified.get("c");
 			}
 			if(dataModified.getOrDefault("d", d) instanceof RandomVariable[]) {
-				d = Arrays.stream((RandomVariable[])dataModified.getOrDefault("d", d)).mapToDouble(param -> param.doubleValue()).toArray();
+				d = Arrays.stream((RandomVariable[])dataModified.getOrDefault("d", d)).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+					@Override
+					public double applyAsDouble(RandomVariable param) {
+						return param.doubleValue();
+					}
+				}).toArray();
 			}else {
 				d = (double[])dataModified.get("d");
 			}

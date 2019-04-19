@@ -20,9 +20,9 @@ import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test for the Merton Jump diffusion model.
- * 
+ *
  * We test the standard Fourier pricer, the Carr Madan Fast Fourier Transform and the Monte Carlo approach.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
@@ -50,7 +50,7 @@ public class MertonJumpDiffusionCallOptionTest {
 	@Test
 	public void testMartingaleProperty() throws CalculationException{
 		//Characteristic function for Fourier pricing
-		CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);		
+		CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 
 		Complex minusI = new Complex(0.0,-1.0);
 		System.out.println("Testing the martingale property of the characteristic function over multiple time horizons.");
@@ -60,7 +60,7 @@ public class MertonJumpDiffusionCallOptionTest {
 			System.out.println(model.apply(time).apply(minusI));
 		}
 	}
-	
+
 	@Test
 	public void testMartingalePropertyMonteCarlo() throws CalculationException{
 		//Time discretization for Monte Carlo
@@ -86,11 +86,11 @@ public class MertonJumpDiffusionCallOptionTest {
 
 		//Time discretization for Monte Carlo
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		
+
 		AssetModelMonteCarloSimulationModel monteCarloMertonModel = new MonteCarloMertonModel(
 				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, volatility,
 				jumpIntensity, jumpSizeMean, jumpSizeStdDev);
-		
+
 		/*
 		 * FFT inversion of the whole smile at once.
 		 */

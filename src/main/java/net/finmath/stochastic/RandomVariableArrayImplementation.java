@@ -250,176 +250,351 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 	@Override
 	public RandomVariable apply(DoubleUnaryOperator operator) {
-		return map(x -> x.apply(operator));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.apply(operator);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
-		return map(x -> x.apply(operator, argument));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.apply(operator, argument);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
-		return map(x -> x.apply(operator, argument1, argument2));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.apply(operator, argument1, argument2);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable cap(double cap) {
-		return map(x -> x.cap(cap));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.cap(cap);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable floor(double floor) {
-		return map(x -> x.floor(floor));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.floor(floor);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable add(double value) {
-		return map(x -> x.add(value));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.add(value);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable sub(double value) {
-		return map(x -> x.sub(value));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.sub(value);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable mult(double value) {
-		return map(x -> x.mult(value));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.mult(value);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable div(double value) {
-		return map(x -> x.div(value));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.div(value);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable pow(double exponent) {
-		return map(x -> x.pow(exponent));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.pow(exponent);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable average() {
-		return map(x -> x.average());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.average();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable squared() {
-		return map(x -> x.squared());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.squared();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable sqrt() {
-		return map(x -> x.sqrt());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.sqrt();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable exp() {
-		return map(x -> x.exp());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.exp();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable log() {
-		return map(x -> x.log());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.log();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable sin() {
-		return map(x -> x.sin());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.sin();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable cos() {
-		return map(x -> x.cos());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.cos();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable add(RandomVariable randomVariable) {
-		return map(x -> x.add(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.add(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable sub(RandomVariable randomVariable) {
-		return map(x -> x.sub(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.sub(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable bus(RandomVariable randomVariable) {
-		return map(x -> x.bus(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.bus(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable mult(RandomVariable randomVariable) {
-		return map(x -> x.mult(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.mult(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable div(RandomVariable randomVariable) {
-		return map(x -> x.div(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.div(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable vid(RandomVariable randomVariable) {
-		return map(x -> x.vid(randomVariable));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.vid(randomVariable);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable cap(RandomVariable cap) {
-		return map(x -> x.cap(cap));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.cap(cap);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable floor(RandomVariable floor) {
-		return map(x -> x.cap(floor));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.cap(floor);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable accrue(RandomVariable rate, double periodLength) {
-		return map(x -> x.accrue(rate, periodLength));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.accrue(rate, periodLength);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable discount(RandomVariable rate, double periodLength) {
-		return map(x -> x.discount(rate, periodLength));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.discount(rate, periodLength);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
-		return map(x -> x.choose(valueIfTriggerNonNegative, valueIfTriggerNegative));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.choose(valueIfTriggerNonNegative, valueIfTriggerNegative);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable invert() {
-		return map(x -> x.invert());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.invert();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable abs() {
-		return map(x -> x.abs());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.abs();
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
-		return map(x -> x.addProduct(factor1, factor2));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.addProduct(factor1, factor2);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
-		return map(x -> x.addProduct(factor1, factor2));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.addProduct(factor1, factor2);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
-		return map(x -> x.addRatio(numerator, denominator));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.addRatio(numerator, denominator);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
-		return map(x -> x.subRatio(numerator, denominator));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.subRatio(numerator, denominator);
+			}
+		});
 	}
 
 	@Override
 	public RandomVariable isNaN() {
-		return map(x -> x.isNaN());
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return x.isNaN();
+			}
+		});
 	}
 }

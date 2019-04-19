@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 
 import net.finmath.exception.CalculationException;
@@ -159,7 +160,10 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 			double[] times,
 			double[] givenDiscountFactors,
 			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		RandomVariable[] givenDiscountFactorsAsRandomVariables = DoubleStream.of(givenDiscountFactors).mapToObj(x -> { return new RandomVariableFromDoubleArray(x); }).toArray(RandomVariable[]::new);
+		RandomVariable[] givenDiscountFactorsAsRandomVariables = DoubleStream.of(givenDiscountFactors).mapToObj(new DoubleFunction<RandomVariableFromDoubleArray>() {
+			@Override
+			public RandomVariableFromDoubleArray apply(double x) { return new RandomVariableFromDoubleArray(x); }
+		}).toArray(RandomVariable[]::new);
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactorsAsRandomVariables, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -182,7 +186,10 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	}
 
 	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors) {
-		RandomVariable[] givenDiscountFactorsAsRandomVariables = DoubleStream.of(givenDiscountFactors).mapToObj(x -> { return new RandomVariableFromDoubleArray(x); }).toArray(RandomVariable[]::new);
+		RandomVariable[] givenDiscountFactorsAsRandomVariables = DoubleStream.of(givenDiscountFactors).mapToObj(new DoubleFunction<RandomVariableFromDoubleArray>() {
+			@Override
+			public RandomVariableFromDoubleArray apply(double x) { return new RandomVariableFromDoubleArray(x); }
+		}).toArray(RandomVariable[]::new);
 		return createDiscountCurveFromDiscountFactors(name, times, givenDiscountFactorsAsRandomVariables);
 	}
 

@@ -13,7 +13,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Assert;
@@ -768,17 +771,25 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		Map<String, Double> modelDeltas = new HashMap<>();
 		if(gradient != null) {
 			modelDeltas = modelParameters.entrySet().parallelStream().collect(Collectors.toMap(
-					entry -> entry.getKey(),
-					entry -> {
-						Double derivativeValue = 0.0;
-						RandomVariable parameter = entry.getValue();
-						if(parameter instanceof RandomVariableDifferentiable) {
-							RandomVariable derivativeRV = gradient.get(((RandomVariableDifferentiable)parameter).getID());
-							if(derivativeRV != null) {
-								derivativeValue = derivativeRV.getAverage();
-							}
+					new Function<Entry<String, RandomVariable>, String>() {
+						@Override
+						public String apply(Entry<String, RandomVariable> entry) {
+							return entry.getKey();
 						}
-						return derivativeValue;
+					},
+					new Function<Entry<String, RandomVariable>, Double>() {
+						@Override
+						public Double apply(Entry<String, RandomVariable> entry) {
+							Double derivativeValue = 0.0;
+							RandomVariable parameter = entry.getValue();
+							if(parameter instanceof RandomVariableDifferentiable) {
+								RandomVariable derivativeRV = gradient.get(((RandomVariableDifferentiable)parameter).getID());
+								if(derivativeRV != null) {
+									derivativeValue = derivativeRV.getAverage();
+								}
+							}
+							return derivativeValue;
+						}
 					}
 					));
 		}
@@ -817,7 +828,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			System.out.println("_______________________________________________________________________");
 
 			modelDeltas.forEach(
-					(key, delta) -> { System.out.println(key + "\t" + delta); });
+					new BiConsumer<String, Double>() {
+						@Override
+						public void accept(String key, Double delta) { System.out.println(key + "\t" + delta); }
+					});
 
 			System.out.println("value...........................: " + formatterValue.format(valueSimulation));
 			System.out.println("value (plain)...................: " + formatterValue.format(valueSimulation2));

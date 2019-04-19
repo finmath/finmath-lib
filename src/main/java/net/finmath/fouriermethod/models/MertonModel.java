@@ -28,7 +28,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -55,7 +55,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -82,7 +82,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a single curve Merton jump diffusion model.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying). It is also used for discounting.
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -100,23 +100,26 @@ public class MertonModel implements CharacteristicFunctionModel{
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 		final double transformedMean =  jumpSizeMean - 0.5 * jumpSizeStdDev*jumpSizeStdDev;
-		return argument -> {
-			Complex iargument = argument.multiply(Complex.I);
+		return new CharacteristicFunction() {
+			@Override
+			public Complex apply(Complex argument) {
+				Complex iargument = argument.multiply(Complex.I);
 
-			Complex exponent = (iargument.multiply(transformedMean))
-					.add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));
+				Complex exponent = (iargument.multiply(transformedMean))
+						.add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));
 
-			Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);
+				Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);
 
-			double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
+				double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
 
-			return	iargument
-					.multiply(
-							iargument
-							.multiply(0.5*volatility*volatility*time)
-							.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))
-					.add(logDiscountFactorForDiscounting).add(jumpTransform.subtract(jumpTransformCompensator))
-					.exp();
+				return	iargument
+						.multiply(
+								iargument
+								.multiply(0.5*volatility*volatility*time)
+								.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))
+						.add(logDiscountFactorForDiscounting).add(jumpTransform.subtract(jumpTransformCompensator))
+						.exp();
+			}
 		};
 
 	}

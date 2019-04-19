@@ -35,21 +35,24 @@ public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunc
 	@Override
 	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) {
 
-		Function<AbstractMonteCarloProduct, RandomVariable> valuation = p -> {
-			RandomVariable value = null;
-			try {
-				value = p.getValue(evaluationTime, model);
-			} catch (CalculationException e) {
-				throw new IllegalArgumentException("Product " + p + " cannot be valued by model " + model + " at time " + evaluationTime, e);
-			}
+		Function<AbstractMonteCarloProduct, RandomVariable> valuation = new Function<AbstractMonteCarloProduct, RandomVariable>() {
+			@Override
+			public RandomVariable apply(AbstractMonteCarloProduct p) {
+				RandomVariable value = null;
+				try {
+					value = p.getValue(evaluationTime, model);
+				} catch (CalculationException e) {
+					throw new IllegalArgumentException("Product " + p + " cannot be valued by model " + model + " at time " + evaluationTime, e);
+				}
 
-			if(value.getFiltrationTime() > evaluationTime) {
-				throw new IllegalArgumentException(
-						"Product " + p + " valued by model " + model + " cannot be used as basis function at time " + evaluationTime + ". "
-								+ "Filtration time is " + value.getFiltrationTime());
-			}
+				if(value.getFiltrationTime() > evaluationTime) {
+					throw new IllegalArgumentException(
+							"Product " + p + " valued by model " + model + " cannot be used as basis function at time " + evaluationTime + ". "
+									+ "Filtration time is " + value.getFiltrationTime());
+				}
 
-			return value;
+				return value;
+			}
 		};
 
 		return products.stream().map(valuation).toArray(RandomVariable[]::new);

@@ -1,5 +1,7 @@
 package net.finmath.finitedifference.products;
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
@@ -28,7 +30,12 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 		 */
 		FiniteDifference1DBoundary boundary = this;
 
-		return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(assetValue - strike, 0), boundary);
+		return model.getValue(evaluationTime, maturity, new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double assetValue) {
+				return Math.max(assetValue - strike, 0);
+			}
+		}, boundary);
 	}
 
 	/*

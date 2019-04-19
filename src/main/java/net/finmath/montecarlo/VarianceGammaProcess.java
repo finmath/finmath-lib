@@ -6,22 +6,22 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
-* Implementation of a time-discrete n-dimensional Variance Gamma process via Brownian subordination through
-* a Gamma Process.
-*
-* To simulate the Variance Gamma process with paramters \( (\sigma,\theta,\nu) \) we proceed in two steps:
-* <ul>
-*   <li>we simulate the path of a GammaProcess with parameters \( \frac{1}{\nu} and \nu \) </li>
-*	<li>use the GammaProcess as a subordinator for a Brownian motion with drift </li>
-* </ul>
-* 
-* \( \theta \Gamma(t) + \sigma W(\Gamma(t)) \)
-*
-* The class is immutable and thread safe. It uses lazy initialization.
-*
-* @author Alessandro Gnoatto
-* @version 1.0
-*/
+ * Implementation of a time-discrete n-dimensional Variance Gamma process via Brownian subordination through
+ * a Gamma Process.
+ *
+ * To simulate the Variance Gamma process with paramters \( (\sigma,\theta,\nu) \) we proceed in two steps:
+ * <ul>
+ *   <li>we simulate the path of a GammaProcess with parameters \( \frac{1}{\nu} and \nu \) </li>
+ *	<li>use the GammaProcess as a subordinator for a Brownian motion with drift </li>
+ * </ul>
+ *
+ * \( \theta \Gamma(t) + \sigma W(\Gamma(t)) \)
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
 public class VarianceGammaProcess implements IndependentIncrements, Serializable{
 
 	private static final long serialVersionUID = -338038617011804530L;
@@ -88,7 +88,7 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 
 		/*
 		 * Generate variance gamma distributed independent increments.
-		 * 
+		 *
 		 * Since we already have a Brownian motion and a Gamma process at our disposal,
 		 * we are simply combining them.
 		 */

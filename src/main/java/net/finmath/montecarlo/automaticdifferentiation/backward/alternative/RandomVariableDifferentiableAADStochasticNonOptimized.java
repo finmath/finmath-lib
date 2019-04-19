@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -52,11 +53,17 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 
 		OperatorTreeNode(OperatorType operator, List<RandomVariable> arguments) {
 			this(operator,
-					arguments != null ? arguments.stream().map((RandomVariable x) -> {
-						return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getOperatorTreeNode(): null;
+					arguments != null ? arguments.stream().map(new Function<RandomVariable, OperatorTreeNode>() {
+						@Override
+						public OperatorTreeNode apply(RandomVariable x) {
+							return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getOperatorTreeNode(): null;
+						}
 					}).collect(Collectors.toList()) : null,
-							arguments != null ? arguments.stream().map((RandomVariable x) -> {
-								return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;
+							arguments != null ? arguments.stream().map(new Function<RandomVariable, RandomVariable>() {
+								@Override
+								public RandomVariable apply(RandomVariable x) {
+									return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;
+								}
 							}).collect(Collectors.toList()) : null
 					);
 
@@ -133,11 +140,21 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				break;
 			case MIN:
 				double min = X.getMin();
-				resultrandomvariable = X.apply(x -> (x == min) ? 1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == min) ? 1.0 : 0.0;
+					}
+				});
 				break;
 			case MAX:
 				double max = X.getMax();
-				resultrandomvariable = X.apply(x -> (x == max) ? 1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == max) ? 1.0 : 0.0;
+					}
+				});
 				break;
 			case ABS:
 				resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(-1.0));
@@ -242,7 +259,12 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				break;
 			case BARRIER:
 				if(differentialIndex == 0) {
-					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
+					resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+						@Override
+						public double applyAsDouble(double x) {
+							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;
+						}
+					});
 				} else if(differentialIndex == 1) {
 					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 				} else {

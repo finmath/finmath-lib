@@ -8,7 +8,9 @@ package net.finmath.montecarlo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntConsumer;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -189,8 +191,12 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 		this.realizations = size == 1 ? null : new float[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
 		valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;
 		if(size > 1) {
-			IntStream.range(0,size).parallel().forEach(i ->
-			this.realizations[i] = (float) realizations.applyAsDouble(i)
+			IntStream.range(0,size).parallel().forEach(new IntConsumer() {
+				@Override
+				public void accept(int i) {
+					RandomVariableFromFloatArray.this.realizations[i] = (float) realizations.applyAsDouble(i);
+				}
+			}
 					);
 		}
 		this.typePriority = typePriority;
@@ -625,8 +631,11 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public DoubleStream getRealizationsStream() {
 		if(isDeterministic()) {
-			return DoubleStream.generate(() -> {
-				return valueIfNonStochastic;
+			return DoubleStream.generate(new DoubleSupplier() {
+				@Override
+				public double getAsDouble() {
+					return valueIfNonStochastic;
+				}
 			});
 		}
 		else {
@@ -658,10 +667,20 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public IntToDoubleFunction getOperator() {
 		if(isDeterministic()) {
-			return i -> valueIfNonStochastic;
+			return new IntToDoubleFunction() {
+				@Override
+				public double applyAsDouble(int i) {
+					return valueIfNonStochastic;
+				}
+			};
 		}
 		else {
-			return i -> realizations[i];
+			return new IntToDoubleFunction() {
+				@Override
+				public double applyAsDouble(int i) {
+					return realizations[i];
+				}
+			};
 		}
 	}
 
@@ -690,7 +709,12 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 
 		IntToDoubleFunction argument0Operator = this.getOperator();
 		IntToDoubleFunction argument1Operator = argument.getOperator();
-		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
+		IntToDoubleFunction result = new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int i) {
+				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
+			}
+		};
 
 		return new RandomVariableFromFloatArray(newTime, result, newSize);
 	}
@@ -705,7 +729,12 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 		IntToDoubleFunction argument0Operator = this.getOperator();
 		IntToDoubleFunction argument1Operator = argument1.getOperator();
 		IntToDoubleFunction argument2Operator = argument2.getOperator();
-		IntToDoubleFunction result = i -> operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
+		IntToDoubleFunction result = new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int i) {
+				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
+			}
+		};
 
 		return new RandomVariableFromFloatArray(newTime, result, newSize);
 	}

@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -71,7 +73,12 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretizationFromArray(Stream<Double> times, double tickSize) {
-		this(times.mapToDouble(d -> d), tickSize);
+		this(times.mapToDouble(new ToDoubleFunction<Double>() {
+			@Override
+			public double applyAsDouble(Double d) {
+				return d;
+			}
+		}), tickSize);
 	}
 
 	/**
@@ -80,7 +87,12 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times A double stream of time points for the time discretization.
 	 */
 	public TimeDiscretizationFromArray(Stream<Double> times) {
-		this(times.mapToDouble(d -> d));
+		this(times.mapToDouble(new ToDoubleFunction<Double>() {
+			@Override
+			public double applyAsDouble(Double d) {
+				return d;
+			}
+		}));
 	}
 
 	/**
@@ -144,7 +156,12 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param deltaT Time step size.
 	 */
 	public TimeDiscretizationFromArray(double initial, int numberOfTimeSteps, double deltaT) {
-		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(n -> initial + n * deltaT));
+		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int n) {
+				return initial + n * deltaT;
+			}
+		}));
 	}
 
 	/**
@@ -163,10 +180,20 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 		int numberOfTimeStepsPlusOne = (int) Math.ceil((last - initial) / deltaT) + 1;
 
 		if (shortPeriodLocation == ShortPeriodLocation.SHORT_PERIOD_AT_END) {
-			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(n -> Math.min(last, initial + n * deltaT));
+			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
+				@Override
+				public double applyAsDouble(int n) {
+					return Math.min(last, initial + n * deltaT);
+				}
+			});
 		}
 
-		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(n -> Math.max(initial, last - n * deltaT));
+		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int n) {
+				return Math.max(initial, last - n * deltaT);
+			}
+		});
 	}
 
 	@Override

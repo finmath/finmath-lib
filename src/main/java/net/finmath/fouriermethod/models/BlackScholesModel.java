@@ -62,15 +62,18 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 
-		return argument -> {
-			Complex iargument = argument.multiply(Complex.I);
-			return	iargument
-					.multiply(
-							iargument
-							.multiply(0.5*volatility*volatility*time)
-							.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))
-					.add(logDiscountFactorForDiscounting)
-					.exp();
+		return new CharacteristicFunction() {
+			@Override
+			public Complex apply(Complex argument) {
+				Complex iargument = argument.multiply(Complex.I);
+				return	iargument
+						.multiply(
+								iargument
+								.multiply(0.5*volatility*volatility*time)
+								.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))
+						.add(logDiscountFactorForDiscounting)
+						.exp();
+			}
 		};
 	}
 

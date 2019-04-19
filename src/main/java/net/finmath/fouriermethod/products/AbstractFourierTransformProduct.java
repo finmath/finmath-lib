@@ -66,9 +66,12 @@ public abstract class AbstractFourierTransformProduct implements CharacteristicF
 		CharacteristicFunction modelCF = model.apply(getMaturity());
 
 		final double lineOfIntegration = 0.5 * getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound();
-		DoubleUnaryOperator integrand = real -> {
-			Complex z = new Complex(real,lineOfIntegration);
-			return modelCF.apply(z.negate()).multiply(this.apply(z)).getReal();
+		DoubleUnaryOperator integrand = new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double real) {
+				Complex z = new Complex(real,lineOfIntegration);
+				return modelCF.apply(z.negate()).multiply(AbstractFourierTransformProduct.this.apply(z)).getReal();
+			}
 		};
 
 		RealIntegral integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
