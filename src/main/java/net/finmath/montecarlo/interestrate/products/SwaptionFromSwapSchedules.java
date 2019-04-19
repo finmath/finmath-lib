@@ -167,15 +167,18 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 
 
 	/**
-	 * Determines the discounted cashflow of a leg (can handle fix or float).
+	 * Determines the time \( t \)-measurable value of a swap leg (can handle fix or float).
 	 *
-	 * @param model The monte carlo model
-	 * @param schedule The schedule of the fixed leg
+	 * @param evaluationTime The time \( t \) conditional to which the value is calculated.
+	 * @param model The model implmeneting LIBORModelMonteCarloSimulationModel.
+	 * @param schedule The schedule of the leg.
+	 * @param paysFloatingRate If true, the leg will pay {@link LIBORModelMonteCarloSimulationModel#getLIBOR(double, double, double)}
+	 * @param fixRate The fixed rate (if any)
 	 * @param notional The notional
-	 * @return discountedCashflowFloatingLeg
+	 * @return The time \( t \)-measurable value
 	 * @throws CalculationException
 	 */
-	private RandomVariable getValueOfLegAnalytic(double exerciseTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
+	public RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
 		try {
@@ -196,9 +199,9 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			/*
 			 * Note that it is important that getForwardDiscountBond and getLIBOR are called with evaluationTime = exerciseTime.
 			 */
-			RandomVariable discountBond = model.getModel().getForwardDiscountBond(exerciseTime, paymentTime);
+			RandomVariable discountBond = model.getModel().getForwardDiscountBond(evaluationTime, paymentTime);
 			if(paysFloatingRate) {
-				RandomVariable libor	= model.getLIBOR(exerciseTime, fixingTime, paymentTime);
+				RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
 				RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
