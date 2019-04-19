@@ -178,13 +178,13 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	 * @return The time \( t \)-measurable value
 	 * @throws CalculationException
 	 */
-	public RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
+	public static RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
 		try {
 			modelReferenceDate = model.getReferenceDate().toLocalDate();
 			if(modelReferenceDate == null) {
-				modelReferenceDate = referenceDate.toLocalDate();
+				modelReferenceDate = schedule.getReferenceDate();
 			}
 		}
 		catch(UnsupportedOperationException e) {}
@@ -206,7 +206,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 			if(fixRate != 0) {
-				RandomVariable periodCashFlow = model.getRandomVariableForConstant(swaprate * periodLength * notional);
+				RandomVariable periodCashFlow = model.getRandomVariableForConstant(fixRate * periodLength * notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 		}
