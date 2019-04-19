@@ -314,7 +314,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		 */
 		for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying<exerciseDates.length; exerciseIndexUnderlying++) {
 			RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
-			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
+			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
 			RandomVariable swapRate = floatLeg.div(annuity);
 			basisFunctions.add(swapRate);
 			basisFunctions.add(swapRate.pow(2.0));
