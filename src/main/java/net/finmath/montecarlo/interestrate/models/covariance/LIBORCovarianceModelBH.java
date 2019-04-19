@@ -19,7 +19,7 @@ import net.finmath.time.TimeDiscretization;
  * Use in production in not recommended.
  *
  * @author Christian Fries
- * @since
+ * @since finmath-lib 3.6.0
  * @version 1.0
  */
 public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametric {
