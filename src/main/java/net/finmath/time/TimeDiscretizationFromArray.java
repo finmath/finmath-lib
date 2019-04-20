@@ -54,7 +54,8 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 */
 	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
 		timeTickSize = tickSize;
-		timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
+//		timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
+		timeDiscretization = times.map(this::roundToTimeTickSize).sorted().toArray();
 	}
 
 	/**
