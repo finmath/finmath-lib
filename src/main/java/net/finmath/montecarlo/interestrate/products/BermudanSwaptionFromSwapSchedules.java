@@ -310,8 +310,6 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-		double swapMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, swapEndDate.atStartOfDay());
-
 		double exerciseTime = evaluationTime;
 
 		int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);
@@ -336,7 +334,11 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
 			RandomVariable swapRate = floatLeg.div(annuity);
 			basisFunctions.add(swapRate);
-			basisFunctions.add(swapRate.pow(2.0));
+			if(exerciseIndexUnderlying == exerciseIndex) {
+				basisFunctions.add(swapRate.pow(2.0));
+			}
+
+			basisFunctions.add(annuity);
 		}
 
 		// Numeraire (adapted to multicurve framework)
