@@ -19,6 +19,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.modelling.products.Swaption;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionLocalizedOnDependents;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -280,7 +281,8 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
 	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double exerciseTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
+//		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
+		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegressionLocalizedOnDependents(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
 		return condExpEstimator;
 	}
 
