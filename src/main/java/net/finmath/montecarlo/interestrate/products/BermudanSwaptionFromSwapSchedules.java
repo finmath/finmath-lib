@@ -20,10 +20,7 @@ import net.finmath.modelling.products.Swaption;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLinearRegressionFactory;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionFactory;
-import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionLocalizedOnDependents;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider;
@@ -65,8 +62,8 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	private final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory;
 
 	/**
-	 * Create a Bermudan swaption.
-	 * 
+	 * Create a Bermudan swaption from an array of underlying swap schedules (fix leg and float leg), swap rates and notionals.
+	 *
 	 * This class implements the class backward algorithm using a provided factory for the
 	 * determination of the conditional expectation.
 	 *
@@ -92,7 +89,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		this.exerciseDates = exerciseDates;
 		this.fixSchedules = fixSchedules;
 		this.floatSchedules = floatSchedules;
-		
+
 		this.regressionBasisFunctionProvider = regressionBasisFunctionProvider != null ? regressionBasisFunctionProvider : this;
 		this.conditionalExpectationRegressionFactory = conditionalExpectationRegressionFactory;
 	}
@@ -114,7 +111,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
 			Schedule[]  floatSchedules, RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
 		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, new MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory(2.0), regressionBasisFunctionProvider);
-//		this.conditionalExpectationRegressionFactory = new MonteCarloConditionalExpectationLinearRegressionFactory();
+		//		this.conditionalExpectationRegressionFactory = new MonteCarloConditionalExpectationLinearRegressionFactory();
 	}
 
 	/**

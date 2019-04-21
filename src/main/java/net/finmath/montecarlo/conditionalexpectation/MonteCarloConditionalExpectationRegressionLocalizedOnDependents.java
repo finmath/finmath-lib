@@ -17,6 +17,7 @@ import net.finmath.stochastic.Scalar;
  * A service that allows to estimate conditional expectation via regression.
  *
  * This implementation uses a localization weight derived from the dependent variable.
+ * The regression only considers sample paths where \( - M &lt; y_{i} &lt; M \) where M is a multiple of the standard deviation of y.
  *
  * In oder to estimate the conditional expectation, basis functions have to be specified.
  *
