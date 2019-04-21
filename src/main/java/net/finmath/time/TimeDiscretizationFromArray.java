@@ -48,14 +48,27 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 
 	/**
 	 * Constructs a time discretization using the given tick size.
+	 * The time discretization will be sorted. Duplicate entries are allowed if <code>allowDuplicates</code> is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(DoubleStream times, double tickSize, boolean allowDuplicates) {
+		timeTickSize = tickSize;
+		times = times.map(this::roundToTimeTickSize);
+		if(!allowDuplicates) times = times.distinct();
+		timeDiscretization = times.sorted().toArray();
+	}
+
+	/**
+	 * Constructs a time discretization using the given tick size.
 	 *
 	 * @param times    A non closed and not necessarily sorted stream containing the time points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
-		timeTickSize = tickSize;
-//		timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
-		timeDiscretization = times.map(this::roundToTimeTickSize).sorted().toArray();
+		this(times, tickSize, false);
 	}
 
 	/**
