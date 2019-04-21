@@ -19,7 +19,10 @@ import net.finmath.exception.CalculationException;
 import net.finmath.modelling.products.Swaption;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLinearRegressionFactory;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionFactory;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionLocalizedOnDependents;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
@@ -59,6 +62,40 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	private final Schedule[]  		fixSchedules;
 	private final Schedule[]  		floatSchedules;
 	private final RegressionBasisFunctionsProvider regressionBasisFunctionProvider;
+	private final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory;
+
+	/**
+	 * Create a Bermudan swaption.
+	 * 
+	 * This class implements the class backward algorithm using a provided factory for the
+	 * determination of the conditional expectation.
+	 *
+	 * @param referenceDate The date associated with the inception (t=0) of this product. (Not used).
+	 * @param swaptionType The type of the underlying swap (PAYER, RECEIVER).
+	 * @param exerciseDates A vector of exercise dates.
+	 * @param swapEndDate The final maturity of the underlying swap.
+	 * @param swaprates A vector of swap rates for the underlying swaps.
+	 * @param notionals A vector of notionals for the underlying swaps.
+	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
+	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
+	 * @param conditionalExpectationRegressionFactory A object implementing a factory creating a conditional expectation estimator from given regression basis functions
+	 * @param regressionBasisFunctionProvider An object implementing RegressionBasisFunctionsProvider to provide the basis functions for the estimation of conditional expectations.
+	 */
+	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
+			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
+			Schedule[]  floatSchedules, MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory, RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
+		this.referenceDate = referenceDate;
+		this.swaptionType = swaptionType;
+		this.swapEndDate = swapEndDate;
+		this.swaprates = swaprates;
+		this.notionals = notionals;
+		this.exerciseDates = exerciseDates;
+		this.fixSchedules = fixSchedules;
+		this.floatSchedules = floatSchedules;
+		
+		this.regressionBasisFunctionProvider = regressionBasisFunctionProvider != null ? regressionBasisFunctionProvider : this;
+		this.conditionalExpectationRegressionFactory = conditionalExpectationRegressionFactory;
+	}
 
 	/**
 	 * Create a Bermudan swaption.
@@ -76,15 +113,8 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
 			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
 			Schedule[]  floatSchedules, RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
-		this.referenceDate = referenceDate;
-		this.swaptionType = swaptionType;
-		this.swapEndDate = swapEndDate;
-		this.swaprates = swaprates;
-		this.notionals = notionals;
-		this.exerciseDates = exerciseDates;
-		this.fixSchedules = fixSchedules;
-		this.floatSchedules = floatSchedules;
-		this.regressionBasisFunctionProvider = regressionBasisFunctionProvider != null ? regressionBasisFunctionProvider : this;
+		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, new MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory(2.0), regressionBasisFunctionProvider);
+//		this.conditionalExpectationRegressionFactory = new MonteCarloConditionalExpectationLinearRegressionFactory();
 	}
 
 	/**
@@ -281,9 +311,8 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
 	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double exerciseTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		//		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
-		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegressionLocalizedOnDependents(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model), 2.0);
-		return condExpEstimator;
+		RandomVariable[] regressionBasisFunctions = regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model);
+		return conditionalExpectationRegressionFactory.getConditionalExpectationEstimator(regressionBasisFunctions, regressionBasisFunctions);
 	}
 
 
@@ -393,7 +422,6 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 					RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
 					RandomVariable swapRate = floatLeg.div(annuity);
 					basisFunctions.add(swapRate);
-					basisFunctions.add(swapRate.pow(2.0));
 				}
 
 				// forward rate to the next period
