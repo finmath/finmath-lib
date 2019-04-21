@@ -336,8 +336,13 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
 			RandomVariable swapRate = floatLeg.div(annuity);
 			basisFunctions.add(swapRate);
-			basisFunctions.add(swapRate.pow(2.0));
 		}
+
+		// forward rate to the next period
+		RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+		basisFunctions.add(rateShort);
+		basisFunctions.add(rateShort.pow(2.0));
+
 
 		// Numeraire (adapted to multicurve framework)
 		RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
