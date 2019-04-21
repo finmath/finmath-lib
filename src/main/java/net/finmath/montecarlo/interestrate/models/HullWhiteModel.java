@@ -363,6 +363,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		double time = getProcess().getTime(timeIndex);
 		double timeNext = getProcess().getTime(timeIndex+1);
 
+		if(timeNext == time) {
+			return new RandomVariable[] { null, null };
+		}
+
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexVolatility < 0) {
 			timeIndexVolatility = -timeIndexVolatility-2;
