@@ -15,7 +15,7 @@ public interface MonteCarloConditionalExpectationRegressionFactory {
 	 *
 	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
-	 * @return An bject implementing a <code>ConditionalExpectationEstimator</code>.
+	 * @return An object implementing a <code>ConditionalExpectationEstimator</code>.
 	 */
 	ConditionalExpectationEstimator getConditionalExpectationEstimator(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor);
 
