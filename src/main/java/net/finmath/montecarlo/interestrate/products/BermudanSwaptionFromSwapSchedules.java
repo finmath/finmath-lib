@@ -282,7 +282,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 */
 	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double exerciseTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 //		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
-		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegressionLocalizedOnDependents(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model));
+		MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegressionLocalizedOnDependents(regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model), 2.0);
 		return condExpEstimator;
 	}
 
