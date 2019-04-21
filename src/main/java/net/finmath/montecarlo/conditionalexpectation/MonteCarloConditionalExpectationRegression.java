@@ -59,7 +59,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	}
 
 
-	private RegressionBasisFunctions basisFunctionsEstimator		= null;
+	protected RegressionBasisFunctions basisFunctionsEstimator		= null;
 	private RegressionBasisFunctions basisFunctionsPredictor		= null;
 
 

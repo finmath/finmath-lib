@@ -79,7 +79,7 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 
 		RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions().clone();
 
-		RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*4.0,2.0)).choose(new Scalar(0.0), new Scalar(1.0));		
+		RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*standardDeviations,2.0)).choose(new Scalar(0.0), new Scalar(1.0));		
 		dependents = dependents.mult(localizerWeights);
 		for(int i=0; i<basisFunctions.length; i++) {
 			basisFunctions[i] = basisFunctions[i].mult(localizerWeights);
