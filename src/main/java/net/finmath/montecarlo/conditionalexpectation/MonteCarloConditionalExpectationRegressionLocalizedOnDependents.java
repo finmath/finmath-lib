@@ -90,15 +90,18 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 	 */
 	public double[] getLinearRegressionParameters(RandomVariable dependents) {
 
-		RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions().clone();
-
 		RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*standardDeviations,2.0)).choose(new Scalar(0.0), new Scalar(1.0));
-		dependents = dependents.mult(localizerWeights);
+
+		// Localize basis functions
+		RandomVariable[] basisFunctionsNonLocalized = getBasisFunctionsEstimator().getBasisFunctions();
+		RandomVariable[] basisFunctions = new RandomVariable[basisFunctionsNonLocalized.length];
 		for(int i=0; i<basisFunctions.length; i++) {
-			basisFunctions[i] = basisFunctions[i].mult(localizerWeights);
+			basisFunctions[i] = basisFunctionsNonLocalized[i].mult(localizerWeights);
 		}
 
-		DecompositionSolver solver;
+		// Localize dependents
+		dependents = dependents.mult(localizerWeights);
+
 		// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
 		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
@@ -108,7 +111,7 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 			}
 		}
 
-		solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
+		DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
 
 		// Build XTy - the projection of the dependents random variable on the basis functions.
 		double[] XTy = new double[basisFunctions.length];
