@@ -886,7 +886,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		if(timeIndex < 0) {
 			timeIndex = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 		}
-		
+
 		double timeStep = timeDiscretizationForCurves.getTimeStep(timeIndex);
 		return getDiscountFactorFromForwardCurve(timeIndex).div(getDiscountFactorFromForwardCurve(timeIndex)).log().div(timeStep);
 	}
