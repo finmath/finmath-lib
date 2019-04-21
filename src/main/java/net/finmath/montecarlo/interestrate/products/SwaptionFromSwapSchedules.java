@@ -179,7 +179,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	 * @param fixRate The fixed rate (if any)
 	 * @param notional The notional
 	 * @return The time \( t \)-measurable value
-	 * @throws CalculationException
+	 * @throws CalculationException Thrown is model failed to provide the required quantities.
 	 */
 	public static RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
 
