@@ -10,15 +10,14 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
-import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
- * 
+ *
  * This implementation uses a localization weight derived from the dependent variable.
- * 
+ *
  * In oder to estimate the conditional expectation, basis functions have to be specified.
  *
  * The class can either estimate and predict the conditional expectation within
@@ -35,7 +34,7 @@ import net.finmath.stochastic.Scalar;
 public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents extends MonteCarloConditionalExpectationRegression {
 
 	private final double standardDeviations;
-	
+
 	/**
 	 * Creates a class for conditional expectation estimation.
 	 *
@@ -93,23 +92,23 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 
 		RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions().clone();
 
-		RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*standardDeviations,2.0)).choose(new Scalar(0.0), new Scalar(1.0));		
+		RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*standardDeviations,2.0)).choose(new Scalar(0.0), new Scalar(1.0));
 		dependents = dependents.mult(localizerWeights);
 		for(int i=0; i<basisFunctions.length; i++) {
 			basisFunctions[i] = basisFunctions[i].mult(localizerWeights);
 		}
-		
+
 		DecompositionSolver solver;
 		// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
 		double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
-				for(int i=0; i<basisFunctions.length; i++) {
-					for(int j=i; j<basisFunctions.length; j++) {
-						XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
-						XTX[j][i] = XTX[i][j];												// Symmetric matrix
-					}
-				}
+		for(int i=0; i<basisFunctions.length; i++) {
+			for(int j=i; j<basisFunctions.length; j++) {
+				XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
+				XTX[j][i] = XTX[i][j];												// Symmetric matrix
+			}
+		}
 
-				solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
+		solver = new SingularValueDecomposition(new Array2DRowRealMatrix(XTX, false)).getSolver();
 
 		// Build XTy - the projection of the dependents random variable on the basis functions.
 		double[] XTy = new double[basisFunctions.length];

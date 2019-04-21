@@ -55,14 +55,16 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 		this.numberOfPaths = numberOfPaths;
 		this.seed = seed;
 
-		this.varianceGammaIncrements = null;
+		varianceGammaIncrements = null;
 	}
 
 	@Override
 	public RandomVariable getIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
-			if(varianceGammaIncrements == null) doGenerateVarianceGammaIncrements();
+			if(varianceGammaIncrements == null) {
+				doGenerateVarianceGammaIncrements();
+			}
 		}
 
 		/*
@@ -76,12 +78,14 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	 *Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateVarianceGammaIncrements() {
-		if(varianceGammaIncrements != null) return;
+		if(varianceGammaIncrements != null) {
+			return;
+		}
 
-		this.myGammaProcess =
+		myGammaProcess =
 				new GammaProcess(timeDiscretization,numberOfFactors,numberOfPaths,seed,1/nu,nu);
 
-		this.myBrownianMotion =
+		myBrownianMotion =
 				new BrownianMotionLazyInit(timeDiscretization,numberOfFactors,numberOfPaths,seed+1);
 
 		varianceGammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
@@ -131,14 +135,14 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	 * @return the Brownian motion
 	 */
 	public BrownianMotion getBrownianMotion(){
-		return this.myBrownianMotion;
+		return myBrownianMotion;
 	}
 
 	/**
 	 * @return the Gamma subordinator
 	 */
 	public GammaProcess getGammaProcess(){
-		return this.myGammaProcess;
+		return myGammaProcess;
 	}
 
 	@Override

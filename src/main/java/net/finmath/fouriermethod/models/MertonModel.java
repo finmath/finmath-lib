@@ -44,9 +44,9 @@ public class MertonModel implements CharacteristicFunctionModel{
 		super();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate = Double.NaN;
+		riskFreeRate = Double.NaN;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = Double.NaN;
+		discountRate = Double.NaN;
 		this.volatility = volatility;
 		this.jumpIntensity = jumpIntensity;
 		this.jumpSizeMean = jumpSizeMean;
@@ -70,10 +70,10 @@ public class MertonModel implements CharacteristicFunctionModel{
 			double discountRate) {
 		super();
 		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
 		this.jumpIntensity = jumpIntensity;
 		this.jumpSizeMean = jumpSizeMean;

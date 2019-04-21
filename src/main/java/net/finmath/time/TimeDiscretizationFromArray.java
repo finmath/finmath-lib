@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.IntToDoubleFunction;
-import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -57,7 +56,9 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	public TimeDiscretizationFromArray(DoubleStream times, double tickSize, boolean allowDuplicates) {
 		timeTickSize = tickSize;
 		times = times.map(this::roundToTimeTickSize);
-		if(!allowDuplicates) times = times.distinct();
+		if(!allowDuplicates) {
+			times = times.distinct();
+		}
 		timeDiscretization = times.sorted().toArray();
 	}
 
