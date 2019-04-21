@@ -16,8 +16,10 @@ import net.finmath.stochastic.Scalar;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
- * In oder to estimate the conditional expectation, basis functions have to be
- * specified.
+ * 
+ * This implementation uses a localization weight derived from the dependent variable.
+ * 
+ * In oder to estimate the conditional expectation, basis functions have to be specified.
  *
  * The class can either estimate and predict the conditional expectation within
  * the same simulation (which will eventually introduce a small foresight bias)
@@ -39,14 +41,26 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 	 *
 	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
+	 * @param standardDeviations A standard deviation parameter for the weight function.
 	 */
 	public MonteCarloConditionalExpectationRegressionLocalizedOnDependents(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor, double standardDeviations) {
 		super(basisFunctionsEstimator, basisFunctionsPredictor);
 		this.standardDeviations = standardDeviations;
 	}
 
+	/**
+	 * Creates a class for conditional expectation estimation.
+	 *
+	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
+	 * @param standardDeviations A standard deviation parameter for the weight function.
+	 */
+	public MonteCarloConditionalExpectationRegressionLocalizedOnDependents(RandomVariable[] basisFunctionsEstimator, double standardDeviations) {
+		super(basisFunctionsEstimator);
+		this.standardDeviations = standardDeviations;
+	}
+
 	public MonteCarloConditionalExpectationRegressionLocalizedOnDependents() {
-		this(null, null, 4.0);
+		this(null, 4.0);
 	}
 
 	/**
@@ -55,7 +69,7 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
 	public MonteCarloConditionalExpectationRegressionLocalizedOnDependents(RandomVariable[] basisFunctions) {
-		this(basisFunctions, null, 4.0);
+		this(basisFunctions, 4.0);
 	}
 
 	/**
