@@ -5,7 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -55,7 +59,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	// A lazy init cache
 	private transient RandomVariable[][] volatility;
-	private Object volatilityLazyInitLock = new Object();
+	private transient Object volatilityLazyInitLock = new Object();
 
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
@@ -251,4 +255,13 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		LIBORVolatilityModel newModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
 		return newModel;
 	}
+
+	/*
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+
+		// Init transient fields
+		volatilityLazyInitLock = new Object();
+	}
+	*/
 }
