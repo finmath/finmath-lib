@@ -6,6 +6,25 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.10 (21.04.2019)
+
+### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
+
+ - Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.
+ 
+### Monte-Carlo Simulation
+
+ - Introduced `MonteCarloConditionalExpectationRegressionFactory`.
+
+### Single Asset (Equity/FX) Models - Monte-Carlo Simulation
+
+ - Implementation of the Variance Gamma Process (contributed and maintained by Prof. A. Gnoatto). See `net.finmath.montecarlo.VarianceGammaProcess`.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Improved implementation of the Bermudan Swaption allowing arbitrary swap schedules (consistent with AnalyticModel) and injection of custom method for estimation of conditional expectation. See `BermudanSwaptionFromSwapSchedules`.
+
+
 ## 4.0.9 (07.04.2019)
 
 ### General
