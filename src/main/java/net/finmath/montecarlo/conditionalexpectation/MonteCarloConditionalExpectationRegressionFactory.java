@@ -5,7 +5,7 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * Interface implemented by classes providing a <code>ConditionalExpectationEstimator</code> for conditional expectation estimation.
- * 
+ *
  * @author Christian Fries
  */
 public interface MonteCarloConditionalExpectationRegressionFactory {
