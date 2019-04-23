@@ -6,12 +6,16 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.0.10 (21.04.2019)
+## 4.0.11 (22.04.2019)
 
 ### General
 
  - The `net.finmath.time.TimeDiscretizationFromArray` comes with an additional (optional) argument to allow duplicate simulation time discretization points (i.e., time step sizes of 0) (this is useful to ensure path-consistent Monte-Carlo simulations).
- 
+
+### Market Data / Curves
+
+ - Allowing access to interpolation points for interpolated curve.
+
 ### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
 
  - Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.

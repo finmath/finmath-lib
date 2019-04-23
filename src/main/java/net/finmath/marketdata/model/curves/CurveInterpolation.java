@@ -144,6 +144,18 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 			return 0;
 		}
 
+		public double getTime() {
+			return time;
+		}
+
+		public double getValue() {
+			return value;
+		}
+
+		public boolean isParameter() {
+			return isParameter;
+		}
+
 		@Override
 		public String toString() {
 			return "Point [time=" + time + ", value=" + value + ", isParameter=" + isParameter + "]";
