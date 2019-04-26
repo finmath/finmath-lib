@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
@@ -185,6 +187,16 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	}
 
 	@Override
+	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		RandomVariable value = getValue(evaluationTime, model);
+		Map<String, Object> result = new HashMap<>();
+		result.put("valueRandomVariable", value);
+		result.put("value", value.getAverage());
+		result.put("error", value.getStandardError());
+		return result;
+	}
+
+	@Override
 	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();
@@ -228,7 +240,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			double probabilityToExercise = 1.0;
 			for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
 				double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
-				double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1E-12).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
+				double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
 				double probability = probabilityToExercise - probabilityToExerciseAfter;
 				probabilityToExercise = probabilityToExerciseAfter;
 
@@ -352,9 +364,11 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 
 		// Constant
 		RandomVariable one = new RandomVariableFromDoubleArray(1.0);
+		basisFunctions.add(one);
 
-		RandomVariable basisFunction = one;
-		basisFunctions.add(basisFunction);
+		// Numeraire (adapted to multicurve framework)
+		RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
+		basisFunctions.add(discountFactor);
 
 		/*
 		 * Add swap rates of underlyings.
@@ -363,18 +377,13 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
 			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
 			RandomVariable swapRate = floatLeg.div(annuity);
-			basisFunctions.add(swapRate);
+			basisFunctions.add(swapRate.mult(discountFactor));
 		}
 
 		// forward rate to the next period
 		RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
-		basisFunctions.add(rateShort);
-		basisFunctions.add(rateShort.pow(2.0));
-
-
-		// Numeraire (adapted to multicurve framework)
-		RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
-		basisFunctions.add(discountFactor);
+		basisFunctions.add(rateShort.mult(discountFactor));
+		basisFunctions.add(rateShort.mult(discountFactor).pow(2.0));
 
 		return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);
 	}
