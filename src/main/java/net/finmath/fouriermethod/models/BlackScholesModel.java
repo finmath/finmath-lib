@@ -94,4 +94,56 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+		return discountCurveForForwardRate;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+		return discountCurveForDiscountRate;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+		return volatility;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BlackScholesModel [initialValue=" + initialValue + ", discountCurveForForwardRate="
+				+ discountCurveForForwardRate + ", riskFreeRate=" + riskFreeRate + ", discountCurveForDiscountRate="
+				+ discountCurveForDiscountRate + ", discountRate=" + discountRate + ", volatility=" + volatility + "]";
+	}
+
 }

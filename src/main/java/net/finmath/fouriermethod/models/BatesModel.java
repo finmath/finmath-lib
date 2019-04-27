@@ -5,6 +5,8 @@
  */
 package net.finmath.fouriermethod.models;
 
+import java.util.Arrays;
+
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
@@ -304,5 +306,101 @@ public class BatesModel implements CharacteristicFunctionModel {
 				return characteristicFunction;
 			}
 		};
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double[] getVolatility() {
+		return volatility;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the alpha
+	 */
+	public double[] getAlpha() {
+		return alpha;
+	}
+
+	/**
+	 * @return the beta
+	 */
+	public double[] getBeta() {
+		return beta;
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public double[] getSigma() {
+		return sigma;
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double[] getRho() {
+		return rho;
+	}
+
+	/**
+	 * @return the lambda
+	 */
+	public double[] getLambda() {
+		return lambda;
+	}
+
+	/**
+	 * @return the k
+	 */
+	public double getK() {
+		return k;
+	}
+
+	/**
+	 * @return the delta
+	 */
+	public double getDelta() {
+		return delta;
+	}
+
+	/**
+	 * @return the numberOfFactors
+	 */
+	public int getNumberOfFactors() {
+		return numberOfFactors;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BatesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
+				+ Arrays.toString(volatility) + ", discountRate=" + discountRate + ", alpha=" + Arrays.toString(alpha)
+				+ ", beta=" + Arrays.toString(beta) + ", sigma=" + Arrays.toString(sigma) + ", rho="
+				+ Arrays.toString(rho) + ", lambda=" + Arrays.toString(lambda) + ", k=" + k + ", delta=" + delta
+				+ ", numberOfFactors=" + numberOfFactors + "]";
 	}
 }

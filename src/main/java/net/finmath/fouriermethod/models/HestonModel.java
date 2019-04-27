@@ -208,4 +208,93 @@ public class HestonModel implements CharacteristicFunctionModel {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+		return discountCurveForForwardRate;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+		return discountCurveForDiscountRate;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+		return volatility;
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+		return theta;
+	}
+
+	/**
+	 * @return the kappa
+	 */
+	public double getKappa() {
+		return kappa;
+	}
+
+	/**
+	 * @return the xi
+	 */
+	public double getXi() {
+		return xi;
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double getRho() {
+		return rho;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "HestonModel [referenceDate=" + referenceDate + ", initialValue=" + initialValue
+				+ ", discountCurveForForwardRate=" + discountCurveForForwardRate + ", riskFreeRate=" + riskFreeRate
+				+ ", discountCurveForDiscountRate=" + discountCurveForDiscountRate + ", discountRate=" + discountRate
+				+ ", volatility=" + volatility + ", theta=" + theta + ", kappa=" + kappa + ", xi=" + xi + ", rho=" + rho
+				+ "]";
+	}
+
 }
