@@ -79,14 +79,14 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
-	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
 	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -106,15 +106,15 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
-	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
 	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
-		this(null, initialValue, discountCurveForForwardRate, volatility, discountCurveForDiscountRate, theta, kappa, xi, rho);
+	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
+		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
 	}
 
 	/**

@@ -74,10 +74,10 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 		 */
 		private BlackScholesModelFourier(BlackScholesModelDescriptor descriptor) {
 			super(
+					null,
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
-					descriptor.getVolatility(),
-					descriptor.getDiscountCurveForDiscountRate()
+					descriptor.getDiscountCurveForDiscountRate(), descriptor.getVolatility()
 					);
 			this.descriptor 	= descriptor;
 			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
@@ -116,8 +116,8 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 			super(
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
-					descriptor.getVolatility(),
 					descriptor.getDiscountCurveForDiscountRate(),
+					descriptor.getVolatility(),
 					descriptor.getTheta(),
 					descriptor.getKappa(),
 					descriptor.getXi(),
@@ -152,13 +152,13 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 
 		private MertonModelFourier(MertonModelDescriptor descriptor) {
 			super(
+					null,
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
+					descriptor.getDiscountCurveForDiscountRate(),
 					descriptor.getVolatility(),
 					descriptor.getJumpIntensity(),
-					descriptor.getJumpSizeMean(),
-					descriptor.getJumpSizeStdDev(),
-					descriptor.getDiscountCurveForDiscountRate()
+					descriptor.getJumpSizeMean(), descriptor.getJumpSizeStdDev()
 					);
 			this.descriptor = descriptor;
 			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());

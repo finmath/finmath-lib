@@ -113,7 +113,7 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	@Override
 	public HestonModel getCharacteristicFunctionModel() {
 		return new HestonModel(descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),
-				descriptor.getVolatility(),descriptor.getDiscountCurveForForwardRate(),
+				descriptor.getDiscountCurveForForwardRate(),descriptor.getVolatility(),
 				descriptor.getTheta(),descriptor.getKappa(),descriptor.getXi(),descriptor.getRho());
 	}
 
