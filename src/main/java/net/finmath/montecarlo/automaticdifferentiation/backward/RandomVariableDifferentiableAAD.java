@@ -17,7 +17,6 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -522,24 +521,20 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			}
 		}
 
+		private static OperatorTreeNode of(RandomVariable randomVariable) {
+			return (randomVariable != null && randomVariable instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)randomVariable).getOperatorTreeNode() : null;
+		}
+
+		private static RandomVariable getValue(RandomVariable randomVariable) {
+			return randomVariable != null ? randomVariable.getValues() : randomVariable;
+		}
+
 		private static List<OperatorTreeNode> extractOperatorTreeNodes(List<RandomVariable> arguments) {
-			return arguments != null ? arguments.stream().map(new Function<RandomVariable, OperatorTreeNode>() {
-				@Override
-				public OperatorTreeNode apply(RandomVariable x) {
-					return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode() : null;
-				}
-			}
-					).collect(Collectors.toList()) : null;
+			return arguments != null ? arguments.stream().map( OperatorTreeNode::of ).collect(Collectors.toList()) : null;
 		}
 
 		private static List<RandomVariable> extractOperatorValues(List<RandomVariable> arguments) {
-			return arguments != null ? arguments.stream().map(new Function<RandomVariable, RandomVariable>() {
-				@Override
-				public RandomVariable apply(RandomVariable x) {
-					return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
-				}
-			}
-					).collect(Collectors.toList()) : null;
+			return arguments != null ? arguments.stream().map( OperatorTreeNode::getValue ).collect(Collectors.toList()) : null;
 		}
 
 		private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -563,6 +558,14 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	private final OperatorTreeNode operatorTreeNode;
 	private final RandomVariableDifferentiableAADFactory factory;
 
+	public RandomVariableDifferentiableAAD(RandomVariable values, List<OperatorTreeNode> argumentOperatorTreeNodes, List<RandomVariable> argumentValues, ConditionalExpectationEstimator estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory, int methodArgumentTypePriority) {
+		super();
+		this.values = values;
+		operatorTreeNode = new OperatorTreeNode(operator, argumentOperatorTreeNodes, argumentValues, estimator, factory);
+		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
+		typePriority = methodArgumentTypePriority;
+	}
+
 	public static RandomVariableDifferentiableAAD of(double value) {
 		return new RandomVariableDifferentiableAAD(value);
 	}
@@ -572,7 +575,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	public RandomVariableDifferentiableAAD(double value) {
-		this(new RandomVariableFromDoubleArray(value), null, null, null);
+		this(new Scalar(value), null, null, null);
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariable randomVariable) {
@@ -592,12 +595,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	public RandomVariableDifferentiableAAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator, RandomVariableDifferentiableAADFactory factory, int methodArgumentTypePriority) {
-		super();
-		this.values = values;
-		operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator, factory);
-		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();
-
-		typePriority = methodArgumentTypePriority;
+		this(values, OperatorTreeNode.extractOperatorTreeNodes(arguments), OperatorTreeNode.extractOperatorValues(arguments), estimator, operator, factory, methodArgumentTypePriority);
 	}
 
 	public OperatorTreeNode getOperatorTreeNode() {
@@ -637,7 +635,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariable> derivatives = new HashMap<>();
 		// Put derivative of this node w.r.t. itself
-		derivatives.put(getID(), getFactory().createRandomVariableNonDifferentiable(Double.NEGATIVE_INFINITY,1.0));
+		derivatives.put(getID(), getFactory().createRandomVariableNonDifferentiable(Double.NEGATIVE_INFINITY, 1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sorting on the keys.
 		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
@@ -813,7 +811,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	/*
-	 * The following methods are operations with are differentiable.
+	 * The following methods are differentiable operations.
 	 */
 
 	@Override
@@ -826,61 +824,79 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public RandomVariable cap(double cap) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().cap(cap),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(cap)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(this.getValues(), new Scalar(cap)),
+				null,
 				OperatorType.CAP,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable floor(double floor) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().floor(floor),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(floor)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(this.getValues(), new Scalar(floor)),
+				null,
 				OperatorType.FLOOR,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable add(double value) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(value),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(null /* this */, null /* new RandomVariableFromDoubleArray(value) */),		// For ADD we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.ADD,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable sub(double value) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().sub(value),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(null /* this */, null /* new RandomVariableFromDoubleArray(value) */),		// For SUB we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.SUB,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable mult(double value) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().mult(value),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(null, new Scalar(value)),		// For MULT with constant we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.MULT,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable div(double value) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().div(value),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
+				Arrays.asList(this.getOperatorTreeNode(), null),
+				Arrays.asList(null, new Scalar(value)),		// For DIV with constant we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.DIV,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
 	public RandomVariable pow(double exponent) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().pow(exponent),
-				Arrays.asList(this, new RandomVariableFromDoubleArray(exponent)),
+				Arrays.asList(this, new Scalar(exponent)),
 				OperatorType.POW,
 				getFactory());
 	}
@@ -972,9 +988,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().add(randomVariable.getValues()),
-				Arrays.asList(this, randomVariable),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),
+				Arrays.asList(null /* this.getValues() */, null /* randomVariable.getValues() */),		// For ADD we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.ADD,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -986,9 +1005,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().sub(randomVariable.getValues()),
-				Arrays.asList(this, randomVariable),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),
+				Arrays.asList(null /* this.getValues() */, null /* randomVariable.getValues() */),		// For SUB we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.SUB,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1000,9 +1022,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().bus(randomVariable.getValues()),
-				Arrays.asList(randomVariable, this),	// SUB with swapped arguments
+				Arrays.asList(OperatorTreeNode.of(randomVariable), this.getOperatorTreeNode()),			// SUB with swapped arguments
+				Arrays.asList(null, null),																// For SUB we do not need all arguments to evaluate the differential
+				null,
 				OperatorType.SUB,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1014,9 +1039,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().mult(randomVariable.getValues()),
-				Arrays.asList(this, randomVariable),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),
+				Arrays.asList(this.getValues(), randomVariable.getValues()),
+				null,
 				OperatorType.MULT,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1028,9 +1056,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().div(randomVariable.getValues()),
-				Arrays.asList(this, randomVariable),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),
+				Arrays.asList(this.getValues(), randomVariable.getValues()),
+				null,
 				OperatorType.DIV,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1042,9 +1073,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().vid(randomVariable.getValues()),
-				Arrays.asList(randomVariable, this),	// DIV with swapped arguments
+				Arrays.asList(OperatorTreeNode.of(randomVariable), this.getOperatorTreeNode()),	// DIV with swapped arguments
+				Arrays.asList(randomVariable.getValues(), this.getValues()),					// DIV with swapped arguments
+				null,
 				OperatorType.DIV,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1107,9 +1141,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAAD(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
-				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(valueIfTriggerNonNegative), OperatorTreeNode.of(valueIfTriggerNegative)),
+				Arrays.asList(this.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
+				null,
 				OperatorType.CHOOSE,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1139,9 +1176,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1.getValues(), factor2),
-				Arrays.asList(this, factor1, new RandomVariableFromDoubleArray(factor2)),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(factor1), null),
+				Arrays.asList(this.getValues(), factor1.getValues(), new Scalar(factor2)),
+				null,
 				OperatorType.ADDPRODUCT,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
@@ -1153,9 +1193,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		return new RandomVariableDifferentiableAAD(
 				getValues().addProduct(factor1.getValues(), factor2.getValues()),
-				Arrays.asList(this, factor1, factor2),
+				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(factor1), OperatorTreeNode.of(factor2)),
+				Arrays.asList(this.getValues(), factor1.getValues(), factor2.getValues()),
+				null,
 				OperatorType.ADDPRODUCT,
-				getFactory());
+				getFactory(),
+				typePriorityDefault);
 	}
 
 	@Override
