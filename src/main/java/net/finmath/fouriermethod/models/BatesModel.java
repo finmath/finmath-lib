@@ -67,7 +67,7 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 public class BatesModel implements CharacteristicFunctionModel {
 
 	private final LocalDate referenceDate;
-	
+
 	private final double initialValue;
 
 	private final DiscountCurve discountCurveForForwardRate;
@@ -153,8 +153,8 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param delta Jump size variance.
 	 */
 	public BatesModel(
-			double initialValue, 
-			DiscountCurve discountCurveForForwardRate, 
+			double initialValue,
+			DiscountCurve discountCurveForForwardRate,
 			DiscountCurve discountCurveForDiscountRate,
 			double[] volatility,
 			double[] alpha,
