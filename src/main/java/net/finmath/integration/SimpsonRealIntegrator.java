@@ -1,6 +1,7 @@
 package net.finmath.integration;
 
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 
@@ -67,7 +68,12 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		}
 
 		double sum = intervals.mapToDouble(
-				i -> 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall)
+				new IntToDoubleFunction() {
+					@Override
+					public double applyAsDouble(int i) {
+						return 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall);
+					}
+				}
 				).sum();
 
 		sum += 2.0 * integrand.applyAsDouble(lowerBound + halfIntervall);

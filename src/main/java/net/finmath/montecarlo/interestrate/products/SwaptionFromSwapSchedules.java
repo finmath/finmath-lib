@@ -151,7 +151,10 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 
 		times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDate.atStartOfDay()));
 
-		Function<Period, Double> periodToTime = period -> { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); };
+		Function<Period, Double> periodToTime = new Function<Period, Double>() {
+			@Override
+			public Double apply(Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
+		};
 		times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 		times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 
@@ -167,21 +170,24 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 
 
 	/**
-	 * Determines the discounted cashflow of a leg (can handle fix or float).
+	 * Determines the time \( t \)-measurable value of a swap leg (can handle fix or float).
 	 *
-	 * @param model The monte carlo model
-	 * @param schedule The schedule of the fixed leg
+	 * @param evaluationTime The time \( t \) conditional to which the value is calculated.
+	 * @param model The model implmeneting LIBORModelMonteCarloSimulationModel.
+	 * @param schedule The schedule of the leg.
+	 * @param paysFloatingRate If true, the leg will pay {@link LIBORModelMonteCarloSimulationModel#getLIBOR(double, double, double)}
+	 * @param fixRate The fixed rate (if any)
 	 * @param notional The notional
-	 * @return discountedCashflowFloatingLeg
-	 * @throws CalculationException
+	 * @return The time \( t \)-measurable value
+	 * @throws CalculationException Thrown is model failed to provide the required quantities.
 	 */
-	private RandomVariable getValueOfLegAnalytic(double exerciseTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
+	public static RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
 		try {
 			modelReferenceDate = model.getReferenceDate().toLocalDate();
 			if(modelReferenceDate == null) {
-				modelReferenceDate = referenceDate.toLocalDate();
+				modelReferenceDate = schedule.getReferenceDate();
 			}
 		}
 		catch(UnsupportedOperationException e) {}
@@ -196,14 +202,14 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			/*
 			 * Note that it is important that getForwardDiscountBond and getLIBOR are called with evaluationTime = exerciseTime.
 			 */
-			RandomVariable discountBond = model.getModel().getForwardDiscountBond(exerciseTime, paymentTime);
+			RandomVariable discountBond = model.getModel().getForwardDiscountBond(evaluationTime, paymentTime);
 			if(paysFloatingRate) {
-				RandomVariable libor	= model.getLIBOR(exerciseTime, fixingTime, paymentTime);
+				RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
 				RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 			if(fixRate != 0) {
-				RandomVariable periodCashFlow = model.getRandomVariableForConstant(swaprate * periodLength * notional);
+				RandomVariable periodCashFlow = model.getRandomVariableForConstant(fixRate * periodLength * notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 		}

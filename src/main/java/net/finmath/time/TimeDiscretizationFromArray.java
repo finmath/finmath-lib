@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -46,22 +47,19 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 
 	/**
 	 * Constructs a time discretization using the given tick size.
+	 * The time discretization will be sorted. Duplicate entries are allowed if <code>allowDuplicates</code> is true, otherwise duplicate entries are removed.
 	 *
-	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param times A non closed and not necessarily sorted stream containing the time points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
+	public TimeDiscretizationFromArray(DoubleStream times, double tickSize, boolean allowDuplicates) {
 		timeTickSize = tickSize;
-		timeDiscretization = times.map(this::roundToTimeTickSize).distinct().sorted().toArray();
-	}
-
-	/**
-	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of doubles.
-	 *
-	 * @param times A double stream of time points for the time discretization.
-	 */
-	public TimeDiscretizationFromArray(DoubleStream times) {
-		this(times, timeTickSizeDefault);
+		times = times.map(this::roundToTimeTickSize);
+		if(!allowDuplicates) {
+			times = times.distinct();
+		}
+		timeDiscretization = times.sorted().toArray();
 	}
 
 	/**
@@ -70,8 +68,50 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times    A non closed and not necessarily sorted stream containing the time points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
+	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
+		this(times, tickSize, false);
+	}
+
+	/**
+	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of doubles.
+	 * The time discretization will be sorted. Duplicate entries are allowed if <code>allowDuplicates</code> is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times A double stream of time points for the time discretization.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(DoubleStream times, boolean allowDuplicates) {
+		this(times, timeTickSizeDefault, allowDuplicates);
+	}
+
+	/**
+	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of doubles.
+	 *
+	 * @param times A double stream of time points for the time discretization.
+	 */
+	public TimeDiscretizationFromArray(DoubleStream times) {
+		this(times, timeTickSizeDefault, false);
+	}
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 *
+	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(Stream<Double> times, double tickSize, boolean allowDuplicates) {
+		this(times.mapToDouble(Double::doubleValue), tickSize, allowDuplicates);
+	}
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The time discretization will be sorted. Duplicate entries are allowed if <code>allowDuplicates</code> is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 */
 	public TimeDiscretizationFromArray(Stream<Double> times, double tickSize) {
-		this(times.mapToDouble(d -> d), tickSize);
+		this(times.mapToDouble(Double::doubleValue), tickSize, false);
 	}
 
 	/**
@@ -80,7 +120,19 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times A double stream of time points for the time discretization.
 	 */
 	public TimeDiscretizationFromArray(Stream<Double> times) {
-		this(times.mapToDouble(d -> d));
+		this(times.mapToDouble(Double::doubleValue), timeTickSizeDefault, false);
+	}
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The iteration of the iterable does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(Iterable<Double> times, double tickSize, boolean allowDuplicates) {
+		this(StreamSupport.stream(times.spliterator(), false), tickSize, allowDuplicates);
 	}
 
 	/**
@@ -91,7 +143,18 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
 	public TimeDiscretizationFromArray(Iterable<Double> times, double tickSize) {
-		this(StreamSupport.stream(times.spliterator(), false), tickSize);
+		this(times, tickSize, false);
+	}
+
+	/**
+	 * Constructs a time discretization from an iterable of doubles.
+	 * The iteration does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(Iterable<Double> times, boolean allowDuplicates) {
+		this(times,timeTickSizeDefault, allowDuplicates);
 	}
 
 	/**
@@ -101,7 +164,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times The time to constitute the time discretization.
 	 */
 	public TimeDiscretizationFromArray(Iterable<Double> times) {
-		this(StreamSupport.stream(times.spliterator(), false));
+		this(times, false);
 	}
 
 	/**
@@ -144,7 +207,12 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param deltaT Time step size.
 	 */
 	public TimeDiscretizationFromArray(double initial, int numberOfTimeSteps, double deltaT) {
-		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(n -> initial + n * deltaT));
+		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int n) {
+				return initial + n * deltaT;
+			}
+		}));
 	}
 
 	/**
@@ -163,10 +231,20 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 		int numberOfTimeStepsPlusOne = (int) Math.ceil((last - initial) / deltaT) + 1;
 
 		if (shortPeriodLocation == ShortPeriodLocation.SHORT_PERIOD_AT_END) {
-			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(n -> Math.min(last, initial + n * deltaT));
+			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
+				@Override
+				public double applyAsDouble(int n) {
+					return Math.min(last, initial + n * deltaT);
+				}
+			});
 		}
 
-		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(n -> Math.max(initial, last - n * deltaT));
+		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
+			@Override
+			public double applyAsDouble(int n) {
+				return Math.max(initial, last - n * deltaT);
+			}
+		});
 	}
 
 	@Override

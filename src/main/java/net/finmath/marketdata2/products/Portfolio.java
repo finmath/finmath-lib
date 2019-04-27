@@ -9,6 +9,7 @@ package net.finmath.marketdata2.products;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import net.finmath.marketdata2.model.AnalyticModel;
@@ -111,8 +112,18 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
-		List<RandomVariable> productValues	= products.parallelStream().map(product -> product.getValue(evaluationTime, model)).collect(Collectors.toList());
-		List<RandomVariable> weightsRandomVariables = weights.parallelStream().map(weight -> model.getRandomVariableForConstant(weight)).collect(Collectors.toList());
+		List<RandomVariable> productValues	= products.parallelStream().map(new Function<AnalyticProduct, RandomVariable>() {
+			@Override
+			public RandomVariable apply(AnalyticProduct product) {
+				return product.getValue(evaluationTime, model);
+			}
+		}).collect(Collectors.toList());
+		List<RandomVariable> weightsRandomVariables = weights.parallelStream().map(new Function<Double, RandomVariable>() {
+			@Override
+			public RandomVariable apply(Double weight) {
+				return model.getRandomVariableForConstant(weight);
+			}
+		}).collect(Collectors.toList());
 
 		value = value.addSumProduct(productValues, weightsRandomVariables);
 

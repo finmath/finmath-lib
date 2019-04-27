@@ -13,7 +13,7 @@ import net.finmath.stochastic.RandomVariable;
  * A stochastic notional derived from the valuation of a component.
  *
  * @author Christian Fries
- * @since
+ * @since finmath-lib 3.6.0
  * @version 1.0
  */
 public class NotionalFromComponent implements AbstractNotional {

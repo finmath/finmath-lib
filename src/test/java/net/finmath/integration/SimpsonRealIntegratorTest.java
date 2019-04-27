@@ -33,8 +33,18 @@ public class SimpsonRealIntegratorTest {
 	@Test
 	public void testCos() {
 
-		DoubleUnaryOperator integrand			= x -> Math.cos(x);
-		DoubleUnaryOperator integralAnalytic	= x -> Math.sin(x);
+		DoubleUnaryOperator integrand			= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return Math.cos(x);
+			}
+		};
+		DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return Math.sin(x);
+			}
+		};
 
 		double value = integral.integrate(integrand);
 
@@ -50,8 +60,18 @@ public class SimpsonRealIntegratorTest {
 	@Test
 	public void testCubic() {
 
-		DoubleUnaryOperator integrand			= x -> 2 * x * x - x;
-		DoubleUnaryOperator integralAnalytic	= x -> 2 * x * x * x / 3 - x * x / 2;
+		DoubleUnaryOperator integrand			= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return 2 * x * x - x;
+			}
+		};
+		DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) {
+				return 2 * x * x * x / 3 - x * x / 2;
+			}
+		};
 
 		double value = integral.integrate(integrand);
 

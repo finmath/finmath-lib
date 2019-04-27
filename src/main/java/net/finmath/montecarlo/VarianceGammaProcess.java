@@ -6,21 +6,22 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
-* Implementation of a time-discrete n-dimensional Variance Gamma process via Brownian subordination through
-* a Gamma Process.
-*
-* To simulate the Variance Gamma process with paramters (\sigma,\theta,\nu) we proceed in two steps:
-* <li>
-*  <ul> We simulate the path of a GammaProcess with parameters \frac{1}{\nu} and \nu</ul>
-*  <ul> Use the GammaProcess as a subordinator for a Brownian motion with drift </ul>
-* </li>
-*  \theta \Gamma(t) + \sigma W(\Gamma(t))
-*
-* The class is immutable and thread safe. It uses lazy initialization.
-*
-* @author Alessandro Gnoatto
-* @version 1.0
-*/
+ * Implementation of a time-discrete n-dimensional Variance Gamma process via Brownian subordination through
+ * a Gamma Process.
+ *
+ * To simulate the Variance Gamma process with paramters \( (\sigma,\theta,\nu) \) we proceed in two steps:
+ * <ul>
+ *   <li>we simulate the path of a GammaProcess with parameters \( \frac{1}{\nu} and \nu \) </li>
+ *	<li>use the GammaProcess as a subordinator for a Brownian motion with drift </li>
+ * </ul>
+ *
+ * \( \theta \Gamma(t) + \sigma W(\Gamma(t)) \)
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
 public class VarianceGammaProcess implements IndependentIncrements, Serializable{
 
 	private static final long serialVersionUID = -338038617011804530L;
@@ -54,14 +55,16 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 		this.numberOfPaths = numberOfPaths;
 		this.seed = seed;
 
-		this.varianceGammaIncrements = null;
+		varianceGammaIncrements = null;
 	}
 
 	@Override
 	public RandomVariable getIncrement(int timeIndex, int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
-			if(varianceGammaIncrements == null) doGenerateVarianceGammaIncrements();
+			if(varianceGammaIncrements == null) {
+				doGenerateVarianceGammaIncrements();
+			}
 		}
 
 		/*
@@ -75,19 +78,21 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	 *Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
 	 */
 	private void doGenerateVarianceGammaIncrements() {
-		if(varianceGammaIncrements != null) return;
+		if(varianceGammaIncrements != null) {
+			return;
+		}
 
-		this.myGammaProcess =
+		myGammaProcess =
 				new GammaProcess(timeDiscretization,numberOfFactors,numberOfPaths,seed,1/nu,nu);
 
-		this.myBrownianMotion =
+		myBrownianMotion =
 				new BrownianMotionLazyInit(timeDiscretization,numberOfFactors,numberOfPaths,seed+1);
 
 		varianceGammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
 
 		/*
 		 * Generate variance gamma distributed independent increments.
-		 * 
+		 *
 		 * Since we already have a Brownian motion and a Gamma process at our disposal,
 		 * we are simply combining them.
 		 */
@@ -130,14 +135,14 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	 * @return the Brownian motion
 	 */
 	public BrownianMotion getBrownianMotion(){
-		return this.myBrownianMotion;
+		return myBrownianMotion;
 	}
 
 	/**
 	 * @return the Gamma subordinator
 	 */
 	public GammaProcess getGammaProcess(){
-		return this.myGammaProcess;
+		return myGammaProcess;
 	}
 
 	@Override

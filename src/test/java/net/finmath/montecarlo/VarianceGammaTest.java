@@ -11,7 +11,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * We test the Variance Gamma process Monte Carlo implementation by estimating the characteristic function.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
@@ -49,7 +49,7 @@ public class VarianceGammaTest {
 			RandomVariable increment = varianceGamma.getIncrement(i, 0);
 			process = process.add(increment);
 
-			Complex exactCF = getCharacteristicFunction(timeDiscretization.getTime(i),z,varianceGamma);			
+			Complex exactCF = getCharacteristicFunction(timeDiscretization.getTime(i),z,varianceGamma);
 
 			System.out.println(formatterReal2.format(exactCF.getReal()) + "\t" +formatterReal2.format(exactCF.getImaginary())
 			+ "\t" + "\t" + formatterReal2.format(monteCarloCF.getReal()) + "\t" +formatterReal2.format(monteCarloCF.getImaginary()));

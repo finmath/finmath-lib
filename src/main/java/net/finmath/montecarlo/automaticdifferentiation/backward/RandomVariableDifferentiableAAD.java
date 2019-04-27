@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -253,11 +254,21 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				break;
 			case MIN:
 				double min = X.getMin();
-				derivative = X.apply(x -> (x == min) ? 1.0 : 0.0);
+				derivative = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == min) ? 1.0 : 0.0;
+					}
+				});
 				break;
 			case MAX:
 				double max = X.getMax();
-				derivative = X.apply(x -> (x == max) ? 1.0 : 0.0);
+				derivative = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == max) ? 1.0 : 0.0;
+					}
+				});
 				break;
 			case ABS:
 				derivative = X.choose(one, minusOne);
@@ -512,15 +523,21 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		}
 
 		private static List<OperatorTreeNode> extractOperatorTreeNodes(List<RandomVariable> arguments) {
-			return arguments != null ? arguments.stream().map((RandomVariable x) -> {
-				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode() : null;
+			return arguments != null ? arguments.stream().map(new Function<RandomVariable, OperatorTreeNode>() {
+				@Override
+				public OperatorTreeNode apply(RandomVariable x) {
+					return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getOperatorTreeNode() : null;
+				}
 			}
 					).collect(Collectors.toList()) : null;
 		}
 
 		private static List<RandomVariable> extractOperatorValues(List<RandomVariable> arguments) {
-			return arguments != null ? arguments.stream().map((RandomVariable x) -> {
-				return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
+			return arguments != null ? arguments.stream().map(new Function<RandomVariable, RandomVariable>() {
+				@Override
+				public RandomVariable apply(RandomVariable x) {
+					return (x != null && x instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)x).getValues() : x;
+				}
 			}
 					).collect(Collectors.toList()) : null;
 		}

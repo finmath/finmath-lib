@@ -171,70 +171,97 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Define the calibration spec generators for our calibration products
 		 */
-		Function<String,String> frequencyForTenor = (tenor) -> {
-			switch(tenor) {
-			case "3M":
-				return "quarterly";
-			case "6M":
-				return "semiannual";
+		Function<String,String> frequencyForTenor = new Function<String, String>() {
+			@Override
+			public String apply(String tenor) {
+				switch(tenor) {
+				case "3M":
+					return "quarterly";
+				case "6M":
+					return "semiannual";
+				}
+				throw new IllegalArgumentException("Unkown tenor " + tenor);
 			}
-			throw new IllegalArgumentException("Unkown tenor " + tenor);
 		};
 
-		BiFunction<String, Double, CalibrationSpec> deposit = (maturity, rate) -> {
-			Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-			Schedule scheduleInterfacePay = null;
-			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
-			CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0.0, null, "discount-EUR-OIS", calibrationTime);
-			return calibrationSpec;
-		};
-
-		BiFunction<String, Double, CalibrationSpec> swapSingleCurve = (maturity, rate) -> {
-			Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
-			Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
-			double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-			CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
-			return calibrationSpec;
-		};
-
-		Function<String,BiFunction<String, Double, CalibrationSpec>> fra = (tenor) -> {
-			return (fixing, rate) -> {
-				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, fixing, tenor, "tenor", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-				String curveName = "forward-EUR-" + tenor;
-				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + "-" + fixing, "FRA", scheduleInterfaceRec, curveName, rate, "discount-EUR-OIS", null, null, 0.0, null, curveName, calibrationTime);
+		BiFunction<String, Double, CalibrationSpec> deposit = new BiFunction<String, Double, CalibrationSpec>() {
+			@Override
+			public CalibrationSpec apply(String maturity, Double rate) {
+				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				Schedule scheduleInterfacePay = null;
+				double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
+				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0.0, null, "discount-EUR-OIS", calibrationTime);
 				return calibrationSpec;
-			};
+			}
 		};
 
-		Function<String,BiFunction<String, Double, CalibrationSpec>> swap = (tenor) -> {
-			return (maturity, rate) -> {
-				String frequencyRec = frequencyForTenor.apply(tenor);
-
-				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-				String curveName = "forward-EUR-" + tenor;
-				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime);
+		BiFunction<String, Double, CalibrationSpec> swapSingleCurve = new BiFunction<String, Double, CalibrationSpec>() {
+			@Override
+			public CalibrationSpec apply(String maturity, Double rate) {
+				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+				Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+				double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
 				return calibrationSpec;
-			};
+			}
 		};
 
-		BiFunction<String,String,BiFunction<String, Double, CalibrationSpec>> swapBasis = (tenorRec,tenorPay) -> {
-			return (maturity, rate) -> {
-				String curveNameRec = "forward-EUR-" + tenorRec;
-				String curveNamePay = "forward-EUR-" + tenorPay;
+		Function<String,BiFunction<String, Double, CalibrationSpec>> fra = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
+			@Override
+			public BiFunction<String, Double, CalibrationSpec> apply(String tenor) {
+				return new BiFunction<String, Double, CalibrationSpec>() {
+					@Override
+					public CalibrationSpec apply(String fixing, Double rate) {
+						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, fixing, tenor, "tenor", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						String curveName = "forward-EUR-" + tenor;
+						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + "-" + fixing, "FRA", scheduleInterfaceRec, curveName, rate, "discount-EUR-OIS", null, null, 0.0, null, curveName, calibrationTime);
+						return calibrationSpec;
+					}
+				};
+			}
+		};
 
-				String frequencyRec = frequencyForTenor.apply(tenorRec);
-				String frequencyPay = frequencyForTenor.apply(tenorPay);
+		Function<String,BiFunction<String, Double, CalibrationSpec>> swap = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
+			@Override
+			public BiFunction<String, Double, CalibrationSpec> apply(String tenor) {
+				return new BiFunction<String, Double, CalibrationSpec>() {
+					@Override
+					public CalibrationSpec apply(String maturity, Double rate) {
+						String frequencyRec = frequencyForTenor.apply(tenor);
 
-				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						String curveName = "forward-EUR-" + tenor;
+						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime);
+						return calibrationSpec;
+					}
+				};
+			}
+		};
 
-				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenorRec + "-" + tenorPay + maturity, "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate, "discount-EUR-OIS", curveNameRec, calibrationTime);
-				return calibrationSpec;
-			};
+		BiFunction<String,String,BiFunction<String, Double, CalibrationSpec>> swapBasis = new BiFunction<String, String, BiFunction<String, Double, CalibrationSpec>>() {
+			@Override
+			public BiFunction<String, Double, CalibrationSpec> apply(String tenorRec, String tenorPay) {
+				return new BiFunction<String, Double, CalibrationSpec>() {
+					@Override
+					public CalibrationSpec apply(String maturity, Double rate) {
+						String curveNameRec = "forward-EUR-" + tenorRec;
+						String curveNamePay = "forward-EUR-" + tenorPay;
+
+						String frequencyRec = frequencyForTenor.apply(tenorRec);
+						String frequencyPay = frequencyForTenor.apply(tenorPay);
+
+						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+
+						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenorRec + "-" + tenorPay + maturity, "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate, "discount-EUR-OIS", curveNameRec, calibrationTime);
+						return calibrationSpec;
+					}
+				};
+			}
 		};
 
 		/*

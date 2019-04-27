@@ -344,19 +344,34 @@ public class RandomVariableAAD implements RandomVariable {
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
 				break;
 			case MIN:
-				resultrandomvariable = X.apply(x -> (x == X.getMin()) ? 1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == X.getMin()) ? 1.0 : 0.0;
+					}
+				});
 				//				resultRandomVariableRealizations = new double[X.size()];
 				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMin()) ? 1.0 : 0.0;
 				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case MAX:
-				resultrandomvariable = X.apply(x -> (x == X.getMax()) ? 1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x == X.getMax()) ? 1.0 : 0.0;
+					}
+				});
 				//				resultRandomVariableRealizations = new double[X.size()];
 				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMax()) ? 1.0 : 0.0;
 				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case ABS:
-				resultrandomvariable = X.apply(x -> (x > 0.0) ? 1.0 : (x < 0) ? -1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x > 0.0) ? 1.0 : (x < 0) ? -1.0 : 0.0;
+					}
+				});
 				//				resultRandomVariableRealizations = new double[X.size()];
 				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > 0) ? 1.0 : (X.getRealizations()[i] < 0) ? -1.0 : 0.0;
 				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
@@ -389,13 +404,23 @@ public class RandomVariableAAD implements RandomVariable {
 				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared()).mult(-1);
 				break;
 			case CAP:
-				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 0.0 : 1.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x > Y.getAverage()) ? 0.0 : 1.0;
+					}
+				});
 				//				resultRandomVariableRealizations = new double[X.size()];
 				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 0.0 : 1.0;
 				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
 				break;
 			case FLOOR:
-				resultrandomvariable = X.apply(x -> (x > Y.getAverage()) ? 1.0 : 0.0);
+				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+					@Override
+					public double applyAsDouble(double x) {
+						return (x > Y.getAverage()) ? 1.0 : 0.0;
+					}
+				});
 				//				resultRandomVariableRealizations = new double[X.size()];
 				//				for(int i = 0; i < X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] > Y.getAverage()) ? 1.0 : 0.0;
 				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
@@ -475,7 +500,12 @@ public class RandomVariableAAD implements RandomVariable {
 				break;
 			case BARRIER:
 				if(variableIndex == getParentIDs()[0]){
-					resultrandomvariable = X.apply(x -> (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0);
+					resultrandomvariable = X.apply(new DoubleUnaryOperator() {
+						@Override
+						public double applyAsDouble(double x) {
+							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;
+						}
+					});
 				} else if(variableIndex == getParentIDs()[1]){
 					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 				} else {

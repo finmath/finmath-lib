@@ -84,6 +84,11 @@ public interface RandomVariableArray extends RandomVariable {
 	@Override
 	default RandomVariableArray getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
-		return map(x -> conditionalExpectationOperator.getConditionalExpectation(x));
+		return map(new Function<RandomVariable, RandomVariable>() {
+			@Override
+			public RandomVariable apply(RandomVariable x) {
+				return conditionalExpectationOperator.getConditionalExpectation(x);
+			}
+		});
 	}
 }

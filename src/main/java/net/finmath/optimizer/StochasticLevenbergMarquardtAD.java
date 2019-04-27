@@ -165,7 +165,12 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 			Map<Integer,Map<Long, RandomVariable>> gradients = null;
 			if(isGradientValuationParallel) {
 				// Parallel pre-calculation of gradients for each value function
-				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), valueIndex -> ((RandomVariableDifferentiable)values[valueIndex]).getGradient()));
+				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), new Function<Integer, Map<Long, RandomVariable>>() {
+					@Override
+					public Map<Long, RandomVariable> apply(Integer valueIndex) {
+						return ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
+					}
+				}));
 			}
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {

@@ -85,24 +85,47 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		// Create the model
 		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
-		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = i -> j -> {
-			if(j==0) {
-				// The Brownian increment
-				double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
-				return x -> NormalDistribution.inverseCumulativeDistribution(x)*sqrtOfTimeStep;
-			}
-			else if(j==1) {
-				// The random jump size
-				return x -> NormalDistribution.inverseCumulativeDistribution(x);
-			}
-			else if(j==2) {
-				// The jump increment
-				double timeStep = timeDiscretization.getTimeStep(i);
-				PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
-				return x -> poissonDistribution.inverseCumulativeDistribution(x);
-			}
-			else {
-				return null;
+		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
+			@Override
+			public IntFunction<DoubleUnaryOperator> apply(int i) {
+				return new IntFunction<DoubleUnaryOperator>() {
+					@Override
+					public DoubleUnaryOperator apply(int j) {
+						if(j==0) {
+							// The Brownian increment
+							double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
+							return new DoubleUnaryOperator() {
+								@Override
+								public double applyAsDouble(double x) {
+									return NormalDistribution.inverseCumulativeDistribution(x)*sqrtOfTimeStep;
+								}
+							};
+						}
+						else if(j==1) {
+							// The random jump size
+							return new DoubleUnaryOperator() {
+								@Override
+								public double applyAsDouble(double x) {
+									return NormalDistribution.inverseCumulativeDistribution(x);
+								}
+							};
+						}
+						else if(j==2) {
+							// The jump increment
+							double timeStep = timeDiscretization.getTimeStep(i);
+							PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
+							return new DoubleUnaryOperator() {
+								@Override
+								public double applyAsDouble(double x) {
+									return poissonDistribution.inverseCumulativeDistribution(x);
+								}
+							};
+						}
+						else {
+							return null;
+						}
+					}
+				};
 			}
 		};
 

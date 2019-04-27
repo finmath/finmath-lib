@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 
 import net.finmath.exception.CalculationException;
@@ -314,7 +315,10 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @return A new ForwardCurve object.
 	 */
 	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, AnalyticModel model, String discountCurveName, double paymentOffset) {
-		RandomVariable[] givenForwardsAsRandomVariables = DoubleStream.of(givenForwards).mapToObj(x -> { return new RandomVariableFromDoubleArray(x); }).toArray(RandomVariable[]::new);
+		RandomVariable[] givenForwardsAsRandomVariables = DoubleStream.of(givenForwards).mapToObj(new DoubleFunction<RandomVariableFromDoubleArray>() {
+			@Override
+			public RandomVariableFromDoubleArray apply(double x) { return new RandomVariableFromDoubleArray(x); }
+		}).toArray(RandomVariable[]::new);
 		return createForwardCurveFromForwards(name, times, givenForwardsAsRandomVariables, model, discountCurveName, paymentOffset);
 	}
 

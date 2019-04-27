@@ -76,7 +76,10 @@ public class BrownianMotionTest {
 			double[] histOfNormalFromBM = brownianMotionAtTime.getHistogram(intervalPoints);
 
 			double time = brownianMotionAtTime.getFiltrationTime();
-			DoubleUnaryOperator densityAnalytic = x -> { return Math.exp(-x*x/2.0/time) / Math.sqrt(2 * Math.PI * time); };
+			DoubleUnaryOperator densityAnalytic = new DoubleUnaryOperator() {
+				@Override
+				public double applyAsDouble(double x) { return Math.exp(-x*x/2.0/time) / Math.sqrt(2 * Math.PI * time); }
+			};
 
 			for(int i=0; i<intervalPoints.length-1; i++) {
 				double center = (intervalPoints[i+1]+intervalPoints[i])/2.0;

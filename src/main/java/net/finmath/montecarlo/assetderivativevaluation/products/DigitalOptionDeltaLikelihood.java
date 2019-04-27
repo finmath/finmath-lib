@@ -19,7 +19,7 @@ import net.finmath.stochastic.Scalar;
  *
  * @author Christian Fries
  * @version 1.0
- * @since
+ * @since finmath-lib 3.6.0
  */
 public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct {
 

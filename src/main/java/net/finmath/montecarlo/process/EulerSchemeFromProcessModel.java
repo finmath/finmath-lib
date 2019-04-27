@@ -248,7 +248,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					if(discreteProcessAtCurrentTimeIndexAndComponent != null) {
 						discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
 					} else {
-						discreteProcess[timeIndex][componentIndex] = null;
+						discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
 					}
 				} catch (InterruptedException e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
@@ -371,11 +372,26 @@ public class SwaptionDataLattice implements Serializable {
 	public double[] getMoneynessAsOffsets() {
 		DoubleStream moneyness = getGridNodesPerMoneyness().keySet().stream().mapToDouble(Integer::doubleValue);
 		if(quotingConvention == QuotingConvention.PAYERVOLATILITYLOGNORMAL) {
-			moneyness = moneyness.map(x -> x * 0.01);
+			moneyness = moneyness.map(new DoubleUnaryOperator() {
+				@Override
+				public double applyAsDouble(double x) {
+					return x * 0.01;
+				}
+			});
 		} else if(quotingConvention == QuotingConvention.RECEIVERPRICE) {
-			moneyness = moneyness.map(x -> - x * 0.0001);
+			moneyness = moneyness.map(new DoubleUnaryOperator() {
+				@Override
+				public double applyAsDouble(double x) {
+					return - x * 0.0001;
+				}
+			});
 		} else {
-			moneyness = moneyness.map(x -> x * 0.0001);
+			moneyness = moneyness.map(new DoubleUnaryOperator() {
+				@Override
+				public double applyAsDouble(double x) {
+					return x * 0.0001;
+				}
+			});
 		}
 		return moneyness.toArray();
 	}

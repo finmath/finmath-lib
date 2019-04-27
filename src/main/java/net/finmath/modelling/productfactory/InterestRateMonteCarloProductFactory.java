@@ -2,6 +2,7 @@ package net.finmath.modelling.productfactory;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.function.DoubleFunction;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.DescribedProduct;
@@ -126,7 +127,12 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		 */
 		public SwapLegMonteCarlo(InterestRateSwapLegProductDescriptor descriptor, LocalDate referenceDate) {
 			super(descriptor.getLegScheduleDescriptor().getSchedule(referenceDate),
-					Arrays.stream(descriptor.getNotionals()).mapToObj(x -> new Notional(x)).toArray(Notional[]::new),
+					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction<Notional>() {
+						@Override
+						public Notional apply(double x) {
+							return new Notional(x);
+						}
+					}).toArray(Notional[]::new),
 					constructLiborIndex(descriptor.getForwardCurveName(), descriptor.getLegScheduleDescriptor().getSchedule(referenceDate)),
 					descriptor.getSpreads(),
 					couponFlow,

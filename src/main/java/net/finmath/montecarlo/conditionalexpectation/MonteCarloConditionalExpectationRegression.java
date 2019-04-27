@@ -62,7 +62,6 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	private RegressionBasisFunctions basisFunctionsEstimator		= null;
 	private RegressionBasisFunctions basisFunctionsPredictor		= null;
 
-
 	private transient DecompositionSolver solver;
 	private final transient Object solverLock;
 
@@ -145,6 +144,14 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
 
 		return linearRegressionParameters;
+	}
+
+	public RegressionBasisFunctions getBasisFunctionsEstimator() {
+		return basisFunctionsEstimator;
+	}
+
+	public RegressionBasisFunctions getBasisFunctionsPredictor() {
+		return basisFunctionsPredictor;
 	}
 
 	private RandomVariable[] getNonZeroBasisFunctions(RandomVariable[] basisFunctions) {

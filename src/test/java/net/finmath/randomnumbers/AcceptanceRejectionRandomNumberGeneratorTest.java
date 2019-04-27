@@ -20,9 +20,18 @@ public class AcceptanceRejectionRandomNumberGeneratorTest {
 	@Test
 	public void test() {
 		RandomNumberGenerator uniformRandomNumberGenerator2D = new HaltonSequence(new int[] { 2,3 });
-		DoubleUnaryOperator targetDensity = x -> { return Math.sqrt(2.0 / Math.PI) * Math.exp(- x*x / 2.0); };
-		DoubleUnaryOperator referenceDensity = x -> { return Math.exp(- x); };
-		DoubleUnaryOperator referenceDistributionICDF = x -> { return -Math.log(1 - x); };
+		DoubleUnaryOperator targetDensity = new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) { return Math.sqrt(2.0 / Math.PI) * Math.exp(- x*x / 2.0); }
+		};
+		DoubleUnaryOperator referenceDensity = new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) { return Math.exp(- x); }
+		};
+		DoubleUnaryOperator referenceDistributionICDF = new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(double x) { return -Math.log(1 - x); }
+		};
 		double acceptanceLevel = Math.sqrt(2.0 / Math.PI * Math.exp(1));
 		RandomNumberGenerator normalRandomNumberGeneratorAR = new AcceptanceRejectionRandomNumberGenerator(uniformRandomNumberGenerator2D, targetDensity, referenceDensity, referenceDistributionICDF, acceptanceLevel);
 

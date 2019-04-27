@@ -9,6 +9,7 @@ package net.finmath.marketdata.products;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 import net.finmath.marketdata.model.AnalyticModel;
@@ -109,7 +110,12 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	@Override
 	public double getValue(final double evaluationTime, final AnalyticModel model) {
 		return IntStream.range(0, products.size()).parallel().mapToDouble(
-				i -> weights.get(i) * products.get(i).getValue(evaluationTime, model)
+				new IntToDoubleFunction() {
+					@Override
+					public double applyAsDouble(int i) {
+						return weights.get(i) * products.get(i).getValue(evaluationTime, model);
+					}
+				}
 				).sum();
 	}
 

@@ -393,12 +393,15 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 					// Define the task to be executed in parallel
 					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<RandomVariable>(
-							() -> {
-								try {
-									return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-								} catch (Exception e) {
-									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-									return null;
+							new Callable<RandomVariable>() {
+								@Override
+								public RandomVariable call() throws Exception {
+									try {
+										return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
+									} catch (Exception e) {
+										// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+										return null;
+									}
 								}
 							},
 							calibrationProducts[workerCalibrationProductIndex].getPriority());

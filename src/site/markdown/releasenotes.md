@@ -6,6 +6,35 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.11 (22.04.2019)
+
+### General
+
+ - The `net.finmath.time.TimeDiscretizationFromArray` comes with an additional (optional) argument to allow duplicate simulation time discretization points (i.e., time step sizes of 0) (this is useful to ensure path-consistent Monte-Carlo simulations).
+
+### Market Data / Curves
+
+ - Allowing access to interpolation points for interpolated curve.
+
+### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
+
+ - Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.
+ 
+### Monte-Carlo Simulation
+
+ - The LIBOR Market Model () and the Hull White Model () may be used with simulation time discretizations having duplicate entries (this is useful to ensure path-consistent Monte-Carlo simulations).
+ 
+ - Introduced `MonteCarloConditionalExpectationRegressionFactory`.
+
+### Single Asset (Equity/FX) Models - Monte-Carlo Simulation
+
+ - Implementation of the Variance Gamma Process (contributed and maintained by Prof. A. Gnoatto). See `net.finmath.montecarlo.VarianceGammaProcess`.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Improved implementation of the Bermudan Swaption allowing arbitrary swap schedules (consistent with AnalyticModel) and injection of custom method for estimation of conditional expectation. See `BermudanSwaptionFromSwapSchedules`.
+
+
 ## 4.0.9 (07.04.2019)
 
 ### General
