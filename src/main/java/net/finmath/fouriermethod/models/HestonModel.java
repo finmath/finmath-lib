@@ -77,14 +77,14 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
-	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
 	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
+	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -104,15 +104,15 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
-	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
 	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
 	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, double volatility, DiscountCurve discountCurveForDiscountRate, double theta, double kappa, double xi, double rho) {
-		this(null, initialValue, discountCurveForForwardRate, volatility, discountCurveForDiscountRate, theta, kappa, xi, rho);
+	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
+		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
 	}
 
 	/**
@@ -204,6 +204,95 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 */
 	private double getLogDiscountFactorForDiscounting(double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+		return discountCurveForForwardRate;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+		return discountCurveForDiscountRate;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+		return volatility;
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+		return theta;
+	}
+
+	/**
+	 * @return the kappa
+	 */
+	public double getKappa() {
+		return kappa;
+	}
+
+	/**
+	 * @return the xi
+	 */
+	public double getXi() {
+		return xi;
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double getRho() {
+		return rho;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "HestonModel [referenceDate=" + referenceDate + ", initialValue=" + initialValue
+				+ ", discountCurveForForwardRate=" + discountCurveForForwardRate + ", riskFreeRate=" + riskFreeRate
+				+ ", discountCurveForDiscountRate=" + discountCurveForDiscountRate + ", discountRate=" + discountRate
+				+ ", volatility=" + volatility + ", theta=" + theta + ", kappa=" + kappa + ", xi=" + xi + ", rho=" + rho
+				+ "]";
 	}
 
 }

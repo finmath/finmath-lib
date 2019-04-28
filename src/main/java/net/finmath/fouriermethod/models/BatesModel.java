@@ -5,9 +5,13 @@
  */
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+import java.util.Arrays;
+
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * Implements the characteristic function of a Bates model.
@@ -62,10 +66,17 @@ import net.finmath.fouriermethod.CharacteristicFunction;
  */
 public class BatesModel implements CharacteristicFunctionModel {
 
+	private final LocalDate referenceDate;
+
 	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
 	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
-	private final double[] volatility;
+
+	private final DiscountCurve discountCurveForDiscountRate;
 	private final double discountRate;
+
+	private final double[] volatility;
 
 	private final double[] alpha;
 	private final double[] beta;
@@ -80,11 +91,59 @@ public class BatesModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Create a two factor Bates model.
-	 *
+	 * 
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue Initial value of S.
 	 * @param riskFreeRate Risk free rate.
-	 * @param volatility Square root of initial value of the stochastic variance process V.
 	 * @param discountRate Rate used for the discount factor.
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambda Coefficients of for the jump intensity.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			LocalDate referenceDate,
+			double initialValue,
+			DiscountCurve discountCurveForForwardRate,
+			DiscountCurve discountCurveForDiscountRate,
+			double[] volatility,
+			double[] alpha,
+			double[] beta,
+			double[] sigma,
+			double[] rho,
+			double[] lambda,
+			double k, double delta
+			) {
+		super();
+		this.referenceDate =  referenceDate;
+		this.initialValue	= initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		this.riskFreeRate	= Double.NaN;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate	= Double.NaN;
+		this.volatility		= volatility;
+		this.alpha			= alpha;
+		this.beta			= beta;
+		this.sigma			= sigma;
+		this.rho			= rho;
+		this.lambda			= lambda;
+		this.k				= k;
+		this.delta			= delta;
+
+		numberOfFactors = alpha.length;
+	}
+
+	/**
+	 * Create a two factor Bates model.
+	 * 
+	 * @param initialValue Initial value of S.
+	 * @param riskFreeRate Risk free rate.
+	 * @param discountRate Rate used for the discount factor.
+	 * @param volatility Square root of initial value of the stochastic variance process V.
 	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
 	 * @param beta Mean reversion speed of variance process V.
 	 * @param sigma Volatility of volatility.
@@ -95,31 +154,18 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 */
 	public BatesModel(
 			double initialValue,
-			double riskFreeRate,
+			DiscountCurve discountCurveForForwardRate,
+			DiscountCurve discountCurveForDiscountRate,
 			double[] volatility,
-			double discountRate,
 			double[] alpha,
 			double[] beta,
 			double[] sigma,
 			double[] rho,
 			double[] lambda,
-			double k,
-			double delta
+			double k, double delta
 			) {
-		super();
-		this.initialValue	= initialValue;
-		this.riskFreeRate	= riskFreeRate;
-		this.volatility		= volatility;
-		this.discountRate	= discountRate;
-		this.alpha			= alpha;
-		this.beta			= beta;
-		this.sigma			= sigma;
-		this.rho			= rho;
-		this.lambda			= lambda;
-		this.k				= k;
-		this.delta			= delta;
-
-		numberOfFactors = alpha.length;
+		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate,
+				volatility,alpha,beta,sigma,rho,lambda,k,delta);
 	}
 
 	/**
@@ -139,6 +185,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 	public BatesModel(
 			double initialValue,
 			double riskFreeRate,
+			double discountRate,
 			double[] volatility,
 			double[] alpha,
 			double[] beta,
@@ -148,19 +195,22 @@ public class BatesModel implements CharacteristicFunctionModel {
 			double k,
 			double delta
 			) {
-		this(
-				initialValue,
-				riskFreeRate,
-				volatility,
-				riskFreeRate,
-				alpha,
-				beta,
-				sigma,
-				rho,
-				lambda,
-				k,
-				delta
-				);
+		referenceDate = null;
+		this.initialValue = initialValue;
+		discountCurveForForwardRate = null;
+		this.riskFreeRate = riskFreeRate;
+		discountCurveForDiscountRate = null;
+		this.discountRate = discountRate;
+		this.volatility		= volatility;
+		this.alpha			= alpha;
+		this.beta			= beta;
+		this.sigma			= sigma;
+		this.rho			= rho;
+		this.lambda			= lambda;
+		this.k				= k;
+		this.delta			= delta;
+
+		numberOfFactors = alpha.length;
 	}
 
 	/**
@@ -191,7 +241,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 			double k,
 			double delta
 			) {
-		this(initialValue, riskFreeRate,
+		this(initialValue, riskFreeRate,riskFreeRate,
 				new double[]{ volatility },
 				new double[]{ alpha },
 				new double[]{ beta },
@@ -208,6 +258,10 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 */
 	@Override
 	public CharacteristicFunction apply(final double time) {
+
+		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
+		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
+
 		return new CharacteristicFunction() {
 			@Override
 			public Complex apply(Complex argument) {
@@ -290,8 +344,8 @@ public class BatesModel implements CharacteristicFunctionModel {
 						a[0]
 								.add(b[0].multiply(volatility[0]))
 								.add(c.multiply(time*lambda[0]))
-								.add(iargument.multiply(Math.log(initialValue)+time*riskFreeRate))
-								.add(-discountRate*time);
+								.add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward))
+								.add(logDiscountFactorForDiscounting);
 
 				if(numberOfFactors == 2) {
 					characteristicFunction = characteristicFunction
@@ -304,5 +358,127 @@ public class BatesModel implements CharacteristicFunctionModel {
 				return characteristicFunction;
 			}
 		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(double time) {
+		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(double time) {
+		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double[] getVolatility() {
+		return volatility;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the alpha
+	 */
+	public double[] getAlpha() {
+		return alpha;
+	}
+
+	/**
+	 * @return the beta
+	 */
+	public double[] getBeta() {
+		return beta;
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public double[] getSigma() {
+		return sigma;
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double[] getRho() {
+		return rho;
+	}
+
+	/**
+	 * @return the lambda
+	 */
+	public double[] getLambda() {
+		return lambda;
+	}
+
+	/**
+	 * @return the k
+	 */
+	public double getK() {
+		return k;
+	}
+
+	/**
+	 * @return the delta
+	 */
+	public double getDelta() {
+		return delta;
+	}
+
+	/**
+	 * @return the numberOfFactors
+	 */
+	public int getNumberOfFactors() {
+		return numberOfFactors;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BatesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
+				+ Arrays.toString(volatility) + ", discountRate=" + discountRate + ", alpha=" + Arrays.toString(alpha)
+				+ ", beta=" + Arrays.toString(beta) + ", sigma=" + Arrays.toString(sigma) + ", rho="
+				+ Arrays.toString(rho) + ", lambda=" + Arrays.toString(lambda) + ", k=" + k + ", delta=" + delta
+				+ ", numberOfFactors=" + numberOfFactors + "]";
 	}
 }

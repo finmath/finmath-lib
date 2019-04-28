@@ -1,5 +1,7 @@
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
@@ -7,11 +9,27 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
 
 /**
  * Implements the characteristic function of a Merton jump diffusion model.
+ * 
+ * The model is
+ * \[
+ * 	dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
+ *
+ * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
+ * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
+ * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
+ * 
  *
  * @author Alessandro Gnoatto
  * @version 1.0
  */
 public class MertonModel implements CharacteristicFunctionModel{
+
+	private final LocalDate referenceDate;
 
 	private final double initialValue;
 
@@ -28,7 +46,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
-	 *
+	 * @param referenceDate
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -37,11 +55,12 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param jumpSizeStdDev Jump size variance.
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 */
-	public MertonModel(double initialValue, DiscountCurve discountCurveForForwardRate,
-			double volatility,
-			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev,
-			DiscountCurve discountCurveForDiscountRate) {
+	public MertonModel(LocalDate referenceDate, double initialValue,
+			DiscountCurve discountCurveForForwardRate,
+			DiscountCurve discountCurveForDiscountRate, double volatility, double jumpIntensity,
+			double jumpSizeMean, double jumpSizeStdDev) {
 		super();
+		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		riskFreeRate = Double.NaN;
@@ -55,7 +74,6 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
-	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param volatility \( \sigma \) the initial volatility level
@@ -65,10 +83,11 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param discountRate The constant rate used for discounting.
 	 */
 	public MertonModel(double initialValue, double riskFreeRate,
-			double volatility,
-			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev,
-			double discountRate) {
+			double discountRate,
+			double volatility, double jumpIntensity, double jumpSizeMean,
+			double jumpSizeStdDev) {
 		super();
+		referenceDate = null;
 		this.initialValue = initialValue;
 		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
@@ -92,7 +111,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 */
 	public MertonModel(double initialValue, double riskFreeRate, double volatility,
 			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev) {
-		this(initialValue,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev,riskFreeRate);
+		this(initialValue,riskFreeRate,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 	}
 
 	@Override
@@ -144,38 +163,72 @@ public class MertonModel implements CharacteristicFunctionModel{
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the initialValue
+	 */
 	public double getInitialValue() {
 		return initialValue;
 	}
 
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
 	public DiscountCurve getDiscountCurveForForwardRate() {
 		return discountCurveForForwardRate;
 	}
 
+	/**
+	 * @return the riskFreeRate
+	 */
 	public double getRiskFreeRate() {
 		return riskFreeRate;
 	}
 
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
 	public DiscountCurve getDiscountCurveForDiscountRate() {
 		return discountCurveForDiscountRate;
 	}
 
+	/**
+	 * @return the discountRate
+	 */
 	public double getDiscountRate() {
 		return discountRate;
 	}
 
+	/**
+	 * @return the volatility
+	 */
 	public double getVolatility() {
 		return volatility;
 	}
 
+	/**
+	 * @return the jumpIntensity
+	 */
 	public double getJumpIntensity() {
 		return jumpIntensity;
 	}
 
+	/**
+	 * @return the jumpSizeMean
+	 */
 	public double getJumpSizeMean() {
 		return jumpSizeMean;
 	}
 
+	/**
+	 * @return the jumpSizeStdDev
+	 */
 	public double getJumpSizeStdDev() {
 		return jumpSizeStdDev;
 	}

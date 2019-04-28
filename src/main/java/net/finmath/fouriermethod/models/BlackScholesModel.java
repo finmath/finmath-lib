@@ -6,6 +6,8 @@
 
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+
 import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
@@ -20,6 +22,8 @@ import net.finmath.marketdata.model.curves.DiscountCurve;
  */
 public class BlackScholesModel implements CharacteristicFunctionModel {
 
+	private final LocalDate referenceDate;
+
 	private final double initialValue;
 
 	private final DiscountCurve discountCurveForForwardRate;
@@ -31,10 +35,19 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	private final double volatility;
 
 
-
-	public BlackScholesModel(double initialValue, DiscountCurve discountCurveForForwardRate,
-			double volatility, DiscountCurve discountCurveForDiscountRate) {
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 *
+	 * @param referenceDate
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
+	public BlackScholesModel(LocalDate referenceDate, double initialValue,
+			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility) {
 		super();
+		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		riskFreeRate = Double.NaN;
@@ -43,8 +56,17 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 		this.volatility = volatility;
 	}
 
-	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility, double discountRate) {
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
+	public BlackScholesModel(double initialValue, double riskFreeRate, double discountRate, double volatility) {
 		super();
+		referenceDate = null;
 		this.initialValue = initialValue;
 		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
@@ -53,8 +75,15 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 		this.discountRate = discountRate;
 	}
 
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
 	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility) {
-		this(initialValue, riskFreeRate, volatility, riskFreeRate);
+		this(initialValue, riskFreeRate, riskFreeRate, volatility);
 	}
 
 	@Override
@@ -95,6 +124,65 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 */
 	private double getLogDiscountFactorForDiscounting(double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	public double getInitialValue() {
+		return initialValue;
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+		return discountCurveForForwardRate;
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate() {
+		return riskFreeRate;
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+		return discountCurveForDiscountRate;
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate() {
+		return discountRate;
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+		return volatility;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "BlackScholesModel [initialValue=" + initialValue + ", discountCurveForForwardRate="
+				+ discountCurveForForwardRate + ", riskFreeRate=" + riskFreeRate + ", discountCurveForDiscountRate="
+				+ discountCurveForDiscountRate + ", discountRate=" + discountRate + ", volatility=" + volatility + "]";
 	}
 
 }

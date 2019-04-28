@@ -117,7 +117,7 @@ public class HestonModel extends AbstractProcessModel {
 	/**
 	 * Create the model from a descriptor.
 	 *
-	 * @param descriptor A descriptor of the product.
+	 * @param descriptor A descriptor of the model.
 	 * @param scheme The scheme.
 	 * @param randomVariableFactory A random variable factory to be used for the parameters.
 	 */
