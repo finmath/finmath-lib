@@ -136,7 +136,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	/**
 	 * Create a stochastic random variable.
 	 *
-	 * Important: The realizations array is not cloned (not defensive copy is made).
+	 * Important: The realizations array is not cloned (no defensive copy is made).
 	 *
 	 * @TODO A future version should perform a defensive copy.
 	 *
@@ -444,9 +444,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return getStandardDeviation(probabilities)/Math.sqrt(size());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#getQuantile()
-	 */
 	@Override
 	public double getQuantile(double quantile) {
 		if(isDeterministic()) {
@@ -464,9 +461,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return realizationsSorted[indexOfQuantileValue];
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#getQuantile(net.finmath.stochastic.RandomVariable)
-	 */
 	@Override
 	public double getQuantile(double quantile, RandomVariable probabilities) {
 		if(isDeterministic()) {
@@ -479,9 +473,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		throw new RuntimeException("Method not implemented.");
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#getConditionalVaR()
-	 */
 	@Override
 	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
 		if(isDeterministic()) {
@@ -509,9 +500,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return quantileExpectation;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#getHistogram()
-	 */
 	@Override
 	public double[] getHistogram(double[] intervalPoints)
 	{
@@ -567,9 +555,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return histogramValues;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int,double)
-	 */
 	@Override
 	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
 		double[] intervalPoints = new double[numberOfPoints];
@@ -591,9 +576,6 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
-	 */
 	@Override
 	public boolean isDeterministic() {
 		return realizations == null;
@@ -622,8 +604,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public double[] getRealizations() {
 		if(isDeterministic()) {
-			double[] result = new double[1];
-			result[0] = get(0);
+			double[] result = new double[] { get(0) };
 			return result;
 		}
 		else {
