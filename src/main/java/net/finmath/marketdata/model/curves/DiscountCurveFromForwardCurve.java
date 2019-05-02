@@ -117,6 +117,9 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if(this.forwardCurve != null) {
 			forwardCurve = this.forwardCurve;
 		} else {
+			if(model == null) {
+				throw new IllegalArgumentException("The curve " + getName() + " requires an " + AnalyticModel.class.getSimpleName() + " but none was provided.");
+			}
 			forwardCurve = model.getForwardCurve(forwardCurveName);
 		}
 
