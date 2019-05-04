@@ -4,17 +4,19 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.math3.complex.Complex;
-import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
-import net.finmath.fouriermethod.models.MertonModel;
 import net.finmath.fouriermethod.models.VarianceGammaModel;
 import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.fouriermethod.products.FourierTransformProduct;
 import net.finmath.fouriermethod.products.smile.EuropeanOptionSmile;
 import net.finmath.fouriermethod.products.smile.EuropeanOptionSmileByCarrMadan;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloVarianceGammaModel;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test for the Variance Gamma model.
@@ -35,27 +37,13 @@ public class VarianceGammaCallOptionTest {
 	//Product properties
 	private static final double maturity	= 1.0;
 	private static final double[] strikes		= {10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200};
-	//Prices computes externally for validation purposes.
-	private static final double[] validationPrices = {90.3921,
-			   80.7842,
-			   71.1764,
-			   61.5706,
-			   51.9874,
-			   42.5200,
-			   33.4079,
-			   25.0388,
-			   17.8294,
-			   12.0574,
-			    7.7664,
-			    4.7896,
-			    2.8468,
-			    1.6422,
-			    0.9256,
-			    0.5130,
-			    0.2810,
-			    0.1529,
-			    0.0829,
-			    0.0449};
+
+	//Monte Carlo discretization
+	private final int		numberOfPaths		= 10000;
+	private final int		numberOfTimeSteps	= 100;
+	private final double	deltaT				= 0.02;
+
+	private final int		seed				= 3141;
 
 	@Test
 	public void testMartingaleProperty() throws CalculationException{
@@ -72,9 +60,30 @@ public class VarianceGammaCallOptionTest {
 	}
 
 	@Test
+	public void testMartingalePropertyMonteCarlo() throws CalculationException{
+		//Time discretization for Monte Carlo
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
+				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, sigma, theta, nu);
+
+		System.out.println("Testing the martingale property of the Monte Carlo discretization over multiple time horizons.");
+
+		for(int i = 0; i<10; i++) {
+			double time = 0.2 * i;
+			System.out.println(monteCarloVarianceGammaModel.getAssetValue(time, 0).div(monteCarloVarianceGammaModel.getNumeraire(time)).getAverage());
+		}
+	}
+	@Test
 	public void test() throws CalculationException {
 		//Characteristic function for Fourier pricing
 		CharacteristicFunctionModel model = new VarianceGammaModel(initialValue,riskFreeRate, riskFreeRate, sigma,theta,nu);
+
+		//Time discretization for Monte Carlo
+		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
+				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, sigma, theta, nu);
 
 		/*
 		 * FFT inversion of the whole smile at once.
@@ -92,10 +101,13 @@ public class VarianceGammaCallOptionTest {
 			 */
 			FourierTransformProduct product = new EuropeanOption(maturity, strikes[i]);
 
+			//Monte Carlo Product
+			net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption mcProduct = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(maturity,strikes[i]);
+
 			double value			= product.getValue(model);
+			double mcValue          = mcProduct.getValue(monteCarloVarianceGammaModel);
 			double fftPrice			= fftPrices.get("valuePerStrike").apply(strikes[i]);
-			System.out.println(strikes[i] + "\t" + value + "\t" + fftPrice + "\t" + validationPrices[i]);
-			Assert.assertEquals("Value", validationPrices[i], fftPrice, 1E-4);
+			System.out.println(strikes[i] + "\t" + value + "\t" + fftPrice + "\t" + mcValue);
 		}
 	}
 	

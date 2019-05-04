@@ -30,7 +30,7 @@ public class MertonJumpDiffusionCallOptionTest {
 
 	private static final double initialValue	= 100.0;
 	private static final double volatility		= 0.25;
-	private static final double riskFreeRate	= 0.05;
+	private static final double riskFreeRate	= 0.0;
 
 	private static double jumpIntensity = 0.2;
 	private static double jumpSizeStdDev = 0.15;
