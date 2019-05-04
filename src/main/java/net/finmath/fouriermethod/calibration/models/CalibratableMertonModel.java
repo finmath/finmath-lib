@@ -1,5 +1,7 @@
 package net.finmath.fouriermethod.calibration.models;
 
+import java.util.Arrays;
+
 import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
 import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.Unconstrained;
@@ -133,6 +135,18 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 		upperBounds[3] = jumpSizeStdDevInfo.getConstraint().getLowerBound() < threshold ? threshold : jumpSizeStdDevInfo.getConstraint().getLowerBound();
 
 		return upperBounds;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CalibratableMertonModel [descriptor=" + descriptor + ", volatilityInfo=" + volatilityInfo
+				+ ", jumpIntensityInfo=" + jumpIntensityInfo + ", jumpSizeMeanInfo=" + jumpSizeMeanInfo
+				+ ", jumpSizeStdDevInfo=" + jumpSizeStdDevInfo + ", parameterUpperBounds="
+				+ Arrays.toString(parameterUpperBounds) + ", parameterLowerBounds="
+				+ Arrays.toString(parameterLowerBounds) + "]";
 	}
 
 }
