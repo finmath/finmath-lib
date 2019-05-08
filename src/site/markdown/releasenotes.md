@@ -6,6 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.0.12 (SNAPSHOT)
+
+### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
+
+ -  Variance Gamma Model:  Fourier and Monte-Carlo implementations for the Variance Gamma Model.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Improved implementation of the Bermudan Swaption. See `BermudanSwaptionFromSwapSchedules`.
+
+
 ## 4.0.11 (22.04.2019)
 
 ### General
