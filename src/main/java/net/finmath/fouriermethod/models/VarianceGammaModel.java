@@ -36,9 +36,9 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * @param referenceDate
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
-	 * @param \( \sigma \)
-	 * @param \( \theta \)
-	 * @param \( \nu \)
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 */
 	public VarianceGammaModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate,
@@ -59,9 +59,9 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
-	 * @param \( \sigma \)
-	 * @param \( \theta \)
-	 * @param \( \nu \)
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 * @param discountRate The constant rate used for discounting.
 	 */
 	public VarianceGammaModel(double initialValue, double riskFreeRate, double discountRate, double sigma, double theta,
