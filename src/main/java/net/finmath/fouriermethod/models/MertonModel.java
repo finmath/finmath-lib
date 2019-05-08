@@ -6,11 +6,10 @@ import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.time.FloatingpointDate;
 
 /**
  * Implements the characteristic function of a Merton jump diffusion model.
- * 
+ *
  * The model is
  * \[
  * 	dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},
@@ -23,7 +22,7 @@ import net.finmath.time.FloatingpointDate;
  * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
  * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
  * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
- * 
+ *
  *
  * @author Alessandro Gnoatto
  * @version 1.0
@@ -47,7 +46,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
-	 * 
+	 *
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
@@ -76,7 +75,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 
 	/**
 	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param volatility \( \sigma \) the initial volatility level

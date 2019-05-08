@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * This class implements a <i>Variance Gamma Model</i>, that is, it provides the drift and volatility specification
  * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
- * 
+ *
  * The model is
  * \[
  * 	dS_t = r S dt + S dL, \quad S(0) = S_{0},
@@ -19,9 +19,9 @@ import net.finmath.stochastic.RandomVariable;
  * \[
  * 	dN = r N dt, \quad N(0) = N_{0},
  * \]
- * 
+ *
  * where the process L is a <code>{@link net.finmath.montecarlo.VarianceGammaProcess}</code>.
- * 
+ *
  * @author Alessandro Gnoatto
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
@@ -43,7 +43,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 
 	/**
 	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
@@ -56,9 +56,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 		super();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate = Double.NaN;
+		riskFreeRate = Double.NaN;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate = Double.NaN;
+		discountRate = Double.NaN;
 		this.sigma = sigma;
 		this.theta = theta;
 		this.nu = nu;
@@ -66,7 +66,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 
 	/**
 	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param discountRate The constant rate used for discounting.
@@ -78,9 +78,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 			double nu) {
 		super();
 		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.discountRate = discountRate;
 		this.sigma = sigma;
 		this.theta = theta;
@@ -90,7 +90,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 
 	/**
 	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param sigma The parameter \( \sigma \)

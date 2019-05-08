@@ -75,22 +75,22 @@ public class MertonModel extends AbstractProcessModel {
 
 	/**
 	 * Create the model from a descriptor.
-	 * 
+	 *
 	 * @param descriptor A descriptor of the model.
 	 */
 	public MertonModel(MertonModelDescriptor descriptor) {
 		this(descriptor.getInitialValue(),
-			descriptor.getDiscountCurveForDiscountRate(),
-			descriptor.getVolatility(),
-			descriptor.getDiscountCurveForDiscountRate(),
-			descriptor.getJumpIntensity(),
-			descriptor.getJumpSizeMean(),
-			descriptor.getJumpSizeStdDev());
+				descriptor.getDiscountCurveForDiscountRate(),
+				descriptor.getVolatility(),
+				descriptor.getDiscountCurveForDiscountRate(),
+				descriptor.getJumpIntensity(),
+				descriptor.getJumpSizeMean(),
+				descriptor.getJumpSizeStdDev());
 	}
 
 	/**
 	 * Create a Merton model.
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility The log volatility.
@@ -112,10 +112,10 @@ public class MertonModel extends AbstractProcessModel {
 
 		this.initialValue	= initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate	= Double.NaN;;
+		riskFreeRate	= Double.NaN;;
 		this.volatility		= volatility;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate   = Double.NaN;
+		discountRate   = Double.NaN;
 		this.jumpIntensity	= jumpIntensity;
 		this.jumpSizeMean	= jumpSizeMean;
 		jumpSizeStdDev	= jumpSizeStDev;
@@ -144,10 +144,10 @@ public class MertonModel extends AbstractProcessModel {
 		super();
 
 		this.initialValue	= initialValue;
-		this.discountCurveForForwardRate = null;
+		discountCurveForForwardRate = null;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
-		this.discountCurveForDiscountRate = null;
+		discountCurveForDiscountRate = null;
 		this.discountRate   = discountRate;
 		this.jumpIntensity	= jumpIntensity;
 		this.jumpSizeMean	= jumpSizeMean;

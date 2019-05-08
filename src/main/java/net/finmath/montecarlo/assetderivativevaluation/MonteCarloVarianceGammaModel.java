@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
 /**
  * This class glues together a {@link VarianceGammaModel} and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
  * and forms a Monte-Carlo implementation of the Variance Gamma Model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
- * 
+ *
  * @author Alessandro Gnoatto
  * @version 1.0
  */
@@ -27,7 +27,7 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 
 	/**
 	 * Create a Monte Carlo simulation using a given time discretization.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param numberOfPaths The number of Monte-Carlo paths to be used.
 	 * @param seed The seed used for the random number generator.

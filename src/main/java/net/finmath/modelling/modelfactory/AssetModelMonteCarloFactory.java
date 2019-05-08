@@ -157,7 +157,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 	/**
 	 * A described Merton model using Monte Carlo method for evaluation.
-	 * 
+	 *
 	 * @author Alessandro Gnoatto
 	 *
 	 */

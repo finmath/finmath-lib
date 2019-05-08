@@ -110,5 +110,5 @@ public class VarianceGammaCallOptionTest {
 			System.out.println(strikes[i] + "\t" + value + "\t" + fftPrice + "\t" + mcValue);
 		}
 	}
-	
+
 }

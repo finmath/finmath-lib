@@ -91,7 +91,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Create a two factor Bates model.
-	 * 
+	 *
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue Initial value of S.
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
@@ -122,9 +122,9 @@ public class BatesModel implements CharacteristicFunctionModel {
 		this.referenceDate =  referenceDate;
 		this.initialValue	= initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		this.riskFreeRate	= Double.NaN;
+		riskFreeRate	= Double.NaN;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.discountRate	= Double.NaN;
+		discountRate	= Double.NaN;
 		this.volatility		= volatility;
 		this.alpha			= alpha;
 		this.beta			= beta;
@@ -139,7 +139,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Create a two factor Bates model.
-	 * 
+	 *
 	 * @param initialValue Initial value of S.
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate

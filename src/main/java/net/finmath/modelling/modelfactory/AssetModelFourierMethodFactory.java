@@ -141,7 +141,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 
 	/**
 	 * A described Merton Jump Diffusion model using Fourier method for evaluation.
-	 * 
+	 *
 	 * @author Alessandro Gnoatto
 	 *
 	 */

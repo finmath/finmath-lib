@@ -58,7 +58,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Create a Black Scholes model (characteristic function)
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
 	 * @param discountRate \( r^{\text{d}} \) - the discount rate
@@ -77,7 +77,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Create a Black Scholes model (characteristic function)
-	 * 
+	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
 	 * @param volatility \( \sigma \) the volatility level

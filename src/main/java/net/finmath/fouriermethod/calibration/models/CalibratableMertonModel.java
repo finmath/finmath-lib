@@ -57,7 +57,7 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	 * This is very liberal since we can impose different types of constraints.
 	 * The choice on the parameters to be applied is left to the user.
 	 * This implies that he user could create Merton models which are not meaningful.
-	 * 
+	 *
 	 * @param descriptor The model descriptor for the Merton model.
 	 * @param volatilityInfo The volatility constraint.
 	 * @param jumpIntensityInfo The constraint for the jump intensity parameter.
