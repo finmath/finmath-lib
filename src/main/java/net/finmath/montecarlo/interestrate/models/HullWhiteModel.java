@@ -485,7 +485,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	/**
 	 * Returns the "short rate" from timeIndex to timeIndex+1.
 	 *
-	 * @param timeIndex The time index (corresponding to {@link getTime()).
+	 * @param timeIndex The time index (corresponding to {@link #getTime()}).
 	 * @return The "short rate" from timeIndex to timeIndex+1.
 	 * @throws CalculationException Thrown if simulation failed.
 	 */
