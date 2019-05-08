@@ -62,6 +62,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	private final Schedule[]  		floatSchedules;
 	private final RegressionBasisFunctionsProvider regressionBasisFunctionProvider;
 	private final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory;
+	private final boolean			isUseAnalyticSwapValuationAtExercise = true;
 
 	/**
 	 * Create a Bermudan swaption from an array of underlying swap schedules (fix leg and float leg), swap rates and notionals.
@@ -290,27 +291,39 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
 	private RandomVariable getValueUnderlyingNumeraireRelative(LIBORModelMonteCarloSimulationModel model, Schedule legSchedule, boolean paysFloat, double swaprate, double notional) throws CalculationException {
-		RandomVariable value	= model.getRandomVariableForConstant(0.0);
 
-		for(int periodIndex = legSchedule.getNumberOfPeriods() - 1; periodIndex >= 0; periodIndex--) {
-
-			double fixingTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getFixing());
-			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getPayment());
-			double periodLength	= legSchedule.getPeriodLength(periodIndex);
-
-			RandomVariable	numeraireAtPayment  = model.getNumeraire(paymentTime);
-			RandomVariable	monteCarloProbabilitiesAtPayment = model.getMonteCarloWeights(paymentTime);
-			if(swaprate != 0.0) {
-				RandomVariable periodCashFlowFix = model.getRandomVariableForConstant(swaprate * periodLength * notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
-				value = value.add(periodCashFlowFix);
-			}
-			if(paysFloat) {
-				RandomVariable libor = model.getLIBOR(fixingTime, fixingTime, paymentTime);
-				RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
-				value = value.add(periodCashFlowFloat);
-			}
+		if(isUseAnalyticSwapValuationAtExercise) {
+			double valuationTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(0).getFixing());
+			RandomVariable numeraireAtValuationTime  = model.getNumeraire(valuationTime);
+			RandomVariable monteCarloProbabilitiesAtValuationTime = model.getMonteCarloWeights(valuationTime);
+			RandomVariable value = SwaptionFromSwapSchedules.getValueOfLegAnalytic(valuationTime, model, legSchedule, paysFloat, swaprate, notional);
+			value = value.div(model.getNumeraire(valuationTime)).mult(monteCarloProbabilitiesAtValuationTime);
+			return value;
 		}
-		return value;
+		else {
+
+			RandomVariable value	= model.getRandomVariableForConstant(0.0);
+
+			for(int periodIndex = legSchedule.getNumberOfPeriods() - 1; periodIndex >= 0; periodIndex--) {
+
+				double fixingTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getFixing());
+				double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getPayment());
+				double periodLength	= legSchedule.getPeriodLength(periodIndex);
+
+				RandomVariable	numeraireAtPayment  = model.getNumeraire(paymentTime);
+				RandomVariable	monteCarloProbabilitiesAtPayment = model.getMonteCarloWeights(paymentTime);
+				if(swaprate != 0.0) {
+					RandomVariable periodCashFlowFix = model.getRandomVariableForConstant(swaprate * periodLength * notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					value = value.add(periodCashFlowFix);
+				}
+				if(paysFloat) {
+					RandomVariable libor = model.getLIBOR(fixingTime, fixingTime, paymentTime);
+					RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					value = value.add(periodCashFlowFloat);
+				}
+			}
+			return value;
+		}
 	}
 
 	/**

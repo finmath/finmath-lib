@@ -33,6 +33,8 @@ public class Period implements Comparable<Period>, Serializable {
 	private LocalDate periodStart;
 	private LocalDate periodEnd;
 
+	private Period() {}
+	
 	public Period(LocalDate fixing,  LocalDate payment,
 			LocalDate periodStart, LocalDate periodEnd) {
 		super();
