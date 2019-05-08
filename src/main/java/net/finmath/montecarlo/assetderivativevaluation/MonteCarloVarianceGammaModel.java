@@ -13,6 +13,8 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
+ * This class glues together a {@link VarianceGammaModel} and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
+ * and forms a Monte-Carlo implementation of the Variance Gamma Model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
  * 
  * @author Alessandro Gnoatto
  * @version 1.0
@@ -31,9 +33,9 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 	 * @param seed The seed used for the random number generator.
 	 * @param initialValue \( S_0 \) The spot value.
 	 * @param riskFreeRate The risk free rate.
-	 * @param sigma
-	 * @param theta
-	 * @param nu
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 */
 	public MonteCarloVarianceGammaModel(
 			TimeDiscretization timeDiscretization,

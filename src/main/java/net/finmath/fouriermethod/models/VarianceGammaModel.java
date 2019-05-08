@@ -6,9 +6,11 @@ import org.apache.commons.math3.complex.Complex;
 
 import net.finmath.fouriermethod.CharacteristicFunction;
 import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.time.FloatingpointDate;
 
 /**
  * Implements the characteristic function of a Variance Gamma model.
+ * 
  * The Variange Gamma model is constructed from a subordinated Brownian motion, where the subordinator is given
  * by a Gamma process.
  * 
@@ -33,13 +35,14 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
-	 * @param referenceDate
+	 * 
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param sigma The parameter \( \sigma \)
 	 * @param theta The parameter \( \theta \)
 	 * @param nu The parameter \( \nu \)
-	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 */
 	public VarianceGammaModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate,
 			DiscountCurve discountCurveForDiscountRate, double sigma, double theta, double nu) {
@@ -57,6 +60,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 
 	/**
 	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 * 
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param sigma The parameter \( \sigma \)
@@ -120,7 +124,8 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	}
 
 	/**
-	 * @return the referenceDate
+	 * @return the referenceDate: The date corresponding to t = 0 (when dealing with {@link FloatingpointDate}s.
+
 	 */
 	public LocalDate getReferenceDate() {
 		return referenceDate;
@@ -182,9 +187,6 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 		return nu;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "VarianceGammaModel [referenceDate=" + referenceDate + ", initialValue=" + initialValue

@@ -42,14 +42,14 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	private final double nu;
 
 	/**
-	 * Create a Variance Gamma model.
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
 	 * 
-	 * @param initialValue
-	 * @param discountCurveForForwardRate
-	 * @param discountCurveForDiscountRate
-	 * @param sigma
-	 * @param theta
-	 * @param nu
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 */
 	public VarianceGammaModel(double initialValue, DiscountCurve discountCurveForForwardRate,
 			DiscountCurve discountCurveForDiscountRate, double sigma, double theta, double nu) {
@@ -65,14 +65,14 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	/**
-	 * Create a Variance Gamma model.
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
 	 * 
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param discountRate
-	 * @param sigma
-	 * @param theta
-	 * @param nu
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param discountRate The constant rate used for discounting.
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 */
 	public VarianceGammaModel(double initialValue, double riskFreeRate, double discountRate, double sigma, double theta,
 			double nu) {
@@ -89,11 +89,13 @@ public class VarianceGammaModel extends AbstractProcessModel {
 
 
 	/**
-	 * @param initialValue
-	 * @param riskFreeRate
-	 * @param sigma
-	 * @param theta
-	 * @param nu
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 * 
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
 	 */
 	public VarianceGammaModel(double initialValue, double riskFreeRate, double sigma, double theta, double nu) {
 		this(initialValue,riskFreeRate,riskFreeRate,sigma,theta,nu);

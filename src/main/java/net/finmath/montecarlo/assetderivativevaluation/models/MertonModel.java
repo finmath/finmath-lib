@@ -91,10 +91,10 @@ public class MertonModel extends AbstractProcessModel {
 	/**
 	 * Create a Merton model.
 	 * 
-	 * @param initialValue Spot value.
-	 * @param discountCurveForForwardRate
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param volatility The log volatility.
-	 * @param discountCurveForDiscountRate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
 	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
 	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
