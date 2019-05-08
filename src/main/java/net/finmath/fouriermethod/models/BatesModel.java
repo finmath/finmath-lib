@@ -94,8 +94,8 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * 
 	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
 	 * @param initialValue Initial value of S.
-	 * @param riskFreeRate Risk free rate.
-	 * @param discountRate Rate used for the discount factor.
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param volatility Square root of initial value of the stochastic variance process V.
 	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
 	 * @param beta Mean reversion speed of variance process V.
@@ -141,8 +141,8 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * Create a two factor Bates model.
 	 * 
 	 * @param initialValue Initial value of S.
-	 * @param riskFreeRate Risk free rate.
-	 * @param discountRate Rate used for the discount factor.
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param volatility Square root of initial value of the stochastic variance process V.
 	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
 	 * @param beta Mean reversion speed of variance process V.
@@ -173,6 +173,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 *
 	 * @param initialValue Initial value of S.
 	 * @param riskFreeRate Risk free rate.
+	 * @param discountRate The rate used for discounting.
 	 * @param volatility Square root of initial value of the stochastic variance process V.
 	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
 	 * @param beta Mean reversion speed of variance process V.

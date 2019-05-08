@@ -1,5 +1,7 @@
 package net.finmath.fouriermethod.calibration.models;
 
+import java.util.Arrays;
+
 import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
 import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.Unconstrained;
@@ -99,7 +101,7 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 		}
 
 		HestonModelDescriptor newDescriptor = new HestonModelDescriptor(descriptor.getReferenceDate(),
-				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForForwardRate(),
+				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForDiscountRate(),
 				volatility, theta, kappa, xi, rho);
 
 		return new CalibratableHestonModel(newDescriptor,volatilityInfo,thetaInfo,kappaInfo,xiInfo,rhoInfo,applyFellerConstraint);
@@ -113,7 +115,7 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	@Override
 	public HestonModel getCharacteristicFunctionModel() {
 		return new HestonModel(descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),
-				descriptor.getDiscountCurveForForwardRate(),descriptor.getVolatility(),
+				descriptor.getDiscountCurveForDiscountRate(),descriptor.getVolatility(),
 				descriptor.getTheta(),descriptor.getKappa(),descriptor.getXi(),descriptor.getRho());
 	}
 
@@ -149,6 +151,18 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 		upperBounds[4] = rhoInfo.getConstraint().getLowerBound() < threshold ? threshold : rhoInfo.getConstraint().getLowerBound();
 
 		return upperBounds;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CalibratableHestonModel [descriptor=" + descriptor + ", volatilityInfo=" + volatilityInfo
+				+ ", thetaInfo=" + thetaInfo + ", kappaInfo=" + kappaInfo + ", xiInfo=" + xiInfo + ", rhoInfo="
+				+ rhoInfo + ", applyFellerConstraint=" + applyFellerConstraint + ", parameterUpperBounds="
+				+ Arrays.toString(parameterUpperBounds) + ", parameterLowerBounds="
+				+ Arrays.toString(parameterLowerBounds) + "]";
 	}
 
 }
