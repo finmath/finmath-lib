@@ -8,9 +8,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -99,7 +97,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 */
 	public ExponentialDecayLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double decay, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
-		this.randomVariableFactory = null;
+		randomVariableFactory = null;
 		this.covarianceModel	= covarianceModel;
 		this.decay		= new Scalar(decay);
 		this.isCalibrateable	= isCalibrateable;
@@ -203,12 +201,12 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
 			throws CalculationException {
-		RandomVariable newDecay = this.decay;
+		RandomVariable newDecay = decay;
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 
 		AbstractRandomVariableFactory newRandomVariableFactory = randomVariableFactory;
-		
+
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				newRandomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
