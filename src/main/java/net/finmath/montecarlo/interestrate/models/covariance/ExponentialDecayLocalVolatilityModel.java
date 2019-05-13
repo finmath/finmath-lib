@@ -237,7 +237,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
 				newRandomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				newDecay = randomVariableFactory.createRandomVariable(newDecay.doubleValue());
+				newDecay = newRandomVariableFactory.createRandomVariable(newDecay.doubleValue());
 			}
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
