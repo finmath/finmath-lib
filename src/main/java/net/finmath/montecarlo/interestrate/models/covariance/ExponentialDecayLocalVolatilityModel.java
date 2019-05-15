@@ -209,8 +209,10 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		double time = getTimeDiscretization().getTime(timeIndex);
+		double fixing = getLiborPeriodDiscretization().getTime(component);
+		double timeToMaturity = fixing-time;
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			factorLoading[factorIndex] = factorLoading[factorIndex].mult(decay.mult(-time).exp());
+			factorLoading[factorIndex] = factorLoading[factorIndex].mult(decay.mult(-timeToMaturity).exp());
 		}
 
 		return factorLoading;
