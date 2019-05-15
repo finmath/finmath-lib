@@ -241,7 +241,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			double probabilityToExercise = 1.0;
 			for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
 				double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
-				double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
+				double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
 				double probability = probabilityToExercise - probabilityToExerciseAfter;
 				probabilityToExercise = probabilityToExerciseAfter;
 
