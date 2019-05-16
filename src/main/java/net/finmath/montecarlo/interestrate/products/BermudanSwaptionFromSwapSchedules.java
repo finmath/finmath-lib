@@ -189,16 +189,6 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 
 	@Override
 	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable value = getValue(evaluationTime, model);
-		Map<String, Object> result = new HashMap<>();
-		result.put("valueRandomVariable", value);
-		result.put("value", value.getAverage());
-		result.put("error", value.getStandardError());
-		return result;
-	}
-
-	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();
 
@@ -238,6 +228,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 
 		// Logging the exercise probabilities for every exercise time.
 		if(logger.isLoggable(Level.FINE)) {
+			logger.fine("Exercise probabilitie " + getExerciseProbabilitiesFromTimes(model.getReferenceDate(), exerciseTimes));
 			double probabilityToExercise = 1.0;
 			for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
 				double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
@@ -254,8 +245,40 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
 		RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
-		return values;
 
+		Map<String, Object> results = new HashMap<>();
+		results.put("values", values);
+		results.put("exerciseTimes", exerciseTimes);
+		return results;
+	}
+
+	@Override
+	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		return (RandomVariable) getValues(evaluationTime, model).get("values");
+	}
+
+	/**
+	 * Determines the vector of exercise probabilities for a given {@link RandomVariable} of exerciseTimes.
+	 * The exerciseTimes is a random variable of {@link FloatingpointDate} offsets from a given referenceDate.
+	 *
+	 * @param localDateTime A given reference date.
+	 * @param exerciseTimes A {@link RandomVariable} of exercise times given as {@link FloatingpointDate} offsets from the given referenceDate.
+	 * @return A vector of exercise probabilities. The length of the vector is <code>exerciseDates.length+1</code>. The last entry is the probability that no exercise occurs.
+	 */
+	public double[] getExerciseProbabilitiesFromTimes(LocalDateTime localDateTime, RandomVariable exerciseTimes) {
+		double[] exerciseProbabilities = new double[exerciseDates.length+1];
+
+		double probabilityToExercise = 1.0;
+		for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
+			double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(localDateTime, exerciseDates[exerciseIndex].atStartOfDay());
+			double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
+
+			exerciseProbabilities[exerciseIndex] = probabilityToExercise - probabilityToExerciseAfter;
+			probabilityToExercise = probabilityToExerciseAfter;
+		}
+		exerciseProbabilities[exerciseDates.length] = probabilityToExercise;
+
+		return exerciseProbabilities;
 	}
 
 	@Override
