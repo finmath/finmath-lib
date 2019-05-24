@@ -592,7 +592,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param key
 	 * @return The value as stored in the lattice.
 	 */
-	protected double getValue(DataKey key) {
+	private double getValue(DataKey key) {
 		return entryMap.get(key);
 	}
 
@@ -767,11 +767,6 @@ public class SwaptionDataLattice implements Serializable {
 	public SchedulePrototype getFixMetaSchedule() {
 		return fixMetaSchedule;
 	}
-	
-
-	protected Map<DataKey, Double> getEntryMap() {
-		return entryMap;
-	}
 
 	@Override
 	public String toString() {
@@ -796,7 +791,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @author Roland Bachl
 	 *
 	 */
-	protected class DataKey implements Serializable {
+	private class DataKey implements Serializable {
 
 		private static final long serialVersionUID = -8284316295640713492L;
 
@@ -845,14 +840,6 @@ public class SwaptionDataLattice implements Serializable {
 		@Override
 		public int hashCode() {
 			return maturity + 100* tenor + 10000* moneyness;
-		}
-		
-		public DataKey getCloneWithModifiedMoneyness(double moneyness) {
-			return new DataKey(maturity, tenor, moneyness);
-		}
-
-		public int getMoneyness() {
-			return moneyness;
 		}
 	}
 }
