@@ -17,6 +17,8 @@ import java.util.function.DoubleUnaryOperator;
  */
 public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator {
 
+	private static final long serialVersionUID = -9060003224133337426L;
+
 	private final RandomNumberGenerator uniformRandomNumberGenerator;
 	private final DoubleUnaryOperator targetDensity;
 	private final DoubleUnaryOperator referenceDensity;

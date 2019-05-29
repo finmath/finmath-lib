@@ -13,6 +13,8 @@ package net.finmath.randomnumbers;
  */
 public class HaltonSequence implements RandomNumberGenerator {
 
+	private static final long serialVersionUID = -4799340450248196350L;
+
 	private final int base[];
 
 	private int currentIndex = 0;
