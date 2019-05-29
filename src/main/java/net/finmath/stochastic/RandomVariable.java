@@ -16,28 +16,13 @@ import java.util.stream.DoubleStream;
 import net.finmath.functions.DoubleTernaryOperator;
 
 
-
 /**
- * This interface describes the methods implemented by an immutable random variable, i.e.
- * methods that leave a random variable unchanged (immutable).
+ * This interface describes the methods implemented by an immutable random variable.
+ * 
+ * The random variable is immutable, i.e. method calls like add, sub, mult will return
+ * a new instance and leave the method receiver random variable unchanged (immutable).
  * This is used to ensure that arguments or return values are not changed.
- *
- * For C++ guys: In C++ you could achieve this by making a return value const.
- *
- * <br>
- *
- * <b>IMPORTANT:</b> As of version 1.3 / revision 487 the design of RandomVariableFromDoubleArray, RandomVariable has changed:
- * All methods of RandomVariableFromDoubleArray leave the object immutable and the interface ImmutableRandomVariableInterface has been renamed
- * to RandomVariable. Your code remains compatible if you perform the following changes:
- * <ul>
- * <li>Change calls to RandomVariable objects value like <code>value.mult(argument);</code> to <code>value = value.mult(argument);</code>
- * <li>Remove calls to getMutableCopy() since they are no longer needed.
- * <li>Remove wrapping in RandomVariableMutableClone since they are no longer needed.
- * </ul>
- * The change has some performance impact, however, the original performance may be achieved again
- * via the use of Java 8 lambdas and the concept of the <code>RandomVariableAccumulatorInterface</code>.
- * <br>
- *
+ * 
  * @author Christian Fries
  * @version 1.5
  */
