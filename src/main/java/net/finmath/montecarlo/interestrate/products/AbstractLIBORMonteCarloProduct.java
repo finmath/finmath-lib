@@ -57,7 +57,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	@Override
 	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
 		// This product requires an LIBORModelMonteCarloSimulationModel model, otherwise there will be a class cast exception
-		if(model instanceof LIBORModelMonteCarloSimulationModel) {
+		if(model == null || model instanceof LIBORModelMonteCarloSimulationModel) {
 			return getValue(evaluationTime, (LIBORModelMonteCarloSimulationModel)model);
 		}
 		else {
