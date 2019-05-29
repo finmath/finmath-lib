@@ -11,20 +11,37 @@ import java.time.LocalDate;
 import net.finmath.marketdata.model.AnalyticModel;
 
 /**
- * A discount curve derived from other discount curves
- * by multiplying the discount factors.
+ * A discount curve derived from other discount curves by multiplying the discount factors.
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class DiscountCurveFromProductOfCurves extends AbstractCurve implements Serializable, DiscountCurve {
 
-	private static final long serialVersionUID = 8850409340966149755L;
+	private static final long serialVersionUID = 6643801855646089707L;
 
-	private DiscountCurve[] curves;
+	private final String[] curveNames;
+	private final DiscountCurve[] curves;
 
 	/**
 	 * Create a discount curve using one or more curves.
+	 * 
+	 * The product curve is generated dynamically by looking up the given curveNames in the model passed
+	 * to the method {@link #getDiscountFactor(AnalyticModel, double)}.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date of this curve.
+	 * @param curveNames Argument list or array of curve names.
+	 */
+	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, String... curveNames) {
+		super(name, referenceDate);
+
+		this.curveNames = curveNames;
+		this.curves = null;
+	}
+
+	/**
+	 * Create a discount curve using one or more given curves.
 	 *
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
@@ -33,6 +50,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurve... curves) {
 		super(name, referenceDate);
 
+		this.curveNames = null;
 		this.curves = curves;
 	}
 
@@ -45,8 +63,17 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	public double getDiscountFactor(AnalyticModel model, double maturity) {
 		double discountFactor = 1.0;
 
-		for(DiscountCurve curve : curves) {
-			discountFactor *= curve.getDiscountFactor(model, maturity);
+		if(curveNames != null) {
+			if(model == null) throw new IllegalArgumentException("This object requires that a reference to an AnalyticModel is passed to a call this method.");
+
+			for(String curveName : curveNames) {
+				discountFactor *= model.getDiscountCurve(curveName).getDiscountFactor(model, maturity);
+			}
+		}
+		else {
+			for(DiscountCurve curve : curves) {
+				discountFactor *= curve.getDiscountFactor(model, maturity);
+			}
 		}
 
 		return discountFactor;
@@ -67,10 +94,6 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	public void setParameter(double[] parameter) {
 	}
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getCloneBuilder()
-	 */
 	@Override
 	public CurveBuilder getCloneBuilder() {
 		// TODO Auto-generated method stub
