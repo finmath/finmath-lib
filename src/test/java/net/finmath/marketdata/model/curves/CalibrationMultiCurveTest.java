@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,6 +39,10 @@ public class CalibrationMultiCurveTest {
 
 	@Test
 	public void testMultiCurveCalibration() throws SolverException, CloneNotSupportedException {
+
+		// Disable warnings in this unit test
+		Logger logger = Logger.getLogger("net.finmath");
+		logger.setLevel(Level.SEVERE);
 
 		/*
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
