@@ -15,6 +15,8 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import org.apache.commons.math3.util.Pair;
+
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.products.Swap;
@@ -68,6 +70,7 @@ public class SwaptionDataLattice implements Serializable {
 
 	private final		Map<DataKey, Double>		entryMap = new HashMap<>();
 	private transient	Map<Integer, int[][]>		keyMap;
+	private transient	Map<Pair<Integer, Integer>, int[]>		reverseKeyMap;
 
 	/**
 	 * Create the lattice.
@@ -353,6 +356,41 @@ public class SwaptionDataLattice implements Serializable {
 		this.keyMap = keyMap;
 		return Collections.unmodifiableMap(keyMap);
 	}
+	
+	/**
+	 * Get a view of the locations of swaptions in this lattice.
+	 * The keys of the map are pairs of maturities and tenors for which there are swaptions.
+	 * The entries for each pair consist of an array of possible moneyness values, sorted in ascending order.
+	 *
+	 * @return The view of recorded swaptions.
+	 */
+	public Map<Pair<Integer, Integer>, int[]> getMoneynessPerGridNode() {
+
+		//See if the map has already been instantiated.
+		if(reverseKeyMap != null) {
+			return Collections.unmodifiableMap(reverseKeyMap);
+		}
+
+		//Otherwise create the map and return it.
+		Map<Pair<Integer, Integer>, Set<Integer>> newMap = new HashMap<>();
+
+		for(DataKey key : entryMap.keySet()) {
+			Pair<Integer, Integer> maturityTenorPair = new Pair<Integer, Integer>(key.maturity, key.tenor);
+			if(! newMap.containsKey(maturityTenorPair)) {
+				newMap.put(maturityTenorPair, new HashSet<Integer>());
+			}
+			newMap.get(maturityTenorPair).add(key.moneyness);
+		}
+
+		Map<Pair<Integer, Integer>, int[]> reverseKeyMap = new TreeMap<>();
+		for(Pair<Integer, Integer> maturityTenorPair : newMap.keySet()) {
+			int[] values = newMap.get(maturityTenorPair).stream().sorted().mapToInt(Integer::intValue).toArray();
+
+			reverseKeyMap.put(maturityTenorPair, values);
+		}
+		this.reverseKeyMap = reverseKeyMap;
+		return Collections.unmodifiableMap(reverseKeyMap);
+	}
 
 	/**
 	 * Return all levels of moneyness for which data exists.
@@ -592,7 +630,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @param key
 	 * @return The value as stored in the lattice.
 	 */
-	protected double getValue(DataKey key) {
+	private double getValue(DataKey key) {
 		return entryMap.get(key);
 	}
 
@@ -767,11 +805,6 @@ public class SwaptionDataLattice implements Serializable {
 	public SchedulePrototype getFixMetaSchedule() {
 		return fixMetaSchedule;
 	}
-	
-
-	protected Map<DataKey, Double> getEntryMap() {
-		return entryMap;
-	}
 
 	@Override
 	public String toString() {
@@ -796,7 +829,7 @@ public class SwaptionDataLattice implements Serializable {
 	 * @author Roland Bachl
 	 *
 	 */
-	protected class DataKey implements Serializable {
+	private class DataKey implements Serializable {
 
 		private static final long serialVersionUID = -8284316295640713492L;
 
@@ -845,14 +878,6 @@ public class SwaptionDataLattice implements Serializable {
 		@Override
 		public int hashCode() {
 			return maturity + 100* tenor + 10000* moneyness;
-		}
-		
-		public DataKey getCloneWithModifiedMoneyness(double moneyness) {
-			return new DataKey(maturity, tenor, moneyness);
-		}
-
-		public int getMoneyness() {
-			return moneyness;
 		}
 	}
 }
