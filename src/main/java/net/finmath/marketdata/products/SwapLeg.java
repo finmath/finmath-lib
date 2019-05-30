@@ -201,9 +201,12 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 			productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, productRefereceDate);
 		}
 
-		DiscountCurve discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
-		if(discountCurveForNotionalReset == null  && notionals == null) {
-			throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
+		DiscountCurve discountCurveForNotionalReset = null;
+		if(discountCurveForNotionalResetName != null) {
+			discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
+			if(discountCurveForNotionalReset == null) {
+				throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
+			}
 		}
 
 		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
@@ -226,13 +229,13 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 				forward += forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);
 			}
 
-			// note that notional=1 if discountCurveForNotionalReset=discountCurve
-			double notional;
-			if(notionals != null) {
-				notional = notionals[periodIndex];
-			}
-			else {
-				notional = discountCurveForNotionalReset.getDiscountFactor(model,periodStart) / discountCurve.getDiscountFactor(model,periodStart);
+			/*
+			 * Set the notional.
+			 * If discountCurveForNotionalReset is given and different from discountCurve, we perform a notional reset.
+			 */
+			double notional = notionals != null ? notionals[periodIndex] : 1.0;
+			if(discountCurveForNotionalReset != null && discountCurveForNotionalReset != discountCurve) {
+				notional *= discountCurveForNotionalReset.getDiscountFactor(model,periodStart) / discountCurve.getDiscountFactor(model,periodStart);
 			}
 
 			double discountFactor = paymentDate > cashFlowEffectiveTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
