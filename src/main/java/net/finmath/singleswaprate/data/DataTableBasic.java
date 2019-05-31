@@ -302,10 +302,10 @@ public class DataTableBasic implements DataTable, Cloneable {
 		private LocalDate dateFromOffset(LocalDate startDate, int offset) {
 			LocalDate date = null;
 			switch(convention) {
-			case inYEARS: date = startDate.plusYears(offset); break;
-			case inMONTHS: date = startDate.plusMonths(offset); break;
-			case inDAYS: date = startDate.plusDays(offset); break;
-			case inWEEKS: date = startDate.plusWeeks(offset); break;
+			case YEARS: date = startDate.plusYears(offset); break;
+			case MONTHS: date = startDate.plusMonths(offset); break;
+			case DAYS: date = startDate.plusDays(offset); break;
+			case WEEKS: date = startDate.plusWeeks(offset); break;
 			}
 			return date;
 		}

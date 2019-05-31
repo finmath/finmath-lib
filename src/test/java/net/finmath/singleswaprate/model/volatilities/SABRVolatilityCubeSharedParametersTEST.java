@@ -159,8 +159,8 @@ public class SABRVolatilityCubeSharedParametersTEST {
 			}
 		}
 
-		DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.inMONTHS, maturities, terminations, volatilitiesModel);
-		DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.inMONTHS, maturities, terminations, volatilitiesMarket);
+		DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.MONTHS, maturities, terminations, volatilitiesModel);
+		DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.MONTHS, maturities, terminations, volatilitiesMarket);
 		output.append(marketTable.toString()+"\n");
 		output.append("\n"+modelTable.toString()+"\n\n\n\n");
 
@@ -218,8 +218,8 @@ public class SABRVolatilityCubeSharedParametersTEST {
 				}
 			}
 
-			DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.inMONTHS, marketMaturities, marketTerminations, marketVolatilities);
-			DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.inMONTHS, modelMaturities, modelTerminations, modelVolatilities);
+			DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.MONTHS, marketMaturities, marketTerminations, marketVolatilities);
+			DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.MONTHS, modelMaturities, modelTerminations, modelVolatilities);
 			output.append(marketTable.toString()+"\n\n");
 			output.append(modelTable.toString()+"\n\n");
 

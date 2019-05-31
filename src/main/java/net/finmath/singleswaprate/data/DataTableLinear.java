@@ -160,10 +160,10 @@ public class DataTableLinear extends DataTableBasic implements DataTable, Clonea
 		// round to make regular grid
 		int roundingMultiplier;
 		switch (getConvention()) {
-		case inYEARS: roundingMultiplier = 1; break;
-		case inMONTHS: roundingMultiplier = 12; break;
-		case inDAYS: roundingMultiplier = 365; break;
-		case inWEEKS: roundingMultiplier = 52; break;
+		case YEARS: roundingMultiplier = 1; break;
+		case MONTHS: roundingMultiplier = 12; break;
+		case DAYS: roundingMultiplier = 365; break;
+		case WEEKS: roundingMultiplier = 52; break;
 		default: throw new RuntimeException("No tableConvention specified");
 		}
 

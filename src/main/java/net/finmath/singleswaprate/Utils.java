@@ -27,9 +27,9 @@ public class Utils {
 
 	/**
 	 * Convert a {@link DataTable} containing swaption data to a {@link SwaptionDataLattice}.
-	 * The table needs to be in {@link DataTable.TableConvention}{@code .inMONTHS}.
+	 * The table needs to be in {@link TableConvention#MONTHS}.
 	 *
-	 * @param table The table in convention inMONTHS containing swaption data.
+	 * @param table The table in convention {@link TableConvention#MONTHS} containing swaption data.
 	 * @param quotingConvention The quoting convention of the data.
 	 * @param referenceDate The reference date associated with the swaptions.
 	 * @param discountCurveName The name of the discount curve to be used for the swaptions.
@@ -54,9 +54,9 @@ public class Utils {
 	/**
 	 * Convert a map of {@link DataTable} containing swaption data to a {@link SwaptionDataLattice}.
 	 * The data of the swaptions is arranged in tables by moneyness, which is used as key in the map.
-	 * The tables need to be in {@link DataTable.TableConvention}{@code .inMONTHS}.
+	 * The tables need to be in {@link TableConvention#MONTHS}.
 	 *
-	 * @param tables A map of tables, containing swaption data in convention inMONTHS, per moneyness.
+	 * @param tables A map of tables, containing swaption data in convention {@link TableConvention#MONTHS}, per moneyness.
 	 * @param quotingConvention The quoting convention of the data.
 	 * @param referenceDate The reference date associated with the swaptions.
 	 * @param discountCurveName The name of the discount curve to be used for the swaptions.
@@ -75,7 +75,7 @@ public class Utils {
 
 		for(int moneyness : tables.keySet()) {
 			DataTable table = tables.get(moneyness);
-			if(table.getConvention() != TableConvention.inMONTHS) {
+			if(table.getConvention() != TableConvention.MONTHS) {
 				throw new IllegalArgumentException("This method is only set up to handle tables with convention 'inMONTHS'.");
 			}
 			for(int maturity : table.getMaturities()) {

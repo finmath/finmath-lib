@@ -447,10 +447,10 @@ public abstract class AbstractCubeCalibration {
 		SwaptionInfo(int moneyness, int maturity, int termination, TableConvention tableConvention) throws IOException {
 			this.moneyness = moneyness /10000.0;
 			switch(tableConvention) {
-			case inMONTHS : this.maturity = getReferenceDate().plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
-			case inYEARS  : this.maturity = getReferenceDate().plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
-			case inDAYS   : this.maturity = getReferenceDate().plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
-			case inWEEKS  : this.maturity = getReferenceDate().plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
+			case MONTHS : this.maturity = getReferenceDate().plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
+			case YEARS  : this.maturity = getReferenceDate().plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
+			case DAYS   : this.maturity = getReferenceDate().plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
+			case WEEKS  : this.maturity = getReferenceDate().plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
 			default : throw new IOException("TableConvention "+tableConvention+" not recognized.");
 			}
 		}

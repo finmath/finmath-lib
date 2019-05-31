@@ -254,7 +254,7 @@ public class SABRCubeCalibration {
 				}
 			}
 		}
-		DataTableLight interpolationNodes = new DataTableLight("NodesWithCardinality", TableConvention.inMONTHS, nodeMaturities, nodeTerminations,
+		DataTableLight interpolationNodes = new DataTableLight("NodesWithCardinality", TableConvention.MONTHS, nodeMaturities, nodeTerminations,
 				nodeCardinalities);
 
 		// fix holes (as interpolation needs a regular grid)
@@ -319,9 +319,9 @@ public class SABRCubeCalibration {
 		}
 
 		if(useLinearInterpolation) {
-			swapRateTable = new DataTableLinear("parSwapRates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, matList, termList, swapRates);
+			swapRateTable = new DataTableLinear("parSwapRates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, matList, termList, swapRates);
 		} else {
-			swapRateTable = new DataTableInterpolated("parSwapRates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, matList, termList, swapRates);
+			swapRateTable = new DataTableInterpolated("parSwapRates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, matList, termList, swapRates);
 		}
 	}
 
@@ -434,18 +434,18 @@ public class SABRCubeCalibration {
 		DataTable baseVolTable;
 		DataTable volvolTable;
 		if(useLinearInterpolation) {
-			rhoTable = new DataTableLinear("rho", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			rhoTable = new DataTableLinear("rho", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, rhos);
-			baseVolTable = new DataTableLinear("baseVol", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			baseVolTable = new DataTableLinear("baseVol", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, baseVols);
-			volvolTable = new DataTableLinear("volvol", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			volvolTable = new DataTableLinear("volvol", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, volvols);
 		} else {
-			rhoTable = new DataTableInterpolated("rho", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			rhoTable = new DataTableInterpolated("rho", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, rhos);
-			baseVolTable = new DataTableInterpolated("baseVol", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			baseVolTable = new DataTableInterpolated("baseVol", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, baseVols);
-			volvolTable = new DataTableInterpolated("volvol", TableConvention.inMONTHS, referenceDate, tableMetaSchedule, maturities,
+			volvolTable = new DataTableInterpolated("volvol", TableConvention.MONTHS, referenceDate, tableMetaSchedule, maturities,
 					terminations, volvols);
 		}
 
@@ -738,10 +738,10 @@ public class SABRCubeCalibration {
 		SwaptionInfo(int moneyness, int maturity, int termination, TableConvention tableConvention) throws IOException {
 			this.moneyness = moneyness /10000.0;
 			switch(tableConvention) {
-			case inMONTHS : this.maturity = referenceDate.plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
-			case inYEARS  : this.maturity = referenceDate.plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
-			case inDAYS   : this.maturity = referenceDate.plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
-			case inWEEKS  : this.maturity = referenceDate.plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
+			case MONTHS : this.maturity = referenceDate.plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
+			case YEARS  : this.maturity = referenceDate.plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
+			case DAYS   : this.maturity = referenceDate.plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
+			case WEEKS  : this.maturity = referenceDate.plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
 			default : throw new IOException("TableConvention "+tableConvention+" not recognized.");
 			}
 		}

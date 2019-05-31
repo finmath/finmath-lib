@@ -52,7 +52,7 @@ public class DataTablesTEST {
 	@Test
 	public void testTables() throws IOException {
 
-		DataTableLight light			= new DataTableLight("TestTable", TableConvention.inMONTHS, maturities, terminations, values);
+		DataTableLight light			= new DataTableLight("TestTable", TableConvention.MONTHS, maturities, terminations, values);
 		DataTableBasic regular			= DataTableBasic.upgradeDataTableLight(light, referenceDate, scheduleMetaData);
 		DataTableInterpolated spline	= DataTableInterpolated.interpolateDataTable(regular);
 		DataTableLinear linear			= DataTableLinear.interpolateDataTable(regular);

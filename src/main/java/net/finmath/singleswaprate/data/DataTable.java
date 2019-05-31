@@ -30,10 +30,10 @@ public interface DataTable extends Serializable, Cloneable {
 	 *
 	 */
 	enum TableConvention {
-		inMONTHS,
-		inYEARS,
-		inDAYS,
-		inWEEKS
+		MONTHS,
+		YEARS,
+		DAYS,
+		WEEKS
 	}
 
 	/**

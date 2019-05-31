@@ -284,17 +284,17 @@ public class SABRShiftedSmileCalibration {
 		}
 
 		if(useLinearInterpolation) {
-			baseVolTable = new DataTableLinear("MarketBaseVolatilityTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities,
+			baseVolTable = new DataTableLinear("MarketBaseVolatilityTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities,
 					terminations, sabrBaseVols);
-			volvolTable = new DataTableLinear("MarketVolVolTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities, terminations,
+			volvolTable = new DataTableLinear("MarketVolVolTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations,
 					sabrVolvols);
-			rhoTable = new DataTableLinear("MarketRhoTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);
+			rhoTable = new DataTableLinear("MarketRhoTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);
 		} else {
-			baseVolTable = new DataTableExtrapolated("MarketBaseVolatilityTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities,
+			baseVolTable = new DataTableExtrapolated("MarketBaseVolatilityTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities,
 					terminations, sabrBaseVols);
-			volvolTable = new DataTableExtrapolated("MarketVolVolTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities, terminations,
+			volvolTable = new DataTableExtrapolated("MarketVolVolTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations,
 					sabrVolvols);
-			rhoTable = new DataTableExtrapolated("MarketRhoTable", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);
+			rhoTable = new DataTableExtrapolated("MarketRhoTable", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);
 		}
 
 	}
@@ -335,7 +335,7 @@ public class SABRShiftedSmileCalibration {
 				}
 			}
 		}
-		interpolationNodes = new DataTableLight("NodesWithCardinality", TableConvention.inMONTHS, nodeMaturities, nodeTerminations,
+		interpolationNodes = new DataTableLight("NodesWithCardinality", TableConvention.MONTHS, nodeMaturities, nodeTerminations,
 				nodeCardinalities);
 
 		// fix holes (as interpolation needs a regular grid)
@@ -378,7 +378,7 @@ public class SABRShiftedSmileCalibration {
 			}
 		}
 
-		DataTableLight physicalATMTable =  new DataTableLight("VolatilitiesPhysicalATM", TableConvention.inMONTHS, maturitiesArray, terminationsArray,
+		DataTableLight physicalATMTable =  new DataTableLight("VolatilitiesPhysicalATM", TableConvention.MONTHS, maturitiesArray, terminationsArray,
 				volatilitiesArray);
 
 		physicalVolatilities = new TreeMap<Integer, DataTableLight>();
@@ -432,9 +432,9 @@ public class SABRShiftedSmileCalibration {
 				}
 			}
 
-			DataTableLight physicalPositiveSmileTable = new DataTableLight("VolatilitiesPhysical" +  strike, TableConvention.inMONTHS,
+			DataTableLight physicalPositiveSmileTable = new DataTableLight("VolatilitiesPhysical" +  strike, TableConvention.MONTHS,
 					maturitiesPositive, terminationsPositive, physicalVolatilitiesPositive);
-			DataTableLight physicalNegativeSmileTable = new DataTableLight("VolatilitiesPhysical" + -strike, TableConvention.inMONTHS,
+			DataTableLight physicalNegativeSmileTable = new DataTableLight("VolatilitiesPhysical" + -strike, TableConvention.MONTHS,
 					maturitiesNegative, terminationsNegative, physicalVolatilitiesNegative);
 
 
@@ -474,7 +474,7 @@ public class SABRShiftedSmileCalibration {
 					}
 				}
 			}
-			DataTableLight volatilityTable = new DataTableLight("VolatilitiesPayer"+moneyness, TableConvention.inMONTHS, maturities, terminations, values);
+			DataTableLight volatilityTable = new DataTableLight("VolatilitiesPayer"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
 			cashPayerVolatilities.put(moneyness, volatilityTable);
 		}
 
@@ -511,7 +511,7 @@ public class SABRShiftedSmileCalibration {
 					}
 				}
 			}
-			DataTableLight volatilityTable = new DataTableLight("VolatilitiesReceiver"+moneyness, TableConvention.inMONTHS, maturities, terminations, values);
+			DataTableLight volatilityTable = new DataTableLight("VolatilitiesReceiver"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
 			cashReceiverVolatilities.put(moneyness, volatilityTable);
 		}
 	}
@@ -543,10 +543,10 @@ public class SABRShiftedSmileCalibration {
 		}
 
 		if(useLinearInterpolation) {
-			swapRateTable = new DataTableLinear("MarketParSwapRates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesArray,
+			swapRateTable = new DataTableLinear("MarketParSwapRates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray,
 					terminationsArray, swapRateArray);
 		} else {
-			swapRateTable = new DataTableExtrapolated("MarketParSwapRates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesArray,
+			swapRateTable = new DataTableExtrapolated("MarketParSwapRates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray,
 					terminationsArray, swapRateArray);
 		}
 	}

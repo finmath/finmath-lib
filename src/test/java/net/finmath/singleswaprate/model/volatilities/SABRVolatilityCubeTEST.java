@@ -169,8 +169,8 @@ public class SABRVolatilityCubeTEST {
 			}
 		}
 
-		DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.inMONTHS, maturities, terminations, volatilitiesModel);
-		DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.inMONTHS, maturities, terminations, volatilitiesMarket);
+		DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.MONTHS, maturities, terminations, volatilitiesModel);
+		DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.MONTHS, maturities, terminations, volatilitiesMarket);
 		output.append(marketTable.toString()+"\n");
 		output.append("\n"+modelTable.toString()+"\n\n\n\n");
 
@@ -230,8 +230,8 @@ public class SABRVolatilityCubeTEST {
 				}
 			}
 
-			DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.inMONTHS, marketMaturities, marketTerminations, marketVolatilities);
-			DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.inMONTHS, modelMaturities, modelTerminations, modelVolatilities);
+			DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.MONTHS, marketMaturities, marketTerminations, marketVolatilities);
+			DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.MONTHS, modelMaturities, modelTerminations, modelVolatilities);
 			output.append(marketTable.toString()+"\n\n");
 			output.append(modelTable.toString()+"\n\n");
 
@@ -373,10 +373,10 @@ public class SABRVolatilityCubeTEST {
 		}
 
 		if(useLinearInterpolation) {
-			return new DataTableLinear("Swap Rates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
+			return new DataTableLinear("Swap Rates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
 					swapRateList);
 		} else {
-			return new DataTableInterpolated("Swap Rates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
+			return new DataTableInterpolated("Swap Rates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
 					swapRateList);
 		}
 	}
@@ -398,10 +398,10 @@ public class SABRVolatilityCubeTEST {
 
 		DataTable tempTable;
 		if(useLinearInterpolation) {
-			tempTable = new DataTableLinear("Temp Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule,
+			tempTable = new DataTableLinear("Temp Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule,
 					maturitiesList, terminationsList, valuesList);
 		} else {
-			tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule,
+			tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule,
 					maturitiesList, terminationsList, valuesList);
 		}
 
@@ -433,10 +433,10 @@ public class SABRVolatilityCubeTEST {
 		}
 
 		if(useLinearInterpolation) {
-			return new DataTableLinear("Base Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
+			return new DataTableLinear("Base Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
 					valuesList);
 		} else {
-			return new DataTableInterpolated("Base Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
+			return new DataTableInterpolated("Base Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
 					valuesList);
 		}
 	}
@@ -456,9 +456,9 @@ public class SABRVolatilityCubeTEST {
 		}
 
 		if(useLinearInterpolation) {
-			return new DataTableLinear(name, TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList, valuesList);
+			return new DataTableLinear(name, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList, valuesList);
 		} else {
-			return new DataTableInterpolated(name, TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList, valuesList);
+			return new DataTableInterpolated(name, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList, valuesList);
 
 		}
 	}

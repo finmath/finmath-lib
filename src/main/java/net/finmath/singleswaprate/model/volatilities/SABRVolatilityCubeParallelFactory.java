@@ -156,7 +156,7 @@ public class SABRVolatilityCubeParallelFactory {
 			}
 		}
 
-		return new DataTableInterpolated("Swap Rates", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
+		return new DataTableInterpolated("Swap Rates", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,
 				swapRateList);
 	}
 
@@ -181,7 +181,7 @@ public class SABRVolatilityCubeParallelFactory {
 			}
 		}
 
-		DataTableInterpolated tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule,
+		DataTableInterpolated tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule,
 				maturitiesArray, terminationsArray, valuesArray);
 
 		VolatilityCube tempCube = new SABRVolatilityCubeParallel("tempCube", referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho,
@@ -205,7 +205,7 @@ public class SABRVolatilityCubeParallelFactory {
 			}
 		}
 
-		return new DataTableInterpolated("Base Volatilities", TableConvention.inMONTHS, referenceDate, floatMetaSchedule, maturitiesArray, terminationsArray,
+		return new DataTableInterpolated("Base Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray, terminationsArray,
 				valuesArray);
 	}
 }
