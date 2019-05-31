@@ -15,8 +15,8 @@ import net.finmath.time.Schedule;
  */
 public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 
-	protected final double strike;
-	protected final AnnuityMappingType annuityMappingType;
+	private final double strike;
+	private final AnnuityMappingType annuityMappingType;
 
 	/**
 	 * Create the product.
@@ -98,7 +98,7 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 	@Override
 	protected AnnuityMapping buildAnnuityMapping( VolatilityCubeModel model) {
 
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName,
+		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName(),
 				strike, getIntegrationLowerBound(), getIntegrationUpperBound(), getIntegrationNumberOfEvaluationPoints());
 		return factory.build(annuityMappingType, model);
 	}
@@ -111,12 +111,12 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 	 */
 	private double cashFunction(double swapRate) {
 
-		int numberOfPeriods = fixSchedule.getNumberOfPeriods();
+		int numberOfPeriods = getFixSchedule().getNumberOfPeriods();
 		double periodLength = 0.0;
 		for(int index = 0; index < numberOfPeriods; index++) {
-			periodLength += fixSchedule.getPeriodLength(index);
+			periodLength += getFixSchedule().getPeriodLength(index);
 		}
-		periodLength /= fixSchedule.getNumberOfPeriods();
+		periodLength /= getFixSchedule().getNumberOfPeriods();
 
 		if(swapRate == 0.0) return numberOfPeriods * periodLength;
 		else return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;
@@ -130,12 +130,12 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 	 */
 	private double cashFunctionFirstDerivative(double swapRate){
 
-		int numberOfPeriods = fixSchedule.getNumberOfPeriods();
+		int numberOfPeriods = getFixSchedule().getNumberOfPeriods();
 		double periodLength = 0.0;
-		for(int index = 0; index < fixSchedule.getNumberOfPeriods(); index++) {
-			periodLength += fixSchedule.getPeriodLength(index);
+		for(int index = 0; index < getFixSchedule().getNumberOfPeriods(); index++) {
+			periodLength += getFixSchedule().getPeriodLength(index);
 		}
-		periodLength /= fixSchedule.getNumberOfPeriods();
+		periodLength /= getFixSchedule().getNumberOfPeriods();
 
 		if(swapRate == 0.0) return - (numberOfPeriods +1) *numberOfPeriods /2 /periodLength /periodLength;
 		else {
@@ -154,10 +154,10 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 	 */
 	private double cashFunctionSecondDerivative(double swapRate) {
 
-		int numberOfPeriods = fixSchedule.getNumberOfPeriods();
+		int numberOfPeriods = getFixSchedule().getNumberOfPeriods();
 		double periodLength = 0.0;
 		for(int index = 0; index < numberOfPeriods; index++) {
-			periodLength += fixSchedule.getPeriodLength(index);
+			periodLength += getFixSchedule().getPeriodLength(index);
 		}
 		periodLength /= numberOfPeriods;
 

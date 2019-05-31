@@ -15,8 +15,8 @@ import net.finmath.time.Schedule;
  */
 public class AnnuityDummyProduct extends AbstractSingleSwapRateProduct {
 
-	protected final AnnuityMappingType annuityMappingType;
-	protected final AnnuityMapping annuityMapping;
+	private final AnnuityMappingType annuityMappingType;
+	private final AnnuityMapping annuityMapping;
 
 	/**
 	 * Create the dummy product with the annuity mapping specified by type.
@@ -76,7 +76,7 @@ public class AnnuityDummyProduct extends AbstractSingleSwapRateProduct {
 
 		if(annuityMapping != null) return annuityMapping;
 
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
+		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
 		return factory.build(annuityMappingType, model);
 	}
 

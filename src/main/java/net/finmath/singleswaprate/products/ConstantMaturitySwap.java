@@ -15,7 +15,7 @@ import net.finmath.time.Schedule;
  */
 public class ConstantMaturitySwap extends AbstractSingleSwapRateProduct {
 
-	protected final AnnuityMappingType annuityMappingType;
+	private final AnnuityMappingType annuityMappingType;
 
 	/**
 	 * Create the single swap rate product.
@@ -51,7 +51,7 @@ public class ConstantMaturitySwap extends AbstractSingleSwapRateProduct {
 	@Override
 	protected AnnuityMapping buildAnnuityMapping( VolatilityCubeModel model) {
 
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
+		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
 		return factory.build(annuityMappingType, model);
 	}
 

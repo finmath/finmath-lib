@@ -47,20 +47,20 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 	@Override
 	protected VolatilityCube buildCube(String name, double[] parameters) {
 
-		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(name, referenceDate, physicalATMSwaptions.getFixMetaSchedule(),
+		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(name, getReferenceDate(), physicalATMSwaptions.getFixMetaSchedule(),
 				physicalATMSwaptions.getFloatMetaSchedule(), initialDisplacement, initialBeta, parameters[0], parameters[1],
-				initialCorrelationDecay, initialIborOisDecorrelation, physicalATMSwaptions, model, forwardCurveName);
+				initialCorrelationDecay, initialIborOisDecorrelation, physicalATMSwaptions, getModel(), getForwardCurveName());
 	}
 
 	@Override
 	protected void initializeParameters() {
 
-		initialParameters = new double[] { initialRho, initialVolvol };
+		setInitialParameters(new double[] { initialRho, initialVolvol });
 	}
 
 	@Override
 	protected double[] applyParameterBounds(double[] parameters) {
-		double[] boundedParameters = new double[initialParameters.length];
+		double[] boundedParameters = new double[parameters.length];
 
 		//		boundedParameters[0] = Math.max(0, Math.min(0.99, parameters[0])); // Math.max(0,  parameters[0]);
 		boundedParameters[0] = Math.max(-0.999999, Math.min(0.999999, parameters[0])); // parameters[1];

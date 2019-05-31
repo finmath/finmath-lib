@@ -356,7 +356,7 @@ public class SwaptionDataLattice implements Serializable {
 		this.keyMap = keyMap;
 		return Collections.unmodifiableMap(keyMap);
 	}
-	
+
 	/**
 	 * Get a view of the locations of swaptions in this lattice.
 	 * The keys of the map are pairs of maturities and tenors for which there are swaptions.

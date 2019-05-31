@@ -37,18 +37,17 @@ import net.finmath.time.SchedulePrototype;
  */
 public abstract class AbstractCubeCalibration {
 
-	//input
-	protected LocalDate referenceDate;
+	private final LocalDate referenceDate;
 
-	protected SwaptionDataLattice cashPayerPremiums;
-	protected SwaptionDataLattice cashReceiverPremiums;
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
 
-	protected String discountCurveName;
-	protected String forwardCurveName;
+	private final String discountCurveName;
+	private final String forwardCurveName;
 
-	protected VolatilityCubeModel model;
+	private final VolatilityCubeModel model;
 
-	protected AnnuityMappingType annuityMappingType;
+	private AnnuityMappingType annuityMappingType;
 
 	private int maxIterations = 250;
 	private int numberOfThreads = Runtime.getRuntime().availableProcessors();
@@ -58,11 +57,9 @@ public abstract class AbstractCubeCalibration {
 	private double replicationUpperBound   = 0.15;
 	private int replicationNumberOfEvaluationPoints = 500;
 
-
-
 	//calculation
-	protected double[] initialParameters;
-	protected double[] calibratedParameters;
+	private double[] initialParameters;
+	private double[] calibratedParameters;
 
 	private double[] marketTargets;
 	private ArrayList<SwaptionInfo> payerSwaptions = new ArrayList<SwaptionInfo>();
@@ -150,7 +147,7 @@ public abstract class AbstractCubeCalibration {
 	 */
 	private void runOptimization() throws SolverException {
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, marketTargets, maxIterations, numberOfThreads) {
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(getInitialParameters(), marketTargets, maxIterations, numberOfThreads) {
 
 			/**
 			 *
@@ -166,7 +163,7 @@ public abstract class AbstractCubeCalibration {
 				//get volatility cube and add to temporary model
 				String tempCubeName = "tempCube";
 				VolatilityCube cube = buildCube(tempCubeName, parameters);
-				VolatilityCubeModel tempModel = model.addVolatilityCube(cube);
+				VolatilityCubeModel tempModel = getModel().addVolatilityCube(cube);
 
 				//pre allocate space
 				Schedule floatSchedule;
@@ -183,9 +180,9 @@ public abstract class AbstractCubeCalibration {
 				SchedulePrototype fixMetaSchedule	= cashPayerPremiums.getFixMetaSchedule();
 				SchedulePrototype floatMetaSchedule	= cashPayerPremiums.getFloatMetaSchedule();
 				for(SwaptionInfo swaption : payerSwaptions) {
-					fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
-					floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
-					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(forwardCurveName), tempModel);
+					fixSchedule = fixMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);
+					floatSchedule = floatMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);
+					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(getForwardCurveName()), tempModel);
 					strike = forwardSwapRate + swaption.moneyness;
 
 					double replicationLowerBound =
@@ -198,13 +195,13 @@ public abstract class AbstractCubeCalibration {
 					if(container.containsKey(mappingName)) {
 						mapping = container.get(mappingName);
 					} else {
-						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, tempCubeName, strike,
+						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, getForwardCurveName(), tempCubeName, strike,
 								replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 						mapping = factory.build(annuityMappingType, tempModel);
 						container.put(mappingName, mapping);
 					}
 
-					CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+					CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, getForwardCurveName(),
 							tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);
 				}
@@ -213,9 +210,9 @@ public abstract class AbstractCubeCalibration {
 				fixMetaSchedule		= cashReceiverPremiums.getFixMetaSchedule();
 				floatMetaSchedule	= cashReceiverPremiums.getFloatMetaSchedule();
 				for(SwaptionInfo swaption : receiverSwaptions) {
-					fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
-					floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
-					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(forwardCurveName), tempModel);
+					fixSchedule = fixMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);
+					floatSchedule = floatMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);
+					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(getForwardCurveName()), tempModel);
 					strike = forwardSwapRate + swaption.moneyness;
 
 					double replicationLowerBound =
@@ -228,14 +225,14 @@ public abstract class AbstractCubeCalibration {
 					if(container.containsKey(mappingName)) {
 						mapping = container.get(mappingName);
 					} else {
-						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, tempCubeName, strike,
+						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, getForwardCurveName(), tempCubeName, strike,
 								replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 						mapping = factory.build(annuityMappingType, tempModel);
 						container.put(mappingName, mapping);
 					}
 
 					CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-							forwardCurveName, tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
+							getForwardCurveName(), tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 							replicationNumberOfEvaluationPoints);
 					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);
 				}
@@ -377,6 +374,42 @@ public abstract class AbstractCubeCalibration {
 	}
 
 	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	/**
+	 * @return the model
+	 */
+	public VolatilityCubeModel getModel() {
+		return model;
+	}
+
+	/**
+	 * @return the forwardCurveName
+	 */
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	/**
+	 * @return the initialParameters
+	 */
+	public double[] getInitialParameters() {
+		return initialParameters;
+	}
+
+
+	/**
+	 * @param initialParameters the initialParameters to set
+	 */
+	public void setInitialParameters(double[] initialParameters) {
+		this.initialParameters = initialParameters;
+	}
+
+	/**
 	 * Compact identifier for the swaptions to be created during the optimization.
 	 *
 	 * @author Christian Fries
@@ -384,9 +417,9 @@ public abstract class AbstractCubeCalibration {
 	 *
 	 */
 	protected class SwaptionInfo {
-		final double moneyness;
-		final LocalDate maturity;
-		final LocalDate termination;
+		private final double moneyness;
+		private final LocalDate maturity;
+		private final LocalDate termination;
 
 		/**
 		 * Create the swaption with convention <code>inMONTHS</code>.
@@ -397,7 +430,7 @@ public abstract class AbstractCubeCalibration {
 		 */
 		SwaptionInfo(int moneyness, int maturity, int termination) {
 			this.moneyness = moneyness / 10000.0;
-			this.maturity = referenceDate.plusMonths(maturity);
+			this.maturity = getReferenceDate().plusMonths(maturity);
 			this.termination = this.maturity.plusMonths(termination);
 		}
 
@@ -414,10 +447,10 @@ public abstract class AbstractCubeCalibration {
 		SwaptionInfo(int moneyness, int maturity, int termination, TableConvention tableConvention) throws IOException {
 			this.moneyness = moneyness /10000.0;
 			switch(tableConvention) {
-			case inMONTHS : this.maturity = referenceDate.plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
-			case inYEARS  : this.maturity = referenceDate.plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
-			case inDAYS   : this.maturity = referenceDate.plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
-			case inWEEKS  : this.maturity = referenceDate.plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
+			case inMONTHS : this.maturity = getReferenceDate().plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;
+			case inYEARS  : this.maturity = getReferenceDate().plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;
+			case inDAYS   : this.maturity = getReferenceDate().plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;
+			case inWEEKS  : this.maturity = getReferenceDate().plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;
 			default : throw new IOException("TableConvention "+tableConvention+" not recognized.");
 			}
 		}

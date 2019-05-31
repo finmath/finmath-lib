@@ -223,8 +223,8 @@ public class DataTableLight implements DataTable, Cloneable {
 	private static class DataKey implements Serializable {
 
 		private static final long serialVersionUID = 3391432439373885684L;
-		int maturity;
-		int termination;
+		private int maturity;
+		private int termination;
 
 		/**
 		 * Create key from int.

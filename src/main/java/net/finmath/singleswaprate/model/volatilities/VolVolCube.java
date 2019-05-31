@@ -36,8 +36,7 @@ public class VolVolCube implements VolatilityCube {
 
 	//	private final double iborOisDecorrelation;
 
-
-	QuotingConvention quotingConvention = QuotingConvention.VOLATILITYNORMAL;
+	private final QuotingConvention quotingConvention = QuotingConvention.VOLATILITYNORMAL;
 
 	/**
 	 * Create the volvol cube.

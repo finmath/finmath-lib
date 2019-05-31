@@ -271,8 +271,8 @@ public class DataTableBasic implements DataTable, Cloneable {
 	protected class DoubleKey implements Serializable {
 
 		private static final long serialVersionUID = -2372959679853584772L;
-		final double maturity;
-		final double termination;
+		private final double maturity;
+		private final double termination;
 
 		/**
 		 * Create key from int.

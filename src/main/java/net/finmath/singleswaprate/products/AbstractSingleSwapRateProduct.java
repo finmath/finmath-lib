@@ -30,13 +30,13 @@ import net.finmath.time.Schedule;
  */
 public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVolatilityCubeProduct {
 
-	protected final Schedule fixSchedule;
-	protected final Schedule floatSchedule;
-	protected final String discountCurveName;
-	protected final String forwardCurveName;
-	protected final String volatilityCubeName;
+	private final Schedule fixSchedule;
+	private final Schedule floatSchedule;
+	private final String discountCurveName;
+	private final String forwardCurveName;
+	private final String volatilityCubeName;
 
-	protected final QuotingConvention quotingConvention = VolatilitySurface.QuotingConvention.VOLATILITYNORMAL;
+	private final QuotingConvention quotingConvention = VolatilitySurface.QuotingConvention.VOLATILITYNORMAL;
 
 	private double lowerBound = -0.15;
 	private double upperBound =  0.15;
@@ -116,18 +116,18 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 */
 	public double getValue(double evaluationTime, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
 
-		if(evaluationTime > fixSchedule.getPeriodStart(0)) throw new IllegalArgumentException("This framework is not set up to evaluate the product "
-				+this.getClass()+" at a time larger than the start of the first period ("+fixSchedule.getPeriodStart(0)+"). Requested time was "+evaluationTime);
+		if(evaluationTime > getFixSchedule().getPeriodStart(0)) throw new IllegalArgumentException("This framework is not set up to evaluate the product "
+				+this.getClass()+" at a time larger than the start of the first period ("+getFixSchedule().getPeriodStart(0)+"). Requested time was "+evaluationTime);
 
 		double forwardSwapRate;
 		ForwardCurve forwardCurve;
 
-		if(forwardCurveName == null) {
-			forwardCurve = new ForwardCurveFromDiscountCurve("From"+discountCurveName, discountCurveName, fixSchedule.getReferenceDate(), "6M");
+		if(getForwardCurveName() == null) {
+			forwardCurve = new ForwardCurveFromDiscountCurve("From"+getDiscountCurveName(), getDiscountCurveName(), getFixSchedule().getReferenceDate(), "6M");
 		} else {
-			forwardCurve = model.getForwardCurve(forwardCurveName);
+			forwardCurve = model.getForwardCurve(getForwardCurveName());
 		}
-		forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);
+		forwardSwapRate	= Swap.getForwardSwapRate(getFixSchedule(), getFloatSchedule(), forwardCurve, model);
 
 		// check if there is an annuity mapping provided, otherwise get new one.
 		AnnuityMapping internalAnnuityMapping = annuityMapping == null ? buildAnnuityMapping(model) : annuityMapping;
@@ -136,8 +136,8 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 		double	payerLeg 	= 0.0;
 
 		// check whether cube supports given lower bound
-		double lowerBound = volatilityCubeName == null ? this.lowerBound :
-			Math.max(this.lowerBound, model.getVolatilityCube(volatilityCubeName).getLowestStrike(model));
+		double lowerBound = getVolatilityCubeName() == null ? this.lowerBound :
+			Math.max(this.lowerBound, model.getVolatilityCube(getVolatilityCubeName()).getLowestStrike(model));
 
 		// Numerical integration
 		AbstractRealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);
@@ -151,9 +151,9 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 
 		double value = ((payoffFunction(forwardSwapRate, internalAnnuityMapping, model)) + receiverLeg + payerLeg
 				+ singularAddon(forwardSwapRate, internalAnnuityMapping, model));
-		if(evaluationTime != fixSchedule.getPeriodStart(0)) {
-			value *= model.getDiscountCurve(discountCurveName).getDiscountFactor(model, fixSchedule.getPeriodStart(0))
-					/ model.getDiscountCurve(discountCurveName).getDiscountFactor(model, evaluationTime);
+		if(evaluationTime != getFixSchedule().getPeriodStart(0)) {
+			value *= model.getDiscountCurve(getDiscountCurveName()).getDiscountFactor(model, getFixSchedule().getPeriodStart(0))
+					/ model.getDiscountCurve(getDiscountCurveName()).getDiscountFactor(model, evaluationTime);
 		}
 		return value;
 	}
@@ -223,10 +223,45 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @return The value of a call.
 	 */
 	protected double valueCall(double optionStrike, VolatilityCubeModel model, double swapRate){
-		double optionMaturity 	= fixSchedule.getFixing(0);
-		double termination 		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
-		double volatility = model.getVolatilityCube(volatilityCubeName).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);
+		double optionMaturity 	= getFixSchedule().getFixing(0);
+		double termination 		= getFixSchedule().getPayment(getFixSchedule().getNumberOfPeriods()-1);
+		double volatility = model.getVolatilityCube(getVolatilityCubeName()).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);
 		return AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, optionStrike, 1.0);
+	}
+
+	/**
+	 * @return the fixSchedule
+	 */
+	public Schedule getFixSchedule() {
+		return fixSchedule;
+	}
+
+	/**
+	 * @return the floatSchedule
+	 */
+	public Schedule getFloatSchedule() {
+		return floatSchedule;
+	}
+
+	/**
+	 * @return the discountCurveName
+	 */
+	public String getDiscountCurveName() {
+		return discountCurveName;
+	}
+
+	/**
+	 * @return the forwardCurveName
+	 */
+	public String getForwardCurveName() {
+		return forwardCurveName;
+	}
+
+	/**
+	 * @return the volatilityCubeName
+	 */
+	public String getVolatilityCubeName() {
+		return volatilityCubeName;
 	}
 
 }

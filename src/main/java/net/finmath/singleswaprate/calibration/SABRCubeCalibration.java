@@ -45,20 +45,20 @@ import net.finmath.time.SchedulePrototype;
 public class SABRCubeCalibration {
 
 	//input
-	protected LocalDate referenceDate;
+	private LocalDate referenceDate;
 
-	protected SwaptionDataLattice cashPayerPremiums;
-	protected SwaptionDataLattice cashReceiverPremiums;
-	protected SwaptionDataLattice physicalPremiumsATM;
+	private SwaptionDataLattice cashPayerPremiums;
+	private SwaptionDataLattice cashReceiverPremiums;
+	private SwaptionDataLattice physicalPremiumsATM;
 
-	protected SchedulePrototype tableMetaSchedule;
+	private SchedulePrototype tableMetaSchedule;
 
-	protected String discountCurveName;
-	protected String forwardCurveName;
+	private String discountCurveName;
+	private String forwardCurveName;
 
-	protected VolatilityCubeModel model;
+	private VolatilityCubeModel model;
 
-	protected AnnuityMappingType annuityMappingType;
+	private AnnuityMappingType annuityMappingType;
 
 	private boolean useLinearInterpolation = true;
 
@@ -725,9 +725,9 @@ public class SABRCubeCalibration {
 	 *
 	 */
 	protected class SwaptionInfo {
-		final double moneyness;
-		final LocalDate maturity;
-		final LocalDate termination;
+		private final double moneyness;
+		private final LocalDate maturity;
+		private final LocalDate termination;
 
 		SwaptionInfo(int moneyness, int maturity, int termination) {
 			this.moneyness = moneyness / 10000.0;

@@ -56,13 +56,13 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 
 	@Override
 	protected VolatilityCube buildCube(String cubeName, double[] parameters) {
-		return new StaticVolatilityCube(cubeName, referenceDate, parameters[1], parameters[0]);
+		return new StaticVolatilityCube(cubeName, getReferenceDate(), parameters[1], parameters[0]);
 	}
 
 	@Override
 	protected void initializeParameters() {
 
-		initialParameters = new double[]{initialValue, initialCorrelationDecay, initialIborOisDecorrelation};
+		setInitialParameters(new double[]{initialValue, initialCorrelationDecay, initialIborOisDecorrelation});
 
 	}
 
