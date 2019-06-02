@@ -44,9 +44,9 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - Various interpolation entities (value, log-value, rate, etc.).
         - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
     - Volatility Curves and Cubes:
-        - SABR smile parameterization.
+        - **SABR smile** parameterization.
         - Swaption volatility cubes with SABR parameterization.
-        - CMS replication with various annuity mappings.
+        - **CMS replication** with various annuity mappings.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the **LIBOR market model**
 - Valuation of complex derivatives
