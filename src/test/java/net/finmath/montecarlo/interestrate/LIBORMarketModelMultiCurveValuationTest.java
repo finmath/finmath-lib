@@ -22,11 +22,14 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel.Measure;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
@@ -172,8 +175,15 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
-				liborPeriodDiscretization, forwardCurveInterpolation, discountCurveInterpolation, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = LIBORMarketModelFromCovarianceModel.of(
+				liborPeriodDiscretization,
+				new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurveInterpolation, discountCurveInterpolation}),
+				forwardCurveInterpolation,
+				discountCurveInterpolation,
+				new RandomVariableFactory(),
+				covarianceModel,
+				calibrationItems,
+				properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
@@ -262,7 +272,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			}
 
 			// Create a swap
-			SimpleSwap swap = new SimpleSwap(fixingDates, paymentDates, swaprates);
+			SimpleSwap swap = new SimpleSwap(fixingDates, paymentDates, swaprates, 1.0 /* notional */);
 
 			// Value the swap
 			double value = swap.getValue(liborMarketModel);
@@ -616,9 +626,13 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		// XXX2 Change covariance model here
 		AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborMarketModel.getLiborPeriodDiscretization(), liborMarketModel.getNumberOfFactors());
 
-		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
+		LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
 				liborMarketModel.getLiborPeriodDiscretization(),
-				forwardCurve, discountCurve, covarianceModelParametric, calibrationProducts.toArray(new CalibrationProduct[0]), null);
+				new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve }),
+				forwardCurve, discountCurve,
+				new RandomVariableFactory(),
+				covarianceModelParametric,
+				calibrationProducts.toArray(new CalibrationProduct[0]), null);
 
 		/*
 		 * Test our calibration
