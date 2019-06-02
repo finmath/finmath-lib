@@ -12,6 +12,11 @@ finmath lib Release Notes
 
  -  Variance Gamma Model:  Fourier and Monte-Carlo implementations for the Variance Gamma Model.
 
+### Interest Rate Models - Analytic and Semi-Analytic (this part is still under development / refactoring) - see `net.finmath.singleswaprate`
+
+ - SABR Volatility Cube Calibration (contributed by Roland Bachl)
+ - Cash-Settled Swaption and CMS Valuation via Replication using different Annuity Mappings (contributed by Roland Bachl)
+ 
 ### Interest Rate Models - Monte-Carlo Simulation
 
  - Improved implementation of the Bermudan Swaption. See `BermudanSwaptionFromSwapSchedules`.
