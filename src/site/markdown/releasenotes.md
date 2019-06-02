@@ -6,7 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.0.12 (SNAPSHOT)
+## 4.0.12 (02.06.2019)
 
 ### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
 
