@@ -11,8 +11,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;

@@ -54,10 +54,10 @@ public class DataTableBasic implements DataTable, Cloneable {
 	private final LocalDate referenceDate;
 	private final SchedulePrototype metaSchedule;
 
-	private final TreeSet<Integer> maturitySet = new TreeSet<Integer>();
-	private final TreeSet<Integer> terminationSet = new TreeSet<Integer>();
+	private final TreeSet<Integer> maturitySet = new TreeSet<>();
+	private final TreeSet<Integer> terminationSet = new TreeSet<>();
 
-	private final HashMap<DoubleKey, Double> entries = new HashMap<DoubleKey, Double>();
+	private final HashMap<DoubleKey, Double> entries = new HashMap<>();
 
 	/**
 	 * Create an empty table.
@@ -171,18 +171,18 @@ public class DataTableBasic implements DataTable, Cloneable {
 
 	@Override
 	public TreeSet<Integer> getMaturities(){
-		return new TreeSet<Integer>(maturitySet);
+		return new TreeSet<>(maturitySet);
 	}
 
 	@Override
 	public TreeSet<Integer> getTerminations(){
-		return new TreeSet<Integer>(terminationSet);
+		return new TreeSet<>(terminationSet);
 	}
 
 	@Override
 	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
 		if(maturitySet.contains(maturity)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
+			TreeSet<Integer> returnSet = new TreeSet<>();
 			for(int termination:terminationSet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
 				returnSet.add(termination);
 			}
@@ -194,7 +194,7 @@ public class DataTableBasic implements DataTable, Cloneable {
 	@Override
 	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
 		if(terminationSet.contains(termination)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
+			TreeSet<Integer> returnSet = new TreeSet<>();
 			for(int maturity: maturitySet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
 				returnSet.add(maturity);
 			}

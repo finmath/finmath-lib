@@ -316,9 +316,9 @@ public class LIBORMarketModelCalibrationAADTest {
 			/*
 			 * Create a set of calibration products.
 			 */
-			ArrayList<String>					calibrationItemNames		= new ArrayList<String>();
-			final ArrayList<CalibrationProduct>	calibrationItemsVALUE						= new ArrayList<CalibrationProduct>();
-			final ArrayList<CalibrationProduct>	calibrationItemsVOLATILITYNORMAL			= new ArrayList<CalibrationProduct>();
+			ArrayList<String>					calibrationItemNames		= new ArrayList<>();
+			final ArrayList<CalibrationProduct>	calibrationItemsVALUE						= new ArrayList<>();
+			final ArrayList<CalibrationProduct>	calibrationItemsVOLATILITYNORMAL			= new ArrayList<>();
 
 			double	swapPeriodLength	= 0.5;
 
@@ -415,7 +415,7 @@ public class LIBORMarketModelCalibrationAADTest {
 			AbstractLIBORCovarianceModelParametric covarianceModelParametric = createInitialCovarianceModel(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors);
 
 			// Set model properties
-			Map<String, Object> calibrtionProperties = new HashMap<String, Object>();
+			Map<String, Object> calibrtionProperties = new HashMap<>();
 
 			// Choose the simulation measure
 			calibrtionProperties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
@@ -432,7 +432,7 @@ public class LIBORMarketModelCalibrationAADTest {
 
 
 			// Set calibration calibrtionProperties (should use our brownianMotion for calibration - needed to have to right correlation).
-			Map<String, Object> calibrationParameters = new HashMap<String, Object>();
+			Map<String, Object> calibrationParameters = new HashMap<>();
 			calibrationParameters.put("numberOfThreads", numberOfThreads);
 
 
@@ -483,7 +483,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
 		final double[] rates					= { -0.00216 ,-0.00208 ,-0.00222 ,-0.00216 ,-0.0019 ,-0.0014 ,-0.00072 ,0.00011 ,0.00103 ,0.00196 ,0.00285 ,0.00367 ,0.0044 ,0.00604 ,0.00733 ,0.00767 ,0.00773 ,0.00765 ,0.00752 ,0.007138 ,0.007 };
 
-		HashMap<String, Object> parameters = new HashMap<String, Object>();
+		HashMap<String, Object> parameters = new HashMap<>();
 
 		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
 		parameters.put("currency", "EUR");
@@ -533,7 +533,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProduct> calibrationProducts = new Vector<AnalyticProduct>();
+		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
 		double[] curveMaturities	= new double[rates.length+1];
 		double[] curveValue			= new double[rates.length+1];
 		boolean[] curveIsParameter	= new boolean[rates.length+1];
@@ -572,7 +572,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObject> curvesToCalibrate = new HashSet<ParameterObject>();
+		Set<ParameterObject> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurveInterpolation);
 
 		/*

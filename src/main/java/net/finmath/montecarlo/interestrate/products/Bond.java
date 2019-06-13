@@ -60,7 +60,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
 			}
 		}
-		catch(UnsupportedOperationException e) {};
+		catch(UnsupportedOperationException e) {}
 
 		// Get random variables
 		RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);

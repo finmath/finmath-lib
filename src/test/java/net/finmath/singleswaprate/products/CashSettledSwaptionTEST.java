@@ -21,29 +21,29 @@ import org.junit.runners.MethodSorters;
 
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.optimizer.SolverException;
-import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
-import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
@@ -127,7 +127,7 @@ public class CashSettledSwaptionTEST {
 				0, //fixingOffsetDays,
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
-		
+
 		floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 		fixSchedule		= fixMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 
@@ -202,12 +202,12 @@ public class CashSettledSwaptionTEST {
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
 			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
 			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
-												replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 			cashReceiver 					= new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 
 			valuesCashPay[index] = cashPayer.getValue(fixSchedule.getFixing(0), mapping, model);
 			valuesCashRec[index] = cashReceiver.getValue(fixSchedule.getFixing(0), mapping, model);
@@ -233,12 +233,12 @@ public class CashSettledSwaptionTEST {
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
 			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
 			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
-												replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 			cashReceiver 					= new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 
 			valuesCashPay[index] = cashPayer.getValue(fixSchedule.getFixing(0), mapping, model);
 			valuesCashRec[index] = cashReceiver.getValue(fixSchedule.getFixing(0), mapping, model);
@@ -254,7 +254,7 @@ public class CashSettledSwaptionTEST {
 		type										= AnnuityMappingType.MULTIPITERBARG;
 		model										= buildCube(type);
 		String forwardCurveName						= forwardCurveMarketName;
-		
+
 		swapAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 		cashAnnuity		= cashFunction(baseSwapRate);
@@ -264,12 +264,12 @@ public class CashSettledSwaptionTEST {
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
 			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
 			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
-												replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 			cashReceiver 					= new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
-												forwardCurveName, volatilityCubeName, type);
+					forwardCurveName, volatilityCubeName, type);
 
 			valuesCashPay[index] = cashPayer.getValue(fixSchedule.getFixing(0), mapping, model);
 			valuesCashRec[index] = cashReceiver.getValue(fixSchedule.getFixing(0), mapping, model);

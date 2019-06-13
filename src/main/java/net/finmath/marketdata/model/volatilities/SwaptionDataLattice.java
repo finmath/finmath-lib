@@ -375,7 +375,7 @@ public class SwaptionDataLattice implements Serializable {
 		Map<Pair<Integer, Integer>, Set<Integer>> newMap = new HashMap<>();
 
 		for(DataKey key : entryMap.keySet()) {
-			Pair<Integer, Integer> maturityTenorPair = new Pair<Integer, Integer>(key.maturity, key.tenor);
+			Pair<Integer, Integer> maturityTenorPair = new Pair<>(key.maturity, key.tenor);
 			if(! newMap.containsKey(maturityTenorPair)) {
 				newMap.put(maturityTenorPair, new HashSet<Integer>());
 			}

@@ -164,7 +164,7 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<>();
 		map.put("sabrAlpha", sabrAlpha);
 		map.put("sabrBeta", sabrBeta);
 		map.put("sabrRho", sabrRho);

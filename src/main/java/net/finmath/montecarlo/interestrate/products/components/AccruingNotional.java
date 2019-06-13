@@ -47,7 +47,7 @@ public class AccruingNotional implements AbstractNotional {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), previousPeriod.getReferenceDate());
 			}
 		}
-		catch(UnsupportedOperationException e) {};
+		catch(UnsupportedOperationException e) {}
 
 		RandomVariable previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
 

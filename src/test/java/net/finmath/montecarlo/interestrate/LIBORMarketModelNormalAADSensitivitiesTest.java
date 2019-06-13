@@ -372,7 +372,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
@@ -566,7 +566,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 
 		// The following properties control the approximation of the derivatives of conditional expectation operators and indicator functions
-		Map<String, Object> randomVariableProps = new HashMap<String, Object>();
+		Map<String, Object> randomVariableProps = new HashMap<>();
 		randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", 0.05);
 		//		randomVariableProps.put("diracDeltaApproximationMethod", "ZERO");		// Switches of differentiation of exercise boundary
 		RandomVariableDifferentiableAADFactory randomVariableFactoryAAD = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);
@@ -725,7 +725,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		 */
 
 		// The following properties control the approximation of the derivatives of conditional expectation operators and indicator functions
-		Map<String, Object> randomVariableProps = new HashMap<String, Object>();
+		Map<String, Object> randomVariableProps = new HashMap<>();
 		randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", 0.05);
 		//		randomVariableProps.put("diracDeltaApproximationMethod", "ZERO");		// Switches of differentiation of exercise boundary
 		RandomVariableDifferentiableAADFactory randomVariableFactoryAAD = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);

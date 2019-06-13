@@ -31,8 +31,8 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		super();
 		this.referenceDate = referenceDate;
 
-		curvesMap = new HashMap<String, Curve>();
-		volatilitySurfaceMap = new HashMap<String, VolatilitySurface>();
+		curvesMap = new HashMap<>();
+		volatilitySurfaceMap = new HashMap<>();
 
 		if(curves != null) {
 			for(Curve curve : curves) {
@@ -57,8 +57,8 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		super();
 		this.referenceDate = referenceDate;
 
-		this.curvesMap = new HashMap<String, Curve>();
-		this.volatilitySurfaceMap = new HashMap<String, VolatilitySurface>();
+		this.curvesMap = new HashMap<>();
+		this.volatilitySurfaceMap = new HashMap<>();
 
 		this.curvesMap.putAll(curvesMap);
 		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);

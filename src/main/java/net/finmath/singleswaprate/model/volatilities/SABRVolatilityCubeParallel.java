@@ -136,7 +136,7 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<>();
 		map.put("sabrBeta", sabrBeta);
 		map.put("sabrRho", sabrRho);
 		map.put("sabrVolvol", sabrVolvol);

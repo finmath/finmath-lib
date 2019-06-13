@@ -22,9 +22,9 @@ public class DataTableLight implements DataTable, Cloneable {
 	private final String name;
 	private final TableConvention convention;
 
-	private final TreeSet<Integer> maturitySet = new TreeSet<Integer>();
-	private final TreeSet<Integer> terminationSet = new TreeSet<Integer>();
-	private final HashMap<DataKey, Double> entries = new HashMap<DataKey, Double>();
+	private final TreeSet<Integer> maturitySet = new TreeSet<>();
+	private final TreeSet<Integer> terminationSet = new TreeSet<>();
+	private final HashMap<DataKey, Double> entries = new HashMap<>();
 
 
 	/**
@@ -124,38 +124,38 @@ public class DataTableLight implements DataTable, Cloneable {
 
 	@Override
 	public TreeSet<Integer> getMaturities(){
-		return new TreeSet<Integer>(maturitySet);
+		return new TreeSet<>(maturitySet);
 	}
 
 	@Override
 	public TreeSet<Integer> getTerminations(){
-		return new TreeSet<Integer>(terminationSet);
+		return new TreeSet<>(terminationSet);
 	}
 
 	@Override
 	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
 		if(maturitySet.contains(maturity)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
+			TreeSet<Integer> returnSet = new TreeSet<>();
 			for(int termination:terminationSet) if(entries.containsKey(new DataKey(maturity,termination))) {
 				returnSet.add(termination);
 			}
 			return returnSet;
 		}
 		//		else throw new IllegalArgumentException("This data table does not contain entries for maturity "+maturity);
-		return new TreeSet<Integer>();
+		return new TreeSet<>();
 	}
 
 	@Override
 	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
 		if(terminationSet.contains(termination)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
+			TreeSet<Integer> returnSet = new TreeSet<>();
 			for(int maturity: maturitySet) if(entries.containsKey(new DataKey(maturity,termination))) {
 				returnSet.add(maturity);
 			}
 			return returnSet;
 		}
 		//		else throw new IllegalArgumentException("This data table does not contain entries for termination " +termination);
-		return new TreeSet<Integer>();
+		return new TreeSet<>();
 	}
 
 	@Override

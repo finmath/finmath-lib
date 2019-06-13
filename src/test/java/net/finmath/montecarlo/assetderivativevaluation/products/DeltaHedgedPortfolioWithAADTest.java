@@ -104,7 +104,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 	public static AssetModelMonteCarloSimulationModel getBlackScholesModel()
 	{
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
@@ -134,7 +134,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 	public static AssetModelMonteCarloSimulationModel getHestonModel()
 	{
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
 		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);

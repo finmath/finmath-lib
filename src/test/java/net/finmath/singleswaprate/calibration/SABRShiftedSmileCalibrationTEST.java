@@ -62,7 +62,7 @@ public class SABRShiftedSmileCalibrationTEST {
 	private static LocalDate referenceDate 		= LocalDate.of(2017, 8, 30);
 
 	//setup output to excel
-//	private static StringBuilder output = new StringBuilder();
+	//	private static StringBuilder output = new StringBuilder();
 
 	private static SchedulePrototype floatMetaSchedule;
 	private static SchedulePrototype fixMetaSchedule;

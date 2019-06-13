@@ -155,7 +155,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable underlying, RandomVariable indicator) {
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<RandomVariable>();
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
 		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
@@ -166,7 +166,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctionsBinning(RandomVariable underlying, RandomVariable indicator) {
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<RandomVariable>();
+		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		if(underlying.isDeterministic()) {
 			basisFunctions.add(underlying);

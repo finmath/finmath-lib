@@ -122,7 +122,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	}
 
 	public Map<String, Object> getSensitivityApproximations(double width, int seed, boolean isDirectRegression) throws CalculationException {
-		Map<String, Object> results = new HashMap<String, Object>();
+		Map<String, Object> results = new HashMap<>();
 
 		// Create Brownian motion with specified seed
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -137,7 +137,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		 * Calculate sensitivities using AAD
 		 */
 		{
-			Map<String, Object> randomVariableProps = new HashMap<String, Object>();
+			Map<String, Object> randomVariableProps = new HashMap<>();
 			randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", width);	// 0.05 is the default
 			RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);
 
@@ -160,7 +160,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		 * AAD with regression (using lib code)
 		 */
 		{
-			Map<String, Object> randomVariableRegressionProps = new HashMap<String, Object>();
+			Map<String, Object> randomVariableRegressionProps = new HashMap<>();
 			randomVariableRegressionProps.put("diracDeltaApproximationWidthPerStdDev", width);	// 0.05 is the default
 			randomVariableRegressionProps.put("diracDeltaApproximationMethod", DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON.name());
 			randomVariableRegressionProps.put("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.75);	// 0.5 is the default
@@ -199,7 +199,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		{
 
 			double epsilon = width*X.getStandardDeviation();
-			Map<String, Object> shiftedValues = new HashMap<String, Object>();
+			Map<String, Object> shiftedValues = new HashMap<>();
 			shiftedValues.put("initialValue", modelInitialValue+epsilon/2.0);
 			RandomVariable valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 
@@ -231,11 +231,11 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			/*
 			 * Calculate A from
 			 */
-			Map<String, Object> randomVariablePropsZeroWidth = new HashMap<String, Object>();
+			Map<String, Object> randomVariablePropsZeroWidth = new HashMap<>();
 			randomVariablePropsZeroWidth.put("diracDeltaApproximationWidthPerStdDev", 0.0);
 			RandomVariableDifferentiableAADFactory randomVariableFactoryZeroWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariablePropsZeroWidth);
 
-			Map<String, Object> randomVariablePropsInftyWidth = new HashMap<String, Object>();
+			Map<String, Object> randomVariablePropsInftyWidth = new HashMap<>();
 			randomVariablePropsInftyWidth.put("diracDeltaApproximationWidthPerStdDev", Double.POSITIVE_INFINITY);
 			RandomVariableDifferentiableAADFactory randomVariableFactoryInftyWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariablePropsInftyWidth);
 
@@ -254,8 +254,8 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			 * Density regression
 			 */
 			double underlyingStdDev = X.getStandardDeviation();
-			ArrayList<Double> maskX = new ArrayList<Double>();
-			ArrayList<Double> maskY = new ArrayList<Double>();
+			ArrayList<Double> maskX = new ArrayList<>();
+			ArrayList<Double> maskY = new ArrayList<>();
 			for(double maskSizeFactor = -0.5; maskSizeFactor<0.505; maskSizeFactor+=0.01) {
 				double maskSize2 = maskSizeFactor * underlyingStdDev;
 				if(Math.abs(maskSizeFactor) < 1E-10) {

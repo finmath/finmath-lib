@@ -93,7 +93,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			parameter[i] = new Scalar(parameterAsDouble[i]);
 		}
 		return parameter;
-	};
+	}
 
 	/**
 	 * Get the parameters of determining this parametric
@@ -189,7 +189,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 				final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
-				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<Future<RandomVariable>>(calibrationProducts.length);
+				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
@@ -332,7 +332,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			return this.getPriority() < o.getPriority() ? -1 : this.getPriority() == o.getPriority() ? 0 : 1;
 		}
 
-	};
+	}
 
 	public AbstractLIBORCovarianceModelParametric getCloneCalibratedLegazy(final LIBORMarketModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map<String,Object> calibrationParameters) throws CalculationException {
 
@@ -372,7 +372,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<Runnable>();
+		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();
 		final ExecutorService executorForProductValuation = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*zero.length, 5, TimeUnit.SECONDS, queue);
 
 		ObjectiveFunction calibrationError = new ObjectiveFunction() {
@@ -392,7 +392,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 
 					// Define the task to be executed in parallel
-					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<RandomVariable>(
+					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<>(
 							new Callable<RandomVariable>() {
 								@Override
 								public RandomVariable call() throws Exception {

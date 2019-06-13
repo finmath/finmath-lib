@@ -251,7 +251,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public double[] getExerciseTimes(){
-		ArrayList<Double> exerciseTimes = new ArrayList<Double>();
+		ArrayList<Double> exerciseTimes = new ArrayList<>();
 		for(int i=0;i<isPeriodStartDateExerciseDate.length;i++) {
 			if(isPeriodStartDateExerciseDate[i]){
 				exerciseTimes.add(fixingDates[i]);
@@ -267,7 +267,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	public double[] getFixingDates(double evaluationTime){ // return the remaining fixing dates after evaluationTime
-		ArrayList<Double> remainingFixingTimes = new ArrayList<Double>();
+		ArrayList<Double> remainingFixingTimes = new ArrayList<>();
 		for(int i=0;i<fixingDates.length;i++) {
 			if(fixingDates[i]>=evaluationTime){
 				remainingFixingTimes.add(fixingDates[i]);

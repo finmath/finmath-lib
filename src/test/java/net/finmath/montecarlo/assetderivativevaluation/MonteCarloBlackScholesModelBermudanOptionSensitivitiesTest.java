@@ -94,15 +94,15 @@ public class MonteCarloBlackScholesModelBermudanOptionSensitivitiesTest {
 
 		double eps = 1E-6;
 
-		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedInitialValue = new HashMap<>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
 		double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
 		double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedVolatility = new HashMap<>();
 		dataModifiedVolatility.put("volatility", modelVolatility+eps);
 		double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 

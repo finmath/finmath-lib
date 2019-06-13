@@ -10,13 +10,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.finmath.singleswaprate.data.DataTable.TableConvention;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 public class DataTablesTEST {
 
@@ -354,7 +354,7 @@ public class DataTablesTEST {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
 		} catch (Exception e) {
 			System.out.println("spline failed.");
-//			Assert.fail(e.toString());
+			//			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
@@ -382,7 +382,7 @@ public class DataTablesTEST {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
 		} catch (Exception e) {
 			System.out.println("spline failed.");
-//			Assert.fail(e.toString());
+			//			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));

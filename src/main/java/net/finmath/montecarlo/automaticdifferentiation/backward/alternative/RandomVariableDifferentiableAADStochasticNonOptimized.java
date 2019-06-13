@@ -324,13 +324,13 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	public Map<Long, RandomVariable> getGradient(Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
-		Map<Long, RandomVariable> derivatives = new HashMap<Long, RandomVariable>();
+		Map<Long, RandomVariable> derivatives = new HashMap<>();
 
 		// Put derivative of this node w.r.t. itself
 		derivatives.put(getID(), new RandomVariableFromDoubleArray(1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
-		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<Long, OperatorTreeNode>();
+		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
 		independents.put(getID(), getOperatorTreeNode());
 
 		while(independents.size() > 0) {

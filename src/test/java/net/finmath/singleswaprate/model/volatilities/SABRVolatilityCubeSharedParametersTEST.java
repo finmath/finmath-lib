@@ -19,8 +19,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
@@ -32,8 +32,8 @@ import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
@@ -171,13 +171,13 @@ public class SABRVolatilityCubeSharedParametersTEST {
 
 		for(int moneyness : physicalVolatilities.getMoneyness()) {
 
-			ArrayList<Integer> marketMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> marketTerminations = new ArrayList<Integer>();
-			ArrayList<Double> marketVolatilities = new ArrayList<Double>();
+			ArrayList<Integer> marketMaturities = new ArrayList<>();
+			ArrayList<Integer> marketTerminations = new ArrayList<>();
+			ArrayList<Double> marketVolatilities = new ArrayList<>();
 
-			ArrayList<Integer> modelMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> modelTerminations = new ArrayList<Integer>();
-			ArrayList<Double> modelVolatilities = new ArrayList<Double>();
+			ArrayList<Integer> modelMaturities = new ArrayList<>();
+			ArrayList<Integer> modelTerminations = new ArrayList<>();
+			ArrayList<Double> modelVolatilities = new ArrayList<>();
 
 			ArrayList<Double> differenceList = new ArrayList<>();
 
@@ -246,7 +246,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 	}
 
 	private static VolatilityCube makeVolatilityCube() {
-		
+
 		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(cubeName, referenceDate, fixMetaSchedule, floatMetaSchedule,
 				sabrDisplacement, sabrBeta, sabrRho, sabrVolvol, correlationDecay, iborOisDecorrelation, physicalSwaptions, model, forwardCurveName);
 	}

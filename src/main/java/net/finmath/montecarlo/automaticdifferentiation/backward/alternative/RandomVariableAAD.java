@@ -548,7 +548,7 @@ public class RandomVariableAAD implements RandomVariable {
 
 		ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = getArrayListOfAllIndicesOfDependentRandomVariables();
 
-		Map<Integer, RandomVariable> gradient = new HashMap<Integer, RandomVariable>();
+		Map<Integer, RandomVariable> gradient = new HashMap<>();
 
 		for(Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){
 			gradient.put(indexOfDependentRandomVariable, omegaHat[arrayListOfAllIndicesOfDependentRandomVariables.get(indexOfDependentRandomVariable)]);

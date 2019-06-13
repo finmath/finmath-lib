@@ -94,17 +94,17 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		double eps = 1E-3;
 
 		double epsDelta = eps;
-		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedInitialValue = new HashMap<>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
 		double deltaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/epsDelta;
 
 		double epsRho = eps/10;
-		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+epsRho);
 		double rhoFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/epsRho ;
 
 		double epsVega = eps/10;
-		Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedVolatility = new HashMap<>();
 		dataModifiedVolatility.put("volatility", modelVolatility+epsVega);
 		double vegaFiniteDifference = (digitalOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/epsVega ;
 
@@ -188,7 +188,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 		double deltaAnalytic = AnalyticFormulas.blackScholesDigitalOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
 
 		double epsilon = 5E-4;
-		Map<String, Object> shiftedValues = new HashMap<String, Object>();
+		Map<String, Object> shiftedValues = new HashMap<>();
 		shiftedValues.put("initialValue", modelInitialValue+epsilon);
 		RandomVariable valueUp = option.getValue(0.0, monteCarloBlackScholesModel.getCloneWithModifiedData(shiftedValues));
 		double deltaFD = (valueUp.getAverage()-value.getAverage())/epsilon;

@@ -139,7 +139,7 @@ public class Period extends AbstractPeriod {
 		}
 		catch(UnsupportedOperationException e) {
 			// @TODO: Models that do not provide a reference date will become disfunctional in future releases.
-		};
+		}
 
 		if(evaluationTime >= productToModelTimeOffset + getPaymentDate()) {
 			return new RandomVariableFromDoubleArray(0.0);

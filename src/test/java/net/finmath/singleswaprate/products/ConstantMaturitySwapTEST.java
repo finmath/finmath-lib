@@ -12,8 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
@@ -22,17 +22,17 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
-import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 public class ConstantMaturitySwapTEST {
 
@@ -96,7 +96,7 @@ public class ConstantMaturitySwapTEST {
 				0, //fixingOffsetDays,
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
-		
+
 		floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 		fixSchedule		= fixMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 

@@ -12,8 +12,8 @@ import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
 import net.finmath.singleswaprate.products.AnnuityDummyProduct;
 import net.finmath.singleswaprate.products.NormalizingDummyProduct;
 import net.finmath.time.Period;
-import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
 
 /**
  * Implements an annuity mapping following Vladimir Piterbarg's approach. This class does not take into account multi curve convexity adjustment.

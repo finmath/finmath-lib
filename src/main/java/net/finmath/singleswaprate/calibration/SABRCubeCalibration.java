@@ -17,9 +17,9 @@ import net.finmath.marketdata.model.volatilities.SwaptionDataLattice.QuotingConv
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
-import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.data.DataTable;
 import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.singleswaprate.data.DataTableInterpolated;
@@ -223,13 +223,13 @@ public class SABRCubeCalibration {
 	 */
 	private DataTableLight findInterpolationNodes() {
 
-		ArrayList<Integer> nodeMaturities = new ArrayList<Integer>();
-		ArrayList<Integer> nodeTerminations = new ArrayList<Integer>();
-		ArrayList<Double> nodeCardinalities = new ArrayList<Double>();
+		ArrayList<Integer> nodeMaturities = new ArrayList<>();
+		ArrayList<Integer> nodeTerminations = new ArrayList<>();
+		ArrayList<Double> nodeCardinalities = new ArrayList<>();
 
-		Set<Integer> payerStrikes = new TreeSet<Integer>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
+		Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
 		payerStrikes.remove(0);
-		Set<Integer> receiverStrikes = new TreeSet<Integer>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
+		Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
 		receiverStrikes.remove(0);
 
 		for(int maturity : cashPayerPremiums.getMaturities()) {
@@ -301,9 +301,9 @@ public class SABRCubeCalibration {
 	 */
 	private void makeSwapRateTable() {
 
-		ArrayList<Double> swapRates = new ArrayList<Double>();
-		ArrayList<Integer> matList = new ArrayList<Integer>();
-		ArrayList<Integer> termList = new ArrayList<Integer>();
+		ArrayList<Double> swapRates = new ArrayList<>();
+		ArrayList<Integer> matList = new ArrayList<>();
+		ArrayList<Integer> termList = new ArrayList<>();
 
 		SchedulePrototype fixMetaSchedule	= physicalPremiumsATM.getFixMetaSchedule();
 		SchedulePrototype floatMetaSchedule	= physicalPremiumsATM.getFloatMetaSchedule();
@@ -359,12 +359,12 @@ public class SABRCubeCalibration {
 		//convert data tables to swaptions and target array
 		//order: cashPayer(strike maturity termination) cashReceiver(strike maturity termination)
 
-		payerSwaptions = new ArrayList<SwaptionInfo>();
-		receiverSwaptions = new ArrayList<SwaptionInfo>();
+		payerSwaptions = new ArrayList<>();
+		receiverSwaptions = new ArrayList<>();
 
 		//prep temp variables
-		ArrayList<Double> targetsPayer 	  = new ArrayList<Double>();
-		ArrayList<Double> targetsReceiver = new ArrayList<Double>();
+		ArrayList<Double> targetsPayer 	  = new ArrayList<>();
+		ArrayList<Double> targetsReceiver = new ArrayList<>();
 
 		//sort all data into array lists
 		for(int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
@@ -508,7 +508,7 @@ public class SABRCubeCalibration {
 				String mappingName;
 				AnnuityMapping mapping;
 				AnnuityMappingFactory factory;
-				Map<String, AnnuityMapping> container = new HashMap<String, AnnuityMapping>();
+				Map<String, AnnuityMapping> container = new HashMap<>();
 
 				int index = 0;
 				//calculate cash payer swaption values

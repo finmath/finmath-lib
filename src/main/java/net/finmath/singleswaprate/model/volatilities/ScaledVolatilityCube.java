@@ -79,7 +79,7 @@ public class ScaledVolatilityCube implements VolatilityCube {
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<>();
 		map.put("coefficient", coefficient);
 		map.put("Inherent correlationDecay", correlationDecay);
 		map.put("iborOisDecorrelation", iborOisDecorrelation);

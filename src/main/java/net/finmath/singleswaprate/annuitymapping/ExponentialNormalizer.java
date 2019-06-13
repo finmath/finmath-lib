@@ -1,7 +1,7 @@
 package net.finmath.singleswaprate.annuitymapping;
 
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.singleswaprate.products.NormalizingDummyProduct;

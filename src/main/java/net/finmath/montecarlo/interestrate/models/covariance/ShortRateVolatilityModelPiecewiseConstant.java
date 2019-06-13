@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Short rate volatility model with a piecewise constant volatility and a piecewise constant mean reversion.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */

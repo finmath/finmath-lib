@@ -25,7 +25,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 
 	/**
 	 * Create a discount curve using one or more curves.
-	 * 
+	 *
 	 * The product curve is generated dynamically by looking up the given curveNames in the model passed
 	 * to the method {@link #getDiscountFactor(AnalyticModel, double)}.
 	 *

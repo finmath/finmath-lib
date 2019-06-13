@@ -15,26 +15,23 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.singleswaprate.annuitymapping.BasicPiterbargAnnuityMapping;
-import net.finmath.singleswaprate.annuitymapping.MultiPiterbargAnnuityMapping;
-import net.finmath.singleswaprate.annuitymapping.SimplifiedLinearAnnuityMapping;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.singleswaprate.model.volatilities.SABRVolatilityCubeSingleSmile;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * Testing annuity mappings at atm and their smiles plus derivatives.

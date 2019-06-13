@@ -88,7 +88,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 	public Map<Double, SingleAssetEuropeanOptionProductDescriptor> getDescriptors(LocalDate referenceDate){
 
 		int numberOfStrikes = strikes.length;
-		HashMap<Double, SingleAssetEuropeanOptionProductDescriptor> descriptors = new HashMap<Double, SingleAssetEuropeanOptionProductDescriptor>();
+		HashMap<Double, SingleAssetEuropeanOptionProductDescriptor> descriptors = new HashMap<>();
 
 		LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
 		for(int i = 0; i< numberOfStrikes; i++) {

@@ -73,7 +73,7 @@ public class DiscountCurveSerializationTest {
 
 		// Check equality
 		for(double time=0; time < 10; time += 0.1) {
-			Assert.assertEquals("Discount factor for maturity " + time, discountFactors.getDiscountFactor(time), discountFactorsClone.getDiscountFactor(time), 0.0);;
+			Assert.assertEquals("Discount factor for maturity " + time, discountFactors.getDiscountFactor(time), discountFactorsClone.getDiscountFactor(time), 0.0);
 		}
 	}
 

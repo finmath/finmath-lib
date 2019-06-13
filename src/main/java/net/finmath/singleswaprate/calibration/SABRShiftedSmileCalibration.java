@@ -14,9 +14,9 @@ import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
-import net.finmath.singleswaprate.data.DataTableExtrapolated;
 import net.finmath.singleswaprate.data.DataTable;
 import net.finmath.singleswaprate.data.DataTable.TableConvention;
+import net.finmath.singleswaprate.data.DataTableExtrapolated;
 import net.finmath.singleswaprate.data.DataTableLight;
 import net.finmath.singleswaprate.data.DataTableLinear;
 import net.finmath.singleswaprate.model.volatilities.SABRVolatilityCube;
@@ -119,7 +119,7 @@ public class SABRShiftedSmileCalibration {
 			// ignore this, lattice doesn't use calibrated cube
 		}
 
-		TreeMap<Integer, DataTable> returnMap = new TreeMap<Integer, DataTable>();
+		TreeMap<Integer, DataTable> returnMap = new TreeMap<>();
 		for(Map.Entry<Integer, DataTableLight> entry : factory.physicalVolatilities.entrySet()) {
 			returnMap.put(entry.getKey(), entry.getValue().clone());
 		}
@@ -193,11 +193,11 @@ public class SABRShiftedSmileCalibration {
 	private void calibrateSmilesOnNodes() throws SolverException {
 
 		// lists for all parameter maps
-		ArrayList<Integer> maturities = new ArrayList<Integer>();
-		ArrayList<Integer> terminations = new ArrayList<Integer>();
-		ArrayList<Double> sabrRhos = new ArrayList<Double>();
-		ArrayList<Double> sabrBaseVols = new ArrayList<Double>();
-		ArrayList<Double> sabrVolvols = new ArrayList<Double>();
+		ArrayList<Integer> maturities = new ArrayList<>();
+		ArrayList<Integer> terminations = new ArrayList<>();
+		ArrayList<Double> sabrRhos = new ArrayList<>();
+		ArrayList<Double> sabrBaseVols = new ArrayList<>();
+		ArrayList<Double> sabrVolvols = new ArrayList<>();
 
 		// calibrate a SABR smile on each node of the grid
 		double[] initialParameters = new double[]{ 0.01, 0.15, 0.3 }; // baseVol, volVol, rho
@@ -267,8 +267,8 @@ public class SABRShiftedSmileCalibration {
 					}
 				};
 				optimizer.run();
-//				System.out.println("Optimizer for node "+maturity+"x"+termination+" finished after " +optimizer.getIterations() +
-//						" iterations with mean error " + optimizer.getRootMeanSquaredError());
+				//				System.out.println("Optimizer for node "+maturity+"x"+termination+" finished after " +optimizer.getIterations() +
+				//						" iterations with mean error " + optimizer.getRootMeanSquaredError());
 
 				double[] parameters = optimizer.getBestFitParameters();
 
@@ -304,13 +304,13 @@ public class SABRShiftedSmileCalibration {
 	 */
 	private void findInterpolationNodes() {
 
-		ArrayList<Integer> nodeMaturities = new ArrayList<Integer>();
-		ArrayList<Integer> nodeTerminations = new ArrayList<Integer>();
-		ArrayList<Double> nodeCardinalities = new ArrayList<Double>();
+		ArrayList<Integer> nodeMaturities = new ArrayList<>();
+		ArrayList<Integer> nodeTerminations = new ArrayList<>();
+		ArrayList<Double> nodeCardinalities = new ArrayList<>();
 
-		Set<Integer> payerStrikes = new TreeSet<Integer>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
+		Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
 		payerStrikes.remove(0);
-		Set<Integer> receiverStrikes = new TreeSet<Integer>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
+		Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
 		receiverStrikes.remove(0);
 
 		for(int maturity : physicalPremiumsATM.getMaturities()) {
@@ -381,7 +381,7 @@ public class SABRShiftedSmileCalibration {
 		DataTableLight physicalATMTable =  new DataTableLight("VolatilitiesPhysicalATM", TableConvention.MONTHS, maturitiesArray, terminationsArray,
 				volatilitiesArray);
 
-		physicalVolatilities = new TreeMap<Integer, DataTableLight>();
+		physicalVolatilities = new TreeMap<>();
 		physicalVolatilities.put(0, physicalATMTable);
 
 		DataTableLight payerATMTable = cashPayerVolatilities.get(0);
@@ -391,19 +391,19 @@ public class SABRShiftedSmileCalibration {
 
 
 		// imitate physical smile via cash smiles
-		Set<Integer> strikes = new TreeSet<Integer>(cashPayerVolatilities.keySet());
+		Set<Integer> strikes = new TreeSet<>(cashPayerVolatilities.keySet());
 		strikes.addAll(cashReceiverVolatilities.keySet());
 		strikes.remove(0);
 
 		for(int strike : strikes) {
 			//lists for bulk-initialization of tables
-			ArrayList<Integer> maturitiesPositive = new ArrayList<Integer>();
-			ArrayList<Integer> terminationsPositive = new ArrayList<Integer>();
-			ArrayList<Double> physicalVolatilitiesPositive = new ArrayList<Double>();
+			ArrayList<Integer> maturitiesPositive = new ArrayList<>();
+			ArrayList<Integer> terminationsPositive = new ArrayList<>();
+			ArrayList<Double> physicalVolatilitiesPositive = new ArrayList<>();
 
-			ArrayList<Integer> maturitiesNegative = new ArrayList<Integer>();
-			ArrayList<Integer> terminationsNegative = new ArrayList<Integer>();
-			ArrayList<Double> physicalVolatilitiesNegative = new ArrayList<Double>();
+			ArrayList<Integer> maturitiesNegative = new ArrayList<>();
+			ArrayList<Integer> terminationsNegative = new ArrayList<>();
+			ArrayList<Double> physicalVolatilitiesNegative = new ArrayList<>();
 
 			// shifting surface by shifting each individual point
 			for(int maturity : interpolationNodes.getMaturities()) {
@@ -449,12 +449,12 @@ public class SABRShiftedSmileCalibration {
 	private void findPayerVolatilities() {
 
 		//convert to volatilities
-		cashPayerVolatilities = new TreeMap<Integer, DataTableLight>();
+		cashPayerVolatilities = new TreeMap<>();
 		for(int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
 
-			ArrayList<Integer> maturities = new ArrayList<Integer>();
-			ArrayList<Integer> terminations = new ArrayList<Integer>();
-			ArrayList<Double> values = new ArrayList<Double>();
+			ArrayList<Integer> maturities = new ArrayList<>();
+			ArrayList<Integer> terminations = new ArrayList<>();
+			ArrayList<Double> values = new ArrayList<>();
 
 			for(int maturity : interpolationNodes.getMaturities()) {
 				for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
@@ -486,12 +486,12 @@ public class SABRShiftedSmileCalibration {
 	private void findReceiverVolatilities() {
 
 		//convert to volatilities
-		cashReceiverVolatilities = new TreeMap<Integer, DataTableLight>();
+		cashReceiverVolatilities = new TreeMap<>();
 		for(int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {
 
-			ArrayList<Integer> maturities = new ArrayList<Integer>();
-			ArrayList<Integer> terminations = new ArrayList<Integer>();
-			ArrayList<Double> values = new ArrayList<Double>();
+			ArrayList<Integer> maturities = new ArrayList<>();
+			ArrayList<Integer> terminations = new ArrayList<>();
+			ArrayList<Double> values = new ArrayList<>();
 
 			for(int maturity : interpolationNodes.getMaturities()) {
 				for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {

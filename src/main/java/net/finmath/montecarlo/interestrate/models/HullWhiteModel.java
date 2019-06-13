@@ -139,7 +139,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	private final Map<String, Object>	properties;
 
-	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;;
+	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;
 
 	/*
 	 * Cache
@@ -177,7 +177,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
 
-		this.properties = new HashMap<String, Object>();
+		this.properties = new HashMap<>();
 		if(properties != null) {
 			for(Map.Entry<String,?> property : properties.entrySet()) {
 				if(Serializable.class.isAssignableFrom(property.getValue().getClass())) {

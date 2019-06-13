@@ -11,8 +11,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
@@ -114,19 +114,19 @@ public class SABRCubeParallelCalibrationTEST {
 		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 
 		// override initial parameters
-//		double initialCorrelationDecay = 0;
-//		double initialIborOisDecorrelation = 1;
-//		double initialDisplacement = 0.25;
-//		double initialBeta = 0.5;
-//		double initialRho = 0.1;
-//		double initialVolvol = 0.0001;
+		//		double initialCorrelationDecay = 0;
+		//		double initialIborOisDecorrelation = 1;
+		//		double initialDisplacement = 0.25;
+		//		double initialBeta = 0.5;
+		//		double initialRho = 0.1;
+		//		double initialVolvol = 0.0001;
 
-//		calibrator.setInitialCorrelationDecay(initialCorrelationDecay);
-//		calibrator.setInitialIborOisDecorrelation(initialIborOisDecorrelation);
-//		calibrator.setInitialDisplacement(initialDisplacement);
-//		calibrator.setInitialBeta(initialBeta);
-//		calibrator.setInitialRho(initialRho);
-//		calibrator.setInitialVolvol(initialVolvol);
+		//		calibrator.setInitialCorrelationDecay(initialCorrelationDecay);
+		//		calibrator.setInitialIborOisDecorrelation(initialIborOisDecorrelation);
+		//		calibrator.setInitialDisplacement(initialDisplacement);
+		//		calibrator.setInitialBeta(initialBeta);
+		//		calibrator.setInitialRho(initialRho);
+		//		calibrator.setInitialVolvol(initialVolvol);
 
 		try {
 			cube = calibrator.calibrate("CalibratedCube");

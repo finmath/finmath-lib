@@ -25,7 +25,7 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 	 *
 	 */
 	private static final long serialVersionUID = 5548526355763266102L;
-	private final Map<String, VolatilityCube> volatilityCubeMap = new HashMap<String,VolatilityCube>();
+	private final Map<String, VolatilityCube> volatilityCubeMap = new HashMap<>();
 
 	/**
 	 * Create an empty analytic model.
@@ -105,7 +105,7 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 
 	@Override
 	public Set<String> getVolatilityCubeNames() {
-		return new HashSet<String>(volatilityCubeMap.keySet());
+		return new HashSet<>(volatilityCubeMap.keySet());
 	}
 
 	@Override

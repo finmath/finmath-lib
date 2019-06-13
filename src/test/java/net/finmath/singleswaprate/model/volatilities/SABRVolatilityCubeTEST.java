@@ -17,8 +17,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
@@ -33,8 +33,8 @@ import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
@@ -76,7 +76,7 @@ public class SABRVolatilityCubeTEST {
 	private static SwaptionDataLattice receiverSwaptions;
 	private static SwaptionDataLattice physicalSwaptions;
 	private static SwaptionDataLattice physicalVolatilities;
-	
+
 	private VolatilityCube cube;
 
 	private static List<Double> differenceList;
@@ -183,13 +183,13 @@ public class SABRVolatilityCubeTEST {
 
 		for(int moneyness : physicalVolatilities.getMoneyness()) {
 
-			ArrayList<Integer> marketMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> marketTerminations = new ArrayList<Integer>();
-			ArrayList<Double> marketVolatilities = new ArrayList<Double>();
+			ArrayList<Integer> marketMaturities = new ArrayList<>();
+			ArrayList<Integer> marketTerminations = new ArrayList<>();
+			ArrayList<Double> marketVolatilities = new ArrayList<>();
 
-			ArrayList<Integer> modelMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> modelTerminations = new ArrayList<Integer>();
-			ArrayList<Double> modelVolatilities = new ArrayList<Double>();
+			ArrayList<Integer> modelMaturities = new ArrayList<>();
+			ArrayList<Integer> modelTerminations = new ArrayList<>();
+			ArrayList<Double> modelVolatilities = new ArrayList<>();
 
 			ArrayList<Double> differenceList = new ArrayList<>();
 
@@ -275,9 +275,9 @@ public class SABRVolatilityCubeTEST {
 		}
 
 		long time = System.currentTimeMillis();
-			for(double[] query : queries) {
-				cube.getValue(query[0], query[1], query[2], QuotingConvention.VOLATILITYNORMAL);
-			}
+		for(double[] query : queries) {
+			cube.getValue(query[0], query[1], query[2], QuotingConvention.VOLATILITYNORMAL);
+		}
 		time = System.currentTimeMillis() - time;
 		System.out.println("Query took " + time + " milliseconds.");
 		if(time >= randomQueryTimeLimitInMillis) {
@@ -314,9 +314,9 @@ public class SABRVolatilityCubeTEST {
 		}
 
 		long time = System.currentTimeMillis();
-			for(double[] query : queries) {
-				cube.getValue(query[0], query[1], query[2], QuotingConvention.VOLATILITYNORMAL);
-			}
+		for(double[] query : queries) {
+			cube.getValue(query[0], query[1], query[2], QuotingConvention.VOLATILITYNORMAL);
+		}
 		time = System.currentTimeMillis() - time;
 		System.out.println("Query took " + time + " milliseconds.");
 		if(time >= randomQueryTimeLimitInMillis) {
@@ -340,7 +340,7 @@ public class SABRVolatilityCubeTEST {
 	}
 
 	private static VolatilityCube makeVolatilityCube() {
-		
+
 		DataTable swapRateTable	= makeSwapRateTable();
 		DataTable rhoTable		= makeDummyTable("Rho-Dummy", sabrRho);
 		DataTable volvolTable		= makeDummyTable("VolVol-Dummy", sabrVolvol);

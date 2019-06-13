@@ -28,7 +28,7 @@ public class RandomVariableDifferentiableAADTest {
 		 */
 		AbstractRandomVariableFactory randomVariableFactoryParameters = new RandomVariableFactory();
 
-		Map<String, Object> properties = new HashMap<String, Object>();
+		Map<String, Object> properties = new HashMap<>();
 		properties.put("isGradientRetainsLeafNodesOnly", false);
 
 		AbstractRandomVariableFactory randomVariableFactoryVariable = new RandomVariableDifferentiableAADFactory(

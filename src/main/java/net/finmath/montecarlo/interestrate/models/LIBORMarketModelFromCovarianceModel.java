@@ -182,7 +182,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private transient ConcurrentHashMap<Integer, RandomVariable>	numeraires = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors = new ConcurrentHashMap<>();
-	private transient Vector<RandomVariable>						interpolationDriftAdjustmentsTerminal = new Vector<RandomVariable>();
+	private transient Vector<RandomVariable>						interpolationDriftAdjustmentsTerminal = new Vector<>();
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
@@ -1703,7 +1703,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		numeraires = new ConcurrentHashMap<>();
 		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 		numeraireDiscountFactors = new ConcurrentHashMap<>();
-		interpolationDriftAdjustmentsTerminal = new Vector<RandomVariable>();
+		interpolationDriftAdjustmentsTerminal = new Vector<>();
 	}
 
 	@Override

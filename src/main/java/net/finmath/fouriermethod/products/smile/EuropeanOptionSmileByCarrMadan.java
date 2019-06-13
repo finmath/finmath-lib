@@ -141,7 +141,7 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 
 		};
 
-		HashMap<String, Function<Double, Double>> results = new HashMap<String, Function<Double, Double>>();
+		HashMap<String, Function<Double, Double>> results = new HashMap<>();
 		results.put("valuePerStrike", strikeToPrice);
 		return results;
 	}

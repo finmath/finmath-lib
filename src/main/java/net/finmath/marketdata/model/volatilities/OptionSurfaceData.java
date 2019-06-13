@@ -48,7 +48,7 @@ public class OptionSurfaceData {
 		if(strikes.length != values.length || maturities.length != values[0].length ) {
 			throw new IllegalArgumentException("Inconsistent number of strikes, maturities or values");
 		}else {
-			surface = new HashMap<Double,OptionSmileData>();
+			surface = new HashMap<>();
 
 			for(int j = 0; j< maturities.length; j++) {
 
@@ -88,7 +88,7 @@ public class OptionSurfaceData {
 		LocalDate myReferenceDate = firstSmile.getReferenceDate();
 		QuotingConvention myConvention = firstSmile.getSmile().get(firstSmile.getStrikes()[0]).getConvention();
 
-		HashMap<Double, OptionSmileData> mySurface = new HashMap<Double, OptionSmileData>();
+		HashMap<Double, OptionSmileData> mySurface = new HashMap<>();
 		double[] mats = new double[smiles.length];
 
 		for(int t = 0; t<smiles.length;t++) {

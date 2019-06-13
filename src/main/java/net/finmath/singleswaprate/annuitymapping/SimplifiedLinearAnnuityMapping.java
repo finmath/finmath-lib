@@ -1,8 +1,8 @@
 package net.finmath.singleswaprate.annuitymapping;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.Schedule;

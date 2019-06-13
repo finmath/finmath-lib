@@ -108,13 +108,13 @@ public class ErrorEstimation {
 			nodes = physicalPremiumsATM.append(cashPayerPremiums, model).append(cashReceiverPremiums, model);
 		}
 
-		ArrayList<Double> marketPhysicalList = new ArrayList<Double>();
-		ArrayList<Double> modelPhysicalList = new ArrayList<Double>();
+		ArrayList<Double> marketPhysicalList = new ArrayList<>();
+		ArrayList<Double> modelPhysicalList = new ArrayList<>();
 
-		ArrayList<Double> marketCashPayer = new ArrayList<Double>();
-		ArrayList<Double> marketCashReceiver = new ArrayList<Double>();
-		ArrayList<Double> modelCashPayer = new ArrayList<Double>();
-		ArrayList<Double> modelCashReceiver = new ArrayList<Double>();
+		ArrayList<Double> marketCashPayer = new ArrayList<>();
+		ArrayList<Double> marketCashReceiver = new ArrayList<>();
+		ArrayList<Double> modelCashPayer = new ArrayList<>();
+		ArrayList<Double> modelCashReceiver = new ArrayList<>();
 
 
 		for(int maturity : nodes.getMaturities()) {
@@ -179,10 +179,10 @@ public class ErrorEstimation {
 	 */
 	private void evaluateTenor(int maturity, int termination, VolatilityCubeModel model) {
 
-		ArrayList<Double> marketCashPayer = new ArrayList<Double>();
-		ArrayList<Double> marketCashReceiver = new ArrayList<Double>();
-		ArrayList<Double> modelCashPayer = new ArrayList<Double>();
-		ArrayList<Double> modelCashReceiver = new ArrayList<Double>();
+		ArrayList<Double> marketCashPayer = new ArrayList<>();
+		ArrayList<Double> marketCashReceiver = new ArrayList<>();
+		ArrayList<Double> modelCashPayer = new ArrayList<>();
+		ArrayList<Double> modelCashReceiver = new ArrayList<>();
 
 		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
 		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);

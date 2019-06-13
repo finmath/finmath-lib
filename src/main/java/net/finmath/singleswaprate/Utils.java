@@ -97,7 +97,7 @@ public class Utils {
 
 	/**
 	 * Create smiles for physically settled swaptions by shifting the smiles from cash settled swaptions onto atm levels of physically settled swaptions.
-	 * 
+	 *
 	 * @param model Contains curves to translate swaption data to normal volatility. Can be null, if data already in normal volatility.
 	 * @param physicalSwaptions The physically settled atm swaptions.
 	 * @param cashSwaptions The smile points with corresponding atm nodes of cash swaptions.

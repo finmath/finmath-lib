@@ -137,7 +137,7 @@ public class SABRVolatilityCube implements VolatilityCube, Serializable {
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String,Object> map = new HashMap<>();
 		map.put("sabrBeta", sabrBeta);
 		map.put("sabrDisplacement", sabrDisplacement);
 		map.put("underlyingTable", underlyingTable.clone());

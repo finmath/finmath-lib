@@ -80,7 +80,7 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		double[] exerciseDates = new double[] { 1.0, 2.0, 3.0, 4.0 };
 		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
 		double[] strikes = new double[] { 0.50, 0.60, 0.80, 1.00 };
-		Map<String, Object> properties = new HashMap<String, Object>(); properties.put("orderOfRegressionPolynomial",new Integer(1));
+		Map<String, Object> properties = new HashMap<>(); properties.put("orderOfRegressionPolynomial",new Integer(1));
 		BermudanDigitalOption bermudanOption = new BermudanDigitalOption(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION, properties);
 		//		double[] strikes = new double[] { optionStrike, optionStrike, optionStrike, optionStrike };
 		//		BermudanOption bermudanOption = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
@@ -101,17 +101,17 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		 */
 
 		for(double eps = 0.8; eps > 1E-6; eps/=1.2) {
-			Map<String, Object> dataModifiedInitialValueUp = new HashMap<String, Object>();
+			Map<String, Object> dataModifiedInitialValueUp = new HashMap<>();
 			dataModifiedInitialValueUp.put("initialValue", modelInitialValue+eps);
-			Map<String, Object> dataModifiedInitialValueDn = new HashMap<String, Object>();
+			Map<String, Object> dataModifiedInitialValueDn = new HashMap<>();
 			dataModifiedInitialValueDn.put("initialValue", modelInitialValue-eps);
 			double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueUp)) - bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueDn)))/(2*eps);
 
-			Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
+			Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 			dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
 			double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-			Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
+			Map<String, Object> dataModifiedVolatility = new HashMap<>();
 			dataModifiedVolatility.put("volatility", modelVolatility+eps);
 			double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 
@@ -119,15 +119,15 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 		}
 
 		double eps = 1E-3;
-		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedInitialValue = new HashMap<>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
 		double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
 		double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
+		Map<String, Object> dataModifiedVolatility = new HashMap<>();
 		dataModifiedVolatility.put("volatility", modelVolatility+eps);
 		double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 

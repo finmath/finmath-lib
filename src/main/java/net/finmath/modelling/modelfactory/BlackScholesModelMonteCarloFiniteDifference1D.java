@@ -90,7 +90,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 								indexOfSpot = -indexOfSpot-1;
 							}
 
-							Map<String, Object> results = new HashMap<String, Object>();
+							Map<String, Object> results = new HashMap<>();
 							results.put("value", optionValue[indexOfSpot]);
 							return results;
 						}

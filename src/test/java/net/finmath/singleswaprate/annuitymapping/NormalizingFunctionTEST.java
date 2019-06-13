@@ -11,26 +11,24 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
-import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.optimizer.SolverException;
-import net.finmath.singleswaprate.annuitymapping.ExponentialNormalizer;
-import net.finmath.singleswaprate.annuitymapping.NormalizingFunction;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.singleswaprate.model.volatilities.SABRVolatilityCubeParallelFactory;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
 import net.finmath.singleswaprate.products.NormalizingDummyProduct;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 /**
  * Test to verify that the expectation of the normalizing function equals 1.

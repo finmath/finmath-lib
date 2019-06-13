@@ -12,9 +12,9 @@ import net.finmath.marketdata.model.volatilities.SwaptionDataLattice.QuotingConv
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.LevenbergMarquardt;
 import net.finmath.optimizer.SolverException;
-import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
@@ -62,8 +62,8 @@ public abstract class AbstractCubeCalibration {
 	private double[] calibratedParameters;
 
 	private double[] marketTargets;
-	private ArrayList<SwaptionInfo> payerSwaptions = new ArrayList<SwaptionInfo>();
-	private ArrayList<SwaptionInfo> receiverSwaptions = new ArrayList<SwaptionInfo>();
+	private ArrayList<SwaptionInfo> payerSwaptions = new ArrayList<>();
+	private ArrayList<SwaptionInfo> receiverSwaptions = new ArrayList<>();
 
 
 	/**
@@ -173,7 +173,7 @@ public abstract class AbstractCubeCalibration {
 				String mappingName;
 				AnnuityMapping mapping;
 				AnnuityMappingFactory factory;
-				Map<String, AnnuityMapping> container = new HashMap<String, AnnuityMapping>();
+				Map<String, AnnuityMapping> container = new HashMap<>();
 
 				int index = 0;
 				//calculate cash payer swaption values
@@ -278,8 +278,8 @@ public abstract class AbstractCubeCalibration {
 		//order: cashPayer(strike maturity termination) cashReceiver(strike maturity termination)
 
 		//prep temp variables
-		ArrayList<Double> targetsPayer 	  = new ArrayList<Double>();
-		ArrayList<Double> targetsReceiver = new ArrayList<Double>();
+		ArrayList<Double> targetsPayer 	  = new ArrayList<>();
+		ArrayList<Double> targetsReceiver = new ArrayList<>();
 
 		//sort all data into array lists
 		for(int moneyness : cashPayerPremiums.getMoneyness()) {

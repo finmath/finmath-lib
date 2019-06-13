@@ -26,7 +26,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 */
 	public ProductFactoryCascade() {
 		super();
-		factories = new ArrayList<ProductFactory<? extends T>>(0);
+		factories = new ArrayList<>(0);
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 */
 	public ProductFactoryCascade(List<ProductFactory<? extends T>> factories) {
 		super();
-		this.factories = new ArrayList<ProductFactory<? extends T>>();
+		this.factories = new ArrayList<>();
 		this.factories.addAll(factories);
 	}
 
@@ -47,7 +47,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 * @return Cascade with amended factory list.
 	 */
 	public ProductFactoryCascade<T> addFactoryBefore(ProductFactory<? extends T> factory) {
-		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<ProductFactory<? extends T>>(this.factories.size()+1);
+		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
 		factories.addAll(this.factories);
 		factories.add(0, factory);
 		return new ProductFactoryCascade<>(factories);
@@ -60,7 +60,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 * @return Cascade with amended factory list.
 	 */
 	public ProductFactoryCascade<T> addFactoryAfter(ProductFactory<? extends T> factory) {
-		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<ProductFactory<? extends T>>(this.factories.size()+1);
+		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
 		factories.addAll(this.factories);
 		factories.add(factory);
 		return new ProductFactoryCascade<>(factories);

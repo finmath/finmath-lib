@@ -100,7 +100,7 @@ public class StaticVolatilityCube implements VolatilityCube {
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("value", value);
 		map.put("Inherent correlationDecay", correlationDecay);
 		map.put("iborOisDecorrelation", iborOisDecorrelation);

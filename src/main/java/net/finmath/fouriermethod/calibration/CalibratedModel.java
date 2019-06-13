@@ -86,7 +86,7 @@ public class CalibratedModel {
 
 				QuotingConvention targetConvention = surface.getQuotingConvention();
 
-				ArrayList<Double> vals = new ArrayList<Double>();
+				ArrayList<Double> vals = new ArrayList<>();
 
 				for(int t = 0; t<numberOfMaturities; t++) {
 
@@ -159,7 +159,7 @@ public class CalibratedModel {
 		int numberOfMaturities = surface.getMaturities().length;
 		double mats[] = surface.getMaturities();
 
-		ArrayList<Double> vals = new ArrayList<Double>();
+		ArrayList<Double> vals = new ArrayList<>();
 
 		for(int t = 0; t<numberOfMaturities; t++) {
 			double mat = mats[t];
@@ -183,7 +183,7 @@ public class CalibratedModel {
 	 */
 	private ArrayList<String> outputCalibrationResult(double[] parameters) {
 
-		ArrayList<String> calibrationOutput = new ArrayList<String>();
+		ArrayList<String> calibrationOutput = new ArrayList<>();
 
 		//We change the parameters of the model
 		CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);

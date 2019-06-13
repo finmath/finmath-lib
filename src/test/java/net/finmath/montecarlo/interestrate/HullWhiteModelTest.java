@@ -172,7 +172,7 @@ public class HullWhiteModelTest {
 					new double[] { shortRateVolatility } /* volatility */,
 					new double[] { shortRateMeanreversion } /* meanReversion */);
 
-			Map<String, Object> properties = new HashMap<String, Object>();
+			Map<String, Object> properties = new HashMap<>();
 			properties.put("isInterpolateDiscountFactorsOnLiborPeriodDiscretization", false);
 
 			// TODO Left hand side type should be TermStructureModel once interface are refactored

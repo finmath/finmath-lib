@@ -26,7 +26,7 @@ public class OptionSmileData{
 			throw new IllegalArgumentException("Number of strikes and market quotes does not coincide");
 		}else {
 			int numberOfQuotes = strikes.length;
-			smile = new HashMap<Double,OptionData>();
+			smile = new HashMap<>();
 			for(int i = 0; i< numberOfQuotes; i++) {
 				smile.put(strikes[i],new OptionData(underlying, referenceDate, strikes[i],maturity,values[i], convention)) ;
 			}

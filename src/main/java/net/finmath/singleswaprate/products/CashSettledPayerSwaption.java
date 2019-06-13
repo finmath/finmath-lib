@@ -1,8 +1,8 @@
 package net.finmath.singleswaprate.products;
 
-import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.time.Schedule;
 

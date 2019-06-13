@@ -159,7 +159,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	public RandomVariable[] getParameter() {
 		synchronized (volatility) {
 			if(parameter == null) {
-				ArrayList<RandomVariable> parameterArray = new ArrayList<RandomVariable>();
+				ArrayList<RandomVariable> parameterArray = new ArrayList<>();
 				for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 					for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 						if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {

@@ -112,7 +112,7 @@ public class MertonModel extends AbstractProcessModel {
 
 		this.initialValue	= initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		riskFreeRate	= Double.NaN;;
+		riskFreeRate	= Double.NaN;
 		this.volatility		= volatility;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
 		discountRate   = Double.NaN;
