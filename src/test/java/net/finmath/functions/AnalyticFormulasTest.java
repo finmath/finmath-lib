@@ -69,8 +69,10 @@ public class AnalyticFormulasTest {
 
 					double optionDelta = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
-					double epsilon = 1E-5*forward;
-					double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
+					double epsilon = 1E-5*spot;
+					double forwardUp = (spot+epsilon) * Math.exp(riskFreeRate * optionMaturity);
+					double forwardDn = (spot-epsilon) * Math.exp(riskFreeRate * optionMaturity);
+					double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forwardUp, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forwardDn, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
 
 					if(isPrintOutVerbose) {
 						System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionDelta) + " \t" + formatterReal2.format(optionDeltaFiniteDifference));

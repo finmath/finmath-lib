@@ -798,7 +798,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
@@ -837,7 +837,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
@@ -913,18 +913,18 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option delta of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
 	 * normal process with constant volatility, i.e., a Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
-	 * @return Returns the value of a European call option under the Bachelier model.
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
 	public static double bachelierOptionDelta(
 			double forward,
@@ -937,14 +937,14 @@ public class AnalyticFormulas {
 			return 0;
 		}
 		else if(forward == optionStrike) {
-			return payoffUnit / 2;
+			return 1.0 / 2.0;
 		}
 		else
 		{
 			// Calculate analytic value
 			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
-			double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus) * payoffUnit;
+			double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus);
 
 			return deltaAnalytic;
 		}
@@ -1461,7 +1461,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
@@ -1500,7 +1500,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Black-Scholes volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
