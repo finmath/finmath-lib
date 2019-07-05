@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 
 /**
  * Provides utility method to write an object to a file and read an object from a file.
- * 
+ *
  * @author Christian Fries
  */
 public class FileUtilities {
