@@ -28,6 +28,8 @@ import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOptionDeltaLikelihood;
+import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOptionDeltaPathwise;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.montecarlo.model.ProcessModel;
@@ -61,7 +63,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 	// Model properties
 	private final double	initialValue   = 1.0;
-	private final double	riskFreeRate   = 0.05;
+	private final double	riskFreeRate   = 0.02;
 	private final double	volatility     = 0.30;
 
 	// Process discretization properties
@@ -421,11 +423,10 @@ public class BlackScholesMonteCarloValuationTest {
 			EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
 
 			// Value the product with Monte Carlo
-			double shift = initialValue * 1E-6;
+			double shift = initialValue * 1E-4;
 
 			Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("initialValue", initialValue + shift);
-
 			double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
 
 			Map<String,Object> dataDownShift = new HashMap<>();
@@ -445,12 +446,24 @@ public class BlackScholesMonteCarloValuationTest {
 			// Calculate the analytic value
 			double deltaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionDelta(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
+			// Calculate the value using pathwise differentiation
+			EuropeanOptionDeltaPathwise		callOptionDeltaPathwise	= new EuropeanOptionDeltaPathwise(optionMaturity, optionStrike);
+			double							deltaPathwise				= callOptionDeltaPathwise.getValue(model);
+
+			// Calculate the value using likelihood differentiation
+			EuropeanOptionDeltaLikelihood	callOptionDeltaLikelihood	= new EuropeanOptionDeltaLikelihood(optionMaturity, optionStrike);
+			double							deltaLikelihood				= callOptionDeltaLikelihood.getValue(model);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(delta) +
+					"\t" + numberFormatValue.format(deltaPathwise) +
+					"\t" + numberFormatValue.format(deltaLikelihood) +
 					"\t" + numberFormatValue.format(deltaAnalytic) +
-					"\t" + numberFormatDeviation.format(delta-deltaAnalytic));
+					"\t" + numberFormatDeviation.format(delta-deltaAnalytic) +
+					"\t" + numberFormatDeviation.format(delta-deltaAnalytic) +
+					"\t" + numberFormatDeviation.format(deltaPathwise-deltaAnalytic) +
+					"\t" + numberFormatDeviation.format(deltaLikelihood-deltaAnalytic));
 
 			Assert.assertTrue(Math.abs(delta-deltaAnalytic) < 1E-02);
 		}
