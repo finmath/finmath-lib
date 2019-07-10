@@ -7,6 +7,7 @@
 package net.finmath.marketdata.model.volatilities;
 
 import java.time.LocalDate;
+import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
@@ -138,19 +139,33 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		 * ((a + b * T) * Math.exp(- c * T) + d);
 		 */
 		double integratedVariance;
-		if(c != 0) {
+		if(Math.abs(c*T) > 1E-5) {
+			double u = Math.exp(-c*T);
+			double u2 = Math.exp(-2*c*T);
+
+			DoubleUnaryOperator umxlogu = x -> (u-x)/Math.log(u);
+			DoubleUnaryOperator u2mxlogu2 = x -> (u2-x)/Math.log(u2);
+
+			double expA1 = umxlogu.applyAsDouble(1.0);
+			double expA2 = umxlogu.applyAsDouble(expA1) * 2.0;
+			double expB1 = u2mxlogu2.applyAsDouble(1.0);
+			double expB2 = u2mxlogu2.applyAsDouble(expB1) * 2.0;
+			double expB3 = u2mxlogu2.applyAsDouble(expB2) * 3.0;
+
 			/*
 			 * http://www.wolframalpha.com/input/?i=integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T
 			 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a^2 c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a^2 c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d^2 T)
 			 */
-			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))
-					+ a*b*T*T*(((1 - Math.exp(-2*c*T))/(2*c*T) - Math.exp(-2*c*T))/(c*T))
-					+ 2*a*d*T*((1-Math.exp(-c*T))/(c*T))
-					+ b*b*T*T*T*(((((1-Math.exp(-2*c*T))/(2*c*T)-Math.exp(-2*c*T))/(T*c)-Math.exp(-2*c*T)))/(2*c*T))
-					+ 2*b*d*T*T*(((1-Math.exp(-c*T))-T*c*Math.exp(-c*T))/(c*c*T*T))
+			integratedVariance = a*a*T*expB1
+					+ a*b*T*T*expB2
+					+ 2.0*a*d*T*expA1
+					+ b*b*T*T*T*expB3/3.0
+					+ b*d*T*T*expA2
 					+ d*d*T;
 		}
 		else {
+			// Treat c as c = 0
+
 			/*
 			 * http://www.wolframalpha.com/input/?i=expand+%28integrate+%28%28a+%2B+b+*+t%29+%2B+d%29%5E2+from+0+to+T%29
 			 */
