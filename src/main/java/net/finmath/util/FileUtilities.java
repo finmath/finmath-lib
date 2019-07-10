@@ -20,7 +20,9 @@ import java.io.ObjectOutputStream;
 public class FileUtilities {
 
 	public static Object loadObject(File pathToFile) throws ClassNotFoundException, IOException {
-		if(pathToFile == null) return null;
+		if(pathToFile == null) {
+			return null;
+		}
 
 		// Load serialized object
 		FileInputStream fis = new FileInputStream(pathToFile);

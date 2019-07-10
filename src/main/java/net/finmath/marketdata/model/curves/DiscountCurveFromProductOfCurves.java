@@ -64,7 +64,9 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 		double discountFactor = 1.0;
 
 		if(curveNames != null) {
-			if(model == null) throw new IllegalArgumentException("This object requires that a reference to an AnalyticModel is passed to a call this method.");
+			if(model == null) {
+				throw new IllegalArgumentException("This object requires that a reference to an AnalyticModel is passed to a call this method.");
+			}
 
 			for(String curveName : curveNames) {
 				discountFactor *= model.getDiscountCurve(curveName).getDiscountFactor(model, maturity);

@@ -44,8 +44,11 @@ public class ExponentialCorrelationCurve extends AbstractCurve implements Clonea
 
 	@Override
 	public double getValue(AnalyticModel model, double time) {
-		if(time > termination) return 1.0;
-		else return Math.exp(correlationDecay *(time -termination));
+		if(time > termination) {
+			return 1.0;
+		} else {
+			return Math.exp(correlationDecay *(time -termination));
+		}
 	}
 
 	@Override

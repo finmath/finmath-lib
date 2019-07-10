@@ -207,13 +207,13 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		RandomVariable expB2 = exp2mxdlog.apply(expB1).mult(2.0);	// expm2cT.sub(expB1).div(expm2cT.log()).mult(2);
 		RandomVariable expB3 = exp2mxdlog.apply(expB2).mult(3.0);	// expm2cT.sub(expB2).div(expm2cT.log()).mult(3.0);
 
-/*
+		/*
 		RandomVariable expA1 = expmcT.sub(1.0).div(mcT);
 		RandomVariable expA2 = expmcT.sub(expmcT.sub(1.0).div(mcT)).div(mcT).mult(2.0);
 		RandomVariable expB1 = expm2cT.sub(1.0).div(mcT2);
 		RandomVariable expB2 = expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT);
 		RandomVariable expB3 = expm2cT.sub(expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT)).div(mcT2).mult(3.0);
-*/
+		 */
 
 		// Ensure that c is cut off from 0 (the term (exp(-cT)-1)/cT will have cancelations)
 		RandomVariable cCutOff = mcT.abs().sub(1E-5).choose(new Scalar(-1.0), new Scalar(1.0));

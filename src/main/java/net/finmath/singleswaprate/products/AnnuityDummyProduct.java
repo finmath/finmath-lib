@@ -74,7 +74,9 @@ public class AnnuityDummyProduct extends AbstractSingleSwapRateProduct {
 	@Override
 	protected AnnuityMapping buildAnnuityMapping(VolatilityCubeModel model) {
 
-		if(annuityMapping != null) return annuityMapping;
+		if(annuityMapping != null) {
+			return annuityMapping;
+		}
 
 		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
 		return factory.build(annuityMappingType, model);

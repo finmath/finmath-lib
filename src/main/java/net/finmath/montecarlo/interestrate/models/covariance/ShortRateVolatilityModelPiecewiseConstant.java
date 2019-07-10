@@ -156,7 +156,9 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	public RandomVariable[] getParameter() {
 		int volatilityParameterLength = (isVolatilityCalibrateable ? volatility.length : 0);
 		int parameterLength = volatilityParameterLength + (isMeanReversionCalibrateable ? meanReversion.length : 0);
-		if(parameterLength == 0) return null;
+		if(parameterLength == 0) {
+			return null;
+		}
 
 		RandomVariable[] parameter = new RandomVariable[parameterLength];
 		if(isVolatilityCalibrateable) {

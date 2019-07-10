@@ -143,15 +143,21 @@ public class DataTableBasic implements DataTable, Cloneable {
 	@Override
 	public double getValue(int maturity, int termination) {
 		DoubleKey key = new DoubleKey(maturity, termination);
-		if(entries.containsKey(key)) return entries.get(new DoubleKey(maturity,termination));
-		else throw new NullPointerException("Key not found.");
+		if(entries.containsKey(key)) {
+			return entries.get(new DoubleKey(maturity,termination));
+		} else {
+			throw new NullPointerException("Key not found.");
+		}
 	}
 
 	@Override
 	public double getValue(double maturity, double termination) {
 		DoubleKey key = new DoubleKey(maturity, termination);
-		if(entries.containsKey(key)) return entries.get(new DoubleKey(maturity,termination));
-		else throw new NullPointerException("Key not found.");
+		if(entries.containsKey(key)) {
+			return entries.get(new DoubleKey(maturity,termination));
+		} else {
+			throw new NullPointerException("Key not found.");
+		}
 	}
 
 	@Override
@@ -183,24 +189,30 @@ public class DataTableBasic implements DataTable, Cloneable {
 	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
 		if(maturitySet.contains(maturity)) {
 			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int termination:terminationSet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
-				returnSet.add(termination);
+			for(int termination:terminationSet) {
+				if(entries.containsKey(new DoubleKey(maturity,termination))) {
+					returnSet.add(termination);
+				}
 			}
 			return returnSet;
+		} else {
+			throw new NullPointerException("This data table does not contain entries for maturity "+maturity);
 		}
-		else throw new NullPointerException("This data table does not contain entries for maturity "+maturity);
 	}
 
 	@Override
 	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
 		if(terminationSet.contains(termination)) {
 			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int maturity: maturitySet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
-				returnSet.add(maturity);
+			for(int maturity: maturitySet) {
+				if(entries.containsKey(new DoubleKey(maturity,termination))) {
+					returnSet.add(maturity);
+				}
 			}
 			return returnSet;
+		} else {
+			throw new NullPointerException("This data table does not contain entries for termination " +termination);
 		}
-		else throw new NullPointerException("This data table does not contain entries for termination " +termination);
 	}
 
 	@Override
@@ -312,12 +324,20 @@ public class DataTableBasic implements DataTable, Cloneable {
 
 		@Override
 		public boolean equals(Object other) {
-			if(this == other) return true;
+			if(this == other) {
+				return true;
+			}
 
-			if(other == null) return false;
-			if(other.getClass() != getClass()) return false;
+			if(other == null) {
+				return false;
+			}
+			if(other.getClass() != getClass()) {
+				return false;
+			}
 
-			if(maturity 	!= ((DoubleKey) other).maturity )		return false;
+			if(maturity 	!= ((DoubleKey) other).maturity ) {
+				return false;
+			}
 			return (termination == ((DoubleKey) other).termination);
 		}
 

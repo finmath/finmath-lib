@@ -395,7 +395,10 @@ public class CashSettledSwaptionTEST {
 		}
 		periodLength /= fixSchedule.getNumberOfPeriods();
 
-		if(swapRate == 0.0) return numberOfPeriods * periodLength;
-		else return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;
+		if(swapRate == 0.0) {
+			return numberOfPeriods * periodLength;
+		} else {
+			return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;
+		}
 	}
 }

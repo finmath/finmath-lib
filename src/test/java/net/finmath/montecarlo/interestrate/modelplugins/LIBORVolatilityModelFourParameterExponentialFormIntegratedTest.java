@@ -83,7 +83,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			 */
 			error = Math.max(error, Math.abs(volatilityAnalytical-volatilityNumerical)/Math.max(volatilityAnalytical, 1));
 
-//			System.out.println(error + "\t" + timeIndex + "\t" + liborIndex + "\t" + t1 + "\t" + t2 + "\t" + maturity + "\t" + volatilityAnalytical + "\t" + volatilityNumerical +"\t" + a + "\t" + b + "\t" + c + "\t" + d);
+			//			System.out.println(error + "\t" + timeIndex + "\t" + liborIndex + "\t" + t1 + "\t" + t2 + "\t" + maturity + "\t" + volatilityAnalytical + "\t" + volatilityNumerical +"\t" + a + "\t" + b + "\t" + c + "\t" + d);
 
 			/*
 			 * Mostly the approximation accuracy is around 1E-11, sometimes 1E-8

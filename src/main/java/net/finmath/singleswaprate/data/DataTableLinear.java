@@ -155,7 +155,9 @@ public class DataTableLinear extends DataTableBasic implements DataTable, Clonea
 
 	@Override
 	public double getValue(double maturity, double termination) {
-		if(containsEntryFor(maturity, termination)) return super.getValue(maturity, termination);
+		if(containsEntryFor(maturity, termination)) {
+			return super.getValue(maturity, termination);
+		}
 
 		// round to make regular grid
 		int roundingMultiplier;

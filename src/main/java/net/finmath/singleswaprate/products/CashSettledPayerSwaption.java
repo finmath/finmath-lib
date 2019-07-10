@@ -71,7 +71,9 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 	@Override
 	protected double hedgeWeight(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
 
-		if(!(swapRate > strike)) return 0;
+		if(!(swapRate > strike)) {
+			return 0;
+		}
 
 		double value = annuityMapping.getSecondDerivative(swapRate) * cashFunction(swapRate);
 		value += 2 *annuityMapping.getFirstDerivative(swapRate) *cashFunctionFirstDerivative(swapRate);
@@ -118,8 +120,11 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 		}
 		periodLength /= getFixSchedule().getNumberOfPeriods();
 
-		if(swapRate == 0.0) return numberOfPeriods * periodLength;
-		else return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;
+		if(swapRate == 0.0) {
+			return numberOfPeriods * periodLength;
+		} else {
+			return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;
+		}
 	}
 
 	/**
@@ -137,8 +142,9 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 		}
 		periodLength /= getFixSchedule().getNumberOfPeriods();
 
-		if(swapRate == 0.0) return - (numberOfPeriods +1) *numberOfPeriods /2 /periodLength /periodLength;
-		else {
+		if(swapRate == 0.0) {
+			return - (numberOfPeriods +1) *numberOfPeriods /2 /periodLength /periodLength;
+		} else {
 			double value = Math.pow(periodLength * swapRate + 1, - numberOfPeriods - 1);
 			value *= numberOfPeriods * periodLength / swapRate;
 			value -= cashFunction(swapRate) /swapRate;

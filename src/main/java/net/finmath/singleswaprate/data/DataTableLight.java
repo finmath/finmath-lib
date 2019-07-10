@@ -113,8 +113,11 @@ public class DataTableLight implements DataTable, Cloneable {
 	@Override
 	public double getValue(int maturity, int termination) {
 		DataKey key = new DataKey(maturity, termination);
-		if(entries.containsKey(key)) return entries.get(new DataKey(maturity,termination));
-		else throw new NullPointerException("Key "+key.toString()+" not found in table " +name);
+		if(entries.containsKey(key)) {
+			return entries.get(new DataKey(maturity,termination));
+		} else {
+			throw new NullPointerException("Key "+key.toString()+" not found in table " +name);
+		}
 	}
 
 	@Override
@@ -136,8 +139,10 @@ public class DataTableLight implements DataTable, Cloneable {
 	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
 		if(maturitySet.contains(maturity)) {
 			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int termination:terminationSet) if(entries.containsKey(new DataKey(maturity,termination))) {
-				returnSet.add(termination);
+			for(int termination:terminationSet) {
+				if(entries.containsKey(new DataKey(maturity,termination))) {
+					returnSet.add(termination);
+				}
 			}
 			return returnSet;
 		}
@@ -149,8 +154,10 @@ public class DataTableLight implements DataTable, Cloneable {
 	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
 		if(terminationSet.contains(termination)) {
 			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int maturity: maturitySet) if(entries.containsKey(new DataKey(maturity,termination))) {
-				returnSet.add(maturity);
+			for(int maturity: maturitySet) {
+				if(entries.containsKey(new DataKey(maturity,termination))) {
+					returnSet.add(maturity);
+				}
 			}
 			return returnSet;
 		}
@@ -239,12 +246,20 @@ public class DataTableLight implements DataTable, Cloneable {
 
 		@Override
 		public boolean equals(Object other) {
-			if(this == other) return true;
+			if(this == other) {
+				return true;
+			}
 
-			if(other == null) return false;
-			if(other.getClass() != getClass()) return false;
+			if(other == null) {
+				return false;
+			}
+			if(other.getClass() != getClass()) {
+				return false;
+			}
 
-			if(maturity 	!= ((DataKey) other).maturity )		return false;
+			if(maturity 	!= ((DataKey) other).maturity ) {
+				return false;
+			}
 			return termination == ((DataKey) other).termination;
 		}
 

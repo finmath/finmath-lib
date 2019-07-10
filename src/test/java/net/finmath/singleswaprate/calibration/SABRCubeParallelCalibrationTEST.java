@@ -211,12 +211,13 @@ public class SABRCubeParallelCalibrationTEST {
 				} catch (Exception e) {
 					System.out.println("Model failed to evaluate.");
 					System.out.println("Print stack trace? y/n");
-					while(in.hasNext())
+					while(in.hasNext()) {
 						if(in.next().equals("y"))
 						{ e.printStackTrace(); break; }
 						else if(in.next().equals("n")) {
 							break;
 						}
+					}
 				}
 				try {
 					System.out.println("Market: " + payerSwaptions.getValue(maturity, termination, moneyness));
@@ -232,12 +233,13 @@ public class SABRCubeParallelCalibrationTEST {
 				} catch (Exception e) {
 					System.out.println("Model failed to evaluate.");
 					System.out.println("Print stack trace? y/n");
-					while(in.hasNext())
+					while(in.hasNext()) {
 						if(in.next().equals("y"))
 						{ e.printStackTrace(); break; }
 						else if(in.next().equals("n")) {
 							break;
 						}
+					}
 				}
 				try {
 					System.out.println("Market: " + receiverSwaptions.getValue(maturity, termination, moneyness));

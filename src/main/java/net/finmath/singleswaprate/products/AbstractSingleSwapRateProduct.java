@@ -116,8 +116,10 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 */
 	public double getValue(double evaluationTime, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
 
-		if(evaluationTime > getFixSchedule().getPeriodStart(0)) throw new IllegalArgumentException("This framework is not set up to evaluate the product "
-				+this.getClass()+" at a time larger than the start of the first period ("+getFixSchedule().getPeriodStart(0)+"). Requested time was "+evaluationTime);
+		if(evaluationTime > getFixSchedule().getPeriodStart(0)) {
+			throw new IllegalArgumentException("This framework is not set up to evaluate the product "
+					+this.getClass()+" at a time larger than the start of the first period ("+getFixSchedule().getPeriodStart(0)+"). Requested time was "+evaluationTime);
+		}
 
 		double forwardSwapRate;
 		ForwardCurve forwardCurve;
