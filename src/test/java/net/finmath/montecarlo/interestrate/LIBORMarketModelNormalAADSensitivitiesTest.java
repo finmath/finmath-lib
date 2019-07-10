@@ -863,7 +863,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 				double payoffUnit = discountFactor * periodLength;
 
-				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit) * payoffUnit;
 
 				System.out.println("derivative (AAD)      " + riskFactorName + "...: " + formatterValue.format(sensitivityAAD));
 				System.out.println("derivative (analytic) " + riskFactorName + "...: " + formatterValue.format(sensitivityAnl));
@@ -886,7 +886,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 				double payoffUnit = discountFactor * periodLength;
 
-				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+				double sensitivityAnl = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit) * payoffUnit;
 
 				System.out.println("derivative (AAD)      " + riskFactorName + "...: " + formatterValue.format(sensitivityAAD));
 				System.out.println("derivative (analytic) " + riskFactorName + "...: " + formatterValue.format(sensitivityAnl));
