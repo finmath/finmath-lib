@@ -27,9 +27,11 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.products.Cap;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.montecarlo.interestrate.products.FlexiCap;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -112,8 +114,8 @@ public class CapValuationTest {
 		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		// LIBOR volatility model
-		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
-		//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -149,13 +151,12 @@ public class CapValuationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
-				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = LIBORMarketModelFromCovarianceModel.of(
+				liborPeriodDiscretization, null, forwardCurve, discountCurve, new RandomVariableFactory(), covarianceModel, calibrationItems, properties);
 
 		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
+						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
 		this.liborMarketModel = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
@@ -215,6 +216,6 @@ public class CapValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 3E-3);
+		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 2E-3);
 	}
 }

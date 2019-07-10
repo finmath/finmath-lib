@@ -6,11 +6,9 @@
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Map;
+import java.util.function.Function;
 
-import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
-import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
@@ -42,6 +40,8 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 	private static final long serialVersionUID = -1613728266481870311L;
 
+	private AbstractRandomVariableFactory randomVariableFactory;
+
 	private RandomVariable a;
 	private RandomVariable b;
 	private RandomVariable c;
@@ -49,7 +49,30 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 	private boolean isCalibrateable = false;
 
-	private transient CapletVolatilitiesParametric cap;
+	/**
+	 * Creates the volatility model
+	 * \[
+	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
+	 * \]
+	 *
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
+	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
+	 * @param a The parameter a: an initial volatility level.
+	 * @param b The parameter b: the slope at the short end (shortly before maturity).
+	 * @param c The parameter c: exponential decay of the volatility in time-to-maturity.
+	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
+	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
+	 */
+	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+		super(timeDiscretization, liborPeriodDiscretization);
+		this.randomVariableFactory = randomVariableFactory;
+		this.a = randomVariableFactory.createRandomVariable(a);
+		this.b = randomVariableFactory.createRandomVariable(b);
+		this.c = randomVariableFactory.createRandomVariable(c);
+		this.d = randomVariableFactory.createRandomVariable(d);
+		this.isCalibrateable = isCalibrateable;
+	}
 
 	/**
 	 * Creates the volatility model
@@ -72,7 +95,6 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		this.c = c;
 		this.d = d;
 		this.isCalibrateable = isCalibrateable;
-		cap = new CapletVolatilitiesParametric("", null, a.doubleValue(), b.doubleValue(), c.doubleValue(), d.doubleValue());
 	}
 
 	/**
@@ -96,7 +118,6 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		this.c = new Scalar(c);
 		this.d = new Scalar(d);
 		this.isCalibrateable = isCalibrateable;
-		cap = new CapletVolatilitiesParametric("", null, a, b, c, d);
 	}
 
 
@@ -139,18 +160,89 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		double timeEnd			= getTimeDiscretization().getTime(timeIndex+1);
 		double maturity			= getLiborPeriodDiscretization().getTime(liborIndex);
 
-		double volStart	= cap.getValue(maturity-timeStart, 0, QuotingConvention.VOLATILITYLOGNORMAL);
-		double volEnd	= cap.getValue(maturity-timeEnd, 0, QuotingConvention.VOLATILITYLOGNORMAL);
+		if(maturity <= 0) {
+			return new Scalar(0.0);
+		}
 
-		double varianceInstantaneous = (
-				volStart*volStart*(maturity-timeStart)
-				-
-				volEnd*volEnd*(maturity-timeEnd)
-				)/(timeEnd-timeStart);
+		RandomVariable varianceInstantaneous = getIntegratedVariance(maturity-timeStart).sub(getIntegratedVariance(maturity-timeEnd)).div(timeEnd-timeStart);
 
-		varianceInstantaneous = Math.max(varianceInstantaneous, 0.0);
+		return varianceInstantaneous.sqrt();
+	}
 
-		return new RandomVariableFromDoubleArray(Math.sqrt(varianceInstantaneous));
+	private RandomVariable getIntegratedVariance(double maturity) {
+
+		if(maturity == 0) {
+			return new Scalar(0.0);
+		}
+
+		/*
+		 * Integral of the square of the instantaneous volatility function
+		 * ((a + b * T) * Math.exp(- c * T) + d);
+		 */
+
+		/*
+		 * http://www.wolframalpha.com/input/?i=integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T
+		 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a^2 c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a^2 c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d^2 T)
+		 */
+		RandomVariable aaT = a.squared().mult(maturity);
+		RandomVariable abTT = a.mult(b).mult(maturity*maturity);
+		RandomVariable ad2T = a.mult(d).mult(2.0*maturity);
+		RandomVariable bbTTT = b.squared().mult(maturity*maturity*maturity/3.0);
+		RandomVariable bdTT = b.mult(d).mult(maturity*maturity);
+		RandomVariable ddT = d.squared().mult(maturity);
+
+		RandomVariable mcT = c.mult(-maturity);
+		RandomVariable mcT2 = mcT.mult(2.0);
+
+		RandomVariable expmcT = mcT.exp();
+		RandomVariable expm2cT = mcT2.exp();
+
+		Function<RandomVariable, RandomVariable> exp1mxdlog = x -> expmcT.sub(x).div(expmcT.log());
+		Function<RandomVariable, RandomVariable> exp2mxdlog = x -> expm2cT.sub(x).div(expm2cT.log());
+
+		RandomVariable expA1 = expmcT.sub(1.0).div(expmcT.log());
+		RandomVariable expA2 = exp1mxdlog.apply(expA1).mult(2.0);	// expmcT.sub(expA1).div(expmcT.log()).mult(2.0);
+
+		RandomVariable expB1 = expm2cT.sub(1.0).div(expm2cT.log());
+		RandomVariable expB2 = exp2mxdlog.apply(expB1).mult(2.0);	// expm2cT.sub(expB1).div(expm2cT.log()).mult(2);
+		RandomVariable expB3 = exp2mxdlog.apply(expB2).mult(3.0);	// expm2cT.sub(expB2).div(expm2cT.log()).mult(3.0);
+
+/*
+		RandomVariable expA1 = expmcT.sub(1.0).div(mcT);
+		RandomVariable expA2 = expmcT.sub(expmcT.sub(1.0).div(mcT)).div(mcT).mult(2.0);
+		RandomVariable expB1 = expm2cT.sub(1.0).div(mcT2);
+		RandomVariable expB2 = expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT);
+		RandomVariable expB3 = expm2cT.sub(expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT)).div(mcT2).mult(3.0);
+*/
+
+		// Ensure that c is cut off from 0 (the term (exp(-cT)-1)/cT will have cancelations)
+		RandomVariable cCutOff = mcT.abs().sub(1E-5).choose(new Scalar(-1.0), new Scalar(1.0));
+		expA1 = cCutOff.choose(new Scalar(1.0), expA1);
+		expB1 = cCutOff.choose(new Scalar(1.0), expB1);
+		expB2 = cCutOff.choose(new Scalar(1.0), expB2);
+		expB3 = cCutOff.choose(new Scalar(1.0), expB3);
+		expA2 = cCutOff.choose(new Scalar(1.0), expA2);
+
+		/*
+			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))
+					+ a*b*T*T*(((1 - Math.exp(-2*c*T))/(2*c*T) - Math.exp(-2*c*T))/(c*T))
+					+ 2*a*d*T*((1-Math.exp(-c*T))/(c*T))
+					+ b*b*T*T*T*(((((1-Math.exp(-2*c*T))/(2*c*T)-Math.exp(-2*c*T))/(T*c)-Math.exp(-2*c*T)))/(2*c*T))
+					+ 2*b*d*T*T*(((1-Math.exp(-c*T))-T*c*Math.exp(-c*T))/(c*c*T*T))
+					+ d*d*T;
+		 */
+
+		/*
+		 * Note: it is known that (exp(x)-1) suffers from cancellation errors from small x
+		 */
+		RandomVariable integratedVariance = aaT.mult(expB1);
+		integratedVariance = integratedVariance.add( abTT.mult(expB2) );
+		integratedVariance = integratedVariance.add( ad2T.mult(expA1) );
+		integratedVariance = integratedVariance.add( bbTTT.mult(expB3) );
+		integratedVariance = integratedVariance.add( bdTT.mult(expA2) );
+		integratedVariance = integratedVariance.add( ddT );
+
+		return integratedVariance;
 	}
 
 	@Override
