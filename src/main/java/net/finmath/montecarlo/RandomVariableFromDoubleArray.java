@@ -898,6 +898,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
+	public RandomVariableFromDoubleArray expm1() {
+		if(isDeterministic()) {
+			double newValueIfNonStochastic = FastMath.expm1(valueIfNonStochastic);
+			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
+		}
+		else {
+			double[] newRealizations = new double[realizations.length];
+			for(int i=0; i<newRealizations.length; i++) {
+				newRealizations[i]		 = FastMath.expm1(realizations[i]);
+			}
+			return new RandomVariableFromDoubleArray(time, newRealizations);
+		}
+	}
+
+	@Override
 	public RandomVariableFromDoubleArray log() {
 		if(isDeterministic()) {
 			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);

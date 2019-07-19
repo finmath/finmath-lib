@@ -15,7 +15,6 @@ import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
 
-
 /**
  * This interface describes the methods implemented by an immutable random variable.
  *
@@ -430,6 +429,14 @@ public interface RandomVariable extends Serializable {
 	 * @return New random variable with the result of the function.
 	 */
 	RandomVariable exp();
+
+	/**
+	 * Applies x &rarr; expm1(x) (that is x &rarr; exp(x)-1.0) to this random variable.
+	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable expm1() {
+		return this.exp().sub(1.0);
+	}
 
 	/**
 	 * Applies x &rarr; log(x) to this random variable.

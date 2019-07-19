@@ -10,6 +10,8 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 
+import org.apache.commons.math3.util.FastMath;
+
 import net.finmath.functions.DoubleTernaryOperator;
 
 /**
@@ -246,6 +248,11 @@ public class Scalar implements RandomVariable {
 	@Override
 	public RandomVariable exp() {
 		return new Scalar(Math.exp(value));
+	}
+
+	@Override
+	public RandomVariable expm1() {
+		return new Scalar(FastMath.expm1(value));
 	}
 
 	@Override
