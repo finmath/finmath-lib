@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.analysis.BivariateFunction;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
@@ -109,7 +108,7 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 		// check if either of the table dimensions is one and fits the input, otherwise default to bivariate interpolation.
 		if(getMaturities().contains(maturity)) {
 
-			int[] terminations = ArrayUtils.toPrimitive(getTerminationsForMaturity(maturity).toArray(new Integer[0]));
+			int[] terminations = getTerminationsForMaturity(maturity).stream().mapToInt(Integer::intValue).toArray();
 			double[] values = new double[terminations.length];
 
 			for(int i = 0; i < values.length; i++) {
@@ -121,7 +120,7 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 
 		} else if(getTerminations().contains(termination)){
 
-			int[] maturities = ArrayUtils.toPrimitive(getMaturitiesForTermination(termination).toArray(new Integer[0]));
+			int[] maturities = getMaturitiesForTermination(termination).stream().mapToInt(Integer::intValue).toArray();
 			double[] values = new double[maturities.length];
 
 			for(int i = 0; i< maturities.length; i++) {
@@ -136,8 +135,8 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 				throw new RuntimeException("For interpolation " +getName()+ " requires a regular grid of values.");
 			}
 
-			int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
-			int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
+			int[] maturities = getMaturities().stream().mapToInt(Integer::intValue).toArray();
+			int[] terminations = getTerminations().stream().mapToInt(Integer::intValue).toArray();
 			double[][] values = new double[maturities.length][terminations.length];
 
 			for(int i = 0; i< maturities.length; i++) {
