@@ -39,8 +39,8 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		double aMax = 1.0;
 		double bMin = 0.0;
 		double bMax = 2.0;
-		double cMin = -0.1;
-		double cMax = 1.0;
+		double cMin = -0.001;
+		double cMax = 0.05;
 		double dMin = 0.0;
 		double dMax = 0.2;
 
@@ -49,9 +49,10 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		 * c =  1.6442404690564238E-6;
 		 * c =  7.1699989962897840E-6;
 		 * c = -8.5350795667182840E-8;
+		 * c = -3.3771868628101887E-5;
 		 */
 		double error = 0.0;
-		for(int i=0; i<10000; i++) {
+		for(int i=0; i<2000*1000; i++) {
 			double a = aMin + random.nextDouble() * (aMax-aMin);
 			double b = bMin + random.nextDouble() * (bMax-bMin);
 			double c = cMin + random.nextDouble() * (cMax-cMin);
@@ -69,7 +70,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			/*
 			 * Numerical integration
 			 */
-			int numberOfEvaluationPoints = 10000;
+			int numberOfEvaluationPoints = 100000;
 			double t1 = td.getTime(timeIndex);
 			double t2 = td.getTime(timeIndex+1);
 			double maturity = td.getTime(timeIndex+liborIndex);
@@ -83,12 +84,12 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 			 */
 			error = Math.max(error, Math.abs(volatilityAnalytical-volatilityNumerical)/Math.max(volatilityAnalytical, 1));
 
-			//			System.out.println(error + "\t" + timeIndex + "\t" + liborIndex + "\t" + t1 + "\t" + t2 + "\t" + maturity + "\t" + volatilityAnalytical + "\t" + volatilityNumerical +"\t" + a + "\t" + b + "\t" + c + "\t" + d);
+//			System.out.println(error + "\t" + timeIndex + "\t" + liborIndex + "\t" + t1 + "\t" + t2 + "\t" + maturity + "\t" + volatilityAnalytical + "\t" + volatilityNumerical +"\t" + a + "\t" + b + "\t" + c + "\t" + d);
 
 			/*
-			 * Mostly the approximation accuracy is around 1E-11, sometimes 1E-8
+			 * Mostly the approximation accuracy is around 1E-11, sometimes 1E-10
 			 */
-			Assert.assertEquals(0.0, error, 1E-5);
+			Assert.assertEquals(0.0, error, 2E-10);
 		}
 
 	}

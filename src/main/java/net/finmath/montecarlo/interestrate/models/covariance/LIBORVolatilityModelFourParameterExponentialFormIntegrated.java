@@ -1,12 +1,11 @@
 /*
  * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
  *
- * Created on 08.08.2005
+ * Created on 21.07.2019
  */
 package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Map;
-import java.util.function.Function;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -34,11 +33,19 @@ import net.finmath.time.TimeDiscretization;
  * \]
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends LIBORVolatilityModel {
 
 	private static final long serialVersionUID = -1613728266481870311L;
+
+	private double[] coeffTaylorE1 = new double[] { 1, 1.0/2.0, 1.0/6.0, 1.0/24.0, 1.0/120.0 };
+	private double[] coeffTaylorE2 = new double[] { 1, 2.0/3.0, 1.0/4.0, 1.0/15.0, 1.0/72.0 };
+	private double[] coeffTaylorE3 = new double[] { 1, 3.0/4.0, 3.0/10.0, 1.0/12.0, 1.0/56.0 };
+
+	private double[] coeffTaylorE17 = new double[] { 1, 1.0/2.0, 1.0/6.0, 1.0/24.0, 1.0/120.0, 1.0/720.0, 1.0/5040.0 };
+	private double[] coeffTaylorE27 = new double[] { 1, 2.0/3.0, 1.0/4.0, 1.0/15.0, 1.0/72.0, 1.0/420.0, 1.0/2880.0 };
+	private double[] coeffTaylorE37 = new double[] { 1, 3.0/4.0, 3.0/10.0, 1.0/12.0, 1.0/56.0, 1.0/320.0, 1.0/2160.0 };
 
 	private AbstractRandomVariableFactory randomVariableFactory;
 
@@ -160,7 +167,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		double timeEnd			= getTimeDiscretization().getTime(timeIndex+1);
 		double maturity			= getLiborPeriodDiscretization().getTime(liborIndex);
 
-		if(maturity <= 0) {
+		if(maturity-timeStart <= 0) {
 			return new Scalar(0.0);
 		}
 
@@ -194,34 +201,35 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		RandomVariable mcT = c.mult(-maturity);
 		RandomVariable mcT2 = mcT.mult(2.0);
 
-		RandomVariable expmcT = mcT.exp();
-		RandomVariable expm2cT = mcT2.exp();
+		RandomVariable expA1 = mcT.expm1().div(mcT);
+		RandomVariable expA2 = mcT.sub(expA1.log()).expm1().div(mcT).mult(expA1).mult(2.0);
 
-		Function<RandomVariable, RandomVariable> exp1mxdlog = x -> expmcT.sub(x).div(expmcT.log());
-		Function<RandomVariable, RandomVariable> exp2mxdlog = x -> expm2cT.sub(x).div(expm2cT.log());
+		RandomVariable expB1 = mcT2.expm1().div(mcT2);
+		RandomVariable expB2 = mcT2.sub(expB1.log()).expm1().div(mcT2).mult(expB1).mult(2.0);
+		RandomVariable expB3 = mcT2.sub(expB2.log()).expm1().div(mcT2).mult(expB2).mult(3.0);
 
-		RandomVariable expA1 = expmcT.sub(1.0).div(expmcT.log());
-		RandomVariable expA2 = exp1mxdlog.apply(expA1).mult(2.0);	// expmcT.sub(expA1).div(expmcT.log()).mult(2.0);
+		// Ensure that c is cut off from 0 (the term (exp(-x)-1)/x will have cancelations)
 
-		RandomVariable expB1 = expm2cT.sub(1.0).div(expm2cT.log());
-		RandomVariable expB2 = exp2mxdlog.apply(expB1).mult(2.0);	// expm2cT.sub(expB1).div(expm2cT.log()).mult(2);
-		RandomVariable expB3 = exp2mxdlog.apply(expB2).mult(3.0);	// expm2cT.sub(expB2).div(expm2cT.log()).mult(3.0);
+		// 1 1/2 1/6  1/24  1/120 1/720 1/5040
+		// 1 2/3 1/4  1/15  1/72  1/420 1/2880
+		// 1 3/4 3/10 1/12	1/56  1/320 1/2160
 
-		/*
-		RandomVariable expA1 = expmcT.sub(1.0).div(mcT);
-		RandomVariable expA2 = expmcT.sub(expmcT.sub(1.0).div(mcT)).div(mcT).mult(2.0);
-		RandomVariable expB1 = expm2cT.sub(1.0).div(mcT2);
-		RandomVariable expB2 = expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT);
-		RandomVariable expB3 = expm2cT.sub(expm2cT.sub(expm2cT.sub(1.0).div(mcT2)).div(mcT)).div(mcT2).mult(3.0);
-		 */
+		RandomVariable pA1 = polynom(mcT, coeffTaylorE1);
+		RandomVariable pA2 = polynom(mcT, coeffTaylorE2);
 
-		// Ensure that c is cut off from 0 (the term (exp(-cT)-1)/cT will have cancelations)
-		RandomVariable cCutOff = mcT.abs().sub(1E-5).choose(new Scalar(-1.0), new Scalar(1.0));
-		expA1 = cCutOff.choose(new Scalar(1.0), expA1);
-		expB1 = cCutOff.choose(new Scalar(1.0), expB1);
-		expB2 = cCutOff.choose(new Scalar(1.0), expB2);
-		expB3 = cCutOff.choose(new Scalar(1.0), expB3);
-		expA2 = cCutOff.choose(new Scalar(1.0), expA2);
+		RandomVariable pB1 = polynom(mcT2, coeffTaylorE1);
+		RandomVariable pB2 = polynom(mcT2, coeffTaylorE2);
+		RandomVariable pB3 = polynom(mcT2, coeffTaylorE3);
+
+		RandomVariable cCutOff1 = mcT.abs().sub(1E-12).choose(new Scalar(1.0), new Scalar(-1.0));
+		RandomVariable cCutOff2 = mcT.abs().sub(1E-2).choose(new Scalar(1.0), new Scalar(-1.0));
+		RandomVariable cCutOff3 = cCutOff2;
+
+		expA1 = cCutOff1.choose(expA1, pA1);
+		expA2 = cCutOff2.choose(expA2, pA2);
+		expB1 = cCutOff1.choose(expB1, pB1);
+		expB2 = cCutOff2.choose(expB2, pB2);
+		expB3 = cCutOff3.choose(expB3, pB3);
 
 		/*
 			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))
@@ -232,9 +240,6 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 					+ d*d*T;
 		 */
 
-		/*
-		 * Note: it is known that (exp(x)-1) suffers from cancellation errors from small x
-		 */
 		RandomVariable integratedVariance = aaT.mult(expB1);
 		integratedVariance = integratedVariance.add( abTT.mult(expB2) );
 		integratedVariance = integratedVariance.add( ad2T.mult(expA1) );
@@ -243,6 +248,15 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 		integratedVariance = integratedVariance.add( ddT );
 
 		return integratedVariance;
+	}
+
+	private RandomVariable polynom(RandomVariable x, double[] coeff) {
+		RandomVariable p = x.mult(coeff[coeff.length-1]).add(coeff[coeff.length-2]);
+
+		for(int i=coeff.length-3; i >= 0; i--) {
+			p = p.mult(x).add(coeff[i]);
+		}
+		return p;
 	}
 
 	@Override
