@@ -63,6 +63,15 @@ The Maven build file is provide. Import the project as Maven project.
 
 The default Maven profile is Java 8 without Kotlin. To enable Java 6 version select the Maven profile 'java-6'. To enable Kotlin select the Maven profile 'kotlin'.
 
+
+Releases
+--------------------------------------
+
+Binary releases can be found at http://finmath.net/finmath-lib .
+The version numbering of finmath-lib follows a the *[semantic versioning](https://semver.org)* 
+(at least we try to).
+
+
 Distribution
 --------------------------------------
 
@@ -176,7 +185,7 @@ The code of "finmath lib" and "finmath experiments" (packages
 Extensions
 -------------------------------------
 
-The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
+The [finmath-lib-cuda-extensions](http://finmath.net/finmath-lib-cuda-extensions/) implement the interface `RandomVariable` via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
 
 The finmath-lib-automaticdifferentiation-extensions implement the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minimal change: a replacement of the random variable factory.
 Starting with version 3.3.1 the finmath-lib-automaticdifferentiation-extensions is part of finmath-lib.
