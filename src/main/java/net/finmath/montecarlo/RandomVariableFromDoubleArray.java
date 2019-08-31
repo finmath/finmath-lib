@@ -1409,12 +1409,15 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		else if(factor1.isDeterministic()) {
 			return this.addProduct(factor2, factor1.doubleValue());
 		}
-		else {
+		else if(!this.isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
 			double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1.get(i) * factor2.get(i);
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
+		}
+		else {
+			return this.add(factor1.mult(factor2));
 		}
 	}
 
