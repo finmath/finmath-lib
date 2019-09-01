@@ -52,7 +52,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		 * c = -3.3771868628101887E-5;
 		 */
 		double error = 0.0;
-		for(int i=0; i<2000*1000; i++) {
+		for(int i=0; i<1000; i++) {
 			double a = aMin + random.nextDouble() * (aMax-aMin);
 			double b = bMin + random.nextDouble() * (bMax-bMin);
 			double c = cMin + random.nextDouble() * (cMax-cMin);
