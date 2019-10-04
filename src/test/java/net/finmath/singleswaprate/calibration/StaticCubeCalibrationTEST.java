@@ -156,75 +156,76 @@ public class StaticCubeCalibrationTEST {
 
 	public void askForSwaptions() {
 		System.out.println("Evaluate other swaptions?");
-		Scanner in = new Scanner(System.in);
-		String line;
-		while(in.hasNextLine()) {
-			line = in.nextLine();
+		try(Scanner in = new Scanner(System.in)) {
+			String line;
+			while(in.hasNextLine()) {
+				line = in.nextLine();
 
-			if(line.equals("q")) {
-				in.close(); break;
-			}
+				if(line.equals("q")) {
+					in.close(); break;
+				}
 
-			String[] inputs;
-			int moneyness;
-			int maturity;
-			int termination;
+				String[] inputs;
+				int moneyness;
+				int maturity;
+				int termination;
 
-			try {
-				inputs = line.split(" ");
-				moneyness = Integer.parseInt(inputs[1]);
-				maturity = Integer.parseInt(inputs[2]);
-				termination = Integer.parseInt(inputs[3]);
-			} catch (Exception e) {
-				System.out.println("Usage: p/r moneyness maturity termination");
-				System.out.println("Or type q to quit.");
-				continue;
-			}
-
-			switch(inputs[0]) {
-			case "p" :
-				System.out.println("Value of CSPayerSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
 				try {
-					System.out.println("Model: "+ payerValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
+					inputs = line.split(" ");
+					moneyness = Integer.parseInt(inputs[1]);
+					maturity = Integer.parseInt(inputs[2]);
+					termination = Integer.parseInt(inputs[3]);
 				} catch (Exception e) {
-					System.out.println("Model failed to evaluate.");
-					System.out.println("Print stack trace? y/n");
-					while(in.hasNext()) {
-						if(in.next().equals("y"))
-						{ e.printStackTrace(); break; }
-						else if(in.next().equals("n")) {
-							break;
+					System.out.println("Usage: p/r moneyness maturity termination");
+					System.out.println("Or type q to quit.");
+					continue;
+				}
+
+				switch(inputs[0]) {
+				case "p" :
+					System.out.println("Value of CSPayerSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
+					try {
+						System.out.println("Model: "+ payerValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
+					} catch (Exception e) {
+						System.out.println("Model failed to evaluate.");
+						System.out.println("Print stack trace? y/n");
+						while(in.hasNext()) {
+							if(in.next().equals("y"))
+							{ e.printStackTrace(); break; }
+							else if(in.next().equals("n")) {
+								break;
+							}
 						}
 					}
-				}
-				try {
-					System.out.println("Market: " + payerSwaptions.getValue(maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Market data not available.");
-				}
-				break;
+					try {
+						System.out.println("Market: " + payerSwaptions.getValue(maturity, termination, moneyness));
+					} catch (Exception e) {
+						System.out.println("Market data not available.");
+					}
+					break;
 
-			case "r" :
-				System.out.println("Value of CSReceiverSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
-				try {
-					System.out.println("Model: "+ receiverValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Model failed to evaluate.");
-					System.out.println("Print stack trace? y/n");
-					while(in.hasNext()) {
-						if(in.next().equals("y"))
-						{ e.printStackTrace(); break; }
-						else if(in.next().equals("n")) {
-							break;
+				case "r" :
+					System.out.println("Value of CSReceiverSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
+					try {
+						System.out.println("Model: "+ receiverValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
+					} catch (Exception e) {
+						System.out.println("Model failed to evaluate.");
+						System.out.println("Print stack trace? y/n");
+						while(in.hasNext()) {
+							if(in.next().equals("y"))
+							{ e.printStackTrace(); break; }
+							else if(in.next().equals("n")) {
+								break;
+							}
 						}
 					}
+					try {
+						System.out.println("Market: " + receiverSwaptions.getValue(maturity, termination, moneyness));
+					} catch (Exception e) {
+						System.out.println("Market data not available.");
+					}
+					break;
 				}
-				try {
-					System.out.println("Market: " + receiverSwaptions.getValue(maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Market data not available.");
-				}
-				break;
 			}
 		}
 	}
