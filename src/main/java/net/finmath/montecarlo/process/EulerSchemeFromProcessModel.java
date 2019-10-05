@@ -54,7 +54,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	private IndependentIncrements stochasticDriver;
 
-	private Scheme		scheme = Scheme.EULER;
+	private Scheme		scheme = Scheme.EULER_FUNCTIONAL;
 
 	// Used locally for multi-threadded calculation.
 	private ExecutorService executor;
