@@ -37,6 +37,21 @@ public interface BrownianMotion extends IndependentIncrements {
 
 
 	/**
+	 * Return the Brownian increment for a given timeIndex.
+	 *
+	 * The method returns the random variable
+	 *	 <i>&Delta; W<sub>j</sub>(t<sub>i</sub>) := W<sub>j</sub>(t<sub>i+1</sub>)-W(t<sub>i</sub>)</i>
+	 * for the given time index <i>i</i> and a given factor (index) <i>j</i>, where the time index is derived via getTimeDiscretization().getTimeIndex(time)
+	 *
+	 * @param time The time (has to map to a time in this class's time discretization).
+	 * @param factor The index of the factor (independent scalar Brownian increment).
+	 * @return The factor (component) of the Brownian increments (a random variable).
+	 */
+	default RandomVariable getBrownianIncrement(double time, int factor) {
+		return getBrownianIncrement(getTimeDiscretization().getTimeIndex(time), factor);
+	}
+
+	/**
 	 * Returns the time discretization used for this set of time-discrete Brownian increments.
 	 *
 	 * @return The time discretization used for this set of time-discrete Brownian increments.
