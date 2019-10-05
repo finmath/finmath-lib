@@ -160,8 +160,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
 			if(arguments == null) {
+				// The node has no arguments (it is a leaf nodeo the tree). Do nothing.
 				return;
 			}
+
 			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
 				OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
@@ -171,22 +173,39 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					RandomVariable derivative			= derivatives.get(id);
 					RandomVariable argumentDerivative	= derivatives.get(argumentID);
 
-					// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
-					if(operatorType == OperatorType.AVERAGE) {
+					/*
+					 * Special treatment of some stochastic operators
+					 */
+					switch(operatorType) {
+					case AVERAGE:
+						// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
 						derivative = derivative.average();
-					}
-					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
-					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
+						break;
+					case CONDITIONAL_EXPECTATION:
+						// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
 						ConditionalExpectationEstimator estimator = (ConditionalExpectationEstimator)operator;
 						derivative = estimator.getConditionalExpectation(derivative);
+						break;
+					case CHOOSE:
+						// Implementation of CHOOSE (INDICATOR_FUNCTION)
+						if(argumentIndex == 0 && (factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DENSITY || factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON)) {
+							derivative = getDiracDeltaRegression(derivative, argumentValues.get(0));
+						}
+						break;
+					default:
+						// Ordinary operator - nothing to do
+						break;
 					}
-					if(operatorType == OperatorType.CHOOSE && argumentIndex == 0 && (factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DENSITY || factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON)) {
-						derivative = getDiracDeltaRegression(derivative, argumentValues.get(0));
-					}
+
+					/*
+					 * Add the product of current nodes derivative and the vertex partialDerivative to the argument derivative
+					 */
 					if(argumentDerivative == null) {
+						// argumentDerivative is zero. Initialize value
 						argumentDerivative = derivative.mult(partialDerivative);
 					}
 					else {
+						// Add product to given value
 						argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
 					}
 
