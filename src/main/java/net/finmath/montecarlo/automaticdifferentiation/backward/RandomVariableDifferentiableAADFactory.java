@@ -44,6 +44,19 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 
 	private final boolean isGradientRetainsLeafNodesOnly;
 
+	/**
+	 * Create a factory for objects of type {@link RandomVariableDifferentiableAAD}.
+	 * 
+	 * Supported propeties are
+	 * <ul>
+	 * <li>isGradientRetainsLeafNodesOnly: Boolean</li>
+	 * <li>diracDeltaApproximationMethod: String</li>
+	 * <li>diracDeltaApproximationWidthPerStdDev: Double</li>
+	 * </ul>
+	 * 
+	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
+	 * @param properties A key value map with properties.
+	 */
 	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 
@@ -56,6 +69,13 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 		diracDeltaApproximationDensityRegressionWidthPerStdDev = (Double)properties.getOrDefault("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.5);
 
 		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault("isGradientRetainsLeafNodesOnly", true);
+	}
+
+	/**
+	 * @param properties A key value map with properties.
+	 */
+	public RandomVariableDifferentiableAADFactory(Map<String, Object> properties) {
+		this(new RandomVariableFactory(), properties);
 	}
 
 	/**
