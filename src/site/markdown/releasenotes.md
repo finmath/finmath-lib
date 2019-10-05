@@ -5,6 +5,16 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 4.0.13 (05.10.2019)
+
+### General
+
+ - Added some constructors for convenience.
+ 
+### Monte-Carlo Simulation / AAD
+
+ - Improved compatibility with AAD valuations - EULER_FUNCTIONAL is default in Euler scheme.
+
 
 ## 4.0.12 (02.06.2019)
 
