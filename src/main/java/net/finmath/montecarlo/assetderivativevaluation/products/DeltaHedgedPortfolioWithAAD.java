@@ -35,10 +35,25 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 	// The financial product we like to replicate
 	private final AssetMonteCarloProduct productToReplicate;
 
-	private int			orderOfRegressionPolynomial		= 4;
+	private int			numberOfRegressionFunctions		= 20;
 
 	private double lastOperationTimingValuation = Double.NaN;
 	private double lastOperationTimingDerivative = Double.NaN;
+
+	/**
+	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
+	 * the delta and - in theory - works for any model implementing <code>AssetModelMonteCarloSimulationModel</code>
+	 * and any product implementing <code>AbstractAssetMonteCarloProduct</code>.
+	 * The results however somewhat depend on the choice of the internal regression basis functions.
+	 *
+	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the <code>AbstractAssetMonteCarloProduct</code> interface.
+	 * @param numberOfBins The number of bins used to aggregate the conditional expectation of the delta.
+	 */
+	public DeltaHedgedPortfolioWithAAD(AssetMonteCarloProduct productToReplicate, int numberOfBins) {
+		super();
+		this.productToReplicate = productToReplicate;
+		this.numberOfRegressionFunctions = numberOfBins;
+	}
 
 	/**
 	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
@@ -111,6 +126,8 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 			ArrayList<RandomVariable> basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);
+//			ArrayList<RandomVariable> basisFunctions = getRegressionBasisFunctions(underlyingAtTimeIndex, indicator);
+
 			ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
 
 			delta = delta.getConditionalExpectation(conditionalExpectationOperator);
@@ -158,7 +175,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
-		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
+		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<numberOfRegressionFunctions; powerOfRegressionMonomial++) {
 			basisFunctions.add(underlying.pow(powerOfRegressionMonomial).mult(indicator));
 		}
 
@@ -172,11 +189,10 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 			basisFunctions.add(underlying);
 		}
 		else {
-			int numberOfBins = 20;
 			double[] values = underlying.getRealizations();
 			Arrays.sort(values);
-			for(int i = 0; i<numberOfBins; i++) {
-				double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
+			for(int i = 0; i<numberOfRegressionFunctions; i++) {
+				double binLeft = values[(int)((double)i/(double)numberOfRegressionFunctions*values.length)];
 				RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)).mult(indicator);
 				basisFunctions.add(basisFunction);
 			}
