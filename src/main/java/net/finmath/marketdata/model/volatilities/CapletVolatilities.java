@@ -153,16 +153,11 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 	public static AbstractVolatilitySurface fromFile(File inputFile) throws FileNotFoundException {
 		// Read data
-		BufferedReader		dataStream	= new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)));
-		ArrayList<String>	datasets	= new ArrayList<>();
-		try {
-			while(true) {
-				String line = dataStream.readLine();
 
-				// Check for end of file
-				if(line == null) {
-					break;
-				}
+		ArrayList<String> datasets = new ArrayList<>();
+		try(BufferedReader dataStream = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)))) {
+			String line;
+			while((line = dataStream.readLine()) != null) {
 
 				// Ignore non caplet data
 				if(!line.startsWith("caplet\t")) {
@@ -171,7 +166,6 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 				datasets.add(line);
 			}
-			dataStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
