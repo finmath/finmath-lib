@@ -49,7 +49,10 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	}
 
 	public enum Scheme {
-		EULER, PREDICTOR_CORRECTOR, EULER_FUNCTIONAL
+		EULER,
+		PREDICTOR_CORRECTOR,
+		EULER_FUNCTIONAL,
+		PREDICTOR_CORRECTOR_FUNCTIONAL
 	}
 
 	private IndependentIncrements stochasticDriver;
@@ -198,7 +201,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 					@Override
 					public RandomVariable call() {
-						if(scheme == Scheme.EULER_FUNCTIONAL) {
+						if(scheme == Scheme.EULER_FUNCTIONAL || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {
 							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
 						}
 
@@ -218,7 +221,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement);
 
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 					}
 				};
 
@@ -257,7 +260,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 				}
 			}
 
-			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
+			if (scheme == Scheme.PREDICTOR_CORRECTOR || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {
 				// Apply corrector step to realizations at next time step
 
 				RandomVariable[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
