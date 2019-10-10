@@ -57,6 +57,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 	private static final int typePriorityDefault = 3;
 
+	private static final RandomVariable one = new Scalar(1.0);
+
 	private final int typePriority;
 
 	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);
@@ -654,12 +656,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		// The map maintaining the derivatives id -> derivative
 		Map<Long, RandomVariable> derivatives = new HashMap<>();
 		// Put derivative of this node w.r.t. itself
-		derivatives.put(getID(), getFactory().createRandomVariableNonDifferentiable(Double.NEGATIVE_INFINITY, 1.0));
+		derivatives.put(getID(), one);
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sorting on the keys.
 		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
 		// Initialize with root node
-		independents.put(getID(), this.getOperatorTreeNode());
+		independents.put(getID(), getOperatorTreeNode());
 
 		while(independents.size() > 0) {
 			// Get and remove node with the highest id in independents
