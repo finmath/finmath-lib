@@ -190,7 +190,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		}
 
 		/*
-		 * Generate normal distributed independent increments.
+		 * Generate independent increments, each having distribution specified by ICDF.
 		 *
 		 * The inner loop goes over time and factors.
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
