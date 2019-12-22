@@ -326,8 +326,9 @@ public class HullWhiteModelCalibrationTest {
 		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
 
 		// Create a discount curve
-		DiscountCurveInterpolation			discountCurveInterpolation					= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		DiscountCurveInterpolation discountCurveInterpolation = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				curveNameDiscount								/* name */,
+				referenceDate	/* referenceDate */,
 				curveMaturities	/* maturities */,
 				curveValue		/* discount factors */,
 				curveIsParameter,
