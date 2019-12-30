@@ -375,7 +375,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
 			double volatility = Math.sqrt(((LIBORMarketModelInterface)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
-			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
+			double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDigitalCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
 			// Absolute deviation
