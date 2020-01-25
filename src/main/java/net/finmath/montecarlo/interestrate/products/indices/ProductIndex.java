@@ -51,4 +51,22 @@ public class ProductIndex extends AbstractIndex {
 		}
 		return underlyingNames;
 	}
+
+	/**
+	 * Get the first index of the product.
+	 * 
+	 * @return The first index of the product.
+	 */
+	public AbstractProductComponent getIndex1() {
+		return index1;
+	}
+
+	/**
+	 * Get the second index of the product.
+	 * 
+	 * @return The second index of the product.
+	 */
+	public AbstractProductComponent getIndex2() {
+		return index2;
+	}
 }
