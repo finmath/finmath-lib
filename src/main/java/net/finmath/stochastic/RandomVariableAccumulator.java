@@ -14,7 +14,7 @@ package net.finmath.stochastic;
  * @author Christian Fries
  * @version 1.3
  */
-public interface RandomVariableAccumulatorInterface extends RandomVariable {
+public interface RandomVariableAccumulator extends RandomVariable {
 
 	void accumulate(RandomVariable randomVariable);
 	void accumulate(double time, RandomVariable randomVariable);
