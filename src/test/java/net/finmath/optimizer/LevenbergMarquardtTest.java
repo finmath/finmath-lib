@@ -13,8 +13,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
+ * Unit tests for the LevenbergMarquardt optimizer.
+ * 
  * @author Christian Fries
- *
  */
 public class LevenbergMarquardtTest {
 
@@ -215,7 +216,10 @@ public class LevenbergMarquardtTest {
 
 		int maxIteration = 1000;
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, null) {
+		LevenbergMarquardt optimizer = new LevenbergMarquardt(
+				initialParameters,
+				targetValues,
+				maxIteration, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			@Override
