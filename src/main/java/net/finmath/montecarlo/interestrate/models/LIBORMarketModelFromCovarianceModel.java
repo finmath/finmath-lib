@@ -859,21 +859,29 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		 * Adjust for discounting, i.e. funding or collateralization
 		 */
 		if (discountCurve != null) {
-			RandomVariable deterministicNumeraireAdjustment = getNumeraireAdjustment(time);
+			RandomVariable defaultableZeroBondAsOfTimeZero = getNumeraireDefaultableZeroBondAsOfTimeZero(time);
 
-			numeraire = numeraire.mult(numeraire.invert().getAverage()).div(deterministicNumeraireAdjustment);
+			double nonDefaultableZeroBond = numeraire.invert()
+//					.mult(getNumerairetUnAdjusted(0.0))
+					.getAverage();
+			numeraire = numeraire.mult(nonDefaultableZeroBond).div(defaultableZeroBondAsOfTimeZero);
 		}
 		return numeraire;
 	}
 
-	private RandomVariable getNumeraireAdjustment(double time) {
+	/*
+	 * Calculate the numeraire adjustment, that is, the adjustment of the between the forward curve and the discount curve.
+	 * 
+	 * This methods performs the interpolation only, if the numeraire adjustment is not on the time grid.
+	 */
+	private RandomVariable getNumeraireDefaultableZeroBondAsOfTimeZero(double time) {
 		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
 
 		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 
 		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex >= 0) {
-			return getNumeraireAdjustment(timeIndex);
+			return getNumeraireDefaultableZeroBondAsOfTimeZero(timeIndex);
 		}
 		else {
 			// Interpolation
@@ -881,13 +889,24 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			int timeIndexNext = timeIndexPrev+1;
 			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
 			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
-			RandomVariable numeraireAdjustmentPrev = getNumeraireAdjustment(timeIndexPrev);
-			RandomVariable numeraireAdjustmentNext = getNumeraireAdjustment(timeIndexNext);
+			RandomVariable numeraireAdjustmentPrev = getNumeraireDefaultableZeroBondAsOfTimeZero(timeIndexPrev);
+			RandomVariable numeraireAdjustmentNext = getNumeraireDefaultableZeroBondAsOfTimeZero(timeIndexNext);
 			return numeraireAdjustmentPrev.mult(numeraireAdjustmentNext.div(numeraireAdjustmentPrev).pow((time-timePrev)/(timeNext-timePrev)));
 		}
 	}
 
-	private RandomVariable getNumeraireAdjustment(int timeIndex) {
+	/*
+	 * Calculate the numeraire adjustment, that is, the adjustment of the between the forward curve and the discount curve.
+	 * 
+	 * The numeraire adjustment is the ratio of the time-0 discount factor from the given discount curve P^d(T;0)
+	 * and the discount factor P(T;0) calculated from the forward curve constituting the forward rates.
+	 * 
+	 * 	P^d(T;0) is a given curve.
+	 * 
+	 * 	P(T;0) is calculated as product (1+L_i(0) (T_{i+1}-T_{i}))
+	 * 
+	 */
+	private RandomVariable getNumeraireDefaultableZeroBondAsOfTimeZero(int timeIndex) {
 		boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization = true;
 
 		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
@@ -922,7 +941,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
 		RandomVariable inverseForwardBondAsOfTime = getLIBOR(time, time, maturity).mult(maturity-time).add(1.0);
 		RandomVariable inverseForwardBondAsOfZero = getLIBOR(0.0, time, maturity).mult(maturity-time).add(1.0);
-		RandomVariable forwardDiscountBondAsOfZero = getNumeraireAdjustment(maturity).div(getNumeraireAdjustment(time));
+		RandomVariable forwardDiscountBondAsOfZero = getNumeraireDefaultableZeroBondAsOfTimeZero(maturity).div(getNumeraireDefaultableZeroBondAsOfTimeZero(time));
 		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);
 	}
 
