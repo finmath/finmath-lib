@@ -184,9 +184,12 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProductI
 			productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, productRefereceDate);
 		}
 
-		DiscountCurveInterface discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
-		if(discountCurveForNotionalReset == null  && notionals == null) {
-			throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
+		DiscountCurveInterface discountCurveForNotionalReset = null;
+		if(discountCurveForNotionalResetName != null) {
+			discountCurveForNotionalReset = model.getDiscountCurve(discountCurveForNotionalResetName);
+			if(discountCurveForNotionalReset == null) {
+				throw new IllegalArgumentException("No discountCurveForNotionalReset with name '" + discountCurveForNotionalResetName + "' was found in the model:\n" + model.toString());
+			}
 		}
 
 		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
