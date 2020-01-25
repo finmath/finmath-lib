@@ -47,6 +47,7 @@ import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.BlendedLocalVolatilityModel;
@@ -500,10 +501,11 @@ public class LIBORMarketModelCalibrationTest {
 		for(int i=0; i<calibrationItemNames.size(); i++) {
 			calibrationItemsLMM[i] = new CalibrationProduct(calibrationProducts.get(i).getProduct(),calibrationProducts.get(i).getTargetValue(),calibrationProducts.get(i).getWeight());
 		}
-		LIBORModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
+		LIBORModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
 				liborPeriodDiscretization,
 				curveModel,
 				forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve),
+				new RandomVariableFactory(),
 				covarianceModelDisplaced,
 				calibrationItemsLMM,
 				properties);
