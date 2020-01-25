@@ -616,7 +616,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	public Double doubleValue() {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
-		} else {
+		}
+		else if(size() == 1) {
+			return getAverage();
+		}
+		else {
 			throw new UnsupportedOperationException("The random variable is non-deterministic");
 		}
 	}
