@@ -21,9 +21,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
@@ -55,7 +55,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 	public static void main(String[] args) {
 		for(Object[] testData : data()) {
-			(new RandomVariableDifferentiableAADPerformanceTest((String) testData[0], (Object[]) testData[1], (AbstractRandomVariableFactory)testData[2])).test();
+			(new RandomVariableDifferentiableAADPerformanceTest((String) testData[0], (Object[]) testData[1], (RandomVariableFactory)testData[2])).test();
 		}
 	}
 
@@ -65,7 +65,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	 * @author Christian Fries
 	 */
 	private interface TestFunction {
-		RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters);
+		RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters);
 		RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters);
 
 		long getPeakMemory();
@@ -75,9 +75,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 7500;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			RandomVariable x = arguments[0];
-			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
+			RandomVariable sum = abstractRandomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x);
 			}
@@ -87,7 +87,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		@Override
 		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			return new RandomVariable[] {
-					(new RandomVariableFactory()).createRandomVariable(numberOfIterations)
+					(new RandomVariableFromArrayFactory()).createRandomVariable(numberOfIterations)
 			};
 		}
 
@@ -99,9 +99,9 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 1000;	/* In the paper we use 5000 */
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			RandomVariable x = arguments[0];
-			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
+			RandomVariable sum = abstractRandomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x.pow(i));
 			}
@@ -111,7 +111,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		@Override
 		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
 			RandomVariable x = arguments[0];
-			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+			RandomVariable sum = (new RandomVariableFromArrayFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				sum = sum.add(x.pow(i-1).mult(i));
 			}
@@ -126,8 +126,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 5;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = abstractRandomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.addProduct(arguments[j],parameters[j]);
@@ -138,7 +138,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		@Override
 		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+			RandomVariable sum = (new RandomVariableFromArrayFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				{
 					int j = 0;
@@ -155,8 +155,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private static class TestFunctionSumOfProductsWithAddAndMult implements TestFunction {
 		private static final int numberOfIterations = 10;
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable sum = randomVariableFactory.createRandomVariable(0.0);
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable sum = abstractRandomVariableFactory.createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				for(int j = 0; j < arguments.length; j++) {
 					sum = sum.add(arguments[j].mult(parameters[j]));
@@ -167,7 +167,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 
 		@Override
 		public RandomVariable[] derivative(RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable sum = (new RandomVariableFactory()).createRandomVariable(0.0);
+			RandomVariable sum = (new RandomVariableFromArrayFactory()).createRandomVariable(0.0);
 			for(int i = 0; i < numberOfIterations; i++) {
 				{
 					int j = 0;
@@ -184,8 +184,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	private static class TestFunctionAccrue implements TestFunction {
 		private static final int numberOfIterations = 1;
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable product = randomVariableFactory.createRandomVariable(1.0);
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable product = abstractRandomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				for(int j = 0; j < arguments.length; j++){
 					product = product.accrue(arguments[j], parameters[j].getAverage());
@@ -207,8 +207,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private static final int numberOfIterations = 1;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
-			RandomVariable product = randomVariableFactory.createRandomVariable(1.0);
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+			RandomVariable product = abstractRandomVariableFactory.createRandomVariable(1.0);
 			for(int i = 0; i < numberOfIterations; i++){
 				for(int j = 0; j < arguments.length; j++){
 					product = product.mult(arguments[j].mult(parameters[j].getAverage()).add(1.0));
@@ -250,7 +250,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
@@ -259,7 +259,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2].mult(0).add(modelVolatility);
 
 			// Create a model
-			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, abstractRandomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -321,7 +321,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
@@ -330,7 +330,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2];
 
 			// Create a model
-			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, abstractRandomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -387,7 +387,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		private long peakMemory;
 
 		@Override
-		public RandomVariable value(AbstractRandomVariableFactory randomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
+		public RandomVariable value(RandomVariableFactory abstractRandomVariableFactory, RandomVariable[] arguments, RandomVariable[] parameters) {
 			long startMem = getAllocatedMemory();
 
 			// Generate independent variables (quantities w.r.t. to which we like to differentiate)
@@ -396,7 +396,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			RandomVariable volatility		= arguments[2];
 
 			// Create a model
-			AbstractProcessModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), randomVariableFactory);
+			AbstractProcessModel model = new BlackScholesModel(initialValue.mult(0.0).add(modelInitialValue), riskFreeRate.mult(0.0).add(modelRiskFreeRate), volatility.mult(0.0).add(modelVolatility), abstractRandomVariableFactory);
 
 			// Create a time discretization
 			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -440,8 +440,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		public long getPeakMemory() { return peakMemory; }
 	}
 
-	private static AbstractRandomVariableFactory[] testMethods = {
-			new RandomVariableFactory(),
+	private static RandomVariableFactory[] testMethods = {
+			new RandomVariableFromArrayFactory(),
 			//			new RandomVariableDifferentiableAADPathwiseFactory(),
 			//			new RandomVariableDifferentiableAADStochasticNonOptimizedFactory(),
 			new RandomVariableDifferentiableAADFactory()
@@ -529,12 +529,12 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 	}
 
 	private String							name;
-	private AbstractRandomVariableFactory	randomVariableFactory;
+	private RandomVariableFactory	abstractRandomVariableFactory;
 	private Object[]						testCase;
 
-	public RandomVariableDifferentiableAADPerformanceTest(String name, Object[] testCase, AbstractRandomVariableFactory testMethod) {
+	public RandomVariableDifferentiableAADPerformanceTest(String name, Object[] testCase, RandomVariableFactory testMethod) {
 		this.testCase = testCase;
-		randomVariableFactory = testMethod;
+		abstractRandomVariableFactory = testMethod;
 	}
 
 	@Test
@@ -563,18 +563,18 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		RandomVariable[] c = new RandomVariable[numberOfParameters];
 		for(int i=0; i<numberOfArguments; i++) {
 			if(valuesArgument.length == 1) {
-				x[i] = randomVariableFactory.createRandomVariable(0.0, valuesArgument[0]);
+				x[i] = abstractRandomVariableFactory.createRandomVariable(0.0, valuesArgument[0]);
 			}
 			else {
-				x[i] = randomVariableFactory.createRandomVariable(0.0, valuesArgument);
+				x[i] = abstractRandomVariableFactory.createRandomVariable(0.0, valuesArgument);
 			}
 		}
 		for(int i=0; i<numberOfParameters; i++) {
 			if(valuesParameter.length == 1) {
-				c[i] = randomVariableFactory.createRandomVariable(0.0, valuesParameter[0]);
+				c[i] = abstractRandomVariableFactory.createRandomVariable(0.0, valuesParameter[0]);
 			}
 			else {
-				c[i] = randomVariableFactory.createRandomVariable(0.0, valuesParameter);
+				c[i] = abstractRandomVariableFactory.createRandomVariable(0.0, valuesParameter);
 			}
 		}
 
@@ -592,7 +592,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		long startMemCalculation = getAllocatedMemory();
 		long startCalculation = System.currentTimeMillis();
 
-		RandomVariable y = function.value(randomVariableFactory, x, c);
+		RandomVariable y = function.value(abstractRandomVariableFactory, x, c);
 
 		long endCalculation = System.currentTimeMillis();
 
@@ -618,8 +618,8 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			for(int i=0; i<dydx.length; i++) {
 				xUp[i] = x[i].add(epsilon);
 				xDn[i] = x[i].sub(epsilon);
-				RandomVariable yUp = function.value(randomVariableFactory, xUp, c);
-				RandomVariable yDn = function.value(randomVariableFactory, xDn, c);
+				RandomVariable yUp = function.value(abstractRandomVariableFactory, xUp, c);
+				RandomVariable yDn = function.value(abstractRandomVariableFactory, xDn, c);
 				dydx[i] = yUp.sub(yDn).div(2 * epsilon);
 			}
 		}
@@ -637,7 +637,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 		RandomVariable[] dydxAnalytic = function.derivative(x, c);
 
 		System.out.print(function.getClass().getSimpleName() + " - ");
-		System.out.println(randomVariableFactory.getClass().getSimpleName() + ":");
+		System.out.println(abstractRandomVariableFactory.getClass().getSimpleName() + ":");
 		System.out.println("evaluation..........: " + formatReal1.format((endCalculation-startCalculation)/1000.0) + " s");
 		System.out.println("derivative..........: " + formatReal1.format((endAutoDiff-startAutoDiff)/1000.0) + " s");
 		System.out.println("memory requirements.: " + formatReal1.format((endMemAutoDiff-startMemCalculation)/1024.0/1024.0) + " MB");

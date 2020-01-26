@@ -25,7 +25,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	private final double fixingDate;
 	private final double paymentDate;
 
-	private final AbstractNotional				notional;
+	private final Notional				notional;
 	private final AbstractProductComponent		index;
 	private final double						daycountFraction;
 
@@ -47,7 +47,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
 	 */
 	public AbstractPeriod(LocalDateTime referenceDate, double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, AbstractNotional notional,
+			double fixingDate, double paymentDate, Notional notional,
 			AbstractProductComponent index, double daycountFraction) {
 		super();
 		this.referenceDate = referenceDate;
@@ -72,7 +72,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
 	 */
 	public AbstractPeriod(double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, AbstractNotional notional,
+			double fixingDate, double paymentDate, Notional notional,
 			AbstractProductComponent index, double daycountFraction) {
 		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
 	}
@@ -89,7 +89,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param index The index (coupon) associated with this period.
 	 */
 	public AbstractPeriod(double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, AbstractNotional notional,
+			double fixingDate, double paymentDate, Notional notional,
 			AbstractProductComponent index) {
 		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, periodEnd - periodStart);
 	}
@@ -137,7 +137,7 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	/**
 	 * @return the notional associated with this period.
 	 */
-	public AbstractNotional getNotional() {
+	public Notional getNotional() {
 		return notional;
 	}
 

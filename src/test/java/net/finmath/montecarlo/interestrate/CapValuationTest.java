@@ -27,7 +27,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.products.Cap;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
@@ -152,7 +152,7 @@ public class CapValuationTest {
 		 * Create corresponding LIBOR Market Model
 		 */
 		LIBORMarketModel liborMarketModel = LIBORMarketModelFromCovarianceModel.of(
-				liborPeriodDiscretization, null, forwardCurve, discountCurve, new RandomVariableFactory(), covarianceModel, calibrationItems, properties);
+				liborPeriodDiscretization, null, forwardCurve, discountCurve, new RandomVariableFromArrayFactory(), covarianceModel, calibrationItems, properties);
 
 		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,

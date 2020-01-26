@@ -9,7 +9,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.Schedule;
@@ -54,7 +54,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param indexPayLeg The index of the payer leg, may be null if no index is paid.
 	 * @param spreadPayLeg The constant spread or fixed coupon rate of the payer leg.
 	 */
-	public Swap(AbstractNotional notional,
+	public Swap(Notional notional,
 			Schedule scheduleReceiveLeg,
 			AbstractIndex indexReceiveLeg, double spreadReceiveLeg,
 			Schedule schedulePayLeg, AbstractIndex indexPayLeg,

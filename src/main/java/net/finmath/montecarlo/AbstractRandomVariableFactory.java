@@ -14,18 +14,22 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractRandomVariableFactory implements Serializable{
+public abstract class AbstractRandomVariableFactory implements Serializable, RandomVariableFactory {
 
 	private static final long serialVersionUID = -4412332958142580025L;
 
+	@Override
 	public RandomVariable createRandomVariable(double value) {
 		return createRandomVariable(Double.NEGATIVE_INFINITY, value);
 	}
 
+	@Override
 	public abstract RandomVariable createRandomVariable(double time, double value);
 
+	@Override
 	public abstract RandomVariable createRandomVariable(double time, double[] values);
 
+	@Override
 	public RandomVariable[] createRandomVariableArray(double[] values) {
 		RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
 		for(int i=0; i<values.length; i++) {
@@ -34,6 +38,7 @@ public abstract class AbstractRandomVariableFactory implements Serializable{
 		return valuesAsRandomVariables;
 	}
 
+	@Override
 	public RandomVariable[][] createRandomVariableMatrix(double[][] values) {
 		RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
 		for(int i=0; i<values.length; i++) {

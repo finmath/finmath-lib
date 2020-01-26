@@ -28,23 +28,23 @@ import net.finmath.stochastic.RandomVariable;
 @RunWith(Parameterized.class)
 public class RandomVariableTest {
 
-	private AbstractRandomVariableFactory randomVariableFactory;
+	private RandomVariableFactory abstractRandomVariableFactory;
 
 	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
 			{ new RandomVariableLazyEvaluationFactory() },
 			{ new RandomVariableDifferentiableAADFactory() },
 			{ new RandomVariableDifferentiableADFactory() },
 		});
 	}
 
-	public RandomVariableTest(AbstractRandomVariableFactory randomVariableFactory) {
+	public RandomVariableTest(RandomVariableFactory abstractRandomVariableFactory) {
 		super();
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
 
 
@@ -52,7 +52,7 @@ public class RandomVariableTest {
 	public void testRandomVariableDeterministc() {
 
 		// Create a random variable with a constant
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(2.0);
 
 		// Perform some calculations
 		randomVariable = randomVariable.mult(2.0);
@@ -72,7 +72,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStochastic() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
 		// Perform some calculations
@@ -100,7 +100,7 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSqrtPow() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
@@ -114,7 +114,7 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSquaredPow() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
@@ -128,7 +128,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStandardDeviation() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
@@ -152,7 +152,7 @@ public class RandomVariableTest {
 			samples[i] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(randomNumber);
 		}
 
-		RandomVariable normalDistributedRandomVariable = randomVariableFactory.createRandomVariable(0.0,samples);
+		RandomVariable normalDistributedRandomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,samples);
 
 		double q00 = normalDistributedRandomVariable.getQuantile(0.0);
 		Assert.assertEquals(normalDistributedRandomVariable.getMin(), q00, 1E-12);
@@ -174,10 +174,10 @@ public class RandomVariableTest {
 	public void testAdd() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0,  2.0, 4.0} );
 
-		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] { 4.0,  2.0, 0.0, -2.0, -4.0} );
 
 		RandomVariable valueAdd = randomVariable.add(randomVariable2);
@@ -193,10 +193,10 @@ public class RandomVariableTest {
 	public void testCap() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-3.0, -3.0, -3.0, -3.0, -3.0} );
 
 		RandomVariable valueCapped = randomVariable.cap(randomVariable2);
@@ -212,10 +212,10 @@ public class RandomVariableTest {
 	public void testFloor() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
 
 		RandomVariable valueFloored = randomVariable.floor(randomVariable2);

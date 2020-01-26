@@ -52,7 +52,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	private transient	RandomVariable[][]	increments;
 	private	transient	Object						incrementsLazyInitLock = new Object();
@@ -87,7 +87,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param inverseCumulativeDistributionFunctions A map from the timeIndices to a map from the from the factors to the corresponding inverse cumulative distribution function.
-	 * @param randomVariableFactory Factory to be used to create random variable.
+	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
 	 */
 	public IndependentIncrementsFromICDF(
 			TimeDiscretization timeDiscretization,
@@ -95,7 +95,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			int numberOfPaths,
 			int seed,
 			IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions,
-			AbstractRandomVariableFactory randomVariableFactory) {
+			RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
@@ -103,7 +103,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		this.seed				= seed;
 
 		this.inverseCumulativeDistributionFunctions = inverseCumulativeDistributionFunctions;
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		increments	= null; 	// Lazy initialization
 	}
@@ -138,17 +138,17 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			int numberOfPaths,
 			int seed,
 			IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions) {
-		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, inverseCumulativeDistributionFunctions, new RandomVariableFactory());
+		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, inverseCumulativeDistributionFunctions, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
 	public IndependentIncrements getCloneWithModifiedSeed(int seed) {
-		return new IndependentIncrementsFromICDF(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, inverseCumulativeDistributionFunctions, randomVariableFactory);
+		return new IndependentIncrementsFromICDF(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
 	}
 
 	@Override
 	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
-		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, randomVariableFactory);
+		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
 	}
 
 	@Override
@@ -214,7 +214,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				increments[timeIndex][factor] =
-						randomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
+						abstractRandomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -236,7 +236,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/**

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.ToDoubleFunction;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -120,12 +120,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		int numberOfFactors = this.getNumberOfFactors();
 		RandomVariable[] parameter = this.parameter;
-		AbstractRandomVariableFactory randomVariableFactory = null;
+		RandomVariableFactory abstractRandomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(new ToDoubleFunction<RandomVariable>() {
+				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				parameter = abstractRandomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(new ToDoubleFunction<RandomVariable>() {
 					@Override
 					public double applyAsDouble(RandomVariable para) {
 						return para.doubleValue();
@@ -139,10 +139,10 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 
 			if(dataModified.getOrDefault("parameter", parameter) instanceof RandomVariable[]) {
 				parameter = (RandomVariable[])dataModified.getOrDefault("parameter", parameter);
-			}else if(randomVariableFactory==null){
+			}else if(abstractRandomVariableFactory==null){
 				parameter = Scalar.arrayOf((double[])dataModified.get("parameter"));
 			}else {
-				parameter = randomVariableFactory.createRandomVariableArray((double[])dataModified.get("parameter"));
+				parameter = abstractRandomVariableFactory.createRandomVariableArray((double[])dataModified.get("parameter"));
 			}
 		}
 

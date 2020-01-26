@@ -22,8 +22,8 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
@@ -133,7 +133,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private DiscountCurve			discountCurve;
 	private DiscountCurve			discountCurveFromForwardCurve;
 
-	private final AbstractRandomVariableFactory	randomVariableFactory;
+	private final RandomVariableFactory	abstractRandomVariableFactory;
 
 	private final ShortRateVolatilityModel volatilityModel;
 
@@ -152,7 +152,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
-	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 * @param abstractRandomVariableFactory The factory to be used to construct random variables.
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -161,7 +161,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param properties A map specifying model properties.
 	 */
 	public HullWhiteModel(
-			AbstractRandomVariableFactory		randomVariableFactory,
+			RandomVariableFactory		abstractRandomVariableFactory,
 			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModel				analyticModel,
 			ForwardCurve				forwardRateCurve,
@@ -170,7 +170,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			Map<String, Object>			properties
 			) {
 
-		this.randomVariableFactory		= randomVariableFactory;
+		this.abstractRandomVariableFactory		= abstractRandomVariableFactory;
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 		this.analyticModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
@@ -211,14 +211,14 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			ShortRateVolatilityModel	volatilityModel,
 			Map<String, Object>			properties
 			) {
-		this(new RandomVariableFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		this(new RandomVariableFromArrayFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
 
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
-	 * @param randomVariableFactory The randomVariableFactory
+	 * @param abstractRandomVariableFactory The randomVariableFactory
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -230,7 +230,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
 	public static HullWhiteModel of(
-			AbstractRandomVariableFactory		randomVariableFactory,
+			RandomVariableFactory		abstractRandomVariableFactory,
 			TimeDiscretization			liborPeriodDiscretization,
 			AnalyticModel				analyticModel,
 			ForwardCurve				forwardRateCurve,
@@ -240,7 +240,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			Map<String, Object>					properties
 			) throws CalculationException {
 
-		HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		HullWhiteModel model = new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
@@ -298,12 +298,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	@Override
 	public RandomVariable getNumeraire(double time) throws CalculationException {
 		if(time < 0) {
-			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));
+			return abstractRandomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));
 		}
 
 		if(time == getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotion serves as a factory here.
-			RandomVariable one = randomVariableFactory.createRandomVariable(1.0);
+			RandomVariable one = abstractRandomVariableFactory.createRandomVariable(1.0);
 			return one;
 		}
 
@@ -473,10 +473,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	@Override
 	public LIBORModel getCloneWithModifiedData(Map<String, Object> dataModified) {
 		if(dataModified == null) {
-			return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+			return new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 		}
 
-		AbstractRandomVariableFactory	newRandomVariableFactory	= (AbstractRandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		RandomVariableFactory	newRandomVariableFactory	= (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
 		ShortRateVolatilityModel		newVolatilityModel			= (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
 
 		return new HullWhiteModel(newRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, newVolatilityModel, properties);
@@ -796,7 +796,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModel volatilityModel) {
-		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		return new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
 	@Override
@@ -860,7 +860,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			if(numeraireDiscountFactors.size() == 0) {
 				double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));
 				RandomVariable deterministicNumeraireAdjustment
-				= randomVariableFactory.createRandomVariable(dfInitial);
+				= abstractRandomVariableFactory.createRandomVariable(dfInitial);
 				numeraireDiscountFactors.add(0, deterministicNumeraireAdjustment);
 
 				for(int i=0; i<timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {
@@ -868,7 +868,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					double dfNext = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
 					double timeStep = timeDiscretizationForCurves.getTimeStep(i);
 					double timeNext = timeDiscretizationForCurves.getTime(i+1);
-					RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
+					RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
 					numeraireDiscountFactorForwardRates.add(i, forwardRate);
 					deterministicNumeraireAdjustment = deterministicNumeraireAdjustment.discount(forwardRate, timeStep);
 					numeraireDiscountFactors.add(i+1, deterministicNumeraireAdjustment);
@@ -917,7 +917,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					RandomVariable dfAsRandomVariable;
 					if(i == 0) {
 						double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
-						dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);
+						dfAsRandomVariable = abstractRandomVariableFactory.createRandomVariable(df);
 					}
 					else {
 						RandomVariable dfPrevious = discountFactorFromForwardCurveCache.get(i-1);
@@ -940,7 +940,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 				for(int i=forwardRateCache.size(); i<=timeIndex; i++) {
 					double dfPrev = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
 					double dfNext = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
-					RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeDiscretizationForCurves.getTimeStep(i));
+					RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeDiscretizationForCurves.getTimeStep(i));
 					forwardRateCache.add(forwardRate);
 				}
 			}
@@ -965,7 +965,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return "HullWhiteModel [liborPeriodDiscretization=" + liborPeriodDiscretization + ", forwardCurveName="
 				+ forwardCurveName + ", analyticModel=" + analyticModel + ", forwardRateCurve=" + forwardRateCurve
 				+ ", discountCurve=" + discountCurve + ", discountCurveFromForwardCurve="
-				+ discountCurveFromForwardCurve + ", randomVariableFactory=" + randomVariableFactory
+				+ discountCurveFromForwardCurve + ", randomVariableFactory=" + abstractRandomVariableFactory
 				+ ", volatilityModel=" + volatilityModel + ", properties=" + properties
 				+ ", isInterpolateDiscountFactorsOnLiborPeriodDiscretization="
 				+ isInterpolateDiscountFactorsOnLiborPeriodDiscretization + "]";

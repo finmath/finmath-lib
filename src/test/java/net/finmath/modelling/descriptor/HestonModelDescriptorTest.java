@@ -24,7 +24,7 @@ import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
@@ -96,10 +96,10 @@ public class HestonModelDescriptorTest {
 
 		// Create a time discretization
 		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
+		DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		Product europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);

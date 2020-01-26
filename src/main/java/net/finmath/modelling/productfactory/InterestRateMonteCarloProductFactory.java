@@ -17,7 +17,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
@@ -127,12 +127,12 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		 */
 		public SwapLegMonteCarlo(InterestRateSwapLegProductDescriptor descriptor, LocalDate referenceDate) {
 			super(descriptor.getLegScheduleDescriptor().getSchedule(referenceDate),
-					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction<Notional>() {
+					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction<NotionalFromConstant>() {
 						@Override
-						public Notional apply(double x) {
-							return new Notional(x);
+						public NotionalFromConstant apply(double x) {
+							return new NotionalFromConstant(x);
 						}
-					}).toArray(Notional[]::new),
+					}).toArray(NotionalFromConstant[]::new),
 					constructLiborIndex(descriptor.getForwardCurveName(), descriptor.getLegScheduleDescriptor().getSchedule(referenceDate)),
 					descriptor.getSpreads(),
 					couponFlow,

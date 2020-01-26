@@ -40,22 +40,22 @@ public class BrownianMotionTest {
 	static final DecimalFormat formatterSci4	= new DecimalFormat(" 0.0000E00;-0.0000E00");
 	static final DecimalFormat formatterSci1	= new DecimalFormat(" 0E00;-0.E00");
 
-	private AbstractRandomVariableFactory randomVariableFactory;
+	private RandomVariableFactory abstractRandomVariableFactory;
 
 	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
 			{ new RandomVariableDifferentiableAADFactory() },
 			{ new RandomVariableDifferentiableADFactory() },
 		});
 	}
 
-	public BrownianMotionTest(AbstractRandomVariableFactory randomVariableFactory) {
+	public BrownianMotionTest(RandomVariableFactory abstractRandomVariableFactory) {
 		super();
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class BrownianMotionTest {
 		int numberOfFactors = 1;
 		int numberOfPaths = 10000000;
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0, 10, 1.0);
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, randomVariableFactory);
+		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, abstractRandomVariableFactory);
 
 		RandomVariable brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
 		for(int timeIndex=1; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
@@ -114,7 +114,7 @@ public class BrownianMotionTest {
 					1,
 					numberOfPaths,
 					seed,
-					randomVariableFactory
+					abstractRandomVariableFactory
 					);
 
 			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
@@ -154,7 +154,7 @@ public class BrownianMotionTest {
 				1,
 				numberOfPaths,
 				seed,
-				randomVariableFactory
+				abstractRandomVariableFactory
 				);
 
 		JarqueBeraTest jb = new JarqueBeraTest();
@@ -198,7 +198,7 @@ public class BrownianMotionTest {
 				2,
 				numberOfPaths,
 				seed,
-				randomVariableFactory
+				abstractRandomVariableFactory
 				);
 
 		System.out.println("Test of average and variance of the integral of (Delta W)^2.");
@@ -258,7 +258,7 @@ public class BrownianMotionTest {
 				2,
 				numberOfPaths,
 				seed,
-				randomVariableFactory
+				abstractRandomVariableFactory
 				);
 
 		RandomVariable value = brownian.getBrownianIncrement(10, 0);

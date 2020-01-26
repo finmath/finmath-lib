@@ -17,10 +17,10 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
@@ -106,13 +106,13 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	 * Create a Monte-Carlo simulation of a Black-Scholes model using a specified Brownian motion
 	 * and random variable factory. The random variable factory will control the use of AAD (by means of dependency injection).
 	 *
-	 * @param randomVariableFactory The random variable factory to be used.
+	 * @param abstractRandomVariableFactory The random variable factory to be used.
 	 * @param brownianMotion The Brownian motion used to drive the model.
 	 * @return A Monte-Carlo simulation of a Black-Scholes model.
 	 */
-	public MonteCarloAssetModel getModel(AbstractRandomVariableFactory randomVariableFactory, BrownianMotion brownianMotion) {
+	public MonteCarloAssetModel getModel(RandomVariableFactory abstractRandomVariableFactory, BrownianMotion brownianMotion) {
 		// Create a model
-		AbstractProcessModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, randomVariableFactory);
+		AbstractProcessModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, abstractRandomVariableFactory);
 
 		// Create a corresponding MC process
 		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
@@ -139,7 +139,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		{
 			Map<String, Object> randomVariableProps = new HashMap<>();
 			randomVariableProps.put("diracDeltaApproximationWidthPerStdDev", width);	// 0.05 is the default
-			RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableProps);
+			RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), randomVariableProps);
 
 			/*
 			 * Create Model
@@ -164,7 +164,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			randomVariableRegressionProps.put("diracDeltaApproximationWidthPerStdDev", width);	// 0.05 is the default
 			randomVariableRegressionProps.put("diracDeltaApproximationMethod", DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON.name());
 			randomVariableRegressionProps.put("diracDeltaApproximationDensityRegressionWidthPerStdDev", 0.75);	// 0.5 is the default
-			RandomVariableDifferentiableAADFactory randomVariableFactoryRegression = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariableRegressionProps);
+			RandomVariableDifferentiableAADFactory randomVariableFactoryRegression = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), randomVariableRegressionProps);
 
 			/*
 			 * Create Model
@@ -190,7 +190,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		/*
 		 * Other Methods
 		 */
-		MonteCarloAssetModel monteCarloBlackScholesModel = getModel(new RandomVariableFactory(), brownianMotion);
+		MonteCarloAssetModel monteCarloBlackScholesModel = getModel(new RandomVariableFromArrayFactory(), brownianMotion);
 		RandomVariable X = monteCarloBlackScholesModel.getAssetValue(optionMaturity, assetIndex).sub(optionStrike);
 
 		/*
@@ -233,11 +233,11 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			 */
 			Map<String, Object> randomVariablePropsZeroWidth = new HashMap<>();
 			randomVariablePropsZeroWidth.put("diracDeltaApproximationWidthPerStdDev", 0.0);
-			RandomVariableDifferentiableAADFactory randomVariableFactoryZeroWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariablePropsZeroWidth);
+			RandomVariableDifferentiableAADFactory randomVariableFactoryZeroWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), randomVariablePropsZeroWidth);
 
 			Map<String, Object> randomVariablePropsInftyWidth = new HashMap<>();
 			randomVariablePropsInftyWidth.put("diracDeltaApproximationWidthPerStdDev", Double.POSITIVE_INFINITY);
-			RandomVariableDifferentiableAADFactory randomVariableFactoryInftyWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), randomVariablePropsInftyWidth);
+			RandomVariableDifferentiableAADFactory randomVariableFactoryInftyWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), randomVariablePropsInftyWidth);
 
 			AssetModelMonteCarloSimulationModel monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
 			AssetModelMonteCarloSimulationModel monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);

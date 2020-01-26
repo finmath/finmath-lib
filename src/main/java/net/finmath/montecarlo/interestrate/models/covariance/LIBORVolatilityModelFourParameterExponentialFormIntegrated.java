@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
 
 import java.util.Map;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
@@ -47,7 +47,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	private double[] coeffTaylorE27 = new double[] { 1, 2.0/3.0, 1.0/4.0, 1.0/15.0, 1.0/72.0, 1.0/420.0, 1.0/2880.0 };
 	private double[] coeffTaylorE37 = new double[] { 1, 3.0/4.0, 3.0/10.0, 1.0/12.0, 1.0/56.0, 1.0/320.0, 1.0/2160.0 };
 
-	private AbstractRandomVariableFactory randomVariableFactory;
+	private RandomVariableFactory abstractRandomVariableFactory;
 
 	private RandomVariable a;
 	private RandomVariable b;
@@ -62,7 +62,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * 	\sigma_{i}(t_{j}) = \sqrt{ \frac{1}{t_{j+1}-t_{j}} \int_{t_{j}}^{t_{j+1}} \left( ( a + b (T_{i}-t) ) \exp(-c (T_{i}-t)) + d \right)^{2} \ \mathrm{d}t } \text{.}
 	 * \]
 	 *
-	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -71,13 +71,13 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(AbstractRandomVariableFactory randomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialFormIntegrated(RandomVariableFactory abstractRandomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, double a, double b, double c, double d, boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.randomVariableFactory = randomVariableFactory;
-		this.a = randomVariableFactory.createRandomVariable(a);
-		this.b = randomVariableFactory.createRandomVariable(b);
-		this.c = randomVariableFactory.createRandomVariable(c);
-		this.d = randomVariableFactory.createRandomVariable(d);
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.a = abstractRandomVariableFactory.createRandomVariable(a);
+		this.b = abstractRandomVariableFactory.createRandomVariable(b);
+		this.c = abstractRandomVariableFactory.createRandomVariable(c);
+		this.d = abstractRandomVariableFactory.createRandomVariable(d);
 		this.isCalibrateable = isCalibrateable;
 	}
 
@@ -274,7 +274,7 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 	@Override
 	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
-		AbstractRandomVariableFactory randomVariableFactory = null;
+		RandomVariableFactory abstractRandomVariableFactory = null;
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		RandomVariable a = this.a;
@@ -285,43 +285,43 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegrated extends 
 
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
-			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 
 			if(dataModified.containsKey("randomVariableFactory")) {
-				a = randomVariableFactory.createRandomVariable(a.doubleValue());
-				b = randomVariableFactory.createRandomVariable(b.doubleValue());
-				c = randomVariableFactory.createRandomVariable(c.doubleValue());
-				d = randomVariableFactory.createRandomVariable(d.doubleValue());
+				a = abstractRandomVariableFactory.createRandomVariable(a.doubleValue());
+				b = abstractRandomVariableFactory.createRandomVariable(b.doubleValue());
+				c = abstractRandomVariableFactory.createRandomVariable(c.doubleValue());
+				d = abstractRandomVariableFactory.createRandomVariable(d.doubleValue());
 			}
 
 			if(dataModified.getOrDefault("a", a) instanceof RandomVariable) {
 				a = ((RandomVariable)dataModified.getOrDefault("a", a));
-			}else if(randomVariableFactory != null){
-				a = randomVariableFactory.createRandomVariable((double)dataModified.get("a"));
+			}else if(abstractRandomVariableFactory != null){
+				a = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("a"));
 			}else {
 				a = new Scalar((double)dataModified.get("a"));
 			}
 			if(dataModified.getOrDefault("b", b) instanceof RandomVariable) {
-				b = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("b", b)).doubleValue());
-			}else if(randomVariableFactory != null){
-				b = randomVariableFactory.createRandomVariable((double)dataModified.get("b"));
+				b = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("b", b)).doubleValue());
+			}else if(abstractRandomVariableFactory != null){
+				b = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("b"));
 			}else {
 				b = new Scalar((double)dataModified.get("b"));
 			}
 			if(dataModified.getOrDefault("c", c) instanceof RandomVariable) {
-				c = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("c", c)).doubleValue());
-			}else if(randomVariableFactory != null){
-				c = randomVariableFactory.createRandomVariable((double)dataModified.get("c"));
+				c = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("c", c)).doubleValue());
+			}else if(abstractRandomVariableFactory != null){
+				c = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("c"));
 			}else {
 				c = new Scalar((double)dataModified.get("c"));
 			}
 			if(dataModified.getOrDefault("d", d) instanceof RandomVariable) {
-				d = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("d", d)).doubleValue());
-			}else if(randomVariableFactory != null){
-				d = randomVariableFactory.createRandomVariable((double)dataModified.get("d"));
+				d = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("d", d)).doubleValue());
+			}else if(abstractRandomVariableFactory != null){
+				d = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("d"));
 			}else {
 				d = new Scalar((double)dataModified.get("d"));
 			}

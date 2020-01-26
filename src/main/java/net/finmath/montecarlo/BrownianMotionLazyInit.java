@@ -45,7 +45,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	private transient	RandomVariable[][]	brownianIncrements;
 	private transient 	Object				brownianIncrementsLazyInitLock = new Object();
@@ -62,21 +62,21 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
-	 * @param randomVariableFactory Factory to be used to create random variable.
+	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
 	 */
 	public BrownianMotionLazyInit(
 			TimeDiscretization timeDiscretization,
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed,
-			AbstractRandomVariableFactory randomVariableFactory) {
+			RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
 		this.numberOfPaths		= numberOfPaths;
 		this.seed				= seed;
 
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		brownianIncrements	= null; 	// Lazy initialization
 	}
@@ -94,7 +94,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 			int numberOfFactors,
 			int numberOfPaths,
 			int seed) {
-		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, new RandomVariableFactory());
+		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
@@ -170,7 +170,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 			double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				brownianIncrements[timeIndex][factor] =
-						randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
+						abstractRandomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -192,7 +192,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/**

@@ -17,9 +17,9 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
@@ -61,13 +61,13 @@ public class LIBORMarketModelInterpolationTest {
 
 		// Create a libor market model
 		System.out.println("Test for interpolationMethod " + interpolationMethod.name() + ":");
-		RandomVariableFactory randomVariableFactory =  new RandomVariableFactory();
-		liborMarketModel = createLIBORMarketModel(interpolationMethod, randomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory =  new RandomVariableFromArrayFactory();
+		liborMarketModel = createLIBORMarketModel(interpolationMethod, randomVariableFromArrayFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod,
-			AbstractRandomVariableFactory randomVariableFactory, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			RandomVariableFactory abstractRandomVariableFactory, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -133,7 +133,7 @@ public class LIBORMarketModelInterpolationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), randomVariableFactory, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), abstractRandomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

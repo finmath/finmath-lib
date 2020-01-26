@@ -49,7 +49,7 @@ import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovariance
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.SolverException;
@@ -135,7 +135,7 @@ public class LIBORIndexMultiCurveTest {
 			String forwardCurveName = f2.getName();
 
 			AbstractIndex index = new LIBORIndex(forwardCurveName, 0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, fixingTime, paymentTime, new Notional(1.0), index, periodLength, true, false, false);
+			Period period = new Period(periodStart, periodEnd, fixingTime, paymentTime, new NotionalFromConstant(1.0), index, periodLength, true, false, false);
 			double value = period.getValue(liborMarketModel);
 
 			AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();

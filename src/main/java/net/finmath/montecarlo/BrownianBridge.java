@@ -54,7 +54,7 @@ public class BrownianBridge implements BrownianMotion {
 	private RandomVariable[] start;
 	private RandomVariable[] end;
 
-	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	brownianIncrements;
 	private transient Object							brownianIncrementsLazyInitLock = new Object();
@@ -170,7 +170,7 @@ public class BrownianBridge implements BrownianMotion {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/* (non-Javadoc)

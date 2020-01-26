@@ -24,7 +24,7 @@ import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.HestonModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -106,10 +106,10 @@ public class ModelWithProductFactoryTest {
 
 		// Create a time discretization
 		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
+		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
 		Product digitalOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
@@ -206,10 +206,10 @@ public class ModelWithProductFactoryTest {
 
 		// Create a time discretization
 		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
+		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
 		Product digitalOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);

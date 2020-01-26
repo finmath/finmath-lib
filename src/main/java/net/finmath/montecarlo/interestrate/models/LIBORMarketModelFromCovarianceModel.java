@@ -24,11 +24,11 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
+import net.finmath.marketdata.model.volatilities.SwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
@@ -162,10 +162,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private ForwardCurve			forwardRateCurve;
 	private DiscountCurve			discountCurve;
 
-	private final AbstractRandomVariableFactory	randomVariableFactory;
+	private final RandomVariableFactory	abstractRandomVariableFactory;
 	private LIBORCovarianceModel	covarianceModel;
 
-	private AbstractSwaptionMarketData		swaptionMarketData;
+	private SwaptionMarketData		swaptionMarketData;
 
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
@@ -238,7 +238,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
-	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
+	 * @param abstractRandomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
@@ -248,7 +248,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			AnalyticModel			analyticModel,
 			ForwardCurve			forwardRateCurve,
 			DiscountCurve			discountCurve,
-			AbstractRandomVariableFactory	randomVariableFactory,
+			RandomVariableFactory	abstractRandomVariableFactory,
 			LIBORCovarianceModel			covarianceModel,
 			Map<String, ?>					properties
 			) throws CalculationException {
@@ -276,7 +276,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		curveModel					= analyticModel;
 		this.forwardRateCurve		= forwardRateCurve;
 		this.discountCurve			= discountCurve;
-		this.randomVariableFactory	= randomVariableFactory;
+		this.abstractRandomVariableFactory	= abstractRandomVariableFactory;
 		this.covarianceModel	= covarianceModel;
 	}
 
@@ -338,7 +338,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
-	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
+	 * @param abstractRandomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
@@ -350,13 +350,13 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			AnalyticModel			analyticModel,
 			ForwardCurve			forwardRateCurve,
 			DiscountCurve			discountCurve,
-			AbstractRandomVariableFactory	randomVariableFactory,
+			RandomVariableFactory	abstractRandomVariableFactory,
 			LIBORCovarianceModel			covarianceModel,
 			CalibrationProduct[]			calibrationProducts,
 			Map<String, ?>					properties
 			) throws CalculationException {
 
-		LIBORMarketModelFromCovarianceModel model = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, properties);
+		LIBORMarketModelFromCovarianceModel model = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, abstractRandomVariableFactory, covarianceModel, properties);
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
@@ -442,7 +442,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
-	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
+	 * @param abstractRandomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
@@ -455,7 +455,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			AnalyticModel			analyticModel,
 			ForwardCurve			forwardRateCurve,
 			DiscountCurve			discountCurve,
-			AbstractRandomVariableFactory	randomVariableFactory,
+			RandomVariableFactory	abstractRandomVariableFactory,
 			LIBORCovarianceModel			covarianceModel,
 			CalibrationProduct[]			calibrationProducts,
 			Map<String, ?>					properties
@@ -484,7 +484,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		curveModel					= analyticModel;
 		this.forwardRateCurve		= forwardRateCurve;
 		this.discountCurve			= discountCurve;
-		this.randomVariableFactory	= randomVariableFactory;
+		this.abstractRandomVariableFactory	= abstractRandomVariableFactory;
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
@@ -577,7 +577,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			CalibrationProduct[]					calibrationItems,
 			Map<String, ?>						properties
 			) throws CalculationException {
-		this(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, new RandomVariableFactory(), covarianceModel, calibrationItems, properties);
+		this(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, new RandomVariableFromArrayFactory(), covarianceModel, calibrationItems, properties);
 	}
 
 	/**
@@ -628,7 +628,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurve				forwardRateCurve,
 			LIBORCovarianceModel		covarianceModel,
-			AbstractSwaptionMarketData			swaptionMarketData
+			SwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, new DiscountCurveFromForwardCurve(forwardRateCurve), covarianceModel, swaptionMarketData, null);
 	}
@@ -648,7 +648,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			LIBORCovarianceModel		covarianceModel,
-			AbstractSwaptionMarketData			swaptionMarketData
+			SwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, swaptionMarketData, null);
 	}
@@ -669,7 +669,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			LIBORCovarianceModel		covarianceModel,
-			AbstractSwaptionMarketData			swaptionMarketData,
+			SwaptionMarketData			swaptionMarketData,
 			Map<String, ?>					properties
 			) throws CalculationException {
 		this(
@@ -761,7 +761,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		this(liborPeriodDiscretization, null, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
 	}
 
-	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, AbstractSwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
+	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, SwaptionMarketData swaptionMarketData, boolean isUseAnalyticApproximation) {
 		if(swaptionMarketData == null) {
 			return null;
 		}
@@ -851,7 +851,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	@Override
 	public RandomVariable getNumeraire(double time) throws CalculationException {
 		if(time < 0) {
-			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+			return abstractRandomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
 		}
 
 		RandomVariable numeraire = getNumerairetUnAdjusted(time);
@@ -918,7 +918,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(time);
 			if(deterministicNumeraireAdjustment == null) {
 				double dfInitial = discountCurve.getDiscountFactor(curveModel, timeDiscretizationForCurves.getTime(0));
-				deterministicNumeraireAdjustment = randomVariableFactory.createRandomVariable(dfInitial);
+				deterministicNumeraireAdjustment = abstractRandomVariableFactory.createRandomVariable(dfInitial);
 				numeraireDiscountFactors.put(timeDiscretizationForCurves.getTime(0), deterministicNumeraireAdjustment);
 
 				for(int i=0; i<timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {
@@ -926,7 +926,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					double dfNext = discountCurve.getDiscountFactor(curveModel, timeDiscretizationForCurves.getTime(i+1));
 					double timeStep = timeDiscretizationForCurves.getTimeStep(i);
 					double timeNext = timeDiscretizationForCurves.getTime(i+1);
-					RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
+					RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
 					numeraireDiscountFactorForwardRates.put(timeDiscretizationForCurves.getTime(i), forwardRate);
 					deterministicNumeraireAdjustment = deterministicNumeraireAdjustment.discount(forwardRate, timeStep);
 					numeraireDiscountFactors.put(timeNext, deterministicNumeraireAdjustment);
@@ -1221,7 +1221,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -1287,7 +1287,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariable accrualAccount = randomVariableFactory.createRandomVariable(1.0);
+		RandomVariable accrualAccount = abstractRandomVariableFactory.createRandomVariable(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
@@ -1609,7 +1609,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 *
 	 * @return The swaption market data used for calibration (if any, may be null).
 	 */
-	public AbstractSwaptionMarketData getSwaptionMarketData() {
+	public SwaptionMarketData getSwaptionMarketData() {
 		return swaptionMarketData;
 	}
 
@@ -1626,7 +1626,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			properties.put("stateSpace",	stateSpace.name());
 			properties.put("interpolationMethod", interpolationMethod.name());
 			properties.put("liborCap", liborCap);
-			return LIBORMarketModelFromCovarianceModel.of(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), randomVariableFactory, covarianceModel, null, properties);
+			return LIBORMarketModelFromCovarianceModel.of(getLiborPeriodDiscretization(), getAnalyticModel(), getForwardRateCurve(), getDiscountCurve(), abstractRandomVariableFactory, covarianceModel, null, properties);
 		} catch (CalculationException e) {
 			return null;
 		}
@@ -1645,7 +1645,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	@Override
 	public LIBORMarketModelFromCovarianceModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		AbstractRandomVariableFactory 	randomVariableFactory	= this.randomVariableFactory;
+		RandomVariableFactory 	abstractRandomVariableFactory	= this.abstractRandomVariableFactory;
 		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
 		AnalyticModel			analyticModel				= curveModel;
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
@@ -1659,7 +1659,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		properties.put("liborCap", liborCap);
 
 		if(dataModified != null) {
-			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			analyticModel = (AnalyticModel)dataModified.getOrDefault("analyticModel", analyticModel);
 			forwardRateCurve = (ForwardCurve)dataModified.getOrDefault("forwardRateCurve", forwardRateCurve);
@@ -1675,7 +1675,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			}
 		}
 
-		LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, null, properties);
+		LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, abstractRandomVariableFactory, covarianceModel, null, properties);
 		return newModel;
 	}
 

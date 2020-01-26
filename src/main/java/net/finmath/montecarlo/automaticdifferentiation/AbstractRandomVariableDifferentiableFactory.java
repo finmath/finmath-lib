@@ -8,6 +8,7 @@ package net.finmath.montecarlo.automaticdifferentiation;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -23,7 +24,7 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	 *
 	 */
 	private static final long serialVersionUID = 8262731847824139905L;
-	private final AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable;
+	private final RandomVariableFactory randomVariableFactoryForNonDifferentiable;
 
 	/**
 	 * Construct an object extending <code>AbstractRandomVariableDifferentiableFactory</code>
@@ -31,13 +32,13 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	 *
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory to be used for the storage of values.
 	 */
-	public AbstractRandomVariableDifferentiableFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public AbstractRandomVariableDifferentiableFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super();
 		this.randomVariableFactoryForNonDifferentiable = randomVariableFactoryForNonDifferentiable;
 	}
 
 	public AbstractRandomVariableDifferentiableFactory() {
-		this(new RandomVariableFactory());
+		this(new RandomVariableFromArrayFactory());
 	}
 
 	@Override

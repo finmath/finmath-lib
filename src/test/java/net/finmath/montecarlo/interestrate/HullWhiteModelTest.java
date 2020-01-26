@@ -53,8 +53,8 @@ import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Numeraire;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
@@ -386,8 +386,8 @@ public class HullWhiteModelTest {
 			AbstractIndex libor = new LIBORIndex(forwardCurve.getName(), "EUR", "6M", floatMetaSchedule.getBusinessdayCalendar(), floatMetaSchedule.getDateRollConvention());
 
 			//Create legs
-			TermStructureMonteCarloProduct floatLeg = new SwapLeg(floatLegSchedule, new Notional(1.0), libor, 0, false);
-			TermStructureMonteCarloProduct fixLeg = new SwapLeg(fixLegSchedule, new Notional(1.0), null, swaprate, false);
+			TermStructureMonteCarloProduct floatLeg = new SwapLeg(floatLegSchedule, new NotionalFromConstant(1.0), libor, 0, false);
+			TermStructureMonteCarloProduct fixLeg = new SwapLeg(fixLegSchedule, new NotionalFromConstant(1.0), null, swaprate, false);
 
 			//Create swap
 			AbstractLIBORMonteCarloProduct swap = new Swap(floatLeg, fixLeg);
@@ -868,7 +868,7 @@ public class HullWhiteModelTest {
 		/*
 		 * Create the leg with a notional and index
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex liborIndex = new LIBORIndex(0.0, 0.5);
 		AbstractIndex index = new LinearCombinationIndex(-1.0, liborIndex, +1, new LaggedIndex(liborIndex, +0.5 /* fixingOffset */));
 		double spread = 0.0;

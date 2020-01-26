@@ -8,9 +8,9 @@ import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
-import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
@@ -51,7 +51,7 @@ public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
 
 		Collection<AbstractProductComponent> legs = new ArrayList<>();
 
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 
 		Collection<AbstractProductComponent> fixedLegPeriods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {

@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
@@ -14,7 +14,7 @@ import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * As Heston like stochastic volatility model, using a process \( lambda(t) = \sqrt(V(t)) \)
+ * As Heston like stochastic volatility model, using a process \( \lambda(t) = \sqrt(V(t)) \)
  * \[
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{1}(t), \quad V(0) = 1.0,
  * \]
@@ -284,14 +284,14 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		RandomVariable theta = this.theta;
 		RandomVariable xi = this.xi;
 		boolean isCalibrateable = this.isCalibrateable;
-		AbstractRandomVariableFactory randomVariableFactory = null;
+		RandomVariableFactory abstractRandomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				kappa = randomVariableFactory.createRandomVariable(kappa.doubleValue());
-				theta = randomVariableFactory.createRandomVariable(theta.doubleValue());
-				xi = randomVariableFactory.createRandomVariable(xi.doubleValue());
+				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				kappa = abstractRandomVariableFactory.createRandomVariable(kappa.doubleValue());
+				theta = abstractRandomVariableFactory.createRandomVariable(theta.doubleValue());
+				xi = abstractRandomVariableFactory.createRandomVariable(xi.doubleValue());
 			}
 			if(!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -304,24 +304,24 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 			if(dataModified.getOrDefault("kappa", kappa) instanceof RandomVariable) {
 				kappa = (RandomVariable)dataModified.getOrDefault("kappa", kappa);
-			}else if(randomVariableFactory==null){
+			}else if(abstractRandomVariableFactory==null){
 				kappa = new Scalar((double)dataModified.get("kappa"));
 			}else {
-				kappa = randomVariableFactory.createRandomVariable((double)dataModified.get("kappa"));
+				kappa = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("kappa"));
 			}
 			if(dataModified.getOrDefault("theta", theta) instanceof RandomVariable) {
 				theta = (RandomVariable)dataModified.getOrDefault("rho", theta);
-			}else if(randomVariableFactory==null){
+			}else if(abstractRandomVariableFactory==null){
 				theta = new Scalar((double)dataModified.get("theta"));
 			}else {
-				theta = randomVariableFactory.createRandomVariable((double)dataModified.get("theta"));
+				theta = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("theta"));
 			}
 			if(dataModified.getOrDefault("xi", xi) instanceof RandomVariable) {
 				xi = (RandomVariable)dataModified.getOrDefault("xi", xi);
-			}else if(randomVariableFactory==null){
+			}else if(abstractRandomVariableFactory==null){
 				xi = new Scalar((double)dataModified.get("xi"));
 			}else {
-				xi = randomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
+				xi = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
 			}
 		}
 

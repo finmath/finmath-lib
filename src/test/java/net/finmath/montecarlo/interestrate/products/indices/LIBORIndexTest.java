@@ -42,7 +42,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationMod
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -124,7 +124,7 @@ public class LIBORIndexTest {
 			double periodLength	= periodEnd-periodStart;
 
 			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
+			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
 			double value = period.getValue(liborMarketModel);
 
 			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
@@ -149,7 +149,7 @@ public class LIBORIndexTest {
 			double periodLength	= periodEnd-periodStart;
 
 			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
+			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
 			periods.add(period);
 		}
 		AbstractProductComponent floater = new ProductCollection(periods);
@@ -183,7 +183,7 @@ public class LIBORIndexTest {
 			periodEnd	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
 
 			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new Notional(1.0), index, periodLength, true, true, false);
+			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
 			double value = period.getValue(liborMarketModel);
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;

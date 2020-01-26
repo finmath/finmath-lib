@@ -33,8 +33,8 @@ import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovariance
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.ConstantMaturitySwaprate;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
@@ -72,7 +72,7 @@ public class SwapLegTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
 		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
@@ -130,7 +130,7 @@ public class SwapLegTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = null;
 		double spread = 0.05;
 		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
@@ -188,7 +188,7 @@ public class SwapLegTest {
 		/*
 		 * Create the leg with a notional and index
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = new ConstantMaturitySwaprate(10.0, 0.5);
 		double spread = 0.0;
 
@@ -252,7 +252,7 @@ public class SwapLegTest {
 		/*
 		 * Create the leg with a notional and index
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 
 		AbstractIndex cms10 = new ConstantMaturitySwaprate(10,0.5);
 		AbstractIndex cms2 = new ConstantMaturitySwaprate(2,0.5);
@@ -316,7 +316,7 @@ public class SwapLegTest {
 		/*
 		 * Create the leg with a notional and index
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex liborIndex = new LIBORIndex(0.0, 0.5);
 		AbstractIndex index = new LaggedIndex(liborIndex, 0.5 /* fixingOffset */);
 		double spread = 0.0;

@@ -35,8 +35,8 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationMod
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -71,7 +71,7 @@ public class LIBORMarketModelHierarchyTest {
 		/*
 		 * Create Monte-Carlo leg
 		 */
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
 		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturity, frequency, daycountConvention, "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);

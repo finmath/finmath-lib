@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
@@ -284,13 +284,13 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		RandomVariable rho = this.rho;
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
-		AbstractRandomVariableFactory randomVariableFactory = null;
+		RandomVariableFactory abstractRandomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				nu = randomVariableFactory.createRandomVariable(nu.doubleValue());
-				rho = randomVariableFactory.createRandomVariable(rho.doubleValue());
+				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				nu = abstractRandomVariableFactory.createRandomVariable(nu.doubleValue());
+				rho = abstractRandomVariableFactory.createRandomVariable(rho.doubleValue());
 			}
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -303,17 +303,17 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 			if(dataModified.getOrDefault("nu", nu) instanceof RandomVariable) {
 				nu = (RandomVariable)dataModified.getOrDefault("nu", nu);
-			}else if(randomVariableFactory == null){
+			}else if(abstractRandomVariableFactory == null){
 				nu = new Scalar((double)dataModified.get("nu"));
 			}else {
-				nu = randomVariableFactory.createRandomVariable((double)dataModified.get("nu"));
+				nu = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("nu"));
 			}
 			if(dataModified.getOrDefault("rho", rho) instanceof RandomVariable) {
 				rho = (RandomVariable)dataModified.getOrDefault("rho", rho);
-			}else if(randomVariableFactory == null){
+			}else if(abstractRandomVariableFactory == null){
 				rho = new Scalar((double)dataModified.get("rho"));
 			}else {
-				rho = randomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
+				rho = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
 			}
 		}
 

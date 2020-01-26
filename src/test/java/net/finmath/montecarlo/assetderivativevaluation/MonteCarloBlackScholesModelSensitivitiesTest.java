@@ -20,7 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.MonteCarloProduct;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanDigitalOption;
@@ -120,15 +120,15 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 	}
 
 	private Map<String, Double> getSensitivitiesViaFiniteDifferences() throws CalculationException {
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		RandomVariable initialValue	= randomVariableFromArrayFactory.createRandomVariable(modelInitialValue);
+		RandomVariable riskFreeRate	= randomVariableFromArrayFactory.createRandomVariable(modelRiskFreeRate);
+		RandomVariable volatility	= randomVariableFromArrayFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFromArrayFactory);
 
 		// Create a time discretization
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -177,7 +177,7 @@ public class MonteCarloBlackScholesModelSensitivitiesTest {
 	}
 
 	private Map<String, Double> getSensitivitiesViaAAD() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);

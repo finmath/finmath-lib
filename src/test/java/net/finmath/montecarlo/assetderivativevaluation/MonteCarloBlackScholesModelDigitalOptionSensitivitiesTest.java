@@ -15,7 +15,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.DigitalOption;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
@@ -52,7 +52,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
@@ -144,7 +144,7 @@ public class MonteCarloBlackScholesModelDigitalOptionSensitivitiesTest {
 
 	@Test
 	public void testSensitivities() throws CalculationException {
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);

@@ -7,8 +7,8 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -43,7 +43,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 	private final RandomVariable riskFreeRate;
 	private final RandomVariable volatility;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	// Cache for arrays provided though AbstractProcessModel
 	private final RandomVariable[]	initialState;
@@ -56,19 +56,19 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
 			RandomVariable initialValue,
 			RandomVariable riskFreeRate,
 			RandomVariable volatility,
-			AbstractRandomVariableFactory randomVariableFactory) {
+			RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.riskFreeRate	= riskFreeRate;
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		// Cache
 		initialState = new RandomVariable[] { initialValue.log() };
@@ -82,14 +82,14 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
 			double initialValue,
 			double riskFreeRate,
 			double volatility,
-			AbstractRandomVariableFactory randomVariableFactory) {
-		this(randomVariableFactory.createRandomVariable(initialValue), randomVariableFactory.createRandomVariable(riskFreeRate), randomVariableFactory.createRandomVariable(volatility), randomVariableFactory);
+			RandomVariableFactory abstractRandomVariableFactory) {
+		this(abstractRandomVariableFactory.createRandomVariable(initialValue), abstractRandomVariableFactory.createRandomVariable(riskFreeRate), abstractRandomVariableFactory.createRandomVariable(volatility), abstractRandomVariableFactory);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 			double initialValue,
 			double riskFreeRate,
 			double volatility) {
-		this(initialValue, riskFreeRate, volatility, new RandomVariableFactory());
+		this(initialValue, riskFreeRate, volatility, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
@@ -143,7 +143,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue()	: getRiskFreeRate().getAverage();
 		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: getVolatility().getAverage();
 
-		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, randomVariableFactory);
+		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, abstractRandomVariableFactory);
 	}
 
 	@Override

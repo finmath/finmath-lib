@@ -27,9 +27,9 @@ import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.modelling.products.Swaption.ValueUnit;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
@@ -63,8 +63,8 @@ public class LIBORMarketModelValuationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
 			{ new RandomVariableDifferentiableAADFactory() },
 			{ new RandomVariableDifferentiableADFactory() },
 		});
@@ -80,14 +80,14 @@ public class LIBORMarketModelValuationTest {
 	private static DecimalFormat formatterMoneyness	= new DecimalFormat(" 000.0%;-000.0%", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	public LIBORMarketModelValuationTest(AbstractRandomVariableFactory randomVariableFactory) throws CalculationException {
+	public LIBORMarketModelValuationTest(RandomVariableFactory abstractRandomVariableFactory) throws CalculationException {
 
 		// Create a libor market model
-		liborMarketModel = createLIBORMarketModel(randomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		liborMarketModel = createLIBORMarketModel(abstractRandomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			AbstractRandomVariableFactory randomVariableFactory, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			RandomVariableFactory abstractRandomVariableFactory, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -151,7 +151,7 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), randomVariableFactory, covarianceModel, calibrationItems, properties);
+		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), abstractRandomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

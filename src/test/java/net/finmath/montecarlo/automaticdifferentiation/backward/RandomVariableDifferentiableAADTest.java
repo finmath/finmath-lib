@@ -6,8 +6,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.stochastic.RandomVariable;
 
@@ -26,14 +26,14 @@ public class RandomVariableDifferentiableAADTest {
 		 * differentiation of the first order derivative.
 		 * Handling and assignment of IDs is subject to change.
 		 */
-		AbstractRandomVariableFactory randomVariableFactoryParameters = new RandomVariableFactory();
+		RandomVariableFactory randomVariableFactoryParameters = new RandomVariableFromArrayFactory();
 
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("isGradientRetainsLeafNodesOnly", false);
 
-		AbstractRandomVariableFactory randomVariableFactoryVariable = new RandomVariableDifferentiableAADFactory(
+		RandomVariableFactory randomVariableFactoryVariable = new RandomVariableDifferentiableAADFactory(
 				new RandomVariableDifferentiableAADFactory(
-						new RandomVariableFactory(), properties), properties);
+						new RandomVariableFromArrayFactory(), properties), properties);
 
 		RandomVariable a = randomVariableFactoryParameters.createRandomVariable(5.0);
 		RandomVariable b = randomVariableFactoryParameters.createRandomVariable(1.0);

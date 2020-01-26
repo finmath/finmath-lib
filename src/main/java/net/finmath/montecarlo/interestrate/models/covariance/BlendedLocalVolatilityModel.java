@@ -9,8 +9,8 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -49,7 +49,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 
 	private static final long serialVersionUID = -5042461187735524974L;
 
-	private AbstractRandomVariableFactory randomVariableFactory;
+	private RandomVariableFactory abstractRandomVariableFactory;
 	private AbstractLIBORCovarianceModelParametric covarianceModel;
 	private RandomVariable displacement;
 
@@ -99,19 +99,19 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
+	 * @param abstractRandomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param forwardCurve The given forward curve L<sub>0</sub>
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public BlendedLocalVolatilityModel(AbstractRandomVariableFactory randomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurve forwardCurve, double displacement, boolean isCalibrateable) {
+	public BlendedLocalVolatilityModel(RandomVariableFactory abstractRandomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurve forwardCurve, double displacement, boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 		this.covarianceModel	= covarianceModel;
 		this.forwardCurve		= forwardCurve;
-		this.displacement		= randomVariableFactory.createRandomVariable(displacement);
+		this.displacement		= abstractRandomVariableFactory.createRandomVariable(displacement);
 		this.isCalibrateable	= isCalibrateable;
 	}
 
@@ -132,13 +132,13 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * If this model is not calibrateable, its parameter vector is that of the
 	 * covariance model.
 	 *
-	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
+	 * @param abstractRandomVariableFactory The factory used to create RandomVariable objects from constants.
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param displacement The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public BlendedLocalVolatilityModel(AbstractRandomVariableFactory randomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
-		this(randomVariableFactory, covarianceModel, null, displacement, isCalibrateable);
+	public BlendedLocalVolatilityModel(RandomVariableFactory abstractRandomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
+		this(abstractRandomVariableFactory, covarianceModel, null, displacement, isCalibrateable);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
 	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, ForwardCurve forwardCurve, double displacement, boolean isCalibrateable) {
-		this(new RandomVariableFactory(), covarianceModel, forwardCurve, displacement, isCalibrateable);
+		this(new RandomVariableFromArrayFactory(), covarianceModel, forwardCurve, displacement, isCalibrateable);
 	}
 
 	/**
@@ -186,12 +186,12 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
 	public BlendedLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double displacement, boolean isCalibrateable) {
-		this(new RandomVariableFactory(), covarianceModel, displacement, isCalibrateable);
+		this(new RandomVariableFromArrayFactory(), covarianceModel, displacement, isCalibrateable);
 	}
 
 	@Override
 	public Object clone() {
-		return new BlendedLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement.doubleValue(), isCalibrateable);
+		return new BlendedLocalVolatilityModel(abstractRandomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement.doubleValue(), isCalibrateable);
 	}
 
 	/**
@@ -292,7 +292,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
 			throws CalculationException {
-		AbstractRandomVariableFactory randomVariableFactory = this.randomVariableFactory;
+		RandomVariableFactory abstractRandomVariableFactory = this.abstractRandomVariableFactory;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 		ForwardCurve forwardCurve = this.forwardCurve;
 		double displacement = this.displacement.doubleValue();
@@ -306,7 +306,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 			// Explicitly passed covarianceModel has priority
 			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault("covarianceModel", covarianceModel);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
-			randomVariableFactory = (AbstractRandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
 			forwardCurve = (ForwardCurve)dataModified.getOrDefault("forwardCurve", forwardCurve);
 
 			// Explicitly passed RVFactory has priority (consistency)
