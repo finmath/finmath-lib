@@ -862,7 +862,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			RandomVariable defaultableZeroBondAsOfTimeZero = getNumeraireDefaultableZeroBondAsOfTimeZero(time);
 
 			double nonDefaultableZeroBond = numeraire.invert()
-//					.mult(getNumerairetUnAdjusted(0.0))
+					.mult(getNumerairetUnAdjusted(0.0))
 					.getAverage();
 			numeraire = numeraire.mult(nonDefaultableZeroBond).div(defaultableZeroBondAsOfTimeZero);
 		}
