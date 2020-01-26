@@ -19,7 +19,7 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
@@ -107,7 +107,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
@@ -137,7 +137,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(), properties);
+		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
 		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);

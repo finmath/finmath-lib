@@ -6,8 +6,8 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.forward;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
@@ -23,13 +23,13 @@ public class RandomVariableDifferentiableADFactory extends AbstractRandomVariabl
 	private static final long serialVersionUID = 252965311623985432L;
 
 	public RandomVariableDifferentiableADFactory() {
-		super(new RandomVariableFactory());
+		super(new RandomVariableFromArrayFactory());
 	}
 
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
-	public RandomVariableDifferentiableADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 	}
 

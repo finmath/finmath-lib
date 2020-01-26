@@ -9,7 +9,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -208,12 +208,12 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 		RandomVariable displacement = this.displacement;
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
-		AbstractRandomVariableFactory randomVariableFactory = null;
+		RandomVariableFactory abstractRandomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				randomVariableFactory = (AbstractRandomVariableFactory)dataModified.get("randomVariableFactory");
-				displacement = randomVariableFactory.createRandomVariable(displacement.doubleValue());
+				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				displacement = abstractRandomVariableFactory.createRandomVariable(displacement.doubleValue());
 			}
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -225,10 +225,10 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 
 			if (dataModified.getOrDefault("displacement", displacement) instanceof RandomVariable) {
 				displacement = (RandomVariable) dataModified.getOrDefault("displacement", displacement);
-			} else if (randomVariableFactory == null) {
+			} else if (abstractRandomVariableFactory == null) {
 				displacement = new Scalar((double) dataModified.get("displacement"));
 			} else {
-				displacement = randomVariableFactory.createRandomVariable((double) dataModified.get("displacement"));
+				displacement = abstractRandomVariableFactory.createRandomVariable((double) dataModified.get("displacement"));
 			}
 		}
 

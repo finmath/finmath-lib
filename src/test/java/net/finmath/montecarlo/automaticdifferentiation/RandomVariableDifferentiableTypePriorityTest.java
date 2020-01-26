@@ -9,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -27,17 +27,17 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Parameters
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
 		});
 	}
 
-	private final AbstractRandomVariableFactory randomVariableFactoryValue;
-	private final AbstractRandomVariableFactory randomVariableFactoryDifferentiable;
+	private final RandomVariableFactory randomVariableFactoryValue;
+	private final RandomVariableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableTypePriorityTest(AbstractRandomVariableFactory randomVariableFactoryValue, AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableTypePriorityTest(RandomVariableFactory randomVariableFactoryValue, AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryValue = randomVariableFactoryValue;
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}

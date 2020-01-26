@@ -29,7 +29,7 @@ import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel.Measure;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
@@ -180,7 +180,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurveInterpolation, discountCurveInterpolation}),
 				forwardCurveInterpolation,
 				discountCurveInterpolation,
-				new RandomVariableFactory(),
+				new RandomVariableFromArrayFactory(),
 				covarianceModel,
 				calibrationItems,
 				properties);
@@ -630,7 +630,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				liborMarketModel.getLiborPeriodDiscretization(),
 				new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve }),
 				forwardCurve, discountCurve,
-				new RandomVariableFactory(),
+				new RandomVariableFromArrayFactory(),
 				covarianceModelParametric,
 				calibrationProducts.toArray(new CalibrationProduct[0]), null);
 

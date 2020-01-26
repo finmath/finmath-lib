@@ -21,9 +21,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
@@ -54,8 +54,8 @@ public class BlackScholesMonteCarloValuationTest {
 	public static Collection<Object[]> generateData()
 	{
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(true /* isUseDoublePrecisionFloatingPointImplementation */) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */) },
 			{ new RandomVariableDifferentiableAADFactory() },
 			{ new RandomVariableDifferentiableADFactory() },
 		});
@@ -74,7 +74,7 @@ public class BlackScholesMonteCarloValuationTest {
 	private final int		seed				= 3141;
 
 	private AssetModelMonteCarloSimulationModel model = null;
-	private AbstractRandomVariableFactory randomVariableFactory = null;
+	private RandomVariableFactory abstractRandomVariableFactory = null;
 
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
@@ -86,7 +86,7 @@ public class BlackScholesMonteCarloValuationTest {
 	 */
 	public static void main(String[] args) throws CalculationException, InterruptedException
 	{
-		BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest(new RandomVariableFactory(true /* isUseDoublePrecisionFloatingPointImplementation */));
+		BlackScholesMonteCarloValuationTest pricingTest = new BlackScholesMonteCarloValuationTest(new RandomVariableFromArrayFactory(true /* isUseDoublePrecisionFloatingPointImplementation */));
 
 		/*
 		 * Read input
@@ -127,9 +127,9 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
-	public BlackScholesMonteCarloValuationTest(AbstractRandomVariableFactory randomVariableFactory) {
+	public BlackScholesMonteCarloValuationTest(RandomVariableFactory abstractRandomVariableFactory) {
 		super();
-		this.randomVariableFactory  = randomVariableFactory;
+		this.abstractRandomVariableFactory  = abstractRandomVariableFactory;
 	}
 
 	private static int readTestNumber() {
@@ -173,7 +173,7 @@ public class BlackScholesMonteCarloValuationTest {
 			ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, abstractRandomVariableFactory));
 
 			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}

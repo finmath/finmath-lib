@@ -18,8 +18,8 @@ import net.finmath.marketdata2.model.curves.Curve;
 import net.finmath.marketdata2.model.curves.DiscountCurveInterface;
 import net.finmath.marketdata2.model.curves.ForwardCurveInterface;
 import net.finmath.marketdata2.model.volatilities.VolatilitySurface;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -37,7 +37,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 *
 	 */
 	private static final long serialVersionUID = -1551367852009541732L;
-	private final AbstractRandomVariableFactory			randomVariableFactory;
+	private final RandomVariableFactory			abstractRandomVariableFactory;
 	private final Map<String, Curve>			curvesMap					= new HashMap<>();
 	private final Map<String, VolatilitySurface>	volatilitySurfaceMap	= new HashMap<>();
 
@@ -45,16 +45,16 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 * Create an empty analytic model.
 	 */
 	public AnalyticModelFromCurvesAndVols() {
-		randomVariableFactory = new RandomVariableFactory();
+		abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
 	}
 
 	/**
 	 * Create an empty analytic model using a given AbstractRandomVariableFactory for construction of result types.
 	 *
-	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 * @param abstractRandomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 */
-	public AnalyticModelFromCurvesAndVols(AbstractRandomVariableFactory randomVariableFactory) {
-		this.randomVariableFactory = randomVariableFactory;
+	public AnalyticModelFromCurvesAndVols(RandomVariableFactory abstractRandomVariableFactory) {
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
 
 	/**
@@ -72,11 +72,11 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	/**
 	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
 	 *
-	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 * @param abstractRandomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(AbstractRandomVariableFactory randomVariableFactory, Curve[] curves) {
-		this(randomVariableFactory);
+	public AnalyticModelFromCurvesAndVols(RandomVariableFactory abstractRandomVariableFactory, Curve[] curves) {
+		this(abstractRandomVariableFactory);
 		for (Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
@@ -96,7 +96,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

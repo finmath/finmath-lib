@@ -9,8 +9,8 @@ package net.finmath.montecarlo.automaticdifferentiation.backward;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
@@ -57,7 +57,7 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 * @param properties A key value map with properties.
 	 */
-	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
+	public RandomVariableDifferentiableAADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 
 		/*
@@ -75,18 +75,18 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	 * @param properties A key value map with properties.
 	 */
 	public RandomVariableDifferentiableAADFactory(Map<String, Object> properties) {
-		this(new RandomVariableFactory(), properties);
+		this(new RandomVariableFromArrayFactory(), properties);
 	}
 
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 */
-	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableAADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		this(randomVariableFactoryForNonDifferentiable, new HashMap<String, Object>());
 	}
 
 	public RandomVariableDifferentiableAADFactory() {
-		this(new RandomVariableFactory());
+		this(new RandomVariableFromArrayFactory());
 	}
 
 	@Override

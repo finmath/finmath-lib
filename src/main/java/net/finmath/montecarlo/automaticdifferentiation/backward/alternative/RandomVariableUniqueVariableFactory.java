@@ -6,7 +6,7 @@ package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 import java.util.ArrayList;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -60,7 +60,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 
 	public RandomVariable createRandomVariable(double time, double value, boolean isConstant) {
 
-		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
 		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
 
 		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
@@ -68,7 +68,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 
 	public RandomVariable createRandomVariable(double time, double[] values, boolean isConstant) {
 
-		RandomVariableFactory randomvariablefactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
 		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
 
 		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);

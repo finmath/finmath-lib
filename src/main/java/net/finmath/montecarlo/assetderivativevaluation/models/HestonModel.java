@@ -9,8 +9,8 @@ import java.util.Map;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -106,7 +106,7 @@ public class HestonModel extends AbstractProcessModel {
 
 	private final Scheme scheme;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
@@ -119,22 +119,22 @@ public class HestonModel extends AbstractProcessModel {
 	 *
 	 * @param descriptor A descriptor of the model.
 	 * @param scheme The scheme.
-	 * @param randomVariableFactory A random variable factory to be used for the parameters.
+	 * @param abstractRandomVariableFactory A random variable factory to be used for the parameters.
 	 */
 	public HestonModel(HestonModelDescriptor descriptor, 			Scheme scheme,
-			AbstractRandomVariableFactory randomVariableFactory
+			RandomVariableFactory abstractRandomVariableFactory
 			) {
 		this(
-				randomVariableFactory.createRandomVariable(descriptor.getInitialValue()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getInitialValue()),
 				descriptor.getDiscountCurveForForwardRate(),
-				randomVariableFactory.createRandomVariable(descriptor.getVolatility()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getVolatility()),
 				descriptor.getDiscountCurveForDiscountRate(),
-				randomVariableFactory.createRandomVariable(descriptor.getTheta()),
-				randomVariableFactory.createRandomVariable(descriptor.getKappa()),
-				randomVariableFactory.createRandomVariable(descriptor.getXi()),
-				randomVariableFactory.createRandomVariable(descriptor.getRho()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getTheta()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getKappa()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getXi()),
+				abstractRandomVariableFactory.createRandomVariable(descriptor.getRho()),
 				scheme,
-				randomVariableFactory
+				abstractRandomVariableFactory
 				);
 	}
 
@@ -150,7 +150,7 @@ public class HestonModel extends AbstractProcessModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
-	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 * @param abstractRandomVariableFactory The factory to be used to construct random variables.
 	 */
 	public HestonModel(
 			RandomVariable initialValue,
@@ -162,7 +162,7 @@ public class HestonModel extends AbstractProcessModel {
 			RandomVariable xi,
 			RandomVariable rho,
 			Scheme scheme,
-			AbstractRandomVariableFactory randomVariableFactory
+			RandomVariableFactory abstractRandomVariableFactory
 			) {
 		super();
 
@@ -180,7 +180,7 @@ public class HestonModel extends AbstractProcessModel {
 
 		this.scheme			= scheme;
 
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class HestonModel extends AbstractProcessModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
-	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 * @param abstractRandomVariableFactory The factory to be used to construct random variables.
 	 */
 	public HestonModel(
 			RandomVariable initialValue,
@@ -207,7 +207,7 @@ public class HestonModel extends AbstractProcessModel {
 			RandomVariable xi,
 			RandomVariable rho,
 			Scheme scheme,
-			AbstractRandomVariableFactory randomVariableFactory
+			RandomVariableFactory abstractRandomVariableFactory
 			) {
 		super();
 
@@ -225,7 +225,7 @@ public class HestonModel extends AbstractProcessModel {
 
 		this.scheme			= scheme;
 
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class HestonModel extends AbstractProcessModel {
 	 * @param xi The volatility of the volatility (of V).
 	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
 	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
-	 * @param randomVariableFactory The factory to be used to construct random variables..
+	 * @param abstractRandomVariableFactory The factory to be used to construct random variables..
 	 */
 	public HestonModel(
 			double initialValue,
@@ -252,19 +252,19 @@ public class HestonModel extends AbstractProcessModel {
 			double xi,
 			double rho,
 			Scheme scheme,
-			AbstractRandomVariableFactory randomVariableFactory
+			RandomVariableFactory abstractRandomVariableFactory
 			) {
 		this(
-				randomVariableFactory.createRandomVariable(initialValue),
-				randomVariableFactory.createRandomVariable(riskFreeRate),
-				randomVariableFactory.createRandomVariable(volatility),
-				randomVariableFactory.createRandomVariable(discountRate),
-				randomVariableFactory.createRandomVariable(theta),
-				randomVariableFactory.createRandomVariable(kappa),
-				randomVariableFactory.createRandomVariable(xi),
-				randomVariableFactory.createRandomVariable(rho),
+				abstractRandomVariableFactory.createRandomVariable(initialValue),
+				abstractRandomVariableFactory.createRandomVariable(riskFreeRate),
+				abstractRandomVariableFactory.createRandomVariable(volatility),
+				abstractRandomVariableFactory.createRandomVariable(discountRate),
+				abstractRandomVariableFactory.createRandomVariable(theta),
+				abstractRandomVariableFactory.createRandomVariable(kappa),
+				abstractRandomVariableFactory.createRandomVariable(xi),
+				abstractRandomVariableFactory.createRandomVariable(rho),
 				scheme,
-				randomVariableFactory);
+				abstractRandomVariableFactory);
 	}
 
 	/**
@@ -291,7 +291,7 @@ public class HestonModel extends AbstractProcessModel {
 			double rho,
 			Scheme scheme
 			) {
-		this(initialValue, riskFreeRate, volatility, discountRate, theta, kappa, xi, rho, scheme, new RandomVariableFactory());
+		this(initialValue, riskFreeRate, volatility, discountRate, theta, kappa, xi, rho, scheme, new RandomVariableFromArrayFactory());
 	}
 
 	/**
@@ -316,7 +316,7 @@ public class HestonModel extends AbstractProcessModel {
 			double rho,
 			Scheme scheme
 			) {
-		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, new RandomVariableFactory());
+		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
@@ -349,7 +349,7 @@ public class HestonModel extends AbstractProcessModel {
 			double timeNext	= getTime(timeIndex+1);
 
 			double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
-			riskFreeRateAtTimeStep = randomVariableFactory.createRandomVariable(rate);
+			riskFreeRateAtTimeStep = abstractRandomVariableFactory.createRandomVariable(rate);
 		}
 		else {
 			riskFreeRateAtTimeStep = riskFreeRate;
@@ -419,7 +419,7 @@ public class HestonModel extends AbstractProcessModel {
 	@Override
 	public RandomVariable getNumeraire(double time) {
 		if(discountCurveForDiscountRate != null) {
-			return randomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+			return abstractRandomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
 		}
 		else {
 			return discountRate.mult(time).exp();
@@ -436,7 +436,7 @@ public class HestonModel extends AbstractProcessModel {
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
@@ -454,7 +454,7 @@ public class HestonModel extends AbstractProcessModel {
 		RandomVariable	newXi		= getRandomVariableForValue(dataModified.getOrDefault("xi", xi));
 		RandomVariable	newRho		= getRandomVariableForValue(dataModified.getOrDefault("rho", rho));
 
-		return new HestonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newTheta, newKappa, newXi, newRho, scheme, randomVariableFactory);
+		return new HestonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newTheta, newKappa, newXi, newRho, scheme, abstractRandomVariableFactory);
 	}
 
 	private RandomVariable getRandomVariableForValue(Object value) {

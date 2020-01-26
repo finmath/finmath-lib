@@ -26,7 +26,7 @@ import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFiniteDifference1D;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -92,10 +92,10 @@ public class AssetBlackScholesModelDescriptorTest {
 
 		// Create a time discretization
 		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Monte Carlo implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
+		DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
 		Product europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);

@@ -13,8 +13,8 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
@@ -27,13 +27,13 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
  */
 public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackScholesModelDescriptor> {
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 	private final IndependentIncrements brownianMotion;
 
 
-	public BlackScholesModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory, IndependentIncrements brownianMotion) {
+	public BlackScholesModelMonteCarloFactory(RandomVariableFactory abstractRandomVariableFactory, IndependentIncrements brownianMotion) {
 		super();
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 		this.brownianMotion = brownianMotion;
 	}
 
@@ -52,7 +52,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 				modelDescriptor.getDiscountCurveForForwardRate(),
 				modelDescriptor.getVolatility(),
 				modelDescriptor.getDiscountCurveForDiscountRate(),
-				randomVariableFactory
+				abstractRandomVariableFactory
 				);
 
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {
