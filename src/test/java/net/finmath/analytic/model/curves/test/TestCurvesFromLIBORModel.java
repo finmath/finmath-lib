@@ -32,8 +32,8 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityMode
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialForm;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.components.AbstractNotional;
 import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -253,14 +253,14 @@ public class TestCurvesFromLIBORModel {
 		Schedule scheduleReceiver = schedulePayer;
 
 		//Create Monte-Carlo payer leg (float)
-		AbstractNotional notional = new Notional(1.0); // equal Notional as for analytic Swap.
+		Notional notional = new NotionalFromConstant(1.0); // equal Notional as for analytic Swap.
 		AbstractIndex index = new LIBORIndex(0.0, 0.5);
 		double spread = 0.0;
 		net.finmath.montecarlo.interestrate.products.SwapLeg leg =
 				new net.finmath.montecarlo.interestrate.products.SwapLeg(schedulePayer, notional, index, spread, false /* isNotionalExchanged */);
 
 		//Create Monte-Carlo receiver leg (fixed)
-		AbstractNotional notionalF = notional;
+		Notional notionalF = notional;
 		AbstractIndex indexF = null;
 		double spreadF = 0.01;
 		net.finmath.montecarlo.interestrate.products.SwapLeg legF =

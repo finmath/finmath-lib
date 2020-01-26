@@ -84,7 +84,7 @@ public class ExposureTest {
 				new BusinessdayCalendarExcludingTARGETHolidays() /* businessdayCalendar */,
 				0 /* fixingOffsetDays */,
 				0 /* paymentOffsetDays */);
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = new LIBORIndex("forwardCurve", 0.0, 0.25);
 		double fixedCoupon = 0.025;
 
@@ -130,7 +130,7 @@ public class ExposureTest {
 		TimeDiscretizationFromArray tenor = new TimeDiscretizationFromArray(0.0, 40, 0.25);
 		Schedule schedule = new RegularSchedule(tenor);
 
-		AbstractNotional notional = new Notional(1.0);
+		Notional notional = new NotionalFromConstant(1.0);
 		AbstractIndex index = new LIBORIndex("forwardCurve", 0.0, 0.25);
 		double fixedCoupon = 0.025;
 

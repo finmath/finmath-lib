@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariable;
  * @since finmath-lib 3.6.0
  * @version 1.0
  */
-public class NotionalFromComponent implements AbstractNotional {
+public class NotionalFromComponent implements Notional {
 
 	private AbstractProductComponent notional;
 

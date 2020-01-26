@@ -16,9 +16,9 @@ import net.finmath.time.FloatingpointDate;
  *
  * @version 1.0
  */
-public class AccruingNotional implements AbstractNotional {
+public class AccruingNotional implements Notional {
 
-	private AbstractNotional	previousPeriodNotional;
+	private Notional	previousPeriodNotional;
 	private AbstractPeriod		previousPeriod;
 
 	/**
@@ -29,7 +29,7 @@ public class AccruingNotional implements AbstractNotional {
 	 * @param previousPeriodNotional The notional of the previous period.
 	 * @param previousPeriod The previous period.
 	 */
-	public AccruingNotional(AbstractNotional previousPeriodNotional, AbstractPeriod previousPeriod) {
+	public AccruingNotional(Notional previousPeriodNotional, AbstractPeriod previousPeriod) {
 		this.previousPeriodNotional = previousPeriodNotional;
 		this.previousPeriod = previousPeriod;
 	}

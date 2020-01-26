@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.process.component.factordrift.FactorDriftInterface;
+import net.finmath.montecarlo.process.component.factordrift.FactorDrift;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -68,7 +68,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	}
 
 	@Override
-	public FactorDriftInterface getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme) {
+	public FactorDrift getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme) {
 		throw new UnsupportedOperationException("Method not implemented.");
 	}
 }

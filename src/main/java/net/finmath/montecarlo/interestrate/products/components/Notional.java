@@ -5,60 +5,44 @@
  */
 package net.finmath.montecarlo.interestrate.products.components;
 
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * A constant (non-stochastic) notional.
+ * Base class for notional classes.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class Notional implements AbstractNotional {
-
-	private final String currency;
-	private final RandomVariableFromDoubleArray notional;
+public interface Notional {
 
 	/**
-	 * Creates a constant (non-stochastic) notional.
+	 * Returns the currency string of this notional.
 	 *
-	 * @param notional The constant notional value.
-	 * @param currency The currency.
+	 * @return the currency
 	 */
-	public Notional(double notional, String currency) {
-		super();
-		this.notional = new RandomVariableFromDoubleArray(0.0,notional);
-		this.currency = currency;
-	}
+	String getCurrency();
 
 	/**
-	 * Creates a constant (non-stochastic) notional.
+	 * Calculates the notional at the start of a period, given a period.
+	 * Example: The notional can be independent of the period (constant running notional) or depending on the period (accruing notional).
 	 *
-	 * @param notional The constant notional value.
+	 * @param period Period.
+	 * @param model The model against we are evaluation.
+	 * @return The notional for the given period as of period start.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public Notional(double notional) {
-		this(notional, null);
-	}
+	RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
 
-	@Override
-	public String getCurrency() {
-		return currency;
-	}
-
-	@Override
-	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
-		return notional;
-	}
-
-	@Override
-	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
-		return notional;
-	}
-
-	@Override
-	public String toString() {
-		return "Notional [currency=" + currency + ", notional=" + notional
-				+ "]";
-	}
+	/**
+	 * Calculates the notional at the end of a period, given a period.
+	 * Example: The notional can be independent of the period (constant running notional) or depending on the period (accruing notional).
+	 *
+	 * @param period Period.
+	 * @param model The model against we are evaluation.
+	 * @return The notional for the given period as of period end.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
 }
