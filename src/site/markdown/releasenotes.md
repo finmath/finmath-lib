@@ -5,6 +5,26 @@ finmath lib Release Notes
 
 # Release Notes
 
+
+## 4.0.14 (26.01.2020)
+
+### General
+
+ - Minor clean up.
+ 
+### Market Data
+
+ - Discount Curves carry a reference date.
+ 
+### Monte-Carlo Simulation / AAD
+
+ - Added PREDICTOR_CORRECTOR_FUNCTIONAL scheme, being compatible with AAD.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Changed scaling of numeraire if default curve is given for measures where N(0) is not equal to 1.
+
+
 ## 4.0.13 (05.10.2019)
 
 ### General
