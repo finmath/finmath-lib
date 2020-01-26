@@ -310,18 +310,18 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.7.1</version>
+				<version>3.8.2</version>
 				<dependencies>
 					<dependency>
 						<!-- add support for ssh/scp -->
 						<groupId>org.apache.maven.wagon</groupId>
 						<artifactId>wagon-ssh</artifactId>
-						<version>1.0</version>
+						<version>3.3.4</version>
 					</dependency>
 					<dependency>
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.7</version>
+						<version>1.9</version>
 					</dependency>
 				</dependencies>
 			</plugin>
