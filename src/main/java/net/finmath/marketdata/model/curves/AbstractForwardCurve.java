@@ -48,7 +48,11 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity, final String discountCurveName) {
+	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity, final String discountCurveName) {
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;

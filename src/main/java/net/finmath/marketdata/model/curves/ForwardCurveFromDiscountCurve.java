@@ -55,7 +55,11 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 	 * @param daycountConvention The daycount convention \( dcf(t,t+d) \) use the time-scale the performance ratio derived from the discount factors.
 	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
 	 */
-	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName, final String discountCurveName, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentOffsetBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention, final DayCountConvention daycountConvention, final double periodOffset) {
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName,
+			final String discountCurveName, final LocalDate referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentOffsetBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention,
+			final DayCountConvention daycountConvention, final double periodOffset) {
 		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);
 
 		referenceDiscountCurveForForwardsName = referenceDiscountCurveName;
