@@ -14,7 +14,7 @@ import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * As Heston like stochastic volatility model, using a process \( lambda(t) = \sqrt(V(t)) \)
+ * As Heston like stochastic volatility model, using a process \( \lambda(t) = \sqrt(V(t)) \)
  * \[
  * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{1}(t), \quad V(0) = 1.0,
  * \]
