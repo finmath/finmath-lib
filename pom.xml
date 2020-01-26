@@ -51,6 +51,10 @@
 
 	<contributors>
 		<contributor>
+			<name>Roland Bachl</name>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
 			<name>Boris Breidenbach</name>
 			<email>bo@chrbo.net</email>
 			<timezone>1</timezone>
