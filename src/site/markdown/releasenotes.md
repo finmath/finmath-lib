@@ -8,6 +8,9 @@ finmath lib Release Notes
 
 ## 4.1.0 (26.01.2020)
 
+### General
+
+ - Clean up. Arguments of methods are final (when possible).
 
 ### Refactorings
 
@@ -26,6 +29,10 @@ finmath lib Release Notes
  - Added script (Eclipse) for refactorings 4.0.x to 4.1.0
  - Added documentation for refactorings 4.0.x to 4.1.0
  
+### Interest Rate Models (Analytic)
+
+ - Added code for caplet bootstrapping and caplet volatility tenor conversion.
+
 
 ## 4.0.15 (26.01.2020)
 
