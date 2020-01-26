@@ -27,6 +27,7 @@ public interface RandomVariableFactory {
 	/**
 	 * Create a (deterministic) random variable form a constant using a specific filtration time.
 	 *
+	 * @param time The filtration time of the random variable.
 	 * @param value A constant value.
 	 * @return The <code>RandomVariable</code>.
 	 */
@@ -35,7 +36,8 @@ public interface RandomVariableFactory {
 	/**
 	 * Create a random variable form an array using a specific filtration time.
 	 *
-	 * @param value Array representing values of the random variable at the sample paths.
+	 * @param time The filtration time of the random variable.
+	 * @param values Array representing values of the random variable at the sample paths.
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable createRandomVariable(double time, double[] values);
@@ -43,7 +45,7 @@ public interface RandomVariableFactory {
 	/**
 	 * Create an array of (deterministic) random variables from an array of constants.
 	 *
-	 * @param value Array representing constants.
+	 * @param values Array representing constants.
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable[] createRandomVariableArray(double[] values);
@@ -51,7 +53,7 @@ public interface RandomVariableFactory {
 	/**
 	 * Create a matrix of (deterministic) random variables from an matrix of constants.
 	 *
-	 * @param value Matrix representing constants.
+	 * @param values Matrix representing constants.
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable[][] createRandomVariableMatrix(double[][] values);
