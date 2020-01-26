@@ -6,6 +6,27 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.1.0 (26.01.2020)
+
+
+### Refactorings
+
+ - Refactoring rename RandomVariableFactory: RandomVariableFactory to RandomVariableFromArrayFactory
+ - Refactoring rename RandomVariableFactory: AbstractRandomVariableFactory extract interface RandomVariableFactory
+
+ - Refactoring rename Notional: Notional to NotionalFromConstant
+ - Refactoring rename Notional: AbstractNotional to Notional
+
+ - Refactoring rename SwaptionMarketData: SwaptionMarketData to SwaptionATMMarketDataFromArray
+ - Refactoring rename SwaptionMarketData: AbstractSwaptionMarketData to SwaptionMarketData
+ 
+### Documentation
+
+ - Added documentation of Model and Product interfaces.
+ - Added script (Eclipse) for refactorings 4.0.x to 4.1.0
+ - Added documentation for refactorings 4.0.x to 4.1.0
+ 
+
 ## 4.0.15 (26.01.2020)
 
 ### General
