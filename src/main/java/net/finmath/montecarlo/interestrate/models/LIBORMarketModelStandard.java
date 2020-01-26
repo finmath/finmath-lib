@@ -14,7 +14,7 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.volatilities.AbstractSwaptionMarketData;
+import net.finmath.marketdata.model.volatilities.SwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
@@ -74,7 +74,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 	private LIBORCovarianceModel	covarianceModel;
 
-	private AbstractSwaptionMarketData		swaptionMarketData;
+	private SwaptionMarketData		swaptionMarketData;
 
 	private Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
@@ -133,7 +133,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			TimeDiscretization			liborPeriodDiscretization,
 			ForwardCurve				forwardRateCurve,
 			LIBORCovarianceModel		covarianceModel,
-			AbstractSwaptionMarketData			swaptionMarketData
+			SwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, getCalibrationItems(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
 	}
@@ -153,7 +153,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			ForwardCurve				forwardRateCurve,
 			DiscountCurve				discountCurve,
 			LIBORCovarianceModel		covarianceModel,
-			AbstractSwaptionMarketData			swaptionMarketData
+			SwaptionMarketData			swaptionMarketData
 			) throws CalculationException {
 		this(liborPeriodDiscretization, forwardRateCurve, discountCurve, covarianceModel, getCalibrationItems(liborPeriodDiscretization, forwardRateCurve, swaptionMarketData));
 	}
@@ -198,7 +198,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, null);
 	}
 
-	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, AbstractSwaptionMarketData swaptionMarketData) {
+	private static CalibrationProduct[] getCalibrationItems(TimeDiscretization liborPeriodDiscretization, ForwardCurve forwardCurve, SwaptionMarketData swaptionMarketData) {
 		if(swaptionMarketData == null) {
 			return null;
 		}
@@ -817,7 +817,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 *
 	 * @return The swaption market data used for calibration (if any, may be null).
 	 */
-	public AbstractSwaptionMarketData getSwaptionMarketData() {
+	public SwaptionMarketData getSwaptionMarketData() {
 		return swaptionMarketData;
 	}
 
@@ -846,7 +846,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		AnalyticModel			analyticModel				= curveModel;
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
 		LIBORCovarianceModel	covarianceModel				= this.covarianceModel;
-		AbstractSwaptionMarketData		swaptionMarketData			= null;
+		SwaptionMarketData		swaptionMarketData			= null;
 
 		if(dataModified.containsKey("liborPeriodDiscretization")) {
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.get("liborPeriodDiscretization");
@@ -861,7 +861,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			covarianceModel = (LIBORCovarianceModel)dataModified.get("covarianceModel");
 		}
 		if(dataModified.containsKey("swaptionMarketData")) {
-			swaptionMarketData = (AbstractSwaptionMarketData)dataModified.get("swaptionMarketData");
+			swaptionMarketData = (SwaptionMarketData)dataModified.get("swaptionMarketData");
 		}
 
 		if(swaptionMarketData == null) {
