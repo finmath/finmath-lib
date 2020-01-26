@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
  *
  * @author Christian Fries
  * @version 1.2
- * @since finmath-lib 4.2.0
+ * @since finmath-lib 4.1.0
  */
 public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 
