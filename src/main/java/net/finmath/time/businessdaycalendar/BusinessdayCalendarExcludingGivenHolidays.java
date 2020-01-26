@@ -19,7 +19,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Abstract
 	private final BusinessdayCalendar baseCalendar;
 	private final boolean isExcludeWeekends;
 
-	public BusinessdayCalendarExcludingGivenHolidays(String name, BusinessdayCalendar baseCalendar, boolean isExcludeWeekends) {
+	public BusinessdayCalendarExcludingGivenHolidays(final String name, final BusinessdayCalendar baseCalendar, final boolean isExcludeWeekends) {
 		super();
 		this.name = name;
 		this.baseCalendar = baseCalendar;
@@ -51,7 +51,7 @@ public abstract class BusinessdayCalendarExcludingGivenHolidays extends Abstract
 	public abstract Set<LocalDate> getHolidays();
 
 	@Override
-	public boolean isBusinessday(LocalDate date) {
+	public boolean isBusinessday(final LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
 				&& (isExcludingWeekends()
 						&& date.getDayOfWeek() != DayOfWeek.SATURDAY

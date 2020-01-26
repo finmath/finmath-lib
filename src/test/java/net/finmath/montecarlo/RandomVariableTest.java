@@ -28,7 +28,7 @@ import net.finmath.stochastic.RandomVariable;
 @RunWith(Parameterized.class)
 public class RandomVariableTest {
 
-	private RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
@@ -42,7 +42,7 @@ public class RandomVariableTest {
 		});
 	}
 
-	public RandomVariableTest(RandomVariableFactory abstractRandomVariableFactory) {
+	public RandomVariableTest(final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
@@ -100,10 +100,10 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSqrtPow() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
-		RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
+		final RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
 
 		// The random variable is identical 0.0
 		Assert.assertTrue(check.getAverage() == 0.0);
@@ -114,10 +114,10 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSquaredPow() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
-		RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
+		final RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
 
 		// The random variable is identical 0.0
 		Assert.assertTrue(check.getAverage() == 0.0);
@@ -128,10 +128,10 @@ public class RandomVariableTest {
 	public void testRandomVariableStandardDeviation() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
-		double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
+		final double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
 		Assert.assertTrue(check == 0.0);
 	}
 
@@ -145,28 +145,28 @@ public class RandomVariableTest {
 		final int seed = 3141;
 		final int numberOfSamplePoints = 10000000;
 
-		MersenneTwister mersenneTwister = new MersenneTwister(seed);
-		double[] samples = new double[numberOfSamplePoints];
+		final MersenneTwister mersenneTwister = new MersenneTwister(seed);
+		final double[] samples = new double[numberOfSamplePoints];
 		for(int i = 0; i< numberOfSamplePoints; i++) {
-			double randomNumber = mersenneTwister.nextDouble();
+			final double randomNumber = mersenneTwister.nextDouble();
 			samples[i] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(randomNumber);
 		}
 
-		RandomVariable normalDistributedRandomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,samples);
+		final RandomVariable normalDistributedRandomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,samples);
 
-		double q00 = normalDistributedRandomVariable.getQuantile(0.0);
+		final double q00 = normalDistributedRandomVariable.getQuantile(0.0);
 		Assert.assertEquals(normalDistributedRandomVariable.getMin(), q00, 1E-12);
 
-		double q05 = normalDistributedRandomVariable.getQuantile(0.05);
+		final double q05 = normalDistributedRandomVariable.getQuantile(0.05);
 		Assert.assertEquals(-1.645, q05, 1E-3);
 
-		double q50 = normalDistributedRandomVariable.getQuantile(0.5);
+		final double q50 = normalDistributedRandomVariable.getQuantile(0.5);
 		Assert.assertEquals(0, q50, 2E-4);
 
-		double q95 = normalDistributedRandomVariable.getQuantile(0.95);
+		final double q95 = normalDistributedRandomVariable.getQuantile(0.95);
 		Assert.assertEquals(1.645, q95, 1E-3);
 
-		double q99 = normalDistributedRandomVariable.getQuantile(0.99);
+		final double q99 = normalDistributedRandomVariable.getQuantile(0.99);
 		Assert.assertEquals(2.33, q99, 1E-2);
 	}
 
@@ -174,13 +174,13 @@ public class RandomVariableTest {
 	public void testAdd() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0,  2.0, 4.0} );
 
-		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] { 4.0,  2.0, 0.0, -2.0, -4.0} );
 
-		RandomVariable valueAdd = randomVariable.add(randomVariable2);
+		final RandomVariable valueAdd = randomVariable.add(randomVariable2);
 
 		// The random variable average
 		Assert.assertEquals(valueAdd.getAverage(), 0.0, 1E-15);
@@ -193,13 +193,13 @@ public class RandomVariableTest {
 	public void testCap() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-3.0, -3.0, -3.0, -3.0, -3.0} );
 
-		RandomVariable valueCapped = randomVariable.cap(randomVariable2);
+		final RandomVariable valueCapped = randomVariable.cap(randomVariable2);
 
 		// The random variable has average value 3.0
 		Assert.assertEquals(valueCapped.getAverage(), -3.0 - 1.0/5, 1E-15);
@@ -212,13 +212,13 @@ public class RandomVariableTest {
 	public void testFloor() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
 
-		RandomVariable valueFloored = randomVariable.floor(randomVariable2);
+		final RandomVariable valueFloored = randomVariable.floor(randomVariable2);
 
 		// The random variable has average value 3.0
 		Assert.assertEquals(valueFloored.getAverage(), 3.0 + 1.0/5, 1E-15);

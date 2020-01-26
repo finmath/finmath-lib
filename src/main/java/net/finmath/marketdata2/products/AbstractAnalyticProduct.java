@@ -21,13 +21,13 @@ public abstract class AbstractAnalyticProduct implements AnalyticProduct {
 	 * @see net.finmath.marketdata.products.ProductInterface#getValue(double, net.finmath.marketdata.products.ModelInterface)
 	 */
 	@Override
-	public Object getValue(double evaluationTime, Model model) {
+	public Object getValue(final double evaluationTime, final Model model) {
 		throw new IllegalArgumentException("The product " + this.getClass()
 		+ " cannot be valued against a model " + model.getClass() + "."
 		+ "It requires a model of type " + AnalyticModel.class + ".");
 	}
 
-	public RandomVariable getValue(AnalyticModel model) {
+	public RandomVariable getValue(final AnalyticModel model) {
 		return getValue(0.0, model);
 	}
 }

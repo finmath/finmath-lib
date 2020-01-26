@@ -22,9 +22,9 @@ public class JarqueBeraTestTest {
 
 	@Test
 	public void test() {
-		BrownianMotionLazyInit bm = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
+		final BrownianMotionLazyInit bm = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
 
-		double test = (new JarqueBeraTest()).test(bm.getBrownianIncrement(0 /* timeIndex */, 0 /* factor */));
+		final double test = (new JarqueBeraTest()).test(bm.getBrownianIncrement(0 /* timeIndex */, 0 /* factor */));
 
 		Assert.assertTrue("Normal distributed (level of significance 0.10)", test < 4.6);
 	}

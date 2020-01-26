@@ -23,9 +23,9 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 
 	private static final long serialVersionUID = 5364544247367259329L;
 
-	private	TimeDiscretization		timeDiscretization;
-	private TimeDiscretization		liborPeriodDiscretization;
-	private	int								numberOfFactors;
+	private final	TimeDiscretization		timeDiscretization;
+	private final TimeDiscretization		liborPeriodDiscretization;
+	private final	int								numberOfFactors;
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
@@ -34,7 +34,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
-	public AbstractLIBORCovarianceModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
+	public AbstractLIBORCovarianceModel(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		super();
 		this.timeDiscretization			= timeDiscretization;
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
@@ -42,7 +42,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	}
 
 	@Override
-	public	RandomVariable[]	getFactorLoading(double time, double component, RandomVariable[] realizationAtTimeIndex) {
+	public	RandomVariable[]	getFactorLoading(final double time, final double component, final RandomVariable[] realizationAtTimeIndex) {
 		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);
 		if(componentIndex < 0) {
 			componentIndex = -componentIndex - 2;
@@ -54,7 +54,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getFactorLoading(double, int, net.finmath.stochastic.RandomVariable[])
 	 */
 	@Override
-	public	RandomVariable[]	getFactorLoading(double time, int component, RandomVariable[] realizationAtTimeIndex) {
+	public	RandomVariable[]	getFactorLoading(final double time, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex - 2;
@@ -78,7 +78,7 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCovariance(double, int, int, net.finmath.stochastic.RandomVariable[])
 	 */
 	@Override
-	public RandomVariable getCovariance(double time, int component1, int component2, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable getCovariance(final double time, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = Math.abs(timeIndex)-2;
@@ -91,10 +91,10 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCovariance(int, int, int, net.finmath.stochastic.RandomVariable[])
 	 */
 	@Override
-	public RandomVariable getCovariance(int timeIndex, int component1, int component2, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable getCovariance(final int timeIndex, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
 
-		RandomVariable[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
-		RandomVariable[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
+		final RandomVariable[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);
+		final RandomVariable[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);
 
 		// Multiply first factor loading (this avoids that we have to init covariance to 0).
 		RandomVariable covariance = factorLoadingOfComponent1[0].mult(factorLoadingOfComponent2[0]);

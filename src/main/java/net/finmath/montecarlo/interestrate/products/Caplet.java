@@ -57,7 +57,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
 	 * @param valueUnit The unit of the value returned by the <code>getValue</code> method.
 	 */
-	public Caplet(double maturity, double periodLength, double strike, double daycountFraction, boolean isFloorlet, ValueUnit valueUnit) {
+	public Caplet(final double maturity, final double periodLength, final double strike, final double daycountFraction, final boolean isFloorlet, final ValueUnit valueUnit) {
 		super();
 		this.maturity = maturity;
 		this.periodLength = periodLength;
@@ -83,7 +83,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @param strike The strike given as double.
 	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
 	 */
-	public Caplet(double maturity, double periodLength, double strike, boolean isFloorlet) {
+	public Caplet(final double maturity, final double periodLength, final double strike, final boolean isFloorlet) {
 		this(maturity, periodLength, strike, periodLength, isFloorlet, ValueUnit.VALUE);
 	}
 
@@ -97,7 +97,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @param periodLength The length of the forward rate period.
 	 * @param strike The strike given as double.
 	 */
-	public Caplet(double maturity, double periodLength, double strike) {
+	public Caplet(final double maturity, final double periodLength, final double strike) {
 		this(maturity, periodLength, strike, false);
 	}
 
@@ -112,14 +112,14 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		// This is on the LIBOR discretization
-		double	paymentDate	= maturity+periodLength;
+		final double	paymentDate	= maturity+periodLength;
 
 		// Get random variables
-		RandomVariable	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
-		RandomVariable	numeraire				= model.getNumeraire(paymentDate);
-		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+		final RandomVariable	libor					= model.getLIBOR(maturity, maturity, maturity+periodLength);
+		final RandomVariable	numeraire				= model.getNumeraire(paymentDate);
+		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 
 		/*
 		 * Calculate the payoff, which is
@@ -135,8 +135,8 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariable	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);
 
 		if(valueUnit == ValueUnit.VALUE) {
@@ -146,20 +146,20 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 			/*
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
-			double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
-			double optionMaturity = maturity-evaluationTime;
-			double optionStrike = strike;
-			double payoffUnit = daycountFraction;
+			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double optionMaturity = maturity-evaluationTime;
+			final double optionStrike = strike;
+			final double payoffUnit = daycountFraction;
 			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
 		}
 		else if(valueUnit == ValueUnit.NORMALVOLATILITY) {
 			/*
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
-			double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
-			double optionMaturity = maturity-evaluationTime;
-			double optionStrike = strike;
-			double payoffUnit = daycountFraction;
+			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double optionMaturity = maturity-evaluationTime;
+			final double optionStrike = strike;
+			final double payoffUnit = daycountFraction;
 			return model.getRandomVariableForConstant(AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
 		}
 		else {

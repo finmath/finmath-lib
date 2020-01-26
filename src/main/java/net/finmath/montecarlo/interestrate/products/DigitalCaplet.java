@@ -36,8 +36,8 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 	 * @param periodEnd The period end of the forward rate.
 	 * @param strike The strike rate.
 	 */
-	public DigitalCaplet(double optionMaturity, double periodStart,
-			double periodEnd, double strike) {
+	public DigitalCaplet(final double optionMaturity, final double periodStart,
+			final double periodEnd, final double strike) {
 		super();
 		this.optionMaturity = optionMaturity;
 		this.periodStart = periodStart;
@@ -56,27 +56,27 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Set payment date and period length
-		double	paymentDate		= periodEnd;
-		double	periodLength	= periodEnd - periodStart;
+		final double	paymentDate		= periodEnd;
+		final double	periodLength	= periodEnd - periodStart;
 
 		// Get random variables
-		RandomVariable	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
+		final RandomVariable	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
 
-		RandomVariable 			trigger		= libor.sub(strike).mult(periodLength);
+		final RandomVariable 			trigger		= libor.sub(strike).mult(periodLength);
 		RandomVariable				values		= trigger.choose((new RandomVariableFromDoubleArray(periodLength)), (new RandomVariableFromDoubleArray(0.0)));
 
 		// Get numeraire and probabilities for payment time
-		RandomVariable	numeraire					= model.getNumeraire(paymentDate);
-		RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
+		final RandomVariable	numeraire					= model.getNumeraire(paymentDate);
+		final RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		// Get numeraire and probabilities for evaluation time
-		RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 

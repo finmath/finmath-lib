@@ -37,7 +37,7 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payer leg.
 	 */
-	public Swap(TermStructureMonteCarloProduct legReceiver, TermStructureMonteCarloProduct legPayer) {
+	public Swap(final TermStructureMonteCarloProduct legReceiver, final TermStructureMonteCarloProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -54,11 +54,11 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 * @param indexPayLeg The index of the payer leg, may be null if no index is paid.
 	 * @param spreadPayLeg The constant spread or fixed coupon rate of the payer leg.
 	 */
-	public Swap(Notional notional,
-			Schedule scheduleReceiveLeg,
-			AbstractIndex indexReceiveLeg, double spreadReceiveLeg,
-			Schedule schedulePayLeg, AbstractIndex indexPayLeg,
-			double spreadPayLeg) {
+	public Swap(final Notional notional,
+			final Schedule scheduleReceiveLeg,
+			final AbstractIndex indexReceiveLeg, final double spreadReceiveLeg,
+			final Schedule schedulePayLeg, final AbstractIndex indexPayLeg,
+			final double spreadPayLeg) {
 		super();
 
 		legReceiver = new SwapLeg(scheduleReceiveLeg, notional, indexReceiveLeg, spreadReceiveLeg, false);
@@ -75,16 +75,16 @@ public class Swap extends AbstractLIBORMonteCarloProduct {
 	 */
 	@Deprecated
 	public Swap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates) {
 		super();
 		legReceiver = new SimpleSwap(fixingDates, paymentDates, swaprates);
 		legPayer	= null;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable value = legReceiver.getValue(evaluationTime, model);
 		if(legPayer != null) {
 			value = value.sub(legPayer.getValue(evaluationTime, model));

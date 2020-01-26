@@ -34,7 +34,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(String name, String currency, double fixingOffset, double[] periodLengths) {
+	public ConstantMaturitySwaprate(final String name, final String currency, final double fixingOffset, final double[] periodLengths) {
 		super(name, currency);
 		this.fixingOffset = fixingOffset;
 		this.periodLengths = periodLengths;
@@ -46,7 +46,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * @param fixingOffset Fixing offset of this index.
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(double fixingOffset, double[] periodLengths) {
+	public ConstantMaturitySwaprate(final double fixingOffset, final double[] periodLengths) {
 		this(null, null, fixingOffset, periodLengths);
 	}
 
@@ -55,7 +55,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 *
 	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(double[] periodLengths) {
+	public ConstantMaturitySwaprate(final double[] periodLengths) {
 		this(0.0, periodLengths);
 	}
 
@@ -69,11 +69,11 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * @param maturity The maturity.
 	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(String name, String currency, double fixingOffset, double maturity, double periodLength) {
+	public ConstantMaturitySwaprate(final String name, final String currency, final double fixingOffset, final double maturity, final double periodLength) {
 		super(name, currency);
 		this.fixingOffset = fixingOffset;
 
-		int numberOfPeriods = (int) (maturity / periodLength + 0.5);
+		final int numberOfPeriods = (int) (maturity / periodLength + 0.5);
 		if(numberOfPeriods * periodLength != maturity) {
 			throw new IllegalArgumentException("matruity not divisible by periodLength");
 		}
@@ -89,7 +89,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * @param maturity The maturity.
 	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
 	 */
-	public ConstantMaturitySwaprate(double fixingOffset, double maturity, double periodLength) {
+	public ConstantMaturitySwaprate(final double fixingOffset, final double maturity, final double periodLength) {
 		this(null, null, fixingOffset, maturity, periodLength);
 	}
 
@@ -99,15 +99,15 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	 * @param maturity Maturity of the swap rate.
 	 * @param periodLength Period length of the fixed size (determines the swap annuity used)
 	 */
-	public ConstantMaturitySwaprate(double maturity, double periodLength) {
+	public ConstantMaturitySwaprate(final double maturity, final double periodLength) {
 		this(0.0, maturity, periodLength);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Fetch curve
-		RandomVariable forwardRates[] = new RandomVariable[periodLengths.length];
+		final RandomVariable forwardRates[] = new RandomVariable[periodLengths.length];
 		double periodStart = evaluationTime+fixingOffset;
 		for(int periodIndex = 0; periodIndex < periodLengths.length; periodIndex++) {
 			forwardRates[periodIndex] = model.getLIBOR(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);
@@ -118,21 +118,21 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 		RandomVariable forwardBondInverse           = model.getRandomVariableForConstant(1.0);
 		RandomVariable forwardAnnuityInverse        = model.getRandomVariableForConstant(periodLengths[periodLengths.length-1]);
 		for(int periodIndex = periodLengths.length-1; periodIndex>= 1; periodIndex--) {
-			RandomVariable forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);
+			final RandomVariable forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);
 			forwardBondInverse		= forwardBondInverse.mult(forwardBondOnePeriodInverse);
 			forwardAnnuityInverse	= forwardAnnuityInverse.addProduct(forwardBondInverse, periodLengths[periodIndex]);
 		}
-		RandomVariable forwardBondOnePeriodInverse  = (forwardRates[0]).mult(periodLengths[0]).add(1.0);
+		final RandomVariable forwardBondOnePeriodInverse  = (forwardRates[0]).mult(periodLengths[0]).add(1.0);
 		forwardBondInverse = forwardBondInverse.mult(forwardBondOnePeriodInverse);
 
-		RandomVariable swaprate = forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
+		final RandomVariable swaprate = forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);
 
 		return swaprate;
 	}
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<>();
+		final Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

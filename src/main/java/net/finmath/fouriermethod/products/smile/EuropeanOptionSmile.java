@@ -27,14 +27,14 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 	private final double maturity;
 	private final double[] strikes;
 
-	public EuropeanOptionSmile(String underlyingName, double maturity, double[] strikes) {
+	public EuropeanOptionSmile(final String underlyingName, final double maturity, final double[] strikes) {
 		super();
 		this.underlyingName = underlyingName;
 		this.maturity = maturity;
 		this.strikes = strikes;
 	}
 
-	public EuropeanOptionSmile(double maturity, double[] strikes) {
+	public EuropeanOptionSmile(final double maturity, final double[] strikes) {
 		this(null,maturity,strikes);
 	}
 
@@ -75,7 +75,7 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 
 
 	@Override
-	public Complex apply(Complex z) {
+	public Complex apply(final Complex z) {
 		return ((z.subtract(Complex.I)).multiply(z)).negate();
 	}
 
@@ -85,12 +85,12 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
 	 * @return a collection of product descriptors for each option in the smile.
 	 */
-	public Map<Double, SingleAssetEuropeanOptionProductDescriptor> getDescriptors(LocalDate referenceDate){
+	public Map<Double, SingleAssetEuropeanOptionProductDescriptor> getDescriptors(final LocalDate referenceDate){
 
-		int numberOfStrikes = strikes.length;
-		HashMap<Double, SingleAssetEuropeanOptionProductDescriptor> descriptors = new HashMap<>();
+		final int numberOfStrikes = strikes.length;
+		final HashMap<Double, SingleAssetEuropeanOptionProductDescriptor> descriptors = new HashMap<>();
 
-		LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
+		final LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
 		for(int i = 0; i< numberOfStrikes; i++) {
 			descriptors.put(strikes[i], new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strikes[i]));
 		}
@@ -106,8 +106,8 @@ public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
 	 * @return a product descriptor for a specific strike.
 	 * @throws ArrayIndexOutOfBoundsException Thrown if index is out of bound.
 	 */
-	public SingleAssetEuropeanOptionProductDescriptor getDescriptor(LocalDate referenceDate, int index) throws ArrayIndexOutOfBoundsException{
-		LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
+	public SingleAssetEuropeanOptionProductDescriptor getDescriptor(final LocalDate referenceDate, final int index) throws ArrayIndexOutOfBoundsException{
+		final LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);
 		if(index >= strikes.length) {
 			throw new ArrayIndexOutOfBoundsException("Strike index out of bounds");
 		}else {

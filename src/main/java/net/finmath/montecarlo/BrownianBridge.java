@@ -51,10 +51,10 @@ public class BrownianBridge implements BrownianMotion {
 	private final int	numberOfPaths;
 	private final int	seed;
 
-	private RandomVariable[] start;
-	private RandomVariable[] end;
+	private final RandomVariable[] start;
+	private final RandomVariable[] end;
 
-	private RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+	private final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	brownianIncrements;
 	private transient Object							brownianIncrementsLazyInitLock = new Object();
@@ -68,7 +68,7 @@ public class BrownianBridge implements BrownianMotion {
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretization timeDiscretization, int numberOfPaths, int seed, RandomVariable[] start, RandomVariable[] end) {
+	public BrownianBridge(final TimeDiscretization timeDiscretization, final int numberOfPaths, final int seed, final RandomVariable[] start, final RandomVariable[] end) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		numberOfFactors = start.length;
@@ -87,12 +87,12 @@ public class BrownianBridge implements BrownianMotion {
 	 * @param start Start value of the Brownian bridge.
 	 * @param end End value of the Brownian bridge.
 	 */
-	public BrownianBridge(TimeDiscretization timeDiscretization, int numberOfPaths, int seed, RandomVariable start, RandomVariable end) {
+	public BrownianBridge(final TimeDiscretization timeDiscretization, final int numberOfPaths, final int seed, final RandomVariable start, final RandomVariable end) {
 		this(timeDiscretization, numberOfPaths, seed, new RandomVariable[] {start}, new RandomVariable[] {end});
 	}
 
 	@Override
-	public RandomVariable getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) {
@@ -116,24 +116,24 @@ public class BrownianBridge implements BrownianMotion {
 			return;	// Nothing to do
 		}
 
-		BrownianMotionLazyInit generator = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		final BrownianMotionLazyInit generator = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		// Allocate memory
 		brownianIncrements = new RandomVariable[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
 
-		double endTime 		= getTimeDiscretization().getTime(getTimeDiscretization().getNumberOfTimeSteps());
+		final double endTime 		= getTimeDiscretization().getTime(getTimeDiscretization().getNumberOfTimeSteps());
 		for(int factor=0; factor<generator.getNumberOfFactors(); factor++) {
 			// The end point
-			RandomVariable endOfFactor		= end[factor];
+			final RandomVariable endOfFactor		= end[factor];
 			// Initialized the bridge to the start point
 			RandomVariable brownianBridge	= start[factor];
 			for(int timeIndex=0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
-				double currentTime	= getTimeDiscretization().getTime(timeIndex);
-				double nextTime		= getTimeDiscretization().getTime(timeIndex+1);
-				double alpha		= (nextTime-currentTime)/(endTime-currentTime);
+				final double currentTime	= getTimeDiscretization().getTime(timeIndex);
+				final double nextTime		= getTimeDiscretization().getTime(timeIndex+1);
+				final double alpha		= (nextTime-currentTime)/(endTime-currentTime);
 
 				// Calculate the next point using the "scheme" of the Brownian bridge
-				RandomVariable nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
+				final RandomVariable nextRealization = brownianBridge.mult(1.0-alpha).add(endOfFactor.mult(alpha)).add(generator.getBrownianIncrement(timeIndex, factor).mult(Math.sqrt(1-alpha)));
 
 				// Store the increment
 				brownianIncrements[timeIndex][factor] = nextRealization.sub(brownianBridge);
@@ -169,7 +169,7 @@ public class BrownianBridge implements BrownianMotion {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
@@ -177,7 +177,7 @@ public class BrownianBridge implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedSeed(int)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
 		return new BrownianBridge(timeDiscretization, numberOfPaths, seed, start, end);
 	}
 
@@ -185,12 +185,12 @@ public class BrownianBridge implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretization)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
 	}
 
 	@Override
-	public RandomVariable[] getIncrement(int timeIndex) {
+	public RandomVariable[] getIncrement(final int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(brownianIncrementsLazyInitLock) {
 			if(brownianIncrements == null) {
@@ -202,7 +202,7 @@ public class BrownianBridge implements BrownianMotion {
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 
@@ -218,7 +218,7 @@ public class BrownianBridge implements BrownianMotion {
 				+ "]";
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		brownianIncrementsLazyInitLock = new Object();

@@ -21,10 +21,10 @@ import net.finmath.stochastic.RandomVariableAccumulator;
  */
 public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct {
 
-	private double	maturity;
-	private double	strike;
+	private final double	maturity;
+	private final double	strike;
 
-	private boolean	isLikelihoodByFiniteDifference = false;
+	private final boolean	isLikelihoodByFiniteDifference = false;
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -32,7 +32,7 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public EuropeanOptionVegaLikelihood(double maturity, double strike) {
+	public EuropeanOptionVegaLikelihood(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -45,22 +45,22 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 	 * @return the value
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public double getValue(AssetModelMonteCarloSimulationModel model) throws CalculationException
+	public double getValue(final AssetModelMonteCarloSimulationModel model) throws CalculationException
 	{
 		MonteCarloBlackScholesModel blackScholesModel = null;
 		try {
 			blackScholesModel = (MonteCarloBlackScholesModel)model;
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			throw new ClassCastException("This method requires a Black-Scholes type model (MonteCarloBlackScholesModel).");
 		}
 
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
-		RandomVariable numeraireAtToday		= model.getNumeraire(0);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
+		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 
 		/*
 		 *  The following way of calculating the expected value (average) is discouraged since it makes too strong
@@ -73,35 +73,35 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 			if(underlyingAtMaturity.get(path) > strike)
 			{
 				// Get some model parameters
-				double T		= maturity;
-				double S0		= underlyingAtToday.get(path);
-				double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
-				double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
+				final double T		= maturity;
+				final double S0		= underlyingAtToday.get(path);
+				final double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
+				final double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
 
-				double ST		= underlyingAtMaturity.get(path);
+				final double ST		= underlyingAtMaturity.get(path);
 
-				double x		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
+				final double x		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
 
 				double lr;
 				if(isLikelihoodByFiniteDifference) {
-					double h		= 1E-6;
+					final double h		= 1E-6;
 
-					double x1		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
-					double logPhi1	= Math.log(1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x1*x1/2.0) / (ST * (sigma) * Math.sqrt(T)) );
+					final double x1		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
+					final double logPhi1	= Math.log(1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x1*x1/2.0) / (ST * (sigma) * Math.sqrt(T)) );
 
-					double x2		= 1.0 / ((sigma+h) * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * (sigma+h)*(sigma+h) * T + Math.log(S0)));
-					double logPhi2	= Math.log(1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x2*x2/2.0) / (ST * (sigma+h) * Math.sqrt(T)) );
+					final double x2		= 1.0 / ((sigma+h) * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * (sigma+h)*(sigma+h) * T + Math.log(S0)));
+					final double logPhi2	= Math.log(1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x2*x2/2.0) / (ST * (sigma+h) * Math.sqrt(T)) );
 
 					lr		= (logPhi2 - logPhi1) / h;
 				}
 				else {
-					double dxdsigma = -x / sigma + Math.sqrt(T);
+					final double dxdsigma = -x / sigma + Math.sqrt(T);
 
 					lr		= - x * dxdsigma - 1/sigma;
 				}
 
-				double payOff			= (underlyingAtMaturity.get(path) - strike);
-				double modifiedPayoff	= payOff * lr;
+				final double payOff			= (underlyingAtMaturity.get(path) - strike);
+				final double modifiedPayoff	= payOff * lr;
 
 				average += modifiedPayoff / numeraireAtMaturity.get(path) * monteCarloWeights.get(path) * numeraireAtToday.get(path);
 			}
@@ -111,7 +111,7 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 	}
 
 	@Override
-	public RandomVariableAccumulator getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) {
+	public RandomVariableAccumulator getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) {
 		throw new RuntimeException("Method not supported.");
 	}
 }

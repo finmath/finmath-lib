@@ -58,7 +58,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public SwapLeg(LocalDateTime cashFlowEffectiveDate, Schedule legSchedule, String forwardCurveName, double[] notionals, double[] spreads, String discountCurveName, boolean isNotionalExchanged) {
+	public SwapLeg(final LocalDateTime cashFlowEffectiveDate, final Schedule legSchedule, final String forwardCurveName, final double[] notionals, final double[] spreads, final String discountCurveName, final boolean isNotionalExchanged) {
 		super();
 		this.cashFlowEffectiveDate = cashFlowEffectiveDate;
 		this.legSchedule = legSchedule;
@@ -83,7 +83,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @deprecated
 	 */
 	@Deprecated
-	public SwapLeg(Optional<LocalDateTime> cashFlowEffectiveDate, Schedule legSchedule, String forwardCurveName, double[] notionals, double[] spreads, String discountCurveName, boolean isNotionalExchanged) {
+	public SwapLeg(final Optional<LocalDateTime> cashFlowEffectiveDate, final Schedule legSchedule, final String forwardCurveName, final double[] notionals, final double[] spreads, final String discountCurveName, final boolean isNotionalExchanged) {
 		this(cashFlowEffectiveDate.orElse(null), legSchedule, forwardCurveName, notionals, spreads, discountCurveName, isNotionalExchanged);
 	}
 
@@ -97,7 +97,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public SwapLeg(Schedule legSchedule, String forwardCurveName, double[] notionals, double[] spreads, String discountCurveName, boolean isNotionalExchanged) {
+	public SwapLeg(final Schedule legSchedule, final String forwardCurveName, final double[] notionals, final double[] spreads, final String discountCurveName, final boolean isNotionalExchanged) {
 		this((LocalDateTime)null, legSchedule, forwardCurveName, notionals, spreads, discountCurveName, isNotionalExchanged);
 	}
 
@@ -112,7 +112,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param discountCurveForNotionalResetName Name of the discount curve used for notional reset. If it is left empty or equal to discountCurveName then there is no notional reset.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public SwapLeg(Optional<LocalDateTime> cashFlowEffectiveDate, Schedule legSchedule, String forwardCurveName, double spread, String discountCurveName, String discountCurveForNotionalResetName, boolean isNotionalExchanged) {
+	public SwapLeg(final Optional<LocalDateTime> cashFlowEffectiveDate, final Schedule legSchedule, final String forwardCurveName, final double spread, final String discountCurveName, final String discountCurveForNotionalResetName, final boolean isNotionalExchanged) {
 		super();
 		this.cashFlowEffectiveDate = cashFlowEffectiveDate.orElse(null);
 		this.legSchedule = legSchedule;
@@ -121,10 +121,10 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 		this.discountCurveForNotionalResetName = discountCurveForNotionalResetName=="" ? discountCurveName : discountCurveForNotionalResetName; // empty discountCurveForNotionalResetName is interpreted as no notional reset
 		this.isNotionalExchanged = isNotionalExchanged;
 
-		double[] notionals = new double[legSchedule.getNumberOfPeriods()];
+		final double[] notionals = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(notionals, 1);
 		this.notionals = notionals;
-		double[] spreads = new double[legSchedule.getNumberOfPeriods()];
+		final double[] spreads = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(spreads, spread);
 		this.spreads = spreads;
 	}
@@ -139,7 +139,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param discountCurveForNotionalResetName Name of the discount curve used for notional reset. If it is left empty or equal to discountCurveName then there is no notional reset.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public SwapLeg(Schedule legSchedule, String forwardCurveName, double spread, String discountCurveName, String discountCurveForNotionalResetName, boolean isNotionalExchanged) {
+	public SwapLeg(final Schedule legSchedule, final String forwardCurveName, final double spread, final String discountCurveName, final String discountCurveForNotionalResetName, final boolean isNotionalExchanged) {
 		this(Optional.empty(), legSchedule, forwardCurveName, spread, discountCurveName, discountCurveForNotionalResetName, isNotionalExchanged);
 	}
 
@@ -152,7 +152,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public SwapLeg(Schedule legSchedule, String forwardCurveName, double spread, String discountCurveName, boolean isNotionalExchanged) {
+	public SwapLeg(final Schedule legSchedule, final String forwardCurveName, final double spread, final String discountCurveName, final boolean isNotionalExchanged) {
 		this(legSchedule, forwardCurveName, spread, discountCurveName, discountCurveName, isNotionalExchanged);
 	}
 
@@ -165,7 +165,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 */
-	public SwapLeg(Optional<LocalDateTime> cashFlowEffectiveDate, Schedule legSchedule, String forwardCurveName, double spread, String discountCurveName) {
+	public SwapLeg(final Optional<LocalDateTime> cashFlowEffectiveDate, final Schedule legSchedule, final String forwardCurveName, final double spread, final String discountCurveName) {
 		this(cashFlowEffectiveDate, legSchedule, forwardCurveName, spread, discountCurveName, discountCurveName, false);
 	}
 
@@ -177,17 +177,17 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param discountCurveName Name of the discount curve for the leg.
 	 */
-	public SwapLeg(Schedule legSchedule, String forwardCurveName, double spread, String discountCurveName) {
+	public SwapLeg(final Schedule legSchedule, final String forwardCurveName, final double spread, final String discountCurveName) {
 		this(legSchedule, forwardCurveName, spread, discountCurveName, discountCurveName, false);
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
@@ -195,8 +195,8 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 		double productToModelTimeOffset = 0;
 
 		// TODO modelReferenceDate should move to LocalDateTime.
-		LocalDate modelReferenceDate = discountCurve.getReferenceDate();
-		LocalDate productRefereceDate = legSchedule.getReferenceDate();
+		final LocalDate modelReferenceDate = discountCurve.getReferenceDate();
+		final LocalDate productRefereceDate = legSchedule.getReferenceDate();
 		if(productRefereceDate != null && modelReferenceDate != null) {
 			productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, productRefereceDate);
 		}
@@ -209,20 +209,20 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 			}
 		}
 
-		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double cashFlowEffectiveTime = cashFlowEffectiveDate != null ? FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(modelReferenceDate, LocalTime.of(0,0)), cashFlowEffectiveDate) : evaluationTime;
+		final double cashFlowEffectiveTime = cashFlowEffectiveDate != null ? FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(modelReferenceDate, LocalTime.of(0,0)), cashFlowEffectiveDate) : evaluationTime;
 
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<legSchedule.getNumberOfPeriods(); periodIndex++) {
-			double fixingDate	= productToModelTimeOffset + legSchedule.getFixing(periodIndex);
-			double periodStart	= productToModelTimeOffset + legSchedule.getPeriodStart(periodIndex);
-			double periodEnd	= productToModelTimeOffset + legSchedule.getPeriodEnd(periodIndex);
-			double paymentDate	= productToModelTimeOffset + legSchedule.getPayment(periodIndex);
-			double periodLength	= legSchedule.getPeriodLength(periodIndex);
+			final double fixingDate	= productToModelTimeOffset + legSchedule.getFixing(periodIndex);
+			final double periodStart	= productToModelTimeOffset + legSchedule.getPeriodStart(periodIndex);
+			final double periodEnd	= productToModelTimeOffset + legSchedule.getPeriodEnd(periodIndex);
+			final double paymentDate	= productToModelTimeOffset + legSchedule.getPayment(periodIndex);
+			final double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
 			double forward = spreads[periodIndex];
 			if(forwardCurve != null) {
@@ -238,7 +238,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 				notional *= discountCurveForNotionalReset.getDiscountFactor(model,periodStart) / discountCurve.getDiscountFactor(model,periodStart);
 			}
 
-			double discountFactor = paymentDate > cashFlowEffectiveTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+			final double discountFactor = paymentDate > cashFlowEffectiveTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			value += notional * forward * periodLength * discountFactor;
 
 			// Consider notional payments if required
@@ -270,7 +270,7 @@ public class SwapLeg extends AbstractAnalyticProduct implements AnalyticProduct,
 	 */
 	public double getSpread() {
 		// Checking spread array for constant spreads
-		double spread = spreads[0];
+		final double spread = spreads[0];
 		for(int i=1; i<spreads.length; i++) {
 			if(spreads[i] != spread) {
 				throw new UnsupportedOperationException("The method getSpread() is only supported for swap legs with constant spreads.");

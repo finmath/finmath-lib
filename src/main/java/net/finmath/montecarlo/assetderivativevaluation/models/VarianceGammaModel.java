@@ -51,8 +51,8 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param theta The parameter \( \theta \)
 	 * @param nu The parameter \( \nu \)
 	 */
-	public VarianceGammaModel(double initialValue, DiscountCurve discountCurveForForwardRate,
-			DiscountCurve discountCurveForDiscountRate, double sigma, double theta, double nu) {
+	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
 		super();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
@@ -74,8 +74,8 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param theta The parameter \( \theta \)
 	 * @param nu The parameter \( \nu \)
 	 */
-	public VarianceGammaModel(double initialValue, double riskFreeRate, double discountRate, double sigma, double theta,
-			double nu) {
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
+			final double nu) {
 		super();
 		this.initialValue = initialValue;
 		discountCurveForForwardRate = null;
@@ -97,7 +97,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param theta The parameter \( \theta \)
 	 * @param nu The parameter \( \nu \)
 	 */
-	public VarianceGammaModel(double initialValue, double riskFreeRate, double sigma, double theta, double nu) {
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double sigma, final double theta, final double nu) {
 		this(initialValue,riskFreeRate,riskFreeRate,sigma,theta,nu);
 	}
 
@@ -107,12 +107,12 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
@@ -122,7 +122,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		if(discountCurveForDiscountRate != null) {
 			return getProcess().getStochasticDriver().getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
 		}
@@ -132,12 +132,12 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex,
-			RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex,
+			final RandomVariable[] realizationPredictor) {
 		double riskFreeRateAtTimeStep = 0.0;
 		if(discountCurveForForwardRate != null) {
-			double time		= getTime(timeIndex);
-			double timeNext	= getTime(timeIndex+1);
+			final double time		= getTime(timeIndex);
+			final double timeNext	= getTime(timeIndex+1);
 
 			riskFreeRateAtTimeStep = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 
@@ -149,9 +149,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex,
-			RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable[] factors = new RandomVariable[1];
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex,
+			final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable[] factors = new RandomVariable[1];
 		factors[0] = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
 		return factors;
 	}
@@ -161,18 +161,18 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public ProcessModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		double newInitialValue = (double) dataModified.getOrDefault("initialValue", initialValue);
-		double newRiskFreeRate = (double) dataModified.getOrDefault("riskFreeRate", riskFreeRate);
-		double newDiscountRate = (double) dataModified.getOrDefault("discountRate", discountRate);
-		double newSigma = (double) dataModified.getOrDefault("volatility", sigma);
-		double newTheta = (double) dataModified.getOrDefault("volatility", theta);
-		double newNu = (double) dataModified.getOrDefault("volatility", nu);
+	public ProcessModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
+		final double newInitialValue = (double) dataModified.getOrDefault("initialValue", initialValue);
+		final double newRiskFreeRate = (double) dataModified.getOrDefault("riskFreeRate", riskFreeRate);
+		final double newDiscountRate = (double) dataModified.getOrDefault("discountRate", discountRate);
+		final double newSigma = (double) dataModified.getOrDefault("volatility", sigma);
+		final double newTheta = (double) dataModified.getOrDefault("volatility", theta);
+		final double newNu = (double) dataModified.getOrDefault("volatility", nu);
 		return new VarianceGammaModel(newInitialValue,newRiskFreeRate,newDiscountRate,newSigma,newTheta,newNu);
 	}
 

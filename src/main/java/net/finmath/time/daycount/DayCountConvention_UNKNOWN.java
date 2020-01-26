@@ -37,17 +37,17 @@ public class DayCountConvention_UNKNOWN implements DayCountConvention, Serializa
 	 *
 	 * @param name A given name, which will be shown in the {@link IllegalArgumentException} when any method is called on this object.
 	 */
-	public DayCountConvention_UNKNOWN(String name) {
+	public DayCountConvention_UNKNOWN(final String name) {
 		errorMessage = "Requesting day count on an unknown day count convention (name=" + name + ").";
 	}
 
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		throw new IllegalArgumentException(errorMessage);
 	}
 
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		throw new IllegalArgumentException(errorMessage);
 	}
 }

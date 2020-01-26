@@ -34,17 +34,17 @@ public class RandomVariableDifferentiableAADPathwiseFactory extends AbstractRand
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
-	public RandomVariableDifferentiableAADPathwiseFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableAADPathwiseFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAADPathwise(new RandomVariableFromDoubleArray(time, value));
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAADPathwise(new RandomVariableFromDoubleArray(time, values));
 	}
 }

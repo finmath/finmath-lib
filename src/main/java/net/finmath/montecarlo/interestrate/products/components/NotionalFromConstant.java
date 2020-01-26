@@ -26,7 +26,7 @@ public class NotionalFromConstant implements Notional {
 	 * @param notional The constant notional value.
 	 * @param currency The currency.
 	 */
-	public NotionalFromConstant(double notional, String currency) {
+	public NotionalFromConstant(final double notional, final String currency) {
 		super();
 		this.notional = new RandomVariableFromDoubleArray(0.0,notional);
 		this.currency = currency;
@@ -37,7 +37,7 @@ public class NotionalFromConstant implements Notional {
 	 *
 	 * @param notional The constant notional value.
 	 */
-	public NotionalFromConstant(double notional) {
+	public NotionalFromConstant(final double notional) {
 		this(notional, null);
 	}
 
@@ -47,12 +47,12 @@ public class NotionalFromConstant implements Notional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) {
 		return notional;
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) {
 		return notional;
 	}
 

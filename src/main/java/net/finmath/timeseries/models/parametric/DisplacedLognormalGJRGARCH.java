@@ -43,12 +43,12 @@ import net.finmath.timeseries.TimeSeriesView;
  */
 public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
 
-	private TimeSeries timeSeries;
+	private final TimeSeries timeSeries;
 
-	private double lowerBoundDisplacement;
+	private final double lowerBoundDisplacement;
 	private double upperBoundDisplacement = 10000000;
 
-	private int maxIterations = 10000000;
+	private final int maxIterations = 10000000;
 
 	/*
 	 * Model properties
@@ -59,15 +59,15 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 	private final double[] lowerBound;
 	private final double[] upperBound;
 
-	public DisplacedLognormalGJRGARCH(TimeSeries timeSeries) {
+	public DisplacedLognormalGJRGARCH(final TimeSeries timeSeries) {
 		this(timeSeries, -Double.MAX_VALUE);
 	}
 
-	public DisplacedLognormalGJRGARCH(TimeSeries timeSeries, double lowerBoundDisplacement) {
+	public DisplacedLognormalGJRGARCH(final TimeSeries timeSeries, final double lowerBoundDisplacement) {
 		this.timeSeries = timeSeries;
 
 		double valuesMin = Double.MAX_VALUE;
-		for(double value : timeSeries.getValues()) {
+		for(final double value : timeSeries.getValues()) {
 			valuesMin = Math.min(value, valuesMin);
 		}
 		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);
@@ -76,11 +76,11 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, upperBoundDisplacement };
 	}
 
-	public DisplacedLognormalGJRGARCH(TimeSeries timeSeries, double lowerBoundDisplacement, double upperBoundDisplacement) {
+	public DisplacedLognormalGJRGARCH(final TimeSeries timeSeries, final double lowerBoundDisplacement, final double upperBoundDisplacement) {
 		this.timeSeries = timeSeries;
 
 		double valuesMin = Double.MAX_VALUE;
-		for(double value : timeSeries.getValues()) {
+		for(final double value : timeSeries.getValues()) {
 			valuesMin = Math.min(value, valuesMin);
 		}
 		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);
@@ -90,34 +90,34 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, this.upperBoundDisplacement };
 	}
 
-	public double getLogLikelihoodForParameters(double[] parameters)
+	public double getLogLikelihoodForParameters(final double[] parameters)
 	{
-		double omega		= parameters[0];
-		double alpha		= parameters[1];
-		double beta			= parameters[2];
-		double mu			= parameters[3];
-		double gamma		= parameters[4];
-		double displacement	= parameters[5];
+		final double omega		= parameters[0];
+		final double alpha		= parameters[1];
+		final double beta			= parameters[2];
+		final double mu			= parameters[3];
+		final double gamma		= parameters[4];
+		final double displacement	= parameters[5];
 
 		double logLikelihood = 0.0;
 
-		double volScaling	= (1+Math.abs(displacement));
+		final double volScaling	= (1+Math.abs(displacement));
 		double evalPrev		= 0.0;
 		double eval			= volScaling * (Math.log((timeSeries.getValue(1)+displacement)/(timeSeries.getValue(0)+displacement)));
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
 
-		int length = timeSeries.getNumberOfTimePoints();
+		final int length = timeSeries.getNumberOfTimePoints();
 
 		for (int i = 1; i < length-1; i++) {
 			m = eval;
 			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
 
-			double value1 = timeSeries.getValue(i);
-			double value2 = timeSeries.getValue(i+1);
+			final double value1 = timeSeries.getValue(i);
+			final double value2 = timeSeries.getValue(i+1);
 
-			double evalNext	= volScaling * (Math.log((value2+displacement)/(value1+displacement)));
-			double mNext =  evalNext;
+			final double evalNext	= volScaling * (Math.log((value2+displacement)/(value1+displacement)));
+			final double mNext =  evalNext;
 			logLikelihood += - Math.log(h) - 2 * Math.log((value2+displacement)/volScaling) - mNext* mNext / h;
 
 			evalPrev = eval;
@@ -129,22 +129,22 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		return logLikelihood;
 	}
 
-	public double getLastResidualForParameters(double[] parameters) {
-		double omega		= parameters[0];
-		double alpha		= parameters[1];
-		double beta			= parameters[2];
-		double mu			= parameters[3];
-		double gamma		= parameters[4];
-		double displacement	= parameters[5];
+	public double getLastResidualForParameters(final double[] parameters) {
+		final double omega		= parameters[0];
+		final double alpha		= parameters[1];
+		final double beta			= parameters[2];
+		final double mu			= parameters[3];
+		final double gamma		= parameters[4];
+		final double displacement	= parameters[5];
 
 		double evalPrev		= 0.0;
-		double volScaling	= (1+Math.abs(displacement));
+		final double volScaling	= (1+Math.abs(displacement));
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
 
-		int length = timeSeries.getNumberOfTimePoints();
+		final int length = timeSeries.getNumberOfTimePoints();
 		for (int i = 1; i < length-1; i++) {
-			double eval	= volScaling * (Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement)));
+			final double eval	= volScaling * (Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement)));
 
 			m = eval;
 			h = (omega + (alpha + gamma * (m < mu ? 1.0 : 0.0)) * m * m) + beta * h;
@@ -155,25 +155,25 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		return h;
 	}
 
-	public double[] getSzenarios(double[] parameters) {
-		double omega		= parameters[0];
-		double alpha		= parameters[1];
-		double beta			= parameters[2];
-		double mu			= parameters[3];
-		double gamma		= parameters[4];
-		double displacement	= parameters[5];
+	public double[] getSzenarios(final double[] parameters) {
+		final double omega		= parameters[0];
+		final double alpha		= parameters[1];
+		final double beta			= parameters[2];
+		final double mu			= parameters[3];
+		final double gamma		= parameters[4];
+		final double displacement	= parameters[5];
 
-		double[] szenarios = new double[timeSeries.getNumberOfTimePoints()-1];
+		final double[] szenarios = new double[timeSeries.getNumberOfTimePoints()-1];
 
-		double volScaling	= (1+Math.abs(displacement));
+		final double volScaling	= (1+Math.abs(displacement));
 		double evalPrev		= 0.0;
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0;
 		double vol = Math.sqrt(h) / volScaling;
 		for (int i = 1; i <= timeSeries.getNumberOfTimePoints()-1; i++) {
-			double y = Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement));
+			final double y = Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement));
 
-			double eval	= volScaling * y;
+			final double eval	= volScaling * y;
 			m = eval;
 
 			szenarios[i-1]	= m / vol / volScaling;
@@ -196,7 +196,7 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
 	@Override
-	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
+	public Map<String, Object> getBestParameters(final Map<String, Object> guess) {
 
 		// Create the objective function for the solver
 		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {
@@ -204,14 +204,14 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			private static final long serialVersionUID = 7072187082052755854L;
 
 			@Override
-			public double value(double[] parameters) {
+			public double value(final double[] parameters) {
 
-				double omega		= parameters[0];
-				double alpha		= parameters[1];
-				double beta			= parameters[2];
-				double mu			= parameters[3];
-				double gamma		= parameters[4];
-				double displacement	= parameters[5];
+				final double omega		= parameters[0];
+				final double alpha		= parameters[1];
+				final double beta			= parameters[2];
+				final double mu			= parameters[3];
+				final double gamma		= parameters[4];
+				final double displacement	= parameters[5];
 
 				double logLikelihood = getLogLikelihoodForParameters(parameters);
 
@@ -244,33 +244,33 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 
 
 		// Seek optimal parameter configuration
-		Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {
+		final Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {
 			private static final long serialVersionUID = -3791313169935939272L;
 
 			@Override
-			public void setValues(double[] arg0, double[] arg1) {
+			public void setValues(final double[] arg0, final double[] arg1) {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
 
 		double[] bestParameters = null;
 
-		boolean isUseLM = false;
+		final boolean isUseLM = false;
 
 		if(isUseLM) {
 			try {
 				lm.run();
-			} catch (SolverException e1) {
+			} catch (final SolverException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			bestParameters = lm.getBestFitParameters();
 		}
 		else {
-			org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, Double.POSITIVE_INFINITY, true, 0, 0, new MersenneTwister(), false, new SimplePointChecker<org.apache.commons.math3.optim.PointValuePair>(0, 0))
+			final org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, Double.POSITIVE_INFINITY, true, 0, 0, new MersenneTwister(), false, new SimplePointChecker<org.apache.commons.math3.optim.PointValuePair>(0, 0))
 			{
 				@Override
-				public double computeObjectiveValue(double[] params) {
+				public double computeObjectiveValue(final double[] params) {
 					return objectiveFunction.value(params);
 				}
 
@@ -309,26 +309,26 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 			};
 
 			try {
-				org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
+				final org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(
 						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(guessParameters.length))),
 						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
 						);
 				bestParameters = result.getPoint();
-			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
+			} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {
 				System.out.println("Solver failed");
 				bestParameters = guessParameters;
 			}
 		}
 
 		// Transform parameters to GARCH parameters
-		double omega		= bestParameters[0];
-		double alpha		= bestParameters[1];
-		double beta			= bestParameters[2];
-		double mu			= bestParameters[3];
-		double gamma		= bestParameters[4];
-		double displacement	= bestParameters[5];
+		final double omega		= bestParameters[0];
+		final double alpha		= bestParameters[1];
+		final double beta			= bestParameters[2];
+		final double mu			= bestParameters[3];
+		final double gamma		= bestParameters[4];
+		final double displacement	= bestParameters[5];
 
-		Map<String, Object> results = new HashMap<>();
+		final Map<String, Object> results = new HashMap<>();
 		results.put("parameters", bestParameters);
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
@@ -343,19 +343,19 @@ public class DisplacedLognormalGJRGARCH implements TimeSeriesModelParametric, Hi
 		return results;
 	}
 
-	private static double restrictToOpenSet(double value, double lowerBond, double upperBound) {
+	private static double restrictToOpenSet(double value, final double lowerBond, final double upperBound) {
 		value = Math.max(value, lowerBond  * (1.0+Math.signum(lowerBond)*1E-15) + 1E-15);
 		value = Math.min(value, upperBound * (1.0-Math.signum(upperBound)*1E-15) - 1E-15);
 		return value;
 	}
 
 	@Override
-	public TimeSeriesModelParametric getCloneCalibrated(TimeSeries timeSeries) {
+	public TimeSeriesModelParametric getCloneCalibrated(final TimeSeries timeSeries) {
 		return new DisplacedLognormalGJRGARCH(timeSeries);
 	}
 
 	@Override
-	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
 		return new DisplacedLognormalGJRGARCH(new TimeSeriesView(timeSeries, windowIndexStart, windowIndexEnd));
 	}
 

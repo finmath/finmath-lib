@@ -48,7 +48,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity, String discountCurveName) {
+	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity, final String discountCurveName) {
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -69,7 +69,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention, String discountCurveName) {
+	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);
 	}
 
@@ -81,7 +81,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @param paymentOffset The maturity of the index modeled by this curve.
 	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
 	 */
-	public AbstractForwardCurve(String name, LocalDate referenceDate, double paymentOffset, String discountCurveName) {
+	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final double paymentOffset, final String discountCurveName) {
 		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);
 		this.paymentOffset = paymentOffset;
 		this.discountCurveName = discountCurveName;
@@ -103,7 +103,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset(double)
 	 */
 	@Override
-	public double getPaymentOffset(double fixingTime) {
+	public double getPaymentOffset(final double fixingTime) {
 		if(getPaymentOffsetCode() == null) {
 			return paymentOffset;
 		}
@@ -117,10 +117,10 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 			 *  if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
 			 *  In such a case, this method may be overridden.
 			 */
-			LocalDate referenceDate = getReferenceDate();
-			LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
-			LocalDate paymentDate = getPaymentBusinessdayCalendar().getAdjustedDate(fixingDate, getPaymentOffsetCode(), getPaymentDateRollConvention());
-			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, paymentDate);
+			final LocalDate referenceDate = getReferenceDate();
+			final LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
+			final LocalDate paymentDate = getPaymentBusinessdayCalendar().getAdjustedDate(fixingDate, getPaymentOffsetCode(), getPaymentDateRollConvention());
+			final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, paymentDate);
 			paymentOffsets.put(fixingTime, paymentTime-fixingTime);
 			return paymentTime-fixingTime;
 		}
@@ -133,9 +133,9 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public double[] getForwards(AnalyticModel model, double[] fixingTimes)
+	public double[] getForwards(final AnalyticModel model, final double[] fixingTimes)
 	{
-		double[] values = new double[fixingTimes.length];
+		final double[] values = new double[fixingTimes.length];
 
 		for(int i=0; i<fixingTimes.length; i++) {
 			values[i] = getForward(model, fixingTimes[i]);

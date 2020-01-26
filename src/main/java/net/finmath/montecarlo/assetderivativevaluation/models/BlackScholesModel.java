@@ -59,10 +59,10 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
-			RandomVariable initialValue,
-			RandomVariable riskFreeRate,
-			RandomVariable volatility,
-			RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariable initialValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 
 		this.initialValue = initialValue;
@@ -85,10 +85,10 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
-			double initialValue,
-			double riskFreeRate,
-			double volatility,
-			RandomVariableFactory abstractRandomVariableFactory) {
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		this(abstractRandomVariableFactory.createRandomVariable(initialValue), abstractRandomVariableFactory.createRandomVariable(riskFreeRate), abstractRandomVariableFactory.createRandomVariable(volatility), abstractRandomVariableFactory);
 	}
 
@@ -100,9 +100,9 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param volatility The log volatility.
 	 */
 	public BlackScholesModel(
-			double initialValue,
-			double riskFreeRate,
-			double volatility) {
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
 		this(initialValue, riskFreeRate, volatility, new RandomVariableFromArrayFactory());
 	}
 
@@ -112,27 +112,27 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadings;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) {
+	public RandomVariable getNumeraire(final double time) {
 		return riskFreeRate.mult(time).exp();
 	}
 
@@ -142,18 +142,18 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
-	public BlackScholesModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public BlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() 	: initialValue.getAverage();
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue()	: getRiskFreeRate().getAverage();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: getVolatility().getAverage();
+		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() 	: initialValue.getAverage();
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue()	: getRiskFreeRate().getAverage();
+		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: getVolatility().getAverage();
 
 		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, abstractRandomVariableFactory);
 	}

@@ -52,7 +52,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	private final double[]	strikes;
 
 	private int			orderOfRegressionPolynomial		= 4;
-	private boolean		intrinsicValueAsBasisFunction	= true;
+	private final boolean		intrinsicValueAsBasisFunction	= true;
 
 	private ExerciseMethod exerciseMethod = ExerciseMethod.ESTIMATE_COND_EXPECTATION;
 
@@ -69,11 +69,11 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @param properties Use this map to specify special product parameters, e.g. "orderOfRegressionPolynomial" (Integer).
 	 */
 	public BermudanDigitalOption(
-			double[] exerciseDates,
-			double[] notionals,
-			double[] strikes,
-			ExerciseMethod exerciseMethod,
-			Map<String, Object> properties) {
+			final double[] exerciseDates,
+			final double[] notionals,
+			final double[] strikes,
+			final ExerciseMethod exerciseMethod,
+			final Map<String, Object> properties) {
 		super();
 		this.exerciseDates = exerciseDates;
 		this.notionals = notionals;
@@ -94,13 +94,13 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 	 *
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		if(exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {
 			// Find optimal lambda
-			GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
+			final GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
 			while(!optimizer.isDone()) {
-				double lambda = optimizer.getNextPoint();
-				double value = this.getValues(evaluationTime, model, lambda).getAverage();
+				final double lambda = optimizer.getNextPoint();
+				final double value = this.getValues(evaluationTime, model, lambda).getAverage();
 				optimizer.setValue(value);
 			}
 			return getValues(evaluationTime, model, optimizer.getBestPoint());
@@ -110,7 +110,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		}
 	}
 
-	private RandomVariable getValues(double evaluationTime, AssetModelMonteCarloSimulationModel model, double lambda) throws CalculationException {
+	private RandomVariable getValues(final double evaluationTime, final AssetModelMonteCarloSimulationModel model, final double lambda) throws CalculationException {
 		/*
 		 * We are going backward in time (note that this bears the risk of an foresight bias).
 		 * We store the value of the option, if not exercised in a vector. Is is not allowed to used the specific entry in this vector
@@ -122,24 +122,24 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 
 		RandomVariable	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
 
-		RandomVariable one				= model.getRandomVariableForConstant(1.0);
+		final RandomVariable one				= model.getRandomVariableForConstant(1.0);
 
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
-			double exerciseDate = exerciseDates[exerciseDateIndex];
-			double notional     = notionals[exerciseDateIndex];
-			double strike       = strikes[exerciseDateIndex];
+			final double exerciseDate = exerciseDates[exerciseDateIndex];
+			final double notional     = notionals[exerciseDateIndex];
+			final double strike       = strikes[exerciseDateIndex];
 
 			// Get some model values upon exercise date
-			RandomVariable underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
-			RandomVariable numeraireAtPayment		= model.getNumeraire(exerciseDate);
-			RandomVariable monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
+			final RandomVariable underlyingAtExercise	= model.getAssetValue(exerciseDate,0);
+			final RandomVariable numeraireAtPayment		= model.getNumeraire(exerciseDate);
+			final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
 
 			// Value received if exercised at current time
-			RandomVariable valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
+			final RandomVariable valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
+			final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
 
 			RandomVariable underlying	= null;
 			RandomVariable trigger		= null;
@@ -148,7 +148,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			switch(exerciseMethod) {
 			case ESTIMATE_COND_EXPECTATION:
 				// Calculate conditional expectation on numeraire relative quantity.
-				RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
+				final RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
 
 				underlying	= underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
 				trigger		= underlying.sub(valueIfNotExcercisedEstimated);
@@ -185,15 +185,15 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		 */
 
 		// Note that values is a relative price - no numeraire division is required
-		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtZero);//.div(monteCarloProbabilitiesAtZero);
 
 		return value;
 	}
 
 
-	private RandomVariable[] getRegressionBasisFunctions(RandomVariable underlying) {
+	private RandomVariable[] getRegressionBasisFunctions(final RandomVariable underlying) {
 		RandomVariable[] basisFunctions;
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4

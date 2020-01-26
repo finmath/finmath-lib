@@ -20,13 +20,13 @@ import net.finmath.time.TimeDiscretization;
  */
 public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements AssetModelMonteCarloSimulationModel {
 
-	private double initialValue;
-	private double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private double volatility;
+	private final double initialValue;
+	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final double volatility;
 
-	private RandomVariable[]	initialValueVector	= new RandomVariable[1];
-	private RandomVariable	drift;
-	private RandomVariable	volatilityOnPaths;
+	private final RandomVariable[]	initialValueVector	= new RandomVariable[1];
+	private final RandomVariable	drift;
+	private final RandomVariable	volatilityOnPaths;
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -38,11 +38,11 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @param volatility The log volatility
 	 */
 	public MonteCarloBlackScholesModel2(
-			TimeDiscretization timeDiscretization,
-			int numberOfPaths,
-			double initialValue,
-			double riskFreeRate,
-			double volatility) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
 		super(timeDiscretization, 1 /* numberOfComponents */ , 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 		this.initialValue	= initialValue;
@@ -69,12 +69,12 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @param seed The seed for the random number generator.
 	 */
 	public MonteCarloBlackScholesModel2(
-			TimeDiscretization timeDiscretization,
-			int numberOfPaths,
-			double initialValue,
-			double riskFreeRate,
-			double volatility,
-			int seed) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final int seed) {
 		super(timeDiscretization, 1 /* numberOfComponents */ , 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		this.initialValue	= initialValue;
@@ -109,12 +109,12 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public RandomVariable getDrift(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+	public RandomVariable getDrift(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariable getFactorLoading(int timeIndex, int factor, int component, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoading(final int timeIndex, final int factor, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return volatilityOnPaths;
 	}
 
@@ -123,38 +123,38 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getAssetValue(int, int)
 	 */
 	@Override
-	public RandomVariable getAssetValue(int timeIndex, int assetIndex) {
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) {
 		return getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariable getAssetValue(double time, int assetIndex) {
+	public RandomVariable getAssetValue(final double time, final int assetIndex) {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) {
+	public RandomVariable getMonteCarloWeights(final double time) {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
 	@Override
-	public RandomVariable getNumeraire(int timeIndex)
+	public RandomVariable getNumeraire(final int timeIndex)
 	{
-		double time = getTime(timeIndex);
+		final double time = getTime(timeIndex);
 
 		return getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time)
+	public RandomVariable getNumeraire(final double time)
 	{
-		double numeraireValue = Math.exp(riskFreeRate * time);
+		final double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return new RandomVariableFromDoubleArray(time, numeraireValue);
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return getBrownianMotion().getRandomVariableForConstant(value);
 	}
 
@@ -186,12 +186,12 @@ public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements As
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		return new MonteCarloBlackScholesModel2(this.getTimeDiscretization(), this.getNumberOfPaths(), this.getInitialValue()[0].get(0), this.getRiskFreeRate(), this.getVolatility(), seed);
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		throw new UnsupportedOperationException();
 	}
 }

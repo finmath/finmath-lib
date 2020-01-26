@@ -27,21 +27,21 @@ public class RegressionBasisFunctionsFromProducts implements RegressionBasisFunc
 
 	private final List<AbstractMonteCarloProduct> products;
 
-	public RegressionBasisFunctionsFromProducts(List<AbstractMonteCarloProduct> products) {
+	public RegressionBasisFunctionsFromProducts(final List<AbstractMonteCarloProduct> products) {
 		super();
 		this.products = products;
 	}
 
 	@Override
-	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) {
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel model) {
 
-		Function<AbstractMonteCarloProduct, RandomVariable> valuation = new Function<AbstractMonteCarloProduct, RandomVariable>() {
+		final Function<AbstractMonteCarloProduct, RandomVariable> valuation = new Function<AbstractMonteCarloProduct, RandomVariable>() {
 			@Override
-			public RandomVariable apply(AbstractMonteCarloProduct p) {
+			public RandomVariable apply(final AbstractMonteCarloProduct p) {
 				RandomVariable value = null;
 				try {
 					value = p.getValue(evaluationTime, model);
-				} catch (CalculationException e) {
+				} catch (final CalculationException e) {
 					throw new IllegalArgumentException("Product " + p + " cannot be valued by model " + model + " at time " + evaluationTime, e);
 				}
 

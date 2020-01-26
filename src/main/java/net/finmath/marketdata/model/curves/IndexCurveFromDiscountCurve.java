@@ -26,7 +26,7 @@ public class IndexCurveFromDiscountCurve extends AbstractCurve implements Curve 
 	 * @param indexValue The index value at the discount curve's t=0, i.e., the reference date of the discount curve.
 	 * @param discountCurve The discont curve.
 	 */
-	public IndexCurveFromDiscountCurve(String name, double indexValue, DiscountCurve discountCurve) {
+	public IndexCurveFromDiscountCurve(final String name, final double indexValue, final DiscountCurve discountCurve) {
 		super(name, discountCurve.getReferenceDate());
 
 		this.indexValue = indexValue;
@@ -39,12 +39,12 @@ public class IndexCurveFromDiscountCurve extends AbstractCurve implements Curve 
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		discountCurve.setParameter(parameter);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		return indexValue / discountCurve.getDiscountFactor(model, time);
 	}
 

@@ -59,7 +59,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 *
 	 * @param value Object implementing <code>RandomVariable</code>.
 	 */
-	public RandomVariableFromDoubleArray(RandomVariable value) {
+	public RandomVariableFromDoubleArray(final RandomVariable value) {
 		super();
 		time = value.getFiltrationTime();
 		realizations = value.isDeterministic() ? null : value.getRealizations();
@@ -72,7 +72,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 *
 	 * @param value the value, a constant.
 	 */
-	public RandomVariableFromDoubleArray(double value) {
+	public RandomVariableFromDoubleArray(final double value) {
 		this(Double.NEGATIVE_INFINITY, value);
 	}
 
@@ -82,7 +82,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param value Object implementing <code>RandomVariable</code>.
 	 * @param function A function mapping double to double.
 	 */
-	public RandomVariableFromDoubleArray(RandomVariable value, DoubleUnaryOperator function) {
+	public RandomVariableFromDoubleArray(final RandomVariable value, final DoubleUnaryOperator function) {
 		super();
 		time = value.getFiltrationTime();
 		realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();
@@ -98,7 +98,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param value the value, a constant.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariableFromDoubleArray(double time, double value, int typePriority) {
+	public RandomVariableFromDoubleArray(final double time, final double value, final int typePriority) {
 		super();
 		this.time = time;
 		realizations = null;
@@ -112,7 +112,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
 	 */
-	public RandomVariableFromDoubleArray(double time, double value) {
+	public RandomVariableFromDoubleArray(final double time, final double value) {
 		this(time, value, typePriorityDefault);
 	}
 
@@ -124,7 +124,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param value the value, a constant.
 	 */
 	@Deprecated
-	public RandomVariableFromDoubleArray(double time, int numberOfPath, double value) {
+	public RandomVariableFromDoubleArray(final double time, final int numberOfPath, final double value) {
 		super();
 		this.time = time;
 		realizations = new double[numberOfPath];
@@ -144,7 +144,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param realisations the vector of realizations.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariableFromDoubleArray(double time, double[] realisations, int typePriority) {
+	public RandomVariableFromDoubleArray(final double time, final double[] realisations, final int typePriority) {
 		super();
 		this.time = time;
 		realizations = realisations;
@@ -165,7 +165,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
-	public RandomVariableFromDoubleArray(double time, double[] realisations) {
+	public RandomVariableFromDoubleArray(final double time, final double[] realisations) {
 		this(time, realisations, typePriorityDefault);
 	}
 
@@ -177,7 +177,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param size The size, i.e., number of paths.
 	 * @param typePriority The priority of this type in construction of result types. See "operator type priority" for details.
 	 */
-	public RandomVariableFromDoubleArray(double time, IntToDoubleFunction realizations, int size, int typePriority) {
+	public RandomVariableFromDoubleArray(final double time, final IntToDoubleFunction realizations, final int size, final int typePriority) {
 		super();
 		this.time = time;
 		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();
@@ -185,7 +185,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		if(size > 1) {
 			IntStream.range(0,size).parallel().forEach(new IntConsumer() {
 				@Override
-				public void accept(int i) {
+				public void accept(final int i) {
 					RandomVariableFromDoubleArray.this.realizations[i] = realizations.applyAsDouble(i);
 				}
 			}
@@ -201,12 +201,12 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
 	 * @param size The size, i.e., number of paths.
 	 */
-	public RandomVariableFromDoubleArray(double time, IntToDoubleFunction realizations, int size) {
+	public RandomVariableFromDoubleArray(final double time, final IntToDoubleFunction realizations, final int size) {
 		this(time, realizations, size, typePriorityDefault);
 	}
 
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		if(time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
@@ -238,7 +238,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		} else {
@@ -300,8 +300,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		double sum = 0.0;								// Running sum
 		double error = 0.0;								// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
-			double value = realizations[i] - error;		// Error corrected value
-			double newSum = sum + value;				// New sum
+			final double value = realizations[i] - error;		// Error corrected value
+			final double newSum = sum + value;				// New sum
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
@@ -309,7 +309,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -323,8 +323,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		double sum = 0.0;
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
-			double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value
-			double newSum = sum + value;				// New sum
+			final double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value
+			final double newSum = sum + value;				// New sum
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
@@ -340,7 +340,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return Double.NaN;
 		}
 
-		double average = getAverage();
+		final double average = getAverage();
 
 		/*
 		 * Kahan summation on (realizations[i] - average)^2
@@ -348,8 +348,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		double sum = 0.0;
 		double errorOfSum	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			double value	= (realizations[i] - average)*(realizations[i] - average) - errorOfSum;
-			double newSum	= sum + value;
+			final double value	= (realizations[i] - average)*(realizations[i] - average) - errorOfSum;
+			final double newSum	= sum + value;
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
 		}
@@ -357,7 +357,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -365,7 +365,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return Double.NaN;
 		}
 
-		double average = getAverage(probabilities);
+		final double average = getAverage(probabilities);
 
 		/*
 		 * Kahan summation on (realizations[i] - average)^2 * probabilities.get(i)
@@ -373,8 +373,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		double sum = 0.0;
 		double errorOfSum	= 0.0;
 		for(int i=0; i<realizations.length; i++) {
-			double value	= (realizations[i] - average) * (realizations[i] - average) * probabilities.get(i) - errorOfSum;
-			double newSum	= sum + value;
+			final double value	= (realizations[i] - average) * (realizations[i] - average) * probabilities.get(i) - errorOfSum;
+			final double newSum	= sum + value;
 			errorOfSum		= (newSum - sum) - value;
 			sum				= newSum;
 		}
@@ -406,7 +406,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -433,7 +433,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -445,7 +445,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -453,16 +453,16 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return Double.NaN;
 		}
 
-		double[] realizationsSorted = realizations.clone();
+		final double[] realizationsSorted = realizations.clone();
 		java.util.Arrays.sort(realizationsSorted);
 
-		int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);
+		final int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);
 
 		return realizationsSorted[indexOfQuantileValue];
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -474,7 +474,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -485,11 +485,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return getQuantileExpectation(quantileEnd, quantileStart);
 		}
 
-		double[] realizationsSorted = realizations.clone();
+		final double[] realizationsSorted = realizations.clone();
 		java.util.Arrays.sort(realizationsSorted);
 
-		int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);
-		int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);
+		final int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);
+		final int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);
 
 		double quantileExpectation = 0.0;
 		for (int i=indexOfQuantileValueStart; i<=indexOfQuantileValueEnd;i++) {
@@ -501,9 +501,9 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double[] getHistogram(double[] intervalPoints)
+	public double[] getHistogram(final double[] intervalPoints)
 	{
-		double[] histogramValues = new double[intervalPoints.length+1];
+		final double[] histogramValues = new double[intervalPoints.length+1];
 
 		if(isDeterministic()) {
 			/*
@@ -527,7 +527,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			 * There is one exception:
 			 * If the size of the random variable is 0, all entries will be zero.
 			 */
-			double[] realizationsSorted = realizations.clone();
+			final double[] realizationsSorted = realizations.clone();
 			java.util.Arrays.sort(realizationsSorted);
 
 			int sampleIndex=0;
@@ -556,20 +556,20 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
-		double[] intervalPoints = new double[numberOfPoints];
-		double[] anchorPoints	= new double[numberOfPoints+1];
-		double center	= getAverage();
-		double radius	= standardDeviations * getStandardDeviation();
-		double stepSize	= (numberOfPoints-1) / 2.0;
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+		final double[] intervalPoints = new double[numberOfPoints];
+		final double[] anchorPoints	= new double[numberOfPoints+1];
+		final double center	= getAverage();
+		final double radius	= standardDeviations * getStandardDeviation();
+		final double stepSize	= (numberOfPoints-1) / 2.0;
 		for(int i=0; i<numberOfPoints;i++) {
-			double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;
+			final double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;
 			intervalPoints[i]	= center + alpha * radius;
 			anchorPoints[i]		= center + alpha * radius - radius / (2 * stepSize);
 		}
 		anchorPoints[numberOfPoints] = center + 1 * radius + radius / (2 * stepSize);
 
-		double[][] result = new double[2][];
+		final double[][] result = new double[2][];
 		result[0] = anchorPoints;
 		result[1] = getHistogram(intervalPoints);
 
@@ -604,7 +604,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public double[] getRealizations() {
 		if(isDeterministic()) {
-			double[] result = new double[] { doubleValue() };
+			final double[] result = new double[] { doubleValue() };
 			return result;
 		}
 		else {
@@ -630,7 +630,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		if(isDeterministic()) {
 			return new IntToDoubleFunction() {
 				@Override
-				public double applyAsDouble(int i) {
+				public double applyAsDouble(final int i) {
 					return valueIfNonStochastic;
 				}
 			};
@@ -638,7 +638,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		else {
 			return new IntToDoubleFunction() {
 				@Override
-				public double applyAsDouble(int i) {
+				public double applyAsDouble(final int i) {
 					return realizations[i];
 				}
 			};
@@ -646,14 +646,14 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
 			return new RandomVariableFromDoubleArray(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
 		else
 		{
 			// Still faster than a parallel stream (2014.04)
-			double[] result = new double[realizations.length];
+			final double[] result = new double[realizations.length];
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i]);
 			}
@@ -662,15 +662,15 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
-		double      newTime           = Math.max(time, argument.getFiltrationTime());
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+		final double      newTime           = Math.max(time, argument.getFiltrationTime());
 
 		if(isDeterministic() && argument.isDeterministic()) {
 			return new RandomVariableFromDoubleArray(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.doubleValue()));
 		}
 		else if(isDeterministic() && !argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
-			double[] result = new double[argument.size()];
+			final double[] result = new double[argument.size()];
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(valueIfNonStochastic, argument.get(i));
 			}
@@ -678,7 +678,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		}
 		else if(!isDeterministic() && argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
-			double[] result = new double[this.size()];
+			final double[] result = new double[this.size()];
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i], argument.doubleValue());
 			}
@@ -686,7 +686,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		}
 		else if(!isDeterministic() && !argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
-			double[] result = new double[this.size()];
+			final double[] result = new double[this.size()];
 			for(int i=0; i<result.length; i++) {
 				result[i] = operator.applyAsDouble(realizations[i], argument.get(i));
 			}
@@ -696,13 +696,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		/*
 		 * Dead code: slower
 		 */
-		int newSize = Math.max(this.size(), argument.size());
+		final int newSize = Math.max(this.size(), argument.size());
 
-		IntToDoubleFunction argument0Operator = this.getOperator();
-		IntToDoubleFunction argument1Operator = argument.getOperator();
-		IntToDoubleFunction result = new IntToDoubleFunction() {
+		final IntToDoubleFunction argument0Operator = this.getOperator();
+		final IntToDoubleFunction argument1Operator = argument.getOperator();
+		final IntToDoubleFunction result = new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));
 			}
 		};
@@ -711,18 +711,18 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
 
-		int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+		final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
 
-		IntToDoubleFunction argument0Operator = this.getOperator();
-		IntToDoubleFunction argument1Operator = argument1.getOperator();
-		IntToDoubleFunction argument2Operator = argument2.getOperator();
-		IntToDoubleFunction result = new IntToDoubleFunction() {
+		final IntToDoubleFunction argument0Operator = this.getOperator();
+		final IntToDoubleFunction argument1Operator = argument1.getOperator();
+		final IntToDoubleFunction argument2Operator = argument2.getOperator();
+		final IntToDoubleFunction result = new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));
 			}
 		};
@@ -730,24 +730,24 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		return new RandomVariableFromDoubleArray(newTime, result, newSize);
 	}
 
-	public RandomVariable apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariable argument1, RandomVariable argument2)
+	public RandomVariable apply(final DoubleBinaryOperator operatorOuter, final DoubleBinaryOperator operatorInner, final RandomVariable argument1, final RandomVariable argument2)
 	{
 		return apply(new DoubleTernaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y, double z) {
+			public double applyAsDouble(final double x, final double y, final double z) {
 				return operatorOuter.applyAsDouble(x,operatorInner.applyAsDouble(y,z));
 			}
 		}, argument1, argument2);
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
+			final double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.min(realizations[i],cap);
 			}
@@ -756,13 +756,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = Math.max(valueIfNonStochastic,floor);
+			final double newValueIfNonStochastic = Math.max(valueIfNonStochastic,floor);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.max(realizations[i],floor);
 			}
@@ -771,13 +771,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic + value;
+			final double newValueIfNonStochastic = valueIfNonStochastic + value;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + value;
 			}
@@ -786,13 +786,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic - value;
+			final double newValueIfNonStochastic = valueIfNonStochastic - value;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] - value;
 			}
@@ -800,13 +800,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		}
 	}
 
-	public RandomVariable bus(double value) {
+	public RandomVariable bus(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = value - valueIfNonStochastic;
+			final double newValueIfNonStochastic = value - valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = value - realizations[i];
 			}
@@ -815,13 +815,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic * value;
+			final double newValueIfNonStochastic = valueIfNonStochastic * value;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * value;
 			}
@@ -830,13 +830,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic / value;
+			final double newValueIfNonStochastic = valueIfNonStochastic / value;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / value;
 			}
@@ -844,13 +844,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		}
 	}
 
-	public RandomVariable vid(double value) {
+	public RandomVariable vid(final double value) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = value / valueIfNonStochastic;
+			final double newValueIfNonStochastic = value / valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = value / realizations[i];
 			}
@@ -859,13 +859,13 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = Math.pow(valueIfNonStochastic,exponent);
+			final double newValueIfNonStochastic = Math.pow(valueIfNonStochastic,exponent);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.pow(realizations[i],exponent);
 			}
@@ -879,7 +879,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
+	public RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
@@ -887,11 +887,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable squared() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic * valueIfNonStochastic;
+			final double newValueIfNonStochastic = valueIfNonStochastic * valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * realizations[i];
 			}
@@ -902,11 +902,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable sqrt() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = Math.sqrt(valueIfNonStochastic);
+			final double newValueIfNonStochastic = Math.sqrt(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.sqrt(realizations[i]);
 			}
@@ -917,11 +917,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable invert() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = 1.0/valueIfNonStochastic;
+			final double newValueIfNonStochastic = 1.0/valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = 1.0/realizations[i];
 			}
@@ -932,11 +932,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable abs() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = Math.abs(valueIfNonStochastic);
+			final double newValueIfNonStochastic = Math.abs(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Math.abs(realizations[i]);
 			}
@@ -947,11 +947,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariableFromDoubleArray exp() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
+			final double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.exp(realizations[i]);
 			}
@@ -962,11 +962,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariableFromDoubleArray expm1() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.expm1(valueIfNonStochastic);
+			final double newValueIfNonStochastic = FastMath.expm1(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.expm1(realizations[i]);
 			}
@@ -977,11 +977,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariableFromDoubleArray log() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
+			final double newValueIfNonStochastic = FastMath.log(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.log(realizations[i]);
 			}
@@ -992,11 +992,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable sin() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
+			final double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.sin(realizations[i]);
 			}
@@ -1007,11 +1007,11 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	@Override
 	public RandomVariable cos() {
 		if(isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
+			final double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[realizations.length];
+			final double[] newRealizations = new double[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.cos(realizations[i]);
 			}
@@ -1024,21 +1024,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 */
 
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.add(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.doubleValue();
+			final double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.doubleValue();
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic + randomVariable.get(i);
 			}
@@ -1048,7 +1048,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return this.add(randomVariable.doubleValue());
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + randomVariable.get(i);
 			}
@@ -1057,21 +1057,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.bus(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic - randomVariable.doubleValue();
+			final double newValueIfNonStochastic = valueIfNonStochastic - randomVariable.doubleValue();
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);
 			}
@@ -1081,7 +1081,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return this.sub(randomVariable.doubleValue());
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] - randomVariable.get(i);
 			}
@@ -1090,28 +1090,28 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.sub(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = randomVariable.doubleValue() - valueIfNonStochastic;
+			final double newValueIfNonStochastic = randomVariable.doubleValue() - valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 =  randomVariable.get(i) - valueIfNonStochastic;
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) - realizations[i];
 			}
@@ -1120,31 +1120,31 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.mult(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.doubleValue();
+			final double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.doubleValue();
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(randomVariable.isDeterministic()) {
 			return this.mult(randomVariable.doubleValue());
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic * randomVariable.get(i);
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * randomVariable.get(i);
 			}
@@ -1153,28 +1153,28 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.vid(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic / randomVariable.doubleValue();
+			final double newValueIfNonStochastic = valueIfNonStochastic / randomVariable.doubleValue();
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / randomVariable.get(i);
 			}
@@ -1183,28 +1183,28 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.div(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = randomVariable.doubleValue() / valueIfNonStochastic;
+			final double newValueIfNonStochastic = randomVariable.doubleValue() / valueIfNonStochastic;
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) / valueIfNonStochastic;
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = randomVariable.get(i) / realizations[i];
 			}
@@ -1213,27 +1213,27 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable randomVariable) {
+	public RandomVariable cap(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.cap(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.doubleValue());
+			final double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.doubleValue());
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.min(valueIfNonStochastic, randomVariable.get(i));
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		} else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.min(realizations[i], randomVariable.get(i));
 			}
@@ -1242,21 +1242,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable randomVariable) {
+	public RandomVariable floor(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.floor(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, randomVariable.getFiltrationTime());
+		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.doubleValue());
+			final double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.doubleValue());
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.max(valueIfNonStochastic, randomVariable.get(i));
 			}
@@ -1266,7 +1266,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return this.floor(randomVariable.doubleValue());
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
+			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = FastMath.max(realizations[i], randomVariable.get(i));
 			}
@@ -1275,27 +1275,27 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).mult(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, rate.getFiltrationTime());
+		final double newTime = Math.max(time, rate.getFiltrationTime());
 
 		if(rate.isDeterministic()) {
 			return this.mult(1.0 + rate.doubleValue() * periodLength);
 		}
 		else if(isDeterministic() && !rate.isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			final double[] newRealizations = new double[Math.max(size(), rate.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic * (1 + rate.get(i) * periodLength);
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			final double[] newRealizations = new double[Math.max(size(), rate.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] * (1 + rate.get(i) * periodLength);
 			}
@@ -1304,27 +1304,27 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).invert().mult(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, rate.getFiltrationTime());
+		final double newTime = Math.max(time, rate.getFiltrationTime());
 
 		if(rate.isDeterministic()) {
 			return this.div(1.0 + rate.doubleValue() * periodLength);
 		}
 		else if(isDeterministic() && !rate.isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			final double[] newRealizations = new double[Math.max(size(), rate.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic / (1.0 + rate.get(i) * periodLength);
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), rate.size())];
+			final double[] newRealizations = new double[Math.max(size(), rate.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] / (1.0 + rate.get(i) * periodLength);
 			}
@@ -1338,7 +1338,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 */
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
 		double newTime = time;
 		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());
@@ -1352,8 +1352,8 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			}
 		}
 		else {
-			int numberOfPaths = this.size();
-			double[] newRealizations = new double[numberOfPaths];
+			final int numberOfPaths = this.size();
+			final double[] newRealizations = new double[numberOfPaths];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i] = realizations[i] >= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);
 			}
@@ -1362,27 +1362,27 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(time, factor1.getFiltrationTime());
+		final double newTime = Math.max(time, factor1.getFiltrationTime());
 
 		if(factor1.isDeterministic()) {
 			return this.add(factor1.doubleValue() * factor2);
 		}
 		else if(isDeterministic() && !factor1.isDeterministic()) {
-			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			final double[] newRealizations = new double[Math.max(size(), factor1.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = valueIfNonStochastic + factor1.get(i) * factor2;
 			}
 			return new RandomVariableFromDoubleArray(newTime, newRealizations);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(size(), factor1.size())];
+			final double[] newRealizations = new double[Math.max(size(), factor1.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1.get(i) * factor2;
 			}
@@ -1391,17 +1391,17 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(Math.max(time, factor1.getFiltrationTime()), factor2.getFiltrationTime());
+		final double newTime = Math.max(Math.max(time, factor1.getFiltrationTime()), factor2.getFiltrationTime());
 
 		if(isDeterministic() && factor1.isDeterministic() && factor2.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic + (factor1.doubleValue() * factor2.doubleValue());
+			final double newValueIfNonStochastic = valueIfNonStochastic + (factor1.doubleValue() * factor2.doubleValue());
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else if(factor1.isDeterministic() && factor2.isDeterministic()) {
@@ -1414,7 +1414,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return this.addProduct(factor2, factor1.doubleValue());
 		}
 		else if(!this.isDeterministic() && !factor1.isDeterministic() && !factor2.isDeterministic()) {
-			double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
+			final double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = realizations[i] + factor1.get(i) * factor2.get(i);
 			}
@@ -1426,7 +1426,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
+	public RandomVariable addSumProduct(final List<RandomVariable> factor1, final List<RandomVariable> factor2)
 	{
 		RandomVariable result = this;
 		for(int i=0; i<factor1.size(); i++) {
@@ -1436,21 +1436,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).add(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
+		final double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
 
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic + (numerator.doubleValue() / denominator.doubleValue());
+			final double newValueIfNonStochastic = valueIfNonStochastic + (numerator.doubleValue() / denominator.doubleValue());
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
+			final double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);
 			}
@@ -1459,21 +1459,21 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).mult(-1).add(this);
 		}
 
 		// Set time of this random variable to maximum of time with respect to which measurability is known.
-		double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
+		final double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());
 
 		if(isDeterministic() && numerator.isDeterministic() && denominator.isDeterministic()) {
-			double newValueIfNonStochastic = valueIfNonStochastic - (numerator.doubleValue() / denominator.doubleValue());
+			final double newValueIfNonStochastic = valueIfNonStochastic - (numerator.doubleValue() / denominator.doubleValue());
 			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);
 		}
 		else {
-			double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
+			final double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);
 			}
@@ -1487,7 +1487,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return new RandomVariableFromDoubleArray(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
 		}
 		else {
-			double[] newRealizations = new double[size()];
+			final double[] newRealizations = new double[size()];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
 			}

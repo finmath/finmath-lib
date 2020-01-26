@@ -35,18 +35,18 @@ public class BlackScholesCallOptionTest {
 	@Test
 	public void test() throws CalculationException {
 
-		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		final CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
-		FourierTransformProduct product = new EuropeanOption(maturity, strike);
+		final FourierTransformProduct product = new EuropeanOption(maturity, strike);
 
-		long startMillis	= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
 
-		double value			= product.getValue(model);
+		final double value			= product.getValue(model);
 
-		long endMillis		= System.currentTimeMillis();
+		final long endMillis		= System.currentTimeMillis();
 
-		double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
-		double error			= value-valueAnalytic;
+		final double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
+		final double error			= value-valueAnalytic;
 
 		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 
@@ -56,18 +56,18 @@ public class BlackScholesCallOptionTest {
 	@Test
 	public void testDigitalOption() throws CalculationException {
 
-		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		final CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
-		FourierTransformProduct product = new DigitalOption(maturity, strike);
+		final FourierTransformProduct product = new DigitalOption(maturity, strike);
 
-		long startMillis	= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
 
-		double value			= product.getValue(model);
+		final double value			= product.getValue(model);
 
-		long endMillis		= System.currentTimeMillis();
+		final long endMillis		= System.currentTimeMillis();
 
-		double valueAnalytic	= AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
-		double error			= value-valueAnalytic;
+		final double valueAnalytic	= AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, maturity, strike);
+		final double error			= value-valueAnalytic;
 
 		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 

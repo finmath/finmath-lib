@@ -23,8 +23,8 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 
 	private static final long serialVersionUID = 4266489807755944607L;
 
-	private TimeDiscretization timeDiscretization;
-	private TimeDiscretization volatilityTimeDiscretization;
+	private final TimeDiscretization timeDiscretization;
+	private final TimeDiscretization volatilityTimeDiscretization;
 
 	private RandomVariable[] volatility;
 	private RandomVariable[] meanReversion;
@@ -32,7 +32,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	private final boolean isVolatilityCalibrateable;
 	private final boolean isMeanReversionCalibrateable;
 
-	public ShortRateVolatilityModelPiecewiseConstant(RandomVariableFactory abstractRandomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization volatilityTimeDiscretization, RandomVariable[] volatility, RandomVariable[] meanReversion, boolean isVolatilityCalibrateable, boolean isMeanReversionCalibrateable) {
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final RandomVariable[] volatility, final RandomVariable[] meanReversion, final boolean isVolatilityCalibrateable, final boolean isMeanReversionCalibrateable) {
 		super(timeDiscretization);
 
 		if(volatility.length != volatilityTimeDiscretization.getNumberOfTimes()) {
@@ -52,7 +52,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		this.isMeanReversionCalibrateable = isMeanReversionCalibrateable;
 	}
 
-	public ShortRateVolatilityModelPiecewiseConstant(RandomVariableFactory abstractRandomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization volatilityTimeDiscretization, double[] volatility, double[] meanReversion, boolean isVolatilityCalibrateable, boolean isMeanReversionCalibrateable) {
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final double[] volatility, final double[] meanReversion, final boolean isVolatilityCalibrateable, final boolean isMeanReversionCalibrateable) {
 		super(timeDiscretization);
 
 		this.timeDiscretization = timeDiscretization;
@@ -60,7 +60,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		//Check whether all parameter need to be calibrated
-		double maxMaturity = timeDiscretization.getTime(timeDiscretization.getNumberOfTimes()-1);
+		final double maxMaturity = timeDiscretization.getTime(timeDiscretization.getNumberOfTimes()-1);
 		int volatilityIndex = 0;
 		for(int volatilityTime=0; volatilityTime < volatilityTimeDiscretization.getNumberOfTimes(); volatilityTime++) {
 			if(volatilityTimeDiscretization.getTime(volatilityTime) <= maxMaturity) {
@@ -111,56 +111,56 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 		this.isMeanReversionCalibrateable = isMeanReversionCalibrateable;
 	}
 
-	public ShortRateVolatilityModelPiecewiseConstant(RandomVariableFactory abstractRandomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization volatilityTimeDiscretization, double[] volatility, double[] meanReversion, boolean isVolatilityCalibrateable) {
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final double[] volatility, final double[] meanReversion, final boolean isVolatilityCalibrateable) {
 		this(abstractRandomVariableFactory, timeDiscretization, volatilityTimeDiscretization, volatility, meanReversion, isVolatilityCalibrateable, false);
 	}
 
-	public ShortRateVolatilityModelPiecewiseConstant(RandomVariableFactory abstractRandomVariableFactory, TimeDiscretization timeDiscretization, TimeDiscretization volatilityTimeDiscretization, RandomVariable[] volatility, RandomVariable[] meanReversion, boolean isVolatilityCalibrateable) {
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final RandomVariable[] volatility, final RandomVariable[] meanReversion, final boolean isVolatilityCalibrateable) {
 		this(abstractRandomVariableFactory, timeDiscretization, volatilityTimeDiscretization, volatility, meanReversion, isVolatilityCalibrateable, false);
 	}
 
 	@Override
-	public RandomVariable getVolatility(int timeIndex) {
+	public RandomVariable getVolatility(final int timeIndex) {
 
 		//Get time for a certain index
-		double time = timeDiscretization.getTime(timeIndex);
+		final double time = timeDiscretization.getTime(timeIndex);
 
 		//Find index on the volatility discretization according to the time value
-		int volatilityTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
+		final int volatilityTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		return volatility[volatilityTimeIndex];
 	}
 
-	public RandomVariable getVolatility(double time) {
+	public RandomVariable getVolatility(final double time) {
 
 		if(time <= 0) {
 			// Already fixed, no volatility
 			return new Scalar(0.0);
 		}
 		else {
-			int timeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
+			final int timeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
 			return volatility[timeIndex];
 		}
 	}
 
 	@Override
-	public RandomVariable getMeanReversion(int timeIndex) {
+	public RandomVariable getMeanReversion(final int timeIndex) {
 
 		//Get time for a certain index
-		double time = timeDiscretization.getTime(timeIndex);
+		final double time = timeDiscretization.getTime(timeIndex);
 
-		int meanReversionTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
+		final int meanReversionTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);
 		return meanReversion[meanReversionTimeIndex];
 	}
 
 	@Override
 	public RandomVariable[] getParameter() {
-		int volatilityParameterLength = (isVolatilityCalibrateable ? volatility.length : 0);
-		int parameterLength = volatilityParameterLength + (isMeanReversionCalibrateable ? meanReversion.length : 0);
+		final int volatilityParameterLength = (isVolatilityCalibrateable ? volatility.length : 0);
+		final int parameterLength = volatilityParameterLength + (isMeanReversionCalibrateable ? meanReversion.length : 0);
 		if(parameterLength == 0) {
 			return null;
 		}
 
-		RandomVariable[] parameter = new RandomVariable[parameterLength];
+		final RandomVariable[] parameter = new RandomVariable[parameterLength];
 		if(isVolatilityCalibrateable) {
 			System.arraycopy(volatility, 0, parameter, 0, volatility.length);
 		}
@@ -185,7 +185,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	}
 
 	@Override
-	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
+	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
 		return new ShortRateVolatilityModelPiecewiseConstant(
 				abstractRandomVariableFactory,
 				super.getTimeDiscretization(),
@@ -197,7 +197,7 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 	}
 
 	@Override
-	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(final double[] parameters) {
 		RandomVariable[] newVolatility = volatility;
 		RandomVariable[] newMeanReversion = meanReversion;
 
@@ -208,8 +208,8 @@ public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRate
 			newMeanReversion = abstractRandomVariableFactory.createRandomVariableArray(parameters);
 		}
 		else if(isVolatilityCalibrateable && isMeanReversionCalibrateable) {
-			double[] newVolatilityParameters = new double[volatility.length];
-			double[] newMeanReversionParameters = new double[meanReversion.length];
+			final double[] newVolatilityParameters = new double[volatility.length];
+			final double[] newMeanReversionParameters = new double[meanReversion.length];
 			System.arraycopy(parameters, 0, newVolatilityParameters, 0, newVolatilityParameters.length);
 			System.arraycopy(parameters, newVolatilityParameters.length, newMeanReversionParameters, 0, newMeanReversionParameters.length);
 

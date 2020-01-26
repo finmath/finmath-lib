@@ -55,7 +55,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
@@ -66,22 +66,22 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 		 */
 		double denominator;
 
-		LocalDate startDatePlusOneYear = startDate.plusYears(1);
+		final LocalDate startDatePlusOneYear = startDate.plusYears(1);
 		if(endDate.isAfter(startDatePlusOneYear)) {
 			/*
 			 * The following method applies, if the interval spans more than one year:
 			 * fraction = actual number of days / average number of days per year.
 			 */
 
-			LocalDate startDateYearStart = startDate.withDayOfYear(1);
-			LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.lengthOfYear()).plusDays(1);
+			final LocalDate startDateYearStart = startDate.withDayOfYear(1);
+			final LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.lengthOfYear()).plusDays(1);
 
-			double spannedYears = endDate.getYear() - startDate.getYear() + 1;
+			final double spannedYears = endDate.getYear() - startDate.getYear() + 1;
 			denominator = getDaycount(startDateYearStart, endDateYearEnd) / spannedYears;
 		}
 		else {
-			boolean isStartLeapYear	= startDate.isLeapYear();
-			boolean isEndLeapYear	= endDate.isLeapYear();
+			final boolean isStartLeapYear	= startDate.isLeapYear();
+			final boolean isEndLeapYear	= endDate.isLeapYear();
 			/*
 			 * If the start and end span less or equal one year:
 			 * If start and end fall in a leap year, use ACT/366.
@@ -98,7 +98,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				if(isStartLeapYear || isEndLeapYear)
 				{
 					// Get February 29th of the respective leap year
-					LocalDate leapYearsFeb29th = isStartLeapYear ?
+					final LocalDate leapYearsFeb29th = isStartLeapYear ?
 							LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) :
 								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29);
 
@@ -120,7 +120,7 @@ public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT 
 				}
 		}
 
-		double daycountFraction = getDaycount(startDate, endDate) / denominator;
+		final double daycountFraction = getDaycount(startDate, endDate) / denominator;
 
 		return daycountFraction;
 	}

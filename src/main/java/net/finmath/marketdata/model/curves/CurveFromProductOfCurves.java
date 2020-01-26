@@ -20,7 +20,7 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 
 	private static final long serialVersionUID = 8850409340966149755L;
 
-	private Curve[] curves;
+	private final Curve[] curves;
 
 	/**
 	 * Create a curve using one or more curves.
@@ -29,17 +29,17 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
 	 */
-	public CurveFromProductOfCurves(String name, LocalDate referenceDate, Curve... curves) {
+	public CurveFromProductOfCurves(final String name, final LocalDate referenceDate, final Curve... curves) {
 		super(name, referenceDate);
 
 		this.curves = curves;
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		double value = 1.0;
 
-		for(Curve curve : curves) {
+		for(final Curve curve : curves) {
 			value *= curve.getValue(model, time);
 		}
 
@@ -53,7 +53,7 @@ public class CurveFromProductOfCurves extends AbstractCurve implements Serializa
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 	}
 
 	@Override

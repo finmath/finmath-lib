@@ -44,8 +44,8 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * @param theta The parameter \( \theta \)
 	 * @param nu The parameter \( \nu \)
 	 */
-	public VarianceGammaModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate,
-			DiscountCurve discountCurveForDiscountRate, double sigma, double theta, double nu) {
+	public VarianceGammaModel(final LocalDate referenceDate, final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -68,8 +68,8 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * @param nu The parameter \( \nu \)
 	 * @param discountRate The constant rate used for discounting.
 	 */
-	public VarianceGammaModel(double initialValue, double riskFreeRate, double discountRate, double sigma, double theta,
-			double nu) {
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
+			final double nu) {
 		super();
 		referenceDate = null;
 		this.initialValue = initialValue;
@@ -83,17 +83,17 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	}
 
 	@Override
-	public CharacteristicFunction apply(double time) {
+	public CharacteristicFunction apply(final double time) {
 		final double logDiscountFactorForForward = this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting = this.getLogDiscountFactorForDiscounting(time);
 
 		return new CharacteristicFunction() {
 			@Override
-			public Complex apply(Complex argument) {
-				Complex iargument = argument.multiply(Complex.I);
-				Complex denominator = ((Complex.ONE).subtract(iargument.multiply(theta*nu))).add(argument.multiply(argument).multiply(0.5*sigma*sigma*nu));
-				Complex firstLevyExponent = (((Complex.ONE).divide(denominator)).log()).multiply(time/nu);
-				Complex compensator =  iargument.multiply(time/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu)));
+			public Complex apply(final Complex argument) {
+				final Complex iargument = argument.multiply(Complex.I);
+				final Complex denominator = ((Complex.ONE).subtract(iargument.multiply(theta*nu))).add(argument.multiply(argument).multiply(0.5*sigma*sigma*nu));
+				final Complex firstLevyExponent = (((Complex.ONE).divide(denominator)).log()).multiply(time/nu);
+				final Complex compensator =  iargument.multiply(time/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu)));
 
 				return (firstLevyExponent.subtract(compensator)
 						.add(iargument.multiply(Math.log(initialValue)-logDiscountFactorForForward))
@@ -109,7 +109,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForForward(double time) {
+	private double getLogDiscountFactorForForward(final double time) {
 		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
 	}
 
@@ -119,7 +119,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForDiscounting(double time) {
+	private double getLogDiscountFactorForDiscounting(final double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 

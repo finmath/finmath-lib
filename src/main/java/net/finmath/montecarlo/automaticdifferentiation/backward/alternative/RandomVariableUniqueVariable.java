@@ -43,34 +43,34 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @param parentVariables Indices of parents
 	 * @param parentOperatorType Operator
 	 */
-	public RandomVariableUniqueVariable(int variableID, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType) {
+	public RandomVariableUniqueVariable(final int variableID, final boolean isConstant, final ArrayList<RandomVariableUniqueVariable> parentVariables, final OperatorType parentOperatorType) {
 		this.variableID = variableID;
 		this.isConstant = isConstant;
 		parentsVariables = parentVariables;
 		this.parentOperatorType = parentOperatorType;
 	}
 
-	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
+	public RandomVariableUniqueVariable(final double time, final double[] values, final boolean isConstant, final ArrayList<RandomVariableUniqueVariable> parentVariables, final OperatorType parentOperatorType){
 		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, parentVariables, parentOperatorType);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
+	public RandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant, final ArrayList<RandomVariableUniqueVariable> parentVariables, final OperatorType parentOperatorType){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 	}
 
-	public RandomVariableUniqueVariable(double time, double[] values, boolean isConstant){
+	public RandomVariableUniqueVariable(final double time, final double[] values, final boolean isConstant){
 		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant){
+	public RandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant){
 		constructRandomVariableUniqueVariable(randomVariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableUniqueVariable(double time, double[] values){
+	public RandomVariableUniqueVariable(final double time, final double[] values){
 		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariableUniqueVariable(RandomVariable randomVariable){
+	public RandomVariableUniqueVariable(final RandomVariable randomVariable){
 		constructRandomVariableUniqueVariable(randomVariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
@@ -82,15 +82,15 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 *  @param randomVariable
 	 *  @param isConstant
 	 * */
-	private void constructRandomVariableUniqueVariable(RandomVariable randomVariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, OperatorType parentOperatorType){
+	private void constructRandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant, final ArrayList<RandomVariableUniqueVariable> parentVariables, final OperatorType parentOperatorType){
 		/*
 		 * by calling the method in the factory it will produce a new object of RandomVariable and
 		 * the new item will be stored in its factory internal array list
 		 */
-		RandomVariable normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
+		final RandomVariable normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);
 
 		/* by construction this object can be up-casted to RandomVariableUniqueVariable */
-		RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;
+		final RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;
 
 		/* now we have access to the internal variables of the new RandomVarialeUniqueVariable */
 		variableID = newrandomvariableuniquevariable.getVariableID();
@@ -107,7 +107,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 			return null;
 		}
 
-		int[] parentIDs = new int[parentsVariables.size()];
+		final int[] parentIDs = new int[parentsVariables.size()];
 
 		for(int i = 0; i < parentsVariables.size(); i++){
 			parentIDs[i] = parentsVariables.get(i).getVariableID();
@@ -140,9 +140,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 
 	private ArrayList<RandomVariable> getParentRandomVariables(){
 
-		ArrayList<RandomVariable> parentrandomvariables = new ArrayList<>();
+		final ArrayList<RandomVariable> parentrandomvariables = new ArrayList<>();
 
-		for(RandomVariableUniqueVariable parent:parentsVariables){
+		for(final RandomVariableUniqueVariable parent:parentsVariables){
 			parentrandomvariables.add(parent.getRandomVariable());
 		}
 
@@ -165,7 +165,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -181,7 +181,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	}
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		return getRandomVariable().get(pathOrState);
 	}
 
@@ -245,7 +245,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -263,7 +263,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -290,7 +290,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -308,7 +308,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -317,7 +317,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
 	 */
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -326,7 +326,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -335,7 +335,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
 	 */
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -344,7 +344,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
 	 */
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		return getRandomVariable().getHistogram(intervalPoints);
 	}
 
@@ -352,7 +352,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
 	 */
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		return getRandomVariable().getHistogram(numberOfPoints, standardDeviations);
 	}
 
@@ -372,7 +372,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#floor(double)
 	 */
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -381,7 +381,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#add(double)
 	 */
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -390,7 +390,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(double)
 	 */
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -399,7 +399,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(double)
 	 */
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -408,7 +408,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#div(double)
 	 */
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -417,7 +417,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#pow(double)
 	 */
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return null;
 	}
 
@@ -478,7 +478,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return apply(OperatorType.ADD, new RandomVariable[] {this, randomVariable});
 	}
 
@@ -486,12 +486,12 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return apply(OperatorType.SUB, new RandomVariable[] {this, randomVariable});
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return apply(OperatorType.SUB, new RandomVariable[] {randomVariable, this});
 	}
 
@@ -499,7 +499,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		return apply(OperatorType.MULT, new RandomVariable[] {this, randomVariable});
 	}
 
@@ -507,12 +507,12 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#div(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariable[] {this, randomVariable});
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariable[] {randomVariable, this});
 	}
 
@@ -520,7 +520,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#cap(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
+	public RandomVariable cap(final RandomVariable cap) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -529,7 +529,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#floor(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -538,7 +538,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -547,13 +547,13 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#discount(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return null;
 	}
 
@@ -579,7 +579,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -588,7 +588,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -597,7 +597,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -606,7 +606,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -626,7 +626,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @param obj any object that should be tested.
 	 * @return <i>true</i> if object can be casted to {@link RandomVariableUniqueVariable}, else <i>false</i>
 	 * */
-	private boolean isUpcastableToRandomVariableUniqueVariable(Object obj){
+	private boolean isUpcastableToRandomVariableUniqueVariable(final Object obj){
 		return (obj instanceof RandomVariableUniqueVariable);
 	}
 
@@ -634,9 +634,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 *  If the entries in the array are not an instance of {@link RandomVariableUniqueVariable}
 	 *  generate a new {@link RandomVariableUniqueVariable} and consider them as constants.
 	 * */
-	private RandomVariableUniqueVariable apply(OperatorType operatortype, RandomVariable[] operatorVariables){
+	private RandomVariableUniqueVariable apply(final OperatorType operatortype, final RandomVariable[] operatorVariables){
 
-		ArrayList<RandomVariableUniqueVariable> parentVariables = new ArrayList<>();
+		final ArrayList<RandomVariableUniqueVariable> parentVariables = new ArrayList<>();
 
 		for(int i = 0; i < operatorVariables.length; i++){
 			/*
@@ -712,10 +712,10 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	public RandomVariable[] getGradient(){
 
 		// for now let us take the case for output-dimension equal to one!
-		int numberOfVariables = getNumberOfVariablesInList();
-		int numberOfCalculationSteps = factory.getNumberOfEntriesInList();
+		final int numberOfVariables = getNumberOfVariablesInList();
+		final int numberOfCalculationSteps = factory.getNumberOfEntriesInList();
 
-		RandomVariable[] omega_hat = new RandomVariable[numberOfCalculationSteps];
+		final RandomVariable[] omega_hat = new RandomVariable[numberOfCalculationSteps];
 
 		// first entry gets initialized
 		omega_hat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);
@@ -730,9 +730,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 			omega_hat[functionIndex] = new RandomVariableFromDoubleArray(0.0);
 
 			/*TODO: save all D_{i,j}*\omega_j in vector and sum up later */
-			for(RandomVariableUniqueVariable parent:parentsVariables){
+			for(final RandomVariableUniqueVariable parent:parentsVariables){
 
-				int variableIndex = parent.getVariableID();
+				final int variableIndex = parent.getVariableID();
 
 				omega_hat[functionIndex] = omega_hat[functionIndex].add(getPartialDerivative(functionIndex, variableIndex).mult(omega_hat[variableIndex]));
 			}
@@ -741,10 +741,10 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 		/* Due to the fact that we can still introduce 'new' true variables on the fly they are NOT the last couple of indices!
 		 * Thus save the indices of the true variables and recover them after finalizing all the calculations
 		 * IDEA: quit calculation after minimal true variable index is reached */
-		RandomVariable[] gradient = new RandomVariable[numberOfVariables];
+		final RandomVariable[] gradient = new RandomVariable[numberOfVariables];
 
 		/* TODO: sort array in correct manner! */
-		int[] indicesOfVariables = getIDsOfVariablesInList();
+		final int[] indicesOfVariables = getIDsOfVariablesInList();
 
 		for(int i = 0; i < numberOfVariables; i++){
 			gradient[i] = omega_hat[numberOfCalculationSteps - numberOfVariables + indicesOfVariables[i]];
@@ -755,9 +755,9 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 
 	private ArrayList<RandomVariableUniqueVariable> getListOfDependingTrueVariables(){
 
-		ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = new ArrayList<>();
+		final ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = new ArrayList<>();
 
-		for(RandomVariableUniqueVariable parent:parentsVariables){
+		for(final RandomVariableUniqueVariable parent:parentsVariables){
 			if(parent.isVariable() && !listOfDependingTrueVariables.contains(parent)){
 				listOfDependingTrueVariables.add(parent);
 			} else if (parent.getParentIDs() != null){
@@ -769,11 +769,11 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	}
 
 	private int[] getIDsOfVariablesInList() {
-		int[] IDsOfVariablesInList = new int[getNumberOfVariablesInList()];
+		final int[] IDsOfVariablesInList = new int[getNumberOfVariablesInList()];
 
-		ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = getListOfDependingTrueVariables();
+		final ArrayList<RandomVariableUniqueVariable> listOfDependingTrueVariables = getListOfDependingTrueVariables();
 
-		for(RandomVariableUniqueVariable variable:listOfDependingTrueVariables){
+		for(final RandomVariableUniqueVariable variable:listOfDependingTrueVariables){
 			IDsOfVariablesInList[listOfDependingTrueVariables.indexOf(variable)] = variable.getVariableID();
 		}
 
@@ -789,14 +789,14 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	 * @param variableIndex
 	 * @return
 	 */
-	private RandomVariable getPartialDerivative(int functionIndex, int variableIndex) {
+	private RandomVariable getPartialDerivative(final int functionIndex, final int variableIndex) {
 
 		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) {
 			return new RandomVariableFromDoubleArray(0.0);
 		}
 
-		RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
-		ArrayList<RandomVariable> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
+		final RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
+		final ArrayList<RandomVariable> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
 
 		RandomVariable resultrandomvariable;
 
@@ -865,7 +865,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -881,17 +881,17 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }

@@ -58,21 +58,21 @@ public class CMSOptionTest {
 	public void testCMSOption() throws CalculationException {
 
 		// Create a flat forward rate curve
-		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards("forwardCurve",
+		final ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards("forwardCurve",
 				new double[] { 0.0, numberOfPeriods*periodLength },
 				new double[] { initialValue, initialValue },
 				periodLength);
 
 		// Create a LIBOR market model Monte-Carlo simulation
-		LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation = this.getLIBORModelMonteCarloSimulation(forwardCurve);
+		final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation = this.getLIBORModelMonteCarloSimulation(forwardCurve);
 
-		double		exerciseDate	= 5.0;
-		double[]	fixingDates		= {5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
-		double[]	paymentDates	= {5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
-		double[]	swapTenor		= {5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
-		double[]	periodLengths	= {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-		double		strike			= 0.100;
-		double[]	swaprates		= new double[periodLengths.length];
+		final double		exerciseDate	= 5.0;
+		final double[]	fixingDates		= {5.0, 5.5, 6.0, 6.5, 7.0, 7.5};
+		final double[]	paymentDates	= {5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
+		final double[]	swapTenor		= {5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
+		final double[]	periodLengths	= {0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+		final double		strike			= 0.100;
+		final double[]	swaprates		= new double[periodLengths.length];
 		java.util.Arrays.fill(swaprates, strike);
 
 		/*
@@ -80,29 +80,29 @@ public class CMSOptionTest {
 		 */
 
 		// Calculate approximate swaprate volatility from LIBOR market model (analytic).
-		SwaptionAnalyticApproximation swaptionAnalytic	= new SwaptionAnalyticApproximation(strike, swapTenor, SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCELOGNORMAL);
-		double swaprateIntegratedVariance				= swaptionAnalytic.getValue(liborMarketModelMonteCarloSimulation);
-		double swaprateVolatility						= Math.sqrt(swaprateIntegratedVariance/exerciseDate);
+		final SwaptionAnalyticApproximation swaptionAnalytic	= new SwaptionAnalyticApproximation(strike, swapTenor, SwaptionAnalyticApproximation.ValueUnit.INTEGRATEDVARIANCELOGNORMAL);
+		final double swaprateIntegratedVariance				= swaptionAnalytic.getValue(liborMarketModelMonteCarloSimulation);
+		final double swaprateVolatility						= Math.sqrt(swaprateIntegratedVariance/exerciseDate);
 
 		// Create CMS Option
-		CMSOption	cmsOption	= new CMSOption(exerciseDate, fixingDates, paymentDates, periodLengths, strike);
+		final CMSOption	cmsOption	= new CMSOption(exerciseDate, fixingDates, paymentDates, periodLengths, strike);
 
 		// Value using LMM
-		double valueCMSOptionLMM = cmsOption.getValue(liborMarketModelMonteCarloSimulation);
+		final double valueCMSOptionLMM = cmsOption.getValue(liborMarketModelMonteCarloSimulation);
 		System.out.println("CMS Option with LIBOR Market Model..........................:\t" + formatterPercent.format(valueCMSOptionLMM));
 
 		// Value using analytics model
-		double valueCMSOptionHK	= cmsOption.getValue(forwardCurve, swaprateVolatility);
+		final double valueCMSOptionHK	= cmsOption.getValue(forwardCurve, swaprateVolatility);
 		System.out.println("CMS Option with Hunt-Kennedy/Black-Scholes..................:\t" + formatterPercent.format(valueCMSOptionHK));
 
 		// Value using convexity adjusted forward rate in a Black-Scholes formula
-		TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
-		TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
-		double rate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
-		double swapAnnuity			= SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-		double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1]-swapTenor[0]);
-		double adjustedCMSRate = AnalyticFormulas.huntKennedyCMSAdjustedRate(rate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit);
-		double valueCMSOptionHKAdjRate	= AnalyticFormulas.blackModelSwaptionValue(adjustedCMSRate, swaprateVolatility, exerciseDate, strike, payoffUnit) * (swapTenor[1]-swapTenor[0]);
+		final TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
+		final TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
+		final double rate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
+		final double swapAnnuity			= SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
+		final double payoffUnit			= SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1]-swapTenor[0]);
+		final double adjustedCMSRate = AnalyticFormulas.huntKennedyCMSAdjustedRate(rate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit);
+		final double valueCMSOptionHKAdjRate	= AnalyticFormulas.blackModelSwaptionValue(adjustedCMSRate, swaprateVolatility, exerciseDate, strike, payoffUnit) * (swapTenor[1]-swapTenor[0]);
 		System.out.println("CMS Option with Black-Scholes using Adjusted Forward Swapate:\t" + formatterPercent.format(valueCMSOptionHKAdjRate));
 
 		System.out.println("\nInfo:");
@@ -116,34 +116,34 @@ public class CMSOptionTest {
 		/*
 		 * Value a caplet with same fixing date
 		 */
-		Caplet		caplet		= new Caplet(fixingDates[0], periodLengths[0], strike);
-		double valueCaplet = caplet.getValue(liborMarketModelMonteCarloSimulation);
+		final Caplet		caplet		= new Caplet(fixingDates[0], periodLengths[0], strike);
+		final double valueCaplet = caplet.getValue(liborMarketModelMonteCarloSimulation);
 		System.out.println("Caplet with LIBOR Market Model..............................:\t" + formatterPercent.format(valueCaplet));
 
 		/*
 		 * Value a swaption with same swap tenor and exercise date
 		 */
-		Swaption	swaption			= new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates);
-		double		swaptionNotional	= payoffUnit / swapAnnuity * (swapTenor[1]-swapTenor[0]);
+		final Swaption	swaption			= new Swaption(exerciseDate, fixingDates, paymentDates, periodLengths, swaprates);
+		final double		swaptionNotional	= payoffUnit / swapAnnuity * (swapTenor[1]-swapTenor[0]);
 
-		double valueSwp = swaption.getValue(liborMarketModelMonteCarloSimulation);
+		final double valueSwp = swaption.getValue(liborMarketModelMonteCarloSimulation);
 		System.out.println("Swaption with LIBOR Market Model............................:\t" + formatterPercent.format(valueSwp * swaptionNotional));
 
-		double valueSwaptionAnalytic = swaption.getValue(forwardCurve, swaprateVolatility);
+		final double valueSwaptionAnalytic = swaption.getValue(forwardCurve, swaprateVolatility);
 		System.out.println("Swaption with Black-Scholes.................................:\t" + formatterPercent.format(valueSwaptionAnalytic * swaptionNotional));
 	}
 
-	public LIBORMonteCarloSimulationFromLIBORModel getLIBORModelMonteCarloSimulation(ForwardCurve forwardCurve) throws CalculationException {
+	public LIBORMonteCarloSimulationFromLIBORModel getLIBORModelMonteCarloSimulation(final ForwardCurve forwardCurve) throws CalculationException {
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
 		// Create the tenor discretization
-		TimeDiscretization tenorDiscretization = new TimeDiscretizationFromArray(0.0, numberOfPeriods, periodLength);
+		final TimeDiscretization tenorDiscretization = new TimeDiscretizationFromArray(0.0, numberOfPeriods, periodLength);
 
 		/*
 		 * Create LIBOR Market Model
 		 */
-		LIBORMarketModelFromCovarianceModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
+		final LIBORMarketModelFromCovarianceModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				tenorDiscretization,
 				forwardCurve,
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(
@@ -152,12 +152,12 @@ public class CMSOptionTest {
 						new LIBORCorrelationModelExponentialDecay(timeDiscretization, tenorDiscretization, numberOfFactors, correlationDecay, false))
 				);
 
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
+		final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 
 		return liborMarketModelMonteCarloSimulation;
 	}

@@ -25,11 +25,11 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 	private final RandomVariable[] elements;
 
-	public static RandomVariableArray of(RandomVariable[] elements) {
+	public static RandomVariableArray of(final RandomVariable[] elements) {
 		return new RandomVariableArrayImplementation(elements.clone());
 	}
 
-	private RandomVariableArrayImplementation(RandomVariable[] elements) {
+	private RandomVariableArrayImplementation(final RandomVariable[] elements) {
 		super();
 
 		if(elements.length == 0) {
@@ -37,7 +37,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 		}
 
 		// Ensure that all elements
-		int level = getLevel(elements[0]);
+		final int level = getLevel(elements[0]);
 		for(int i=1; i<elements.length; i++) {
 			if(getLevel(elements[i]) != level) {
 				throw new IllegalArgumentException("Elements must be of same array type.");
@@ -47,7 +47,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 		this.elements = elements;
 	}
 
-	private int getLevel(RandomVariable randomVariable) {
+	private int getLevel(final RandomVariable randomVariable) {
 		if(randomVariable instanceof RandomVariableArray) {
 			return ((RandomVariableArray) randomVariable).getLevel();
 		}
@@ -62,13 +62,13 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariable getElement(int index) {
+	public RandomVariable getElement(final int index) {
 		return elements[index];
 	}
 
 	@Override
-	public RandomVariableArray map(Function<RandomVariable, RandomVariable> operator) {
-		RandomVariable[] newElments = new RandomVariable[getNumberOfElements()];
+	public RandomVariableArray map(final Function<RandomVariable, RandomVariable> operator) {
+		final RandomVariable[] newElments = new RandomVariable[getNumberOfElements()];
 		for(int i=1; i<elements.length; i++) {
 			newElments[i] = operator.apply(elements[i]);
 		}
@@ -76,7 +76,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariable sumProduct(RandomVariableArray array) {
+	public RandomVariable sumProduct(final RandomVariableArray array) {
 		RandomVariable result = elements[0].mult(array.getElement(0));
 		for(int i=1; i<elements.length; i++) {
 			result = result.add(elements[i].mult(array.getElement(i)));
@@ -89,7 +89,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	 */
 
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		boolean equal = (randomVariable instanceof RandomVariableArray);
 		for(int i=0; i<getNumberOfElements() && equal; i++) {
 			equal &= getElement(i).equals(((RandomVariableArray)randomVariable).getElement(i));
@@ -113,7 +113,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -179,7 +179,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -189,7 +189,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -204,7 +204,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -214,32 +214,32 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -249,100 +249,100 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.apply(operator);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.apply(operator, argument);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.apply(operator, argument1, argument2);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.cap(cap);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.floor(floor);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.add(value);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.sub(value);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.mult(value);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.div(value);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.pow(exponent);
 			}
 		});
@@ -352,7 +352,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable average() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.average();
 			}
 		});
@@ -362,7 +362,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable squared() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.squared();
 			}
 		});
@@ -372,7 +372,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable sqrt() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.sqrt();
 			}
 		});
@@ -382,7 +382,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable exp() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.exp();
 			}
 		});
@@ -392,7 +392,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable log() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.log();
 			}
 		});
@@ -402,7 +402,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable sin() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.sin();
 			}
 		});
@@ -412,117 +412,117 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable cos() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.cos();
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.add(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.sub(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.bus(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.mult(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.div(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.vid(randomVariable);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
+	public RandomVariable cap(final RandomVariable cap) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.cap(cap);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.cap(floor);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.accrue(rate, periodLength);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.discount(rate, periodLength);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.choose(valueIfTriggerNonNegative, valueIfTriggerNegative);
 			}
 		});
@@ -532,7 +532,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable invert() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.invert();
 			}
 		});
@@ -542,47 +542,47 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable abs() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.abs();
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.addProduct(factor1, factor2);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.addProduct(factor1, factor2);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.addRatio(numerator, denominator);
 			}
 		});
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.subRatio(numerator, denominator);
 			}
 		});
@@ -592,7 +592,7 @@ public class RandomVariableArrayImplementation implements RandomVariableArray {
 	public RandomVariable isNaN() {
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return x.isNaN();
 			}
 		});

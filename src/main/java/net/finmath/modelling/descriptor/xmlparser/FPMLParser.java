@@ -37,8 +37,8 @@ public class FPMLParser implements XMLParser {
 	private final String homePartyId;
 	private final String discountCurveName;
 
-	private AbstractBusinessdayCalendar abstractBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-	private ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;
+	private final AbstractBusinessdayCalendar abstractBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+	private final ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;
 
 	/**
 	 * Construct the parser.
@@ -46,16 +46,16 @@ public class FPMLParser implements XMLParser {
 	 * @param homePartyId Id of the agent doing the valuation.
 	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
 	 */
-	public FPMLParser(String homePartyId, String discountCurveName) {
+	public FPMLParser(final String homePartyId, final String discountCurveName) {
 		super();
 		this.homePartyId = homePartyId;
 		this.discountCurveName = discountCurveName;
 	}
 
 	@Override
-	public ProductDescriptor getProductDescriptor(File file) throws SAXException, IOException, ParserConfigurationException {
+	public ProductDescriptor getProductDescriptor(final File file) throws SAXException, IOException, ParserConfigurationException {
 
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
+		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
 		doc.getDocumentElement().normalize();
 
 		//Check compatibility and assign proper parser
@@ -71,7 +71,7 @@ public class FPMLParser implements XMLParser {
 		Element trade = null;
 		String tradeName = null;
 
-		NodeList tradeWrapper = doc.getElementsByTagName("trade").item(0).getChildNodes();
+		final NodeList tradeWrapper = doc.getElementsByTagName("trade").item(0).getChildNodes();
 		for(int index = 0; index < tradeWrapper.getLength(); index++) {
 			if(tradeWrapper.item(index).getNodeType() != Node.ELEMENT_NODE) {
 				continue;
@@ -98,16 +98,16 @@ public class FPMLParser implements XMLParser {
 	 * @param trade The node containing the swap.
 	 * @return Descriptor of the swap.
 	 */
-	private ProductDescriptor getSwapProductDescriptor(Element trade) {
+	private ProductDescriptor getSwapProductDescriptor(final Element trade) {
 
 		InterestRateSwapLegProductDescriptor legReceiver = null;
 		InterestRateSwapLegProductDescriptor legPayer = null;
 
-		NodeList legs = trade.getElementsByTagName("swapStream");
+		final NodeList legs = trade.getElementsByTagName("swapStream");
 		for(int legIndex = 0; legIndex < legs.getLength(); legIndex++) {
-			Element leg = (Element) legs.item(legIndex);
+			final Element leg = (Element) legs.item(legIndex);
 
-			boolean isPayer = leg.getElementsByTagName("payerPartyReference").item(0).getAttributes().getNamedItem("href").getNodeValue().equals(homePartyId);
+			final boolean isPayer = leg.getElementsByTagName("payerPartyReference").item(0).getAttributes().getNamedItem("href").getNodeValue().equals(homePartyId);
 
 			if(isPayer) {
 				legPayer = getSwapLegProductDescriptor(leg);
@@ -125,14 +125,14 @@ public class FPMLParser implements XMLParser {
 	 * @param leg The node containing the leg.
 	 * @return Descriptor of the swap leg.
 	 */
-	private InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(Element leg) {
+	private InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(final Element leg) {
 
 		//is this a fixed rate leg?
-		boolean isFixed = leg.getElementsByTagName("calculationPeriodDates").item(0).getAttributes().getNamedItem("id").getTextContent().equalsIgnoreCase("fixedCalcPeriodDates");
+		final boolean isFixed = leg.getElementsByTagName("calculationPeriodDates").item(0).getAttributes().getNamedItem("id").getTextContent().equalsIgnoreCase("fixedCalcPeriodDates");
 
 		//get start and end dates of contract
-		LocalDate startDate		= LocalDate.parse(((Element) leg.getElementsByTagName("effectiveDate").item(0)).getElementsByTagName("unadjustedDate").item(0).getTextContent());
-		LocalDate maturityDate	= LocalDate.parse(((Element) leg.getElementsByTagName("terminationDate").item(0)).getElementsByTagName("unadjustedDate").item(0).getTextContent());
+		final LocalDate startDate		= LocalDate.parse(((Element) leg.getElementsByTagName("effectiveDate").item(0)).getElementsByTagName("unadjustedDate").item(0).getTextContent());
+		final LocalDate maturityDate	= LocalDate.parse(((Element) leg.getElementsByTagName("terminationDate").item(0)).getElementsByTagName("unadjustedDate").item(0).getTextContent());
 
 		//determine fixing/payment offset if available
 		int fixingOffsetDays = 0;
@@ -147,15 +147,15 @@ public class FPMLParser implements XMLParser {
 		//Crop xml date roll convention to match internal format
 		String xmlInput = ((Element) leg.getElementsByTagName("calculationPeriodDatesAdjustments").item(0)).getElementsByTagName("businessDayConvention").item(0).getTextContent();
 		xmlInput = xmlInput.replaceAll("ING", "");
-		DateRollConvention dateRollConvention = DateRollConvention.getEnum(xmlInput);
+		final DateRollConvention dateRollConvention = DateRollConvention.getEnum(xmlInput);
 
 		//get daycount convention
-		DaycountConvention daycountConvention = DaycountConvention.getEnum(leg.getElementsByTagName("dayCountFraction").item(0).getTextContent());
+		final DaycountConvention daycountConvention = DaycountConvention.getEnum(leg.getElementsByTagName("dayCountFraction").item(0).getTextContent());
 
 		//get trade frequency
 		Frequency frequency = null;
-		Element calcNode = (Element) leg.getElementsByTagName("calculationPeriodFrequency").item(0);
-		int multiplier = Integer.parseInt(calcNode.getElementsByTagName("periodMultiplier").item(0).getTextContent());
+		final Element calcNode = (Element) leg.getElementsByTagName("calculationPeriodFrequency").item(0);
+		final int multiplier = Integer.parseInt(calcNode.getElementsByTagName("periodMultiplier").item(0).getTextContent());
 		switch(calcNode.getElementsByTagName("period").item(0).getTextContent().toUpperCase()) {
 		case "D" : if(multiplier == 1) {frequency = Frequency.DAILY;} break;
 		case "Y" : if(multiplier == 1) {frequency = Frequency.ANNUAL;} break;
@@ -167,11 +167,11 @@ public class FPMLParser implements XMLParser {
 		}
 
 		//build schedule
-		ScheduleDescriptor schedule = new ScheduleDescriptor(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
+		final ScheduleDescriptor schedule = new ScheduleDescriptor(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
 				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays);
 
 		// get notional
-		double notional = Double.parseDouble(((Element) leg.getElementsByTagName("notionalSchedule").item(0)).getElementsByTagName("initialValue").item(0).getTextContent());
+		final double notional = Double.parseDouble(((Element) leg.getElementsByTagName("notionalSchedule").item(0)).getElementsByTagName("initialValue").item(0).getTextContent());
 
 		// get fixed rate and forward curve if applicable
 		double spread = 0;

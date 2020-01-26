@@ -33,7 +33,7 @@ public class DataTableLight implements DataTable, Cloneable {
 	 * @param name The name of the table.
 	 * @param tableConvention The convention of the table.
 	 */
-	public DataTableLight(String name, TableConvention tableConvention){
+	public DataTableLight(final String name, final TableConvention tableConvention){
 		this.name = name;
 		this.convention = tableConvention;
 	}
@@ -47,7 +47,7 @@ public class DataTableLight implements DataTable, Cloneable {
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableLight(String name, TableConvention tableConvention, int[] maturities, int[] terminations, double[] values){
+	public DataTableLight(final String name, final TableConvention tableConvention, final int[] maturities, final int[] terminations, final double[] values){
 		this(name, tableConvention);
 
 		if(maturities.length != terminations.length || maturities.length != values.length ) {
@@ -71,7 +71,7 @@ public class DataTableLight implements DataTable, Cloneable {
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableLight(String name, TableConvention tableConvention, List<Integer> maturities, List<Integer> terminations, List<Double> values) {
+	public DataTableLight(final String name, final TableConvention tableConvention, final List<Integer> maturities, final List<Integer> terminations, final List<Double> values) {
 		this(name, tableConvention);
 
 		if(maturities.size() != terminations.size() || maturities.size() != values.size() ) {
@@ -80,9 +80,9 @@ public class DataTableLight implements DataTable, Cloneable {
 		}
 
 		for(int index = 0; index < maturities.size(); index++) {
-			int mat = maturities.get(index);
-			int term = terminations.get(index);
-			double val =values.get(index);
+			final int mat = maturities.get(index);
+			final int term = terminations.get(index);
+			final double val =values.get(index);
 
 			entries.put(new DataKey(mat, term), val);
 			maturitySet.add(mat);
@@ -91,8 +91,8 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public DataTableLight addPoint(int maturity, int termination, double value) {
-		DataTableLight newTable = clone();
+	public DataTableLight addPoint(final int maturity, final int termination, final double value) {
+		final DataTableLight newTable = clone();
 		newTable.entries.put(new DataKey(maturity, termination),value);
 		newTable.maturitySet.add(maturity);
 		newTable.terminationSet.add(termination);
@@ -100,8 +100,8 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public DataTableLight addPoints(int[] maturities, int[] terminations, double[] values) {
-		DataTableLight newTable = clone();
+	public DataTableLight addPoints(final int[] maturities, final int[] terminations, final double[] values) {
+		final DataTableLight newTable = clone();
 		for(int index = 0; index < maturities.length; index++) {
 			newTable.entries.put(new DataKey(maturities[index], terminations[index]), values[index]);
 			newTable.maturitySet.add(maturities[index]);
@@ -111,8 +111,8 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public double getValue(int maturity, int termination) {
-		DataKey key = new DataKey(maturity, termination);
+	public double getValue(final int maturity, final int termination) {
+		final DataKey key = new DataKey(maturity, termination);
 		if(entries.containsKey(key)) {
 			return entries.get(new DataKey(maturity,termination));
 		} else {
@@ -121,7 +121,7 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public boolean containsEntryFor(int maturity, int termination) {
+	public boolean containsEntryFor(final int maturity, final int termination) {
 		return entries.containsKey(new DataKey(maturity, termination));
 	}
 
@@ -136,10 +136,10 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
+	public TreeSet<Integer> getTerminationsForMaturity(final int maturity){
 		if(maturitySet.contains(maturity)) {
-			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int termination:terminationSet) {
+			final TreeSet<Integer> returnSet = new TreeSet<>();
+			for(final int termination:terminationSet) {
 				if(entries.containsKey(new DataKey(maturity,termination))) {
 					returnSet.add(termination);
 				}
@@ -151,10 +151,10 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
+	public TreeSet<Integer> getMaturitiesForTermination(final int termination) {
 		if(terminationSet.contains(termination)) {
-			TreeSet<Integer> returnSet = new TreeSet<>();
-			for(int maturity: maturitySet) {
+			final TreeSet<Integer> returnSet = new TreeSet<>();
+			for(final int maturity: maturitySet) {
 				if(entries.containsKey(new DataKey(maturity,termination))) {
 					returnSet.add(maturity);
 				}
@@ -177,7 +177,7 @@ public class DataTableLight implements DataTable, Cloneable {
 
 	@Override
 	public DataTableLight clone() {
-		DataTableLight newTable = new DataTableLight(name, convention);
+		final DataTableLight newTable = new DataTableLight(name, convention);
 		newTable.entries.putAll(entries);
 		newTable.maturitySet.addAll(maturitySet);
 		newTable.terminationSet.addAll(terminationSet);
@@ -195,16 +195,16 @@ public class DataTableLight implements DataTable, Cloneable {
 	 * @param unit A value with which each entry of the table is multiplied before displaying.
 	 * @return A String representation of the table.
 	 */
-	public String toString(double unit) {
-		StringBuilder builder = new StringBuilder();
+	public String toString(final double unit) {
+		final StringBuilder builder = new StringBuilder();
 		builder.append("Name: " +name+ ", TableConvention: " +convention+ ",\n");
-		for(int termination : terminationSet) {
+		for(final int termination : terminationSet) {
 			builder.append("\t"+termination);
 		}
-		for(int maturity: maturitySet) {
+		for(final int maturity: maturitySet) {
 			builder.append("\n"+maturity);
-			for(int termination:terminationSet) {
-				DataKey key = new DataKey(maturity, termination);
+			for(final int termination:terminationSet) {
+				final DataKey key = new DataKey(maturity, termination);
 				builder.append('\t');
 				if(entries.containsKey(key)) {
 					builder.append(entries.get(key) * unit);
@@ -230,8 +230,8 @@ public class DataTableLight implements DataTable, Cloneable {
 	private static class DataKey implements Serializable {
 
 		private static final long serialVersionUID = 3391432439373885684L;
-		private int maturity;
-		private int termination;
+		private final int maturity;
+		private final int termination;
 
 		/**
 		 * Create key from int.
@@ -239,13 +239,13 @@ public class DataTableLight implements DataTable, Cloneable {
 		 * @param maturity
 		 * @param termination
 		 */
-		DataKey(int maturity, int termination){
+		DataKey(final int maturity, final int termination){
 			this.maturity = maturity;
 			this.termination = termination;
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final Object other) {
 			if(this == other) {
 				return true;
 			}
@@ -275,12 +275,12 @@ public class DataTableLight implements DataTable, Cloneable {
 	}
 
 	@Override
-	public double getValue(double maturity, double termination) {
+	public double getValue(final double maturity, final double termination) {
 		throw new UnsupportedOperationException("Table " +getName()+ " of class "+getClass()+" does not support access via double.");
 	}
 
 	@Override
-	public boolean containsEntryFor(double maturity, double termination) {
+	public boolean containsEntryFor(final double maturity, final double termination) {
 		throw new UnsupportedOperationException("Table " +getName()+ " of class "+getClass()+" does not support access via double.");
 	}
 

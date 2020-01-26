@@ -24,7 +24,7 @@ public class EuropeanOptionDeltaLikelihood extends AbstractAssetMonteCarloProduc
 	private final double	maturity;
 	private final double	strike;
 
-	private boolean	isLikelihoodByFiniteDifference = true;
+	private final boolean	isLikelihoodByFiniteDifference = true;
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -32,7 +32,7 @@ public class EuropeanOptionDeltaLikelihood extends AbstractAssetMonteCarloProduc
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public EuropeanOptionDeltaLikelihood(double maturity, double strike) {
+	public EuropeanOptionDeltaLikelihood(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -49,23 +49,23 @@ public class EuropeanOptionDeltaLikelihood extends AbstractAssetMonteCarloProduc
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		BlackScholesModel blackScholesModel;
 		try {
 			blackScholesModel = (BlackScholesModel)((MonteCarloAssetModel)model).getModel();
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			throw new ClassCastException("This method requires a Black-Scholes type model (MonteCarloBlackScholesModel).");
 		}
 
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, 0);
-		RandomVariable underlyingAtToday		= model.getAssetValue(evaluationTime, 0);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, 0);
+		final RandomVariable underlyingAtToday		= model.getAssetValue(evaluationTime, 0);
 
-		RandomVariable r = blackScholesModel.getRiskFreeRate();
-		RandomVariable sigma = blackScholesModel.getVolatility();
-		double T = maturity;
+		final RandomVariable r = blackScholesModel.getRiskFreeRate();
+		final RandomVariable sigma = blackScholesModel.getVolatility();
+		final double T = maturity;
 
 		/*
 		 * Calculate the likelihood ratio
@@ -75,13 +75,13 @@ public class EuropeanOptionDeltaLikelihood extends AbstractAssetMonteCarloProduc
 			/*
 			 * Using finite difference to calculate the derivative of log(phi(x))
 			 */
-			double h		= 1E-6;
+			final double h		= 1E-6;
 
-			RandomVariable x1 = underlyingAtMaturity.div(underlyingAtToday).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
-			RandomVariable logPhi1	= x1.squared().div(-2.0).exp().div(Math.sqrt(2 * Math.PI)).div(underlyingAtMaturity).div(sigma).div(Math.sqrt(T)).log();
+			final RandomVariable x1 = underlyingAtMaturity.div(underlyingAtToday).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
+			final RandomVariable logPhi1	= x1.squared().div(-2.0).exp().div(Math.sqrt(2 * Math.PI)).div(underlyingAtMaturity).div(sigma).div(Math.sqrt(T)).log();
 
-			RandomVariable x2 = underlyingAtMaturity.div(underlyingAtToday.add(h)).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
-			RandomVariable logPhi2	= x2.squared().div(-2.0).exp().div(Math.sqrt(2 * Math.PI)).div(underlyingAtMaturity).div(sigma).div(Math.sqrt(T)).log();
+			final RandomVariable x2 = underlyingAtMaturity.div(underlyingAtToday.add(h)).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
+			final RandomVariable logPhi2	= x2.squared().div(-2.0).exp().div(Math.sqrt(2 * Math.PI)).div(underlyingAtMaturity).div(sigma).div(Math.sqrt(T)).log();
 
 			likelihoodRatio		= logPhi2.sub(logPhi1).div(h);
 		}
@@ -89,20 +89,20 @@ public class EuropeanOptionDeltaLikelihood extends AbstractAssetMonteCarloProduc
 			/*
 			 * Analytic formula for d/dS0 log(phi(x)) with S0 = underlyingAtToday
 			 */
-			RandomVariable x = underlyingAtMaturity.div(underlyingAtToday).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
+			final RandomVariable x = underlyingAtMaturity.div(underlyingAtToday).log().sub(r.mult(T).sub(sigma.squared().mult(0.5*T))).div(sigma).div(Math.sqrt(T));
 			likelihoodRatio = x.div(underlyingAtToday).div(sigma).div(Math.sqrt(T));
 		}
 
 		RandomVariable values	= underlyingAtMaturity.sub(strike).floor(0.0).mult(likelihoodRatio);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

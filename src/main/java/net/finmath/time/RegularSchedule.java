@@ -20,14 +20,14 @@ import net.finmath.time.daycount.DayCountConvention;
  */
 public class RegularSchedule implements Schedule {
 
-	private TimeDiscretization timeDiscretization;
+	private final TimeDiscretization timeDiscretization;
 
 	/**
 	 * Create a schedule from a time discretization.
 	 *
 	 * @param timeDiscretization The time discretization.
 	 */
-	public RegularSchedule(TimeDiscretization timeDiscretization) {
+	public RegularSchedule(final TimeDiscretization timeDiscretization) {
 		this.timeDiscretization = timeDiscretization;
 	}
 
@@ -52,32 +52,32 @@ public class RegularSchedule implements Schedule {
 	}
 
 	@Override
-	public Period getPeriod(int periodIndex) {
+	public Period getPeriod(final int periodIndex) {
 		return null;
 	}
 
 	@Override
-	public double getFixing(int periodIndex) {
+	public double getFixing(final int periodIndex) {
 		return timeDiscretization.getTime(periodIndex);
 	}
 
 	@Override
-	public double getPayment(int periodIndex) {
+	public double getPayment(final int periodIndex) {
 		return timeDiscretization.getTime(periodIndex+1);
 	}
 
 	@Override
-	public double getPeriodStart(int periodIndex) {
+	public double getPeriodStart(final int periodIndex) {
 		return timeDiscretization.getTime(periodIndex);
 	}
 
 	@Override
-	public double getPeriodEnd(int periodIndex) {
+	public double getPeriodEnd(final int periodIndex) {
 		return timeDiscretization.getTime(periodIndex+1);
 	}
 
 	@Override
-	public double getPeriodLength(int periodIndex) {
+	public double getPeriodLength(final int periodIndex) {
 		return timeDiscretization.getTimeStep(periodIndex);
 	}
 
@@ -87,13 +87,13 @@ public class RegularSchedule implements Schedule {
 	}
 
 	@Override
-	public int getPeriodIndex(double time) {
+	public int getPeriodIndex(final double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 
 	@Override
-	public int getPeriodIndex(LocalDate date) {
-		double time= FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
+	public int getPeriodIndex(final LocalDate date) {
+		final double time= FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
 		return getPeriodIndex(time);
 	}
 }

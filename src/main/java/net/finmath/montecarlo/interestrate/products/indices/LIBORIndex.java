@@ -38,8 +38,8 @@ public class LIBORIndex extends AbstractIndex {
 
 
 
-	public LIBORIndex(String name, String currency, String paymentOffsetCode,
-			BusinessdayCalendar paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention) {
+	public LIBORIndex(final String name, final String currency, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final DateRollConvention paymentDateRollConvention) {
 		super(name, currency);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -55,7 +55,7 @@ public class LIBORIndex extends AbstractIndex {
 	 * @param periodStartOffset An offset added to the fixing to define the period start.
 	 * @param periodLength The period length
 	 */
-	public LIBORIndex(String name, double periodStartOffset, double periodLength) {
+	public LIBORIndex(final String name, final double periodStartOffset, final double periodLength) {
 		super(name, null);
 		paymentOffsetCode = null;
 		paymentBusinessdayCalendar = null;
@@ -70,12 +70,12 @@ public class LIBORIndex extends AbstractIndex {
 	 * @param periodStartOffset An offset added to the fixing to define the period start.
 	 * @param periodLength The period length
 	 */
-	public LIBORIndex(double periodStartOffset, double periodLength) {
+	public LIBORIndex(final double periodStartOffset, final double periodLength) {
 		this(null, periodStartOffset, periodLength);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Check if model provides this index
 		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
@@ -93,7 +93,7 @@ public class LIBORIndex extends AbstractIndex {
 		/*
 		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
 		 */
-		double periodLength = getPeriodLength(model, evaluationTime+periodStartOffset);
+		final double periodLength = getPeriodLength(model, evaluationTime+periodStartOffset);
 
 		/*
 		 * Fetch forward rate from model
@@ -102,13 +102,13 @@ public class LIBORIndex extends AbstractIndex {
 
 		if(getName() != null && !model.getModel().getForwardRateCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
-			AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+			final AnalyticModel analyticModel = model.getModel().getAnalyticModel();
 			if(analyticModel == null) {
 				throw new IllegalArgumentException("Index " + getName() + " does not aggree with model curve " + model.getModel().getForwardRateCurve().getName() + " and requires analytic model for adjustment. The analyticModel is null.");
 			}
-			ForwardCurve indexForwardCurve = analyticModel.getForwardCurve(getName());
-			ForwardCurve modelForwardCurve = model.getModel().getForwardRateCurve();
-			double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength);
+			final ForwardCurve indexForwardCurve = analyticModel.getForwardCurve(getName());
+			final ForwardCurve modelForwardCurve = model.getModel().getForwardRateCurve();
+			final double adjustment = (1.0 + indexForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength) / (1.0 + modelForwardCurve.getForward(analyticModel, evaluationTime+periodStartOffset, periodLength) * periodLength);
 			forwardRate = forwardRate.mult(periodLength).add(1.0).mult(adjustment).sub(1.0).div(periodLength);
 		}
 
@@ -124,12 +124,12 @@ public class LIBORIndex extends AbstractIndex {
 		return periodStartOffset;
 	}
 
-	public double getPeriodLength(LIBORModelMonteCarloSimulationModel model, double fixingTime) {
+	public double getPeriodLength(final LIBORModelMonteCarloSimulationModel model, final double fixingTime) {
 		if(paymentOffsetCode != null) {
-			LocalDateTime referenceDate = model.getReferenceDate();
-			LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
-			LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
-			double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
+			final LocalDateTime referenceDate = model.getReferenceDate();
+			final LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
+			final LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
+			final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
 
 			return paymentTime - fixingTime;
 		}
@@ -150,7 +150,7 @@ public class LIBORIndex extends AbstractIndex {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<>();
+		final Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

@@ -103,30 +103,30 @@ public abstract class StochasticPathwiseLevenbergMarquardtAD extends net.finmath
 	 */
 	private static final long serialVersionUID = -8852002990042152135L;
 
-	public StochasticPathwiseLevenbergMarquardtAD(List<RandomVariable> initialParameters, List<RandomVariable> targetValues, int maxIteration, ExecutorService executorService) {
+	public StochasticPathwiseLevenbergMarquardtAD(final List<RandomVariable> initialParameters, final List<RandomVariable> targetValues, final int maxIteration, final ExecutorService executorService) {
 		super(initialParameters, targetValues, maxIteration, executorService);
 	}
 
-	public StochasticPathwiseLevenbergMarquardtAD(List<RandomVariable> initialParameters, List<RandomVariable> targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardtAD(final List<RandomVariable> initialParameters, final List<RandomVariable> targetValues, final int maxIteration, final int numberOfThreads) {
 		super(initialParameters, targetValues, maxIteration, numberOfThreads);
 	}
 
 
-	public StochasticPathwiseLevenbergMarquardtAD(RandomVariable[] initialParameters, RandomVariable[] targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardtAD(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final int maxIteration, final int numberOfThreads) {
 		super(initialParameters, targetValues, maxIteration, numberOfThreads);
 	}
 
 
-	public StochasticPathwiseLevenbergMarquardtAD(RandomVariable[] initialParameters,
-			RandomVariable[] targetValues, RandomVariable[] weights,
-			RandomVariable[] parameterSteps, int maxIteration, RandomVariable errorTolerance,
-			ExecutorService executorService) {
+	public StochasticPathwiseLevenbergMarquardtAD(final RandomVariable[] initialParameters,
+			final RandomVariable[] targetValues, final RandomVariable[] weights,
+			final RandomVariable[] parameterSteps, final int maxIteration, final RandomVariable errorTolerance,
+			final ExecutorService executorService) {
 		super(initialParameters, targetValues, weights, parameterSteps, maxIteration, errorTolerance, executorService);
 	}
 
 
 	@Override
-	protected void prepareAndSetValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 		/**
 		 * Small modification to avoid growing operator trees.
 		 */
@@ -140,7 +140,7 @@ public abstract class StochasticPathwiseLevenbergMarquardtAD extends net.finmath
 	}
 
 	@Override
-	protected void prepareAndSetDerivatives(RandomVariable[] parameters, RandomVariable[] values, RandomVariable[][] derivatives) throws SolverException {
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
 		/*
 		 * Check if random variable is differentiable
 		 */
@@ -155,7 +155,7 @@ public abstract class StochasticPathwiseLevenbergMarquardtAD extends net.finmath
 
 		if(isRandomVariableDifferentiable) {
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
-				Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
+				final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
 				for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
 					derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiable)parameters[parameterIndex]).getID());
 				}

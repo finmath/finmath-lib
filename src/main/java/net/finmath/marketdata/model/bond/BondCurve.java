@@ -48,9 +48,9 @@ public class BondCurve extends AbstractCurve  {
 
 	private String name;
 	private LocalDate referenceDate;
-	private Curve referenceCurve;
-	private Curve spreadCurve;
-	private Type type;
+	private final Curve referenceCurve;
+	private final Curve spreadCurve;
+	private final Type type;
 
 	/**
 	 * Creates a bond curve.
@@ -62,11 +62,11 @@ public class BondCurve extends AbstractCurve  {
 	 * @param type The types of the given curves "referenceCurve" and "spreadCurve" (discount factor or zero rate)
 	 */
 	public BondCurve(
-			String name,
-			LocalDate referenceDate,
-			Curve referenceCurve,
-			Curve spreadCurve,
-			Type type
+			final String name,
+			final LocalDate referenceDate,
+			final Curve referenceCurve,
+			final Curve spreadCurve,
+			final Type type
 			) {
 		super(name,referenceDate);
 		this.referenceCurve=referenceCurve;
@@ -75,12 +75,12 @@ public class BondCurve extends AbstractCurve  {
 	}
 
 	@Override
-	public double getValue(double time) {
+	public double getValue(final double time) {
 		return getValue(null,time);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		switch(type) {
 		case DISCOUNTFACTOR_DISCOUNTFACTOR:
 			return referenceCurve.getValue(model, time)*spreadCurve.getValue(model, time);
@@ -94,11 +94,11 @@ public class BondCurve extends AbstractCurve  {
 		}
 	}
 
-	public double getDiscountFactor(double time) {
+	public double getDiscountFactor(final double time) {
 		return getValue(time);
 	}
 
-	public double getDiscountFactor(AnalyticModel model, double time) {
+	public double getDiscountFactor(final AnalyticModel model, final double time) {
 		return getValue(model, time);
 	}
 
@@ -109,7 +109,7 @@ public class BondCurve extends AbstractCurve  {
 	 * @param maturity The given maturity.
 	 * @return The zero rate.
 	 */
-	public double getZeroRate(double maturity)
+	public double getZeroRate(final double maturity)
 	{
 		if(maturity == 0) {
 			return this.getZeroRate(1.0E-14);
@@ -153,7 +153,7 @@ public class BondCurve extends AbstractCurve  {
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		// TODO Auto-generated method stub
 
 	}

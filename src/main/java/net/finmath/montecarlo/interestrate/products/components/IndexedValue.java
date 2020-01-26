@@ -21,9 +21,9 @@ import net.finmath.stochastic.RandomVariable;
 public class IndexedValue extends AbstractProductComponent {
 
 	private static final long serialVersionUID = -7268432817913776974L;
-	private double exerciseDate;
-	private AbstractProductComponent index;
-	private AbstractProductComponent underlying;
+	private final double exerciseDate;
+	private final AbstractProductComponent index;
+	private final AbstractProductComponent underlying;
 
 	/**
 	 * Creates the function J(t) V(t), where J(t) = E(I(t)|F_t) for the given I(t).
@@ -32,7 +32,7 @@ public class IndexedValue extends AbstractProductComponent {
 	 * @param index The index I.
 	 * @param underlying The value V.
 	 */
-	public IndexedValue(double exerciseDate, AbstractProductComponent index, AbstractProductComponent underlying) {
+	public IndexedValue(final double exerciseDate, final AbstractProductComponent index, final AbstractProductComponent underlying) {
 		super();
 		this.exerciseDate = exerciseDate;
 		this.index = index;
@@ -46,8 +46,8 @@ public class IndexedValue extends AbstractProductComponent {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = underlying.queryUnderlyings();
-		Set<String> indexUnderylingNames = index.queryUnderlyings();
+		final Set<String> underlyingNames = underlying.queryUnderlyings();
+		final Set<String> indexUnderylingNames = index.queryUnderlyings();
 		if(underlyingNames == null && indexUnderylingNames == null) {
 			return null;
 		} else if(underlyingNames != null && indexUnderylingNames == null) {
@@ -71,16 +71,16 @@ public class IndexedValue extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		double evaluationTimeUnderlying = Math.max(evaluationTime, exerciseDate);
+		final double evaluationTimeUnderlying = Math.max(evaluationTime, exerciseDate);
 
 		RandomVariable underlyingValues	= underlying.getValue(evaluationTimeUnderlying, model);
 		RandomVariable indexValues			= index.getValue(exerciseDate, model);
 
 		// Make index measurable w.r.t time exerciseDate
 		if(indexValues.getFiltrationTime() > exerciseDate && exerciseDate > evaluationTime) {
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
+			final MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
 
 			// Calculate cond. expectation.
 			indexValues         = condExpEstimator.getConditionalExpectation(indexValues);
@@ -91,8 +91,8 @@ public class IndexedValue extends AbstractProductComponent {
 
 		// Discount to evaluation time if necessary
 		if(evaluationTime != evaluationTimeUnderlying) {
-			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
-			RandomVariable	numeraire				= model.getNumeraire(evaluationTimeUnderlying);
+			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			final RandomVariable	numeraire				= model.getNumeraire(evaluationTimeUnderlying);
 			underlyingValues = underlyingValues.div(numeraire).mult(numeraireAtEval);
 		}
 
@@ -106,9 +106,9 @@ public class IndexedValue extends AbstractProductComponent {
 	 * @return
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariable[] getRegressionBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(final double exerciseDate, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		RandomVariable basisFunction;
 

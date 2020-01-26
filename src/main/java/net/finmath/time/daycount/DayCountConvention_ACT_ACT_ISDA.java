@@ -50,7 +50,7 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT impl
 	 *
 	 * @param isCountFirstDayNotLast If this value is false (default), the days are counted including the first day and excluding the last day. If this field is true, the days are counted excluding the first day and including the last day.
 	 */
-	public DayCountConvention_ACT_ACT_ISDA(boolean isCountFirstDayNotLast) {
+	public DayCountConvention_ACT_ACT_ISDA(final boolean isCountFirstDayNotLast) {
 		super();
 		isCountLastDayNotFirst = isCountFirstDayNotLast;
 	}
@@ -66,7 +66,7 @@ public class DayCountConvention_ACT_ACT_ISDA extends DayCountConvention_ACT impl
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}

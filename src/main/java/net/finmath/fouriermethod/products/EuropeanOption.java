@@ -29,7 +29,7 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 	private final double maturity;
 	private final double strike;
 
-	public EuropeanOption(String underlyingName, double maturity, double strike) {
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
 		super();
 		this.underlyingName = underlyingName;
 		this.maturity = maturity;
@@ -41,16 +41,16 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public EuropeanOption(double maturity, double strike) {
+	public EuropeanOption(final double maturity, final double strike) {
 		this(null, maturity, strike);
 	}
 
 	@Override
-	public Complex apply(Complex argument) {
-		Complex iargument = argument.multiply(Complex.I);
-		Complex exponent = (iargument).add(1);
-		Complex numerator = (new Complex(strike)).pow(exponent);
-		Complex denominator = (argument.multiply(argument)).subtract(iargument);
+	public Complex apply(final Complex argument) {
+		final Complex iargument = argument.multiply(Complex.I);
+		final Complex exponent = (iargument).add(1);
+		final Complex numerator = (new Complex(strike)).pow(exponent);
+		final Complex denominator = (argument.multiply(argument)).subtract(iargument);
 
 		return numerator.divide(denominator).negate();
 	}

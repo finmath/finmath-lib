@@ -41,7 +41,7 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	 *
 	 * @param descriptor The model descriptor for the Merton model.
 	 */
-	public CalibratableMertonModel(MertonModelDescriptor descriptor) {
+	public CalibratableMertonModel(final MertonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
 		volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
@@ -64,9 +64,9 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	 * @param jumpSizeMeanInfo The constraint for the jump size mean parameter.
 	 * @param jumpSizeStdDevInfo The constraint for the jump standard deviation parameter.
 	 */
-	public CalibratableMertonModel(MertonModelDescriptor descriptor, ScalarParameterInformation volatilityInfo,
-			ScalarParameterInformation jumpIntensityInfo, ScalarParameterInformation jumpSizeMeanInfo,
-			ScalarParameterInformation jumpSizeStdDevInfo) {
+	public CalibratableMertonModel(final MertonModelDescriptor descriptor, final ScalarParameterInformation volatilityInfo,
+			final ScalarParameterInformation jumpIntensityInfo, final ScalarParameterInformation jumpSizeMeanInfo,
+			final ScalarParameterInformation jumpSizeStdDevInfo) {
 		super();
 		this.descriptor = descriptor;
 		this.volatilityInfo = volatilityInfo;
@@ -79,14 +79,14 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 
 
 	@Override
-	public CalibratableProcess getCloneForModifiedParameters(double[] parameters) {
+	public CalibratableProcess getCloneForModifiedParameters(final double[] parameters) {
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
-		double jumpIntensity = jumpIntensityInfo.getIsParameterToCalibrate() == true ? jumpIntensityInfo.getConstraint().apply(parameters[1]) : descriptor.getJumpIntensity();
-		double jumpSizeMean = jumpSizeMeanInfo.getIsParameterToCalibrate() == true ? jumpSizeMeanInfo.getConstraint().apply(parameters[2]) : descriptor.getJumpSizeMean();
-		double jumpSizeStdDev = jumpSizeStdDevInfo.getIsParameterToCalibrate() == true ? jumpSizeStdDevInfo.getConstraint().apply(parameters[3]) : descriptor.getJumpSizeStdDev();
+		final double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
+		final double jumpIntensity = jumpIntensityInfo.getIsParameterToCalibrate() == true ? jumpIntensityInfo.getConstraint().apply(parameters[1]) : descriptor.getJumpIntensity();
+		final double jumpSizeMean = jumpSizeMeanInfo.getIsParameterToCalibrate() == true ? jumpSizeMeanInfo.getConstraint().apply(parameters[2]) : descriptor.getJumpSizeMean();
+		final double jumpSizeStdDev = jumpSizeStdDevInfo.getIsParameterToCalibrate() == true ? jumpSizeStdDevInfo.getConstraint().apply(parameters[3]) : descriptor.getJumpSizeStdDev();
 
-		MertonModelDescriptor newDescriptor = new MertonModelDescriptor(descriptor.getReferenceDate(),
+		final MertonModelDescriptor newDescriptor = new MertonModelDescriptor(descriptor.getReferenceDate(),
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),descriptor.getDiscountCurveForDiscountRate(),
 				volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 
@@ -116,8 +116,8 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	}
 
 	private double[] extractUpperBounds() {
-		double[] upperBounds = new double[4];
-		double threshold = 1E6;
+		final double[] upperBounds = new double[4];
+		final double threshold = 1E6;
 		upperBounds[0] = volatilityInfo.getConstraint().getUpperBound() > threshold ? threshold : volatilityInfo.getConstraint().getUpperBound();
 		upperBounds[1] = jumpIntensityInfo.getConstraint().getUpperBound() > threshold ? threshold : jumpIntensityInfo.getConstraint().getUpperBound();
 		upperBounds[2] = jumpSizeMeanInfo.getConstraint().getUpperBound() > threshold ? threshold : jumpSizeMeanInfo.getConstraint().getUpperBound();
@@ -127,8 +127,8 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	}
 
 	private double[] extractLowerBounds() {
-		double[] upperBounds = new double[4];
-		double threshold = -1E6;
+		final double[] upperBounds = new double[4];
+		final double threshold = -1E6;
 		upperBounds[0] = volatilityInfo.getConstraint().getLowerBound() < threshold ? threshold : volatilityInfo.getConstraint().getLowerBound();
 		upperBounds[1] = jumpIntensityInfo.getConstraint().getLowerBound() < threshold ? threshold : jumpIntensityInfo.getConstraint().getLowerBound();
 		upperBounds[2] = jumpSizeMeanInfo.getConstraint().getLowerBound() < threshold ? threshold : jumpSizeMeanInfo.getConstraint().getLowerBound();

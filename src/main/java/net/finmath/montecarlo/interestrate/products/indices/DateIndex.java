@@ -31,7 +31,7 @@ public class DateIndex extends AbstractIndex {
 		NUMBER_OF_DAYS_IN_MONTH
 	}
 
-	private DateIndexType dateIndexType;
+	private final DateIndexType dateIndexType;
 
 	/**
 	 * Construct a date index.
@@ -40,7 +40,7 @@ public class DateIndex extends AbstractIndex {
 	 * @param currency Currency (if any - in natural situations this index is a scalar).
 	 * @param dateIndexType The date index type.
 	 */
-	public DateIndex(String name, String currency, DateIndexType dateIndexType) {
+	public DateIndex(final String name, final String currency, final DateIndexType dateIndexType) {
 		super(name, currency);
 		this.dateIndexType = dateIndexType;
 	}
@@ -51,14 +51,14 @@ public class DateIndex extends AbstractIndex {
 	 * @param name Name of this index.
 	 * @param dateIndexType The date index type.
 	 */
-	public DateIndex(String name, DateIndexType dateIndexType) {
+	public DateIndex(final String name, final DateIndexType dateIndexType) {
 		super(name);
 		this.dateIndexType = dateIndexType;
 	}
 
 	@Override
-	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
+	public RandomVariable getValue(final double fixingTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()
 				.plusDays((int)Math.round(fixingTime*365));
 
 		double value = 0;

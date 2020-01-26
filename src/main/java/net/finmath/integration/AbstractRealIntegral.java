@@ -16,8 +16,8 @@ import java.util.function.DoubleUnaryOperator;
  */
 public abstract class AbstractRealIntegral implements RealIntegral {
 
-	private double lowerBound;
-	private double upperBound;
+	private final double lowerBound;
+	private final double upperBound;
 
 
 	/**
@@ -26,7 +26,7 @@ public abstract class AbstractRealIntegral implements RealIntegral {
 	 * @param lowerBound Lower integration bound.
 	 * @param upperBound Upper integration bound.
 	 */
-	public AbstractRealIntegral(double lowerBound, double upperBound) {
+	public AbstractRealIntegral(final double lowerBound, final double upperBound) {
 		super();
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;

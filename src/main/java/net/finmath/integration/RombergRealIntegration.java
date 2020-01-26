@@ -21,7 +21,7 @@ import org.apache.commons.math3.analysis.integration.RombergIntegrator;
  */
 public class RombergRealIntegration extends AbstractRealIntegral {
 
-	private int numberOfEvaluationPoints;
+	private final int numberOfEvaluationPoints;
 
 	/**
 	 * Create a Romberg integrator.
@@ -30,7 +30,7 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
 	 */
-	public RombergRealIntegration(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public RombergRealIntegration(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		super(lowerBound, upperBound);
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 	}
@@ -39,12 +39,12 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
 	 */
 	@Override
-	public double integrate(DoubleUnaryOperator integrand) {
+	public double integrate(final DoubleUnaryOperator integrand) {
 
 		// We use commons-math RombergIntegrator
 		return new RombergIntegrator().integrate(numberOfEvaluationPoints, new UnivariateFunction() {
 			@Override
-			public double value(double argument) {
+			public double value(final double argument) {
 				return integrand.applyAsDouble(argument);
 			}
 		}, getLowerBound(), getUpperBound());

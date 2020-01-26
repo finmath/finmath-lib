@@ -39,7 +39,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
-	public Swap(AnalyticProduct legReceiver, AnalyticProduct legPayer) {
+	public Swap(final AnalyticProduct legReceiver, final AnalyticProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -58,13 +58,13 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public Swap(Schedule scheduleReceiveLeg,
-			String forwardCurveReceiveName, double spreadReceive,
-			String discountCurveReceiveName,
-			Schedule schedulePayLeg,
-			String forwardCurvePayName, double spreadPay,
-			String discountCurvePayName,
-			boolean isNotionalExchanged
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName,
+			final boolean isNotionalExchanged
 			) {
 		super();
 		legReceiver		= new SwapLeg(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, isNotionalExchanged /* Notional Exchange */);
@@ -83,30 +83,30 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
-	public Swap(Schedule scheduleReceiveLeg,
-			String forwardCurveReceiveName, double spreadReceive,
-			String discountCurveReceiveName,
-			Schedule schedulePayLeg,
-			String forwardCurvePayName, double spreadPay,
-			String discountCurvePayName
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName
 			) {
 		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 
-		RandomVariable valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
-		RandomVariable valuePayerLeg	= legPayer.getValue(evaluationTime, model);
+		final RandomVariable valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
+		final RandomVariable valuePayerLeg	= legPayer.getValue(evaluationTime, model);
 
 		return valueReceiverLeg.sub(valuePayerLeg);
 	}
 
-	public static RandomVariable getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);
 	}
 
-	public static RandomVariable getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurveInterface forwardCurve, DiscountCurveInterface discountCurve) {
+	public static RandomVariable getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurveInterface forwardCurve, final DiscountCurveInterface discountCurve) {
 		AnalyticModelFromCurvesAndVols model = null;
 		if(discountCurve != null) {
 			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
@@ -114,19 +114,19 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
 
-	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve) {
+	public static RandomVariable getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurveInterface forwardCurve) {
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static RandomVariable getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurveInterface forwardCurve, AnalyticModel model) {
+	public static RandomVariable getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurveInterface forwardCurve, AnalyticModel model) {
 		DiscountCurveInterface discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
 			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 
-		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
-		RandomVariable swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
+		final double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
+		final RandomVariable swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
 
 		// Create floating leg
 		double fixing			= floatSchedule.getFixing(0);
@@ -149,7 +149,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct {
 			floatLeg = floatLeg.add(forward.mult(discountFactor).mult(periodLength));
 		}
 
-		RandomVariable valueFloatLeg = floatLeg.div(discountCurve.getDiscountFactor(model, evaluationTime));
+		final RandomVariable valueFloatLeg = floatLeg.div(discountCurve.getDiscountFactor(model, evaluationTime));
 
 		return valueFloatLeg.div(swapAnnuity);
 	}

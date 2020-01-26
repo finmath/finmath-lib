@@ -20,8 +20,8 @@ import net.finmath.randomnumbers.MersenneTwister;
  */
 public class MonteCarloIntegrator extends AbstractRealIntegral{
 
-	private int		numberOfEvaluationPoints;
-	private int		seed = 3141;
+	private final int		numberOfEvaluationPoints;
+	private final int		seed = 3141;
 
 	/**
 	 * Create an integrator using Simpson's rule.
@@ -31,7 +31,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
 	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
 	 */
-	public MonteCarloIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints, boolean useParallelEvaluation) {
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
 		if(numberOfEvaluationPoints < 3) {
 			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
@@ -46,7 +46,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
 	 */
-	public MonteCarloIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		this(lowerBound, upperBound, numberOfEvaluationPoints, false);
 	}
 
@@ -54,24 +54,24 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
 	 */
 	@Override
-	public double integrate(DoubleUnaryOperator integrand) {
-		double	lowerBound			= getLowerBound();
-		double	upperBound			= getUpperBound();
-		double	range				= upperBound-lowerBound;
+	public double integrate(final DoubleUnaryOperator integrand) {
+		final double	lowerBound			= getLowerBound();
+		final double	upperBound			= getUpperBound();
+		final double	range				= upperBound-lowerBound;
 
 		// Create random number sequence generator (we use MersenneTwister)
-		MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
+		final MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
-		DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(new IntToDoubleFunction() {
+		final DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return mersenneTwister.nextDouble();
 			}
 		});
 
 		return randomNumberSequence.map(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return (integrand.applyAsDouble(lowerBound + x * range));
 			}
 		}).sum() * range / numberOfEvaluationPoints;

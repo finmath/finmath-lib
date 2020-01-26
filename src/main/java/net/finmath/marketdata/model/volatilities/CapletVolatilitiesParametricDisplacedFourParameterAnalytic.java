@@ -50,11 +50,11 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametricDisplacedFourParameterAnalytic(String name, LocalDate referenceDate,
-			ForwardCurve forwardCurve,
-			DiscountCurve discountCurve,
-			double displacement, boolean isDisplacementCalibrateable,
-			double a, double b, double c, double d, double timeScaling) {
+	public CapletVolatilitiesParametricDisplacedFourParameterAnalytic(final String name, final LocalDate referenceDate,
+			final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve,
+			final double displacement, final boolean isDisplacementCalibrateable,
+			final double a, final double b, final double c, final double d, final double timeScaling) {
 		super(name, referenceDate, forwardCurve, discountCurve, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.timeScaling = timeScaling;
 		this.displacement = displacement;
@@ -66,17 +66,17 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	}
 
 	@Override
-	public double getValue(double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, maturity, strike, quotingConvention);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final AnalyticModel model, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		if(maturity == 0) {
 			return 0;
 		}
 
-		double T = maturity * timeScaling;
+		final double T = maturity * timeScaling;
 
 		/*
 		 * Integral of the square of the instantaneous volatility function
@@ -102,7 +102,7 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 			integratedVariance = a*a*T + a*b*T*T + 2*a*d*T + (b*b*T*T*T)/3.0 + b*d*T*T + d*d*T;
 		}
 
-		double value = Math.sqrt(integratedVariance/maturity);
+		final double value = Math.sqrt(integratedVariance/maturity);
 
 		if(getDiscountCurve() == null) {
 			throw new IllegalArgumentException("Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
@@ -111,24 +111,24 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
 
-		double periodStart = maturity;
-		double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
+		final double periodStart = maturity;
+		final double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
 
-		double forward = getForwardCurve().getForward(model, periodStart);
+		final double forward = getForwardCurve().getForward(model, periodStart);
 
 		double daycountFraction;
 		if(getDaycountConvention() != null) {
-			LocalDate startDate = getReferenceDate().plusDays((int)Math.round(periodStart*365));
-			LocalDate endDate   = getReferenceDate().plusDays((int)Math.round(periodEnd*365));
+			final LocalDate startDate = getReferenceDate().plusDays((int)Math.round(periodStart*365));
+			final LocalDate endDate   = getReferenceDate().plusDays((int)Math.round(periodEnd*365));
 			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);
 		}
 		else {
 			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);
 		}
 
-		double payoffUnit = getDiscountCurve().getDiscountFactor(maturity+getForwardCurve().getPaymentOffset(maturity)) * daycountFraction;
+		final double payoffUnit = getDiscountCurve().getDiscountFactor(maturity+getForwardCurve().getPaymentOffset(maturity)) * daycountFraction;
 
-		double valuePrice = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward+displacement, value, maturity, strike+displacement, payoffUnit);
+		final double valuePrice = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward+displacement, value, maturity, strike+displacement, payoffUnit);
 
 		return convertFromTo(model, maturity, strike, valuePrice, QuotingConvention.PRICE, quotingConvention);
 	}
@@ -158,12 +158,12 @@ public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends 
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 
 	@Override
-	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		if(isDisplacementCalibrateable) {
 			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), value[0], isDisplacementCalibrateable, value[1], value[2], value[3], value[4], timeScaling);
 		}

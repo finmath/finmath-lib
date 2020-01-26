@@ -71,11 +71,11 @@ public class AnnuityMappingTEST {
 	@BeforeClass
 	public static void create(){
 
-		LocalDate referenceDate = LocalDate.of(2017, 8, 30);
-		LocalDate startDate = referenceDate.plusYears(10);
-		LocalDate endDate	= startDate.plusYears(20);
+		final LocalDate referenceDate = LocalDate.of(2017, 8, 30);
+		final LocalDate startDate = referenceDate.plusYears(10);
+		final LocalDate endDate	= startDate.plusYears(20);
 
-		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -83,7 +83,7 @@ public class AnnuityMappingTEST {
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				0, 0, false);
 
-		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -122,8 +122,8 @@ public class AnnuityMappingTEST {
 		forwardCurveSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);
 
 		//Cube
-		String cubeName = "VOLA";
-		VolatilityCube cube = createVolatilityCube(cubeName, referenceDate, forwardCurveSwapRate);
+		final String cubeName = "VOLA";
+		final VolatilityCube cube = createVolatilityCube(cubeName, referenceDate, forwardCurveSwapRate);
 
 		model = model.addVolatilityCube(cubeName, cube);
 
@@ -142,9 +142,9 @@ public class AnnuityMappingTEST {
 	@Test
 	public void a_testMappings(){
 
-		double basicResult = basicPiterbarg.getValue(discountCurveSwapRate);
-		double multiResult = multiPiterbarg.getValue(forwardCurveSwapRate);
-		double simpleResult = simpleMapping.getValue(discountCurveSwapRate);
+		final double basicResult = basicPiterbarg.getValue(discountCurveSwapRate);
+		final double multiResult = multiPiterbarg.getValue(forwardCurveSwapRate);
+		final double simpleResult = simpleMapping.getValue(discountCurveSwapRate);
 
 		System.out.println("Annuity at par swap rate via BasicPiterbarg is \t" + forwardAnnuity /basicResult);
 		System.out.println("Annuity at par swap rate via MultiPiterbarg is \t" + forwardAnnuity /multiResult);
@@ -161,9 +161,9 @@ public class AnnuityMappingTEST {
 		output.append("Value of annuity mappings: \t\t (note that the return is the fraction of the forward annuity evaluated now and at time of fixing)\n");
 		output.append("swapRate\tsimpleAM\tbasicPiterbarg\tmultiPiterbarg\n");
 		for(double rate = testRanges[0]; rate < testRanges[1]; rate += step){
-			double basicResult = basicPiterbarg.getValue(rate);
-			double multiResult = multiPiterbarg.getValue(rate);
-			double simpleResult = simpleMapping.getValue(rate);
+			final double basicResult = basicPiterbarg.getValue(rate);
+			final double multiResult = multiPiterbarg.getValue(rate);
+			final double simpleResult = simpleMapping.getValue(rate);
 
 			output.append(rate +"\t"+ simpleResult +"\t" + basicResult +"\t"+ multiResult +'\n');
 		}
@@ -198,14 +198,14 @@ public class AnnuityMappingTEST {
 	}
 
 	//creating a dumb volatility cube for tests
-	private static VolatilityCube createVolatilityCube(String name, LocalDate referenceDate, double underlying){
-		double sabrAlpha		= 0.006459764701438869;
-		double sabrBeta			= 0.0;
-		double sabrRho			= 0.5025290759225008;
-		double sabrNu			= 0.14614712329776228;
-		double sabrDisplacement	= -0.03284122992284627;
+	private static VolatilityCube createVolatilityCube(final String name, final LocalDate referenceDate, final double underlying){
+		final double sabrAlpha		= 0.006459764701438869;
+		final double sabrBeta			= 0.0;
+		final double sabrRho			= 0.5025290759225008;
+		final double sabrNu			= 0.14614712329776228;
+		final double sabrDisplacement	= -0.03284122992284627;
 
-		SABRVolatilityCubeSingleSmile cube = new SABRVolatilityCubeSingleSmile(name, referenceDate, underlying, sabrAlpha, sabrBeta, sabrRho, sabrNu, sabrDisplacement,
+		final SABRVolatilityCubeSingleSmile cube = new SABRVolatilityCubeSingleSmile(name, referenceDate, underlying, sabrAlpha, sabrBeta, sabrRho, sabrNu, sabrDisplacement,
 				correlationDecay, iborOisDecorrelation);
 		return cube;
 	}

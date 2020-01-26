@@ -84,9 +84,9 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @param conditionalExpectationRegressionFactory A object implementing a factory creating a conditional expectation estimator from given regression basis functions
 	 * @param regressionBasisFunctionProvider An object implementing RegressionBasisFunctionsProvider to provide the basis functions for the estimation of conditional expectations.
 	 */
-	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
-			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
-			Schedule[]  floatSchedules, MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory, RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+			final Schedule[]  floatSchedules, final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory, final RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
 		this.referenceDate = referenceDate;
 		this.swaptionType = swaptionType;
 		this.swapEndDate = swapEndDate;
@@ -113,9 +113,9 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
 	 * @param regressionBasisFunctionProvider An object implementing RegressionBasisFunctionsProvider to provide the basis functions for the estimation of conditional expectations.
 	 */
-	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
-			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
-			Schedule[]  floatSchedules, RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+			final Schedule[]  floatSchedules, final RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
 		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, new MonteCarloConditionalExpectationLinearRegressionFactory(), regressionBasisFunctionProvider);
 	}
 
@@ -131,9 +131,9 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
 	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
 	 */
-	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
-			LocalDate swapEndDate, double[] swaprates, double[] notionals, Schedule[]  fixSchedules,
-			Schedule[]  floatSchedules) {
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+			final Schedule[]  floatSchedules) {
 		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, null);
 	}
 
@@ -149,16 +149,16 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
 	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
 	 */
-	public BermudanSwaptionFromSwapSchedules(LocalDateTime referenceDate, SwaptionType swaptionType, LocalDate[] exerciseDates,
-			LocalDate swapEndDate, double swaprate, double notional, Schedule[] fixSchedules, Schedule[]  floatSchedules) {
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double swaprate, final double notional, final Schedule[] fixSchedules, final Schedule[]  floatSchedules) {
 		this(referenceDate, swaptionType, exerciseDates, swapEndDate, IntStream.range(0, exerciseDates.length).mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return swaprate;
 			}
 		}).toArray(), IntStream.range(0, exerciseDates.length).mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return notional;
 			}
 		}).toArray(), fixSchedules, floatSchedules);
@@ -188,36 +188,36 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public Map<String, Object> getValues(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();
+		final LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();
 
 		RandomVariable values			= model.getRandomVariableForConstant(0.0);
 		RandomVariable exerciseTimes	= new Scalar(Double.POSITIVE_INFINITY);
 
 		RandomVariable valuesUnderlying	= model.getRandomVariableForConstant(0.0);
 		for(int exerciseIndex = exerciseDates.length - 1; exerciseIndex >=0; exerciseIndex--) {
-			double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
+			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
 
-			RandomVariable discountedCashflowFixLeg			= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
-			RandomVariable discountedCashflowFloatingLeg	= getValueUnderlyingNumeraireRelative(model, floatSchedules[exerciseIndex], true, 0.0, notionals[exerciseIndex]);
+			final RandomVariable discountedCashflowFixLeg			= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
+			final RandomVariable discountedCashflowFloatingLeg	= getValueUnderlyingNumeraireRelative(model, floatSchedules[exerciseIndex], true, 0.0, notionals[exerciseIndex]);
 
 			// Distinguish whether the swaption is of type "Payer" or "Receiver":
 			if(swaptionType.equals(SwaptionType.PAYER)) {
-				RandomVariable discountedPayoff = discountedCashflowFloatingLeg.sub(discountedCashflowFixLeg);
+				final RandomVariable discountedPayoff = discountedCashflowFloatingLeg.sub(discountedCashflowFixLeg);
 				valuesUnderlying = discountedPayoff;//valuesUnderlying.add(discountedPayoff);
 			} else if(swaptionType.equals(SwaptionType.RECEIVER)){
-				RandomVariable discountedPayoff = discountedCashflowFixLeg.sub(discountedCashflowFloatingLeg);
+				final RandomVariable discountedPayoff = discountedCashflowFixLeg.sub(discountedCashflowFloatingLeg);
 				valuesUnderlying = discountedPayoff;//valuesUnderlying.add(discountedPayoff);
 			}
 
-			RandomVariable discountedTriggerValues = values.sub(valuesUnderlying);
+			final RandomVariable discountedTriggerValues = values.sub(valuesUnderlying);
 
 			// Remove foresight through condition expectation
-			ConditionalExpectationEstimator conditionalExpectationOperator = getConditionalExpectationEstimator(exerciseTime, model);
+			final ConditionalExpectationEstimator conditionalExpectationOperator = getConditionalExpectationEstimator(exerciseTime, model);
 
 			// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
-			RandomVariable triggerValues = discountedTriggerValues.getConditionalExpectation(conditionalExpectationOperator);
+			final RandomVariable triggerValues = discountedTriggerValues.getConditionalExpectation(conditionalExpectationOperator);
 
 			// Apply the exercise criteria
 			// if triggerValues(omega) <=0 choose valuesUnderlying else values
@@ -231,9 +231,9 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 			logger.fine("Exercise probabilitie " + getExerciseProbabilitiesFromTimes(model.getReferenceDate(), exerciseTimes));
 			double probabilityToExercise = 1.0;
 			for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
-				double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
-				double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
-				double probability = probabilityToExercise - probabilityToExerciseAfter;
+				final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
+				final double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
+				final double probability = probabilityToExercise - probabilityToExerciseAfter;
 				probabilityToExercise = probabilityToExerciseAfter;
 
 				logger.finer("Exercise " + (exerciseIndex+1) + " on " + exerciseDates[exerciseIndex] + " with probability " + probability);
@@ -242,18 +242,18 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		}
 
 		// Note that values is a relative price - no numeraire division is required
-		RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
-		Map<String, Object> results = new HashMap<>();
+		final Map<String, Object> results = new HashMap<>();
 		results.put("values", values);
 		results.put("exerciseTimes", exerciseTimes);
 		return results;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return (RandomVariable) getValues(evaluationTime, model).get("values");
 	}
 
@@ -265,13 +265,13 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @param exerciseTimes A {@link RandomVariable} of exercise times given as {@link FloatingpointDate} offsets from the given referenceDate.
 	 * @return A vector of exercise probabilities. The length of the vector is <code>exerciseDates.length+1</code>. The last entry is the probability that no exercise occurs.
 	 */
-	public double[] getExerciseProbabilitiesFromTimes(LocalDateTime localDateTime, RandomVariable exerciseTimes) {
-		double[] exerciseProbabilities = new double[exerciseDates.length+1];
+	public double[] getExerciseProbabilitiesFromTimes(final LocalDateTime localDateTime, final RandomVariable exerciseTimes) {
+		final double[] exerciseProbabilities = new double[exerciseDates.length+1];
 
 		double probabilityToExercise = 1.0;
 		for(int exerciseIndex = 0; exerciseIndex < exerciseDates.length; exerciseIndex++) {
-			double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(localDateTime, exerciseDates[exerciseIndex].atStartOfDay());
-			double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
+			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(localDateTime, exerciseDates[exerciseIndex].atStartOfDay());
+			final double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();
 
 			exerciseProbabilities[exerciseIndex] = probabilityToExercise - probabilityToExerciseAfter;
 			probabilityToExercise = probabilityToExerciseAfter;
@@ -282,18 +282,18 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	}
 
 	@Override
-	public TimeDiscretization getProcessTimeDiscretization(LocalDateTime referenceDate) {
-		Set<Double> times = new HashSet<>();
+	public TimeDiscretization getProcessTimeDiscretization(final LocalDateTime referenceDate) {
+		final Set<Double> times = new HashSet<>();
 
 		for(int exerciseDateIndex = 0; exerciseDateIndex < exerciseDates.length; exerciseDateIndex++) {
 			times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDates[exerciseDateIndex].atStartOfDay()));
 
-			Schedule scheduleFixedLeg = fixSchedules[exerciseDateIndex];
-			Schedule scheduleFloatLeg = floatSchedules[exerciseDateIndex];
+			final Schedule scheduleFixedLeg = fixSchedules[exerciseDateIndex];
+			final Schedule scheduleFloatLeg = floatSchedules[exerciseDateIndex];
 
-			Function<Period, Double> periodToTime = new Function<Period, Double>() {
+			final Function<Period, Double> periodToTime = new Function<Period, Double>() {
 				@Override
-				public Double apply(Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
+				public Double apply(final Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
 			};
 			times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 			times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
@@ -313,12 +313,12 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @return The sum of the numeraire relative cash flows.
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
-	private RandomVariable getValueUnderlyingNumeraireRelative(LIBORModelMonteCarloSimulationModel model, Schedule legSchedule, boolean paysFloat, double swaprate, double notional) throws CalculationException {
+	private RandomVariable getValueUnderlyingNumeraireRelative(final LIBORModelMonteCarloSimulationModel model, final Schedule legSchedule, final boolean paysFloat, final double swaprate, final double notional) throws CalculationException {
 
 		if(isUseAnalyticSwapValuationAtExercise) {
-			double valuationTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(0).getFixing());
-			RandomVariable numeraireAtValuationTime  = model.getNumeraire(valuationTime);
-			RandomVariable monteCarloProbabilitiesAtValuationTime = model.getMonteCarloWeights(valuationTime);
+			final double valuationTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(0).getFixing());
+			final RandomVariable numeraireAtValuationTime  = model.getNumeraire(valuationTime);
+			final RandomVariable monteCarloProbabilitiesAtValuationTime = model.getMonteCarloWeights(valuationTime);
 			RandomVariable value = SwaptionFromSwapSchedules.getValueOfLegAnalytic(valuationTime, model, legSchedule, paysFloat, swaprate, notional);
 			value = value.div(model.getNumeraire(valuationTime)).mult(monteCarloProbabilitiesAtValuationTime);
 			return value;
@@ -329,19 +329,19 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 
 			for(int periodIndex = legSchedule.getNumberOfPeriods() - 1; periodIndex >= 0; periodIndex--) {
 
-				double fixingTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getFixing());
-				double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getPayment());
-				double periodLength	= legSchedule.getPeriodLength(periodIndex);
+				final double fixingTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getFixing());
+				final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getPayment());
+				final double periodLength	= legSchedule.getPeriodLength(periodIndex);
 
-				RandomVariable	numeraireAtPayment  = model.getNumeraire(paymentTime);
-				RandomVariable	monteCarloProbabilitiesAtPayment = model.getMonteCarloWeights(paymentTime);
+				final RandomVariable	numeraireAtPayment  = model.getNumeraire(paymentTime);
+				final RandomVariable	monteCarloProbabilitiesAtPayment = model.getMonteCarloWeights(paymentTime);
 				if(swaprate != 0.0) {
-					RandomVariable periodCashFlowFix = model.getRandomVariableForConstant(swaprate * periodLength * notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					final RandomVariable periodCashFlowFix = model.getRandomVariableForConstant(swaprate * periodLength * notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
 					value = value.add(periodCashFlowFix);
 				}
 				if(paysFloat) {
-					RandomVariable libor = model.getLIBOR(fixingTime, fixingTime, paymentTime);
-					RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					final RandomVariable libor = model.getLIBOR(fixingTime, fixingTime, paymentTime);
+					final RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
 					value = value.add(periodCashFlowFloat);
 				}
 			}
@@ -357,15 +357,15 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @return The condition expectation estimator
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(double exerciseTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable[] regressionBasisFunctions = regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model);
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double exerciseTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final RandomVariable[] regressionBasisFunctions = regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model);
 		return conditionalExpectationRegressionFactory.getConditionalExpectationEstimator(regressionBasisFunctions, regressionBasisFunctions);
 	}
 
 
 	@Override
-	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
-		LIBORModelMonteCarloSimulationModel liborModel = (LIBORModelMonteCarloSimulationModel)model;
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
+		final LIBORModelMonteCarloSimulationModel liborModel = (LIBORModelMonteCarloSimulationModel)model;
 		return getBasisFunctions(evaluationTime, liborModel);
 	}
 
@@ -377,18 +377,18 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @return An \( \mathcal{F}_{t} \)-measurable random variable.
 	 * @throws CalculationException Thrown if derivation of the basis function fails.
 	 */
-	public RandomVariable[] getBasisFunctions(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		LocalDateTime modelReferenceDate = model.getReferenceDate();
+		final LocalDateTime modelReferenceDate = model.getReferenceDate();
 
-		double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
+		final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
 			@Override
-			public double applyAsDouble(LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
+			public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
 		}).sorted().toArray();
 
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-		double exerciseTime = evaluationTime;
+		final double exerciseTime = evaluationTime;
 
 		int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);
 		if(exerciseIndex < 0) {
@@ -399,27 +399,27 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		}
 
 		// Constant
-		RandomVariable one = new RandomVariableFromDoubleArray(1.0);
+		final RandomVariable one = new RandomVariableFromDoubleArray(1.0);
 		basisFunctions.add(one);
 
 		// Numeraire (adapted to multicurve framework)
-		RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
+		final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
 		basisFunctions.add(discountFactor);
 
 		/*
 		 * Add swap rates of underlyings.
 		 */
 		for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying<exerciseDates.length; exerciseIndexUnderlying++) {
-			RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
-			RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
-			RandomVariable swapRate = floatLeg.div(annuity);
-			RandomVariable basisFunction = swapRate.mult(discountFactor);
+			final RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
+			final RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
+			final RandomVariable swapRate = floatLeg.div(annuity);
+			final RandomVariable basisFunction = swapRate.mult(discountFactor);
 			basisFunctions.add(basisFunction);
 			basisFunctions.add(basisFunction.squared());
 		}
 
 		// forward rate to the next period
-		RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+		final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 		basisFunctions.add(rateShort.mult(discountFactor));
 		basisFunctions.add(rateShort.mult(discountFactor).pow(2.0));
 
@@ -433,19 +433,19 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	public RegressionBasisFunctionsProvider getBasisFunctionsProviderWithSwapRates() {
 		return new RegressionBasisFunctionsProvider() {
 			@Override
-			public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel monteCarloModel) throws CalculationException {
-				LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;
+			public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel monteCarloModel) throws CalculationException {
+				final LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;
 
-				LocalDateTime modelReferenceDate = model.getReferenceDate();
+				final LocalDateTime modelReferenceDate = model.getReferenceDate();
 
-				double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
+				final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
 					@Override
-					public double applyAsDouble(LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
+					public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
 				}).sorted().toArray();
 
-				ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+				final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-				double exerciseTime = evaluationTime;
+				final double exerciseTime = evaluationTime;
 
 				int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);
 				if(exerciseIndex < 0) {
@@ -456,27 +456,27 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 				}
 
 				// Constant
-				RandomVariable one = new RandomVariableFromDoubleArray(1.0);
-				RandomVariable basisFunction = one;
+				final RandomVariable one = new RandomVariableFromDoubleArray(1.0);
+				final RandomVariable basisFunction = one;
 				basisFunctions.add(basisFunction);
 
 				/*
 				 * Add swap rates of underlyings.
 				 */
 				for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying<exerciseDates.length; exerciseIndexUnderlying++) {
-					RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
-					RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
-					RandomVariable swapRate = floatLeg.div(annuity);
+					final RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);
+					final RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);
+					final RandomVariable swapRate = floatLeg.div(annuity);
 					basisFunctions.add(swapRate);
 				}
 
 				// forward rate to the next period
-				RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+				final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 				basisFunctions.add(rateShort);
 				basisFunctions.add(rateShort.pow(2.0));
 
 				// Numeraire (adapted to multicurve framework)
-				RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
+				final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
 				basisFunctions.add(discountFactor);
 
 				return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);
@@ -487,21 +487,21 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	public RegressionBasisFunctionsProvider getBasisFunctionsProviderWithForwardRates() {
 		return new RegressionBasisFunctionsProvider() {
 			@Override
-			public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel monteCarloModel) throws CalculationException {
-				LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;
+			public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel monteCarloModel) throws CalculationException {
+				final LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;
 
-				LocalDateTime modelReferenceDate = model.getReferenceDate();
+				final LocalDateTime modelReferenceDate = model.getReferenceDate();
 
-				double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
+				final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction<LocalDate>() {
 					@Override
-					public double applyAsDouble(LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
+					public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }
 				}).sorted().toArray();
 
-				ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+				final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
-				double swapMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, swapEndDate.atStartOfDay());
+				final double swapMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, swapEndDate.atStartOfDay());
 
-				double exerciseTime = evaluationTime;
+				final double exerciseTime = evaluationTime;
 
 				int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);
 				if(exerciseIndex < 0) {
@@ -512,23 +512,23 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 				}
 
 				// Constant
-				RandomVariable one = new RandomVariableFromDoubleArray(1.0);
+				final RandomVariable one = new RandomVariableFromDoubleArray(1.0);
 
-				RandomVariable basisFunction = one;
+				final RandomVariable basisFunction = one;
 				basisFunctions.add(basisFunction);
 
 				// forward rate to the next period
-				RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+				final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 				basisFunctions.add(rateShort);
 				basisFunctions.add(rateShort.pow(2.0));
 
 				// forward rate to the end of the product
-				RandomVariable rateLong = model.getLIBOR(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);
+				final RandomVariable rateLong = model.getLIBOR(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);
 				basisFunctions.add(rateLong);
 				basisFunctions.add(rateLong.pow(2.0));
 
 				// Numeraire (adapted to multicurve framework)
-				RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
+				final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();
 				basisFunctions.add(discountFactor);
 
 				// Cross

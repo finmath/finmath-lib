@@ -60,7 +60,7 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT imple
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
@@ -87,13 +87,13 @@ public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT imple
 
 		double fractionPeriodDenominator = 365.0;
 		if(fractionalPeriodEnd.isLeapYear()) {
-			LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);
+			final LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}
 		}
 		else if(startDate.isLeapYear()) {
-			LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
+			final LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
 			if(startDate.compareTo(feb29th) <= 0 && fractionalPeriodEnd.compareTo(feb29th) > 0) {
 				fractionPeriodDenominator = 366.0;
 			}

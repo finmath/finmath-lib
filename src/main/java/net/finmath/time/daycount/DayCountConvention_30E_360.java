@@ -45,7 +45,7 @@ public class DayCountConvention_30E_360 implements DayCountConvention, Serializa
 	 *
 	 * @param is30Eplus360 If true, then 30E+/360 is constructed, otherwise 30E/360 is constructed.
 	 */
-	public DayCountConvention_30E_360(boolean is30Eplus360) {
+	public DayCountConvention_30E_360(final boolean is30Eplus360) {
 		this.is30Eplus360 = is30Eplus360;
 	}
 
@@ -60,18 +60,18 @@ public class DayCountConvention_30E_360 implements DayCountConvention, Serializa
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycount(endDate,startDate);
 		}
 
-		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthValue();
-		int startDateYear 	= startDate.getYear();
+		final int startDateDay 	= startDate.getDayOfMonth();
+		final int startDateMonth 	= startDate.getMonthValue();
+		final int startDateYear 	= startDate.getYear();
 
-		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthValue();
-		int endDateYear 	= endDate.getYear();
+		final int endDateDay 		= endDate.getDayOfMonth();
+		final int endDateMonth 	= endDate.getMonthValue();
+		final int endDateYear 	= endDate.getYear();
 
 		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));
 
@@ -86,7 +86,7 @@ public class DayCountConvention_30E_360 implements DayCountConvention, Serializa
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }

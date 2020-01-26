@@ -32,7 +32,7 @@ public class Selector extends AbstractProductComponent {
 	 * @param key Name of the key to be selected.
 	 * @param underlying Underlying to which the selector should be applied.
 	 */
-	public Selector(String key, TermStructureMonteCarloProduct underlying) {
+	public Selector(final String key, final TermStructureMonteCarloProduct underlying) {
 		super();
 		this.key = key;
 		this.underlying = underlying;

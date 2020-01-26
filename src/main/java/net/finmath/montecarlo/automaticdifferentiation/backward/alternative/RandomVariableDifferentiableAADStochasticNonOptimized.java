@@ -51,24 +51,24 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 		private final List<OperatorTreeNode> arguments;
 		private final List<RandomVariable> argumentValues;
 
-		OperatorTreeNode(OperatorType operator, List<RandomVariable> arguments) {
+		OperatorTreeNode(final OperatorType operator, final List<RandomVariable> arguments) {
 			this(operator,
 					arguments != null ? arguments.stream().map(new Function<RandomVariable, OperatorTreeNode>() {
 						@Override
-						public OperatorTreeNode apply(RandomVariable x) {
+						public OperatorTreeNode apply(final RandomVariable x) {
 							return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getOperatorTreeNode(): null;
 						}
 					}).collect(Collectors.toList()) : null,
 							arguments != null ? arguments.stream().map(new Function<RandomVariable, RandomVariable>() {
 								@Override
-								public RandomVariable apply(RandomVariable x) {
+								public RandomVariable apply(final RandomVariable x) {
 									return (x != null && x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;
 								}
 							}).collect(Collectors.toList()) : null
 					);
 
 		}
-		OperatorTreeNode(OperatorType operator, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues) {
+		OperatorTreeNode(final OperatorType operator, final List<OperatorTreeNode> arguments, final List<RandomVariable> argumentValues) {
 			super();
 			id = indexOfNextRandomVariable.getAndIncrement();
 			this.operator = operator;
@@ -76,17 +76,17 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 			this.argumentValues = argumentValues;
 		}
 
-		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
+		private void propagateDerivativesFromResultToArgument(final Map<Long, RandomVariable> derivatives) {
 
-			for(OperatorTreeNode argument : arguments) {
+			for(final OperatorTreeNode argument : arguments) {
 				if(argument != null) {
-					Long argumentID = argument.id;
+					final Long argumentID = argument.id;
 					if(!derivatives.containsKey(argumentID)) {
 						derivatives.put(argumentID, new RandomVariableFromDoubleArray(0.0));
 					}
 
-					RandomVariable partialDerivative	= getPartialDerivative(argument);
-					RandomVariable derivative			= derivatives.get(id);
+					final RandomVariable partialDerivative	= getPartialDerivative(argument);
+					final RandomVariable derivative			= derivatives.get(id);
 					RandomVariable argumentDerivative	= derivatives.get(argumentID);
 
 					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);
@@ -96,16 +96,16 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 			}
 		}
 
-		private RandomVariable getPartialDerivative(OperatorTreeNode differential){
+		private RandomVariable getPartialDerivative(final OperatorTreeNode differential){
 
 			if(!arguments.contains(differential)) {
 				return new RandomVariableFromDoubleArray(0.0);
 			}
 
-			int differentialIndex = arguments.indexOf(differential);
-			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
-			RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
-			RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
+			final int differentialIndex = arguments.indexOf(differential);
+			final RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
+			final RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
+			final RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
 
 			RandomVariable resultrandomvariable = null;
 
@@ -139,19 +139,19 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
 				break;
 			case MIN:
-				double min = X.getMin();
+				final double min = X.getMin();
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == min) ? 1.0 : 0.0;
 					}
 				});
 				break;
 			case MAX:
-				double max = X.getMax();
+				final double max = X.getMax();
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == max) ? 1.0 : 0.0;
 					}
 				});
@@ -261,7 +261,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				if(differentialIndex == 0) {
 					resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 						@Override
-						public double applyAsDouble(double x) {
+						public double applyAsDouble(final double x) {
 							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;
 						}
 					});
@@ -281,27 +281,27 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	private final RandomVariable values;
 	private final OperatorTreeNode operatorTreeNode;
 
-	public static RandomVariableDifferentiableAADStochasticNonOptimized of(double value) {
+	public static RandomVariableDifferentiableAADStochasticNonOptimized of(final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(value);
 	}
 
-	public static RandomVariableDifferentiableAADStochasticNonOptimized of(RandomVariable randomVariable) {
+	public static RandomVariableDifferentiableAADStochasticNonOptimized of(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(randomVariable);
 	}
 
-	public RandomVariableDifferentiableAADStochasticNonOptimized(double value) {
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final double value) {
 		this(new RandomVariableFromDoubleArray(value), null, null);
 	}
 
-	public RandomVariableDifferentiableAADStochasticNonOptimized(double time, double[] realisations) {
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final double time, final double[] realisations) {
 		this(new RandomVariableFromDoubleArray(time, realisations), null, null);
 	}
 
-	public RandomVariableDifferentiableAADStochasticNonOptimized(RandomVariable randomVariable) {
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final RandomVariable randomVariable) {
 		this(randomVariable, null, null);
 	}
 
-	private RandomVariableDifferentiableAADStochasticNonOptimized(RandomVariable values, List<RandomVariable> arguments, OperatorType operator) {
+	private RandomVariableDifferentiableAADStochasticNonOptimized(final RandomVariable values, final List<RandomVariable> arguments, final OperatorType operator) {
 		super();
 		this.values = values;
 		operatorTreeNode = new OperatorTreeNode(operator, arguments);
@@ -321,33 +321,33 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public Map<Long, RandomVariable> getGradient(Set<Long> independentIDs) {
+	public Map<Long, RandomVariable> getGradient(final Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
-		Map<Long, RandomVariable> derivatives = new HashMap<>();
+		final Map<Long, RandomVariable> derivatives = new HashMap<>();
 
 		// Put derivative of this node w.r.t. itself
 		derivatives.put(getID(), new RandomVariableFromDoubleArray(1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
-		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
+		final TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
 		independents.put(getID(), getOperatorTreeNode());
 
 		while(independents.size() > 0) {
 			// Process node with the highest id in independents
-			Map.Entry<Long, OperatorTreeNode> independentEntry = independents.lastEntry();
-			Long id = independentEntry.getKey();
-			OperatorTreeNode independent = independentEntry.getValue();
+			final Map.Entry<Long, OperatorTreeNode> independentEntry = independents.lastEntry();
+			final Long id = independentEntry.getKey();
+			final OperatorTreeNode independent = independentEntry.getValue();
 
 			// Get arguments of this node and propagate derivative to arguments
-			List<OperatorTreeNode> arguments = independent.arguments;
+			final List<OperatorTreeNode> arguments = independent.arguments;
 			if(arguments != null && arguments.size() > 0) {
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 
 				// Add all non constant arguments to the list of independents
-				for(OperatorTreeNode argument : arguments) {
+				for(final OperatorTreeNode argument : arguments) {
 					if(argument != null) {
-						Long argumentId = argument.id;
+						final Long argumentId = argument.id;
 						independents.put(argumentId, argument);
 					}
 				}
@@ -364,14 +364,14 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public Map<Long, RandomVariable> getTangents(Set<Long> dependentIDs) {
+	public Map<Long, RandomVariable> getTangents(final Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
 
 	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD
 	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
 
-	public RandomVariable getAverageAsRandomVariableAAD(RandomVariable probabilities) {
+	public RandomVariable getAverageAsRandomVariableAAD(final RandomVariable probabilities) {
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				new RandomVariableFromDoubleArray(getAverage(probabilities)),
@@ -379,7 +379,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				OperatorType.AVERAGE2);
 	}
 
-	public RandomVariable getVarianceAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable getVarianceAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				new RandomVariableFromDoubleArray(getVariance(probabilities)),
@@ -387,7 +387,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				OperatorType.VARIANCE2);
 	}
 
-	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				new RandomVariableFromDoubleArray(getStandardDeviation(probabilities)),
@@ -395,7 +395,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 				OperatorType.STDEV2);
 	}
 
-	public RandomVariable 	getStandardErrorAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable 	getStandardErrorAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				new RandomVariableFromDoubleArray(getStandardError(probabilities)),
@@ -468,7 +468,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		return getValues().equals(randomVariable);
 	}
 
@@ -486,7 +486,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		return getValues().get(pathOrState);
 	}
 
@@ -547,7 +547,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		return getValues().getAverage(probabilities);
 	}
 
@@ -563,7 +563,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		return getValues().getVariance(probabilities);
 	}
 
@@ -587,7 +587,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		return getValues().getStandardDeviation(probabilities);
 	}
 
@@ -603,7 +603,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		return getValues().getStandardError(probabilities);
 	}
 
@@ -611,7 +611,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
 	 */
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		return getValues().getQuantile(quantile);
 	}
 
@@ -619,7 +619,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		return ((RandomVariableDifferentiableAADStochasticNonOptimized) getValues()).getValues().getQuantile(quantile, probabilities);
 	}
 
@@ -627,7 +627,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
 	 */
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		return ((RandomVariableDifferentiableAADStochasticNonOptimized) getValues()).getValues().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
@@ -635,7 +635,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
 	 */
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		return getValues().getHistogram(intervalPoints);
 	}
 
@@ -643,7 +643,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
 	 */
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		return getValues().getHistogram(numberOfPoints, standardDeviations);
 	}
 
@@ -656,7 +656,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().cap(cap),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(cap)),
@@ -664,7 +664,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().floor(floor),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(floor)),
@@ -672,7 +672,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().add(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -680,7 +680,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().sub(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -688,7 +688,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().mult(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -696,7 +696,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().div(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -704,7 +704,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().pow(exponent),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(exponent)),
@@ -774,7 +774,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().add(randomVariable),
 				Arrays.asList(this, randomVariable),
@@ -785,7 +785,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().sub(randomVariable),
 				Arrays.asList(this, randomVariable),
@@ -793,7 +793,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().bus(randomVariable),
 				Arrays.asList(randomVariable, this), // SUB with switched arguments
@@ -804,7 +804,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariableDifferentiable mult(RandomVariable randomVariable) {
+	public RandomVariableDifferentiable mult(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().mult(randomVariable),
 				Arrays.asList(this, randomVariable),
@@ -812,7 +812,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().div(randomVariable),
 				Arrays.asList(this, randomVariable),
@@ -820,7 +820,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().vid(randomVariable),
 				Arrays.asList(randomVariable, this), // DIV with switched arguments
@@ -828,7 +828,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
+	public RandomVariable cap(final RandomVariable cap) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().cap(cap),
 				Arrays.asList(this, cap),
@@ -836,7 +836,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().cap(floor),
 				Arrays.asList(this, floor),
@@ -847,7 +847,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().accrue(rate, periodLength),
 				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),
@@ -855,7 +855,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().discount(rate, periodLength),
 				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),
@@ -863,7 +863,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
@@ -890,7 +890,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().addProduct(factor1, factor2),
 				Arrays.asList(this, factor1, new RandomVariableFromDoubleArray(factor2)),
@@ -898,7 +898,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().addProduct(factor1, factor2),
 				Arrays.asList(this, factor1, factor2),
@@ -906,7 +906,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().addRatio(numerator, denominator),
 				Arrays.asList(this, numerator, denominator),
@@ -914,7 +914,7 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(
 				getValues().subRatio(numerator, denominator),
 				Arrays.asList(this, numerator, denominator),
@@ -937,17 +937,17 @@ public class RandomVariableDifferentiableAADStochasticNonOptimized implements Ra
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }

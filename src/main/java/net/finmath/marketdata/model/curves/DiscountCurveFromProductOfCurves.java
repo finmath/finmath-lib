@@ -33,7 +33,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @param referenceDate The reference date of this curve.
 	 * @param curveNames Argument list or array of curve names.
 	 */
-	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, String... curveNames) {
+	public DiscountCurveFromProductOfCurves(final String name, final LocalDate referenceDate, final String... curveNames) {
 		super(name, referenceDate);
 
 		this.curveNames = curveNames;
@@ -47,7 +47,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	 * @param referenceDate The reference date of this curve.
 	 * @param curves Argument list or array of curves.
 	 */
-	public DiscountCurveFromProductOfCurves(String name, LocalDate referenceDate, DiscountCurve... curves) {
+	public DiscountCurveFromProductOfCurves(final String name, final LocalDate referenceDate, final DiscountCurve... curves) {
 		super(name, referenceDate);
 
 		this.curveNames = null;
@@ -55,12 +55,12 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getDiscountFactor(double maturity) {
+	public double getDiscountFactor(final double maturity) {
 		return getDiscountFactor(null, maturity);
 	}
 
 	@Override
-	public double getDiscountFactor(AnalyticModel model, double maturity) {
+	public double getDiscountFactor(final AnalyticModel model, final double maturity) {
 		double discountFactor = 1.0;
 
 		if(curveNames != null) {
@@ -68,12 +68,12 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 				throw new IllegalArgumentException("This object requires that a reference to an AnalyticModel is passed to a call this method.");
 			}
 
-			for(String curveName : curveNames) {
+			for(final String curveName : curveNames) {
 				discountFactor *= model.getDiscountCurve(curveName).getDiscountFactor(model, maturity);
 			}
 		}
 		else {
-			for(DiscountCurve curve : curves) {
+			for(final DiscountCurve curve : curves) {
 				discountFactor *= curve.getDiscountFactor(model, maturity);
 			}
 		}
@@ -82,7 +82,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -93,7 +93,7 @@ public class DiscountCurveFromProductOfCurves extends AbstractCurve implements S
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 	}
 
 	@Override

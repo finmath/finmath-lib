@@ -28,31 +28,31 @@ public class InterestRateAnalyticProductFactory implements ProductFactory<Intere
 	 *
 	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
 	 */
-	public InterestRateAnalyticProductFactory(LocalDate referenceDate) {
+	public InterestRateAnalyticProductFactory(final LocalDate referenceDate) {
 		super();
 		this.referenceDate = referenceDate;
 	}
 
 	@Override
-	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(final ProductDescriptor descriptor) {
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
-			InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate),
+			final InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;
+			final DescribedProduct<InterestRateSwapLegProductDescriptor> product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate),
 					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpreads(), swapLeg.getDiscountCurveName(),
 					swapLeg.isNotionalExchanged());
 			return product;
 		}
 		else if(descriptor instanceof InterestRateSwapProductDescriptor){
-			InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
+			final InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;
 			InterestRateProductDescriptor legDescriptor = swap.getLegReceiver();
-			AnalyticProduct legReceiver =  (AnalyticProduct) getProductFromDescriptor(legDescriptor);
+			final AnalyticProduct legReceiver =  (AnalyticProduct) getProductFromDescriptor(legDescriptor);
 			legDescriptor = swap.getLegPayer();
-			AnalyticProduct legPayer = (AnalyticProduct) getProductFromDescriptor(legDescriptor);
-			DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
+			final AnalyticProduct legPayer = (AnalyticProduct) getProductFromDescriptor(legDescriptor);
+			final DescribedProduct<InterestRateSwapProductDescriptor> product = new Swap(legReceiver, legPayer);
 			return product;
 		}
 		else {
-			String name = descriptor.name();
+			final String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
 	}

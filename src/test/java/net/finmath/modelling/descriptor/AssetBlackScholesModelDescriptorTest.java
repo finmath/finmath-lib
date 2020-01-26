@@ -62,27 +62,27 @@ public class AssetBlackScholesModelDescriptorTest {
 		/*
 		 * Create Black-Scholes Model descriptor
 		 */
-		BlackScholesModelDescriptor blackScholesModelDescriptor = new BlackScholesModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility);
+		final BlackScholesModelDescriptor blackScholesModelDescriptor = new BlackScholesModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility);
 
 		/*
 		 * Create European option descriptor
 		 */
-		String underlyingName = "eurostoxx";
-		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
+		final String underlyingName = "eurostoxx";
+		final ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
 		 */
 
 		// Create Fourier implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
+		final DescribedModel<?> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		Product europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
+		final Product europeanOptionFourier = blackScholesModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
-		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, blackScholesModelFourier);
+		final double evaluationTime = 0.0;
+		final Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, blackScholesModelFourier);
 
 		System.out.println("Fourier transform implementation..:" + valueFourier);
 
@@ -91,16 +91,16 @@ public class AssetBlackScholesModelDescriptorTest {
 		 */
 
 		// Create a time discretization
-		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
+		final BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Monte Carlo implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
+		final DescribedModel<?> blackScholesModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion, null)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		Product europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
+		final Product europeanOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
+		final Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
 		System.out.println("Monte-Carlo implementation........:" + valueMonteCarlo);
 
@@ -109,12 +109,12 @@ public class AssetBlackScholesModelDescriptorTest {
 		 */
 
 		// Create finite difference implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
+		final DescribedModel<?> blackScholesModelFiniteDifference = (new BlackScholesModelMonteCarloFiniteDifference1D(0.5 /* theta */)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		Product europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
+		final Product europeanOptionFiniteDifference = blackScholesModelFiniteDifference.getProductFromDescriptor(europeanOptionDescriptor);
 
-		Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
+		final Map<String, Object> valueFiniteDifference = europeanOptionFiniteDifference.getValues(evaluationTime, blackScholesModelFiniteDifference);
 
 		System.out.println("Finite difference implementation..:" + valueFiniteDifference);
 
@@ -122,13 +122,13 @@ public class AssetBlackScholesModelDescriptorTest {
 		 * Calculate analytic benchmark.
 		 */
 
-		double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getMaturity());
-		double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
-		double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
-		double volatility = blackScholesModelDescriptor.getVolatility();
-		double optionStrike = ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getStrike();
+		final double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getMaturity());
+		final double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
+		final double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
+		final double volatility = blackScholesModelDescriptor.getVolatility();
+		final double optionStrike = ((SingleAssetEuropeanOptionProductDescriptor) europeanOptionDescriptor).getStrike();
 
-		double valueAnalytic = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, optionMaturity, optionStrike, payOffUnit);
+		final double valueAnalytic = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, optionMaturity, optionStrike, payOffUnit);
 
 		System.out.println("Analytic implementation...........:" + valueAnalytic);
 
@@ -150,13 +150,13 @@ public class AssetBlackScholesModelDescriptorTest {
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+	private static DiscountCurve getDiscountCurve(final String name, final LocalDate referenceDate, final double riskFreeRate) {
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 
@@ -170,9 +170,9 @@ public class AssetBlackScholesModelDescriptorTest {
 	 * @param seed The seed for the random number generator.
 	 * @return A Brownian motion implementing BrownianMotion with the given specs.
 	 */
-	private static BrownianMotion getBronianMotion(int numberOfTimeSteps, double deltaT, int numberOfFactors, int numberOfPaths, int seed) {
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+	private static BrownianMotion getBronianMotion(final int numberOfTimeSteps, final double deltaT, final int numberOfFactors, final int numberOfPaths, final int seed) {
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 		return brownianMotion;
 	}
 

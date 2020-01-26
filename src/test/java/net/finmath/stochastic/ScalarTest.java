@@ -33,10 +33,10 @@ public class ScalarTest {
 
 	@Test
 	public void testAddProduct(){
-		Scalar five = new Scalar(5);
-		Scalar six = new Scalar(6);
-		Scalar seven = new Scalar(7);
-		Scalar minusFour = new Scalar(-4);
+		final Scalar five = new Scalar(5);
+		final Scalar six = new Scalar(6);
+		final Scalar seven = new Scalar(7);
+		final Scalar minusFour = new Scalar(-4);
 
 		Assert.assertEquals(41, six.addProduct(five, seven).doubleValue(), 0.0);
 		Assert.assertEquals(-15, five.addProduct(five, minusFour).doubleValue(), 0.0);
@@ -45,10 +45,10 @@ public class ScalarTest {
 
 	@Test
 	public void testAddRatio(){
-		Scalar five = new Scalar(5);
-		Scalar six = new Scalar(6);
-		Scalar seven = new Scalar(7);
-		Scalar minusFour = new Scalar(-4);
+		final Scalar five = new Scalar(5);
+		final Scalar six = new Scalar(6);
+		final Scalar seven = new Scalar(7);
+		final Scalar minusFour = new Scalar(-4);
 
 		Assert.assertEquals(6.0 + (5.0 / 7.0), six.addRatio(five, seven).doubleValue(), 1e-10);
 		Assert.assertEquals(5.0 + (5.0 / -4.0), five.addRatio(five, minusFour).doubleValue(), 1e-10);
@@ -57,7 +57,7 @@ public class ScalarTest {
 
 	@Test
 	public void testArrayOf() {
-		Scalar testArray[] = Scalar.arrayOf(new double[] {10, -5, 14.1});
+		final Scalar testArray[] = Scalar.arrayOf(new double[] {10, -5, 14.1});
 		Assert.assertTrue(new Scalar(10).equals(testArray[0]));
 		Assert.assertTrue(new Scalar(-5).equals(testArray[1]));
 		Assert.assertTrue(new Scalar(14.1).equals(testArray[2]));

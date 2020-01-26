@@ -19,7 +19,7 @@ import net.finmath.modelling.ProductFactory;
  */
 public class ProductFactoryCascade<T extends ProductDescriptor> implements ProductFactory<T> {
 
-	private ArrayList<ProductFactory<? extends T>> factories;
+	private final ArrayList<ProductFactory<? extends T>> factories;
 
 	/**
 	 * Construct an empty factory cascade. This will build no products until amended.
@@ -34,7 +34,7 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 *
 	 * @param factories A list of product factories, i.e. object implementing <code>ProductFactory</code> for the product descriptor <code>T</code>.
 	 */
-	public ProductFactoryCascade(List<ProductFactory<? extends T>> factories) {
+	public ProductFactoryCascade(final List<ProductFactory<? extends T>> factories) {
 		super();
 		this.factories = new ArrayList<>();
 		this.factories.addAll(factories);
@@ -46,8 +46,8 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 * @param factory The factory to be added.
 	 * @return Cascade with amended factory list.
 	 */
-	public ProductFactoryCascade<T> addFactoryBefore(ProductFactory<? extends T> factory) {
-		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
+	public ProductFactoryCascade<T> addFactoryBefore(final ProductFactory<? extends T> factory) {
+		final ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
 		factories.addAll(this.factories);
 		factories.add(0, factory);
 		return new ProductFactoryCascade<>(factories);
@@ -59,20 +59,20 @@ public class ProductFactoryCascade<T extends ProductDescriptor> implements Produ
 	 * @param factory The factory to be added.
 	 * @return Cascade with amended factory list.
 	 */
-	public ProductFactoryCascade<T> addFactoryAfter(ProductFactory<? extends T> factory) {
-		ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
+	public ProductFactoryCascade<T> addFactoryAfter(final ProductFactory<? extends T> factory) {
+		final ArrayList<ProductFactory<? extends T>> factories = new ArrayList<>(this.factories.size()+1);
 		factories.addAll(this.factories);
 		factories.add(factory);
 		return new ProductFactoryCascade<>(factories);
 	}
 
 	@Override
-	public DescribedProduct<? extends T> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+	public DescribedProduct<? extends T> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
 		DescribedProduct<? extends T> product = null;
-		for(ProductFactory<? extends T> factory : factories) {
+		for(final ProductFactory<? extends T> factory : factories) {
 			try {
 				product = factory.getProductFromDescriptor(productDescriptor);
-			} catch ( IllegalArgumentException e) {continue;}
+			} catch ( final IllegalArgumentException e) {continue;}
 			if(product != null) {
 				return product;
 			}

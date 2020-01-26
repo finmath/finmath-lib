@@ -45,7 +45,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	 * @param legReceiver The receiver leg.
 	 * @param legPayer The payler leg.
 	 */
-	public Swap(AnalyticProduct legReceiver, AnalyticProduct legPayer) {
+	public Swap(final AnalyticProduct legReceiver, final AnalyticProduct legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;
@@ -64,13 +64,13 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
 	 */
-	public Swap(Schedule scheduleReceiveLeg,
-			String forwardCurveReceiveName, double spreadReceive,
-			String discountCurveReceiveName,
-			Schedule schedulePayLeg,
-			String forwardCurvePayName, double spreadPay,
-			String discountCurvePayName,
-			boolean isNotionalExchanged
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName,
+			final boolean isNotionalExchanged
 			) {
 		super();
 		legReceiver		= new SwapLeg(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, isNotionalExchanged /* Notional Exchange */);
@@ -89,12 +89,12 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	 * @param spreadPay Fixed spread on the forward or fix rate.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
-	public Swap(Schedule scheduleReceiveLeg,
-			String forwardCurveReceiveName, double spreadReceive,
-			String discountCurveReceiveName,
-			Schedule schedulePayLeg,
-			String forwardCurvePayName, double spreadPay,
-			String discountCurvePayName) {
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName) {
 		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);
 	}
 
@@ -108,30 +108,30 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
 	 * @param discountCurvePayName Name of the discount curve for the payer leg.
 	 */
-	public Swap(Schedule scheduleReceiveLeg,
-			double spreadReceive,
-			String discountCurveReceiveName,
-			Schedule schedulePayLeg,
-			String forwardCurvePayName,
-			String discountCurvePayName) {
+	public Swap(final Schedule scheduleReceiveLeg,
+			final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName,
+			final String discountCurvePayName) {
 		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, true);
 	}
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 
-		double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
-		double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
+		final double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);
+		final double valuePayerLeg	= legPayer.getValue(evaluationTime, model);
 
 		return valueReceiverLeg - valuePayerLeg;
 	}
 
-	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurve forwardCurve) {
+	public static double getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurve forwardCurve) {
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);
 	}
 
-	public static double getForwardSwapRate(TimeDiscretization fixTenor, TimeDiscretization floatTenor, ForwardCurve forwardCurve, DiscountCurve discountCurve) {
+	public static double getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurve forwardCurve, final DiscountCurve discountCurve) {
 		AnalyticModelFromCurvesAndVols model = null;
 		if(discountCurve != null) {
 			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
@@ -139,35 +139,35 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);
 	}
 
-	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurve forwardCurve) {
+	public static double getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurve forwardCurve) {
 		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);
 	}
 
-	public static double getForwardSwapRate(Schedule fixSchedule, Schedule floatSchedule, ForwardCurve forwardCurve, AnalyticModel model) {
+	public static double getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurve forwardCurve, AnalyticModel model) {
 		DiscountCurve discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());
 		if(discountCurve == null) {
 			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());
 			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });
 		}
 
-		double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
-		double swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
+		final double evaluationTime = fixSchedule.getFixing(0);	// Consider all values
+		final double swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);
 
 		double floatLeg = 0;
 		for(int periodIndex=0; periodIndex<floatSchedule.getNumberOfPeriods(); periodIndex++) {
-			double fixing			= floatSchedule.getFixing(periodIndex);
-			double payment			= floatSchedule.getPayment(periodIndex);
-			double periodLength		= floatSchedule.getPeriodLength(periodIndex);
+			final double fixing			= floatSchedule.getFixing(periodIndex);
+			final double payment			= floatSchedule.getPayment(periodIndex);
+			final double periodLength		= floatSchedule.getPeriodLength(periodIndex);
 
-			double forward			= forwardCurve.getForward(model, fixing, payment-fixing);
-			double discountFactor	= discountCurve.getDiscountFactor(model, payment);
+			final double forward			= forwardCurve.getForward(model, fixing, payment-fixing);
+			final double discountFactor	= discountCurve.getDiscountFactor(model, payment);
 
 			floatLeg += forward * periodLength * discountFactor;
 		}
 
-		double valueFloatLeg = floatLeg / discountCurve.getDiscountFactor(model, evaluationTime);
+		final double valueFloatLeg = floatLeg / discountCurve.getDiscountFactor(model, evaluationTime);
 
-		double swapRate = valueFloatLeg / swapAnnuity;
+		final double swapRate = valueFloatLeg / swapAnnuity;
 
 		//		System.out.println(forwardCurve.getName() + "\t" + discountCurve.getName() + "\t" + swapRate);
 		return swapRate;
@@ -203,8 +203,8 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 		if(!(legReceiver instanceof DescribedProduct<?>) || !(legPayer instanceof DescribedProduct<?>)) {
 			throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor.");
 		}
-		InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
-		InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();
+		final InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
+		final InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();
 		return new  InterestRateSwapProductDescriptor(receiverDescriptor, payerDescriptor);
 	}
 }

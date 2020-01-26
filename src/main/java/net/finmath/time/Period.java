@@ -35,8 +35,8 @@ public class Period implements Comparable<Period>, Serializable {
 
 	private Period() {}
 
-	public Period(LocalDate fixing,  LocalDate payment,
-			LocalDate periodStart, LocalDate periodEnd) {
+	public Period(final LocalDate fixing,  final LocalDate payment,
+			final LocalDate periodStart, final LocalDate periodEnd) {
 		super();
 		this.fixing = fixing;
 		this.payment = payment;
@@ -61,7 +61,7 @@ public class Period implements Comparable<Period>, Serializable {
 	}
 
 	@Override
-	public int compareTo(Period o) {
+	public int compareTo(final Period o) {
 		return getPeriodEnd().compareTo(o.getPeriodEnd());
 	}
 
@@ -77,7 +77,7 @@ public class Period implements Comparable<Period>, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -87,7 +87,7 @@ public class Period implements Comparable<Period>, Serializable {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		Period other = (Period) obj;
+		final Period other = (Period) obj;
 		if (fixing == null) {
 			if (other.fixing != null) {
 				return false;

@@ -28,9 +28,9 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @return The initial value of the model.
 	 */
 	public RandomVariable[] getInitialValue() {
-		RandomVariable[] initialState = getInitialState();
+		final RandomVariable[] initialState = getInitialState();
 
-		RandomVariable[] value = new RandomVariable[initialState.length];
+		final RandomVariable[] value = new RandomVariable[initialState.length];
 		for(int i= 0; i<value.length; i++) {
 			value[i] = applyStateSpaceTransform(i,initialState[i]);
 		}
@@ -43,7 +43,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 */
 
 	@Override
-	public void setProcess(MonteCarloProcess process) {
+	public void setProcess(final MonteCarloProcess process) {
 		this.process = process;
 	}
 
@@ -64,7 +64,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getProcessValue(int, int)
 	 */
-	public RandomVariable getProcessValue(int timeIndex, int componentIndex) throws CalculationException {
+	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex) throws CalculationException {
 		return process.getProcessValue(timeIndex, componentIndex);
 	}
 
@@ -74,7 +74,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getMonteCarloWeights(int)
 	 */
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return process.getMonteCarloWeights(timeIndex);
 	}
 
@@ -99,7 +99,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @return Returns the time for a given time index.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getTime(int)
 	 */
-	public final double getTime(int timeIndex) {
+	public final double getTime(final int timeIndex) {
 		return process.getTime(timeIndex);
 	}
 
@@ -109,7 +109,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @return The time index corresponding to the given time.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getTimeIndex(double)
 	 */
-	public final int getTimeIndex(double time) {
+	public final int getTimeIndex(final double time) {
 		return process.getTimeIndex(time);
 	}
 }

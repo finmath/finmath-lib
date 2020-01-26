@@ -24,10 +24,10 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 	private static final long serialVersionUID = 8846923173857477343L;
 
 	private Curve	baseCurve;
-	private Curve	fixedPartCurve;
+	private final Curve	fixedPartCurve;
 
-	private double fixedPartStartTime;
-	private double fixedPartEndTime;
+	private final double fixedPartStartTime;
+	private final double fixedPartEndTime;
 
 
 	/**
@@ -46,23 +46,23 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
-		public Builder(PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
+		public Builder(final PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
 			super((CurveInterpolation)(piecewiseCurve.baseCurve));
 			curve = piecewiseCurve;
 		}
 
 		@Override
 		public Curve build() throws CloneNotSupportedException {
-			PiecewiseCurve buildCurve = curve.clone();
+			final PiecewiseCurve buildCurve = curve.clone();
 			buildCurve.baseCurve = super.build();
 			curve = null;
 			return buildCurve;
 		}
 	}
 
-	public PiecewiseCurve(Curve curve,
-			Curve fixedPartCurve, double fixedPartStartTime,
-			double fixedPartEndTime) {
+	public PiecewiseCurve(final Curve curve,
+			final Curve fixedPartCurve, final double fixedPartStartTime,
+			final double fixedPartEndTime) {
 		super(curve.getName(), curve.getReferenceDate());
 		baseCurve = curve;
 		this.fixedPartCurve = fixedPartCurve;
@@ -76,7 +76,7 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		baseCurve.setParameter(parameter);
 	}
 
@@ -119,12 +119,12 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 	}
 
 	@Override
-	public double getValue(double time) {
+	public double getValue(final double time) {
 		return getValue(null, time);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		if(time >fixedPartStartTime && time < fixedPartEndTime) {
 			return fixedPartCurve.getValue(model, time);
 		}
@@ -134,8 +134,8 @@ public class PiecewiseCurve extends AbstractCurve implements Curve {
 	}
 
 	@Override
-	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		PiecewiseCurve newCurve = clone();
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+		final PiecewiseCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 
 		return newCurve;

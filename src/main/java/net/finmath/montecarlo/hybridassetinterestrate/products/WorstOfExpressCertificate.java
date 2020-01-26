@@ -26,9 +26,9 @@ public class WorstOfExpressCertificate implements Product {
 	private final double[] redemption;
 	private final double redemptionFinal;
 
-	public WorstOfExpressCertificate(double maturity, double[] baseLevels,
-			double[] exerciseDates, double[] triggerLevels,
-			double[] redemption, double redemptionFinal) {
+	public WorstOfExpressCertificate(final double maturity, final double[] baseLevels,
+			final double[] exerciseDates, final double[] triggerLevels,
+			final double[] redemption, final double redemptionFinal) {
 		super();
 		this.maturity = maturity;
 		strikeLevels = baseLevels;
@@ -42,23 +42,23 @@ public class WorstOfExpressCertificate implements Product {
 	 * @see net.finmath.modelling.Product#getValue(double, net.finmath.modelling.Model)
 	 */
 	@Override
-	public Object getValue(double evaluationTime, Model model) {
+	public Object getValue(final double evaluationTime, final Model model) {
 		return null;
 	}
 
-	public double getValue(double evaluationTime, HybridAssetLIBORModelMonteCarloSimulation model) throws CalculationException {
+	public double getValue(final double evaluationTime, final HybridAssetLIBORModelMonteCarloSimulation model) throws CalculationException {
 
-		RandomVariable zero				= model.getRandomVariableForConstant(0.0);
+		final RandomVariable zero				= model.getRandomVariableForConstant(0.0);
 		RandomVariable values				= model.getRandomVariableForConstant(0.0);
 		RandomVariable exerciseIndicator	= model.getRandomVariableForConstant(1.0);
 
 		for(int triggerIndex=0; triggerIndex<exerciseDates.length; triggerIndex++) {
 
 			// get worst performance
-			RandomVariable worstPerformance = getWorstPerformance(model, exerciseDates[triggerIndex], strikeLevels);
+			final RandomVariable worstPerformance = getWorstPerformance(model, exerciseDates[triggerIndex], strikeLevels);
 
 			// exercise if worstPerformance >= triggerPerformanceLevel[triggerIndex]
-			RandomVariable trigger = worstPerformance.sub(triggerPerformanceLevel[triggerIndex]);
+			final RandomVariable trigger = worstPerformance.sub(triggerPerformanceLevel[triggerIndex]);
 
 			RandomVariable payment = exerciseIndicator.mult(redemption[triggerIndex]);
 			payment = payment.div(model.getNumeraire(exerciseDates[triggerIndex]));
@@ -72,7 +72,7 @@ public class WorstOfExpressCertificate implements Product {
 		 * final redemption
 		 */
 
-		RandomVariable worstPerformance = getWorstPerformance(model, maturity, strikeLevels);
+		final RandomVariable worstPerformance = getWorstPerformance(model, maturity, strikeLevels);
 		RandomVariable payment = exerciseIndicator.mult(worstPerformance.mult(redemptionFinal));
 
 		payment = payment.div(model.getNumeraire(maturity));
@@ -92,11 +92,11 @@ public class WorstOfExpressCertificate implements Product {
 	 * @return
 	 * @throws CalculationException
 	 */
-	private static RandomVariable getWorstPerformance(HybridAssetLIBORModelMonteCarloSimulation model, double exerciseDate, double[] baseLevels) throws CalculationException {
+	private static RandomVariable getWorstPerformance(final HybridAssetLIBORModelMonteCarloSimulation model, final double exerciseDate, final double[] baseLevels) throws CalculationException {
 		RandomVariable worstPerformance = null;
 		for(int assetIndex=0; assetIndex<baseLevels.length; assetIndex++) {
-			RandomVariable underlying = model.getAssetValue(exerciseDate, assetIndex);
-			RandomVariable performance = underlying.div(baseLevels[assetIndex]);
+			final RandomVariable underlying = model.getAssetValue(exerciseDate, assetIndex);
+			final RandomVariable performance = underlying.div(baseLevels[assetIndex]);
 			worstPerformance = worstPerformance != null ? worstPerformance.cap(performance) : performance;
 		}
 

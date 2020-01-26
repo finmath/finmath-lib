@@ -19,7 +19,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 	private final double	errorTolerance;
 	private final int	maxThreads;
 
-	public OptimizerFactoryLevenbergMarquardt(LevenbergMarquardt.RegularizationMethod regularizationMethod, int maxIterations, double errorTolerance, int maxThreads) {
+	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final int maxIterations, final double errorTolerance, final int maxThreads) {
 		super();
 		this.regularizationMethod = regularizationMethod;
 		this.maxIterations = maxIterations;
@@ -27,26 +27,26 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 		this.maxThreads = maxThreads;
 	}
 
-	public OptimizerFactoryLevenbergMarquardt(int maxIterations, double errorTolerance, int maxThreads) {
+	public OptimizerFactoryLevenbergMarquardt(final int maxIterations, final double errorTolerance, final int maxThreads) {
 		this(LevenbergMarquardt.RegularizationMethod.LEVENBERG_MARQUARDT, maxIterations, errorTolerance, maxThreads);
 	}
 
-	public OptimizerFactoryLevenbergMarquardt(int maxIterations, int maxThreads) {
+	public OptimizerFactoryLevenbergMarquardt(final int maxIterations, final int maxThreads) {
 		this(maxIterations, 0.0, maxThreads);
 	}
 
 	@Override
-	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, double[] initialParameters, double[] lowerBound,double[]  upperBound, double[] parameterSteps, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterSteps, final double[] targetValues) {
 		return (new LevenbergMarquardt(
 				regularizationMethod,
 				initialParameters,
@@ -57,7 +57,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 			private static final long serialVersionUID = -1628631567190057495L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 				objectiveFunction.setValues(parameters, values);
 			}
 		})

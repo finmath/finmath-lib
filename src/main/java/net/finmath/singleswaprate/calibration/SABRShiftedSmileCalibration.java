@@ -86,11 +86,11 @@ public class SABRShiftedSmileCalibration {
 	 *
 	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
 	 */
-	public static SABRVolatilityCube createSABRVolatilityCube(String name, LocalDate referenceDate,
-			SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, SwaptionDataLattice physicalPremiumsATM,
-			AnalyticModel model, double sabrDisplacement, double sabrBeta,	double correlationDecay, double iborOisDecorrelation) throws SolverException {
+	public static SABRVolatilityCube createSABRVolatilityCube(final String name, final LocalDate referenceDate,
+			final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final AnalyticModel model, final double sabrDisplacement, final double sabrBeta,	final double correlationDecay, final double iborOisDecorrelation) throws SolverException {
 
-		SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,
+		final SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,
 				model, sabrDisplacement, sabrBeta, correlationDecay, iborOisDecorrelation);
 
 		return factory.build(name);
@@ -107,20 +107,20 @@ public class SABRShiftedSmileCalibration {
 	 * @param model The model for context.
 	 * @return The set of maps containing market data volatility points.
 	 */
-	public static Map<Integer, DataTable> createVolatilityCubeLattice(String name, LocalDate referenceDate,
-			SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, SwaptionDataLattice physicalPremiumsATM, AnalyticModel model) {
+	public static Map<Integer, DataTable> createVolatilityCubeLattice(final String name, final LocalDate referenceDate,
+			final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM, final AnalyticModel model) {
 
-		SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,
+		final SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,
 				model, 0, 0, 0, 0);
 
 		try {
 			factory.build(name);
-		} catch (SolverException e) {
+		} catch (final SolverException e) {
 			// ignore this, lattice doesn't use calibrated cube
 		}
 
-		TreeMap<Integer, DataTable> returnMap = new TreeMap<>();
-		for(Map.Entry<Integer, DataTableLight> entry : factory.physicalVolatilities.entrySet()) {
+		final TreeMap<Integer, DataTable> returnMap = new TreeMap<>();
+		for(final Map.Entry<Integer, DataTableLight> entry : factory.physicalVolatilities.entrySet()) {
 			returnMap.put(entry.getKey(), entry.getValue().clone());
 		}
 		return returnMap;
@@ -139,9 +139,9 @@ public class SABRShiftedSmileCalibration {
 	 * @param correlationDecay The correlation decay parameter the cube is supposed to have.
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter the calibrated cube is supposed to have.
 	 */
-	public SABRShiftedSmileCalibration(LocalDate referenceDate,	SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums,
-			SwaptionDataLattice physicalPremiumsATM, AnalyticModel model,
-			double sabrDisplacement, double sabrBeta, double correlationDecay, double iborOisDecorrelation) {
+	public SABRShiftedSmileCalibration(final LocalDate referenceDate,	final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final SwaptionDataLattice physicalPremiumsATM, final AnalyticModel model,
+			final double sabrDisplacement, final double sabrBeta, final double correlationDecay, final double iborOisDecorrelation) {
 		super();
 		this.referenceDate = referenceDate;
 		this.physicalPremiumsATM = physicalPremiumsATM;
@@ -167,7 +167,7 @@ public class SABRShiftedSmileCalibration {
 	 *
 	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
 	 */
-	public SABRVolatilityCube build(String name) throws SolverException {
+	public SABRVolatilityCube build(final String name) throws SolverException {
 
 		findInterpolationNodes();
 		makeSwapRateTable();
@@ -193,47 +193,47 @@ public class SABRShiftedSmileCalibration {
 	private void calibrateSmilesOnNodes() throws SolverException {
 
 		// lists for all parameter maps
-		ArrayList<Integer> maturities = new ArrayList<>();
-		ArrayList<Integer> terminations = new ArrayList<>();
-		ArrayList<Double> sabrRhos = new ArrayList<>();
-		ArrayList<Double> sabrBaseVols = new ArrayList<>();
-		ArrayList<Double> sabrVolvols = new ArrayList<>();
+		final ArrayList<Integer> maturities = new ArrayList<>();
+		final ArrayList<Integer> terminations = new ArrayList<>();
+		final ArrayList<Double> sabrRhos = new ArrayList<>();
+		final ArrayList<Double> sabrBaseVols = new ArrayList<>();
+		final ArrayList<Double> sabrVolvols = new ArrayList<>();
 
 		// calibrate a SABR smile on each node of the grid
 		double[] initialParameters = new double[]{ 0.01, 0.15, 0.3 }; // baseVol, volVol, rho
 
-		int[] maturityArray = new int[interpolationNodes.getMaturities().size()];
-		int[] terminationArray = new int[interpolationNodes.getTerminations().size()];
+		final int[] maturityArray = new int[interpolationNodes.getMaturities().size()];
+		final int[] terminationArray = new int[interpolationNodes.getTerminations().size()];
 
 		// going through nodes in reverse, because we want to use results from longer tenors for calibration of shorter ones
 		int index = maturityArray.length-1;
-		for(int maturity : interpolationNodes.getMaturities()) {
+		for(final int maturity : interpolationNodes.getMaturities()) {
 			maturityArray[index--] = maturity;
 		}
 		index = terminationArray.length-1;
-		for(int termination : interpolationNodes.getTerminations()) {
+		for(final int termination : interpolationNodes.getTerminations()) {
 			terminationArray[index--] = termination;
 		}
 
-		for(int maturity :  maturityArray) {
-			for(int termination : terminationArray) {
-				double parSwapRate = swapRateTable.getValue(maturity, termination);
-				double sabrMaturity = floatMetaSchedule.generateSchedule(referenceDate, referenceDate.plusMonths(maturity),
+		for(final int maturity :  maturityArray) {
+			for(final int termination : terminationArray) {
+				final double parSwapRate = swapRateTable.getValue(maturity, termination);
+				final double sabrMaturity = floatMetaSchedule.generateSchedule(referenceDate, referenceDate.plusMonths(maturity),
 						referenceDate.plusMonths(maturity+termination)).getFixing(0);
 
 				// gather smile points
 				int count = 0;
-				for(int moneyness : physicalVolatilities.keySet()) {
+				for(final int moneyness : physicalVolatilities.keySet()) {
 					if(physicalVolatilities.get(moneyness).containsEntryFor(maturity, termination)) {
 						count++;
 					}
 				}
 
-				double[] marketStrikes = new double[count];
-				double[] marketVolatilities = new double[count];
+				final double[] marketStrikes = new double[count];
+				final double[] marketVolatilities = new double[count];
 
 				index = 0;
-				for(int moneyness : physicalVolatilities.keySet()) {
+				for(final int moneyness : physicalVolatilities.keySet()) {
 					if(physicalVolatilities.get(moneyness).containsEntryFor(maturity, termination)) {
 						marketStrikes[index] = parSwapRate + moneyness /10000.0;
 						marketVolatilities[index++] = physicalVolatilities.get(moneyness).getValue(maturity, termination);
@@ -242,7 +242,7 @@ public class SABRShiftedSmileCalibration {
 
 
 				// calibrate SABR
-				LevenbergMarquardt optimizer = new LevenbergMarquardt(
+				final LevenbergMarquardt optimizer = new LevenbergMarquardt(
 						initialParameters,
 						marketVolatilities,
 						maxIterations,
@@ -251,7 +251,7 @@ public class SABRShiftedSmileCalibration {
 					private static final long serialVersionUID = -7551690451877166912L;
 
 					@Override
-					public void setValues(double[] parameters, double[] values) {
+					public void setValues(final double[] parameters, final double[] values) {
 
 						// making sure that volatility stays above 0 and rho between -1 and 1.
 						parameters[0] = Math.max(parameters[0], 0);
@@ -270,7 +270,7 @@ public class SABRShiftedSmileCalibration {
 				//				System.out.println("Optimizer for node "+maturity+"x"+termination+" finished after " +optimizer.getIterations() +
 				//						" iterations with mean error " + optimizer.getRootMeanSquaredError());
 
-				double[] parameters = optimizer.getBestFitParameters();
+				final double[] parameters = optimizer.getBestFitParameters();
 
 				// sort calibrated parameters into lists
 				maturities.add(maturity);
@@ -304,24 +304,24 @@ public class SABRShiftedSmileCalibration {
 	 */
 	private void findInterpolationNodes() {
 
-		ArrayList<Integer> nodeMaturities = new ArrayList<>();
-		ArrayList<Integer> nodeTerminations = new ArrayList<>();
-		ArrayList<Double> nodeCardinalities = new ArrayList<>();
+		final ArrayList<Integer> nodeMaturities = new ArrayList<>();
+		final ArrayList<Integer> nodeTerminations = new ArrayList<>();
+		final ArrayList<Double> nodeCardinalities = new ArrayList<>();
 
-		Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
+		final Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
 		payerStrikes.remove(0);
-		Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
+		final Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
 		receiverStrikes.remove(0);
 
-		for(int maturity : physicalPremiumsATM.getMaturities()) {
-			for(int termination : physicalPremiumsATM.getTenors(0, maturity)) {
+		for(final int maturity : physicalPremiumsATM.getMaturities()) {
+			for(final int termination : physicalPremiumsATM.getTenors(0, maturity)) {
 				int count = 1;
-				for(int strike : payerStrikes) {
+				for(final int strike : payerStrikes) {
 					if(cashPayerPremiums.containsEntryFor(maturity, termination, strike)) {
 						count++;
 					}
 				}
-				for(int strike : receiverStrikes) {
+				for(final int strike : receiverStrikes) {
 					if(cashReceiverPremiums.containsEntryFor(maturity, termination, strike)) {
 						count++;
 					}
@@ -340,8 +340,8 @@ public class SABRShiftedSmileCalibration {
 
 		// fix holes (as interpolation needs a regular grid)
 		if(interpolationNodes.size() != interpolationNodes.getMaturities().size() * interpolationNodes.getTerminations().size()) {
-			for(int maturity : interpolationNodes.getMaturities()) {
-				for(int termination : interpolationNodes.getTerminations()) {
+			for(final int maturity : interpolationNodes.getMaturities()) {
+				for(final int termination : interpolationNodes.getTerminations()) {
 					if(! interpolationNodes.containsEntryFor(maturity, termination)) {
 						interpolationNodes = interpolationNodes.addPoint(maturity, termination, 1);
 					}
@@ -356,64 +356,64 @@ public class SABRShiftedSmileCalibration {
 	private void makePhysicalVolatilities() {
 
 		// atm base
-		int[] maturitiesArray = new int[interpolationNodes.size()];
-		int[] terminationsArray = new int[interpolationNodes.size()];
-		double[] volatilitiesArray = new double[interpolationNodes.size()];
+		final int[] maturitiesArray = new int[interpolationNodes.size()];
+		final int[] terminationsArray = new int[interpolationNodes.size()];
+		final double[] volatilitiesArray = new double[interpolationNodes.size()];
 
 		int index = 0;
-		for(int maturity : interpolationNodes.getMaturities()) {
-			for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : interpolationNodes.getMaturities()) {
+			for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
 				maturitiesArray[index] = maturity;
 				terminationsArray[index] = termination;
 
-				LocalDate maturityDate = referenceDate.plusMonths(maturity);
-				LocalDate terminationDate = maturityDate.plusMonths(termination);
+				final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+				final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				double annuity = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
-				double swapRate = swapRateTable.getValue(maturity, termination);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final double annuity = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
+				final double swapRate = swapRateTable.getValue(maturity, termination);
 
 				volatilitiesArray[index++] = AnalyticFormulas.bachelierOptionImpliedVolatility(swapRate, fixSchedule.getFixing(0), swapRate, annuity,
 						physicalPremiumsATM.getValue(maturity, termination, 0));
 			}
 		}
 
-		DataTableLight physicalATMTable =  new DataTableLight("VolatilitiesPhysicalATM", TableConvention.MONTHS, maturitiesArray, terminationsArray,
+		final DataTableLight physicalATMTable =  new DataTableLight("VolatilitiesPhysicalATM", TableConvention.MONTHS, maturitiesArray, terminationsArray,
 				volatilitiesArray);
 
 		physicalVolatilities = new TreeMap<>();
 		physicalVolatilities.put(0, physicalATMTable);
 
-		DataTableLight payerATMTable = cashPayerVolatilities.get(0);
-		DataTableLight receiverATMTable = cashReceiverVolatilities.get(0);
+		final DataTableLight payerATMTable = cashPayerVolatilities.get(0);
+		final DataTableLight receiverATMTable = cashReceiverVolatilities.get(0);
 
 
 
 
 		// imitate physical smile via cash smiles
-		Set<Integer> strikes = new TreeSet<>(cashPayerVolatilities.keySet());
+		final Set<Integer> strikes = new TreeSet<>(cashPayerVolatilities.keySet());
 		strikes.addAll(cashReceiverVolatilities.keySet());
 		strikes.remove(0);
 
-		for(int strike : strikes) {
+		for(final int strike : strikes) {
 			//lists for bulk-initialization of tables
-			ArrayList<Integer> maturitiesPositive = new ArrayList<>();
-			ArrayList<Integer> terminationsPositive = new ArrayList<>();
-			ArrayList<Double> physicalVolatilitiesPositive = new ArrayList<>();
+			final ArrayList<Integer> maturitiesPositive = new ArrayList<>();
+			final ArrayList<Integer> terminationsPositive = new ArrayList<>();
+			final ArrayList<Double> physicalVolatilitiesPositive = new ArrayList<>();
 
-			ArrayList<Integer> maturitiesNegative = new ArrayList<>();
-			ArrayList<Integer> terminationsNegative = new ArrayList<>();
-			ArrayList<Double> physicalVolatilitiesNegative = new ArrayList<>();
+			final ArrayList<Integer> maturitiesNegative = new ArrayList<>();
+			final ArrayList<Integer> terminationsNegative = new ArrayList<>();
+			final ArrayList<Double> physicalVolatilitiesNegative = new ArrayList<>();
 
 			// shifting surface by shifting each individual point
-			for(int maturity : interpolationNodes.getMaturities()) {
-				for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
-					double physicalATM = physicalATMTable.getValue(maturity, termination);
+			for(final int maturity : interpolationNodes.getMaturities()) {
+				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
+					final double physicalATM = physicalATMTable.getValue(maturity, termination);
 
 					//shifting positive wing like payer
 					if(cashPayerVolatilities.containsKey(strike) && cashPayerVolatilities.get(strike).containsEntryFor(maturity, termination)) {
-						double payerATM = payerATMTable.getValue(maturity, termination);
-						double payerSmile = cashPayerVolatilities.get(strike).getValue(maturity, termination);
+						final double payerATM = payerATMTable.getValue(maturity, termination);
+						final double payerSmile = cashPayerVolatilities.get(strike).getValue(maturity, termination);
 
 						maturitiesPositive.add(maturity);
 						terminationsPositive.add(termination);
@@ -422,8 +422,8 @@ public class SABRShiftedSmileCalibration {
 
 					//shifting negative wing like receiver
 					if(cashReceiverVolatilities.containsKey(strike) && cashReceiverVolatilities.get(strike).containsEntryFor(maturity, termination)) {
-						double receiverATM = receiverATMTable.getValue(maturity, termination);
-						double receiverSmile = cashReceiverVolatilities.get(strike).getValue(maturity, termination);
+						final double receiverATM = receiverATMTable.getValue(maturity, termination);
+						final double receiverSmile = cashReceiverVolatilities.get(strike).getValue(maturity, termination);
 
 						maturitiesNegative.add(maturity);
 						terminationsNegative.add(termination);
@@ -432,9 +432,9 @@ public class SABRShiftedSmileCalibration {
 				}
 			}
 
-			DataTableLight physicalPositiveSmileTable = new DataTableLight("VolatilitiesPhysical" +  strike, TableConvention.MONTHS,
+			final DataTableLight physicalPositiveSmileTable = new DataTableLight("VolatilitiesPhysical" +  strike, TableConvention.MONTHS,
 					maturitiesPositive, terminationsPositive, physicalVolatilitiesPositive);
-			DataTableLight physicalNegativeSmileTable = new DataTableLight("VolatilitiesPhysical" + -strike, TableConvention.MONTHS,
+			final DataTableLight physicalNegativeSmileTable = new DataTableLight("VolatilitiesPhysical" + -strike, TableConvention.MONTHS,
 					maturitiesNegative, terminationsNegative, physicalVolatilitiesNegative);
 
 
@@ -450,22 +450,22 @@ public class SABRShiftedSmileCalibration {
 
 		//convert to volatilities
 		cashPayerVolatilities = new TreeMap<>();
-		for(int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
+		for(final int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
 
-			ArrayList<Integer> maturities = new ArrayList<>();
-			ArrayList<Integer> terminations = new ArrayList<>();
-			ArrayList<Double> values = new ArrayList<>();
+			final ArrayList<Integer> maturities = new ArrayList<>();
+			final ArrayList<Integer> terminations = new ArrayList<>();
+			final ArrayList<Double> values = new ArrayList<>();
 
-			for(int maturity : interpolationNodes.getMaturities()) {
-				for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
+			for(final int maturity : interpolationNodes.getMaturities()) {
+				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
 					if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)){
 
-						LocalDate maturityDate = referenceDate.plusMonths(maturity);
-						LocalDate terminationDate = maturityDate.plusMonths(termination);
+						final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+						final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-						Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-						double swapRate = swapRateTable.getValue(maturity, termination);
-						double cashAnnuity = cashFunction(swapRate, fixSchedule);
+						final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+						final double swapRate = swapRateTable.getValue(maturity, termination);
+						final double cashAnnuity = cashFunction(swapRate, fixSchedule);
 
 						maturities.add(maturity);
 						terminations.add(termination);
@@ -474,7 +474,7 @@ public class SABRShiftedSmileCalibration {
 					}
 				}
 			}
-			DataTableLight volatilityTable = new DataTableLight("VolatilitiesPayer"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
+			final DataTableLight volatilityTable = new DataTableLight("VolatilitiesPayer"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
 			cashPayerVolatilities.put(moneyness, volatilityTable);
 		}
 
@@ -487,22 +487,22 @@ public class SABRShiftedSmileCalibration {
 
 		//convert to volatilities
 		cashReceiverVolatilities = new TreeMap<>();
-		for(int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {
+		for(final int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {
 
-			ArrayList<Integer> maturities = new ArrayList<>();
-			ArrayList<Integer> terminations = new ArrayList<>();
-			ArrayList<Double> values = new ArrayList<>();
+			final ArrayList<Integer> maturities = new ArrayList<>();
+			final ArrayList<Integer> terminations = new ArrayList<>();
+			final ArrayList<Double> values = new ArrayList<>();
 
-			for(int maturity : interpolationNodes.getMaturities()) {
-				for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
+			for(final int maturity : interpolationNodes.getMaturities()) {
+				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
 					if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)){
 
-						LocalDate maturityDate = referenceDate.plusMonths(maturity);
-						LocalDate terminationDate = maturityDate.plusMonths(termination);
+						final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+						final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-						Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-						double swapRate = swapRateTable.getValue(maturity, termination);
-						double cashAnnuity = cashFunction(swapRate, fixSchedule);
+						final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+						final double swapRate = swapRateTable.getValue(maturity, termination);
+						final double cashAnnuity = cashFunction(swapRate, fixSchedule);
 
 						maturities.add(maturity);
 						terminations.add(termination);
@@ -511,7 +511,7 @@ public class SABRShiftedSmileCalibration {
 					}
 				}
 			}
-			DataTableLight volatilityTable = new DataTableLight("VolatilitiesReceiver"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
+			final DataTableLight volatilityTable = new DataTableLight("VolatilitiesReceiver"+moneyness, TableConvention.MONTHS, maturities, terminations, values);
 			cashReceiverVolatilities.put(moneyness, volatilityTable);
 		}
 	}
@@ -521,22 +521,22 @@ public class SABRShiftedSmileCalibration {
 	 */
 	private void makeSwapRateTable() {
 
-		int[] maturitiesArray = new int[interpolationNodes.size()];
-		int[] terminationsArray = new int[interpolationNodes.size()];
-		double[] swapRateArray = new double[interpolationNodes.size()];
+		final int[] maturitiesArray = new int[interpolationNodes.size()];
+		final int[] terminationsArray = new int[interpolationNodes.size()];
+		final double[] swapRateArray = new double[interpolationNodes.size()];
 
 		int index = 0;
-		for(int maturity : interpolationNodes.getMaturities()) {
-			for(int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : interpolationNodes.getMaturities()) {
+			for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {
 				maturitiesArray[index] = maturity;
 				terminationsArray[index] = termination;
 
-				LocalDate maturityDate = referenceDate.plusMonths(maturity);
-				LocalDate terminationDate = maturityDate.plusMonths(termination);
+				final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+				final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
 				swapRateArray[index++] = swapRate;
 			}
@@ -557,7 +557,7 @@ public class SABRShiftedSmileCalibration {
 	 * @param maxIterations The maximum number of iterations done during calibration.
 	 * @param numberOfThreads The number of processor threads to be used.
 	 */
-	public void setCalibrationParameters( int maxIterations, int numberOfThreads) {
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
 		this.maxIterations		= maxIterations;
 		this.numberOfThreads 	= numberOfThreads;
 	}
@@ -587,7 +587,7 @@ public class SABRShiftedSmileCalibration {
 	/**
 	 * @param useLinearInterpolation Set whether the interpolation of SABR parameters should be linear as opposed to piecewise cubic spline.
 	 */
-	public void setUseLinearInterpolation(boolean useLinearInterpolation) {
+	public void setUseLinearInterpolation(final boolean useLinearInterpolation) {
 		this.useLinearInterpolation = useLinearInterpolation;
 	}
 
@@ -598,9 +598,9 @@ public class SABRShiftedSmileCalibration {
 	 * @param schedule The schedule.
 	 * @return The result of the cash function.
 	 */
-	private static double cashFunction(double swapRate, Schedule schedule) {
+	private static double cashFunction(final double swapRate, final Schedule schedule) {
 
-		int numberOfPeriods = schedule.getNumberOfPeriods();
+		final int numberOfPeriods = schedule.getNumberOfPeriods();
 		double periodLength = 0.0;
 		for(int index = 0; index < numberOfPeriods; index++) {
 			periodLength += schedule.getPeriodLength(index);

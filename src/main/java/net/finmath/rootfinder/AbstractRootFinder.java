@@ -12,7 +12,7 @@ package net.finmath.rootfinder;
 public abstract class AbstractRootFinder implements RootFinder, RootFinderWithDerivative {
 
 	@Override
-	public void setValueAndDerivative(double value, double derivative) {
+	public void setValueAndDerivative(final double value, final double derivative) {
 		setValue(value);
 	}
 }

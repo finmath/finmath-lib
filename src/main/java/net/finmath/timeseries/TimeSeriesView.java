@@ -14,7 +14,7 @@ public class TimeSeriesView implements TimeSeries {
 	private final int indexStart;
 	private final int indexEnd;
 
-	public TimeSeriesView(TimeSeries timeSeries, int indexStart, int indexEnd) {
+	public TimeSeriesView(final TimeSeries timeSeries, final int indexStart, final int indexEnd) {
 		super();
 		this.timeSeries = timeSeries;
 		this.indexStart = indexStart;
@@ -22,12 +22,12 @@ public class TimeSeriesView implements TimeSeries {
 	}
 
 	@Override
-	public double getTime(int index) {
+	public double getTime(final int index) {
 		return timeSeries.getTime(indexStart+index);
 	}
 
 	@Override
-	public double getValue(int index) {
+	public double getValue(final int index) {
 		return timeSeries.getValue(indexStart+index);
 	}
 

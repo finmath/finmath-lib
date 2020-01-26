@@ -8,8 +8,8 @@ import java.util.Collection;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
 import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Period;
 import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class SwapWithComponents extends AbstractLIBORMonteCarloProduct {
 
-	private ProductCollection underlying;
+	private final ProductCollection underlying;
 
 	/**
 	 * @param fixingDates Vector of fixing dates
@@ -34,9 +34,9 @@ public class SwapWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public SwapWithComponents(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates) {
 		super();
 
 		/*
@@ -47,28 +47,28 @@ public class SwapWithComponents extends AbstractLIBORMonteCarloProduct {
 		 * Hence, the definition of the product is the definition of the pricing algorithm.
 		 */
 
-		Collection<AbstractProductComponent> legs = new ArrayList<>();
+		final Collection<AbstractProductComponent> legs = new ArrayList<>();
 
-		Notional notional = new NotionalFromConstant(1.0);
+		final Notional notional = new NotionalFromConstant(1.0);
 
-		Collection<AbstractProductComponent> fixedLegPeriods = new ArrayList<>();
+		final Collection<AbstractProductComponent> fixedLegPeriods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
-			AbstractIndex index = new FixedCoupon(swaprates[periodIndex]);
-			Period period = new Period(fixingDates[periodIndex], paymentDates[periodIndex], fixingDates[periodIndex], paymentDates[periodIndex], notional, index, true, false, true);
+			final AbstractIndex index = new FixedCoupon(swaprates[periodIndex]);
+			final Period period = new Period(fixingDates[periodIndex], paymentDates[periodIndex], fixingDates[periodIndex], paymentDates[periodIndex], notional, index, true, false, true);
 			fixedLegPeriods.add(period);
 		}
-		ProductCollection fixedLeg = new ProductCollection(fixedLegPeriods);
+		final ProductCollection fixedLeg = new ProductCollection(fixedLegPeriods);
 		legs.add(fixedLeg);
 
-		Collection<AbstractProductComponent> floatingLegPeriods = new ArrayList<>();
+		final Collection<AbstractProductComponent> floatingLegPeriods = new ArrayList<>();
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
-			double periodLength = paymentDates[periodIndex]-fixingDates[periodIndex];
-			AbstractIndex index = new LIBORIndex(0.0,periodLength);
+			final double periodLength = paymentDates[periodIndex]-fixingDates[periodIndex];
+			final AbstractIndex index = new LIBORIndex(0.0,periodLength);
 			//			AbstractIndex index = new ConstantMaturitySwaprate(5.0, periodLength);
-			Period period = new Period(fixingDates[periodIndex], paymentDates[periodIndex], fixingDates[periodIndex], paymentDates[periodIndex], notional, index, true, false, false);
+			final Period period = new Period(fixingDates[periodIndex], paymentDates[periodIndex], fixingDates[periodIndex], paymentDates[periodIndex], notional, index, true, false, false);
 			floatingLegPeriods.add(period);
 		}
-		ProductCollection floatingLeg = new ProductCollection(floatingLegPeriods);
+		final ProductCollection floatingLeg = new ProductCollection(floatingLegPeriods);
 		legs.add(floatingLeg);
 
 		underlying = new ProductCollection(legs);
@@ -85,8 +85,8 @@ public class SwapWithComponents extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable	values	= 	underlying.getValue(evaluationTime, model);
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final RandomVariable	values	= 	underlying.getValue(evaluationTime, model);
 
 		return values;
 	}

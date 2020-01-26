@@ -21,12 +21,12 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void test() {
-		LocalDate referenceDate = LocalDate.of(2016, 01, 01);
+		final LocalDate referenceDate = LocalDate.of(2016, 01, 01);
 		for(int i=0; i<1000; i++) {
-			LocalDate date = referenceDate.plusDays(i);
+			final LocalDate date = referenceDate.plusDays(i);
 
-			double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
-			LocalDate dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
+			final double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
+			final LocalDate dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
 
 			Assert.assertTrue("Roundtrip with date offset of " + i + " days.", dateFromFloat.isEqual(date));
 		}
@@ -37,12 +37,12 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void testLocalDateLocalDateTimeConsistency() {
-		LocalDate referenceDate = LocalDate.of(2016, 01, 01);
+		final LocalDate referenceDate = LocalDate.of(2016, 01, 01);
 		for(int i=0; i<1000; i++) {
-			LocalDate date = referenceDate.plusDays(i);
+			final LocalDate date = referenceDate.plusDays(i);
 
-			double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
-			double floatingPointDateTime = FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(referenceDate, LocalTime.of(12, 00)), LocalDateTime.of(date, LocalTime.of(12, 00)));
+			final double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
+			final double floatingPointDateTime = FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(referenceDate, LocalTime.of(12, 00)), LocalDateTime.of(date, LocalTime.of(12, 00)));
 
 			Assert.assertEquals("Comparing Date to DateTime", floatingPointDate, floatingPointDateTime, 0.2/SECONDS_PER_DAY);
 		}
@@ -53,13 +53,13 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void testLocalDateTime() {
-		LocalDateTime referenceDate = LocalDateTime.of(2016, 01, 01,12, 34);
+		final LocalDateTime referenceDate = LocalDateTime.of(2016, 01, 01,12, 34);
 		for(int i=0; i<1000; i+=2) {
 			for(int j=0; j<24*60*60; j+=7) {
-				LocalDateTime date = referenceDate.plusDays(i).plusSeconds(j);
+				final LocalDateTime date = referenceDate.plusDays(i).plusSeconds(j);
 
-				double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
-				LocalDateTime dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
+				final double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
+				final LocalDateTime dateFromFloat	= FloatingpointDate.getDateFromFloatingPointDate(referenceDate, floatingPointDate);
 
 				Assert.assertTrue("Roundtrip with date offset of " + i + " days " + j + " seconds.", dateFromFloat.isEqual(date));
 			}

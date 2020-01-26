@@ -33,9 +33,9 @@ public interface IndependentIncrements {
 	 * @param timeIndex The time index (corresponding to the this class's time discretization)
 	 * @return The factor (component) of the increments (a random variable)
 	 */
-	default RandomVariable[] getIncrement(int timeIndex)
+	default RandomVariable[] getIncrement(final int timeIndex)
 	{
-		RandomVariable[] increment = new RandomVariable[getNumberOfFactors()];
+		final RandomVariable[] increment = new RandomVariable[getNumberOfFactors()];
 		for(int factorIndex = 0; factorIndex<getNumberOfFactors(); factorIndex++) {
 			increment[factorIndex] = getIncrement(timeIndex, factorIndex);
 		}

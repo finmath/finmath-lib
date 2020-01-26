@@ -19,7 +19,7 @@ public class OptionData {
 	private final double value;
 	private final QuotingConvention convention;
 
-	public OptionData(String underlying, LocalDate referenceDate, double strike, double maturity, double value, QuotingConvention convention) {
+	public OptionData(final String underlying, final LocalDate referenceDate, final double strike, final double maturity, final double value, final QuotingConvention convention) {
 		super();
 		this.underlying = underlying;
 		this.referenceDate = referenceDate;

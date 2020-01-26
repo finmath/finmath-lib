@@ -127,11 +127,11 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	private final TimeDiscretization		liborPeriodDiscretization;
 
 	private String					forwardCurveName;
-	private AnalyticModel			analyticModel;
+	private final AnalyticModel			analyticModel;
 
-	private ForwardCurve			forwardRateCurve;
-	private DiscountCurve			discountCurve;
-	private DiscountCurve			discountCurveFromForwardCurve;
+	private final ForwardCurve			forwardRateCurve;
+	private final DiscountCurve			discountCurve;
+	private final DiscountCurve			discountCurveFromForwardCurve;
 
 	private final RandomVariableFactory	abstractRandomVariableFactory;
 
@@ -161,13 +161,13 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param properties A map specifying model properties.
 	 */
 	public HullWhiteModel(
-			RandomVariableFactory		abstractRandomVariableFactory,
-			TimeDiscretization			liborPeriodDiscretization,
-			AnalyticModel				analyticModel,
-			ForwardCurve				forwardRateCurve,
-			DiscountCurve				discountCurve,
-			ShortRateVolatilityModel	volatilityModel,
-			Map<String, Object>			properties
+			final RandomVariableFactory		abstractRandomVariableFactory,
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final Map<String, Object>			properties
 			) {
 
 		this.abstractRandomVariableFactory		= abstractRandomVariableFactory;
@@ -179,7 +179,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		this.properties = new HashMap<>();
 		if(properties != null) {
-			for(Map.Entry<String,?> property : properties.entrySet()) {
+			for(final Map.Entry<String,?> property : properties.entrySet()) {
 				if(Serializable.class.isAssignableFrom(property.getValue().getClass())) {
 					properties.put(property.getKey(), property.getValue());
 				}
@@ -204,12 +204,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param properties A map specifying model properties (currently not used, may be null).
 	 */
 	public HullWhiteModel(
-			TimeDiscretization			liborPeriodDiscretization,
-			AnalyticModel				analyticModel,
-			ForwardCurve				forwardRateCurve,
-			DiscountCurve				discountCurve,
-			ShortRateVolatilityModel	volatilityModel,
-			Map<String, Object>			properties
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final Map<String, Object>			properties
 			) {
 		this(new RandomVariableFromArrayFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
@@ -230,17 +230,17 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
 	public static HullWhiteModel of(
-			RandomVariableFactory		abstractRandomVariableFactory,
-			TimeDiscretization			liborPeriodDiscretization,
-			AnalyticModel				analyticModel,
-			ForwardCurve				forwardRateCurve,
-			DiscountCurve				discountCurve,
-			ShortRateVolatilityModel	volatilityModel,
-			CalibrationProduct[]					calibrationProducts,
-			Map<String, Object>					properties
+			final RandomVariableFactory		abstractRandomVariableFactory,
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final CalibrationProduct[]					calibrationProducts,
+			final Map<String, Object>					properties
 			) throws CalculationException {
 
-		HullWhiteModel model = new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		final HullWhiteModel model = new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
@@ -248,7 +248,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			try {
 				volatilityModelParametric = (ShortRateVolatilityModelCalibrateable)volatilityModel;
 			}
-			catch(Exception e) {
+			catch(final Exception e) {
 				throw new ClassCastException("Calibration restricted to covariance models implementing HullWhiteModelCalibrateable.");
 			}
 
@@ -257,9 +257,9 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 				calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
 			}
 
-			ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationParameters);
+			final ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationParameters);
 
-			HullWhiteModel modelCalibrated = model.getCloneWithModifiedVolatilityModel(volatilityModelCalibrated);
+			final HullWhiteModel modelCalibrated = model.getCloneWithModifiedVolatilityModel(volatilityModelCalibrated);
 
 			return modelCalibrated;
 		}
@@ -279,35 +279,35 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
 	public RandomVariable[] getInitialState() {
 		// Initial value is zero - BrownianMotion serves as a factory here.
-		RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		final RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
 		return new RandomVariable[] { zero, zero };
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		if(time < 0) {
 			return abstractRandomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));
 		}
 
 		if(time == getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotion serves as a factory here.
-			RandomVariable one = abstractRandomVariableFactory.createRandomVariable(1.0);
+			final RandomVariable one = abstractRandomVariableFactory.createRandomVariable(1.0);
 			return one;
 		}
 
-		int timeIndex = getProcess().getTimeIndex(time);
+		final int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
 			/*
 			 * time is not part of the time discretization.
@@ -319,8 +319,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 				previousTimeIndex = -previousTimeIndex-1;
 			}
 			previousTimeIndex--;
-			double previousTime = getProcess().getTime(previousTimeIndex);
-			double nextTime = getProcess().getTime(previousTimeIndex+1);
+			final double previousTime = getProcess().getTime(previousTimeIndex);
+			final double nextTime = getProcess().getTime(previousTimeIndex+1);
 
 			// Log-linear interpolation
 			return getNumeraire(previousTime).log().mult(nextTime-time)
@@ -328,7 +328,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					.div(nextTime-previousTime).exp();
 		}
 
-		RandomVariable logNum = getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
+		final RandomVariable logNum = getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
 
 		RandomVariable numeraireNormalized = logNum.exp();
 
@@ -344,24 +344,24 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		else {
 			discountFactor =  getDiscountFactorFromForwardCurve(time);
 		}
-		RandomVariable numeraire = numeraireNormalized.div(discountFactor);
+		final RandomVariable numeraire = numeraireNormalized.div(discountFactor);
 
 		return numeraire;
 	}
 
 	@Override
-	public RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
-		RandomVariable inverseForwardBondAsOfTime = getLIBOR(time, time, maturity).mult(maturity-time).add(1.0);
-		RandomVariable inverseForwardBondAsOfZero = getLIBOR(0.0, time, maturity).mult(maturity-time).add(1.0);
-		RandomVariable forwardDiscountBondAsOfZero = getDiscountFactor(maturity).div(getDiscountFactor(time));
+	public RandomVariable getForwardDiscountBond(final double time, final double maturity) throws CalculationException {
+		final RandomVariable inverseForwardBondAsOfTime = getLIBOR(time, time, maturity).mult(maturity-time).add(1.0);
+		final RandomVariable inverseForwardBondAsOfZero = getLIBOR(0.0, time, maturity).mult(maturity-time).add(1.0);
+		final RandomVariable forwardDiscountBondAsOfZero = getDiscountFactor(maturity).div(getDiscountFactor(time));
 		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 
-		double time = getProcess().getTime(timeIndex);
-		double timeNext = getProcess().getTime(timeIndex+1);
+		final double time = getProcess().getTime(timeIndex);
+		final double timeNext = getProcess().getTime(timeIndex+1);
 
 		if(timeNext == time) {
 			return new RandomVariable[] { null, null };
@@ -371,30 +371,30 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		if(timeIndexVolatility < 0) {
 			timeIndexVolatility = -timeIndexVolatility-2;
 		}
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
 
-		RandomVariable driftShortRate		= realizationAtTimeIndex[0].mult(meanReversion.mult(getB(time,timeNext).div(-1*(timeNext-time))));
-		RandomVariable driftLogNumeraire	= realizationAtTimeIndex[0].mult(getB(time,timeNext).div(timeNext-time));
+		final RandomVariable driftShortRate		= realizationAtTimeIndex[0].mult(meanReversion.mult(getB(time,timeNext).div(-1*(timeNext-time))));
+		final RandomVariable driftLogNumeraire	= realizationAtTimeIndex[0].mult(getB(time,timeNext).div(timeNext-time));
 
 		return new RandomVariable[] { driftShortRate, driftLogNumeraire };
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
-		double time = getProcess().getTime(timeIndex);
-		double timeNext = getProcess().getTime(timeIndex+1);
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+		final double time = getProcess().getTime(timeIndex);
+		final double timeNext = getProcess().getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexVolatility < 0) {
 			timeIndexVolatility = -timeIndexVolatility-2;
 		}
 
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
-		RandomVariable meanReversionTimesTime = meanReversion.mult(-2.0 * (timeNext-time));
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);
+		final RandomVariable meanReversionTimesTime = meanReversion.mult(-2.0 * (timeNext-time));
 		// double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
-		RandomVariable scaling = meanReversionTimesTime.exp().sub(1.0).div(meanReversionTimesTime).sqrt();
+		final RandomVariable scaling = meanReversionTimesTime.exp().sub(1.0).div(meanReversionTimesTime).sqrt();
 
-		RandomVariable volatilityEffective = scaling.mult(volatilityModel.getVolatility(timeIndexVolatility));
+		final RandomVariable volatilityEffective = scaling.mult(volatilityModel.getVolatility(timeIndexVolatility));
 
 		RandomVariable factorLoading1, factorLoading2;
 		if(componentIndex == 0) {
@@ -404,8 +404,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		}
 		else if(componentIndex == 1) {
 			// Factor loadings for the numeraire driver.
-			RandomVariable volatilityLogNumeraire = getV(time,timeNext).div(timeNext-time).sqrt();
-			RandomVariable rho = getDV(time,timeNext).div(timeNext-time).div(volatilityEffective.mult(volatilityLogNumeraire));
+			final RandomVariable volatilityLogNumeraire = getV(time,timeNext).div(timeNext-time).sqrt();
+			final RandomVariable rho = getDV(time,timeNext).div(timeNext-time).div(volatilityEffective.mult(volatilityLogNumeraire));
 			factorLoading1 = volatilityLogNumeraire.mult(rho);
 			factorLoading2 = volatilityLogNumeraire.mult(rho.squared().sub(1).mult(-1).sqrt());
 		}
@@ -420,18 +420,18 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
 	}
 
 	@Override
-	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
 		return getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
 	}
 
@@ -446,12 +446,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public double getLiborPeriod(int timeIndex) {
+	public double getLiborPeriod(final int timeIndex) {
 		return liborPeriodDiscretization.getTime(timeIndex);
 	}
 
 	@Override
-	public int getLiborPeriodIndex(double time) {
+	public int getLiborPeriodIndex(final double time) {
 		return liborPeriodDiscretization.getTimeIndex(time);
 	}
 
@@ -471,13 +471,13 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public LIBORModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public LIBORModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		if(dataModified == null) {
 			return new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 		}
 
-		RandomVariableFactory	newRandomVariableFactory	= (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
-		ShortRateVolatilityModel		newVolatilityModel			= (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
+		final RandomVariableFactory	newRandomVariableFactory	= (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
+		final ShortRateVolatilityModel		newVolatilityModel			= (ShortRateVolatilityModel) dataModified.getOrDefault("volatilityModel", volatilityModel);
 
 		return new HullWhiteModel(newRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, newVolatilityModel, properties);
 	}
@@ -489,14 +489,14 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @return The "short rate" from timeIndex to timeIndex+1.
 	 * @throws CalculationException Thrown if simulation failed.
 	 */
-	private RandomVariable getShortRate(int timeIndex) throws CalculationException {
-		double time = getProcess().getTime(timeIndex);
-		double timePrev = timeIndex > 0 ? getProcess().getTime(timeIndex-1) : time;
-		double timeNext = getProcess().getTime(timeIndex+1);
+	private RandomVariable getShortRate(final int timeIndex) throws CalculationException {
+		final double time = getProcess().getTime(timeIndex);
+		final double timePrev = timeIndex > 0 ? getProcess().getTime(timeIndex-1) : time;
+		final double timeNext = getProcess().getTime(timeIndex+1);
 
-		RandomVariable zeroRate = getZeroRateFromForwardCurve(time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
+		final RandomVariable zeroRate = getZeroRateFromForwardCurve(time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
 
-		RandomVariable alpha = getDV(0, time);
+		final RandomVariable alpha = getDV(0, time);
 
 		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
 		value = value.add(alpha);
@@ -507,16 +507,16 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return value;
 	}
 
-	private RandomVariable getZeroCouponBond(double time, double maturity) throws CalculationException {
-		int timeIndex = getProcess().getTimeIndex(time);
+	private RandomVariable getZeroCouponBond(final double time, final double maturity) throws CalculationException {
+		final int timeIndex = getProcess().getTimeIndex(time);
 		if(timeIndex < 0) {
-			int timeIndexLo = -timeIndex-1-1;
-			double timeLo = getProcess().getTime(timeIndexLo);
+			final int timeIndexLo = -timeIndex-1-1;
+			final double timeLo = getProcess().getTime(timeIndexLo);
 			return getZeroCouponBond(timeLo, maturity).div(getZeroCouponBond(timeLo, time));
 		}
-		RandomVariable shortRate = getShortRate(timeIndex);
-		RandomVariable A = getA(time, maturity);
-		RandomVariable B = getB(time, maturity);
+		final RandomVariable shortRate = getShortRate(timeIndex);
+		final RandomVariable A = getA(time, maturity);
+		final RandomVariable B = getB(time, maturity);
 		return shortRate.mult(B.mult(-1)).exp().mult(A);
 	}
 
@@ -527,17 +527,17 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param timeIndex Time index associated with the time discretization obtained from <code>getProcess</code>
 	 * @return The integrated drift (integrating from 0 to getTime(timeIndex)).
 	 */
-	private RandomVariable getIntegratedDriftAdjustment(int timeIndex) {
+	private RandomVariable getIntegratedDriftAdjustment(final int timeIndex) {
 		RandomVariable integratedDriftAdjustment = new Scalar(0.0);
 		for(int i=1; i<=timeIndex; i++) {
-			double t = getProcess().getTime(i-1);
-			double t2 = getProcess().getTime(i);
+			final double t = getProcess().getTime(i-1);
+			final double t2 = getProcess().getTime(i);
 
 			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);
 			if(timeIndexVolatilityModel < 0) {
 				timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point
 			}
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);
 
 			integratedDriftAdjustment = integratedDriftAdjustment.add(getShortRateConditionalVariance(0, t).mult(getB(t,t2))).sub(integratedDriftAdjustment.mult(meanReversion.mult(getB(t,t2))));
 		}
@@ -555,17 +555,17 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param maturity The parameter T.
 	 * @return The value A(t,T).
 	 */
-	private RandomVariable getA(double time, double maturity) {
-		int timeIndex = getProcess().getTimeIndex(time);
-		double timeStep = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	private RandomVariable getA(final double time, final double maturity) {
+		final int timeIndex = getProcess().getTimeIndex(time);
+		final double timeStep = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
 
-		RandomVariable zeroRate = getZeroRateFromForwardCurve(time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
+		final RandomVariable zeroRate = getZeroRateFromForwardCurve(time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);
 
-		RandomVariable forwardBond = getDiscountFactorFromForwardCurve(maturity).div(getDiscountFactorFromForwardCurve(time)).log();
+		final RandomVariable forwardBond = getDiscountFactorFromForwardCurve(maturity).div(getDiscountFactorFromForwardCurve(time)).log();
 
-		RandomVariable B = getB(time,maturity);
+		final RandomVariable B = getB(time,maturity);
 
-		RandomVariable lnA = B.mult(zeroRate).sub(B.squared().mult(getShortRateConditionalVariance(0,time).div(2))).add(forwardBond);
+		final RandomVariable lnA = B.mult(zeroRate).sub(B.squared().mult(getShortRateConditionalVariance(0,time).div(2))).add(forwardBond);
 
 		return lnA.exp();
 	}
@@ -577,7 +577,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param maturity The parameter T.
 	 * @return The value of \( \int_{t}^{T} a(s) \mathrm{d}s \).
 	 */
-	private RandomVariable getMRTime(double time, double maturity) {
+	private RandomVariable getMRTime(final double time, final double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
 			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point
@@ -593,12 +593,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		double timeNext;
 		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
 			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
 			integral = integral.add(meanReversion.mult(timeNext-timePrev));
 			timePrev = timeNext;
 		}
 		timeNext = maturity;
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
 		integral = integral.add(meanReversion.mult(timeNext-timePrev));
 
 		return integral;
@@ -612,7 +612,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param maturity The parameter T.
 	 * @return The value of B(t,T).
 	 */
-	private RandomVariable getB(double time, double maturity) {
+	private RandomVariable getB(final double time, final double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
 			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point
@@ -628,13 +628,13 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		double timeNext;
 		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
 			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
 			integral = integral.add(
 					getMRTime(timeNext,maturity).mult(-1.0).exp().sub(
 							getMRTime(timePrev,maturity).mult(-1.0).exp()).div(meanReversion));
 			timePrev = timeNext;
 		}
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
 		timeNext = maturity;
 		integral = integral.add(
 				getMRTime(timeNext,maturity).mult(-1.0).exp().sub(
@@ -653,7 +653,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param maturity The parameter T in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
 	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
 	 */
-	private RandomVariable getV(double time, double maturity) {
+	private RandomVariable getV(final double time, final double maturity) {
 		if(time ==  maturity) {
 			return new Scalar(0.0);
 		}
@@ -673,10 +673,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-1).exp();
 		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
 			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
-			RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
-			RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
-			RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
+			final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
+			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
 			integral = integral.add(volatilityPerMeanReversionSquared.mult(
 					expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)
 					.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))
@@ -686,10 +686,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			expMRTimePrev = expMRTimeNext;
 		}
 		timeNext = maturity;
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
-		RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
-		RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
-		RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
+		final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
+		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
 		integral = integral.add(volatilityPerMeanReversionSquared.mult(
 				expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)
 				.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))
@@ -699,7 +699,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return integral;
 	}
 
-	private RandomVariable getDV(double time, double maturity) {
+	private RandomVariable getDV(final double time, final double maturity) {
 		if(time==maturity) {
 			return new Scalar(0.0);
 		}
@@ -719,10 +719,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-1).exp();
 		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
 			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
-			RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
-			RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
-			RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
+			final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
+			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
 			integral = integral.add(volatilityPerMeanReversionSquared.mult(
 					expMRTimeNext.sub(expMRTimePrev).add(
 							expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(-2.0)
@@ -731,10 +731,10 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			expMRTimePrev = expMRTimeNext;
 		}
 		timeNext = maturity;
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
-		RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
-		RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
-		RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
+		final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());
+		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();
 		integral = integral.add(volatilityPerMeanReversionSquared.mult(
 				expMRTimeNext.sub(expMRTimePrev).add(
 						expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(-2.0)
@@ -753,7 +753,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
 	 * @return The conditional variance of the short rate, \( \mathop{Var}(r(t) \vert r(s) ) \).
 	 */
-	public RandomVariable getShortRateConditionalVariance(double time, double maturity) {
+	public RandomVariable getShortRateConditionalVariance(final double time, final double maturity) {
 		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexStart < 0) {
 			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to next point
@@ -770,32 +770,32 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-2).exp();
 		for(int timeIndex=timeIndexStart+1; timeIndex<=timeIndexEnd; timeIndex++) {
 			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);
-			RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
-			RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
-			RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);
-			RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();
+			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);
+			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);
+			final RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);
+			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();
 			integral = integral.add(volatilitySquaredPerMeanReversion.mult(expMRTimeNext.sub(expMRTimePrev).div(2))
 					);
 			timePrev = timeNext;
 			expMRTimePrev = expMRTimeNext;
 		}
 		timeNext = maturity;
-		RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
-		RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
-		RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);
-		RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();
+		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);
+		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);
+		final RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);
+		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();
 		integral = integral.add(volatilitySquaredPerMeanReversion.mult(expMRTimeNext.sub(expMRTimePrev).div(2))
 				);
 
 		return integral;
 	}
 
-	public RandomVariable getIntegratedBondSquaredVolatility(double time, double maturity) {
+	public RandomVariable getIntegratedBondSquaredVolatility(final double time, final double maturity) {
 		return getShortRateConditionalVariance(0, time).mult(getB(time,maturity).squared());
 	}
 
 	@Override
-	public HullWhiteModel getCloneWithModifiedVolatilityModel(ShortRateVolatilityModel volatilityModel) {
+	public HullWhiteModel getCloneWithModifiedVolatilityModel(final ShortRateVolatilityModel volatilityModel) {
 		return new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 	}
 
@@ -806,9 +806,9 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public Map<String, RandomVariable> getModelParameters() {
-		Map<String, RandomVariable> modelParameters = new TreeMap<>();
+		final Map<String, RandomVariable> modelParameters = new TreeMap<>();
 
-		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 
 		// Add initial values
 		for(int timeIndex=0; timeIndex<timeDiscretizationForCurves.getNumberOfTimes()-1; timeIndex++) {
@@ -817,7 +817,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 		// Add volatilities
 		if(volatilityModel instanceof ShortRateVolatilityModelParametric) {
-			RandomVariable[] parameters = ((ShortRateVolatilityModelParametric) volatilityModel).getParameter();
+			final RandomVariable[] parameters = ((ShortRateVolatilityModelParametric) volatilityModel).getParameter();
 
 			for(int volatilityModelParameterIndex=0; volatilityModelParameterIndex<parameters.length; volatilityModelParameterIndex++) {
 				modelParameters.put("VOLATILITYMODELPARAMETER("+ volatilityModelParameterIndex + ")", parameters[volatilityModelParameterIndex]);
@@ -834,94 +834,94 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return modelParameters;
 	}
 
-	private RandomVariable getDiscountFactor(double time) {
-		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
-		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
+	private RandomVariable getDiscountFactor(final double time) {
+		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		final int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex >= 0) {
 			return getDiscountFactor(timeIndex);
 		}
 		else {
 			// Interpolation
-			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
-			int timeIndexNext = timeIndexPrev+1;
-			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
-			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
-			RandomVariable discountFactorPrev = getDiscountFactor(timeIndexPrev);
-			RandomVariable discountFactorNext = getDiscountFactor(timeIndexNext);
+			final int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
+			final int timeIndexNext = timeIndexPrev+1;
+			final double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
+			final double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
+			final RandomVariable discountFactorPrev = getDiscountFactor(timeIndexPrev);
+			final RandomVariable discountFactorNext = getDiscountFactor(timeIndexNext);
 			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));
 		}
 	}
 
-	private RandomVariable getDiscountFactor(int timeIndex) {
-		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
-		double time = timeDiscretizationForCurves.getTime(timeIndex);
+	private RandomVariable getDiscountFactor(final int timeIndex) {
+		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		final double time = timeDiscretizationForCurves.getTime(timeIndex);
 
 		synchronized(numeraireDiscountFactorForwardRates) {
 			if(numeraireDiscountFactors.size() == 0) {
-				double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));
+				final double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));
 				RandomVariable deterministicNumeraireAdjustment
 				= abstractRandomVariableFactory.createRandomVariable(dfInitial);
 				numeraireDiscountFactors.add(0, deterministicNumeraireAdjustment);
 
 				for(int i=0; i<timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {
-					double dfPrev = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
-					double dfNext = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
-					double timeStep = timeDiscretizationForCurves.getTimeStep(i);
-					double timeNext = timeDiscretizationForCurves.getTime(i+1);
-					RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
+					final double dfPrev = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
+					final double dfNext = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
+					final double timeStep = timeDiscretizationForCurves.getTimeStep(i);
+					final double timeNext = timeDiscretizationForCurves.getTime(i+1);
+					final RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);
 					numeraireDiscountFactorForwardRates.add(i, forwardRate);
 					deterministicNumeraireAdjustment = deterministicNumeraireAdjustment.discount(forwardRate, timeStep);
 					numeraireDiscountFactors.add(i+1, deterministicNumeraireAdjustment);
 				}
 			}
-			RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(timeIndex);
+			final RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(timeIndex);
 			return deterministicNumeraireAdjustment;
 		}
 	}
 
-	private RandomVariable getZeroRateFromForwardCurve(double time) {
-		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+	private RandomVariable getZeroRateFromForwardCurve(final double time) {
+		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 
 		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
 		}
 
-		double timeStep = timeDiscretizationForCurves.getTimeStep(timeIndex);
+		final double timeStep = timeDiscretizationForCurves.getTimeStep(timeIndex);
 		return getDiscountFactorFromForwardCurve(timeIndex).div(getDiscountFactorFromForwardCurve(timeIndex)).log().div(timeStep);
 	}
 
-	private RandomVariable getDiscountFactorFromForwardCurve(double time) {
-		TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
-		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
+	private RandomVariable getDiscountFactorFromForwardCurve(final double time) {
+		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+		final int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);
 		if(timeIndex >= 0) {
 			return getDiscountFactorFromForwardCurve(timeIndex);
 		}
 		else {
-			int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
-			int timeIndexNext = timeIndexPrev+1;
-			double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
-			double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
-			RandomVariable discountFactorPrev = getDiscountFactorFromForwardCurve(timeIndexPrev);
-			RandomVariable discountFactorNext = getDiscountFactorFromForwardCurve(timeIndexNext);
+			final int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);
+			final int timeIndexNext = timeIndexPrev+1;
+			final double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);
+			final double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);
+			final RandomVariable discountFactorPrev = getDiscountFactorFromForwardCurve(timeIndexPrev);
+			final RandomVariable discountFactorNext = getDiscountFactorFromForwardCurve(timeIndexNext);
 			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));
 		}
 	}
 
-	private RandomVariable getDiscountFactorFromForwardCurve(int timeIndex) {
+	private RandomVariable getDiscountFactorFromForwardCurve(final int timeIndex) {
 		synchronized(discountFactorFromForwardCurveCache) {
 			if(discountFactorFromForwardCurveCache.size() <= timeIndex) {
 				// Initialize cache
-				TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+				final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 				for(int i=discountFactorFromForwardCurveCache.size(); i<=timeIndex; i++) {
 					RandomVariable dfAsRandomVariable;
 					if(i == 0) {
-						double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
+						final double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
 						dfAsRandomVariable = abstractRandomVariableFactory.createRandomVariable(df);
 					}
 					else {
-						RandomVariable dfPrevious = discountFactorFromForwardCurveCache.get(i-1);
-						RandomVariable forwardRate = getForwardRateInitialValue(i-1);
+						final RandomVariable dfPrevious = discountFactorFromForwardCurveCache.get(i-1);
+						final RandomVariable forwardRate = getForwardRateInitialValue(i-1);
 						dfAsRandomVariable = dfPrevious.div(forwardRate.mult(timeDiscretizationForCurves.getTimeStep(i-1)).add(1.0));
 					}
 					discountFactorFromForwardCurveCache.add(dfAsRandomVariable);
@@ -932,15 +932,15 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return discountFactorFromForwardCurveCache.get(timeIndex);
 	}
 
-	private RandomVariable getForwardRateInitialValue(int timeIndex) {
+	private RandomVariable getForwardRateInitialValue(final int timeIndex) {
 		synchronized(forwardRateCache) {
 			if(forwardRateCache.size() <= timeIndex) {
 				// Initialize cache
-				TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
+				final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : getProcess().getTimeDiscretization();
 				for(int i=forwardRateCache.size(); i<=timeIndex; i++) {
-					double dfPrev = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
-					double dfNext = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
-					RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeDiscretizationForCurves.getTimeStep(i));
+					final double dfPrev = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));
+					final double dfNext = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));
+					final RandomVariable forwardRate = abstractRandomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeDiscretizationForCurves.getTimeStep(i));
 					forwardRateCache.add(forwardRate);
 				}
 			}
@@ -948,7 +948,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 		return forwardRateCache.get(timeIndex);
 	}
 
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 
 		/*

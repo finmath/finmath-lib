@@ -24,7 +24,7 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 	private final double[]	caps;			// Vector of caps
 	private final double	maturity;
 
-	public SimpleCappedFlooredFloatingRateBond(String currency, double[] fixingDates, double[] paymentDates, double[] spreads, double[] floors, double[] caps, double maturity) {
+	public SimpleCappedFlooredFloatingRateBond(final String currency, final double[] fixingDates, final double[] paymentDates, final double[] spreads, final double[] floors, final double[] caps, final double maturity) {
 		super(currency);
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
@@ -35,15 +35,15 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Accumulating values in the random variable
 		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
 		for(int periodIndex=0; periodIndex<fixingDates.length; periodIndex++) {
-			double fixingDate = fixingDates[periodIndex];
-			double paymentDate = paymentDates[periodIndex];
-			double periodLength = paymentDate-fixingDate;
+			final double fixingDate = fixingDates[periodIndex];
+			final double paymentDate = paymentDates[periodIndex];
+			final double periodLength = paymentDate-fixingDate;
 
 			// Get floating rate for coupon
 			RandomVariable coupon = model.getLIBOR(fixingDate, fixingDate, paymentDate);
@@ -65,20 +65,20 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 
 			coupon = coupon.mult(periodLength);
 
-			RandomVariable numeraire = model.getNumeraire(paymentDate);
-			RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+			final RandomVariable numeraire = model.getNumeraire(paymentDate);
+			final RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 
 			value = value.add(coupon.div(numeraire).mult(monteCarloProbabilities));
 		}
 
 		// Add unit notional payment at maturity
-		RandomVariable notionalPayoff = model.getRandomVariableForConstant(1.0);
-		RandomVariable numeraire = model.getNumeraire(maturity);
-		RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
+		final RandomVariable notionalPayoff = model.getRandomVariableForConstant(1.0);
+		final RandomVariable numeraire = model.getNumeraire(maturity);
+		final RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(maturity);
 		value = value.add(notionalPayoff.div(numeraire).mult(monteCarloProbabilities));
 
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return value;

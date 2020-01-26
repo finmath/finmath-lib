@@ -24,12 +24,12 @@ public class CurveEstimationTest {
 		 * Check if jblas is available
 		 */
 		try {
-			double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
+			final double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
 			if(x[0] != 1.0 || x[1] != 0.0) {
 				isJBLASPresent = true;
 			}
 		}
-		catch(java.lang.UnsatisfiedLinkError e) {
+		catch(final java.lang.UnsatisfiedLinkError e) {
 			isJBLASPresent = false;
 		}
 		CurveEstimationTest.isJBLASPresent = isJBLASPresent;
@@ -40,15 +40,15 @@ public class CurveEstimationTest {
 	 */
 	@Test
 	public void testLinearInterpolation() {
-		LocalDate date=LocalDate.now();
-		double[] X = { 0.0 , 1.0 };
-		double[] Y = { 1.0 , 0.8 };
-		double bandwidth = 1500;
+		final LocalDate date=LocalDate.now();
+		final double[] X = { 0.0 , 1.0 };
+		final double[] Y = { 1.0 , 0.8 };
+		final double bandwidth = 1500;
 
 		if(isJBLASPresent) {
 			// The following code only works if JBlas is present
-			CurveEstimation estimatedcurve = new CurveEstimation(date, bandwidth, X, Y, X, 0.5);
-			Curve regressionCurve = estimatedcurve.getRegressionCurve();
+			final CurveEstimation estimatedcurve = new CurveEstimation(date, bandwidth, X, Y, X, 0.5);
+			final Curve regressionCurve = estimatedcurve.getRegressionCurve();
 
 			Assert.assertEquals("left extrapolatoin", 1.0, regressionCurve.getValue(-0.5), 1E-12);
 			Assert.assertEquals("left interpolation", 0.95, regressionCurve.getValue(0.25), 1E-12);
@@ -64,20 +64,20 @@ public class CurveEstimationTest {
 	 */
 	@Test
 	public void testRegressionMatrix() {
-		double[] X = { 0.0 , 1.0 };
-		double[] Y = { 1.0 , 0.8 };
+		final double[] X = { 0.0 , 1.0 };
+		final double[] Y = { 1.0 , 0.8 };
 
 		if(isJBLASPresent) {
 			// The following code only works if JBlas is present
 
-			AbstractRealDistribution kernel=new NormalDistribution();
-			double K=kernel.density(0.0);
-			DoubleMatrix R=new DoubleMatrix(new double[] {K*(Y[0]+Y[1]),Y[1]*(X[1]-X[0])*K} );
-			DoubleMatrix M=new DoubleMatrix(new double[][] {{2*K,K*(X[1]-X[0])},{K*(X[1]-X[0]),K*(X[1]-X[0])*(X[1]-X[0])}} );
-			double detM= M.get(0,0)*M.get(1, 1)-M.get(1,0)*M.get(1,0);
+			final AbstractRealDistribution kernel=new NormalDistribution();
+			final double K=kernel.density(0.0);
+			final DoubleMatrix R=new DoubleMatrix(new double[] {K*(Y[0]+Y[1]),Y[1]*(X[1]-X[0])*K} );
+			final DoubleMatrix M=new DoubleMatrix(new double[][] {{2*K,K*(X[1]-X[0])},{K*(X[1]-X[0]),K*(X[1]-X[0])*(X[1]-X[0])}} );
+			final double detM= M.get(0,0)*M.get(1, 1)-M.get(1,0)*M.get(1,0);
 			DoubleMatrix MInv=new DoubleMatrix(new double[][] {{M.get(1, 1),-M.get(1,0)},{-M.get(1,0),M.get(0,0)}} );
 			MInv=MInv.mul(1/detM);
-			DoubleMatrix a=MInv.mmul(R);
+			final DoubleMatrix a=MInv.mmul(R);
 			System.out.println(R.toString());
 			System.out.println(M.toString());
 			System.out.println(a.toString());

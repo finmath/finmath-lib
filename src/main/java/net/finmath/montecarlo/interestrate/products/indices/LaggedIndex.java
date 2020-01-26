@@ -32,8 +32,8 @@ public class LaggedIndex extends AbstractIndex {
 
 	private final double					fixingOffset;
 
-	public LaggedIndex(AbstractProductComponent index, String fixingOffsetCode,
-			BusinessdayCalendar paymentBusinessdayCalendar) {
+	public LaggedIndex(final AbstractProductComponent index, final String fixingOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar) {
 		this.index = index;
 		this.fixingOffsetCode = fixingOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -46,7 +46,7 @@ public class LaggedIndex extends AbstractIndex {
 	 * @param index An index.
 	 * @param fixingOffset Offset added to the fixing (evaluation time) of this index to fix the underlying index.
 	 */
-	public LaggedIndex(AbstractProductComponent index, double fixingOffset) {
+	public LaggedIndex(final AbstractProductComponent index, final double fixingOffset) {
 		super();
 		this.index			= index;
 		fixingOffsetCode = null;
@@ -60,11 +60,11 @@ public class LaggedIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		if(fixingOffsetCode != null) {
-			LocalDate startDate = FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate().toLocalDate(), evaluationTime);
-			LocalDate endDate =  paymentBusinessdayCalendar.getDateFromDateAndOffsetCode(startDate, fixingOffsetCode);
-			double fixingOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), endDate);
+			final LocalDate startDate = FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate().toLocalDate(), evaluationTime);
+			final LocalDate endDate =  paymentBusinessdayCalendar.getDateFromDateAndOffsetCode(startDate, fixingOffsetCode);
+			final double fixingOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), endDate);
 
 			return index.getValue(evaluationTime + fixingOffset, model);
 		}

@@ -20,14 +20,14 @@ public abstract class AbstractShortRateVolatilityModel implements ShortRateVolat
 
 	private static final long serialVersionUID = 5364544247367259329L;
 
-	private	TimeDiscretization		timeDiscretization;
+	private final	TimeDiscretization		timeDiscretization;
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
 	 *
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 */
-	public AbstractShortRateVolatilityModel(TimeDiscretization timeDiscretization) {
+	public AbstractShortRateVolatilityModel(final TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization			= timeDiscretization;
 	}

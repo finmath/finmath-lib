@@ -75,7 +75,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
 	 */
-	public AbstractLIBORCovarianceModelParametric(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
+	public AbstractLIBORCovarianceModelParametric(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 	}
 
@@ -87,8 +87,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @return Parameter vector.
 	 */
 	public RandomVariable[]	getParameter() {
-		double[] parameterAsDouble = this.getParameterAsDouble();
-		RandomVariable[] parameter = new RandomVariable[parameterAsDouble.length];
+		final double[] parameterAsDouble = this.getParameterAsDouble();
+		final RandomVariable[] parameter = new RandomVariable[parameterAsDouble.length];
 		for(int i=0; i<parameter.length; i++) {
 			parameter[i] = new Scalar(parameterAsDouble[i]);
 		}
@@ -114,8 +114,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
-		double[] parameterAsDouble = new double[parameters.length];
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+		final double[] parameterAsDouble = new double[parameters.length];
 		for(int i=0; i<parameterAsDouble.length; i++) {
 			parameterAsDouble[i] = parameters[i].doubleValue();
 		}
@@ -159,71 +159,71 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			calibrationParameters = new HashMap<>();
 		}
 
-		int numberOfPaths	= (Integer)calibrationParameters.getOrDefault("numberOfPaths", 2000);
-		int seed			= (Integer)calibrationParameters.getOrDefault("seed", 31415);
-		int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
-		double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
+		final int numberOfPaths	= (Integer)calibrationParameters.getOrDefault("numberOfPaths", 2000);
+		final int seed			= (Integer)calibrationParameters.getOrDefault("seed", 31415);
+		final int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
+		final double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
 		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed));
 
-		RandomVariable[] initialParameters = this.getParameter();
-		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
-		RandomVariable[] upperBound = new RandomVariable[initialParameters.length];
-		RandomVariable[] parameterStep = new RandomVariable[initialParameters.length];
+		final RandomVariable[] initialParameters = this.getParameter();
+		final RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
+		final RandomVariable[] upperBound = new RandomVariable[initialParameters.length];
+		final RandomVariable[] parameterStep = new RandomVariable[initialParameters.length];
 		Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));
 		Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));
-		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
+		final Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		Arrays.fill(parameterStep,  new RandomVariableFromDoubleArray(parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4));
 
-		int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
+		final int numberOfThreadsForProductValuation = Runtime.getRuntime().availableProcessors();
 		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		StochasticOptimizer.ObjectiveFunction calibrationError = new StochasticOptimizer.ObjectiveFunction() {
+		final StochasticOptimizer.ObjectiveFunction calibrationError = new StochasticOptimizer.ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
-			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 
-				AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+				final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 				// Create a LIBOR market model with the new covariance structure.
-				LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
-				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 				final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
-				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
+				final ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
+					final Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 						@Override
 						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (CalculationException e) {
+							} catch (final CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
-							} catch (Exception e) {
+							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
 							}
 						}
 					};
 					if(executor != null) {
-						Future<RandomVariable> valueFuture = executor.submit(worker);
+						final Future<RandomVariable> valueFuture = executor.submit(worker);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
+						final FutureTask<RandomVariable> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
+						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
-					catch (InterruptedException e) {
+					catch (final InterruptedException e) {
 						throw new SolverException(e);
-					} catch (ExecutionException e) {
+					} catch (final ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
@@ -236,8 +236,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 * one model with 2 times the number of paths. In the case of an analytic calibration
 		 * memory requirement is not the limiting factor.
 		 */
-		int numberOfThreads = 2;
-		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
+		final int numberOfThreads = 2;
+		final Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
 		//		Object optimizerFactory = calibrationParameters.getOrDefault("optimizerFactory", new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads));
 
 		/*
@@ -245,13 +245,13 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 */
 		AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = null;
 		if(optimizerFactory instanceof StochasticOptimizerFactory) {
-			RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
+			final RandomVariable[] zerosForTargetValues = new RandomVariable[calibrationProducts.length];
 			Arrays.fill(zerosForTargetValues, new RandomVariableFromDoubleArray(0.0));
-			StochasticOptimizer optimizer = ((StochasticOptimizerFactory)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
+			final StochasticOptimizer optimizer = ((StochasticOptimizerFactory)optimizerFactory).getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zerosForTargetValues);
 			try {
 				optimizer.run();
 			}
-			catch(SolverException e) {
+			catch(final SolverException e) {
 				throw new CalculationException(e);
 			}
 			finally {
@@ -261,8 +261,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 
 			// Get covariance model corresponding to the best parameter set.
-			RandomVariable[] bestParameters = optimizer.getBestFitParameters();
-			int numberOfIterations = optimizer.getIterations();
+			final RandomVariable[] bestParameters = optimizer.getBestFitParameters();
+			final int numberOfIterations = optimizer.getIterations();
 			calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
 
 			// Diagnostic output
@@ -320,7 +320,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 	class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
 		private final int priority;
-		FutureTaskWithPriority(Callable<T> callable, int priority) {
+		FutureTaskWithPriority(final Callable<T> callable, final int priority) {
 			super(callable);
 			this.priority = priority;
 		}
@@ -328,7 +328,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			return priority;
 		}
 		@Override
-		public int compareTo(FutureTaskWithPriority<T> o) {
+		public int compareTo(final FutureTaskWithPriority<T> o) {
 			return this.getPriority() < o.getPriority() ? -1 : this.getPriority() == o.getPriority() ? 0 : 1;
 		}
 
@@ -339,18 +339,18 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
 		}
-		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
-		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
-		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
-		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
-		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
+		final Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
+		final Integer seedParameter			= (Integer)calibrationParameters.get("seed");
+		final Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		final Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
+		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+		final BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
 
-		double[] initialParameters = this.getParameterAsDouble();
-		double[] lowerBound = new double[initialParameters.length];
-		double[] upperBound = new double[initialParameters.length];
-		double[] parameterStep = new double[initialParameters.length];
-		double[] zero = new double[calibrationProducts.length];
+		final double[] initialParameters = this.getParameterAsDouble();
+		final double[] lowerBound = new double[initialParameters.length];
+		final double[] upperBound = new double[initialParameters.length];
+		final double[] parameterStep = new double[initialParameters.length];
+		final double[] zero = new double[calibrationProducts.length];
 		Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
 		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
@@ -362,43 +362,43 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		 * one model with 2 times the number of paths. In the case of an analytic calibration
 		 * memory requirement is not the limiting factor.
 		 */
-		int numberOfThreads = 2;
-		OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
+		final int numberOfThreads = 2;
+		final OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
 
-		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
-		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
-		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
+		final int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		final int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
-		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();
 		final ExecutorService executorForProductValuation = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*zero.length, 5, TimeUnit.SECONDS, queue);
 
-		ObjectiveFunction calibrationError = new ObjectiveFunction() {
+		final ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 
-				AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+				final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 				// Create a LIBOR market model with the new covariance structure.
-				LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
-				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 				final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
-				ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
+				final ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
 
 					// Define the task to be executed in parallel
-					FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<>(
+					final FutureTaskWithPriority<RandomVariable> valueFuture = new FutureTaskWithPriority<>(
 							new Callable<RandomVariable>() {
 								@Override
 								public RandomVariable call() throws Exception {
 									try {
 										return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-									} catch (Exception e) {
+									} catch (final Exception e) {
 										// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 										return null;
 									}
@@ -417,36 +417,36 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						RandomVariable value = valueFutures.get(calibrationProductIndex).get();
+						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;
 					}
-					catch (InterruptedException e) {
+					catch (final InterruptedException e) {
 						throw new SolverException(e);
-					} catch (ExecutionException e) {
+					} catch (final ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
 			}
 		};
 
-		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
+		final Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
 
 			// Diagnostic output
 			if (logger.isLoggable(Level.FINE)) {
-				Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
+				final Format formatterSci3 = new DecimalFormat("+0.###E0;-0.###E0");
 
 				logger.fine("The solver required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 
-				double[] bestParameters = optimizer.getBestFitParameters();
+				final double[] bestParameters = optimizer.getBestFitParameters();
 				String logString = "Best parameters:";
 				for(int i=0; i<bestParameters.length; i++) {
 					logString += "\tparameter["+i+"]: " + bestParameters[i];
 				}
 				logger.fine(logString);
 
-				double[] bestValues = new double[calibrationProducts.length];
+				final double[] bestValues = new double[calibrationProducts.length];
 				calibrationError.setValues(bestParameters, bestValues);
 				String logString2 = "Best values:";
 				for(int i=0; i<calibrationProducts.length; i++) {
@@ -457,15 +457,15 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			}
 
 			// Get covariance model corresponding to the best parameter set.
-			double[] bestParameters = optimizer.getBestFitParameters();
-			AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
+			final double[] bestParameters = optimizer.getBestFitParameters();
+			final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
 
 			return calibrationCovarianceModel;
 		}
-		catch(SolverException e) {
+		catch(final SolverException e) {
 			throw new CalculationException(e);
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			e.printStackTrace();
 			throw e;
 		}

@@ -46,10 +46,10 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	 * @param timeDiscretizationForRebalancing The times at which the portfolio is re-structured.
 	 * @param numberOfBins The number of bins to use in the estimation of the conditional expectation.
 	 */
-	public LocalRiskMinimizingHedgePortfolio(AbstractAssetMonteCarloProduct productToHedge,
-			AssetModelMonteCarloSimulationModel modelUsedForHedging,
-			TimeDiscretization timeDiscretizationForRebalancing,
-			int numberOfBins) {
+	public LocalRiskMinimizingHedgePortfolio(final AbstractAssetMonteCarloProduct productToHedge,
+			final AssetModelMonteCarloSimulationModel modelUsedForHedging,
+			final TimeDiscretization timeDiscretizationForRebalancing,
+			final int numberOfBins) {
 		super();
 		this.productToHedge = productToHedge;
 		this.modelUsedForHedging = modelUsedForHedging;
@@ -58,11 +58,11 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
-		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-		int numberOfPath			= model.getNumberOfPaths();
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
+		final int numberOfPath			= model.getNumberOfPaths();
 
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
@@ -71,62 +71,62 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariable numeraireToday  = model.getNumeraire(0.0);
-		double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
+		final RandomVariable numeraireToday  = model.getNumeraire(0.0);
+		final double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
 
 		// We store the composition of the hedge portfolio (depending on the path)
 		RandomVariable amountOfNumeraireAsset		= numeraireToday.invert().mult(valueOfOptionAccordingHedgeModel);
 		RandomVariable amountOfUderlyingAsset		= model.getRandomVariableForConstant(0.0);
 
 		for(int timeIndex = 0; timeIndex<timeDiscretizationForRebalancing.getNumberOfTimes()-1; timeIndex++) {
-			double time		=	timeDiscretizationForRebalancing.getTime(timeIndex);
-			double timeNext	=	timeDiscretizationForRebalancing.getTime(timeIndex+1);
+			final double time		=	timeDiscretizationForRebalancing.getTime(timeIndex);
+			final double timeNext	=	timeDiscretizationForRebalancing.getTime(timeIndex+1);
 
 			if(time > evaluationTime) {
 				break;
 			}
 
 			// Get value of underlying and numeraire assets
-			RandomVariable underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);
-			RandomVariable numeraireAtTime  = modelUsedForHedging.getNumeraire(time);
-			RandomVariable underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);
-			RandomVariable numeraireAtTimeNext  = modelUsedForHedging.getNumeraire(timeNext);
+			final RandomVariable underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);
+			final RandomVariable numeraireAtTime  = modelUsedForHedging.getNumeraire(time);
+			final RandomVariable underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);
+			final RandomVariable numeraireAtTimeNext  = modelUsedForHedging.getNumeraire(timeNext);
 
-			RandomVariable productAtTime		= productToHedge.getValue(time, modelUsedForHedging);
-			RandomVariable productAtTimeNext	= productToHedge.getValue(timeNext, modelUsedForHedging);
+			final RandomVariable productAtTime		= productToHedge.getValue(time, modelUsedForHedging);
+			final RandomVariable productAtTimeNext	= productToHedge.getValue(timeNext, modelUsedForHedging);
 
-			RandomVariable[] basisFunctionsEstimator = getBasisFunctions(modelUsedForHedging.getAssetValue(time,0));
-			RandomVariable[] basisFunctionsPredictor = getBasisFunctions(model.getAssetValue(time,0));
+			final RandomVariable[] basisFunctionsEstimator = getBasisFunctions(modelUsedForHedging.getAssetValue(time,0));
+			final RandomVariable[] basisFunctionsPredictor = getBasisFunctions(model.getAssetValue(time,0));
 
-			MonteCarloConditionalExpectationRegression condExpectationHedging	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsEstimator);
-			MonteCarloConditionalExpectationRegression condExpectationValuation	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);
+			final MonteCarloConditionalExpectationRegression condExpectationHedging	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsEstimator);
+			final MonteCarloConditionalExpectationRegression condExpectationValuation	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);
 
-			RandomVariable underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariable underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);
-			RandomVariable underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);
+			final RandomVariable underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);
+			final RandomVariable underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);
+			final RandomVariable underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);
 
-			RandomVariable derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);
-			RandomVariable derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);
-			RandomVariable derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);
+			final RandomVariable derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);
+			final RandomVariable derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);
+			final RandomVariable derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);
 
-			RandomVariable derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);
-			RandomVariable derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);
+			final RandomVariable derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);
+			final RandomVariable derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);
 
-			RandomVariable underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();
-			RandomVariable underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);
+			final RandomVariable underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();
+			final RandomVariable underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);
 
-			RandomVariable delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);
+			final RandomVariable delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);
 
-			RandomVariable underlyingValue = model.getAssetValue(time,0);
-			RandomVariable numeraireValue  = model.getNumeraire(time);
+			final RandomVariable underlyingValue = model.getAssetValue(time,0);
+			final RandomVariable numeraireValue  = model.getNumeraire(time);
 
 			// Determine the delta hedge
-			RandomVariable newNumberOfStocks		= delta;
-			RandomVariable stocksToBuy				= newNumberOfStocks.sub(amountOfUderlyingAsset);
+			final RandomVariable newNumberOfStocks		= delta;
+			final RandomVariable stocksToBuy				= newNumberOfStocks.sub(amountOfUderlyingAsset);
 
 			// Ensure self financing
-			RandomVariable numeraireAssetsToBuy		= stocksToBuy.mult(underlyingValue).div(numeraireValue).mult(-1);
-			RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.add(numeraireAssetsToBuy);
+			final RandomVariable numeraireAssetsToBuy		= stocksToBuy.mult(underlyingValue).div(numeraireValue).mult(-1);
+			final RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.add(numeraireAssetsToBuy);
 
 			// Update portfolio
 			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;
@@ -138,10 +138,10 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 		 */
 
 		// Get value of underlying and numeraire assets
-		RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
-		RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
+		final RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
-		RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime).add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
+		final RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime).add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
 
 		return portfolioValue;
 	}
@@ -152,14 +152,14 @@ public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloPr
 	 * @param underlying
 	 * @return
 	 */
-	private RandomVariable[] getBasisFunctions(RandomVariable underlying) {
-		double min = underlying.getMin();
-		double max = underlying.getMax();
+	private RandomVariable[] getBasisFunctions(final RandomVariable underlying) {
+		final double min = underlying.getMin();
+		final double max = underlying.getMax();
 
-		ArrayList<RandomVariable> basisFunctionList = new ArrayList<>();
-		double[] discretization = (new TimeDiscretizationFromArray(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
-		for(double discretizationStep : discretization) {
-			RandomVariable indicator = underlying.sub(discretizationStep).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
+		final ArrayList<RandomVariable> basisFunctionList = new ArrayList<>();
+		final double[] discretization = (new TimeDiscretizationFromArray(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();
+		for(final double discretizationStep : discretization) {
+			final RandomVariable indicator = underlying.sub(discretizationStep).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
 			basisFunctionList.add(indicator);
 		}
 

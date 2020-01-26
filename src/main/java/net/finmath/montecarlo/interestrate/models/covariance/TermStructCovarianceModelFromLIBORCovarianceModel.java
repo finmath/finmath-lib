@@ -26,16 +26,16 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 	 *
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
-	public TermStructCovarianceModelFromLIBORCovarianceModel(AbstractLIBORCovarianceModelParametric covarianceModel) {
+	public TermStructCovarianceModelFromLIBORCovarianceModel(final AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.covarianceModel = covarianceModel;
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModel model) {
-		TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
+	public RandomVariable[] getFactorLoading(final double time, final double periodStart, final double periodEnd, final TimeDiscretization periodDiscretization, final RandomVariable[] realizationAtTimeIndex, final TermStructureModel model) {
+		final TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
 
 		// Cache is really needed.
-		RandomVariable[] liborAtTimeIndex = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];
+		final RandomVariable[] liborAtTimeIndex = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int componentIndex=0; componentIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {
 			if(liborPeriodDiscretization.getTime(componentIndex) < time) {
 				liborAtTimeIndex[componentIndex] = null;
@@ -45,9 +45,9 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 			}
 		}
 
-		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
-		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
-		RandomVariable[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, liborAtTimeIndex);
+		final int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
+		final int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
+		final RandomVariable[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, liborAtTimeIndex);
 		if(periodEndIndex > periodStartIndex+1) {
 			// Need to sum factor loadings
 			for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
@@ -55,8 +55,8 @@ public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermSt
 			}
 
 			for(int periodIndex = periodStartIndex+1; periodIndex<periodEndIndex; periodIndex++) {
-				RandomVariable[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, liborAtTimeIndex);
-				double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
+				final RandomVariable[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, liborAtTimeIndex);
+				final double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
 				for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 					factorLoadings[factorIndex] = factorLoadings[factorIndex].addProduct(factorLoadingsForPeriod[factorIndex], periodLength);
 				}

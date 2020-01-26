@@ -64,12 +64,12 @@ public class FloatingpointDate {
 	 * @param floatingPointDate The value to the time offset \( t \).
 	 * @return The date resulting from adding Math.round(fixingTime*SECONDS_PER_DAY) seconds to referenceDate, where one day has SECONDS_PER_DAY seconds and SECONDS_PER_DAY is a constant 365*24*60*60
 	 */
-	public static LocalDateTime getDateFromFloatingPointDate(LocalDateTime referenceDate, double floatingPointDate) {
+	public static LocalDateTime getDateFromFloatingPointDate(final LocalDateTime referenceDate, final double floatingPointDate) {
 		if(referenceDate == null) {
 			return null;
 		}
 
-		Duration duration = Duration.ofSeconds(Math.round(floatingPointDate * SECONDS_PER_DAY));
+		final Duration duration = Duration.ofSeconds(Math.round(floatingPointDate * SECONDS_PER_DAY));
 		return referenceDate.plus(duration);
 	}
 
@@ -80,8 +80,8 @@ public class FloatingpointDate {
 	 * @param date The given date to be associated with the return value \( T \).
 	 * @return The value T measuring the distance of reference date and date by ACT/365 with SECONDS_PER_DAY seconds used as the smallest time unit and SECONDS_PER_DAY is a constant 365*24*60*60.
 	 */
-	public static double getFloatingPointDateFromDate(LocalDateTime referenceDate, LocalDateTime date) {
-		Duration duration = Duration.between(referenceDate, date);
+	public static double getFloatingPointDateFromDate(final LocalDateTime referenceDate, final LocalDateTime date) {
+		final Duration duration = Duration.between(referenceDate, date);
 		return ((double)duration.getSeconds()) / SECONDS_PER_DAY;
 	}
 
@@ -97,7 +97,7 @@ public class FloatingpointDate {
 	 * @param floatingPointDate The value to the time offset \( t \).
 	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
 	 */
-	public static LocalDate getDateFromFloatingPointDate(LocalDate referenceDate, double floatingPointDate) {
+	public static LocalDate getDateFromFloatingPointDate(final LocalDate referenceDate, final double floatingPointDate) {
 		if(referenceDate == null) {
 			return null;
 		}
@@ -111,7 +111,7 @@ public class FloatingpointDate {
 	 * @param date The given daten to be associated with the return value \( T \).
 	 * @return The value T measuring the distance of reference date and date by ACT/365.
 	 */
-	public static double getFloatingPointDateFromDate(LocalDate referenceDate, LocalDate date) {
+	public static double getFloatingPointDateFromDate(final LocalDate referenceDate, final LocalDate date) {
 		return internalDayCounting.getDaycountFraction(referenceDate, date);
 	}
 }

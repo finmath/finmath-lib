@@ -24,16 +24,16 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
  * @version 1.0
  */
 public class FDMThetaMethod {
-	private FiniteDifference1DModel model;
-	private FiniteDifference1DBoundary boundaryCondition;
-	private double alpha;
-	private double beta;
-	private double gamma;
-	private double theta;
-	private double center;
-	private double timeHorizon;
+	private final FiniteDifference1DModel model;
+	private final FiniteDifference1DBoundary boundaryCondition;
+	private final double alpha;
+	private final double beta;
+	private final double gamma;
+	private final double theta;
+	private final double center;
+	private final double timeHorizon;
 
-	public FDMThetaMethod(FDMBlackScholesModel model, FiniteDifference1DBoundary boundaryCondition, double timeHorizon, double center, double theta) {
+	public FDMThetaMethod(final FDMBlackScholesModel model, final FiniteDifference1DBoundary boundaryCondition, final double timeHorizon, final double center, final double theta) {
 		this.model = model;
 		this.boundaryCondition = boundaryCondition;
 		this.timeHorizon = timeHorizon;
@@ -45,7 +45,7 @@ public class FDMThetaMethod {
 		beta = -0.25 * Math.pow((gamma + 1), 2);
 	}
 
-	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator valueAtMaturity) {
+	public double[][] getValue(final double evaluationTime, final double time, final DoubleUnaryOperator valueAtMaturity) {
 		if(evaluationTime != 0) {
 			throw new IllegalArgumentException("Evaluation time != 0 not supported.");
 		}
@@ -54,34 +54,34 @@ public class FDMThetaMethod {
 		}
 
 		// Grid Generation
-		double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
+		final double maximumStockPriceOnGrid = model.getForwardValue(timeHorizon)
 				+ model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon));
-		double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
+		final double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
 				- model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
-		double maximumX = f_x(maximumStockPriceOnGrid);
-		double minimumX = f_x(Math.max(minimumStockPriceOnGrid, center/50.0));	// Previously there was a floor at 1 here. The floor at 1 is problematic. It does not scale with the spot! @TODO: There should be a more intelligent method to set the floor (do we need this?)
-		double dx = (maximumX - minimumX) / (model.getNumSpacesteps() - 2);
-		int N_pos = (int) Math.ceil((maximumX / dx) + 1);
-		int N_neg = (int) Math.floor((minimumX / dx) - 1);
+		final double maximumX = f_x(maximumStockPriceOnGrid);
+		final double minimumX = f_x(Math.max(minimumStockPriceOnGrid, center/50.0));	// Previously there was a floor at 1 here. The floor at 1 is problematic. It does not scale with the spot! @TODO: There should be a more intelligent method to set the floor (do we need this?)
+		final double dx = (maximumX - minimumX) / (model.getNumSpacesteps() - 2);
+		final int N_pos = (int) Math.ceil((maximumX / dx) + 1);
+		final int N_neg = (int) Math.floor((minimumX / dx) - 1);
 
 		// Create interior spatial vector for heat equation
-		int len = N_pos - N_neg - 1;
-		double[] x = new double[len];
+		final int len = N_pos - N_neg - 1;
+		final double[] x = new double[len];
 		for (int i = 0; i < len; i++) {
 			x[i] = (N_neg + 1) * dx + dx * i;
 		}
 
 		// Create time vector for heat equation
-		double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumSpacesteps());
-		double[] tau = new double[model.getNumSpacesteps() + 1];
+		final double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumSpacesteps());
+		final double[] tau = new double[model.getNumSpacesteps() + 1];
 		for (int i = 0; i < model.getNumSpacesteps() + 1; i++) {
 			tau[i] = i * dtau;
 		}
 
 		// Create necessary matrices
-		double kappa = dtau / Math.pow(dx, 2);
-		double[][] C = new double[len][len];
-		double[][] D = new double[len][len];
+		final double kappa = dtau / Math.pow(dx, 2);
+		final double[][] C = new double[len][len];
+		final double[][] D = new double[len][len];
 		for (int i = 0; i < len; i++) {
 			for (int j = 0; j < len; j++) {
 				if (i == j) {
@@ -96,18 +96,18 @@ public class FDMThetaMethod {
 				}
 			}
 		}
-		RealMatrix CMatrix = new Array2DRowRealMatrix(C);
-		RealMatrix DMatrix = new Array2DRowRealMatrix(D);
-		DecompositionSolver solver = new LUDecomposition(CMatrix).getSolver();
+		final RealMatrix CMatrix = new Array2DRowRealMatrix(C);
+		final RealMatrix DMatrix = new Array2DRowRealMatrix(D);
+		final DecompositionSolver solver = new LUDecomposition(CMatrix).getSolver();
 
 		// Create spatial boundary vector
-		double[] b = new double[len];
+		final double[] b = new double[len];
 		Arrays.fill(b, 0);
 
 		// Initialize U
 		double[] U = new double[len];
 		for (int i = 0; i < U.length; i++) {
-			double state = x[i];
+			final double state = x[i];
 			U[i] = f(valueAtMaturity.applyAsDouble(f_s(state)), state, 0);
 		}
 		RealMatrix UVector = MatrixUtils.createColumnRealMatrix(U);
@@ -119,38 +119,38 @@ public class FDMThetaMethod {
 			b[len-1] = (u_pos_inf(N_pos * dx, tau[m]) * (1 - theta) * kappa)
 					+ (u_pos_inf(N_pos * dx, tau[m + 1]) * theta * kappa);
 
-			RealMatrix bVector = MatrixUtils.createColumnRealMatrix(b);
-			RealMatrix constantsMatrix = (DMatrix.multiply(UVector)).add(bVector);
+			final RealMatrix bVector = MatrixUtils.createColumnRealMatrix(b);
+			final RealMatrix constantsMatrix = (DMatrix.multiply(UVector)).add(bVector);
 			UVector = solver.solve(constantsMatrix);
 		}
 		U = UVector.getColumn(0);
 
 		// Transform x to stockPrice and U to optionPrice
-		double[] optionPrice = new double[len];
-		double[] stockPrice = new double[len];
+		final double[] optionPrice = new double[len];
+		final double[] stockPrice = new double[len];
 		for (int i = 0; i < len; i++ ){
 			optionPrice[i] = U[i] * center *
 					Math.exp(alpha * x[i] + beta * tau[model.getNumSpacesteps()]);
 			stockPrice[i] = f_s(x[i]);
 		}
 
-		double[][] stockAndOptionPrice = new double[2][len];
+		final double[][] stockAndOptionPrice = new double[2][len];
 		stockAndOptionPrice[0] = stockPrice;
 		stockAndOptionPrice[1] = optionPrice;
 		return stockAndOptionPrice;
 	}
 
 	// State Space Transformations
-	private double f_x(double value) {return Math.log(value / center); }
-	private double f_s(double x) { return center * Math.exp(x); }
-	private double f_t(double tau) { return timeHorizon - (2 * tau) / Math.pow(model.getVolatility(), 2); }
-	private double f(double value, double x, double tau) { return (value / center) * Math.exp(-alpha * x - beta * tau); }
+	private double f_x(final double value) {return Math.log(value / center); }
+	private double f_s(final double x) { return center * Math.exp(x); }
+	private double f_t(final double tau) { return timeHorizon - (2 * tau) / Math.pow(model.getVolatility(), 2); }
+	private double f(final double value, final double x, final double tau) { return (value / center) * Math.exp(-alpha * x - beta * tau); }
 
 	// Heat Equation Boundary Conditions
-	private double u_neg_inf(double x, double tau) {
+	private double u_neg_inf(final double x, final double tau) {
 		return f(boundaryCondition.getValueAtLowerBoundary(model, f_t(tau), f_s(x)), x, tau);
 	}
-	private double u_pos_inf(double x, double tau) {
+	private double u_pos_inf(final double x, final double tau) {
 		return f(boundaryCondition.getValueAtUpperBoundary(model, f_t(tau), f_s(x)), x, tau);
 	}
 }

@@ -55,13 +55,13 @@ public class HestonModelCallOptionTest {
 
 	private final double theta = volatility*volatility;
 	private final double kappa = 0.1;
-	private double xi = 0.50;
+	private final double xi = 0.50;
 	private final double rho = 0.1;
 
 	private static final double maturity	= 1.0;
 	private static final double strike		= 0.95;
 
-	public HestonModelCallOptionTest(FourierTransformProduct product) {
+	public HestonModelCallOptionTest(final FourierTransformProduct product) {
 		super();
 		this.product = product;
 	}
@@ -70,19 +70,19 @@ public class HestonModelCallOptionTest {
 	public void test() throws CalculationException {
 
 		// For xi close to zero we should recover the Black Scholes model
-		double xi = 0.000001;
+		final double xi = 0.000001;
 
-		CharacteristicFunctionModel modelBS = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-		CharacteristicFunctionModel modelHS = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+		final CharacteristicFunctionModel modelBS = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		final CharacteristicFunctionModel modelHS = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
 
-		long startMillis	= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
 
-		double valueBS			= product.getValue(modelBS);
-		double valueHS			= product.getValue(modelHS);
+		final double valueBS			= product.getValue(modelBS);
+		final double valueHS			= product.getValue(modelHS);
 
-		long endMillis		= System.currentTimeMillis();
+		final long endMillis		= System.currentTimeMillis();
 
-		double error			= valueHS-valueBS;
+		final double error			= valueHS-valueBS;
 
 		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + valueHS + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 		Assert.assertEquals("Value", valueBS, valueHS, 1E-7);

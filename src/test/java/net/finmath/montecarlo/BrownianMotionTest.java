@@ -40,7 +40,7 @@ public class BrownianMotionTest {
 	static final DecimalFormat formatterSci4	= new DecimalFormat(" 0.0000E00;-0.0000E00");
 	static final DecimalFormat formatterSci1	= new DecimalFormat(" 0E00;-0.E00");
 
-	private RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
@@ -53,7 +53,7 @@ public class BrownianMotionTest {
 		});
 	}
 
-	public BrownianMotionTest(RandomVariableFactory abstractRandomVariableFactory) {
+	public BrownianMotionTest(final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 	}
@@ -64,29 +64,29 @@ public class BrownianMotionTest {
 	 */
 	@Test
 	public void testDensity() {
-		int seed = 3141;
-		int numberOfFactors = 1;
-		int numberOfPaths = 10000000;
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0, 10, 1.0);
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, abstractRandomVariableFactory);
+		final int seed = 3141;
+		final int numberOfFactors = 1;
+		final int numberOfPaths = 10000000;
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0, 10, 1.0);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, abstractRandomVariableFactory);
 
 		RandomVariable brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
 		for(int timeIndex=1; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double[] intervalPoints = (new TimeDiscretizationFromArray(-2, 101, 4.0/100)).getAsDoubleArray();
-			double[] histOfNormalFromBM = brownianMotionAtTime.getHistogram(intervalPoints);
+			final double[] intervalPoints = (new TimeDiscretizationFromArray(-2, 101, 4.0/100)).getAsDoubleArray();
+			final double[] histOfNormalFromBM = brownianMotionAtTime.getHistogram(intervalPoints);
 
-			double time = brownianMotionAtTime.getFiltrationTime();
-			DoubleUnaryOperator densityAnalytic = new DoubleUnaryOperator() {
+			final double time = brownianMotionAtTime.getFiltrationTime();
+			final DoubleUnaryOperator densityAnalytic = new DoubleUnaryOperator() {
 				@Override
-				public double applyAsDouble(double x) { return Math.exp(-x*x/2.0/time) / Math.sqrt(2 * Math.PI * time); }
+				public double applyAsDouble(final double x) { return Math.exp(-x*x/2.0/time) / Math.sqrt(2 * Math.PI * time); }
 			};
 
 			for(int i=0; i<intervalPoints.length-1; i++) {
-				double center = (intervalPoints[i+1]+intervalPoints[i])/2.0;
-				double size = intervalPoints[i+1]-intervalPoints[i];
+				final double center = (intervalPoints[i+1]+intervalPoints[i])/2.0;
+				final double size = intervalPoints[i+1]-intervalPoints[i];
 
-				double density = histOfNormalFromBM[i+1] / size;
-				double densityAnalyt = densityAnalytic.applyAsDouble(center);
+				final double density = histOfNormalFromBM[i+1] / size;
+				final double densityAnalyt = densityAnalytic.applyAsDouble(center);
 
 				Assert.assertEquals("Density", densityAnalyt, density, 5E-3);
 			}
@@ -97,19 +97,19 @@ public class BrownianMotionTest {
 	@Test
 	public void testScalarValuedBrownianMotionTerminalDistribution() {
 		// The parameters
-		int		seed		= 53252;
-		double	lastTime	= 1;//0.001;
-		double	dt			= 1;//0.001;
+		final int		seed		= 53252;
+		final double	lastTime	= 1;//0.001;
+		final double	dt			= 1;//0.001;
 
 		System.out.println("Test of mean and variance of a single Brownian increment.");
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		for(int numberOfPaths = 1000; numberOfPaths <= 100000000; numberOfPaths *= 10) {
 
 			// Test the quality of the Brownian motion
-			BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+			final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 					timeDiscretization,
 					1,
 					numberOfPaths,
@@ -119,10 +119,10 @@ public class BrownianMotionTest {
 
 			System.out.print("\tNumber of path = " + formatterSci1.format(numberOfPaths) + "\t ");
 
-			RandomVariable brownianRealization = brownian.getBrownianIncrement(0, 0);
+			final RandomVariable brownianRealization = brownian.getBrownianIncrement(0, 0);
 
-			double mean		= brownianRealization.getAverage();
-			double variance	= brownianRealization.getVariance();
+			final double mean		= brownianRealization.getAverage();
+			final double variance	= brownianRealization.getVariance();
 
 			System.out.print("error of mean = " + formatterSci4.format(mean) + "\t error of variance = " + formatterSci4.format(variance-dt));
 
@@ -138,18 +138,18 @@ public class BrownianMotionTest {
 	@Test
 	public void testScalarValuedBrownianMotionWithJarqueBeraTest() {
 		// The parameters
-		int		numberOfPaths	= 100000;
-		int		seed		= 31415;
-		double	lastTime	= 60;
-		double	dt			= 0.25;
+		final int		numberOfPaths	= 100000;
+		final int		seed		= 31415;
+		final double	lastTime	= 60;
+		final double	dt			= 0.25;
 
 		System.out.println("Jarque-Bera test of subsequent Brownian increments.");
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -157,11 +157,11 @@ public class BrownianMotionTest {
 				abstractRandomVariableFactory
 				);
 
-		JarqueBeraTest jb = new JarqueBeraTest();
+		final JarqueBeraTest jb = new JarqueBeraTest();
 		int fail = 0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			RandomVariable brownianRealization = brownian.getBrownianIncrement(timeIndex, 0);
-			double test = jb.test(brownianRealization);
+			final RandomVariable brownianRealization = brownian.getBrownianIncrement(timeIndex, 0);
+			final double test = jb.test(brownianRealization);
 
 			System.out.print(timeIndex + ":\t" + test);
 			if(test > 4.6) {
@@ -183,17 +183,17 @@ public class BrownianMotionTest {
 	@Test
 	public void testBrownianIncrementSquaredDrift() {
 		// The parameters
-		int numberOfPaths	= 10000;
-		int seed			= 53252;
+		final int numberOfPaths	= 10000;
+		final int seed			= 53252;
 
-		double lastTime = 4.0;
-		double dt = 0.001;
+		final double lastTime = 4.0;
+		final double dt = 0.001;
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 				timeDiscretization,
 				2,
 				numberOfPaths,
@@ -207,23 +207,23 @@ public class BrownianMotionTest {
 		RandomVariable sumOfSquaredIncrements 	= brownian.getRandomVariableForConstant(0.0);
 		RandomVariable sumOfCrossIncrements	= brownian.getRandomVariableForConstant(0.0);
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			RandomVariable brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
-			RandomVariable brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
+			final RandomVariable brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
+			final RandomVariable brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
 
 			// Calculate x = \int dW1(t) * dW1(t)
-			RandomVariable squaredIncrements = brownianIncrement1.squared();
+			final RandomVariable squaredIncrements = brownianIncrement1.squared();
 			sumOfSquaredIncrements = sumOfSquaredIncrements.add(squaredIncrements);
 
 			// Calculate x = \int dW1(t) * dW2(t)
-			RandomVariable covarianceIncrements = brownianIncrement1.mult(brownianIncrement2);
+			final RandomVariable covarianceIncrements = brownianIncrement1.mult(brownianIncrement2);
 			sumOfCrossIncrements = sumOfCrossIncrements.add(covarianceIncrements);
 		}
 
-		double time								= timeDiscretization.getTime(timeDiscretization.getNumberOfTimeSteps());
-		double meanOfSumOfSquaredIncrements		= sumOfSquaredIncrements.getAverage();
-		double varianceOfSumOfSquaredIncrements	= sumOfSquaredIncrements.getVariance();
-		double meanOfSumOfCrossIncrements		= sumOfCrossIncrements.getAverage();
-		double varianceOfSumOfCrossIncrements	= sumOfCrossIncrements.getVariance();
+		final double time								= timeDiscretization.getTime(timeDiscretization.getNumberOfTimeSteps());
+		final double meanOfSumOfSquaredIncrements		= sumOfSquaredIncrements.getAverage();
+		final double varianceOfSumOfSquaredIncrements	= sumOfSquaredIncrements.getVariance();
+		final double meanOfSumOfCrossIncrements		= sumOfCrossIncrements.getAverage();
+		final double varianceOfSumOfCrossIncrements	= sumOfCrossIncrements.getVariance();
 
 		Assert.assertTrue(Math.abs(meanOfSumOfSquaredIncrements-time) < 1.0E-3);
 		Assert.assertTrue(Math.abs(varianceOfSumOfSquaredIncrements) < 1.0E-2);
@@ -243,17 +243,17 @@ public class BrownianMotionTest {
 	@Test
 	public void testSerialization() {
 		// The parameters
-		int numberOfPaths	= 10000;
-		int seed			= 53252;
+		final int numberOfPaths	= 10000;
+		final int seed			= 53252;
 
-		double lastTime = 2.0;
-		double dt = 0.1;
+		final double lastTime = 2.0;
+		final double dt = 0.1;
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
 				timeDiscretization,
 				2,
 				numberOfPaths,
@@ -261,18 +261,18 @@ public class BrownianMotionTest {
 				abstractRandomVariableFactory
 				);
 
-		RandomVariable value = brownian.getBrownianIncrement(10, 0);
+		final RandomVariable value = brownian.getBrownianIncrement(10, 0);
 
 		/*
 		 * Serialize to a byte stream
 		 */
 		byte[] serializedObject = null;
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream( baos );
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			final ObjectOutputStream oos = new ObjectOutputStream( baos );
 			oos.writeObject(brownian);
 			serializedObject = baos.toByteArray();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			fail("Serialization failed with exception " + e.getMessage());
 		}
 
@@ -281,13 +281,13 @@ public class BrownianMotionTest {
 		 */
 		BrownianMotion brownianClone = null;
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedObject) );
+			final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedObject) );
 			brownianClone = (BrownianMotion)ois.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			fail("Deserialization failed with exception " + e.getMessage());
 		}
 
-		RandomVariable valueClone = brownianClone.getBrownianIncrement(10, 0);
+		final RandomVariable valueClone = brownianClone.getBrownianIncrement(10, 0);
 
 		Assert.assertTrue("Comparing random variable from original and deserialized object: different references.", value != valueClone);
 		Assert.assertTrue("Comparing random variable from original and deserialized object: equals().", value.equals(valueClone));

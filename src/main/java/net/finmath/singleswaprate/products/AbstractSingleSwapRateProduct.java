@@ -51,8 +51,8 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @param forwardCurveName The name of the forward curve.
 	 * @param volatilityCubeName The name of the volatility cube.
 	 */
-	public AbstractSingleSwapRateProduct(Schedule fixSchedule, Schedule floatSchedule, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName) {
+	public AbstractSingleSwapRateProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName) {
 		super();
 		this.fixSchedule = fixSchedule;
 		this.floatSchedule = floatSchedule;
@@ -68,7 +68,7 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @param upperBound The largest strike the replication may use.
 	 * @param numberOfEvaluationPoints The number of points the replication may evaluate.
 	 */
-	public void setIntegrationParameters(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public void setIntegrationParameters(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
@@ -97,7 +97,7 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 
 	//can be overridden for better performance
 	@Override
-	public double getValue(double evaluationTime, VolatilityCubeModel model) {
+	public double getValue(final double evaluationTime, final VolatilityCubeModel model) {
 		return getValue(evaluationTime, null, model);
 	}
 
@@ -114,7 +114,7 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @param model The model under which the product is valued.
 	 * @return The value of the product using the given model.
 	 */
-	public double getValue(double evaluationTime, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
+	public double getValue(final double evaluationTime, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
 
 		if(evaluationTime > getFixSchedule().getPeriodStart(0)) {
 			throw new IllegalArgumentException("This framework is not set up to evaluate the product "
@@ -132,21 +132,21 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 		forwardSwapRate	= Swap.getForwardSwapRate(getFixSchedule(), getFloatSchedule(), forwardCurve, model);
 
 		// check if there is an annuity mapping provided, otherwise get new one.
-		AnnuityMapping internalAnnuityMapping = annuityMapping == null ? buildAnnuityMapping(model) : annuityMapping;
+		final AnnuityMapping internalAnnuityMapping = annuityMapping == null ? buildAnnuityMapping(model) : annuityMapping;
 
 		double	receiverLeg = 0.0;
 		double	payerLeg 	= 0.0;
 
 		// check whether cube supports given lower bound
-		double lowerBound = getVolatilityCubeName() == null ? this.lowerBound :
+		final double lowerBound = getVolatilityCubeName() == null ? this.lowerBound :
 			Math.max(this.lowerBound, model.getVolatilityCube(getVolatilityCubeName()).getLowestStrike(model));
 
 		// Numerical integration
-		AbstractRealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);
-		AbstractRealIntegral    payerIntegral = new SimpsonRealIntegrator(forwardSwapRate, upperBound, numberOfEvaluationPoints);
+		final AbstractRealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);
+		final AbstractRealIntegral    payerIntegral = new SimpsonRealIntegrator(forwardSwapRate, upperBound, numberOfEvaluationPoints);
 
-		DoubleUnaryOperator  receiverIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valuePut(x,model, forwardSwapRate));
-		DoubleUnaryOperator 	payerIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valueCall(x,model, forwardSwapRate));
+		final DoubleUnaryOperator  receiverIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valuePut(x,model, forwardSwapRate));
+		final DoubleUnaryOperator 	payerIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valueCall(x,model, forwardSwapRate));
 
 		receiverLeg = receiverIntegral.integrate(receiverIntegrand);
 		payerLeg	= payerIntegral.integrate(payerIntegrand);
@@ -212,7 +212,7 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @param swapRate The swap rate.
 	 * @return The value of a put.
 	 */
-	protected double valuePut(double optionStrike, VolatilityCubeModel model, double swapRate){
+	protected double valuePut(final double optionStrike, final VolatilityCubeModel model, final double swapRate){
 		return valueCall(optionStrike, model, swapRate) - (swapRate-optionStrike);
 	}
 
@@ -224,10 +224,10 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 	 * @param swapRate The swap rate.
 	 * @return The value of a call.
 	 */
-	protected double valueCall(double optionStrike, VolatilityCubeModel model, double swapRate){
-		double optionMaturity 	= getFixSchedule().getFixing(0);
-		double termination 		= getFixSchedule().getPayment(getFixSchedule().getNumberOfPeriods()-1);
-		double volatility = model.getVolatilityCube(getVolatilityCubeName()).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);
+	protected double valueCall(final double optionStrike, final VolatilityCubeModel model, final double swapRate){
+		final double optionMaturity 	= getFixSchedule().getFixing(0);
+		final double termination 		= getFixSchedule().getPayment(getFixSchedule().getNumberOfPeriods()-1);
+		final double volatility = model.getVolatilityCube(getVolatilityCubeName()).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);
 		return AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, optionStrike, 1.0);
 	}
 

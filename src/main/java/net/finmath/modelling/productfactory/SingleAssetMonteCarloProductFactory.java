@@ -34,23 +34,23 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	 *
 	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
 	 */
-	public SingleAssetMonteCarloProductFactory(LocalDate referenceDate) {
+	public SingleAssetMonteCarloProductFactory(final LocalDate referenceDate) {
 		this.referenceDate = referenceDate;
 	}
 
 	@Override
-	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+	public DescribedProduct<? extends SingleAssetProductDescriptor> getProductFromDescriptor(final ProductDescriptor descriptor) {
 
 		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
-			DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionMonteCarlo((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
+			final DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> product = new EuropeanOptionMonteCarlo((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);
 			return product;
 		}
 		else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {
-			DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);
+			final DescribedProduct<SingleAssetDigitalOptionProductDescriptor> product = new DigitalOptionMonteCarlo((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);
 			return product;
 		}
 		else {
-			String name = descriptor.name();
+			final String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
 	}
@@ -72,7 +72,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 		 * @param descriptor Implementation of SingleAssetEuropeanOptionProductDescriptor
 		 * @param referenceDate The reference date to be used to convert absolute maturities to relative maturities.
 		 */
-		public EuropeanOptionMonteCarlo(SingleAssetEuropeanOptionProductDescriptor descriptor, LocalDate referenceDate) {
+		public EuropeanOptionMonteCarlo(final SingleAssetEuropeanOptionProductDescriptor descriptor, final LocalDate referenceDate) {
 			super(descriptor.getUnderlyingName(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
 			this.descriptor = descriptor;
 		}
@@ -99,7 +99,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
-		public DigitalOptionMonteCarlo(SingleAssetDigitalOptionProductDescriptor descriptor, LocalDate referenceDate) {
+		public DigitalOptionMonteCarlo(final SingleAssetDigitalOptionProductDescriptor descriptor, final LocalDate referenceDate) {
 			super(descriptor.getNameOfUnderlying(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());
 			this.descriptor = descriptor;
 		}

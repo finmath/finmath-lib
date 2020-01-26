@@ -27,7 +27,7 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	 * @param curves The collection of curves.
 	 * @param surfaces The collection of volatility surfaces.
 	 */
-	public AnalyticModelDescriptor(LocalDate referenceDate, Collection<Curve> curves, Collection<VolatilitySurface> surfaces) {
+	public AnalyticModelDescriptor(final LocalDate referenceDate, final Collection<Curve> curves, final Collection<VolatilitySurface> surfaces) {
 		super();
 		this.referenceDate = referenceDate;
 
@@ -35,12 +35,12 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 		volatilitySurfaceMap = new HashMap<>();
 
 		if(curves != null) {
-			for(Curve curve : curves) {
+			for(final Curve curve : curves) {
 				curvesMap.put(curve.getName(), curve);
 			}
 		}
 		if (surfaces != null) {
-			for (VolatilitySurface surface : surfaces) {
+			for (final VolatilitySurface surface : surfaces) {
 				volatilitySurfaceMap.put(surface.getName(), surface);
 			}
 		}
@@ -53,7 +53,7 @@ public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
 	 * @param curvesMap The map of curves.
 	 * @param volatilitySurfaceMap The map of volatility surfaces.
 	 */
-	public AnalyticModelDescriptor(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
+	public AnalyticModelDescriptor(final LocalDate referenceDate, final Map<String, Curve> curvesMap, final Map<String, VolatilitySurface> volatilitySurfaceMap) {
 		super();
 		this.referenceDate = referenceDate;
 

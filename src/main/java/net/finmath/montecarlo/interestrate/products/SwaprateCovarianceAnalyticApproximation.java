@@ -31,7 +31,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @param swapTenor1 The swap tenor of the first rate in doubles.
 	 * @param swapTenor2 The swap tenor of the second rate in doubles.
 	 */
-	public SwaprateCovarianceAnalyticApproximation(double[] swapTenor1, double[] swapTenor2) {
+	public SwaprateCovarianceAnalyticApproximation(final double[] swapTenor1, final double[] swapTenor2) {
 		super();
 		this.swapTenor1 = swapTenor1;
 		this.swapTenor2 = swapTenor2;
@@ -41,7 +41,7 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
 		return getValue(evaluationTime, (LIBORMarketModelFromCovarianceModel)((LIBORModelMonteCarloSimulationModel) model).getModel());
 	}
 
@@ -54,21 +54,21 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable getValue(double evaluationTime, LIBORMarketModelFromCovarianceModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORMarketModelFromCovarianceModel model) throws CalculationException {
 
-		int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);
-		int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);
+		final int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);
+		final int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);
 
-		int swapStartIndex2  = model.getLiborPeriodIndex(swapTenor2[0]);
-		int swapEndIndex2    = model.getLiborPeriodIndex(swapTenor2[swapTenor2.length-1]);
+		final int swapStartIndex2  = model.getLiborPeriodIndex(swapTenor2[0]);
+		final int swapEndIndex2    = model.getLiborPeriodIndex(swapTenor2[swapTenor2.length-1]);
 
-		int optionMaturityIndex = model.getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));
+		final int optionMaturityIndex = model.getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));
 
-		double[]  swapCovarianceWeights1  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get("values");
-		double[]  swapCovarianceWeights2  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get("values");
+		final double[]  swapCovarianceWeights1  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get("values");
+		final double[]  swapCovarianceWeights2  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get("values");
 
 		// Get the integrated libor covariance from the model
-		double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
+		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
 
 		// Calculate integrated swap rate covariance
 		double integratedSwapRateCovariance = 0.0;

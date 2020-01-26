@@ -43,9 +43,9 @@ public class AnnuityMappingFactory {
 	 * @param model The model containing curves and cube.
 	 * @return The annuity mapping.
 	 */
-	public static AnnuityMapping buildAnnuityMapping(double strike, Schedule fixSchedule, Schedule floatSchedule,
-			String discountCurveName, String forwardCurveName, String volatilityCubeName, AnnuityMappingType type, VolatilityCubeModel model) {
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName,
+	public static AnnuityMapping buildAnnuityMapping(final double strike, final Schedule fixSchedule, final Schedule floatSchedule,
+			final String discountCurveName, final String forwardCurveName, final String volatilityCubeName, final AnnuityMappingType type, final VolatilityCubeModel model) {
+		final AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName,
 				strike, 0, 0, -1);
 		return factory.build(type, model);
 	}
@@ -66,10 +66,10 @@ public class AnnuityMappingFactory {
 	 * @param numberOfEvaluationPoints The number of points the replication may evaluate Piterbarg annuity mapping is normalizing.
 	 * @return The annuity mapping.
 	 */
-	public static AnnuityMapping buildAnnuityMapping(double strike, Schedule fixSchedule, Schedule floatSchedule,
-			String discountCurveName, String forwardCurveName, String volatilityCubeName, AnnuityMappingType type, VolatilityCubeModel model,
-			double lowerBound, double upperBound, int numberOfEvaluationPoints) {
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName,
+	public static AnnuityMapping buildAnnuityMapping(final double strike, final Schedule fixSchedule, final Schedule floatSchedule,
+			final String discountCurveName, final String forwardCurveName, final String volatilityCubeName, final AnnuityMappingType type, final VolatilityCubeModel model,
+			final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+		final AnnuityMappingFactory factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName,
 				strike, lowerBound, upperBound, numberOfEvaluationPoints);
 		return factory.build(type, model);
 	}
@@ -84,8 +84,8 @@ public class AnnuityMappingFactory {
 	 * @param forwardCurveName The name of the forward curve.
 	 * @param volatilityCubeName The name of the volatility cube.
 	 */
-	public AnnuityMappingFactory(Schedule fixSchedule, Schedule floatSchedule,
-			String discountCurveName, String forwardCurveName, String volatilityCubeName) {
+	public AnnuityMappingFactory(final Schedule fixSchedule, final Schedule floatSchedule,
+			final String discountCurveName, final String forwardCurveName, final String volatilityCubeName) {
 		this(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, Double.NaN, 0, 0, -1);
 	}
 
@@ -102,9 +102,9 @@ public class AnnuityMappingFactory {
 	 * @param upperBound The maximum strike the Piterbarg annuity mapping may use during replication, when normalizing.
 	 * @param numberOfEvaluationPoints The number of points the replication may evaluate Piterbarg annuity mapping is normalizing.
 	 */
-	public AnnuityMappingFactory(Schedule fixSchedule, Schedule floatSchedule,
-			String discountCurveName, String forwardCurveName, String volatilityCubeName, double strike,
-			double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public AnnuityMappingFactory(final Schedule fixSchedule, final Schedule floatSchedule,
+			final String discountCurveName, final String forwardCurveName, final String volatilityCubeName, final double strike,
+			final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		super();
 		this.fixSchedule = fixSchedule;
 		this.floatSchedule = floatSchedule;
@@ -125,7 +125,7 @@ public class AnnuityMappingFactory {
 	 * @param model The model containing curves and cube.
 	 * @return The annuity mapping.
 	 */
-	public AnnuityMapping build(AnnuityMappingType type, VolatilityCubeModel model) {
+	public AnnuityMapping build(final AnnuityMappingType type, final VolatilityCubeModel model) {
 
 		double strike = this.strike;
 		ForwardCurve forwardCurve;

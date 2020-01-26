@@ -35,7 +35,7 @@ public class UnsupportedIndex extends AbstractIndex {
 	 * @param name The name of the index.
 	 * @param exception The exception to be thrown if this index is valued.
 	 */
-	public UnsupportedIndex(String name, Exception exception) {
+	public UnsupportedIndex(final String name, final Exception exception) {
 		super(name, null);
 		this.exception = exception;
 	}
@@ -45,13 +45,13 @@ public class UnsupportedIndex extends AbstractIndex {
 	 *
 	 * @param exception The exception.
 	 */
-	public UnsupportedIndex(Exception exception) {
+	public UnsupportedIndex(final Exception exception) {
 		super();
 		this.exception = exception;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		throw new CalculationException(exception);
 	}
 
@@ -61,7 +61,7 @@ public class UnsupportedIndex extends AbstractIndex {
 			return null;
 		}
 
-		Set<String> underlying = new HashSet<>();
+		final Set<String> underlying = new HashSet<>();
 		underlying.add(getName());
 		return underlying;
 	}

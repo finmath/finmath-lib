@@ -31,9 +31,9 @@ public class HestonModelDescriptor implements AssetModelDescriptor {
 	private final Double xi;
 	private final Double rho;
 
-	public HestonModelDescriptor(LocalDate referenceDate, Double initialValue,
-			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate,
-			Double volatility, Double theta, Double kappa, Double xi, Double rho) {
+	public HestonModelDescriptor(final LocalDate referenceDate, final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate,
+			final Double volatility, final Double theta, final Double kappa, final Double xi, final Double rho) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;

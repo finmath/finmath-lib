@@ -69,20 +69,20 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 	@Parameters(name="{0}-{1}")
 	public static Collection<Object[]> data() {
-		Collection<Object[]> testParameters = new ArrayList<>();
+		final Collection<Object[]> testParameters = new ArrayList<>();
 
-		double maturity = timeHorizon;
-		double strike = modelInitialValue*Math.exp(modelRiskFreeRate * maturity);
-		AssetMonteCarloProduct europeanOption = new EuropeanOption(maturity,strike);
+		final double maturity = timeHorizon;
+		final double strike = modelInitialValue*Math.exp(modelRiskFreeRate * maturity);
+		final AssetMonteCarloProduct europeanOption = new EuropeanOption(maturity,strike);
 
-		double[] exerciseDates = new double[] {2.0, 3.0, 4.0, maturity };
-		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
-		double[] strikes = new double[] { 0.7*strike, 0.75*strike, 0.85*strike, strike };
-		AssetMonteCarloProduct bermudanOption = new BermudanOption(exerciseDates, notionals, strikes);
+		final double[] exerciseDates = new double[] {2.0, 3.0, 4.0, maturity };
+		final double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
+		final double[] strikes = new double[] { 0.7*strike, 0.75*strike, 0.85*strike, strike };
+		final AssetMonteCarloProduct bermudanOption = new BermudanOption(exerciseDates, notionals, strikes);
 
 		// Create a Model (see method getModel)
-		AssetModelMonteCarloSimulationModel blackScholesModel = getBlackScholesModel();
-		AssetModelMonteCarloSimulationModel hestonModel = getHestonModel();
+		final AssetModelMonteCarloSimulationModel blackScholesModel = getBlackScholesModel();
+		final AssetModelMonteCarloSimulationModel hestonModel = getHestonModel();
 
 		/*
 		 * For performance: either use a warm up period or focus on a single product.
@@ -95,7 +95,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		return testParameters;
 	}
 
-	public DeltaHedgedPortfolioWithAADTest(AssetModelMonteCarloSimulationModel model, AssetMonteCarloProduct product) {
+	public DeltaHedgedPortfolioWithAADTest(final AssetModelMonteCarloSimulationModel model, final AssetMonteCarloProduct product) {
 		super();
 
 		this.model = model;
@@ -104,64 +104,64 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 	public static AssetModelMonteCarloSimulationModel getBlackScholesModel()
 	{
-		Map<String, Object> properties = new HashMap<>();
+		final Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
+		final RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		final RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		final RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		final RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+		final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		return monteCarloBlackScholesModel;
 	}
 
 	public static AssetModelMonteCarloSimulationModel getHestonModel()
 	{
-		Map<String, Object> properties = new HashMap<>();
+		final Map<String, Object> properties = new HashMap<>();
 		properties.put("barrierDiracWidth", new Double(0.0));
 		properties.put("isGradientRetainsLeafNodesOnly", new Boolean(false));
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
+		final RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), properties);
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
-		RandomVariableDifferentiable theta	= randomVariableFactory.createRandomVariable(modelTheta);
-		RandomVariableDifferentiable kappa	= randomVariableFactory.createRandomVariable(modelKappa);
-		RandomVariableDifferentiable xi	= randomVariableFactory.createRandomVariable(modelXi);
-		RandomVariableDifferentiable rho	= randomVariableFactory.createRandomVariable(modelRho);
+		final RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		final RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		final RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		final RandomVariableDifferentiable theta	= randomVariableFactory.createRandomVariable(modelTheta);
+		final RandomVariableDifferentiable kappa	= randomVariableFactory.createRandomVariable(modelKappa);
+		final RandomVariableDifferentiable xi	= randomVariableFactory.createRandomVariable(modelXi);
+		final RandomVariableDifferentiable rho	= randomVariableFactory.createRandomVariable(modelRho);
 
 		// Create a model
-		AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
+		final AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationModel monteCarloHestonModel = new MonteCarloAssetModel(model, process);
+		final AssetModelMonteCarloSimulationModel monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 
 		return monteCarloHestonModel;
 	}
@@ -169,24 +169,24 @@ public class DeltaHedgedPortfolioWithAADTest {
 	@Test
 	public void testHedgePerformance() throws CalculationException {
 
-		double maturity = timeHorizon;
+		final double maturity = timeHorizon;
 
-		long timingCalculationStart = System.currentTimeMillis();
+		final long timingCalculationStart = System.currentTimeMillis();
 
-		DeltaHedgedPortfolioWithAAD hedge = new DeltaHedgedPortfolioWithAAD(option);
+		final DeltaHedgedPortfolioWithAAD hedge = new DeltaHedgedPortfolioWithAAD(option);
 
-		RandomVariable hedgeValue = hedge.getValue(maturity, model);
+		final RandomVariable hedgeValue = hedge.getValue(maturity, model);
 
-		long timingCalculationEnd = System.currentTimeMillis();
+		final long timingCalculationEnd = System.currentTimeMillis();
 
 		RandomVariable underlyingAtMaturity = model.getAssetValue(maturity, 0);
-		RandomVariable optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity)).div(model.getNumeraire(0));
-		RandomVariable hedgeError = optionValue.sub(hedgeValue);
+		final RandomVariable optionValue = option.getValue(0.0, model).mult(model.getNumeraire(maturity)).div(model.getNumeraire(0));
+		final RandomVariable hedgeError = optionValue.sub(hedgeValue);
 
-		double hedgeErrorRMS = Math.sqrt(hedgeError.getVariance());
+		final double hedgeErrorRMS = Math.sqrt(hedgeError.getVariance());
 
-		TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
-		double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
+		final TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
+		final double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
 
 		System.out.println("Testing delta hedge of " + option.getClass().getSimpleName() + " using " + model.getClass().getSimpleName() + ".");
 
@@ -200,8 +200,8 @@ public class DeltaHedgedPortfolioWithAADTest {
 
 		if(isPrintHedgeFinalValues) {
 			if(option instanceof BermudanOption) {
-				RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
-				for(double time : new double[] { 4.0, 3.0, 2.0}) {
+				final RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
+				for(final double time : new double[] { 4.0, 3.0, 2.0}) {
 					underlyingAtMaturity = exerciseTime.sub(time+0.01).choose(underlyingAtMaturity, model.getAssetValue(time, 0));
 
 				}
@@ -215,12 +215,12 @@ public class DeltaHedgedPortfolioWithAADTest {
 		}
 
 		if(isPrintExerciseProbabilities && option instanceof BermudanOption) {
-			RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
-			double[] exerciseDates = ((BermudanOption) option).getExerciseDates();
-			double[] probabilities = exerciseTime.getHistogram(exerciseDates);
+			final RandomVariable exerciseTime = ((BermudanOption) option).getLastValuationExerciseTime();
+			final double[] exerciseDates = ((BermudanOption) option).getExerciseDates();
+			final double[] probabilities = exerciseTime.getHistogram(exerciseDates);
 			for(int exerciseDateIndex=0; exerciseDateIndex<exerciseDates.length; exerciseDateIndex++)
 			{
-				double time = exerciseDates[exerciseDateIndex];
+				final double time = exerciseDates[exerciseDateIndex];
 				System.out.println("P(\u03C4 = " + time + ") = " + probabilities[exerciseDateIndex]);
 			}
 			System.out.println("P(\u03C4 > " + exerciseDates[exerciseDates.length-1] + ") = " + probabilities[exerciseDates.length]);

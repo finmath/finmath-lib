@@ -38,14 +38,14 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 	 * @param nu The parameter \( \nu \)
 	 */
 	public MonteCarloVarianceGammaModel(
-			TimeDiscretization timeDiscretization,
-			int numberOfPaths,
-			int seed,
-			double initialValue,
-			double riskFreeRate,
-			double sigma,
-			double theta,
-			double nu) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double sigma,
+			final double theta,
+			final double nu) {
 		super();
 
 		this.initialValue = initialValue;
@@ -55,7 +55,7 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 		model = new VarianceGammaModel(initialValue,riskFreeRate,sigma,theta,nu);
 
 		//Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new VarianceGammaProcess(sigma, nu, theta,
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new VarianceGammaProcess(sigma, nu, theta,
 				timeDiscretization, 1, numberOfPaths,seed));
 
 		//Link model and process for delegation
@@ -69,29 +69,29 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 	}
 
 	@Override
-	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
-		double time = getTime(timeIndex);
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+		final double time = getTime(timeIndex);
 
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
@@ -104,24 +104,24 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
-		double	newSigma	= dataModified.get("sigma") != null	? ((Number)dataModified.get("sigma")).doubleValue()	: model.getSigma();
-		double	newTheta	= dataModified.get("theta") != null	? ((Number)dataModified.get("theta")).doubleValue()	: model.getTheta();
-		double	newNu	= dataModified.get("nu") != null	? ((Number)dataModified.get("nu")).doubleValue()	: model.getNu();
-		int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
+		final double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
+		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
+		final double	newSigma	= dataModified.get("sigma") != null	? ((Number)dataModified.get("sigma")).doubleValue()	: model.getSigma();
+		final double	newTheta	= dataModified.get("theta") != null	? ((Number)dataModified.get("theta")).doubleValue()	: model.getTheta();
+		final double	newNu	= dataModified.get("nu") != null	? ((Number)dataModified.get("nu")).doubleValue()	: model.getNu();
+		final int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
 		return new MonteCarloVarianceGammaModel(model.getProcess().getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), model.getProcess().getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newSigma, newTheta, newNu);
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
-		Map<String, Object> dataModified = new HashMap<>();
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+		final Map<String, Object> dataModified = new HashMap<>();
 		dataModified.put("seed", new Integer(seed));
 		return getCloneWithModifiedData(dataModified);
 	}
@@ -137,22 +137,22 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 }

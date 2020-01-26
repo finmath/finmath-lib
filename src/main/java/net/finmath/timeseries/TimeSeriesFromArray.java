@@ -13,19 +13,19 @@ public class TimeSeriesFromArray implements TimeSeries {
 	private final double[] times;
 	private final double[] values;
 
-	public TimeSeriesFromArray(double[] times, double[] values) {
+	public TimeSeriesFromArray(final double[] times, final double[] values) {
 		super();
 		this.times = times;
 		this.values = values;
 	}
 
 	@Override
-	public double getTime(int index) {
+	public double getTime(final int index) {
 		return times[index];
 	}
 
 	@Override
-	public double getValue(int index) {
+	public double getValue(final int index) {
 		return values[index];
 	}
 

@@ -61,7 +61,7 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT impl
 	 * @param periods A sorted list of periods defining the periods. From the periods, only the period end dates are used as interval boundaries, except for the start date of the first interval, where the period start date is used.
 	 * @param frequency The frequency, i.e., the number of periods which make up a year.
 	 */
-	public DayCountConvention_ACT_ACT_ICMA(ArrayList<Period> periods, int frequency) {
+	public DayCountConvention_ACT_ACT_ICMA(final ArrayList<Period> periods, final int frequency) {
 		super();
 		this.periods	= periods;
 		this.frequency	= frequency;
@@ -71,7 +71,7 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT impl
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
@@ -88,10 +88,10 @@ public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT impl
 			periodIndexStartDate	= periodIndexStartDate+1;
 		}
 
-		Period startDatePeriod = periods.get(periodIndexStartDate);
-		Period endDatePeriod = periods.get(periodIndexEndDate);
+		final Period startDatePeriod = periods.get(periodIndexStartDate);
+		final Period endDatePeriod = periods.get(periodIndexEndDate);
 
-		double periodFraction =
+		final double periodFraction =
 				getDaycount(startDate, startDatePeriod.getPeriodEnd()) / getDaycount(startDatePeriod.getPeriodStart(), startDatePeriod.getPeriodEnd())
 				+
 				getDaycount(endDatePeriod.getPeriodStart(), endDate) / getDaycount(endDatePeriod.getPeriodStart(), endDatePeriod.getPeriodEnd())

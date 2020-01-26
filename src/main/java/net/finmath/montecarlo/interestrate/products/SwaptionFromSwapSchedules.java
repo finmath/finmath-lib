@@ -45,14 +45,14 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	private final LocalDateTime referenceDate;
 
 	public SwaptionFromSwapSchedules(
-			LocalDateTime referenceDate,
-			SwaptionType swaptionType,
-			LocalDate exerciseDate,
-			Schedule scheduleFixedLeg,
-			Schedule scheduleFloatLeg,
-			double swaprate,
-			double notional,
-			ValueUnit valueUnit) {
+			final LocalDateTime referenceDate,
+			final SwaptionType swaptionType,
+			final LocalDate exerciseDate,
+			final Schedule scheduleFixedLeg,
+			final Schedule scheduleFloatLeg,
+			final double swaprate,
+			final double notional,
+			final ValueUnit valueUnit) {
 
 		this.referenceDate = referenceDate;
 		this.swaptionType = swaptionType;
@@ -65,7 +65,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model)
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model)
 			throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
@@ -75,12 +75,12 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 				modelReferenceDate = referenceDate.toLocalDate();
 			}
 		}
-		catch(UnsupportedOperationException e) {}
+		catch(final UnsupportedOperationException e) {}
 
-		double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
+		final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
 
-		RandomVariable discountedCashflowFixLeg			= getValueOfLegAnalytic(exerciseTime, model, scheduleFixedLeg, false, swaprate, notional);
-		RandomVariable discountedCashflowFloatingLeg	= getValueOfLegAnalytic(exerciseTime, model, scheduleFloatLeg, true, 0.0, notional);
+		final RandomVariable discountedCashflowFixLeg			= getValueOfLegAnalytic(exerciseTime, model, scheduleFixedLeg, false, swaprate, notional);
+		final RandomVariable discountedCashflowFloatingLeg	= getValueOfLegAnalytic(exerciseTime, model, scheduleFloatLeg, true, 0.0, notional);
 
 		// Distinguish whether the swaption is of type "Payer" or "Receiver":
 		RandomVariable values;
@@ -97,13 +97,13 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 		// Floor at zero
 		values = values.floor(0.0);
 
-		RandomVariable	numeraire = model.getNumeraire(exerciseTime);
-		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(exerciseTime);
+		final RandomVariable	numeraire = model.getNumeraire(exerciseTime);
+		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(exerciseTime);
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		// Note that values is a relative price - no numeraire division is required
-		RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		if(valueUnit == ValueUnit.VALUE) {
@@ -115,24 +115,24 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 		 */
 
 		// Use analytic formula to calculate the options black/bachelier implied vol using the MC price from above:
-		double atmSwaprate 	= Swap.getForwardSwapRate(scheduleFixedLeg, scheduleFloatLeg, model.getModel().getForwardRateCurve(), model.getModel().getAnalyticModel());
-		double forward = atmSwaprate;
-		double optionStrike = swaprate;
-		double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
+		final double atmSwaprate 	= Swap.getForwardSwapRate(scheduleFixedLeg, scheduleFloatLeg, model.getModel().getForwardRateCurve(), model.getModel().getAnalyticModel());
+		final double forward = atmSwaprate;
+		final double optionStrike = swaprate;
+		final double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
 
-		double[] swapTenor = new double[scheduleFixedLeg.getNumberOfPeriods() + 1];
+		final double[] swapTenor = new double[scheduleFixedLeg.getNumberOfPeriods() + 1];
 		for(int i = 0; i < scheduleFixedLeg.getNumberOfPeriods(); i++) {
 			swapTenor[i] = scheduleFixedLeg.getFixing(i);
 		}
 		swapTenor[scheduleFixedLeg.getNumberOfPeriods()] = scheduleFixedLeg.getPayment(scheduleFixedLeg.getNumberOfPeriods() - 1);
 
-		double swapAnnuity      = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getModel().getDiscountCurve());
+		final double swapAnnuity      = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getModel().getDiscountCurve());
 
 		switch(valueUnit) {
 		case VALUE:
 			return values;
 		case VOLATILITYNORMAL:
-			double volatitliy = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, swapAnnuity, values.getAverage());
+			final double volatitliy = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, swapAnnuity, values.getAverage());
 			return model.getRandomVariableForConstant(volatitliy);
 		case VOLATILITYLOGNORMAL:
 			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, swapAnnuity, values.getAverage()));
@@ -146,14 +146,14 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	}
 
 	@Override
-	public TimeDiscretization getProcessTimeDiscretization(LocalDateTime referenceDate) {
-		Set<Double> times = new HashSet<>();
+	public TimeDiscretization getProcessTimeDiscretization(final LocalDateTime referenceDate) {
+		final Set<Double> times = new HashSet<>();
 
 		times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDate.atStartOfDay()));
 
-		Function<Period, Double> periodToTime = new Function<Period, Double>() {
+		final Function<Period, Double> periodToTime = new Function<Period, Double>() {
 			@Override
-			public Double apply(Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
+			public Double apply(final Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }
 		};
 		times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
 		times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));
@@ -181,7 +181,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	 * @return The time \( t \)-measurable value
 	 * @throws CalculationException Thrown is model failed to provide the required quantities.
 	 */
-	public static RandomVariable getValueOfLegAnalytic(double evaluationTime, LIBORModelMonteCarloSimulationModel model, Schedule schedule, boolean paysFloatingRate, double fixRate, double notional) throws CalculationException {
+	public static RandomVariable getValueOfLegAnalytic(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model, final Schedule schedule, final boolean paysFloatingRate, final double fixRate, final double notional) throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
 		try {
@@ -190,26 +190,26 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 				modelReferenceDate = schedule.getReferenceDate();
 			}
 		}
-		catch(UnsupportedOperationException e) {}
+		catch(final UnsupportedOperationException e) {}
 
 		RandomVariable discountedCashflowFloatingLeg	= model.getRandomVariableForConstant(0.0);
 		for(int peridIndex = schedule.getNumberOfPeriods() - 1; peridIndex >= 0; peridIndex--) {
-			Period period = schedule.getPeriod(peridIndex);
-			double paymentTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getPayment());
-			double fixingTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getFixing());
-			double periodLength		= schedule.getPeriodLength(peridIndex);
+			final Period period = schedule.getPeriod(peridIndex);
+			final double paymentTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getPayment());
+			final double fixingTime		= FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, period.getFixing());
+			final double periodLength		= schedule.getPeriodLength(peridIndex);
 
 			/*
 			 * Note that it is important that getForwardDiscountBond and getLIBOR are called with evaluationTime = exerciseTime.
 			 */
-			RandomVariable discountBond = model.getModel().getForwardDiscountBond(evaluationTime, paymentTime);
+			final RandomVariable discountBond = model.getModel().getForwardDiscountBond(evaluationTime, paymentTime);
 			if(paysFloatingRate) {
-				RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
-				RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
+				final RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
+				final RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 			if(fixRate != 0) {
-				RandomVariable periodCashFlow = model.getRandomVariableForConstant(fixRate * periodLength * notional);
+				final RandomVariable periodCashFlow = model.getRandomVariableForConstant(fixRate * periodLength * notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}
 		}

@@ -38,7 +38,7 @@ public class VolatilityCubeFactory {
 	private int maxIterations = 250;
 	private int numberOfThreads = Runtime.getRuntime().availableProcessors();
 
-	private boolean replicationUseAsOffset = true;
+	private final boolean replicationUseAsOffset = true;
 	private double replicationLowerBound   = -0.15;
 	private double replicationUpperBound   = 0.15;
 	private int replicationNumberOfEvaluationPoints = 500;
@@ -57,8 +57,8 @@ public class VolatilityCubeFactory {
 	 * @param iborOisDecorrelation The ibor ois decorrelation a cube should use.
 	 * @param annuityMappingType The type of annuity mapping to use when building the cube.
 	 */
-	public VolatilityCubeFactory(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, SwaptionDataLattice physicalPremiumsATM,
-			double displacement, double beta, double correlationDecay, double iborOisDecorrelation, AnnuityMappingType annuityMappingType) {
+	public VolatilityCubeFactory(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final double displacement, final double beta, final double correlationDecay, final double iborOisDecorrelation, final AnnuityMappingType annuityMappingType) {
 		super();
 
 		this.referenceDate = referenceDate;
@@ -82,12 +82,12 @@ public class VolatilityCubeFactory {
 	 * @param model The model for context.
 	 * @return The cube.
 	 */
-	public SABRVolatilityCubeParallel buildParallelSABRCube(String name, double rho, double volvol, SwaptionDataLattice physicalATMSwaptions,
-			VolatilityCubeModel model) {
+	public SABRVolatilityCubeParallel buildParallelSABRCube(final String name, final double rho, final double volvol, final SwaptionDataLattice physicalATMSwaptions,
+			final VolatilityCubeModel model) {
 
-		SchedulePrototype fixMetaSchedule 	= cashPayerPremiums.getFixMetaSchedule();
-		SchedulePrototype floatMetaSchedule 	= cashReceiverPremiums.getFloatMetaSchedule();
-		String forwardCurveName 			= cashPayerPremiums.getForwardCurveName();
+		final SchedulePrototype fixMetaSchedule 	= cashPayerPremiums.getFixMetaSchedule();
+		final SchedulePrototype floatMetaSchedule 	= cashReceiverPremiums.getFloatMetaSchedule();
+		final String forwardCurveName 			= cashPayerPremiums.getForwardCurveName();
 		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(name, referenceDate, fixMetaSchedule, floatMetaSchedule, displacement, beta, rho, volvol,
 				correlationDecay, iborOisDecorrelation, physicalATMSwaptions, model, forwardCurveName);
 	}
@@ -101,10 +101,10 @@ public class VolatilityCubeFactory {
 	 *
 	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
 	 */
-	public SABRVolatilityCube buildShiftedSmileSABRCube(String name, VolatilityCubeModel model)
+	public SABRVolatilityCube buildShiftedSmileSABRCube(final String name, final VolatilityCubeModel model)
 			throws SolverException {
 
-		SABRShiftedSmileCalibration calibrator = new SABRShiftedSmileCalibration(referenceDate,
+		final SABRShiftedSmileCalibration calibrator = new SABRShiftedSmileCalibration(referenceDate,
 				cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model, displacement, beta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);
 
@@ -121,9 +121,9 @@ public class VolatilityCubeFactory {
 	 *
 	 * @throws SolverException Thrown when either the calibration of final or initial parameters (if not provided) fails.
 	 */
-	public SABRVolatilityCube buildSABRVolatilityCube(String name, VolatilityCubeModel model, int[] terminations) throws SolverException {
+	public SABRVolatilityCube buildSABRVolatilityCube(final String name, final VolatilityCubeModel model, final int[] terminations) throws SolverException {
 
-		SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,
+		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,
 				annuityMappingType,	displacement, beta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);
 		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
@@ -144,10 +144,10 @@ public class VolatilityCubeFactory {
 	 *
 	 * @throws SolverException Thrown when either the calibration of final or initial parameters (if not provided) fails.
 	 */
-	public SABRVolatilityCube buildSABRVolatilityCube(String name, VolatilityCubeModel model, int[] terminations,
-			DataTable initialRhos, DataTable initialBaseVols, DataTable initialVolvols) throws SolverException {
+	public SABRVolatilityCube buildSABRVolatilityCube(final String name, final VolatilityCubeModel model, final int[] terminations,
+			final DataTable initialRhos, final DataTable initialBaseVols, final DataTable initialVolvols) throws SolverException {
 
-		SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,
+		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,
 				annuityMappingType,	displacement, beta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);
 		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
@@ -175,7 +175,7 @@ public class VolatilityCubeFactory {
 	 * @param maxIterations The maximum number of iterations done during calibration.
 	 * @param numberOfThreads The number of processor threads to be used.
 	 */
-	public void setCalibrationParameters( int maxIterations, int numberOfThreads) {
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
 		this.maxIterations		= maxIterations;
 		this.numberOfThreads 	= numberOfThreads;
 	}
@@ -187,7 +187,7 @@ public class VolatilityCubeFactory {
 	 * @param upperBound The highest swap rate to be evaluated.
 	 * @param numberOfEvaluationPoints The number of points to be evaluated during replication.
 	 */
-	public void setReplicationParameters(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public void setReplicationParameters(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		this.replicationLowerBound = lowerBound;
 		this.replicationUpperBound = upperBound;
 		this.replicationNumberOfEvaluationPoints = numberOfEvaluationPoints;

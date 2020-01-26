@@ -18,15 +18,15 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 
 	private int	numberOfIterations				= 0;           							// Number of numberOfIterations
 	private double	accuracy					= Double.MAX_VALUE;						// Current accuracy of solution
-	private boolean	isDone						= false;             					// Will be true if machine accuracy has been reached
+	private final boolean	isDone						= false;             					// Will be true if machine accuracy has been reached
 
-	private MethodForAccuracy method;
+	private final MethodForAccuracy method;
 
 	/**
 	 * @param guess {@link RandomVariable} representing a first guess to start of the Newton Method
 	 * @param method defines the Method used to gain the accuracy for the Newton Iteration
 	 */
-	public StochasticNewtonMethod(RandomVariable guess, MethodForAccuracy method) {
+	public StochasticNewtonMethod(final RandomVariable guess, final MethodForAccuracy method) {
 		bestPoint = guess;
 		nextPoint = guess;
 		this.method = method;
@@ -44,7 +44,7 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#setValueAndDerivative(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public void setValueAndDerivative(RandomVariable value, RandomVariable derivative) {
+	public void setValueAndDerivative(final RandomVariable value, final RandomVariable derivative) {
 
 		double currentAccuracy;
 

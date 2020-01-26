@@ -58,14 +58,14 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 		 * @param seasonalCurve The seasonal curve from which to copy the fixed part upon build().
 		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
 		 */
-		public Builder(SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
+		public Builder(final SeasonalCurve seasonalCurve) throws CloneNotSupportedException {
 			super((CurveInterpolation)(seasonalCurve.baseCurve));
 			curve = seasonalCurve;
 		}
 
 		@Override
 		public Curve build() throws CloneNotSupportedException {
-			SeasonalCurve buildCurve = curve.clone();
+			final SeasonalCurve buildCurve = curve.clone();
 			buildCurve.baseCurve = super.build();
 			curve = null;
 			return buildCurve;
@@ -80,13 +80,13 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 	 * @param indexFixings A <code>Map&lt;Date, Double&gt;</code> of consecutive monthly index fixings.
 	 * @param numberOfYearsToAverage The number of years over which monthly log returns should be averaged.
 	 */
-	public SeasonalCurve(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, int numberOfYearsToAverage) {
+	public SeasonalCurve(final String name, final LocalDate referenceDate, final Map<LocalDate, Double> indexFixings, final int numberOfYearsToAverage) {
 		super(name, referenceDate);
 
-		double[] seasonalAdjustmentCalculated = SeasonalCurve.computeSeasonalAdjustments(referenceDate, indexFixings, numberOfYearsToAverage);
+		final double[] seasonalAdjustmentCalculated = SeasonalCurve.computeSeasonalAdjustments(referenceDate, indexFixings, numberOfYearsToAverage);
 
-		double[] seasonTimes = new double[12];
-		double[] seasonValue = new double[12];
+		final double[] seasonTimes = new double[12];
+		final double[] seasonValue = new double[12];
 		double seasonValueCummulated = 1.0;
 		for(int j=0; j<12; j++) {
 			seasonValueCummulated *= Math.exp(seasonalAdjustmentCalculated[j]/12.0);
@@ -101,7 +101,7 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 	 * @param referenceDate The reference date for this curve (i.e. t=0).
 	 * @param baseCurve The base curve, i.e., the discount curve used to calculate the seasonal adjustment factors.
 	 */
-	public SeasonalCurve(String name, LocalDate referenceDate, Curve baseCurve) {
+	public SeasonalCurve(final String name, final LocalDate referenceDate, final Curve baseCurve) {
 		super(name, referenceDate);
 		this.baseCurve = baseCurve;
 	}
@@ -112,25 +112,25 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		baseCurve.setParameter(parameter);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
-		LocalDate calendar = getReferenceDate().plusDays((int) Math.round(time*365));
+	public double getValue(final AnalyticModel model, final double time) {
+		final LocalDate calendar = getReferenceDate().plusDays((int) Math.round(time*365));
 
-		int month = calendar.getMonthValue();				// Note: month = 1,2,3,...,12
-		int day   = calendar.getDayOfMonth(); 				// Note: day = 1,2,3,...,numberOfDays
-		int numberOfDays = calendar.lengthOfMonth();
-		double season = (month-1) / 12.0 + (day-1) / (double)numberOfDays / 12.0;
+		final int month = calendar.getMonthValue();				// Note: month = 1,2,3,...,12
+		final int day   = calendar.getDayOfMonth(); 				// Note: day = 1,2,3,...,numberOfDays
+		final int numberOfDays = calendar.lengthOfMonth();
+		final double season = (month-1) / 12.0 + (day-1) / (double)numberOfDays / 12.0;
 
 		return baseCurve.getValue(model, season);
 	}
 
 	@Override
-	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
-		SeasonalCurve newCurve = clone();
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+		final SeasonalCurve newCurve = clone();
 		newCurve.baseCurve = baseCurve.getCloneForParameter(value);
 
 		return newCurve;
@@ -146,21 +146,21 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 		return new Builder(this);
 	}
 
-	public static double[] computeSeasonalAdjustments(LocalDate referenceDate, Map<LocalDate, Double> indexFixings, int numberOfYearsToAverage) {
-		DayCountConvention modelDcc = new DayCountConvention_ACT_365();			// Not needed: remove
+	public static double[] computeSeasonalAdjustments(final LocalDate referenceDate, final Map<LocalDate, Double> indexFixings, final int numberOfYearsToAverage) {
+		final DayCountConvention modelDcc = new DayCountConvention_ACT_365();			// Not needed: remove
 
-		double[] fixingTimes = new double[indexFixings.size()];								// Not needed: remove
-		double[] realizedCPIValues = new double[indexFixings.size()];
+		final double[] fixingTimes = new double[indexFixings.size()];								// Not needed: remove
+		final double[] realizedCPIValues = new double[indexFixings.size()];
 		int i = 0;
-		List<LocalDate> fixingDates = new ArrayList<>(indexFixings.keySet());
+		final List<LocalDate> fixingDates = new ArrayList<>(indexFixings.keySet());
 		Collections.sort(fixingDates);
-		for(LocalDate fixingDate : fixingDates) {
+		for(final LocalDate fixingDate : fixingDates) {
 			fixingTimes[i] = modelDcc.getDaycountFraction(referenceDate, fixingDate);
 			realizedCPIValues[i] = indexFixings.get(fixingDate).doubleValue();
 			i++;
 		}
 
-		LocalDate lastMonth = fixingDates.get(fixingDates.size()-1);
+		final LocalDate lastMonth = fixingDates.get(fixingDates.size()-1);
 
 		return computeSeasonalAdjustments(realizedCPIValues, lastMonth.getMonthValue(), numberOfYearsToAverage);
 	}
@@ -173,18 +173,18 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 	 * @param numberOfYearsToAverage The number of years to go back in the array of realizedCPIValues.
 	 * @return Array of annualized seasonal adjustments, where [0] corresponds to the adjustment for from December to January.
 	 */
-	public static double[] computeSeasonalAdjustments(double[] realizedCPIValues, int lastMonth, int numberOfYearsToAverage) {
+	public static double[] computeSeasonalAdjustments(final double[] realizedCPIValues, final int lastMonth, final int numberOfYearsToAverage) {
 
 		/*
 		 * Cacluate average log returns
 		 */
-		double[] averageLogReturn = new double[12];
+		final double[] averageLogReturn = new double[12];
 		Arrays.fill(averageLogReturn, 0.0);
 		for(int arrayIndex = 0; arrayIndex < 12*numberOfYearsToAverage; arrayIndex++){
 
-			int month = (((((lastMonth-1 - arrayIndex) % 12) + 12) % 12));
+			final int month = (((((lastMonth-1 - arrayIndex) % 12) + 12) % 12));
 
-			double logReturn = Math.log(realizedCPIValues[realizedCPIValues.length - 1 - arrayIndex] / realizedCPIValues[realizedCPIValues.length - 2 - arrayIndex]);
+			final double logReturn = Math.log(realizedCPIValues[realizedCPIValues.length - 1 - arrayIndex] / realizedCPIValues[realizedCPIValues.length - 2 - arrayIndex]);
 			averageLogReturn[month] += logReturn/numberOfYearsToAverage;
 		}
 
@@ -195,9 +195,9 @@ public class SeasonalCurve extends AbstractCurve implements Curve {
 		for(int index = 0; index < averageLogReturn.length; index++){
 			sum += averageLogReturn[index];
 		}
-		double averageSeasonal = sum / averageLogReturn.length;
+		final double averageSeasonal = sum / averageLogReturn.length;
 
-		double[] seasonalAdjustments = new double[averageLogReturn.length];
+		final double[] seasonalAdjustments = new double[averageLogReturn.length];
 		for(int index = 0; index < seasonalAdjustments.length; index++){
 			seasonalAdjustments[index] = averageLogReturn[index] - averageSeasonal;
 		}

@@ -46,9 +46,9 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * @param parentOperatorType Operator type
 	 * @return new instance of {@link RandomVariableUniqueVariable}
 	 **/
-	public RandomVariable createRandomVariable(RandomVariable randomvariable, boolean isConstant, ArrayList<RandomVariableUniqueVariable> parentVariables, RandomVariableUniqueVariable.OperatorType parentOperatorType) {
+	public RandomVariable createRandomVariable(final RandomVariable randomvariable, final boolean isConstant, final ArrayList<RandomVariableUniqueVariable> parentVariables, final RandomVariableUniqueVariable.OperatorType parentOperatorType) {
 
-		int factoryID = currentFactoryID++;
+		final int factoryID = currentFactoryID++;
 
 		listOfAllVariables.add(
 				factoryID,
@@ -58,23 +58,23 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 		return new RandomVariableUniqueVariable(factoryID, isConstant, parentVariables, parentOperatorType);
 	}
 
-	public RandomVariable createRandomVariable(double time, double value, boolean isConstant) {
+	public RandomVariable createRandomVariable(final double time, final double value, final boolean isConstant) {
 
-		RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
-		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
-
-		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
-	}
-
-	public RandomVariable createRandomVariable(double time, double[] values, boolean isConstant) {
-
-		RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
-		RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
+		final RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
+		final RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, value);
 
 		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
-	public RandomVariable createRandomVariable(RandomVariable randomvariable) {
+	public RandomVariable createRandomVariable(final double time, final double[] values, final boolean isConstant) {
+
+		final RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();
+		final RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, values);
+
+		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);
+	}
+
+	public RandomVariable createRandomVariable(final RandomVariable randomvariable) {
 		return createRandomVariable(randomvariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);
 	}
 
@@ -82,7 +82,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double)
 	 */
 	@Override
-	public RandomVariable createRandomVariable(double time, double value) {
+	public RandomVariable createRandomVariable(final double time, final double value) {
 		return createRandomVariable(time, value, /*isConstant*/ false);
 	}
 
@@ -90,7 +90,7 @@ public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableF
 	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double[])
 	 */
 	@Override
-	public RandomVariable createRandomVariable(double time, double[] values) {
+	public RandomVariable createRandomVariable(final double time, final double[] values) {
 		return createRandomVariable(time, values, /*isConstant*/ false);
 
 	}

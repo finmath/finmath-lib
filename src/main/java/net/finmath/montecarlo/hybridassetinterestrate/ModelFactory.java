@@ -70,24 +70,24 @@ public class ModelFactory {
 			final double[] volatilities,
 			final DiscountCurve discountCurve) throws CalculationException {
 
-		Optimizer optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
+		final Optimizer optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {
 			private static final long serialVersionUID = -9199565564991442848L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
-				AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);
-				HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model);
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
+				final AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);
+				final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model);
 
 				try {
 					for(int assetIndex=0; assetIndex<values.length; assetIndex++) {
-						double df = hybridModel.getNumeraire(maturities[assetIndex]).invert().getAverage();
-						double spot = hybridModel.getAssetValue(0.0, assetIndex).getAverage();
-						EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
-						double valueOptoin = option.getValue(hybridModel);
-						double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
+						final double df = hybridModel.getNumeraire(maturities[assetIndex]).invert().getAverage();
+						final double spot = hybridModel.getAssetValue(0.0, assetIndex).getAverage();
+						final EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
+						final double valueOptoin = option.getValue(hybridModel);
+						final double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
 						values[assetIndex] = impliedVol;
 					}
-				} catch (CalculationException e) {
+				} catch (final CalculationException e) {
 					throw new SolverException(e);
 				}
 			}
@@ -95,7 +95,7 @@ public class ModelFactory {
 
 		try {
 			optimizer.run();
-		} catch (SolverException e) {
+		} catch (final SolverException e) {
 			if(e.getCause() instanceof CalculationException) {
 				throw (CalculationException)e.getCause();
 			} else {
@@ -103,18 +103,18 @@ public class ModelFactory {
 			}
 		}
 
-		AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
+		final AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);
 
 		/*
 		 * Test calibration
 		 */
-		HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModelWithoutDiscountAdjustment = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, null);
+		final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModelWithoutDiscountAdjustment = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, null);
 		for(int assetIndex=0; assetIndex<volatilities.length; assetIndex++) {
-			double df = hybridModelWithoutDiscountAdjustment.getNumeraire(maturities[assetIndex]).invert().getAverage();
-			double spot = hybridModelWithoutDiscountAdjustment.getAssetValue(0.0, assetIndex).getAverage();
-			EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
-			double valueOptoin = option.getValue(hybridModelWithoutDiscountAdjustment);
-			double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
+			final double df = hybridModelWithoutDiscountAdjustment.getNumeraire(maturities[assetIndex]).invert().getAverage();
+			final double spot = hybridModelWithoutDiscountAdjustment.getAssetValue(0.0, assetIndex).getAverage();
+			final EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);
+			final double valueOptoin = option.getValue(hybridModelWithoutDiscountAdjustment);
+			final double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);
 			if(Math.abs(impliedVol - volatilities[assetIndex]) > 0.01) {
 				throw new CalculationException("Calibration failed");
 			}
@@ -123,7 +123,7 @@ public class ModelFactory {
 		/*
 		 * Construct model with discounting (options will then use the discounting spread adjustment).
 		 */
-		HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, discountCurve);
+		final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, discountCurve);
 		return hybridModel;
 	}
 }

@@ -39,11 +39,11 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
 
-	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate, ForwardCurve forwardCurve, DiscountCurve discountCurve, QuotingConvention quotingConvention, DayCountConvention daycountConvention) {
+	public AbstractVolatilitySurfaceParametric(final String name, final LocalDate referenceDate, final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final QuotingConvention quotingConvention, final DayCountConvention daycountConvention) {
 		super(name, referenceDate, forwardCurve, discountCurve, quotingConvention, daycountConvention);
 	}
 
-	public AbstractVolatilitySurfaceParametric(String name, LocalDate referenceDate) {
+	public AbstractVolatilitySurfaceParametric(final String name, final LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 
@@ -57,11 +57,11 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	@Override
 	public abstract AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException;
 
-	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters) throws CalculationException, SolverException {
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, final Map<String,Object> calibrationParameters) throws CalculationException, SolverException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, null);
 	}
 
-	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation) throws CalculationException, SolverException {
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, final Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation) throws CalculationException, SolverException {
 		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, parameterTransformation, null);
 	}
 
@@ -78,30 +78,30 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 	 * @return An object having the same type as this one, using (hopefully) calibrated parameters.
 	 * @throws SolverException Exception thrown when solver fails.
 	 */
-	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, OptimizerFactory optimizerFactory) throws SolverException {
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, Map<String,Object> calibrationParameters, final ParameterTransformation parameterTransformation, final OptimizerFactory optimizerFactory) throws SolverException {
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
 		}
-		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
-		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");
+		final Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+		final Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");
 
 		// @TODO currently ignored, we use the setting form the OptimizerFactory
-		int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
-		double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
-		double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
+		final int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
+		final double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
+		final double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;
 
-		AnalyticModel model = calibrationModel.addVolatilitySurfaces(this);
-		Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, optimizerFactory);
+		final AnalyticModel model = calibrationModel.addVolatilitySurfaces(this);
+		final Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, optimizerFactory);
 
-		Set<ParameterObject> objectsToCalibrate = new HashSet<>();
+		final Set<ParameterObject> objectsToCalibrate = new HashSet<>();
 		objectsToCalibrate.add(this);
-		AnalyticModel modelCalibrated = solver.getCalibratedModel(objectsToCalibrate);
+		final AnalyticModel modelCalibrated = solver.getCalibratedModel(objectsToCalibrate);
 
 		// Diagnostic output
 		if (logger.isLoggable(Level.FINE)) {
-			double lastAccuracy		= solver.getAccuracy();
-			int 	lastIterations	= solver.getIterations();
+			final double lastAccuracy		= solver.getAccuracy();
+			final int 	lastIterations	= solver.getIterations();
 
 			logger.fine("The solver achieved an accuracy of " + lastAccuracy + " in " + lastIterations + ".");
 		}

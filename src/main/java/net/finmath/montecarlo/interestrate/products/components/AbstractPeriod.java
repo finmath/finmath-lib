@@ -46,9 +46,9 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param index The index (used for coupon calculation) associated with this period.
 	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
 	 */
-	public AbstractPeriod(LocalDateTime referenceDate, double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, Notional notional,
-			AbstractProductComponent index, double daycountFraction) {
+	public AbstractPeriod(final LocalDateTime referenceDate, final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index, final double daycountFraction) {
 		super();
 		this.referenceDate = referenceDate;
 		this.periodStart = periodStart;
@@ -71,9 +71,9 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param index The index (used for coupon calculation) associated with this period.
 	 * @param daycountFraction The daycount fraction (<code>coupon = index(fixingDate) * daycountFraction</code>).
 	 */
-	public AbstractPeriod(double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, Notional notional,
-			AbstractProductComponent index, double daycountFraction) {
+	public AbstractPeriod(final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index, final double daycountFraction) {
 		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
 	}
 
@@ -88,9 +88,9 @@ public abstract class AbstractPeriod extends AbstractProductComponent {
 	 * @param notional The notional object relevant for this period.
 	 * @param index The index (coupon) associated with this period.
 	 */
-	public AbstractPeriod(double periodStart, double periodEnd,
-			double fixingDate, double paymentDate, Notional notional,
-			AbstractProductComponent index) {
+	public AbstractPeriod(final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index) {
 		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, periodEnd - periodStart);
 	}
 

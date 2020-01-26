@@ -19,7 +19,7 @@ public abstract class AbstractRandomVariableFactory implements Serializable, Ran
 	private static final long serialVersionUID = -4412332958142580025L;
 
 	@Override
-	public RandomVariable createRandomVariable(double value) {
+	public RandomVariable createRandomVariable(final double value) {
 		return createRandomVariable(Double.NEGATIVE_INFINITY, value);
 	}
 
@@ -30,8 +30,8 @@ public abstract class AbstractRandomVariableFactory implements Serializable, Ran
 	public abstract RandomVariable createRandomVariable(double time, double[] values);
 
 	@Override
-	public RandomVariable[] createRandomVariableArray(double[] values) {
-		RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
+	public RandomVariable[] createRandomVariableArray(final double[] values) {
+		final RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
 		for(int i=0; i<values.length; i++) {
 			valuesAsRandomVariables[i] = this.createRandomVariable(Double.NEGATIVE_INFINITY, values[i]);
 		}
@@ -39,8 +39,8 @@ public abstract class AbstractRandomVariableFactory implements Serializable, Ran
 	}
 
 	@Override
-	public RandomVariable[][] createRandomVariableMatrix(double[][] values) {
-		RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
+	public RandomVariable[][] createRandomVariableMatrix(final double[][] values) {
+		final RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
 		for(int i=0; i<values.length; i++) {
 			valuesAsRandomVariables[i] = new RandomVariable[values[i].length];
 			for(int j=0; j<values[i].length; j++) {

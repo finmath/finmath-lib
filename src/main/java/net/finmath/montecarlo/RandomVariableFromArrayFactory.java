@@ -28,18 +28,18 @@ public class RandomVariableFromArrayFactory extends AbstractRandomVariableFactor
 		isUseDoublePrecisionFloatingPointImplementation = true;
 	}
 
-	public RandomVariableFromArrayFactory(boolean isUseDoublePrecisionFloatingPointImplementation) {
+	public RandomVariableFromArrayFactory(final boolean isUseDoublePrecisionFloatingPointImplementation) {
 		super();
 		this.isUseDoublePrecisionFloatingPointImplementation = isUseDoublePrecisionFloatingPointImplementation;
 	}
 
 	@Override
-	public RandomVariable createRandomVariable(double value) {
+	public RandomVariable createRandomVariable(final double value) {
 		return new Scalar(value);
 	}
 
 	@Override
-	public RandomVariable createRandomVariable(double time, double value) {
+	public RandomVariable createRandomVariable(final double time, final double value) {
 		return new Scalar(value);
 		/*
 		if(isUseDoublePrecisionFloatingPointImplementation) {
@@ -51,7 +51,7 @@ public class RandomVariableFromArrayFactory extends AbstractRandomVariableFactor
 	}
 
 	@Override
-	public RandomVariable createRandomVariable(double time, double[] values) {
+	public RandomVariable createRandomVariable(final double time, final double[] values) {
 		if(isUseDoublePrecisionFloatingPointImplementation) {
 			return new RandomVariableFromDoubleArray(time, values);
 		} else {

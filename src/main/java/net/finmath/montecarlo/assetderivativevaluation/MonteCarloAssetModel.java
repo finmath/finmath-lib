@@ -37,8 +37,8 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @param process The numerical scheme to be used.
 	 */
 	public MonteCarloAssetModel(
-			ProcessModel model,
-			MonteCarloProcess process) {
+			final ProcessModel model,
+			final MonteCarloProcess process) {
 		super();
 
 		this.model = model;
@@ -49,29 +49,29 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	@Override
-	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
-		double time = getTime(timeIndex);
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+		final double time = getTime(timeIndex);
 
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
@@ -81,16 +81,16 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		MonteCarloProcess process = model.getProcess();
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
+		final MonteCarloProcess process = model.getProcess();
 
-		ProcessModel		newModel	= model.getCloneWithModifiedData(dataModified);
+		final ProcessModel		newModel	= model.getCloneWithModifiedData(dataModified);
 
 		MonteCarloProcess	newProcess;
 		try {
 			newProcess = process.getCloneWithModifiedData(dataModified);
 		}
-		catch(UnsupportedOperationException e) {
+		catch(final UnsupportedOperationException e) {
 			newProcess = process;
 		}
 
@@ -103,7 +103,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
@@ -126,7 +126,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTime(int)
 	 */
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
@@ -134,7 +134,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTimeIndex(double)
 	 */
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
@@ -142,7 +142,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getRandomVariableForConstant(double)
 	 */
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
@@ -150,7 +150,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(int)
 	 */
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 

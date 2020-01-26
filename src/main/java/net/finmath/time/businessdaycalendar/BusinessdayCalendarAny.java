@@ -25,7 +25,7 @@ public class BusinessdayCalendarAny extends AbstractBusinessdayCalendar {
 	}
 
 	@Override
-	public boolean isBusinessday(LocalDate date) {
+	public boolean isBusinessday(final LocalDate date) {
 		return true;
 	}
 

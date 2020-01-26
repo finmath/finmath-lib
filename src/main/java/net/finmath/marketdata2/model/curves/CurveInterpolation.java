@@ -110,16 +110,16 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	private static class Point implements Comparable<Point>, Serializable {
 		private static final long serialVersionUID = 8857387999991917430L;
 
-		private double time;
+		private final double time;
 		private RandomVariable value;
-		private boolean isParameter;
+		private final boolean isParameter;
 
 		/**
 		 * @param time The time (or x-value) of the point.
 		 * @param value The value (or y-value) of the point.
 		 * @param isParameter A boolean specifying if this point is considered a "degree of freedom", e.g., in a calibration.
 		 */
-		Point(double time, RandomVariable value, boolean isParameter) {
+		Point(final double time, final RandomVariable value, final boolean isParameter) {
 			super();
 			this.time = time;
 			this.value = value;
@@ -127,7 +127,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		}
 
 		@Override
-		public int compareTo(Point point) {
+		public int compareTo(final Point point) {
 			// Ordering of the curveFromInterpolationPoints points with respect to time.
 			if(time < point.time) {
 				return -1;
@@ -167,7 +167,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param name The name of this curveFromInterpolationPoints.
 		 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
 		 */
-		public Builder(String name, LocalDate referenceDate) {
+		public Builder(final String name, final LocalDate referenceDate) {
 			curveInterpolation = new CurveInterpolation(name, referenceDate);
 		}
 
@@ -177,7 +177,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param curveInterpolation A curveFromInterpolationPoints to be used as starting point for the new curveFromInterpolationPoints.
 		 * @throws CloneNotSupportedException Thrown, when the curveFromInterpolationPoints could not be cloned.
 		 */
-		public Builder(CurveInterpolation curveInterpolation) throws CloneNotSupportedException {
+		public Builder(final CurveInterpolation curveInterpolation) throws CloneNotSupportedException {
 			this.curveInterpolation = curveInterpolation.clone();
 		}
 
@@ -186,7 +186,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 */
 		@Override
 		public Curve build() {
-			CurveInterpolation buildCurve = curveInterpolation;
+			final CurveInterpolation buildCurve = curveInterpolation;
 			curveInterpolation = null;
 			return buildCurve;
 		}
@@ -197,7 +197,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param interpolationMethod The interpolation method of the curveFromInterpolationPoints.
 		 * @return A self reference to this curveFromInterpolationPoints build object.
 		 */
-		public CurveBuilder setInterpolationMethod(InterpolationMethod interpolationMethod) {
+		public CurveBuilder setInterpolationMethod(final InterpolationMethod interpolationMethod) {
 			curveInterpolation.interpolationMethod = interpolationMethod;
 			return this;
 		}
@@ -208,7 +208,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param extrapolationMethod The extrapolation method of the curveFromInterpolationPoints.
 		 * @return A self reference to this curveFromInterpolationPoints build object.
 		 */
-		public CurveBuilder setExtrapolationMethod(ExtrapolationMethod extrapolationMethod) {
+		public CurveBuilder setExtrapolationMethod(final ExtrapolationMethod extrapolationMethod) {
 			curveInterpolation.extrapolationMethod = extrapolationMethod;
 			return this;
 		}
@@ -219,7 +219,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param interpolationEntity The interpolation entity of the curveFromInterpolationPoints.
 		 * @return A self reference to this curveFromInterpolationPoints build object.
 		 */
-		public CurveBuilder setInterpolationEntity(InterpolationEntity interpolationEntity) {
+		public CurveBuilder setInterpolationEntity(final InterpolationEntity interpolationEntity) {
 			curveInterpolation.interpolationEntity = interpolationEntity;
 			return this;
 		}
@@ -228,7 +228,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
 		 */
 		@Override
-		public CurveBuilder addPoint(double time, RandomVariable value, boolean isParameter) {
+		public CurveBuilder addPoint(final double time, final RandomVariable value, final boolean isParameter) {
 			curveInterpolation.addPoint(time, value, isParameter);
 			return this;
 		}
@@ -261,13 +261,13 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	 * @param times A vector of times.
 	 * @param values A vector of corresponding values.
 	 */
-	public CurveInterpolation(String name,
-			LocalDate referenceDate,
-			InterpolationMethod interpolationMethod,
-			ExtrapolationMethod extrapolationMethod,
-			InterpolationEntity interpolationEntity,
-			double[] times,
-			RandomVariable[] values) {
+	public CurveInterpolation(final String name,
+			final LocalDate referenceDate,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity,
+			final double[] times,
+			final RandomVariable[] values) {
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
 		this.extrapolationMethod	= extrapolationMethod;
@@ -290,11 +290,11 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
 
-	protected CurveInterpolation(String name,
-			LocalDate referenceDate,
-			InterpolationMethod interpolationMethod,
-			ExtrapolationMethod extrapolationMethod,
-			InterpolationEntity interpolationEntity) {
+	protected CurveInterpolation(final String name,
+			final LocalDate referenceDate,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity) {
 
 		super(name, referenceDate);
 		this.interpolationMethod	= interpolationMethod;
@@ -309,42 +309,42 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	 * @param name The name of this curveFromInterpolationPoints.
 	 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
 	 */
-	private CurveInterpolation(String name, LocalDate referenceDate) {
+	private CurveInterpolation(final String name, final LocalDate referenceDate) {
 		super(name, referenceDate);
 	}
 
 
 	@Override
-	public RandomVariable getValue(double time)
+	public RandomVariable getValue(final double time)
 	{
 		return getValue(null, time);
 	}
 
 	@Override
-	public RandomVariable getValue(AnalyticModel model, double time)
+	public RandomVariable getValue(final AnalyticModel model, final double time)
 	{
 		Map<Double, RandomVariable> curveCache = curveCacheReference != null ? curveCacheReference.get() : null;
 		if(curveCache == null) {
 			curveCache = new ConcurrentHashMap<>();
 			curveCacheReference = new SoftReference<>(curveCache);
 		}
-		RandomVariable valueFromCache = curveCache.get(time);
+		final RandomVariable valueFromCache = curveCache.get(time);
 		if(valueFromCache != null) {
 			return valueFromCache;
 		}
 
-		RandomVariable value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
+		final RandomVariable value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);
 		curveCache.put(time, value);
 		return value;
 	}
 
-	private  RandomVariable getInterpolationEntityValue(double time)
+	private  RandomVariable getInterpolationEntityValue(final double time)
 	{
 		synchronized(rationalFunctionInterpolationLazyInitLock) {
 			// Lazy initialization of interpolation function
 			if(rationalFunctionInterpolation == null) {
-				double[] pointsArray = new double[points.size()];//time
-				RandomVariable[] valuesArray = new RandomVariable[points.size()];
+				final double[] pointsArray = new double[points.size()];//time
+				final RandomVariable[] valuesArray = new RandomVariable[points.size()];
 				for(int i=0; i<points.size(); i++) {
 					pointsArray[i] = points.get(i).time;
 					valuesArray[i] = points.get(i).value;
@@ -369,7 +369,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	 * @param value The y<sub>i</sub> in <sub>i</sub> = f(x<sub>i</sub>).
 	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(RandomVariable[])}, i.e., it can be calibrated.
 	 */
-	protected void addPoint(double time, RandomVariable value, boolean isParameter) {
+	protected void addPoint(final double time, final RandomVariable value, final boolean isParameter) {
 		synchronized (rationalFunctionInterpolationLazyInitLock) {
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 				boolean containsOne = false; int index=0;
@@ -381,9 +381,9 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 				}
 			}
 
-			RandomVariable interpolationEntityValue = interpolationEntityFromValue(value, time);
+			final RandomVariable interpolationEntityValue = interpolationEntityFromValue(value, time);
 
-			int index = getTimeIndex(time);
+			final int index = getTimeIndex(time);
 			if(index >= 0) {
 				if(points.get(index).value == interpolationEntityValue) {
 					return;			// Already in list
@@ -395,12 +395,12 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 			}
 			else {
 				// Insert the new point, retain ordering.
-				Point point = new Point(time, interpolationEntityValue, isParameter);
+				final Point point = new Point(time, interpolationEntityValue, isParameter);
 				points.add(-index-1, point);
 
 				if(isParameter) {
 					// Add this point also to the list of parameters
-					int parameterIndex = getParameterIndex(time);
+					final int parameterIndex = getParameterIndex(time);
 					if(parameterIndex >= 0) {
 						new RuntimeException("CurveFromInterpolationPoints inconsistent.");
 					}
@@ -439,21 +439,21 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		return interpolationEntity;
 	}
 
-	protected int getTimeIndex(double time) {
-		Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
-		int index =  java.util.Collections.binarySearch(points, point);
+	protected int getTimeIndex(final double time) {
+		final Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
+		final int index =  java.util.Collections.binarySearch(points, point);
 		return index;
 	}
 
-	protected int getParameterIndex(double time) {
-		Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
+	protected int getParameterIndex(final double time) {
+		final Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);
 		return java.util.Collections.binarySearch(pointsBeingParameters, point);
 	}
 
 
 	@Override
 	public  RandomVariable[] getParameter() {
-		RandomVariable[] parameters = new RandomVariable[pointsBeingParameters.size()];
+		final RandomVariable[] parameters = new RandomVariable[pointsBeingParameters.size()];
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);
 		}
@@ -462,11 +462,11 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 
 	@Override
-	public void setParameter(RandomVariable[] parameter) {
+	public void setParameter(final RandomVariable[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable. Use getCloneForParameter(double[]) instead.");
 	}
 
-	private void setParameterPrivate(RandomVariable[] parameter) {
+	private void setParameterPrivate(final RandomVariable[] parameter) {
 		for(int i=0; i<pointsBeingParameters.size(); i++) {
 			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);
 		}
@@ -474,7 +474,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		curveCacheReference = null;
 	}
 
-	private RandomVariable interpolationEntityFromValue(RandomVariable value, double time) {
+	private RandomVariable interpolationEntityFromValue(final RandomVariable value, final double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
@@ -490,7 +490,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		}
 	}
 
-	private RandomVariable valueFromInterpolationEntity(RandomVariable interpolationEntityValue, double time) {
+	private RandomVariable valueFromInterpolationEntity(final RandomVariable interpolationEntityValue, final double time) {
 		switch(interpolationEntity) {
 		case VALUE:
 		default:
@@ -504,14 +504,14 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 	@Override
 	public CurveInterpolation clone() throws CloneNotSupportedException {
-		CurveInterpolation newCurve = (CurveInterpolation) super.clone();
+		final CurveInterpolation newCurve = (CurveInterpolation) super.clone();
 
 		newCurve.points					= new ArrayList<>();
 		newCurve.pointsBeingParameters	= new ArrayList<>();
 		newCurve.rationalFunctionInterpolation = null;
 		newCurve.curveCacheReference = null;
-		for(Point point : points) {
-			Point newPoint = (Point) point.clone();
+		for(final Point point : points) {
+			final Point newPoint = (Point) point.clone();
 			newCurve.points.add(newPoint);
 			if(point.isParameter) {
 				newCurve.pointsBeingParameters.add(newPoint);
@@ -522,11 +522,11 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	}
 
 	@Override
-	public Curve getCloneForParameter(RandomVariable[] parameter) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(final RandomVariable[] parameter) throws CloneNotSupportedException {
 		if(Arrays.equals(parameter, getParameter())) {
 			return this;
 		}
-		CurveInterpolation newCurve = this.clone();
+		final CurveInterpolation newCurve = this.clone();
 		newCurve.setParameterPrivate(parameter);
 
 		return newCurve;
@@ -534,7 +534,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 	@Override
 	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
-		Builder builder = new Builder(this);
+		final Builder builder = new Builder(this);
 		return builder;
 	}
 
@@ -543,9 +543,9 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		/*
 		 * Pretty print curveFromInterpolationPoints (appended to standard toString)
 		 */
-		StringBuilder curveTableString = new StringBuilder();
-		NumberFormat formatTime = new DecimalFormat("0.00000000E0");	// Floating point time is accurate to 3+5 digits.
-		for (Point point : points) {
+		final StringBuilder curveTableString = new StringBuilder();
+		final NumberFormat formatTime = new DecimalFormat("0.00000000E0");	// Floating point time is accurate to 3+5 digits.
+		for (final Point point : points) {
 			curveTableString.append(formatTime.format(point.time) + "\t");
 			curveTableString.append(FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), point.time) + "\t");
 			curveTableString.append(valueFromInterpolationEntity(point.value, point.time) + "\n");
@@ -557,7 +557,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		+ ", toString()=" + super.toString() + ",\n" + curveTableString + "]";
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		rationalFunctionInterpolationLazyInitLock = new Object();

@@ -30,7 +30,7 @@ public class MinIndex extends AbstractIndex {
 	 *
 	 * @param indexArguments An arguments list of <code>AbstractProductComponent</code>s or an array thereof. A minimum number of 2 arguments is required.
 	 */
-	public MinIndex(AbstractProductComponent... indexArguments) {
+	public MinIndex(final AbstractProductComponent... indexArguments) {
 		super();
 		if(indexArguments.length < 1) {
 			throw new IllegalArgumentException("Missing arguments. Please provide one or more arguments.");
@@ -39,9 +39,9 @@ public class MinIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable value = indexArguments[0].getValue(evaluationTime, model);
-		for(AbstractProductComponent index : indexArguments) {
+		for(final AbstractProductComponent index : indexArguments) {
 			value = value.cap(index.getValue(evaluationTime, model));
 		}
 		return value;
@@ -50,8 +50,8 @@ public class MinIndex extends AbstractIndex {
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames = null;
-		for(AbstractProductComponent product : indexArguments) {
-			Set<String> productUnderlyingNames = product.queryUnderlyings();
+		for(final AbstractProductComponent product : indexArguments) {
+			final Set<String> productUnderlyingNames = product.queryUnderlyings();
 			if(productUnderlyingNames != null) {
 				if(underlyingNames == null) {
 					underlyingNames = productUnderlyingNames;

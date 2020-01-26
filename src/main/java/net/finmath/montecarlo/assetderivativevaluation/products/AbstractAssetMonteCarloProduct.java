@@ -30,7 +30,7 @@ public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloP
 	public abstract RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException;
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
 		// This product requires an AssetModelMonteCarloSimulationModel model, otherwise there will be a class cast exception
 		if(model instanceof AssetModelMonteCarloSimulationModel) {
 			return getValue(evaluationTime, (AssetModelMonteCarloSimulationModel)model);

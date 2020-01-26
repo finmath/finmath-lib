@@ -23,7 +23,7 @@ public interface FiniteDifference1DProduct extends Product {
 
 
 	@Override
-	default Object getValue(double evaluationTime, Model model) {
+	default Object getValue(final double evaluationTime, final Model model) {
 		if(model instanceof FiniteDifference1DModel) {
 			return getValue(evaluationTime, (FiniteDifference1DModel) model);
 		}

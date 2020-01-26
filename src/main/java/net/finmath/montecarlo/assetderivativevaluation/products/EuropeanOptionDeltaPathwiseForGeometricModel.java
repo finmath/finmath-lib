@@ -27,8 +27,8 @@ import net.finmath.stochastic.Scalar;
  */
 public class EuropeanOptionDeltaPathwiseForGeometricModel extends AbstractAssetMonteCarloProduct {
 
-	private double	maturity;
-	private double	strike;
+	private final double	maturity;
+	private final double	strike;
 
 	/**
 	 * Construct a product representing the delta of an European option on an asset S
@@ -43,7 +43,7 @@ public class EuropeanOptionDeltaPathwiseForGeometricModel extends AbstractAssetM
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public EuropeanOptionDeltaPathwiseForGeometricModel(double maturity, double strike) {
+	public EuropeanOptionDeltaPathwiseForGeometricModel(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -60,27 +60,27 @@ public class EuropeanOptionDeltaPathwiseForGeometricModel extends AbstractAssetM
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		if(!MonteCarloBlackScholesModel.class.isInstance(model)) {
 			Logger.getLogger("net.finmath").warning("This method assumes a Black-Scholes type model (MonteCarloBlackScholesModel).");
 		}
 
 		// Get S(T), S(0)
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariable	underlyingAtEvalTime	= model.getAssetValue(evaluationTime,0);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable	underlyingAtEvalTime	= model.getAssetValue(evaluationTime,0);
 
 		// The "payoff": values = indicator(S(T)-K) * S(T)/S(0)
-		RandomVariable trigger	= underlyingAtMaturity.sub(strike);
+		final RandomVariable trigger	= underlyingAtMaturity.sub(strike);
 		RandomVariable values	= trigger.choose(underlyingAtMaturity, new Scalar(0.0)).div(underlyingAtEvalTime);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

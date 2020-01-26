@@ -18,8 +18,8 @@ import net.finmath.time.FloatingpointDate;
  */
 public class AccruingNotional implements Notional {
 
-	private Notional	previousPeriodNotional;
-	private AbstractPeriod		previousPeriod;
+	private final Notional	previousPeriodNotional;
+	private final AbstractPeriod		previousPeriod;
 
 	/**
 	 * Creates a notion where the notional of the period start is calculated as
@@ -29,7 +29,7 @@ public class AccruingNotional implements Notional {
 	 * @param previousPeriodNotional The notional of the previous period.
 	 * @param previousPeriod The previous period.
 	 */
-	public AccruingNotional(Notional previousPeriodNotional, AbstractPeriod previousPeriod) {
+	public AccruingNotional(final Notional previousPeriodNotional, final AbstractPeriod previousPeriod) {
 		this.previousPeriodNotional = previousPeriodNotional;
 		this.previousPeriod = previousPeriod;
 	}
@@ -40,22 +40,22 @@ public class AccruingNotional implements Notional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		double productToModelTimeOffset = 0;
 		try {
 			if(previousPeriod.getReferenceDate() != null) {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), previousPeriod.getReferenceDate());
 			}
 		}
-		catch(UnsupportedOperationException e) {}
+		catch(final UnsupportedOperationException e) {}
 
-		RandomVariable previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
+		final RandomVariable previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);
 
 		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriodCoupon.add(1.0));
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return getNotionalAtPeriodStart(period, model);
 	}
 }

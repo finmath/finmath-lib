@@ -81,7 +81,7 @@ public class RationalFunctionInterpolation  {
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		RationalFunction(RandomVariable[] coefficientsNumerator, RandomVariable[]coefficientsDenominator) {
+		RationalFunction(final RandomVariable[] coefficientsNumerator, final RandomVariable[]coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -92,7 +92,7 @@ public class RationalFunctionInterpolation  {
 		 *
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		RationalFunction(RandomVariable[] coefficients) {
+		RationalFunction(final RandomVariable[] coefficients) {
 			super();
 			coefficientsNumerator = coefficients;
 			coefficientsDenominator = null;
@@ -104,7 +104,7 @@ public class RationalFunctionInterpolation  {
 		 * @param x Given argument.
 		 * @return Returns the value for the given argument.
 		 */
-		public RandomVariable getValue(double x)
+		public RandomVariable getValue(final double x)
 		{
 			RandomVariable powerOfX	= new RandomVariableFromDoubleArray(1.0);
 
@@ -139,7 +139,7 @@ public class RationalFunctionInterpolation  {
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 */
-	public RationalFunctionInterpolation(double[] points, RandomVariable[] values) {
+	public RationalFunctionInterpolation(final double[] points, final RandomVariable[] values) {
 		super();
 		this.points = points;
 		this.values = values;
@@ -154,7 +154,7 @@ public class RationalFunctionInterpolation  {
 	 * @param interpolationMethod The interpolation method to be used.
 	 * @param extrapolationMethod The extrapolation method to be used.
 	 */
-	public RationalFunctionInterpolation(double[] points, RandomVariable[] values,  InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod) {
+	public RationalFunctionInterpolation(final double[] points, final RandomVariable[] values,  final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod) {
 		super();
 		this.points = points;
 		this.values = values;
@@ -178,7 +178,7 @@ public class RationalFunctionInterpolation  {
 	 * @param x The abscissa at which the interpolation should be performed.
 	 * @return The interpolated value (ordinate).
 	 */
-	public RandomVariable getValue(double x) // x is time
+	public RandomVariable getValue(final double x) // x is time
 	{
 		synchronized(interpolatingRationalFunctionsLazyInitLock) {
 			if(interpolatingRationalFunctions == null) {
@@ -187,7 +187,7 @@ public class RationalFunctionInterpolation  {
 		}
 
 		// Get interpolating rational function for the given point x
-		int pointIndex = java.util.Arrays.binarySearch(points, x);
+		final int pointIndex = java.util.Arrays.binarySearch(points, x);
 		if(pointIndex >= 0) {
 			return values[pointIndex];
 		}
@@ -216,13 +216,13 @@ public class RationalFunctionInterpolation  {
 			}
 		}
 
-		RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
+		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
 
 		// Calculate interpolating value
 		return rationalFunction.getValue(x-points[intervallIndex]);
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		interpolatingRationalFunctionsLazyInitLock = new Object();
@@ -273,13 +273,13 @@ public class RationalFunctionInterpolation  {
 
 		// create numerator polynomials (linear)
 		for(int pointIndex = 0; pointIndex < points.length-1; pointIndex++ ) {
-			RandomVariable[] numeratorPolynomCoeff		= new RandomVariable[2];
+			final RandomVariable[] numeratorPolynomCoeff		= new RandomVariable[2];
 
-			double xl = points[pointIndex];
-			double xr = points[pointIndex+1];
+			final double xl = points[pointIndex];
+			final double xr = points[pointIndex+1];
 
-			RandomVariable fl = values[pointIndex];
-			RandomVariable fr = values[pointIndex+1];
+			final RandomVariable fl = values[pointIndex];
+			final RandomVariable fr = values[pointIndex+1];
 
 			numeratorPolynomCoeff[1] = fr.sub(fl).div(xr-xl);
 			numeratorPolynomCoeff[0] = fl;

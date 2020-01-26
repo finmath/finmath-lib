@@ -22,7 +22,7 @@ public class LinearRegression {
 	 *
 	 * @param basisFunctions A vector of (independent) random variables to be used as basis functions.
 	 */
-	public LinearRegression(RandomVariable[] basisFunctions) {
+	public LinearRegression(final RandomVariable[] basisFunctions) {
 		super();
 		this.basisFunctions = basisFunctions;
 	}
@@ -33,7 +33,7 @@ public class LinearRegression {
 	 * @param value The random variable to regress.
 	 * @return The vector of regression coefficients.
 	 */
-	public double[] getRegressionCoefficients(RandomVariable value) {
+	public double[] getRegressionCoefficients(final RandomVariable value) {
 		if(basisFunctions.length == 0) {
 			return new double[] { };
 		}
@@ -47,18 +47,18 @@ public class LinearRegression {
 			/*
 			 * Regression with two basis functions can be solved explicitly if determinant != 0 (otherwise we will fallback to SVD)
 			 */
-			double a = basisFunctions[0].squared().getAverage();
-			double b = basisFunctions[0].mult(basisFunctions[1]).average().squared().doubleValue();
-			double c = b;
-			double d = basisFunctions[1].squared().getAverage();
+			final double a = basisFunctions[0].squared().getAverage();
+			final double b = basisFunctions[0].mult(basisFunctions[1]).average().squared().doubleValue();
+			final double c = b;
+			final double d = basisFunctions[1].squared().getAverage();
 
-			double determinant =  (a * d - b * c);
+			final double determinant =  (a * d - b * c);
 			if(determinant != 0) {
-				double x = value.mult(basisFunctions[0]).getAverage();
-				double y = value.mult(basisFunctions[1]).getAverage();
+				final double x = value.mult(basisFunctions[0]).getAverage();
+				final double y = value.mult(basisFunctions[1]).getAverage();
 
-				double alpha0 = (d * x - b * y) / determinant;
-				double alpha1 = (a * y - c * x) / determinant;
+				final double alpha0 = (d * x - b * y) / determinant;
+				final double alpha1 = (a * y - c * x) / determinant;
 
 				return new double[] { alpha0, alpha1 };
 			}
@@ -69,18 +69,18 @@ public class LinearRegression {
 		 */
 
 		// Build regression matrix
-		double[][] BTB = new double[basisFunctions.length][basisFunctions.length];
+		final double[][] BTB = new double[basisFunctions.length][basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
 			for(int j=0; j<=i; j++) {
-				double covariance = basisFunctions[i].mult(basisFunctions[j]).getAverage();
+				final double covariance = basisFunctions[i].mult(basisFunctions[j]).getAverage();
 				BTB[i][j] = covariance;
 				BTB[j][i] = covariance;
 			}
 		}
 
-		double[] BTX = new double[basisFunctions.length];
+		final double[] BTX = new double[basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
-			double covariance = basisFunctions[i].mult(value).getAverage();
+			final double covariance = basisFunctions[i].mult(value).getAverage();
 			BTX[i] = covariance;
 		}
 

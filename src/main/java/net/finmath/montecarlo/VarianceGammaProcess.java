@@ -39,13 +39,13 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	private GammaProcess myGammaProcess;
 	private BrownianMotion myBrownianMotion;
 
-	private RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+	private final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	varianceGammaIncrements;
 
-	public VarianceGammaProcess(double sigma, double nu, double theta,
-			TimeDiscretization timeDiscretization,
-			int numberOfFactors, int numberOfPaths, int seed) {
+	public VarianceGammaProcess(final double sigma, final double nu, final double theta,
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors, final int numberOfPaths, final int seed) {
 		super();
 		this.sigma = sigma;
 		this.nu = nu;
@@ -59,7 +59,7 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if(varianceGammaIncrements == null) {
@@ -161,17 +161,17 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedSeed(int seed) {
+	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
 		return new VarianceGammaProcess(sigma, nu,theta, timeDiscretization, numberOfFactors, numberOfPaths, seed);
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new VarianceGammaProcess(sigma, nu, theta, newTimeDiscretization, numberOfFactors, numberOfPaths, seed);
 	}
 

@@ -21,10 +21,10 @@ import net.finmath.stochastic.RandomVariableAccumulator;
  */
 public class EuropeanOptionGammaLikelihood extends AbstractAssetMonteCarloProduct {
 
-	private double	maturity;
-	private double	strike;
+	private final double	maturity;
+	private final double	strike;
 
-	private boolean	isLikelihoodByFiniteDifference = false;
+	private final boolean	isLikelihoodByFiniteDifference = false;
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -32,7 +32,7 @@ public class EuropeanOptionGammaLikelihood extends AbstractAssetMonteCarloProduc
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public EuropeanOptionGammaLikelihood(double maturity, double strike) {
+	public EuropeanOptionGammaLikelihood(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -45,22 +45,22 @@ public class EuropeanOptionGammaLikelihood extends AbstractAssetMonteCarloProduc
 	 * @return the value
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public double getValue(AssetModelMonteCarloSimulationModel model) throws CalculationException
+	public double getValue(final AssetModelMonteCarloSimulationModel model) throws CalculationException
 	{
 		MonteCarloBlackScholesModel blackScholesModel = null;
 		try {
 			blackScholesModel = (MonteCarloBlackScholesModel)model;
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			throw new ClassCastException("This method requires a Black-Scholes type model (MonteCarloBlackScholesModel).");
 		}
 
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
-		RandomVariable numeraireAtToday		= model.getNumeraire(0);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
+		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 
 		/*
 		 *  The following way of calculating the expected value (average) is discouraged since it makes too strong
@@ -73,39 +73,39 @@ public class EuropeanOptionGammaLikelihood extends AbstractAssetMonteCarloProduc
 			if(underlyingAtMaturity.get(path) > strike)
 			{
 				// Get some model parameters
-				double T		= maturity;
-				double S0		= underlyingAtToday.get(path);
-				double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
-				double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
+				final double T		= maturity;
+				final double S0		= underlyingAtToday.get(path);
+				final double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
+				final double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
 
-				double ST		= underlyingAtMaturity.get(path);
+				final double ST		= underlyingAtMaturity.get(path);
 
 				double lr;
 				if(isLikelihoodByFiniteDifference) {
-					double h		= 1E-2;
+					final double h		= 1E-2;
 
-					double x		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
-					double phi		= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x*x/2.0) / (ST * (sigma) * Math.sqrt(T)) );
+					final double x		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
+					final double phi		= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x*x/2.0) / (ST * (sigma) * Math.sqrt(T)) );
 
-					double xDown	= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0-h)));
-					double phiDown	= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-xDown*xDown/2.0) / (ST * (sigma) * Math.sqrt(T)) );
+					final double xDown	= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0-h)));
+					final double phiDown	= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-xDown*xDown/2.0) / (ST * (sigma) * Math.sqrt(T)) );
 
-					double xUp		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0+h)));
-					double phiUp	= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-xUp*xUp/2.0) / (ST * (sigma) * Math.sqrt(T)) );
+					final double xUp		= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0+h)));
+					final double phiUp	= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-xUp*xUp/2.0) / (ST * (sigma) * Math.sqrt(T)) );
 
 					lr	= (phiUp - 2 * phi + phiDown) / (h * h) / phi;
 				}
 				else {
-					double x			= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
-					double phi			= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x*x/2.0) / (ST * (sigma) * Math.sqrt(T)) );
-					double dPhidS0		= x / (sigma * Math.sqrt(T)) / S0 * phi;
-					double d2PhidS02	= -1 / (sigma * Math.sqrt(T)) / (sigma * Math.sqrt(T)) / S0 / S0 * phi - x / (sigma * Math.sqrt(T)) / S0 / S0 * phi
+					final double x			= 1.0 / (sigma * Math.sqrt(T)) * (Math.log(ST) - (r * T - 0.5 * sigma*sigma * T + Math.log(S0)));
+					final double phi			= (1.0/Math.sqrt(2 * Math.PI) * Math.exp(-x*x/2.0) / (ST * (sigma) * Math.sqrt(T)) );
+					final double dPhidS0		= x / (sigma * Math.sqrt(T)) / S0 * phi;
+					final double d2PhidS02	= -1 / (sigma * Math.sqrt(T)) / (sigma * Math.sqrt(T)) / S0 / S0 * phi - x / (sigma * Math.sqrt(T)) / S0 / S0 * phi
 							+ x / (sigma * Math.sqrt(T)) / S0 * dPhidS0;
 					lr = d2PhidS02 / phi;
 				}
 
-				double payOff			= (underlyingAtMaturity.get(path) - strike);
-				double modifiedPayoff	= payOff * lr;
+				final double payOff			= (underlyingAtMaturity.get(path) - strike);
+				final double modifiedPayoff	= payOff * lr;
 
 				average += modifiedPayoff / numeraireAtMaturity.get(path) * monteCarloWeights.get(path) * numeraireAtToday.get(path);
 			}
@@ -115,7 +115,7 @@ public class EuropeanOptionGammaLikelihood extends AbstractAssetMonteCarloProduc
 	}
 
 	@Override
-	public RandomVariableAccumulator getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) {
+	public RandomVariableAccumulator getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) {
 		throw new RuntimeException("Method not supported.");
 	}
 }

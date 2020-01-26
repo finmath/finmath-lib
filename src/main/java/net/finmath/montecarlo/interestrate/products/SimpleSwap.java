@@ -37,11 +37,11 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param notional The notional as a vector for all periods
 	 */
 	public SimpleSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			boolean isPayFix,
-			double[] notional) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final boolean isPayFix,
+			final double[] notional) {
 		super();
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
@@ -60,11 +60,11 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param notional The constant notional
 	 */
 	public SimpleSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			boolean isPayFix,
-			double notional) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final boolean isPayFix,
+			final double notional) {
 		super();
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
@@ -84,10 +84,10 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param notional The constant notional
 	 */
 	public SimpleSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			double notional) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final double notional) {
 		this(fixingDates, paymentDates, swaprates, true, notional);
 	}
 
@@ -100,10 +100,10 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param notional The notional as a vector for all periods
 	 */
 	public SimpleSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			double[] notional) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final double[] notional) {
 		this(fixingDates, paymentDates, swaprates, true, notional);
 	}
 
@@ -117,9 +117,9 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 */
 	@Deprecated
 	public SimpleSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates) {
 		this(fixingDates, paymentDates, swaprates, true, 1.0);
 	}
 
@@ -134,36 +134,36 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
 		for(int period=0; period<fixingDates.length; period++)
 		{
-			double fixingDate		= fixingDates[period];
-			double paymentDate		= paymentDates[period];
-			double swaprate 		= swaprates[period];
-			double periodLength		= paymentDate - fixingDate;
+			final double fixingDate		= fixingDates[period];
+			final double paymentDate		= paymentDates[period];
+			final double swaprate 		= swaprates[period];
+			final double periodLength		= paymentDate - fixingDate;
 
 			if(paymentDate < evaluationTime) {
 				continue;
 			}
 
 			// Get random variables
-			RandomVariable libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			final RandomVariable libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariable payoff	= libor.sub(swaprate).mult(periodLength).mult(notional[period]);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}
 
-			RandomVariable numeraire				= model.getNumeraire(paymentDate);
-			RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+			final RandomVariable numeraire				= model.getNumeraire(paymentDate);
+			final RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);
 		}
 
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;
@@ -201,7 +201,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 		double[] periodLengths = new double[paymentDates.length];
 		periodLengths = IntStream.range(0, periodLengths.length).mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return paymentDates[i]-fixingDates[i];
 			}
 		}).toArray();

@@ -116,16 +116,16 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	private RandomVariable[] targetValues = null;
 	private RandomVariable[] weights = null;
 
-	private int		maxIteration;
+	private final int		maxIteration;
 
 	// Local state of the solver
 	private double[]	lambda;
-	private double		lambdaInitialValue = 0.001;
+	private final double		lambdaInitialValue = 0.001;
 	private double		lambdaDivisor = 1.3;
 	private double 		lambdaMultiplicator	= 2.0;
 	private int			numberOfPaths;
 
-	private RandomVariable	errorTolerance;
+	private final RandomVariable	errorTolerance;
 
 	private int iteration = 0;
 
@@ -153,21 +153,21 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	private final Logger logger = Logger.getLogger("net.finmath");
 
 	// A simple test
-	public static void main(String[] args) throws SolverException {
+	public static void main(final String[] args) throws SolverException {
 		// RandomVariableDifferentiableAAD is possible here!
 		// RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableDifferentiableAAD(2), new RandomVariableDifferentiableAAD(2) };
-		RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableFromDoubleArray(2), new RandomVariableFromDoubleArray(2) };
-		RandomVariable[] weights = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
-		RandomVariable[] parameterSteps = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
-		int maxIteration = 100;
-		RandomVariable[] targetValues = new RandomVariable[] { new RandomVariableFromDoubleArray(25), new RandomVariableFromDoubleArray(100) };
+		final RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableFromDoubleArray(2), new RandomVariableFromDoubleArray(2) };
+		final RandomVariable[] weights = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
+		final RandomVariable[] parameterSteps = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
+		final int maxIteration = 100;
+		final RandomVariable[] targetValues = new RandomVariable[] { new RandomVariableFromDoubleArray(25), new RandomVariableFromDoubleArray(100) };
 
-		StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
+		final StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			// Override your objective function here
 			@Override
-			public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) {
 				values[0] = parameters[0].mult(0.0).add(parameters[1]).squared();
 				values[1] = parameters[0].mult(2.0).add(parameters[1]).squared();
 			}
@@ -177,7 +177,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 		optimizer.run();
 
-		RandomVariable[] bestParameters = optimizer.getBestFitParameters();
+		final RandomVariable[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) {
 			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
@@ -207,7 +207,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param errorTolerance Error tolerance / accuracy.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
-	public StochasticPathwiseLevenbergMarquardt(RandomVariable[] initialParameters, RandomVariable[] targetValues, RandomVariable[] weights, RandomVariable[] parameterSteps, int maxIteration, RandomVariable errorTolerance, ExecutorService executorService) {
+	public StochasticPathwiseLevenbergMarquardt(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final RandomVariable[] weights, final RandomVariable[] parameterSteps, final int maxIteration, final RandomVariable errorTolerance, final ExecutorService executorService) {
 		super();
 		this.initialParameters	= initialParameters;
 		this.targetValues		= targetValues;
@@ -235,7 +235,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param maxIteration Maximum number of iterations.
 	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
 	 */
-	public StochasticPathwiseLevenbergMarquardt(RandomVariable[] initialParameters, RandomVariable[] targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardt(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final int maxIteration, final int numberOfThreads) {
 		this(initialParameters, targetValues, null, null, maxIteration, null, numberOfThreads > 1 ? Executors.newFixedThreadPool(numberOfThreads) : null);
 	}
 
@@ -247,7 +247,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param maxIteration Maximum number of iterations.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
-	public StochasticPathwiseLevenbergMarquardt(List<RandomVariable> initialParameters, List<RandomVariable> targetValues, int maxIteration, ExecutorService executorService) {
+	public StochasticPathwiseLevenbergMarquardt(final List<RandomVariable> initialParameters, final List<RandomVariable> targetValues, final int maxIteration, final ExecutorService executorService) {
 		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), null, null, maxIteration, null, executorService);
 	}
 
@@ -259,7 +259,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param maxIteration Maximum number of iterations.
 	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
 	 */
-	public StochasticPathwiseLevenbergMarquardt(List<RandomVariable> initialParameters, List<RandomVariable> targetValues, int maxIteration, int numberOfThreads) {
+	public StochasticPathwiseLevenbergMarquardt(final List<RandomVariable> initialParameters, final List<RandomVariable> targetValues, final int maxIteration, final int numberOfThreads) {
 		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), maxIteration, numberOfThreads);
 	}
 
@@ -269,8 +269,8 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param listOfNumbers A list of numbers.
 	 * @return A corresponding array of doubles executing <code>doubleValue()</code> on each element.
 	 */
-	private static RandomVariable[] numberListToDoubleArray(List<RandomVariable> listOfNumbers) {
-		RandomVariable[] array	= new RandomVariable[listOfNumbers.size()];
+	private static RandomVariable[] numberListToDoubleArray(final List<RandomVariable> listOfNumbers) {
+		final RandomVariable[] array	= new RandomVariable[listOfNumbers.size()];
 		for(int i=0; i<array.length; i++) {
 			array[i] = listOfNumbers.get(i);
 		}
@@ -293,7 +293,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 *
 	 * @param lambda the lambda to set
 	 */
-	public void setLambda(double[] lambda) {
+	public void setLambda(final double[] lambda) {
 		this.lambda = lambda;
 	}
 
@@ -315,7 +315,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 *
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
-	public void setLambdaMultiplicator(double lambdaMultiplicator) {
+	public void setLambdaMultiplicator(final double lambdaMultiplicator) {
 		if(lambdaMultiplicator <= 1.0) {
 			throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
 		}
@@ -340,7 +340,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 *
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
-	public void setLambdaDivisor(double lambdaDivisor) {
+	public void setLambdaDivisor(final double lambdaDivisor) {
 		if(lambdaDivisor <= 1.0) {
 			throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
 		}
@@ -360,7 +360,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	/**
 	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
 	 */
-	public void setErrorMeanSquaredCurrent(RandomVariable errorMeanSquaredCurrent) {
+	public void setErrorMeanSquaredCurrent(final RandomVariable errorMeanSquaredCurrent) {
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
@@ -369,11 +369,11 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		return iteration;
 	}
 
-	protected void prepareAndSetValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 		setValues(parameters, values);
 	}
 
-	protected void prepareAndSetDerivatives(RandomVariable[] parameters, RandomVariable[] values, RandomVariable[][] derivatives) throws SolverException {
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
 		setDerivatives(parameters, derivatives);
 	}
 
@@ -395,18 +395,18 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public void setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives) throws SolverException {
+	public void setDerivatives(RandomVariable[] parameters, final RandomVariable[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
 		// parameters = parameterTest, so we may use valueTest.
 
 		parameters = parameterCurrent;
-		Vector<Future<RandomVariable[]>> valueFutures = new Vector<>(parameterCurrent.length);
+		final Vector<Future<RandomVariable[]>> valueFutures = new Vector<>(parameterCurrent.length);
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
 			final RandomVariable[] parametersNew	= parameters.clone();
 			final RandomVariable[] derivative		= derivatives[parameterIndex];
 
 			final int workerParameterIndex = parameterIndex;
-			Callable<RandomVariable[]> worker = new  Callable<RandomVariable[]>() {
+			final Callable<RandomVariable[]> worker = new  Callable<RandomVariable[]>() {
 				@Override
 				public RandomVariable[] call() {
 					RandomVariable parameterFiniteDifference;
@@ -428,7 +428,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
 					try {
 						prepareAndSetValues(parametersNew, derivative);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						// We signal an exception to calculate the derivative as NaN
 						Arrays.fill(derivative, new RandomVariableFromDoubleArray(Double.NaN));
 					}
@@ -440,11 +440,11 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 				}
 			};
 			if(executor != null) {
-				Future<RandomVariable[]> valueFuture = executor.submit(worker);
+				final Future<RandomVariable[]> valueFuture = executor.submit(worker);
 				valueFutures.add(parameterIndex, valueFuture);
 			}
 			else {
-				FutureTask<RandomVariable[]> valueFutureTask = new FutureTask<>(worker);
+				final FutureTask<RandomVariable[]> valueFutureTask = new FutureTask<>(worker);
 				valueFutureTask.run();
 				valueFutures.add(parameterIndex, valueFutureTask);
 			}
@@ -454,9 +454,9 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 			try {
 				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
 			}
-			catch (InterruptedException e) {
+			catch (final InterruptedException e) {
 				throw new SolverException(e);
-			} catch (ExecutionException e) {
+			} catch (final ExecutionException e) {
 				throw new SolverException(e);
 			}
 		}
@@ -482,8 +482,8 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		try {
 
 			// Allocate memory
-			int numberOfParameters	= initialParameters.length;
-			int numberOfValues		= targetValues.length;
+			final int numberOfParameters	= initialParameters.length;
+			final int numberOfValues		= targetValues.length;
 
 			parameterTest		= initialParameters.clone();
 			parameterCurrent	= initialParameters.clone();
@@ -503,13 +503,13 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 				prepareAndSetValues(parameterTest, valueTest);
 
 				// Calculate error
-				RandomVariable errorMeanSquaredTest = getMeanSquaredError(valueTest);
+				final RandomVariable errorMeanSquaredTest = getMeanSquaredError(valueTest);
 
 				/*
 				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
 				 * That is: NaN is consider as a rejected point.
 				 */
-				RandomVariable isPointAccepted = errorMeanSquaredCurrent.sub(errorMeanSquaredTest);
+				final RandomVariable isPointAccepted = errorMeanSquaredCurrent.sub(errorMeanSquaredTest);
 
 				for(int parameterIndex = 0; parameterIndex<parameterCurrent.length; parameterIndex++) {
 					parameterCurrent[parameterIndex] = isPointAccepted.choose(parameterTest[parameterIndex], parameterCurrent[parameterIndex]);
@@ -556,11 +556,11 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 				/*
 				 * Calculate new parameterTest
 				 */
-				double[][]	parameterIncrement = new double[parameterCurrent.length][numberOfPaths];
+				final double[][]	parameterIncrement = new double[parameterCurrent.length][numberOfPaths];
 				for(int pathIndex=0; pathIndex<numberOfPaths; pathIndex++) {
 					// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
-					double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
-					double[]	beta = new double[parameterCurrent.length];
+					final double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
+					final double[]	beta = new double[parameterCurrent.length];
 
 					boolean hessianInvalid = true;
 					while (hessianInvalid) {
@@ -595,12 +595,12 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 
 						try {
 							// Calculate new increment
-							double[] parameterIncrementOnPath = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+							final double[] parameterIncrementOnPath = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 							for(int i=0; i<parameterIncrementOnPath.length; i++) {
 								parameterIncrement[i][pathIndex] = parameterIncrementOnPath[i];
 							}
 							hessianInvalid = false;
-						} catch (Exception e) {
+						} catch (final Exception e) {
 							hessianInvalid	= true;
 							lambda[pathIndex] *= 16;
 						}
@@ -634,12 +634,12 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		}
 	}
 
-	public RandomVariable getMeanSquaredError(RandomVariable[] value) {
+	public RandomVariable getMeanSquaredError(final RandomVariable[] value) {
 		// Note: it is intentional to use a specific RandomVariableFromDoubleArray implementation here.
 		RandomVariable error = new RandomVariableFromDoubleArray(0.0);
 
 		for (int valueIndex = 0; valueIndex < value.length; valueIndex++) {
-			RandomVariable deviation = value[valueIndex].sub(targetValues[valueIndex]);
+			final RandomVariable deviation = value[valueIndex].sub(targetValues[valueIndex]);
 			error = error.addProduct(weights[valueIndex], deviation.squared());
 		}
 
@@ -685,8 +685,8 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
-	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(RandomVariable[] newTargetVaues, RandomVariable[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
+	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(final RandomVariable[] newTargetVaues, final RandomVariable[] newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		final StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 		clonedOptimizer.weights = newWeights.clone();				// Defensive copy
 
@@ -715,8 +715,8 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
-	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(List<RandomVariable> newTargetVaues, List<RandomVariable> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
+	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(final List<RandomVariable> newTargetVaues, final List<RandomVariable> newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		final StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);
 		clonedOptimizer.weights = numberListToDoubleArray(newWeights);
 

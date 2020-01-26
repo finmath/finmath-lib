@@ -36,7 +36,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	 * @param numberOfFactors The number of factors.
 	 * @param parameter Vector of size 5.
 	 */
-	public LIBORCovarianceModelBH(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double[] parameter) {
+	public LIBORCovarianceModelBH(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double[] parameter) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		this.parameter = parameter;
 	}
@@ -48,7 +48,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	 * @param liborPeriodDiscretization The fixed forward rate discretization.
 	 * @param numberOfFactors The number of factors.
 	 */
-	public LIBORCovarianceModelBH(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
+	public LIBORCovarianceModelBH(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		parameter[0] =  0.4690;		// sigma1
 		parameter[1] =  0.0452;		// alpha1
@@ -59,7 +59,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 
 	@Override
 	public Object clone() {
-		LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameterAsDouble());
+		final LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameterAsDouble());
 		return model;
 	}
 
@@ -69,14 +69,14 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
 
-		double s1 = timeToMaturity <= 0 ? 0 : parameter[0] * Math.exp(-parameter[1] * timeToMaturity);
-		double s2 = timeToMaturity <= 0 ? 0 : parameter[2] * Math.exp(-parameter[3] * timeToMaturity);
-		double rho = parameter[4];
+		final double s1 = timeToMaturity <= 0 ? 0 : parameter[0] * Math.exp(-parameter[1] * timeToMaturity);
+		final double s2 = timeToMaturity <= 0 ? 0 : parameter[2] * Math.exp(-parameter[3] * timeToMaturity);
+		final double rho = parameter[4];
 
-		RandomVariable[] factorLoading = new RandomVariable[2];
+		final RandomVariable[] factorLoading = new RandomVariable[2];
 		factorLoading[0] = new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), Math.sqrt(1-rho*rho) * s1);
 		factorLoading[1] = new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), rho * s1 + s2);
 
@@ -84,18 +84,18 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 	}
 
 	@Override
-	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), parameters);
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+		final LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), parameters);
 		return model;
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map<String, Object> dataModified)
 			throws CalculationException {
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
@@ -109,7 +109,7 @@ public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametr
 			parameter = (double[])dataModified.getOrDefault("parameter", parameter);
 		}
 
-		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelBH(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
+		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelBH(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
 		return newModel;
 	}
 

@@ -26,12 +26,12 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(java.time.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
 	 */
 	@Override
-	public LocalDate getAdjustedDate(LocalDate date, DateRollConvention dateRollConvention) {
+	public LocalDate getAdjustedDate(final LocalDate date, final DateRollConvention dateRollConvention) {
 		if(dateRollConvention == DateRollConvention.UNADJUSTED) {
 			return date;
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {
-			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
+			final LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			if (adjustedDate.getMonth() != date.getMonth()){
 				return getAdjustedDate(date, DateRollConvention.PRECEDING);
 			} else {
@@ -39,7 +39,7 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 			}
 		}
 		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {
-			LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
+			final LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);
 			if (adjustedDate.getMonth() != date.getMonth()) {
 				return getAdjustedDate(date, DateRollConvention.FOLLOWING);
 			} else {
@@ -47,7 +47,7 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 			}
 		}
 		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PRECEDING) {
-			int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;
+			final int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;
 			LocalDate adjustedDate = date;
 			while(!isBusinessday(adjustedDate)) {
 				adjustedDate = adjustedDate.plusDays(adjustment);
@@ -60,10 +60,10 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 
 
 	@Override
-	public LocalDate getRolledDate(LocalDate baseDate, int businessDays) {
+	public LocalDate getRolledDate(final LocalDate baseDate, int businessDays) {
 		LocalDate			rolledDate			= baseDate;
-		int					direction			= businessDays >= 0 ? 1: -1;
-		DateRollConvention	dateRollConvention	= direction > 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;
+		final int					direction			= businessDays >= 0 ? 1: -1;
+		final DateRollConvention	dateRollConvention	= direction > 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;
 		while(businessDays != 0) {
 			rolledDate = rolledDate.plusDays(direction);
 			rolledDate = getAdjustedDate(rolledDate, dateRollConvention);
@@ -73,20 +73,20 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 	}
 
 	@Override
-	public LocalDate getAdjustedDate(LocalDate baseDate, String dateOffsetCode, DateRollConvention dateRollConvention) {
+	public LocalDate getAdjustedDate(final LocalDate baseDate, final String dateOffsetCode, final DateRollConvention dateRollConvention) {
 		return getAdjustedDate(getDateFromDateAndOffsetCode(baseDate, dateOffsetCode), dateRollConvention);
 	}
 
 	@Override
-	public LocalDate getDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode) {
+	public LocalDate getDateFromDateAndOffsetCode(final LocalDate baseDate, String dateOffsetCode) {
 		dateOffsetCode = dateOffsetCode.trim();
 
-		StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
+		final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
 
 		LocalDate maturityDate = baseDate;
 		while(tokenizer.hasMoreTokens()) {
-			String maturityCodeSingle = tokenizer.nextToken();
-			String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
+			final String maturityCodeSingle = tokenizer.nextToken();
+			final String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
 
 			/*
 			 * If no unit is given, the number is interpreted as ACT/365.
@@ -94,12 +94,12 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 			 */
 			if(maturityCodeSingleParts.length == 1) {
 				// Try to parse a double as ACT/365
-				double maturityValue	= Double.valueOf(maturityCodeSingle);
+				final double maturityValue	= Double.valueOf(maturityCodeSingle);
 				maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));
 			}
 			else if(maturityCodeSingleParts.length == 2) {
-				int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
-				DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
+				final int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
+				final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
 
 				switch(dateOffsetUnit) {
 				case DAYS:
@@ -139,17 +139,17 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 		return maturityDate;
 	}
 
-	public LocalDate[] createDateFromDateAndOffsetCodes(LocalDate baseDate, String[] dateOffsetCodes) {
-		LocalDate[] maturityDates = new LocalDate[dateOffsetCodes.length];
+	public LocalDate[] createDateFromDateAndOffsetCodes(final LocalDate baseDate, final String[] dateOffsetCodes) {
+		final LocalDate[] maturityDates = new LocalDate[dateOffsetCodes.length];
 		for(int i = 0; i < dateOffsetCodes.length; i++) {
-			String dateOffsetCode = dateOffsetCodes[i].trim();
+			final String dateOffsetCode = dateOffsetCodes[i].trim();
 
-			StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
+			final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
 
 			LocalDate maturityDate = baseDate;
 			while(tokenizer.hasMoreTokens()) {
-				String maturityCodeSingle = tokenizer.nextToken();
-				String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
+				final String maturityCodeSingle = tokenizer.nextToken();
+				final String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
 
 				/*
 				 * If no unit is given, the number is interpreted as ACT/365.
@@ -157,12 +157,12 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 				 */
 				if(maturityCodeSingleParts.length == 1) {
 					// Try to parse a double as ACT/365
-					double maturityValue	= Double.valueOf(maturityCodeSingle);
+					final double maturityValue	= Double.valueOf(maturityCodeSingle);
 					maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));
 				}
 				else if(maturityCodeSingleParts.length == 2) {
-					int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
-					DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
+					final int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);
+					final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
 
 					switch(dateOffsetUnit) {
 					case DAYS:
@@ -203,17 +203,17 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 		return maturityDates;
 	}
 
-	public double[] convertOffsetCodesToTimes(String[] dateOffsetCodes) {
-		double[] times = new double[dateOffsetCodes.length];
+	public double[] convertOffsetCodesToTimes(final String[] dateOffsetCodes) {
+		final double[] times = new double[dateOffsetCodes.length];
 		for(int i = 0; i < dateOffsetCodes.length; i++) {
-			String dateOffsetCode = dateOffsetCodes[i].trim();
+			final String dateOffsetCode = dateOffsetCodes[i].trim();
 
-			StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
+			final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);
 
 			double time = 0;
 			while(tokenizer.hasMoreTokens()) {
-				String maturityCodeSingle = tokenizer.nextToken();
-				String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
+				final String maturityCodeSingle = tokenizer.nextToken();
+				final String[] maturityCodeSingleParts = maturityCodeSingle.split("(?<=[0-9|\\.])(?=[A-Z|a-z])");
 
 				/*
 				 * If no unit is given, the number is interpreted as ACT/365.
@@ -224,8 +224,8 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 					time = Double.valueOf(maturityCodeSingle);
 				}
 				else if(maturityCodeSingleParts.length == 2) {
-					double maturityValue = Double.valueOf(maturityCodeSingleParts[0]);
-					DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
+					final double maturityValue = Double.valueOf(maturityCodeSingleParts[0]);
+					final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);
 
 					switch(dateOffsetUnit) {
 					case DAYS:

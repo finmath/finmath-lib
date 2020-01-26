@@ -61,10 +61,10 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurveInterpolation(String name, LocalDate referenceDate, String paymentOffsetCode, BusinessdayCalendar paymentBusinessdayCalendar,
-			BusinessdayCalendar.DateRollConvention paymentDateRollConvention, InterpolationMethod interpolationMethod,
-			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
+	public ForwardCurveInterpolation(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward, final String discountCurveName) {
 		super(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod,
 				extrapolationMethod, interpolationEntity, discountCurveName);
 		this.interpolationEntityForward	= interpolationEntityForward;
@@ -83,7 +83,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurveInterpolation(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
+	public ForwardCurveInterpolation(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendar.DateRollConvention.FOLLOWING, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, interpolationEntityForward, discountCurveName);
 	}
 
@@ -95,7 +95,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurveInterpolation(String name, LocalDate referenceDate, String paymentOffsetCode, String discountCurveName) {
+	public ForwardCurveInterpolation(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final String discountCurveName) {
 		this(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.FORWARD, discountCurveName);
 	}
 
@@ -107,7 +107,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
 	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
 	 */
-	public ForwardCurveInterpolation(String name, double paymentOffset, InterpolationEntityForward interpolationEntityForward, String discountCurveName) {
+	public ForwardCurveInterpolation(final String name, final double paymentOffset, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName) {
 		// What is the use case of this constructor? Can it be deleted?
 		super(name, null, paymentOffset, discountCurveName);
 		this.interpolationEntityForward	= interpolationEntityForward;
@@ -131,12 +131,12 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode,
-			BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModel model, double[] times, double[] givenForwards) {
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final double[] givenForwards) {
 
-		ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
+		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,
 				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
@@ -164,10 +164,10 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, Date referenceDate, String paymentOffsetCode,
-			BusinessdayCalendar paymentBusinessdayCalendar, BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity,
-			InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModel model, double[] times, double[] givenForwards) {
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final Date referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final double[] givenForwards) {
 
 		return createForwardCurveFromForwards(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);
 	}
@@ -185,7 +185,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, String interpolationEntityForward, String discountCurveName, AnalyticModel model, double[] times, double[] givenForwards) {
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final String interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final double[] givenForwards) {
 		return createForwardCurveFromForwards(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);
 	}
 
@@ -202,8 +202,8 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, LocalDate referenceDate, String paymentOffsetCode, InterpolationEntityForward interpolationEntityForward, String discountCurveName, AnalyticModel model, double[] times, double[] givenForwards) {
-		ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, interpolationEntityForward, discountCurveName);
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final double[] givenForwards) {
+		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, interpolationEntityForward, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			forwardCurveInterpolation.addForward(model, times[timeIndex], givenForwards[timeIndex], false);
@@ -221,12 +221,12 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, double paymentOffset) {
-		ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final double[] times, final double[] givenForwards, final double paymentOffset) {
+		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			double	fixingTime	= times[timeIndex];
-			boolean	isParameter	= (fixingTime > 0);
+			final double	fixingTime	= times[timeIndex];
+			final boolean	isParameter	= (fixingTime > 0);
 			forwardCurveInterpolation.addForward(null, fixingTime, givenForwards[timeIndex], isParameter);
 		}
 
@@ -249,8 +249,8 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors, double paymentOffset) {
-		ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
+	public static ForwardCurveInterpolation createForwardCurveFromDiscountFactors(final String name, final double[] times, final double[] givenDiscountFactors, final double paymentOffset) {
+		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);
 
 		if(times.length == 0) {
 			throw new IllegalArgumentException("Vector of times must not be empty.");
@@ -258,14 +258,14 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 
 		if(times[0] > 0) {
 			// Add first forward
-			double forward = (1.0/givenDiscountFactors[0]-1.0) / (times[0] - 0);
+			final double forward = (1.0/givenDiscountFactors[0]-1.0) / (times[0] - 0);
 			forwardCurveInterpolation.addForward(null, 0.0, forward, true);
 		}
 
 		for(int timeIndex=0; timeIndex<times.length-1;timeIndex++) {
-			double 	forward		= (givenDiscountFactors[timeIndex]/givenDiscountFactors[timeIndex+1]-1.0) / (times[timeIndex+1] - times[timeIndex]);
-			double	fixingTime	= times[timeIndex];
-			boolean	isParameter	= (fixingTime > 0);
+			final double 	forward		= (givenDiscountFactors[timeIndex]/givenDiscountFactors[timeIndex+1]-1.0) / (times[timeIndex+1] - times[timeIndex]);
+			final double	fixingTime	= times[timeIndex];
+			final boolean	isParameter	= (fixingTime > 0);
 			forwardCurveInterpolation.addForward(null, fixingTime, forward, isParameter);
 		}
 
@@ -283,23 +283,23 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param paymentOffset Time between fixing and payment.
 	 * @return A new ForwardCurve object.
 	 */
-	public static ForwardCurveInterpolation createForwardCurveFromForwards(String name, double[] times, double[] givenForwards, AnalyticModel model, String discountCurveName, double paymentOffset) {
-		ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, discountCurveName);
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final double[] times, final double[] givenForwards, final AnalyticModel model, final String discountCurveName, final double paymentOffset) {
+		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, discountCurveName);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
-			double	fixingTime	= times[timeIndex];
-			boolean	isParameter	= (fixingTime > 0);
+			final double	fixingTime	= times[timeIndex];
+			final boolean	isParameter	= (fixingTime > 0);
 			forwardCurveInterpolation.addForward(model, fixingTime, givenForwards[timeIndex], isParameter);
 		}
 		return forwardCurveInterpolation;
 	}
 
 	@Override
-	public double getForward(AnalyticModel model, double fixingTime)
+	public double getForward(final AnalyticModel model, final double fixingTime)
 	{
-		double paymentOffset = this.getPaymentOffset(fixingTime);
+		final double paymentOffset = this.getPaymentOffset(fixingTime);
 
-		double interpolationEntityForwardValue = this.getValue(model, fixingTime);
+		final double interpolationEntityForwardValue = this.getValue(model, fixingTime);
 		switch(interpolationEntityForward) {
 		case FORWARD:
 		default:
@@ -311,12 +311,12 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 			return interpolationEntityForwardValue / model.getDiscountCurve(getDiscountCurveName()).getValue(model, fixingTime+paymentOffset);
 		case ZERO:
 		{
-			double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
+			final double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
 			return (Math.exp(interpolationEntityForwardValue2 * (fixingTime+paymentOffset) - interpolationEntityForwardValue * fixingTime) - 1.0) / (paymentOffset);
 		}
 		case DISCOUNTFACTOR:
 		{
-			double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
+			final double interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);
 			return (interpolationEntityForwardValue / interpolationEntityForwardValue2 - 1.0) / (paymentOffset);
 		}
 		}
@@ -335,10 +335,10 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @return The forward.
 	 */
 	@Override
-	public double getForward(AnalyticModel model, double fixingTime, double paymentOffset)
+	public double getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset)
 	{
 		double forward = this.getForward(model, fixingTime);
-		double curvePaymentOffset = this.getPaymentOffset(fixingTime);
+		final double curvePaymentOffset = this.getPaymentOffset(fixingTime);
 		if(paymentOffset != curvePaymentOffset) {
 			forward = (Math.exp(Math.log(1+forward*curvePaymentOffset) * paymentOffset/curvePaymentOffset)-1.0)/paymentOffset;
 			// logger.warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffset +". Calibrated: " + curvePaymentOffset + ".");
@@ -354,7 +354,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	 * @param forward The given forward.
 	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(double[])} and {@link #getCloneForParameter(double[])}, i.e., it can be calibrated.
 	 */
-	private void addForward(AnalyticModel model, double fixingTime, double forward, boolean isParameter) {
+	private void addForward(final AnalyticModel model, final double fixingTime, final double forward, final boolean isParameter) {
 		double interpolationEntitiyTime;
 		double interpolationEntityForwardValue;
 		switch(interpolationEntityForward) {
@@ -369,14 +369,14 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 			break;
 		case ZERO:
 		{
-			double paymentOffset = getPaymentOffset(fixingTime);
+			final double paymentOffset = getPaymentOffset(fixingTime);
 			interpolationEntitiyTime = fixingTime+paymentOffset;
 			interpolationEntityForwardValue = Math.log(1.0 + forward * paymentOffset) / paymentOffset;
 			break;
 		}
 		case DISCOUNTFACTOR:
 		{
-			double paymentOffset = getPaymentOffset(fixingTime);
+			final double paymentOffset = getPaymentOffset(fixingTime);
 			interpolationEntitiyTime		= fixingTime+paymentOffset;
 			interpolationEntityForwardValue = getValue(fixingTime) / (1.0 + forward * paymentOffset);
 			break;
@@ -386,7 +386,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	}
 
 	@Override
-	protected void addPoint(double time, double value, boolean isParameter) {
+	protected void addPoint(double time, final double value, final boolean isParameter) {
 		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {
 			time += getPaymentOffset(time);
 		}

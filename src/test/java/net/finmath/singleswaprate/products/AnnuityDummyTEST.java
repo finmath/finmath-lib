@@ -62,7 +62,7 @@ public class AnnuityDummyTEST {
 	@BeforeClass
 	public static void setup() {
 
-		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -72,7 +72,7 @@ public class AnnuityDummyTEST {
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
 
-		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -127,12 +127,12 @@ public class AnnuityDummyTEST {
 	@Test
 	public void testSimplified() throws SolverException, IOException {
 
-		AnnuityMappingType type = AnnuityMappingType.SIMPLIFIEDLINEAR;
-		VolatilityCubeModel model = buildCube(type);
+		final AnnuityMappingType type = AnnuityMappingType.SIMPLIFIEDLINEAR;
+		final VolatilityCubeModel model = buildCube(type);
 
-		AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
+		final AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
 
-		double value = mapping.getValue(fixSchedule.getFixing(0), model);
+		final double value = mapping.getValue(fixSchedule.getFixing(0), model);
 
 		System.out.println("Expectation of SimplifiedAnnuityMapping: " +value);
 		Assert.assertEquals(1, value, testAccuracy);
@@ -141,12 +141,12 @@ public class AnnuityDummyTEST {
 	@Test
 	public void testBasic() throws SolverException, IOException {
 
-		AnnuityMappingType type = AnnuityMappingType.BASICPITERBARG;
-		VolatilityCubeModel model = buildCube(type);
+		final AnnuityMappingType type = AnnuityMappingType.BASICPITERBARG;
+		final VolatilityCubeModel model = buildCube(type);
 
-		AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
+		final AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
 
-		double value = mapping.getValue(fixSchedule.getFixing(0), model);
+		final double value = mapping.getValue(fixSchedule.getFixing(0), model);
 
 		System.out.println("Expectation of BasicPiterbargAnnuityMapping: " +value);
 		Assert.assertEquals(1, value, testAccuracy);
@@ -155,20 +155,20 @@ public class AnnuityDummyTEST {
 	@Test
 	public void testMulti() throws SolverException, IOException {
 
-		AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
-		VolatilityCubeModel model = buildCube(type);
+		final AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
+		final VolatilityCubeModel model = buildCube(type);
 
-		AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveMarketName, volatilityCubeName, type);
+		final AnnuityDummyProduct mapping = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveMarketName, volatilityCubeName, type);
 
-		double value = mapping.getValue(fixSchedule.getFixing(0), model);
+		final double value = mapping.getValue(fixSchedule.getFixing(0), model);
 
 		System.out.println("Expectation of MultiPiterbargAnnuityMapping: " +value);
 		Assert.assertEquals(1, value, testAccuracy);
 	}
 
 	//creating a volatility cube for tests
-	private static VolatilityCubeModel buildCube(AnnuityMappingType type) throws SolverException, IOException {
-		VolatilityCubeFactory factory = new VolatilityCubeFactory(
+	private static VolatilityCubeModel buildCube(final AnnuityMappingType type) throws SolverException, IOException {
+		final VolatilityCubeFactory factory = new VolatilityCubeFactory(
 				referenceDate,
 				payerSwaptions,
 				receiverSwaptions,
@@ -180,7 +180,7 @@ public class AnnuityDummyTEST {
 				type);
 
 		volatilityCubeName				= type.toString();
-		VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
+		final VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
 
 		return model.addVolatilityCube(cube);
 	}

@@ -28,7 +28,7 @@ public class JNumberField extends JTextField implements ActionListener {
 	private DecimalFormat formatter = new DecimalFormat("0.000");
 
 	// Guards access to read or write of the text field
-	private Object updateLock = new Object();
+	private final Object updateLock = new Object();
 
 	private double		preferedValueIncrement = 0.0;
 	private double[]	admissibleValues = null;
@@ -40,7 +40,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		this.addActionListener(this);
 	}
 
-	public JNumberField(double value, String format, ActionListener actionListener) {
+	public JNumberField(final double value, final String format, final ActionListener actionListener) {
 		super();
 		formatter = new DecimalFormat(format);
 		this.addActionListener(actionListener);
@@ -48,7 +48,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		setValue(value);
 	}
 
-	public JNumberField(double value, DecimalFormat format, ActionListener actionListener) {
+	public JNumberField(final double value, final DecimalFormat format, final ActionListener actionListener) {
 		super();
 		formatter = format;
 		this.addActionListener(actionListener);
@@ -56,7 +56,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		setValue(value);
 	}
 
-	public JNumberField(String format) {
+	public JNumberField(final String format) {
 		super(format);
 		formatter = new DecimalFormat(format);
 		this.addActionListener(this);
@@ -69,27 +69,27 @@ public class JNumberField extends JTextField implements ActionListener {
 		return value;
 	}
 
-	public void setValue(double value) {
+	public void setValue(final double value) {
 		this.value = value;
 		updateData();
 	}
 
-	public void setFromat(String format) {
+	public void setFromat(final String format) {
 		formatter = new DecimalFormat(format);
 		updateData();
 	}
 
-	public void setRange(double lowerBound, double upperBound) {
+	public void setRange(final double lowerBound, final double upperBound) {
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 		updateData();
 	}
 
-	public void setAdmissibleValues(double[] admissibleValues) {
+	public void setAdmissibleValues(final double[] admissibleValues) {
 		this.admissibleValues = admissibleValues;
 	}
 
-	public void setAdmissibleValues(TimeDiscretization timeDiscretization) {
+	public void setAdmissibleValues(final TimeDiscretization timeDiscretization) {
 		admissibleValues = new double[timeDiscretization.getNumberOfTimeSteps()+1];
 		for(int i=0; i<admissibleValues.length; i++) {
 			admissibleValues[i] = timeDiscretization.getTime(i);
@@ -100,15 +100,15 @@ public class JNumberField extends JTextField implements ActionListener {
 		return preferedValueIncrement;
 	}
 
-	public void setPreferedValueIncrement(double preferedValueIncrement) {
+	public void setPreferedValueIncrement(final double preferedValueIncrement) {
 		this.preferedValueIncrement = preferedValueIncrement;
 	}
 
-	public void add(double increment) {
+	public void add(final double increment) {
 		setValue(getDoubleValue() + increment);
 	}
 
-	public void addToAdmissibleValueIndex(int increment) {
+	public void addToAdmissibleValueIndex(final int increment) {
 		if(admissibleValues != null) {
 			int index = getAdmissibleValueIndex();
 			if(index < 0) {
@@ -134,7 +134,7 @@ public class JNumberField extends JTextField implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
+	public void actionPerformed(final ActionEvent arg0) {
 		parseField();
 		updateData();
 	}
@@ -142,12 +142,12 @@ public class JNumberField extends JTextField implements ActionListener {
 	private void parseField() {
 		Double valueNumber = Double.NaN;
 		synchronized (updateLock) {
-			String valueText = this.getText();
+			final String valueText = this.getText();
 
 			if(valueText != null) {
 				try {
 					valueNumber = formatter.parse(this.getText()).doubleValue();
-				} catch (ParseException e) {}
+				} catch (final ParseException e) {}
 			}
 		}
 
@@ -161,7 +161,7 @@ public class JNumberField extends JTextField implements ActionListener {
 		synchronized (updateLock) {
 
 			// Constrain to admissibleValues
-			int index = getAdmissibleValueIndex();
+			final int index = getAdmissibleValueIndex();
 			if(index >= 0) {
 				value = admissibleValues[index];
 			}

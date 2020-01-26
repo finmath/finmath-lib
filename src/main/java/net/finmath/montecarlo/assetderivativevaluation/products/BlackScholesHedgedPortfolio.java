@@ -64,8 +64,8 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	 * @param hedgeOptionStrike		Strike of the option used in the hedge portfolio (to hedge gamma).
 	 * @param hedgeStrategy			Specification of the hedge strategy to be used (delta, delta-gamma, etc.).
 	 */
-	public BlackScholesHedgedPortfolio(double maturity, double strike, double riskFreeRate, double volatility,
-			double hedgeOptionMaturity, double hedgeOptionStrike, HedgeStrategy hedgeStrategy) {
+	public BlackScholesHedgedPortfolio(final double maturity, final double strike, final double riskFreeRate, final double volatility,
+			final double hedgeOptionMaturity, final double hedgeOptionStrike, final HedgeStrategy hedgeStrategy) {
 		super();
 		this.maturity				= maturity;
 		this.strike					= strike;
@@ -84,45 +84,45 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	 * @param riskFreeRate	Model riskFreeRate assumption for our delta hedge.
 	 * @param volatility	Model volatility assumption for our delta hedge.
 	 */
-	public BlackScholesHedgedPortfolio(double maturity, double strike, double riskFreeRate, double volatility) {
+	public BlackScholesHedgedPortfolio(final double maturity, final double strike, final double riskFreeRate, final double volatility) {
 		this(maturity, strike, riskFreeRate, volatility, 0.0 /* hedgeOptionMaturity */, 0.0 /* hedgeOptionStrike */, HedgeStrategy.deltaHedge /* hedgeStrategy */);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
-		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-		int numberOfPath			= model.getNumberOfPaths();
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
+		final int numberOfPath			= model.getNumberOfPaths();
 
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		double[] amountOfUderlyingAsset		= new double[numberOfPath];
-		double[] amountOfNumeraireAsset		= new double[numberOfPath];
+		final double[] amountOfUderlyingAsset		= new double[numberOfPath];
+		final double[] amountOfNumeraireAsset		= new double[numberOfPath];
 
 		// In case of a gamma hedge, the hedge portfolio consist of additional options
-		double[] amountOfHedgeOptions		= new double[numberOfPath];
+		final double[] amountOfHedgeOptions		= new double[numberOfPath];
 
 
 
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariable underlyingToday = model.getAssetValue(0.0,0);
-		RandomVariable numeraireToday = model.getNumeraire(0.0);
-		double initialValue = underlyingToday.doubleValue();
+		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);
+		final RandomVariable numeraireToday = model.getNumeraire(0.0);
+		final double initialValue = underlyingToday.doubleValue();
 
-		double valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
+		final double valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
 				initialValue,
 				riskFreeRate,
 				volatility,
 				maturity,
 				strike);
 
-		double amountOfNumeraireAssetAccordingBlackScholes = valueOfOptionAccordingBlackScholes / numeraireToday.doubleValue();
+		final double amountOfNumeraireAssetAccordingBlackScholes = valueOfOptionAccordingBlackScholes / numeraireToday.doubleValue();
 
 		Arrays.fill(amountOfNumeraireAsset, amountOfNumeraireAssetAccordingBlackScholes);
 		Arrays.fill(amountOfUderlyingAsset, 0.0);
@@ -130,13 +130,13 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets
-			RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-			RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			final RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+			final RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
-				double underlyingValue	= underlyingAtTimeIndex.get(path);
-				double numeraireValue	= numeraireAtTimeIndex.get(path);
+				final double underlyingValue	= underlyingAtTimeIndex.get(path);
+				final double numeraireValue	= numeraireAtTimeIndex.get(path);
 
 				// Change the portfolio according to the trading strategy
 
@@ -179,7 +179,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 				 */
 
 				// Price of option used in hedge
-				double priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
+				final double priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
 						underlyingValue,						// current underlying value
 						riskFreeRate,							// riskFreeRate,
 						volatility,								// volatility,										// *(1.0+0.1*(Math.random()-0.5))
@@ -187,7 +187,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 						hedgeOptionStrike);
 
 				// Delta of option used in hedge
-				double deltaOfHedgeOption = AnalyticFormulas.blackScholesOptionDelta(
+				final double deltaOfHedgeOption = AnalyticFormulas.blackScholesOptionDelta(
 						underlyingValue,						// current underlying value
 						riskFreeRate,							// riskFreeRate,
 						volatility,								// volatility,
@@ -195,7 +195,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 						hedgeOptionStrike);
 
 				// Gamma of option used in hedge
-				double gammaOfHedgeOption = AnalyticFormulas.blackScholesOptionGamma(
+				final double gammaOfHedgeOption = AnalyticFormulas.blackScholesOptionGamma(
 						underlyingValue,						// current underlying value
 						riskFreeRate,							// riskFreeRate,
 						volatility,								// volatility,
@@ -203,7 +203,7 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 						hedgeOptionStrike);
 
 				// Vega of option used in hedge
-				double vegaOfHedgeOption = AnalyticFormulas.blackScholesOptionVega(
+				final double vegaOfHedgeOption = AnalyticFormulas.blackScholesOptionVega(
 						underlyingValue,						// current underlying value
 						riskFreeRate,							// riskFreeRate,
 						volatility,								// volatility,
@@ -229,17 +229,17 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 					newNumberOfHedgeOptions = 0.0;
 				}
 
-				double hedgeOptionsToBuy		= newNumberOfHedgeOptions	- amountOfHedgeOptions[path];
+				final double hedgeOptionsToBuy		= newNumberOfHedgeOptions	- amountOfHedgeOptions[path];
 				// Adjust delta
 				delta -= newNumberOfHedgeOptions * deltaOfHedgeOption;
 
 				// Determine the delta hedge
-				double newNumberOfStocks		= delta;
-				double stocksToBuy				= newNumberOfStocks				- amountOfUderlyingAsset[path];
+				final double newNumberOfStocks		= delta;
+				final double stocksToBuy				= newNumberOfStocks				- amountOfUderlyingAsset[path];
 
 				// Ensure self financing
-				double numeraireAssetsToBuy			= - (stocksToBuy * underlyingValue + hedgeOptionsToBuy * priceOfHedgeOption) / numeraireValue;
-				double newNumberOfNumeraireAsset	= amountOfNumeraireAsset[path] + numeraireAssetsToBuy;
+				final double numeraireAssetsToBuy			= - (stocksToBuy * underlyingValue + hedgeOptionsToBuy * priceOfHedgeOption) / numeraireValue;
+				final double newNumberOfNumeraireAsset	= amountOfNumeraireAsset[path] + numeraireAssetsToBuy;
 
 				// Update portfolio
 				amountOfNumeraireAsset[path]	= newNumberOfNumeraireAsset;
@@ -252,14 +252,14 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 		 * At evaluationTime, calculate the value of the replication portfolio
 		 */
 		//
-		double[] portfolioValue				= new double[numberOfPath];
+		final double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets
-		RandomVariable underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
-		RandomVariable numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
+		final RandomVariable underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
+		final RandomVariable numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
 		for(int path=0; path<portfolioValue.length; path++)
 		{
-			double underlyingValue = underlyingAtEvaluationTime.get(path);
+			final double underlyingValue = underlyingAtEvaluationTime.get(path);
 
 			// In case we use option to hedge
 			double priceOfHedgeOption;

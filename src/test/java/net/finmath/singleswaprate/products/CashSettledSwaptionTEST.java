@@ -108,7 +108,7 @@ public class CashSettledSwaptionTEST {
 			outputs[index] = new StringBuilder();
 		}
 
-		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -118,7 +118,7 @@ public class CashSettledSwaptionTEST {
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
 
-		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -191,7 +191,7 @@ public class CashSettledSwaptionTEST {
 
 		type										= AnnuityMappingType.SIMPLIFIEDLINEAR;
 		model										= buildCube(type);
-		String forwardCurveName						= forwardCurveSingleName;
+		final String forwardCurveName						= forwardCurveSingleName;
 
 		swapAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
@@ -200,8 +200,8 @@ public class CashSettledSwaptionTEST {
 		CashSettledPayerSwaption cashPayer;
 		CashSettledReceiverSwaption cashReceiver;
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
-			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
-			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
+			final double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
+			final AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
 					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
@@ -222,7 +222,7 @@ public class CashSettledSwaptionTEST {
 
 		type 										= AnnuityMappingType.BASICPITERBARG;
 		model										= buildCube(type);
-		String forwardCurveName						= forwardCurveSingleName;
+		final String forwardCurveName						= forwardCurveSingleName;
 
 		swapAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
@@ -231,8 +231,8 @@ public class CashSettledSwaptionTEST {
 		CashSettledPayerSwaption cashPayer;
 		CashSettledReceiverSwaption cashReceiver;
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
-			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
-			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
+			final double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
+			final AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
 					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
@@ -253,7 +253,7 @@ public class CashSettledSwaptionTEST {
 
 		type										= AnnuityMappingType.MULTIPITERBARG;
 		model										= buildCube(type);
-		String forwardCurveName						= forwardCurveMarketName;
+		final String forwardCurveName						= forwardCurveMarketName;
 
 		swapAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
@@ -262,8 +262,8 @@ public class CashSettledSwaptionTEST {
 		CashSettledPayerSwaption cashPayer;
 		CashSettledReceiverSwaption cashReceiver;
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
-			double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
-			AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
+			final double strike 					= baseSwapRate + moneynesss[index] / 10000.0;
+			final AnnuityMappingFactory factory	= new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, strike,
 					replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 			mapping							= factory.build(type, model);
 			cashPayer	 					= new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
@@ -290,15 +290,15 @@ public class CashSettledSwaptionTEST {
 		}
 
 		//convert to implied bachelier volatilities
-		double[] valuesCube = new double[numberOfEvaluationPoints];
-		double optionMaturity 	= fixSchedule.getFixing(0);
-		double termination		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
+		final double[] valuesCube = new double[numberOfEvaluationPoints];
+		final double optionMaturity 	= fixSchedule.getFixing(0);
+		final double termination		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
 
 
 		outputs[numberOfEvaluationPoints +2].append("Implied Volatility" +"\t"+ type +"\t\t\t");
 		outputs[numberOfEvaluationPoints +3].append(" Moneyness \t Payer \t Receiver \t Physical \t Cube ");
 		for(int index = 0; index < numberOfEvaluationPoints; index++){
-			double strike = baseSwapRate + moneynesss[index] / 10000.0;
+			final double strike = baseSwapRate + moneynesss[index] / 10000.0;
 			//			double cashAnnuity =  this.cashAnnuity * model.getVolatilityCube(volatilityCubeName).getValue(model, termination, optionMaturity, strikes[index], QuotingConvention.VOLATILITYNORMAL);
 			valuesCashPay[index] = AnalyticFormulas.bachelierOptionImpliedVolatility(baseSwapRate, fixSchedule.getFixing(0), strike, cashAnnuity, valuesCashPay[index]);
 			valuesCashRec[index] += (baseSwapRate -strike) *cashAnnuity;
@@ -317,22 +317,22 @@ public class CashSettledSwaptionTEST {
 			outputs[index].append("\t\t\t");
 		}
 
-		for(double val : valuesCashPay) {
+		for(final double val : valuesCashPay) {
 			if(Double.isNaN(val)) {
 				Assert.fail();
 			}
 		}
-		for(double val : valuesCashRec) {
+		for(final double val : valuesCashRec) {
 			if(Double.isNaN(val)) {
 				Assert.fail();
 			}
 		}
-		for(double val : valuesPhysPay) {
+		for(final double val : valuesPhysPay) {
 			if(Double.isNaN(val)) {
 				Assert.fail();
 			}
 		}
-		for(double val : valuesPhysRec) {
+		for(final double val : valuesPhysRec) {
 			if(Double.isNaN(val)) {
 				Assert.fail();
 			}
@@ -341,7 +341,7 @@ public class CashSettledSwaptionTEST {
 
 	@AfterClass
 	public static void printResults() throws FileNotFoundException{
-		StringBuilder output = new StringBuilder();
+		final StringBuilder output = new StringBuilder();
 		for(int index = 0; index < outputs.length; index++){
 			if(index == outputs.length/2) {
 				output.append('\n');
@@ -355,8 +355,8 @@ public class CashSettledSwaptionTEST {
 
 
 	//creating a volatility cube for tests
-	private static VolatilityCubeModel buildCube(AnnuityMappingType type) throws SolverException, IOException {
-		VolatilityCubeFactory factory = new VolatilityCubeFactory(
+	private static VolatilityCubeModel buildCube(final AnnuityMappingType type) throws SolverException, IOException {
+		final VolatilityCubeFactory factory = new VolatilityCubeFactory(
 				referenceDate,
 				payerSwaptions,
 				receiverSwaptions,
@@ -368,27 +368,27 @@ public class CashSettledSwaptionTEST {
 				type);
 
 		volatilityCubeName				= type.toString();
-		VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
+		final VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
 
 		return model.addVolatilityCube(cube);
 	}
 
-	private static double valueReceiverPSS(double optionStrike, VolatilityCubeModel model, double swapAnnuity, double forwardSwapRate, Schedule schedule, String volatilityCubeName){
+	private static double valueReceiverPSS(final double optionStrike, final VolatilityCubeModel model, final double swapAnnuity, final double forwardSwapRate, final Schedule schedule, final String volatilityCubeName){
 
 		return valuePayerPSS(optionStrike, model, swapAnnuity, forwardSwapRate, schedule, volatilityCubeName) - (forwardSwapRate -optionStrike) *swapAnnuity;
 	}
 
-	private static double valuePayerPSS(double optionStrike, VolatilityCubeModel model, double swapAnnuity, double forwardSwapRate, Schedule schedule, String volatilityCubeName){
-		double optionMaturity 	= schedule.getFixing(0);
-		double termination		= schedule.getPayment(schedule.getNumberOfPeriods()-1);
-		double volatility		 = model.getVolatilityCube(volatilityCubeName).getValue(termination, optionMaturity, optionStrike, QuotingConvention.VOLATILITYNORMAL);
+	private static double valuePayerPSS(final double optionStrike, final VolatilityCubeModel model, final double swapAnnuity, final double forwardSwapRate, final Schedule schedule, final String volatilityCubeName){
+		final double optionMaturity 	= schedule.getFixing(0);
+		final double termination		= schedule.getPayment(schedule.getNumberOfPeriods()-1);
+		final double volatility		 = model.getVolatilityCube(volatilityCubeName).getValue(termination, optionMaturity, optionStrike, QuotingConvention.VOLATILITYNORMAL);
 		return AnalyticFormulas.bachelierOptionValue(forwardSwapRate, volatility, optionMaturity, optionStrike, swapAnnuity );
 	}
 
 	//cash function for equidistant tenors
-	private static double cashFunction(double swapRate) {
+	private static double cashFunction(final double swapRate) {
 
-		int numberOfPeriods = fixSchedule.getNumberOfPeriods();
+		final int numberOfPeriods = fixSchedule.getNumberOfPeriods();
 		double periodLength = 0.0;
 		for(int index = 0; index < numberOfPeriods; index++) {
 			periodLength += fixSchedule.getPeriodLength(index);

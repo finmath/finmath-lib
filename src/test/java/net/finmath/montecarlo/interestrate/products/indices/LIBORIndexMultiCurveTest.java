@@ -101,14 +101,14 @@ public class LIBORIndexMultiCurveTest {
 	private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.05;
 
-	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
-	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
-	private double[] tolerance		= { 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 5E-5, 6E-5, 3E-5 , 3E-5 };		// Tolerance at 100.000 path
+	private final double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
+	private final double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
+	private final double[] tolerance		= { 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 3E-5, 5E-5, 6E-5, 3E-5 , 3E-5 };		// Tolerance at 100.000 path
 
-	private String indexCurve;
-	private LIBORModelMonteCarloSimulationModel liborMarketModel;
+	private final String indexCurve;
+	private final LIBORModelMonteCarloSimulationModel liborMarketModel;
 
-	public LIBORIndexMultiCurveTest(Integer numberOfPaths, String forwardCurveName) throws CalculationException, SolverException, CloneNotSupportedException {
+	public LIBORIndexMultiCurveTest(final Integer numberOfPaths, final String forwardCurveName) throws CalculationException, SolverException, CloneNotSupportedException {
 		indexCurve = forwardCurveName;
 
 		// Create a LIBOR market model
@@ -118,35 +118,35 @@ public class LIBORIndexMultiCurveTest {
 	@Test
 	public void testFRAMonteCarloVersusAnalytic() throws CalculationException {
 
-		NumberFormat formatDec2 = new DecimalFormat("0.00");
-		NumberFormat formatDec6 = new DecimalFormat("0.000000");
+		final NumberFormat formatDec2 = new DecimalFormat("0.00");
+		final NumberFormat formatDec6 = new DecimalFormat("0.000000");
 
 		for(int iTestCase = 0; iTestCase<periodStarts.length; iTestCase++) {
-			double periodStart	= periodStarts[iTestCase];
-			double periodEnd	= periodEnds[iTestCase];
+			final double periodStart	= periodStarts[iTestCase];
+			final double periodEnd	= periodEnds[iTestCase];
 
-			double fixingTime	= periodStart;
-			double paymentTime	= periodEnd;
+			final double fixingTime	= periodStart;
+			final double paymentTime	= periodEnd;
 
-			double periodLength	= periodEnd-periodStart;
+			final double periodLength	= periodEnd-periodStart;
 
-			DiscountCurveFromForwardCurve d2 = new DiscountCurveFromForwardCurve(indexCurve);
-			ForwardCurveFromDiscountCurve f2 = new ForwardCurveFromDiscountCurve(d2.getName(), liborMarketModel.getModel().getAnalyticModel().getForwardCurve(indexCurve).getReferenceDate(), null);
-			String forwardCurveName = f2.getName();
+			final DiscountCurveFromForwardCurve d2 = new DiscountCurveFromForwardCurve(indexCurve);
+			final ForwardCurveFromDiscountCurve f2 = new ForwardCurveFromDiscountCurve(d2.getName(), liborMarketModel.getModel().getAnalyticModel().getForwardCurve(indexCurve).getReferenceDate(), null);
+			final String forwardCurveName = f2.getName();
 
-			AbstractIndex index = new LIBORIndex(forwardCurveName, 0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, fixingTime, paymentTime, new NotionalFromConstant(1.0), index, periodLength, true, false, false);
-			double value = period.getValue(liborMarketModel);
+			final AbstractIndex index = new LIBORIndex(forwardCurveName, 0.0, periodLength);
+			final Period period = new Period(periodStart, periodEnd, fixingTime, paymentTime, new NotionalFromConstant(1.0), index, periodLength, true, false, false);
+			final double value = period.getValue(liborMarketModel);
 
-			AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();
-			double forward = analyticModel.getForwardCurve(forwardCurveName).getForward(analyticModel, fixingTime, paymentTime-fixingTime);
-			double discountFactor = liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(paymentTime);
+			final AnalyticModel analyticModel = liborMarketModel.getModel().getAnalyticModel();
+			final double forward = analyticModel.getForwardCurve(forwardCurveName).getForward(analyticModel, fixingTime, paymentTime-fixingTime);
+			final double discountFactor = liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(paymentTime);
 
-			double valueAnalytic = forward * periodLength * discountFactor;
+			final double valueAnalytic = forward * periodLength * discountFactor;
 
-			double deviation = value - valueAnalytic;
+			final double deviation = value - valueAnalytic;
 
-			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
+			final double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
@@ -166,14 +166,14 @@ public class LIBORIndexMultiCurveTest {
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
 		 */
 
-		LocalDate referenceDate = LocalDate.of(2012,01,10);
+		final LocalDate referenceDate = LocalDate.of(2012,01,10);
 
 		/*
 		 * Define the calibration spec generators for our calibration products
 		 */
-		Function<String,String> frequencyForTenor = new Function<String, String>() {
+		final Function<String,String> frequencyForTenor = new Function<String, String>() {
 			@Override
-			public String apply(String tenor) {
+			public String apply(final String tenor) {
 				switch(tenor) {
 				case "3M":
 					return "quarterly";
@@ -184,80 +184,80 @@ public class LIBORIndexMultiCurveTest {
 			}
 		};
 
-		BiFunction<String, Double, CalibrationSpec> deposit = new BiFunction<String, Double, CalibrationSpec>() {
+		final BiFunction<String, Double, CalibrationSpec> deposit = new BiFunction<String, Double, CalibrationSpec>() {
 			@Override
-			public CalibrationSpec apply(String maturity, Double rate) {
-				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-				Schedule scheduleInterfacePay = null;
-				double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
-				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0.0, null, "discount-EUR-OIS", calibrationTime);
+			public CalibrationSpec apply(final String maturity, final Double rate) {
+				final Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "tenor", "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+				final Schedule scheduleInterfacePay = null;
+				final double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods()-1);
+				final CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Deposit", scheduleInterfaceRec, "", rate, "discount-EUR-OIS", scheduleInterfacePay, null, 0.0, null, "discount-EUR-OIS", calibrationTime);
 				return calibrationSpec;
 			}
 		};
 
-		BiFunction<String, Double, CalibrationSpec> swapSingleCurve = new BiFunction<String, Double, CalibrationSpec>() {
+		final BiFunction<String, Double, CalibrationSpec> swapSingleCurve = new BiFunction<String, Double, CalibrationSpec>() {
 			@Override
-			public CalibrationSpec apply(String maturity, Double rate) {
-				Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
-				Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
-				double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-				CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
+			public CalibrationSpec apply(final String maturity, final Double rate) {
+				final Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+				final Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 1);
+				final double calibrationTime = scheduleInterfaceRec.getPayment(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+				final CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-OIS-" + maturity, "Swap", scheduleInterfaceRec, "forward-EUR-OIS", 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", "discount-EUR-OIS", calibrationTime);
 				return calibrationSpec;
 			}
 		};
 
-		Function<String,BiFunction<String, Double, CalibrationSpec>> fra = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
+		final Function<String,BiFunction<String, Double, CalibrationSpec>> fra = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
 			@Override
-			public BiFunction<String, Double, CalibrationSpec> apply(String tenor) {
+			public BiFunction<String, Double, CalibrationSpec> apply(final String tenor) {
 				return new BiFunction<String, Double, CalibrationSpec>() {
 					@Override
-					public CalibrationSpec apply(String fixing, Double rate) {
-						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, fixing, tenor, "tenor", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-						String curveName = "forward-EUR-" + tenor;
-						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + "-" + fixing, "FRA", scheduleInterfaceRec, curveName, rate, "discount-EUR-OIS", null, null, 0.0, null, curveName, calibrationTime);
+					public CalibrationSpec apply(final String fixing, final Double rate) {
+						final Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, fixing, tenor, "tenor", "act/360", "first", "modified_following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						final double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						final String curveName = "forward-EUR-" + tenor;
+						final CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + "-" + fixing, "FRA", scheduleInterfaceRec, curveName, rate, "discount-EUR-OIS", null, null, 0.0, null, curveName, calibrationTime);
 						return calibrationSpec;
 					}
 				};
 			}
 		};
 
-		Function<String,BiFunction<String, Double, CalibrationSpec>> swap = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
+		final Function<String,BiFunction<String, Double, CalibrationSpec>> swap = new Function<String, BiFunction<String, Double, CalibrationSpec>>() {
 			@Override
-			public BiFunction<String, Double, CalibrationSpec> apply(String tenor) {
+			public BiFunction<String, Double, CalibrationSpec> apply(final String tenor) {
 				return new BiFunction<String, Double, CalibrationSpec>() {
 					@Override
-					public CalibrationSpec apply(String maturity, Double rate) {
-						String frequencyRec = frequencyForTenor.apply(tenor);
+					public CalibrationSpec apply(final String maturity, final Double rate) {
+						final String frequencyRec = frequencyForTenor.apply(tenor);
 
-						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-						Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
-						String curveName = "forward-EUR-" + tenor;
-						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime);
+						final Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						final Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, "annual", "E30/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						final double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						final String curveName = "forward-EUR-" + tenor;
+						final CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenor + maturity, "Swap", scheduleInterfaceRec, curveName, 0.0, "discount-EUR-OIS", scheduleInterfacePay, "", rate, "discount-EUR-OIS", curveName, calibrationTime);
 						return calibrationSpec;
 					}
 				};
 			}
 		};
 
-		BiFunction<String,String,BiFunction<String, Double, CalibrationSpec>> swapBasis = new BiFunction<String, String, BiFunction<String, Double, CalibrationSpec>>() {
+		final BiFunction<String,String,BiFunction<String, Double, CalibrationSpec>> swapBasis = new BiFunction<String, String, BiFunction<String, Double, CalibrationSpec>>() {
 			@Override
-			public BiFunction<String, Double, CalibrationSpec> apply(String tenorRec, String tenorPay) {
+			public BiFunction<String, Double, CalibrationSpec> apply(final String tenorRec, final String tenorPay) {
 				return new BiFunction<String, Double, CalibrationSpec>() {
 					@Override
-					public CalibrationSpec apply(String maturity, Double rate) {
-						String curveNameRec = "forward-EUR-" + tenorRec;
-						String curveNamePay = "forward-EUR-" + tenorPay;
+					public CalibrationSpec apply(final String maturity, final Double rate) {
+						final String curveNameRec = "forward-EUR-" + tenorRec;
+						final String curveNamePay = "forward-EUR-" + tenorPay;
 
-						String frequencyRec = frequencyForTenor.apply(tenorRec);
-						String frequencyPay = frequencyForTenor.apply(tenorPay);
+						final String frequencyRec = frequencyForTenor.apply(tenorRec);
+						final String frequencyPay = frequencyForTenor.apply(tenorPay);
 
-						Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-						Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
-						double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
+						final Schedule scheduleInterfaceRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyRec, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						final Schedule scheduleInterfacePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, 2, "0D", maturity, frequencyPay, "act/360", "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), 0, 0);
+						final double calibrationTime = scheduleInterfaceRec.getFixing(scheduleInterfaceRec.getNumberOfPeriods() - 1);
 
-						CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenorRec + "-" + tenorPay + maturity, "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate, "discount-EUR-OIS", curveNameRec, calibrationTime);
+						final CalibrationSpec calibrationSpec = new CalibratedCurves.CalibrationSpec("EUR-" + tenorRec + "-" + tenorPay + maturity, "Swap", scheduleInterfaceRec, curveNameRec, 0.0, "discount-EUR-OIS", scheduleInterfacePay, curveNamePay, rate, "discount-EUR-OIS", curveNameRec, calibrationTime);
 						return calibrationSpec;
 					}
 				};
@@ -267,18 +267,18 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Generate empty curve template (for cloning during calibration)
 		 */
-		double[] times = { 0.0 };
-		double[] discountFactors = { 1.0 };
-		boolean[] isParameter = { false };
+		final double[] times = { 0.0 };
+		final double[] discountFactors = { 1.0 };
+		final boolean[] isParameter = { false };
 
-		DiscountCurveInterpolation discountCurveOIS = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
-		ForwardCurve forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
-		ForwardCurve forwardCurve3M = new ForwardCurveInterpolation("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveInterpolation.InterpolationMethod.LINEAR, CurveInterpolation.ExtrapolationMethod.CONSTANT, CurveInterpolation.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
-		ForwardCurve forwardCurve6M = new ForwardCurveInterpolation("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveInterpolation.InterpolationMethod.LINEAR, CurveInterpolation.ExtrapolationMethod.CONSTANT, CurveInterpolation.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		final DiscountCurveInterpolation discountCurveOIS = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("discount-EUR-OIS", referenceDate, times, discountFactors, isParameter, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		final ForwardCurve forwardCurveOIS = new ForwardCurveFromDiscountCurve("forward-EUR-OIS", "discount-EUR-OIS", referenceDate, "3M");
+		final ForwardCurve forwardCurve3M = new ForwardCurveInterpolation("forward-EUR-3M", referenceDate, "3M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveInterpolation.InterpolationMethod.LINEAR, CurveInterpolation.ExtrapolationMethod.CONSTANT, CurveInterpolation.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
+		final ForwardCurve forwardCurve6M = new ForwardCurveInterpolation("forward-EUR-6M", referenceDate, "6M", new BusinessdayCalendarExcludingTARGETHolidays(), DateRollConvention.FOLLOWING, CurveInterpolation.InterpolationMethod.LINEAR, CurveInterpolation.ExtrapolationMethod.CONSTANT, CurveInterpolation.InterpolationEntity.VALUE,ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, "discount-EUR-OIS");
 
-		AnalyticModelFromCurvesAndVols forwardCurveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
+		final AnalyticModelFromCurvesAndVols forwardCurveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveOIS, forwardCurveOIS, forwardCurve3M, forwardCurve6M });
 
-		List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
+		final List<CalibrationSpec> calibrationSpecs = new LinkedList<>();
 
 		/*
 		 * Calibration products for OIS curve: Deposits
@@ -392,42 +392,42 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Calibrate
 		 */
-		CalibratedCurves calibratedCurves = new CalibratedCurves(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), forwardCurveModel, 1E-15);
+		final CalibratedCurves calibratedCurves = new CalibratedCurves(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), forwardCurveModel, 1E-15);
 
 		/*
 		 * Get the calibrated model
 		 */
-		AnalyticModel calibratedModel = calibratedCurves.getModel();
+		final AnalyticModel calibratedModel = calibratedCurves.getModel();
 
 		return calibratedModel;
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			String forwardCurveName,
-			Measure measure,
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException, SolverException, CloneNotSupportedException {
+			final Measure measure,
+			final int numberOfPaths, final int numberOfFactors, final double correlationDecayParam) throws CalculationException, SolverException, CloneNotSupportedException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
 		 */
-		double liborPeriodLength	= 0.5;
-		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final double liborPeriodLength	= 0.5;
+		final double liborRateTimeHorzion	= 20.0;
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
-		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
+		final LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
 
-		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
+		final double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
 		/*
 		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
 		 */
 		AnalyticModel analyticModel = createCurves();
 
-		DiscountCurveFromForwardCurve d = new DiscountCurveFromForwardCurve(FORWARD_CURVE_NAME);
-		ForwardCurveFromDiscountCurve f = new ForwardCurveFromDiscountCurve(d.getName(), d.getReferenceDate(), null);
+		final DiscountCurveFromForwardCurve d = new DiscountCurveFromForwardCurve(FORWARD_CURVE_NAME);
+		final ForwardCurveFromDiscountCurve f = new ForwardCurveFromDiscountCurve(d.getName(), d.getReferenceDate(), null);
 
-		DiscountCurveFromForwardCurve d2 = new DiscountCurveFromForwardCurve(FORWARD_CURVE_NAME2);
-		ForwardCurveFromDiscountCurve f2 = new ForwardCurveFromDiscountCurve(d2.getName(), d.getReferenceDate(), null);
+		final DiscountCurveFromForwardCurve d2 = new DiscountCurveFromForwardCurve(FORWARD_CURVE_NAME2);
+		final ForwardCurveFromDiscountCurve f2 = new ForwardCurveFromDiscountCurve(d2.getName(), d.getReferenceDate(), null);
 
 		analyticModel = analyticModel.addCurves(d, d2, f, f2);
 		forwardCurveName = f.getName();//forwardCurveName.equals(FORWARD_CURVE_NAME) ? f.getName() : f2.getName();
@@ -435,21 +435,21 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 20.0;
-		double dt		= 0.50;
+		final double lastTime	= 20.0;
+		final double dt		= 0.50;
 
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		final double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretizationFromArray.getTime(timeIndex);
-				double maturity = liborPeriodDiscretization.getTime(liborIndex);
-				double timeToMaturity = maturity - time;
+				final double time = timeDiscretizationFromArray.getTime(timeIndex);
+				final double maturity = liborPeriodDiscretization.getTime(liborIndex);
+				final double timeToMaturity = maturity - time;
 
 				double instVolatility;
 				if(timeToMaturity <= 0) {
@@ -462,12 +462,12 @@ public class LIBORIndexMultiCurveTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
+		final LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
-		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
+		final LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
 				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
@@ -475,7 +475,7 @@ public class LIBORIndexMultiCurveTest {
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
+		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
@@ -483,7 +483,7 @@ public class LIBORIndexMultiCurveTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<>();
+		final Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
@@ -492,14 +492,14 @@ public class LIBORIndexMultiCurveTest {
 		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
+		final CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, analyticModel.getForwardCurve(forwardCurveName),  analyticModel.getDiscountCurve(DISCOUNT_CURVE_NAME), covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, analyticModel.getForwardCurve(forwardCurveName),  analyticModel.getDiscountCurve(DISCOUNT_CURVE_NAME), covarianceModel, calibrationItems, properties);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);

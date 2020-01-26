@@ -60,20 +60,20 @@ public class ModelWithProductFactoryTest {
 		/*
 		 * Create Black-Scholes Model descriptor
 		 */
-		BlackScholesModelDescriptor blackScholesModelDescriptor = new BlackScholesModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility);
+		final BlackScholesModelDescriptor blackScholesModelDescriptor = new BlackScholesModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility);
 
 		/*
 		 * Create European option descriptor
 		 */
-		String underlyingName = "eurostoxx";
-		ProductDescriptor digitalOptionDescriptor = (new SingleAssetDigitalOptionProductDescriptor(underlyingName, maturityDate, strike));
+		final String underlyingName = "eurostoxx";
+		final ProductDescriptor digitalOptionDescriptor = (new SingleAssetDigitalOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
 		 */
 
 		// Create base Fourier implementation of Black-Scholes model
-		DescribedModel<? extends AssetModelDescriptor> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
+		final DescribedModel<? extends AssetModelDescriptor> blackScholesModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		//		// Add custom product factory
 		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
@@ -92,11 +92,11 @@ public class ModelWithProductFactoryTest {
 		//		};
 
 		// Create product implementation compatible with Black-Scholes model
-		Product digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
+		final Product digitalOptionFourier = blackScholesModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
 
 		// Evaluate product
-		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = digitalOptionFourier.getValues(evaluationTime, blackScholesModelFourier);
+		final double evaluationTime = 0.0;
+		final Map<String, Object> valueFourier = digitalOptionFourier.getValues(evaluationTime, blackScholesModelFourier);
 
 		System.out.println("Fourier transform implementation..:" + valueFourier);
 
@@ -105,16 +105,16 @@ public class ModelWithProductFactoryTest {
 		 */
 
 		// Create a time discretization
-		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
+		final BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Black-Scholes model
-		DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
+		final DescribedModel<?> blackScholesModelMonteCarlo = (new BlackScholesModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(blackScholesModelDescriptor);
 
 		// Create product implementation compatible with Black-Scholes model
-		Product digitalOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
+		final Product digitalOptionMonteCarlo = blackScholesModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
+		final Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, blackScholesModelMonteCarlo);
 
 		System.out.println("Monte-Carlo implementation........:" + valueMonteCarlo);
 
@@ -136,13 +136,13 @@ public class ModelWithProductFactoryTest {
 		 * Calculate analytic benchmark.
 		 */
 
-		double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getMaturity());
+		final double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getMaturity());
 		//		double forward = blackScholesModelDescriptor.getInitialValue() / blackScholesModelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(optionMaturity);
 		//		double payOffUnit = blackScholesModelDescriptor.getDiscountCurveForDiscountRate().getDiscountFactor(optionMaturity);
-		double volatility = blackScholesModelDescriptor.getVolatility();
-		double optionStrike = ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getStrike();
+		final double volatility = blackScholesModelDescriptor.getVolatility();
+		final double optionStrike = ((SingleAssetDigitalOptionProductDescriptor) digitalOptionDescriptor).getStrike();
 
-		double valueAnalytic = AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		final double valueAnalytic = AnalyticFormulas.blackScholesDigitalOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 		System.out.println("Analytic implementation...........:" + valueAnalytic);
 
@@ -161,20 +161,20 @@ public class ModelWithProductFactoryTest {
 		/*
 		 * Create Heston Model descriptor
 		 */
-		HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
+		final HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
 
 		/*
 		 * Create Digital option descriptor
 		 */
-		String underlyingName = "eurostoxx";
-		ProductDescriptor digitalOptionDescriptor = (new SingleAssetDigitalOptionProductDescriptor(underlyingName, maturityDate, strike));
+		final String underlyingName = "eurostoxx";
+		final ProductDescriptor digitalOptionDescriptor = (new SingleAssetDigitalOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
 		 */
 
 		// Create base Fourier implementation of Heston model
-		DescribedModel<? extends AssetModelDescriptor> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
+		final DescribedModel<? extends AssetModelDescriptor> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		//		// Create custom product factory
 		//		ProductFactory<SingleAssetDigitalOptionProductDescriptor> fourierProductFactory = new ProductFactory<SingleAssetDigitalOptionProductDescriptor>() {
@@ -192,11 +192,11 @@ public class ModelWithProductFactoryTest {
 		//		};
 
 		// Create product implementation compatible with Heston model
-		Product digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
+		final Product digitalOptionFourier = hestonModelFourier.getProductFromDescriptor(digitalOptionDescriptor);
 
 		// Evaluate product
-		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = digitalOptionFourier.getValues(evaluationTime, hestonModelFourier);
+		final double evaluationTime = 0.0;
+		final Map<String, Object> valueFourier = digitalOptionFourier.getValues(evaluationTime, hestonModelFourier);
 
 		System.out.println(valueFourier);
 
@@ -205,20 +205,20 @@ public class ModelWithProductFactoryTest {
 		 */
 
 		// Create a time discretization
-		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
+		final BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
+		final DescribedModel<?> hestonModelMonteCarlo = (new HestonModelMonteCarloFactory(net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme.FULL_TRUNCATION, randomVariableFromArrayFactory, brownianMotion)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		Product digitalOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
+		final Product digitalOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(digitalOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
+		final Map<String, Object> valueMonteCarlo = digitalOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
 
-		double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
+		final double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 5E-2);
 	}
 
@@ -231,13 +231,13 @@ public class ModelWithProductFactoryTest {
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	public static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double zeroRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { zeroRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+	public static DiscountCurve getDiscountCurve(final String name, final LocalDate referenceDate, final double zeroRate) {
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { zeroRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 
@@ -251,9 +251,9 @@ public class ModelWithProductFactoryTest {
 	 * @param seed The seed for the random number generator.
 	 * @return A Brownian motion implementing BrownianMotion with the given specs.
 	 */
-	private static BrownianMotion getBronianMotion(int numberOfTimeSteps, double deltaT, int numberOfFactors, int numberOfPaths, int seed) {
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+	private static BrownianMotion getBronianMotion(final int numberOfTimeSteps, final double deltaT, final int numberOfFactors, final int numberOfPaths, final int seed) {
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 		return brownianMotion;
 	}
 }

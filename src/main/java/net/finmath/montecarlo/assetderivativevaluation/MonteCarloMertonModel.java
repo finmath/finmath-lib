@@ -85,18 +85,18 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		// Create the model
 		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
-		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
+		final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
 			@Override
-			public IntFunction<DoubleUnaryOperator> apply(int i) {
+			public IntFunction<DoubleUnaryOperator> apply(final int i) {
 				return new IntFunction<DoubleUnaryOperator>() {
 					@Override
-					public DoubleUnaryOperator apply(int j) {
+					public DoubleUnaryOperator apply(final int j) {
 						if(j==0) {
 							// The Brownian increment
-							double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
+							final double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
 							return new DoubleUnaryOperator() {
 								@Override
-								public double applyAsDouble(double x) {
+								public double applyAsDouble(final double x) {
 									return NormalDistribution.inverseCumulativeDistribution(x)*sqrtOfTimeStep;
 								}
 							};
@@ -105,18 +105,18 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 							// The random jump size
 							return new DoubleUnaryOperator() {
 								@Override
-								public double applyAsDouble(double x) {
+								public double applyAsDouble(final double x) {
 									return NormalDistribution.inverseCumulativeDistribution(x);
 								}
 							};
 						}
 						else if(j==2) {
 							// The jump increment
-							double timeStep = timeDiscretization.getTimeStep(i);
-							PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
+							final double timeStep = timeDiscretization.getTimeStep(i);
+							final PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
 							return new DoubleUnaryOperator() {
 								@Override
-								public double applyAsDouble(double x) {
+								public double applyAsDouble(final double x) {
 									return poissonDistribution.inverseCumulativeDistribution(x);
 								}
 							};
@@ -129,14 +129,14 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 			}
 		};
 
-		IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
+		final IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
 			private static final long serialVersionUID = -7858107751226404629L;
 
 			@Override
-			public RandomVariable getIncrement(int timeIndex, int factor) {
+			public RandomVariable getIncrement(final int timeIndex, final int factor) {
 				if(factor == 1) {
-					RandomVariable Z = super.getIncrement(timeIndex, 1);
-					RandomVariable N = super.getIncrement(timeIndex, 2);
+					final RandomVariable Z = super.getIncrement(timeIndex, 1);
+					final RandomVariable N = super.getIncrement(timeIndex, 2);
 					return Z.mult(N.sqrt());
 				}
 				else {
@@ -146,7 +146,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		};
 
 		// Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(icrements);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(icrements);
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -159,29 +159,29 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 	}
 
 	@Override
-	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
 	}
 
 	@Override
-	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
 		return model.getProcess().getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
-		double time = getTime(timeIndex);
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+		final double time = getTime(timeIndex);
 
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
@@ -194,26 +194,26 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility();
-		double	newJumpIntensity	= dataModified.get("jumpIntensity") != null	? ((Number)dataModified.get("jumpIntensity")).doubleValue()	: model.getJumpIntensity();
-		double	newJumpSizeMean		= dataModified.get("jumpSizeMean") != null	? ((Number)dataModified.get("jumpSizeMean")).doubleValue()	: model.getVolatility();
-		double	newJumpSizeStdDev	= dataModified.get("jumpSizeStdDev") != null	? ((Number)dataModified.get("jumpSizeStdDev")).doubleValue()	: model.getVolatility();
-		int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
+		final double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
+		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
+		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility();
+		final double	newJumpIntensity	= dataModified.get("jumpIntensity") != null	? ((Number)dataModified.get("jumpIntensity")).doubleValue()	: model.getJumpIntensity();
+		final double	newJumpSizeMean		= dataModified.get("jumpSizeMean") != null	? ((Number)dataModified.get("jumpSizeMean")).doubleValue()	: model.getVolatility();
+		final double	newJumpSizeStdDev	= dataModified.get("jumpSizeStdDev") != null	? ((Number)dataModified.get("jumpSizeStdDev")).doubleValue()	: model.getVolatility();
+		final int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
 		return new MonteCarloMertonModel(model.getProcess().getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), model.getProcess().getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newVolatility, newJumpIntensity, newJumpSizeMean, newJumpSizeStdDev);
 
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(int seed) {
-		Map<String, Object> dataModified = new HashMap<>();
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+		final Map<String, Object> dataModified = new HashMap<>();
 		dataModified.put("seed", new Integer(seed));
 		return getCloneWithModifiedData(dataModified);
 	}
@@ -229,22 +229,22 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 }

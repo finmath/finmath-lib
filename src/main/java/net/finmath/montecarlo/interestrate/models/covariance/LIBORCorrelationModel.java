@@ -31,7 +31,7 @@ public abstract class LIBORCorrelationModel implements Serializable {
 	private final TimeDiscretization	timeDiscretization;
 	private final TimeDiscretization	liborPeriodDiscretization;
 
-	public LIBORCorrelationModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
+	public LIBORCorrelationModel(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.liborPeriodDiscretization = liborPeriodDiscretization;

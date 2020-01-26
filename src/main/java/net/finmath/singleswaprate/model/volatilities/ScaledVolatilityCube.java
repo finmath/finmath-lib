@@ -33,7 +33,7 @@ public class ScaledVolatilityCube implements VolatilityCube {
 	 * @param correlationDecay The correlation decay parameter of the cube.
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
 	 */
-	public ScaledVolatilityCube(String name, LocalDate referenceDate, String referenceCubeName, double coefficient, double correlationDecay, double iborOisDecorrelation) {
+	public ScaledVolatilityCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final double coefficient, final double correlationDecay, final double iborOisDecorrelation) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -43,18 +43,18 @@ public class ScaledVolatilityCube implements VolatilityCube {
 		this.iborOisDecorrelation = iborOisDecorrelation;
 	}
 
-	public ScaledVolatilityCube(String name, LocalDate referenceDate, String referenceCubeName, double coefficient, double correlationDecay) {
+	public ScaledVolatilityCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final double coefficient, final double correlationDecay) {
 		this(name, referenceDate, referenceCubeName, coefficient, correlationDecay, 1.0);
 	}
 
 	@Override
-	public double getValue(VolatilityCubeModel model, double termination, double maturity, double strike,
-			QuotingConvention quotingConvention) {
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
 		return model.getVolatilityCube(referenceCubeName).getValue(model, termination, maturity, strike, quotingConvention) * coefficient;
 	}
 
 	@Override
-	public double getValue(double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, termination, maturity, strike, quotingConvention);
 	}
 
@@ -79,7 +79,7 @@ public class ScaledVolatilityCube implements VolatilityCube {
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<>();
+		final Map<String,Object> map = new HashMap<>();
 		map.put("coefficient", coefficient);
 		map.put("Inherent correlationDecay", correlationDecay);
 		map.put("iborOisDecorrelation", iborOisDecorrelation);
@@ -88,7 +88,7 @@ public class ScaledVolatilityCube implements VolatilityCube {
 	}
 
 	@Override
-	public double getLowestStrike(VolatilityCubeModel model) {
+	public double getLowestStrike(final VolatilityCubeModel model) {
 		return model.getVolatilityCube(referenceCubeName).getLowestStrike(model);
 	}
 

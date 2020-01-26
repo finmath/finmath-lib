@@ -27,16 +27,16 @@ import net.finmath.time.Schedule;
  */
 public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 
-	private Schedule	schedule;
-	private double				rate;
-	private String				discountCurveName;
+	private final Schedule	schedule;
+	private final double				rate;
+	private final String				discountCurveName;
 
 	/**
 	 * @param schedule The schedule of the deposit consisting of one period, providing start, payment and periodLength.
 	 * @param rate The deposit rate.
 	 * @param discountCurveName The discount curve name.
 	 */
-	public Deposit(Schedule schedule, double rate, String discountCurveName) {
+	public Deposit(final Schedule schedule, final double rate, final String discountCurveName) {
 		super();
 		this.schedule =  schedule;
 		this.rate = rate;
@@ -49,27 +49,27 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double maturity = schedule.getPayment(0);
+		final double maturity = schedule.getPayment(0);
 
 		if (evaluationTime > maturity)
 		{
 			model.getRandomVariableForConstant(0.0); // after maturity the contract is worth nothing
 		}
 
-		double payoutDate	= schedule.getPeriodStart(0);
-		double periodLength = schedule.getPeriodLength(0);
-		RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		final double payoutDate	= schedule.getPeriodStart(0);
+		final double periodLength = schedule.getPeriodLength(0);
+		final RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		final RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
 		RandomVariable value;
 		if (evaluationTime > payoutDate) {
@@ -88,22 +88,22 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
-	public RandomVariable getRate(AnalyticModel model) {
+	public RandomVariable getRate(final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double payoutDate = schedule.getPeriodStart(0);
-		double maturity = schedule.getPayment(0);
-		double periodLength = schedule.getPeriodLength(0);
+		final double payoutDate = schedule.getPeriodStart(0);
+		final double maturity = schedule.getPayment(0);
+		final double periodLength = schedule.getPeriodLength(0);
 
-		RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		final RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		final RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
 		return discountFactorPayout.div(discountFactor).sub(1).div(periodLength);
 	}
@@ -121,12 +121,12 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	}
 
 	public double getPeriodEndTime() {
-		double tenorEnd = schedule.getPeriodEnd(0);
+		final double tenorEnd = schedule.getPeriodEnd(0);
 		return tenorEnd;
 	}
 
 	public double getFixingTime() {
-		double fixingDate = schedule.getFixing(0);
+		final double fixingDate = schedule.getFixing(0);
 		return fixingDate;
 	}
 

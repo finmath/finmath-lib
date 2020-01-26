@@ -50,86 +50,86 @@ public class MonteCarloBlackScholesModelBermudanDigitalOptionSensitivitiesGraphs
 	private final double	optionMaturity = 2.0;
 	private final double	optionStrike = 1.05;
 
-	public static void main(String[] arguments) {
+	public static void main(final String[] arguments) {
 	}
 
 	@Test
 	public void testProductAADSensitivities() throws CalculationException {
-		AbstractRandomVariableDifferentiableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
+		final AbstractRandomVariableDifferentiableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		final RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		final RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		final RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+		final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		/*
 		 * Value a call option (using the product implementation)
 		 */
-		double[] exerciseDates = new double[] { 1.0, 2.0, 3.0, 4.0 };
-		double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
-		double[] strikes = new double[] { 0.50, 0.60, 0.80, 1.00 };
-		Map<String, Object> properties = new HashMap<>(); properties.put("orderOfRegressionPolynomial",new Integer(1));
-		BermudanDigitalOption bermudanOption = new BermudanDigitalOption(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION, properties);
+		final double[] exerciseDates = new double[] { 1.0, 2.0, 3.0, 4.0 };
+		final double[] notionals = new double[] { 1.0, 1.0, 1.0, 1.0 };
+		final double[] strikes = new double[] { 0.50, 0.60, 0.80, 1.00 };
+		final Map<String, Object> properties = new HashMap<>(); properties.put("orderOfRegressionPolynomial",new Integer(1));
+		final BermudanDigitalOption bermudanOption = new BermudanDigitalOption(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION, properties);
 		//		double[] strikes = new double[] { optionStrike, optionStrike, optionStrike, optionStrike };
 		//		BermudanOption bermudanOption = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
-		RandomVariable value = bermudanOption.getValue(0.0, monteCarloBlackScholesModel);
+		final RandomVariable value = bermudanOption.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
 		 */
-		Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
+		final Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
 
-		double valueMonteCarlo = value.getAverage();
-		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
-		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
-		double vegaAAD = derivative.get(volatility.getID()).getAverage();
+		final double valueMonteCarlo = value.getAverage();
+		final double deltaAAD = derivative.get(initialValue.getID()).getAverage();
+		final double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
+		final double vegaAAD = derivative.get(volatility.getID()).getAverage();
 
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
 
 		for(double eps = 0.8; eps > 1E-6; eps/=1.2) {
-			Map<String, Object> dataModifiedInitialValueUp = new HashMap<>();
+			final Map<String, Object> dataModifiedInitialValueUp = new HashMap<>();
 			dataModifiedInitialValueUp.put("initialValue", modelInitialValue+eps);
-			Map<String, Object> dataModifiedInitialValueDn = new HashMap<>();
+			final Map<String, Object> dataModifiedInitialValueDn = new HashMap<>();
 			dataModifiedInitialValueDn.put("initialValue", modelInitialValue-eps);
-			double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueUp)) - bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueDn)))/(2*eps);
+			final double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueUp)) - bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValueDn)))/(2*eps);
 
-			Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
+			final Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 			dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
-			double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
+			final double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-			Map<String, Object> dataModifiedVolatility = new HashMap<>();
+			final Map<String, Object> dataModifiedVolatility = new HashMap<>();
 			dataModifiedVolatility.put("volatility", modelVolatility+eps);
-			double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
+			final double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 
 			System.out.println(eps + "\t" + deltaAAD + "\t" + deltaFiniteDifference);
 		}
 
-		double eps = 1E-3;
-		Map<String, Object> dataModifiedInitialValue = new HashMap<>();
+		final double eps = 1E-3;
+		final Map<String, Object> dataModifiedInitialValue = new HashMap<>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
-		double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
+		final double deltaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
+		final Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
-		double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
+		final double rhoFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedVolatility = new HashMap<>();
+		final Map<String, Object> dataModifiedVolatility = new HashMap<>();
 		dataModifiedVolatility.put("volatility", modelVolatility+eps);
-		double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
+		final double vegaFiniteDifference = (bermudanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println();

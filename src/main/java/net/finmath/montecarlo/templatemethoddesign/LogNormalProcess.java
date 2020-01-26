@@ -25,10 +25,10 @@ public abstract class LogNormalProcess {
 	private RandomVariable[][]     discreteProcess         = null;
 	private RandomVariable[]       discreteProcessWeights  = null;
 
-	private TimeDiscretization	timeDiscretization;
-	private int			numberOfComponents;
-	private int			numberOfFactors;
-	private int			numberOfPaths;
+	private final TimeDiscretization	timeDiscretization;
+	private final int			numberOfComponents;
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
 
 	private Scheme		scheme = Scheme.EULER;
 
@@ -39,8 +39,8 @@ public abstract class LogNormalProcess {
 	 * @param brownianMotion A Brownian motion
 	 */
 	public LogNormalProcess(
-			int numberOfComponents,
-			BrownianMotion brownianMotion) {
+			final int numberOfComponents,
+			final BrownianMotion brownianMotion) {
 		super();
 		timeDiscretization	= brownianMotion.getTimeDiscretization();
 		this.numberOfComponents	= numberOfComponents;
@@ -57,9 +57,9 @@ public abstract class LogNormalProcess {
 	 * @param numberOfPaths The number of path of the simulation.
 	 */
 	public LogNormalProcess(
-			TimeDiscretization timeDiscretization,
-			int numberOfComponents,
-			int numberOfPaths) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfComponents,
+			final int numberOfPaths) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfComponents = numberOfComponents;
@@ -84,11 +84,11 @@ public abstract class LogNormalProcess {
 	 * @param seed The seed of the underlying random number generator.
 	 */
 	public LogNormalProcess(
-			TimeDiscretization timeDiscretization,
-			int numberOfComponents,
-			int numberOfFactors,
-			int numberOfPaths,
-			int seed) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfComponents,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed) {
 		super();
 		this.timeDiscretization	= timeDiscretization;
 		this.numberOfComponents	= numberOfComponents;
@@ -115,9 +115,9 @@ public abstract class LogNormalProcess {
 	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null of no predictor is available.
 	 * @return The (average) drift from timeIndex to timeIndex+1
 	 */
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 
-		RandomVariable[] drift = new RandomVariable[getNumberOfComponents()];
+		final RandomVariable[] drift = new RandomVariable[getNumberOfComponents()];
 
 		/*
 		 * We implemented several different methods to calculate the drift
@@ -150,7 +150,7 @@ public abstract class LogNormalProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of process realizations (on path)
 	 */
-	public RandomVariable[] getProcessValue(int timeIndex)
+	public RandomVariable[] getProcessValue(final int timeIndex)
 	{
 		// Thread safe lazy initialization
 		synchronized(this) {
@@ -171,7 +171,7 @@ public abstract class LogNormalProcess {
 	 * @param componentIndex Component of the process vector
 	 * @return A vector of process realizations (on path)
 	 */
-	public RandomVariable getProcessValue(int timeIndex, int componentIndex)
+	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex)
 	{
 		if(timeIndex == 0) {
 			return getInitialValue()[componentIndex];
@@ -194,7 +194,7 @@ public abstract class LogNormalProcess {
 	 * @param timeIndex Time index at which the process should be observed
 	 * @return A vector of positive weights which sums up to one
 	 */
-	public RandomVariable getMonteCarloWeights(int timeIndex)
+	public RandomVariable getMonteCarloWeights(final int timeIndex)
 	{
 		// Lazy initialization, synchronized for thread safety
 		synchronized(this) {
@@ -230,11 +230,11 @@ public abstract class LogNormalProcess {
 		for(int timeIndex = 1; timeIndex < timeDiscretization.getNumberOfTimeSteps()+1; timeIndex++)
 		{
 			// Generate process at timeIndex
-			double deltaT = timeDiscretization.getTime(timeIndex) - timeDiscretization.getTime(timeIndex-1);
+			final double deltaT = timeDiscretization.getTime(timeIndex) - timeDiscretization.getTime(timeIndex-1);
 
 			// Temp storage for variance and diffusion
-			RandomVariable[] variance   = new RandomVariable[numberOfComponents];
-			RandomVariable[] diffusion  = new RandomVariable[numberOfComponents];
+			final RandomVariable[] variance   = new RandomVariable[numberOfComponents];
+			final RandomVariable[] diffusion  = new RandomVariable[numberOfComponents];
 
 			// Calculate new realization
 			for(int componentIndex = numberOfComponents-1; componentIndex >= 0; componentIndex--)
@@ -247,8 +247,8 @@ public abstract class LogNormalProcess {
 
 				// Generate values for diffusionOfComponent and varianceOfComponent
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					RandomVariable factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);
-					RandomVariable brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
+					final RandomVariable factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);
+					final RandomVariable brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);
 
 					varianceOfComponent = varianceOfComponent.addProduct(factorLoading, factorLoading);
 					diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);
@@ -268,9 +268,9 @@ public abstract class LogNormalProcess {
 			// Calculate drift
 			for(int componentIndex = numberOfComponents-1; componentIndex >= 0; componentIndex--)
 			{
-				RandomVariable driftOfComponent  	= drift[componentIndex];
-				RandomVariable varianceOfComponent			= variance[componentIndex];
-				RandomVariable diffusionOfComponent		= diffusion[componentIndex];
+				final RandomVariable driftOfComponent  	= drift[componentIndex];
+				final RandomVariable varianceOfComponent			= variance[componentIndex];
+				final RandomVariable diffusionOfComponent		= diffusion[componentIndex];
 
 				if(driftOfComponent == null) {
 					discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
@@ -278,18 +278,18 @@ public abstract class LogNormalProcess {
 				}
 
 				// Allocate memory for on path-realizations
-				double[] newRealization			= new double[numberOfPaths];
+				final double[] newRealization			= new double[numberOfPaths];
 
 				// Euler Scheme
-				RandomVariable previouseRealization		= discreteProcess[timeIndex-1][componentIndex];
+				final RandomVariable previouseRealization		= discreteProcess[timeIndex-1][componentIndex];
 
 				// Generate values
 				for(int pathIndex = 0; pathIndex < numberOfPaths; pathIndex++)
 				{
-					double previousValue	= previouseRealization.get(pathIndex);
-					double driftOnPath		= driftOfComponent.get(pathIndex);
-					double varianceOnPath	= varianceOfComponent.get(pathIndex);
-					double diffusionOnPath	= diffusionOfComponent.get(pathIndex);
+					final double previousValue	= previouseRealization.get(pathIndex);
+					final double driftOnPath		= driftOfComponent.get(pathIndex);
+					final double varianceOnPath	= varianceOfComponent.get(pathIndex);
+					final double diffusionOnPath	= diffusionOfComponent.get(pathIndex);
 
 					// The scheme
 					newRealization[pathIndex]	 = previousValue * Math.exp(driftOnPath * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
@@ -300,7 +300,7 @@ public abstract class LogNormalProcess {
 			}
 
 			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {
-				RandomVariable[] newRealization = new RandomVariableFromDoubleArray[numberOfComponents];
+				final RandomVariable[] newRealization = new RandomVariableFromDoubleArray[numberOfComponents];
 
 				// Note: This is actually more than a predictor corrector: The drift of componentIndex already uses the corrected predictor from the previous components
 				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);
@@ -308,12 +308,12 @@ public abstract class LogNormalProcess {
 				// Apply corrector step to realizations at next time step
 				for(int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++)
 				{
-					RandomVariable driftOfComponent	= drift[componentIndex];
-					RandomVariable varianceOfComponent			= variance[componentIndex];
-					RandomVariable diffusionOfComponent		= diffusion[componentIndex];
+					final RandomVariable driftOfComponent	= drift[componentIndex];
+					final RandomVariable varianceOfComponent			= variance[componentIndex];
+					final RandomVariable diffusionOfComponent		= diffusion[componentIndex];
 
 					// Euler Scheme with corrected drift
-					RandomVariable previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];
+					final RandomVariable previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];
 
 					// The scheme
 					// newValue = previousValue * Math.exp(driftValue * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
@@ -364,7 +364,7 @@ public abstract class LogNormalProcess {
 	 * @param timeIndex Time index
 	 * @return Returns the time for a given time index.
 	 */
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return timeDiscretization.getTime(timeIndex);
 	}
 
@@ -374,7 +374,7 @@ public abstract class LogNormalProcess {
 	 * @param time A simulation time
 	 * @return Returns the time index for a given time.
 	 */
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 
@@ -398,7 +398,7 @@ public abstract class LogNormalProcess {
 	 *
 	 * @param brownianMotion The brownianMotion to set.
 	 */
-	protected synchronized void setBrownianMotion(BrownianMotion brownianMotion) {
+	protected synchronized void setBrownianMotion(final BrownianMotion brownianMotion) {
 		if(discreteProcessWeights != null && discreteProcessWeights.length != 0) {
 			throw new RuntimeException("Tying to change lazy initialized immutable object after initialization.");
 		}
@@ -409,7 +409,7 @@ public abstract class LogNormalProcess {
 	/**
 	 * @param scheme The scheme to set.
 	 */
-	public synchronized  void setScheme(Scheme scheme) {
+	public synchronized  void setScheme(final Scheme scheme) {
 		if(discreteProcessWeights != null && discreteProcessWeights.length != 0) {
 			throw new RuntimeException("Tying to change lazy initialized immutable object after initialization.");
 		}

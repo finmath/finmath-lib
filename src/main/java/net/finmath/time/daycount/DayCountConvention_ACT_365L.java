@@ -36,7 +36,7 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT implemen
 	}
 
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
@@ -48,7 +48,7 @@ public class DayCountConvention_ACT_365L extends DayCountConvention_ACT implemen
 			daysPerYear = 366.0;
 		}
 
-		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
+		final double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 
 		return daycountFraction;
 	}

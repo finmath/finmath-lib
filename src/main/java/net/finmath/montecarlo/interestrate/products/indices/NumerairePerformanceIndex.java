@@ -41,9 +41,9 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 	private final DayCountConvention daycountConvention;
 
 
-	public NumerairePerformanceIndex(String name, String currency, String paymentOffsetCode,
-			BusinessdayCalendar paymentBusinessdayCalendar, DateRollConvention paymentDateRollConvention,
-			DayCountConvention daycountConvention) {
+	public NumerairePerformanceIndex(final String name, final String currency, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final DateRollConvention paymentDateRollConvention,
+			final DayCountConvention daycountConvention) {
 		super(name, currency);
 		this.paymentOffsetCode = paymentOffsetCode;
 		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;
@@ -52,47 +52,47 @@ public class NumerairePerformanceIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		/*
 		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
 		 */
-		double fixingTime = evaluationTime;
+		final double fixingTime = evaluationTime;
 
-		LocalDateTime referenceDate = model.getReferenceDate();
-		LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
-		LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
-		double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
+		final LocalDateTime referenceDate = model.getReferenceDate();
+		final LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
+		final LocalDate paymentDate = paymentBusinessdayCalendar.getAdjustedDate(fixingDate.toLocalDate(), paymentOffsetCode, paymentDateRollConvention);
+		final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, LocalDateTime.of(paymentDate, fixingDate.toLocalTime()));
 
-		double periodLength = daycountConvention.getDaycountFraction(fixingDate.toLocalDate(), paymentDate);
+		final double periodLength = daycountConvention.getDaycountFraction(fixingDate.toLocalDate(), paymentDate);
 
 		/*
 		 * Fetch numeraire performance rate from model
 		 */
-		RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);
-		RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);
+		final RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);
+		final RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);
 
 		RandomVariable numeraireRatio = numeraireAtEnd.div(numeraireAtStart);
 
 		if(getName() != null && !model.getModel().getDiscountCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
-			AnalyticModel analyticModel = model.getModel().getAnalyticModel();
-			DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());
-			DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();
-			double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);
-			double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);
-			double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;
+			final AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+			final DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());
+			final DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();
+			final double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);
+			final double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);
+			final double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;
 			numeraireRatio = numeraireRatio.mult(adjustment);
 		}
 
-		RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);
+		final RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);
 
 		return forwardRate;
 	}
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<>();
+		final Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

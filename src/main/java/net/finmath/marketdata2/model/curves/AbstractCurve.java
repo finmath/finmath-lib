@@ -25,7 +25,7 @@ public abstract class AbstractCurve implements Curve, Cloneable {
 	 * @param name The name of this curve.
 	 * @param referenceDate The reference date of this curve.
 	 */
-	public AbstractCurve(String name, LocalDate referenceDate) {
+	public AbstractCurve(final String name, final LocalDate referenceDate) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -48,7 +48,7 @@ public abstract class AbstractCurve implements Curve, Cloneable {
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public RandomVariable getValue(double time) {
+	public RandomVariable getValue(final double time) {
 		return getValue(null, time);
 	}
 
@@ -57,8 +57,8 @@ public abstract class AbstractCurve implements Curve, Cloneable {
 	 * @param times A given vector of times.
 	 * @return A vector of values corresponding to the given vector of times.
 	 */
-	public RandomVariable[] getValues(double[] times) {
-		RandomVariable[] values = new RandomVariable[times.length];
+	public RandomVariable[] getValues(final double[] times) {
+		final RandomVariable[] values = new RandomVariable[times.length];
 
 		for(int i=0; i<times.length; i++) {
 			values[i] = getValue(null, times[i]);
@@ -74,7 +74,7 @@ public abstract class AbstractCurve implements Curve, Cloneable {
 
 
 	@Override
-	public Curve getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(final RandomVariable[] value) throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 

@@ -28,7 +28,7 @@ public class CalculationException extends Exception {
 	 *
 	 * @param message The error message.
 	 */
-	public CalculationException(String message) {
+	public CalculationException(final String message) {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
@@ -38,7 +38,7 @@ public class CalculationException extends Exception {
 	 *
 	 * @param cause The cause.
 	 */
-	public CalculationException(Throwable cause) {
+	public CalculationException(final Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
@@ -49,7 +49,7 @@ public class CalculationException extends Exception {
 	 * @param message The error message.
 	 * @param cause The cause.
 	 */
-	public CalculationException(String message, Throwable cause) {
+	public CalculationException(final String message, final Throwable cause) {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}

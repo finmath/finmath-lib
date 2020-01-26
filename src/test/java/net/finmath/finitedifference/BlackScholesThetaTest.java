@@ -15,10 +15,10 @@ public class BlackScholesThetaTest {
 
 	@Test
 	public void test() throws AssertionError {
-		double riskFreeRate = 0.06;
-		double volatility = 0.4;
-		double optionMaturity = 1;
-		double optionStrike = 50;
+		final double riskFreeRate = 0.06;
+		final double volatility = 0.4;
+		final double optionMaturity = 1;
+		final double optionStrike = 50;
 
 		/*
 		BlackScholesTheta blackScholesFD = new BlackScholesTheta();
@@ -36,13 +36,13 @@ public class BlackScholesThetaTest {
 		 */
 
 		// First refactoring attempt
-		int numTimesteps = 35;
-		int numSpacesteps = 120;
-		int numStandardDeviations = 5;
-		double initialValue = 50;
-		double theta = 0.5;
+		final int numTimesteps = 35;
+		final int numSpacesteps = 120;
+		final int numStandardDeviations = 5;
+		final double initialValue = 50;
+		final double theta = 0.5;
 
-		FiniteDifference1DModel model = new FDMBlackScholesModel(
+		final FiniteDifference1DModel model = new FDMBlackScholesModel(
 				numTimesteps,
 				numSpacesteps,
 				numStandardDeviations,
@@ -52,11 +52,11 @@ public class BlackScholesThetaTest {
 				riskFreeRate,
 				volatility);
 
-		FiniteDifference1DProduct callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
-		double[][] valueFDM = callOption.getValue(0.0, model);
-		double[] initialStockPrice = valueFDM[0];
-		double[] optionValue = valueFDM[1];
-		double[] analyticalOptionValue = new double[optionValue.length];
+		final FiniteDifference1DProduct callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
+		final double[][] valueFDM = callOption.getValue(0.0, model);
+		final double[] initialStockPrice = valueFDM[0];
+		final double[] optionValue = valueFDM[1];
+		final double[] analyticalOptionValue = new double[optionValue.length];
 		for (int i =0; i < analyticalOptionValue.length; i++) {
 			analyticalOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPrice[i], riskFreeRate,
 					volatility, optionMaturity, optionStrike, true);

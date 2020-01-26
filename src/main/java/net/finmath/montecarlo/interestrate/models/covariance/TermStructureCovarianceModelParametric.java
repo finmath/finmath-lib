@@ -78,18 +78,18 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		if(calibrationParameters == null) {
 			calibrationParameters = new HashMap<>();
 		}
-		Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
-		Integer seedParameter			= (Integer)calibrationParameters.get("seed");
-		Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
-		Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
-		Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
-		BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
+		final Integer numberOfPathsParameter	= (Integer)calibrationParameters.get("numberOfPaths");
+		final Integer seedParameter			= (Integer)calibrationParameters.get("seed");
+		final Integer maxIterationsParameter	= (Integer)calibrationParameters.get("maxIterations");
+		final Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
+		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
+		final BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
 
-		double[] initialParameters = this.getParameter();
-		double[] lowerBound = new double[initialParameters.length];
-		double[] upperBound = new double[initialParameters.length];
-		double[] parameterStep = new double[initialParameters.length];
-		double[] zero = new double[calibrationProducts.length];
+		final double[] initialParameters = this.getParameter();
+		final double[] lowerBound = new double[initialParameters.length];
+		final double[] upperBound = new double[initialParameters.length];
+		final double[] parameterStep = new double[initialParameters.length];
+		final double[] zero = new double[calibrationProducts.length];
 		Arrays.fill(lowerBound, 0);
 		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
 		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);
@@ -101,73 +101,73 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		 * one model with 2 times the number of paths. In the case of an analytic calibration
 		 * memory requirement is not the limiting factor.
 		 */
-		int numberOfThreads = 2;
-		OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
+		final int numberOfThreads = 2;
+		final OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get("optimizerFactory");
 
-		int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
-		int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
-		int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
-		double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
+		final int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;
+		final int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
+		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
+		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
 		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
-		OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
-		int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
+		final int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
 		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);
 
-		ObjectiveFunction calibrationError = new ObjectiveFunction() {
+		final ObjectiveFunction calibrationError = new ObjectiveFunction() {
 			// Calculate model values for given parameters
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 
-				TermStructureCovarianceModelParametric calibrationCovarianceModel = TermStructureCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
+				final TermStructureCovarianceModelParametric calibrationCovarianceModel = TermStructureCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
 
 				// Create a term structure model with the new covariance structure.
-				HashMap<String, Object> data = new HashMap<>();
+				final HashMap<String, Object> data = new HashMap<>();
 				data.put("covarianceModel", calibrationCovarianceModel);
 				TermStructureModel model;
 				try {
 					model = calibrationModel.getCloneWithModifiedData(data);
-				} catch (CalculationException e) {
+				} catch (final CalculationException e) {
 					throw new SolverException(e);
 				}
-				EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 				final LIBORMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
 
-				ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
+				final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					final int workerCalibrationProductIndex = calibrationProductIndex;
-					Callable<Double> worker = new  Callable<Double>() {
+					final Callable<Double> worker = new  Callable<Double>() {
 						@Override
 						public Double call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,lIBORMonteCarloSimulationFromTermStructureModel).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();
-							} catch (CalculationException e) {
+							} catch (final CalculationException e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return 0.0;
-							} catch (Exception e) {
+							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return 0.0;
 							}
 						}
 					};
 					if(executor != null) {
-						Future<Double> valueFuture = executor.submit(worker);
+						final Future<Double> valueFuture = executor.submit(worker);
 						valueFutures.add(calibrationProductIndex, valueFuture);
 					}
 					else {
-						FutureTask<Double> valueFutureTask = new FutureTask<>(worker);
+						final FutureTask<Double> valueFutureTask = new FutureTask<>(worker);
 						valueFutureTask.run();
 						valueFutures.add(calibrationProductIndex, valueFutureTask);
 					}
 				}
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
 					try {
-						double value = valueFutures.get(calibrationProductIndex).get();
+						final double value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
-					catch (InterruptedException e) {
+					catch (final InterruptedException e) {
 						throw new SolverException(e);
-					} catch (ExecutionException e) {
+					} catch (final ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
@@ -175,7 +175,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				double error = 0.0;
 
 				for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
-					double deviation = values[valueIndex];
+					final double deviation = values[valueIndex];
 					error += deviation * deviation;
 				}
 
@@ -183,11 +183,11 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 			}
 		};
 
-		Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
+		final Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);
 		try {
 			optimizer.run();
 		}
-		catch(SolverException e) {
+		catch(final SolverException e) {
 			throw new CalculationException(e);
 		}
 		finally {
@@ -197,8 +197,8 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		}
 
 		// Get covariance model corresponding to the best parameter set.
-		double[] bestParameters = optimizer.getBestFitParameters();
-		TermStructureCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
+		final double[] bestParameters = optimizer.getBestFitParameters();
+		final TermStructureCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);
 
 		// Diagnostic output
 		if (logger.isLoggable(Level.FINE)) {

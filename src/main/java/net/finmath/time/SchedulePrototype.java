@@ -49,7 +49,7 @@ public class SchedulePrototype implements Serializable {
 	 * @param schedule The schedule.
 	 * @return The offset code as String
 	 */
-	public static String getOffsetCodeFromSchedule(Schedule schedule) {
+	public static String getOffsetCodeFromSchedule(final Schedule schedule) {
 
 		double doubleLength = 0;
 		for(int i = 0; i < schedule.getNumberOfPeriods(); i ++) {
@@ -58,10 +58,10 @@ public class SchedulePrototype implements Serializable {
 		doubleLength /= schedule.getNumberOfPeriods();
 
 		doubleLength *= 12;
-		int periodLength = (int) Math.round(doubleLength);
+		final int periodLength = (int) Math.round(doubleLength);
 
 
-		String offsetCode = periodLength + "M";
+		final String offsetCode = periodLength + "M";
 		return offsetCode;
 	}
 
@@ -74,11 +74,11 @@ public class SchedulePrototype implements Serializable {
 	 * @param curveName The name of the curve.
 	 * @return The offset code as String
 	 */
-	public static String getOffsetCodeFromCurveName(String curveName) {
+	public static String getOffsetCodeFromCurveName(final String curveName) {
 		if(curveName == null || curveName.length() == 0) {
 			return null;
 		}
-		String[] splits = curveName.split("(?<=\\D)(?=\\d)");
+		final String[] splits = curveName.split("(?<=\\D)(?=\\d)");
 		String offsetCode = splits[splits.length-1];
 		if(!Character.isDigit(offsetCode.charAt(0))) {
 			return null;
@@ -101,10 +101,10 @@ public class SchedulePrototype implements Serializable {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 */
-	public SchedulePrototype(Frequency frequency, DaycountConvention daycountConvention,
-			ShortPeriodConvention shortPeriodConvention, DateRollConvention dateRollConvention,
-			BusinessdayCalendar businessdayCalendar, int fixingOffsetDays, int paymentOffsetDays,
-			boolean isUseEndOfMonth) {
+	public SchedulePrototype(final Frequency frequency, final DaycountConvention daycountConvention,
+			final ShortPeriodConvention shortPeriodConvention, final DateRollConvention dateRollConvention,
+			final BusinessdayCalendar businessdayCalendar, final int fixingOffsetDays, final int paymentOffsetDays,
+			final boolean isUseEndOfMonth) {
 		super();
 		this.frequency = frequency;
 		this.daycountConvention = daycountConvention;
@@ -123,7 +123,7 @@ public class SchedulePrototype implements Serializable {
 	 * @param endDate The end date.
 	 * @return The schedule descriptor
 	 */
-	public ScheduleDescriptor generateScheduleDescriptor(LocalDate startDate, LocalDate endDate) {
+	public ScheduleDescriptor generateScheduleDescriptor(final LocalDate startDate, final LocalDate endDate) {
 		return new ScheduleDescriptor(startDate, endDate, getFrequency(), getDaycountConvention(), getShortPeriodConvention(), getDateRollConvention(),
 				getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
@@ -136,7 +136,7 @@ public class SchedulePrototype implements Serializable {
 	 * @param endDate The end date.
 	 * @return The schedule
 	 */
-	public Schedule generateSchedule(LocalDate referenceDate, LocalDate startDate, LocalDate endDate) {
+	public Schedule generateSchedule(final LocalDate referenceDate, final LocalDate startDate, final LocalDate endDate) {
 		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, getFrequency(), getDaycountConvention(),
 				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());
 	}
@@ -149,7 +149,7 @@ public class SchedulePrototype implements Serializable {
 	 * @param termination Offset of the end date to the start date
 	 * @return The schedule
 	 */
-	public Schedule generateSchedule(LocalDate referenceDate, int maturity, int termination) {
+	public Schedule generateSchedule(final LocalDate referenceDate, final int maturity, final int termination) {
 		return generateSchedule(referenceDate, maturity, termination, OffsetUnit.MONTHS);
 	}
 
@@ -162,7 +162,7 @@ public class SchedulePrototype implements Serializable {
 	 * @param unit The convention to use for the offset
 	 * @return The schedule
 	 */
-	public Schedule generateSchedule(LocalDate referenceDate, int maturity, int termination, OffsetUnit unit) {
+	public Schedule generateSchedule(final LocalDate referenceDate, final int maturity, final int termination, final OffsetUnit unit) {
 
 		LocalDate startDate;
 		LocalDate endDate;

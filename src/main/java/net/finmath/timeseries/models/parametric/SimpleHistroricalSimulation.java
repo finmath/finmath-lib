@@ -21,19 +21,19 @@ import net.finmath.timeseries.HistoricalSimulationModel;
 
 public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
-	private double[] values;
+	private final double[] values;
 
-	private int windowIndexStart;
-	private int windowIndexEnd;
+	private final int windowIndexStart;
+	private final int windowIndexEnd;
 
-	public SimpleHistroricalSimulation(double[] values) {
+	public SimpleHistroricalSimulation(final double[] values) {
 		this.values = values;
 		windowIndexStart	= 0;
 		windowIndexEnd		= values.length-1;
 
 	}
 
-	public SimpleHistroricalSimulation(double[] values, int windowIndexStart, int windowIndexEnd) {
+	public SimpleHistroricalSimulation(final double[] values, final int windowIndexStart, final int windowIndexEnd) {
 		this.values = values;
 		this.windowIndexStart	= windowIndexStart;
 		this.windowIndexEnd		= windowIndexEnd;
@@ -45,12 +45,12 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getCloneWithWindow(int, int)
 	 */
 	@Override
-	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
 		return new SimpleHistroricalSimulation(values, windowIndexStart, windowIndexEnd);
 	}
 
-	public double[] getSzenarios(int relAbsFlag) {
-		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
+	public double[] getSzenarios(final int relAbsFlag) {
+		final double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
 
 		double y;
 
@@ -69,33 +69,33 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
 		return szenarios;
 	}
-	public double[] getQuantilPredictions(int relAbsFlag,  double[] quantiles) {
-		double[] szenarios = this.getSzenarios(relAbsFlag);
+	public double[] getQuantilPredictions(final int relAbsFlag,  final double[] quantiles) {
+		final double[] szenarios = this.getSzenarios(relAbsFlag);
 
-		double[] quantileValues = new double[quantiles.length];
+		final double[] quantileValues = new double[quantiles.length];
 		for(int i=0; i<quantiles.length; i++) {
-			double quantile = quantiles[i];
-			double quantileIndex = szenarios.length * quantile  - 1;
-			int quantileIndexLo = (int)quantileIndex;
-			int quantileIndexHi = quantileIndexLo+1;
+			final double quantile = quantiles[i];
+			final double quantileIndex = szenarios.length * quantile  - 1;
+			final int quantileIndexLo = (int)quantileIndex;
+			final int quantileIndexHi = quantileIndexLo+1;
 
-			double evalLo = szenarios[Math.max(quantileIndexLo,0               )];
-			double evalHi = szenarios[Math.max(quantileIndexHi,0               )];
+			final double evalLo = szenarios[Math.max(quantileIndexLo,0               )];
+			final double evalHi = szenarios[Math.max(quantileIndexHi,0               )];
 
 			if (relAbsFlag==1) {
-				double szenarioChange =
+				final double szenarioChange =
 						(quantileIndexHi-quantileIndex) * Math.exp(evalLo)  // ?????????????????????
 						+ (quantileIndex-quantileIndexLo) * Math.exp(evalHi);
 
-				double quantileValue = values[windowIndexEnd] * szenarioChange;
+				final double quantileValue = values[windowIndexEnd] * szenarioChange;
 				quantileValues[i] = quantileValue;
 
 			} else {
-				double szenarioChange =
+				final double szenarioChange =
 						(quantileIndexHi-quantileIndex) * evalLo  // ?????????????????????
 						+ (quantileIndex-quantileIndexLo) * evalHi;
 
-				double quantileValue = values[windowIndexEnd] + szenarioChange;
+				final double quantileValue = values[windowIndexEnd] + szenarioChange;
 				quantileValues[i] = quantileValue;
 
 			}
@@ -116,12 +116,12 @@ public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
 
 
 	@Override
-	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
-		int relAbsFlag = 1;
-		double[] quantiles = {0.01, 0.05, 0.5};
-		double[] quantileValues = this.getQuantilPredictions(relAbsFlag, quantiles);
+	public Map<String, Object> getBestParameters(final Map<String, Object> guess) {
+		final int relAbsFlag = 1;
+		final double[] quantiles = {0.01, 0.05, 0.5};
+		final double[] quantileValues = this.getQuantilPredictions(relAbsFlag, quantiles);
 
-		Map<String, Object> results = new HashMap<>();
+		final Map<String, Object> results = new HashMap<>();
 		results.put("Szenarios", this.getSzenarios(relAbsFlag));
 		results.put("Quantile=1%", quantileValues[0]);
 		results.put("Quantile=5%", quantileValues[1]);

@@ -38,8 +38,8 @@ public class Utils {
 	 * @param floatMetaSchedule The ScheduleMetaData to be used for the float schedules of the swaptions.
 	 * @return SwaptionDataLattice containing the swaptions of the table.
 	 */
-	public static SwaptionDataLattice convertTableToLattice(DataTable table, QuotingConvention quotingConvention, LocalDate referenceDate,
-			String discountCurveName, String forwardCurveName, SchedulePrototype fixMetaSchedule, SchedulePrototype floatMetaSchedule) {
+	public static SwaptionDataLattice convertTableToLattice(final DataTable table, final QuotingConvention quotingConvention, final LocalDate referenceDate,
+			final String discountCurveName, final String forwardCurveName, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule) {
 
 		return convertMapOfTablesToLattice(
 				new HashMap<Integer, DataTable>() {private static final long serialVersionUID = 1L; { put(0, table); }},
@@ -65,21 +65,21 @@ public class Utils {
 	 * @param floatMetaSchedule The ScheduleMetaData to be used for the float schedules of the swaptions.
 	 * @return SwaptionDataLattice containing the swaptions of the tables.
 	 */
-	public static SwaptionDataLattice convertMapOfTablesToLattice(Map<Integer, DataTable> tables, QuotingConvention quotingConvention, LocalDate referenceDate,
-			String discountCurveName, String forwardCurveName, SchedulePrototype fixMetaSchedule, SchedulePrototype floatMetaSchedule) {
+	public static SwaptionDataLattice convertMapOfTablesToLattice(final Map<Integer, DataTable> tables, final QuotingConvention quotingConvention, final LocalDate referenceDate,
+			final String discountCurveName, final String forwardCurveName, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule) {
 
-		List<Integer> moneynesss = new ArrayList<>();
-		List<Integer> maturities = new ArrayList<>();
-		List<Integer> tenors	 = new ArrayList<>();
-		List<Double>  values 	 = new ArrayList<>();
+		final List<Integer> moneynesss = new ArrayList<>();
+		final List<Integer> maturities = new ArrayList<>();
+		final List<Integer> tenors	 = new ArrayList<>();
+		final List<Double>  values 	 = new ArrayList<>();
 
-		for(int moneyness : tables.keySet()) {
-			DataTable table = tables.get(moneyness);
+		for(final int moneyness : tables.keySet()) {
+			final DataTable table = tables.get(moneyness);
 			if(table.getConvention() != TableConvention.MONTHS) {
 				throw new IllegalArgumentException("This method is only set up to handle tables with convention 'inMONTHS'.");
 			}
-			for(int maturity : table.getMaturities()) {
-				for(int termination : table.getTerminationsForMaturity(maturity)) {
+			for(final int maturity : table.getMaturities()) {
+				for(final int termination : table.getTerminationsForMaturity(maturity)) {
 					moneynesss.add(moneyness);
 					maturities.add(maturity);
 					tenors.add(termination);
@@ -103,25 +103,25 @@ public class Utils {
 	 * @param cashSwaptions The smile points with corresponding atm nodes of cash swaptions.
 	 * @return The lattice containing the shifted physically settled swaption smiles.
 	 */
-	public static SwaptionDataLattice shiftCashToPhysicalSmile(VolatilityCubeModel model, SwaptionDataLattice physicalSwaptions, SwaptionDataLattice... cashSwaptions) {
+	public static SwaptionDataLattice shiftCashToPhysicalSmile(final VolatilityCubeModel model, final SwaptionDataLattice physicalSwaptions, final SwaptionDataLattice... cashSwaptions) {
 
 		SwaptionDataLattice physicalLattice = physicalSwaptions.convertLattice(QuotingConvention.PAYERVOLATILITYNORMAL, model);
 
-		for(SwaptionDataLattice cashLatticeUnconverted : cashSwaptions) {
-			SwaptionDataLattice cashLattice = convertCashLatticeToNormalVolatility(cashLatticeUnconverted, model);
+		for(final SwaptionDataLattice cashLatticeUnconverted : cashSwaptions) {
+			final SwaptionDataLattice cashLattice = convertCashLatticeToNormalVolatility(cashLatticeUnconverted, model);
 
-			List<Integer> smileMoneynesss	= new ArrayList<>();
-			List<Integer> smileMaturities	= new ArrayList<>();
-			List<Integer> smileTerminations	= new ArrayList<>();
-			List<Double>  smileVolatilities	= new ArrayList<>();
+			final List<Integer> smileMoneynesss	= new ArrayList<>();
+			final List<Integer> smileMaturities	= new ArrayList<>();
+			final List<Integer> smileTerminations	= new ArrayList<>();
+			final List<Double>  smileVolatilities	= new ArrayList<>();
 
-			for(int moneyness : cashLattice.getMoneyness()) {
+			for(final int moneyness : cashLattice.getMoneyness()) {
 				if(moneyness == 0) {
 					continue;
 				}
 
-				for(int maturity : cashLattice.getMaturities(moneyness)) {
-					for(int termination : cashLattice.getTenors(moneyness, maturity)) {
+				for(final int maturity : cashLattice.getMaturities(moneyness)) {
+					for(final int termination : cashLattice.getTenors(moneyness, maturity)) {
 						if((!cashLattice.containsEntryFor(maturity, termination, 0)) || (!physicalLattice.containsEntryFor(maturity, termination, 0)) ) {
 							continue;
 						}
@@ -135,7 +135,7 @@ public class Utils {
 				}
 			}
 
-			SwaptionDataLattice newSwaptions = new SwaptionDataLattice(cashLattice.getReferenceDate(), QuotingConvention.PAYERVOLATILITYNORMAL, cashLattice.getForwardCurveName(),
+			final SwaptionDataLattice newSwaptions = new SwaptionDataLattice(cashLattice.getReferenceDate(), QuotingConvention.PAYERVOLATILITYNORMAL, cashLattice.getForwardCurveName(),
 					cashLattice.getDiscountCurveName(), cashLattice.getFloatMetaSchedule(), cashLattice.getFixMetaSchedule(),
 					smileMaturities.stream().mapToInt(Integer::intValue).toArray(),
 					smileTerminations.stream().mapToInt(Integer::intValue).toArray(),
@@ -156,17 +156,17 @@ public class Utils {
 	 * @param model The model containing curves for conversion.
 	 * @return The converted lattice.
 	 */
-	public static SwaptionDataLattice convertCashLatticeToNormalVolatility(SwaptionDataLattice cashLattice,
-			VolatilityCubeModel model) {
+	public static SwaptionDataLattice convertCashLatticeToNormalVolatility(final SwaptionDataLattice cashLattice,
+			final VolatilityCubeModel model) {
 
-		SchedulePrototype fixMetaSchedule	= cashLattice.getFixMetaSchedule();
-		SchedulePrototype floatMetaSchedule	= cashLattice.getFloatMetaSchedule();
-		LocalDate referenceDate = cashLattice.getReferenceDate();
+		final SchedulePrototype fixMetaSchedule	= cashLattice.getFixMetaSchedule();
+		final SchedulePrototype floatMetaSchedule	= cashLattice.getFloatMetaSchedule();
+		final LocalDate referenceDate = cashLattice.getReferenceDate();
 
-		List<Integer> maturities	= new ArrayList<>();
-		List<Integer> tenors		= new ArrayList<>();
-		List<Integer> moneynesss	= new ArrayList<>();
-		List<Double>  values		= new ArrayList<>();
+		final List<Integer> maturities	= new ArrayList<>();
+		final List<Integer> tenors		= new ArrayList<>();
+		final List<Integer> moneynesss	= new ArrayList<>();
+		final List<Double>  values		= new ArrayList<>();
 
 		boolean isPayer;
 		if(cashLattice.getQuotingConvention() == QuotingConvention.PAYERPRICE) {
@@ -177,15 +177,15 @@ public class Utils {
 			throw new IllegalArgumentException("This conversion assumes a lattice in convention PAYERPRICE or RECEIVERPRICE.");
 		}
 
-		for(int moneyness : cashLattice.getMoneyness()) {
-			for(int maturity : cashLattice.getMaturities(moneyness)) {
-				for(int tenor : cashLattice.getTenors(moneyness, maturity)) {
-					Schedule fixSchedule	= fixMetaSchedule.generateSchedule(referenceDate, maturity, tenor);
-					Schedule floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, maturity, tenor);
-					double parSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(cashLattice.getForwardCurveName()), model);
-					double strike			= parSwapRate + 0.0001 * (isPayer ? moneyness : - moneyness);
-					double cashAnnuity		= cashFunction(parSwapRate, fixSchedule);
-					double optionValue		= cashLattice.getValue(maturity, tenor, moneyness);
+		for(final int moneyness : cashLattice.getMoneyness()) {
+			for(final int maturity : cashLattice.getMaturities(moneyness)) {
+				for(final int tenor : cashLattice.getTenors(moneyness, maturity)) {
+					final Schedule fixSchedule	= fixMetaSchedule.generateSchedule(referenceDate, maturity, tenor);
+					final Schedule floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, maturity, tenor);
+					final double parSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(cashLattice.getForwardCurveName()), model);
+					final double strike			= parSwapRate + 0.0001 * (isPayer ? moneyness : - moneyness);
+					final double cashAnnuity		= cashFunction(parSwapRate, fixSchedule);
+					final double optionValue		= cashLattice.getValue(maturity, tenor, moneyness);
 
 					maturities.add(maturity);
 					tenors.add(tenor);
@@ -215,9 +215,9 @@ public class Utils {
 	 * @param schedule The schedule.
 	 * @return The result of the cash function.
 	 */
-	private static double cashFunction(double swapRate, Schedule schedule) {
+	private static double cashFunction(final double swapRate, final Schedule schedule) {
 
-		int numberOfPeriods = schedule.getNumberOfPeriods();
+		final int numberOfPeriods = schedule.getNumberOfPeriods();
 		double periodLength = 0.0;
 		for(int index = 0; index < numberOfPeriods; index++) {
 			periodLength += schedule.getPeriodLength(index);

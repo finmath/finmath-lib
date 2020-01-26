@@ -27,21 +27,21 @@ public class GammaProcessTest {
 	@Test
 	public void testScaling() {
 		// The parameters
-		int seed			= 53252;
-		int numberOfPaths	= 10000;
-		double lastTime		= 10;
-		double dt			= 0.1;
+		final int seed			= 53252;
+		final int numberOfPaths	= 10000;
+		final double lastTime		= 10;
+		final double dt			= 0.1;
 
 		System.out.println("Test of scaling of Gamma increments.");
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
-		double shape = 3.0;
-		double scale1 = 1.0;
-		double scale2 = 2.0;
+		final double shape = 3.0;
+		final double scale1 = 1.0;
+		final double scale2 = 2.0;
 
-		IndependentIncrements gamma1 = new GammaProcess(
+		final IndependentIncrements gamma1 = new GammaProcess(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -50,7 +50,7 @@ public class GammaProcessTest {
 				scale1	// Scale
 				);
 
-		IndependentIncrements gamma2 = new GammaProcess(
+		final IndependentIncrements gamma2 = new GammaProcess(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -59,11 +59,11 @@ public class GammaProcessTest {
 				scale2	// Scale
 				);
 
-		RandomVariable gammaIncement1 = gamma1.getIncrement(3, 0);
-		RandomVariable gammaIncement2 = gamma2.getIncrement(3, 0);
+		final RandomVariable gammaIncement1 = gamma1.getIncrement(3, 0);
+		final RandomVariable gammaIncement2 = gamma2.getIncrement(3, 0);
 
 		for(int i=0; i<gammaIncement1.size(); i++) {
-			double diff = gammaIncement2.get(i) - scale2/scale1 * gammaIncement1.get(i);
+			final double diff = gammaIncement2.get(i) - scale2/scale1 * gammaIncement1.get(i);
 			System.out.println(formatterReal2.format(gammaIncement1.get(i)) + "\t" + formatterReal2.format(gammaIncement2.get(i)) + "\t" + formatterSci4.format(diff));
 			Assert.assertTrue(Math.abs(diff) < 1E-8);
 		}

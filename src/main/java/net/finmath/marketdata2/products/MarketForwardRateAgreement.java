@@ -50,7 +50,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	 * @param spread Additional fixed payment (if any).
 	 * @param discountCurveName Name of the discount curve for the forward.
 	 */
-	public MarketForwardRateAgreement(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+	public MarketForwardRateAgreement(final double maturity, final double paymentOffset, final String forwardCurveName, final double spread, final String discountCurveName) {
 		super();
 		this.maturity = maturity;
 		this.paymentOffset = paymentOffset;
@@ -60,9 +60,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
-		ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
+		final ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		final DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);
 
 		DiscountCurveInterface	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
@@ -83,9 +83,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			forward = forward.add(discountCurveForForward.getDiscountFactor(maturity).div(discountCurveForForward.getDiscountFactor(maturity+paymentOffset)).sub(1.0).div(paymentOffset));
 		}
 
-		RandomVariable payoff = forward.discount(forward, paymentOffset);
+		final RandomVariable payoff = forward.discount(forward, paymentOffset);
 
-		RandomVariable discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : model.getRandomVariableForConstant(0.0);
+		final RandomVariable discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : model.getRandomVariableForConstant(0.0);
 
 		return payoff.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}

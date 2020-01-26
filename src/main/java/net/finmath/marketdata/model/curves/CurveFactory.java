@@ -55,31 +55,31 @@ public class CurveFactory {
 	 * @param forwardsFixingType The fixing type (e.g. "endOfMonth")
 	 * @return An index curve.
 	 */
-	public static Curve createIndexCurveWithSeasonality(String name, LocalDate referenceDate, Map<LocalDate, Double> indexFixings, Map<String, Double> seasonalityAdjustments, Integer seasonalAveragingNumberOfYears, Map<LocalDate, Double> annualizedZeroRates, String forwardsFixingLag, String forwardsFixingType) {
+	public static Curve createIndexCurveWithSeasonality(final String name, final LocalDate referenceDate, final Map<LocalDate, Double> indexFixings, final Map<String, Double> seasonalityAdjustments, final Integer seasonalAveragingNumberOfYears, final Map<LocalDate, Double> annualizedZeroRates, final String forwardsFixingLag, final String forwardsFixingType) {
 
 		/*
 		 * Create a curve containing past fixings (using picewise constant interpolation)
 		 */
-		double[] fixingTimes = new double[indexFixings.size()];
-		double[] fixingValue = new double[indexFixings.size()];
+		final double[] fixingTimes = new double[indexFixings.size()];
+		final double[] fixingValue = new double[indexFixings.size()];
 		int i = 0;
-		List<LocalDate> fixingDates = new ArrayList<>(indexFixings.keySet());
+		final List<LocalDate> fixingDates = new ArrayList<>(indexFixings.keySet());
 		Collections.sort(fixingDates);
-		for(LocalDate fixingDate : fixingDates) {
+		for(final LocalDate fixingDate : fixingDates) {
 			fixingTimes[i] = modelDcc.getDaycountFraction(referenceDate, fixingDate);
 			fixingValue[i] = indexFixings.get(fixingDate).doubleValue();
 			i++;
 		}
-		Curve curveOfFixings = new CurveInterpolation(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
+		final Curve curveOfFixings = new CurveInterpolation(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);
 
 		/*
 		 * Create a curve modeling the seasonality
 		 */
 		Curve seasonCurve = null;
 		if(seasonalityAdjustments != null && seasonalityAdjustments.size() > 0 && seasonalAveragingNumberOfYears == null) {
-			String[] monthList = { "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december" };
-			double[] seasonTimes = new double[12];
-			double[] seasonValue = new double[12];
+			final String[] monthList = { "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december" };
+			final double[] seasonTimes = new double[12];
+			final double[] seasonValue = new double[12];
 			double seasonValueCummulated = 1.0;
 			for(int j=0; j<12; j++) {
 				seasonValueCummulated *= Math.exp(seasonalityAdjustments.get(monthList[j]));
@@ -98,14 +98,14 @@ public class CurveFactory {
 		/*
 		 * Create the index curve from annualized zero rates.
 		 */
-		double[] times = new double[annualizedZeroRates.size()];
-		double[] givenDiscountFactors = new double[annualizedZeroRates.size()];
+		final double[] times = new double[annualizedZeroRates.size()];
+		final double[] givenDiscountFactors = new double[annualizedZeroRates.size()];
 
 
 		int index = 0;
-		List<LocalDate> dates = new ArrayList<>(annualizedZeroRates.keySet());
+		final List<LocalDate> dates = new ArrayList<>(annualizedZeroRates.keySet());
 		Collections.sort(dates);
-		for(LocalDate forwardDate : dates) {
+		for(final LocalDate forwardDate : dates) {
 			LocalDate cpiDate = forwardDate;
 			if(forwardsFixingType != null && forwardsFixingLag != null) {
 				if(forwardsFixingType.equals("endOfMonth")) {
@@ -126,11 +126,11 @@ public class CurveFactory {
 				}
 			}
 			times[index] = modelDcc.getDaycountFraction(referenceDate, cpiDate);
-			double rate = annualizedZeroRates.get(forwardDate).doubleValue();
+			final double rate = annualizedZeroRates.get(forwardDate).doubleValue();
 			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, forwardDate));
 			index++;
 		}
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);
 
 		LocalDate baseDate = referenceDate;
 		if(forwardsFixingType != null && forwardsFixingType.equals("endOfMonth") && forwardsFixingLag != null) {
@@ -150,11 +150,11 @@ public class CurveFactory {
 		/*
 		 * Index base value
 		 */
-		Double baseValue	= indexFixings.get(baseDate);
+		final Double baseValue	= indexFixings.get(baseDate);
 		if(baseValue == null) {
 			throw new IllegalArgumentException("CurveFromInterpolationPoints " + name + " has missing index value for base date " + baseDate);
 		}
-		double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
+		final double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);
 
 		/*
 		 * Combine all three curves.
@@ -164,14 +164,14 @@ public class CurveFactory {
 			// Rescale initial value of with seasonality
 			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);
 
-			Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			Curve indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);
-			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);
+			final Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			final Curve indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);
+			final PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);
 			return indexCurveWithFixing;
 		}
 		else {
-			Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
-			PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurve, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);
+			final Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);
+			final PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurve, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);
 			return indexCurveWithFixing;
 		}
 	}

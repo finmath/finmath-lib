@@ -17,10 +17,10 @@ import java.util.Map;
  */
 public class MarketData {
 
-	private Calendar			date;
-	private Map<String,Double>	valuesForSymbols;
+	private final Calendar			date;
+	private final Map<String,Double>	valuesForSymbols;
 
-	public MarketData(Calendar date, Map<String,Double> valuesForSymbols) {
+	public MarketData(final Calendar date, final Map<String,Double> valuesForSymbols) {
 		super();
 		this.date				= date;
 		this.valuesForSymbols	= valuesForSymbols;
@@ -30,7 +30,7 @@ public class MarketData {
 		return date;
 	}
 
-	public double getValue(String symbol) {
+	public double getValue(final String symbol) {
 		return valuesForSymbols.get(symbol);
 	}
 

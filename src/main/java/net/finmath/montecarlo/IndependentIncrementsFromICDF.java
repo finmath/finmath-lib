@@ -90,12 +90,12 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
 	 */
 	public IndependentIncrementsFromICDF(
-			TimeDiscretization timeDiscretization,
-			int numberOfFactors,
-			int numberOfPaths,
-			int seed,
-			IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions,
-			RandomVariableFactory abstractRandomVariableFactory) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
@@ -133,26 +133,26 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * @param inverseCumulativeDistributionFunctions A map from the timeIndices to a map from the from the factors to the corresponding inverse cumulative distribution function.
 	 */
 	public IndependentIncrementsFromICDF(
-			TimeDiscretization timeDiscretization,
-			int numberOfFactors,
-			int numberOfPaths,
-			int seed,
-			IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions) {
 		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, inverseCumulativeDistributionFunctions, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedSeed(int seed) {
+	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
 		return new IndependentIncrementsFromICDF(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 
 		// Thread safe lazy initialization
 		synchronized(incrementsLazyInitLock) {
@@ -176,13 +176,13 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		}
 
 		// Create random number sequence generator
-		MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
+		final MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
 
 		// Allocate memory
-		double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];
+		final double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];
 
 		// Pre-fetch icdfs
-		DoubleUnaryOperator[][] inverseCumulativeDistributionFunctions = new DoubleUnaryOperator[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
+		final DoubleUnaryOperator[][] inverseCumulativeDistributionFunctions = new DoubleUnaryOperator[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				inverseCumulativeDistributionFunctions[timeIndex][factor] = this.inverseCumulativeDistributionFunctions.apply(timeIndex).apply(factor);
@@ -200,7 +200,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					double uniformIncrement = mersenneTwister.nextDouble();
+					final double uniformIncrement = mersenneTwister.nextDouble();
 					incrementsArray[timeIndex][factor][path] = inverseCumulativeDistributionFunctions[timeIndex][factor].applyAsDouble(uniformIncrement);
 				}
 			}
@@ -211,7 +211,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 
 		// Wrap the values in RandomVariableFromDoubleArray objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double time = timeDiscretization.getTime(timeIndex+1);
+			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				increments[timeIndex][factor] =
 						abstractRandomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
@@ -235,7 +235,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
@@ -256,7 +256,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -264,7 +264,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			return false;
 		}
 
-		IndependentIncrementsFromICDF that = (IndependentIncrementsFromICDF) o;
+		final IndependentIncrementsFromICDF that = (IndependentIncrementsFromICDF) o;
 
 		if (numberOfFactors != that.numberOfFactors) {
 			return false;
@@ -287,7 +287,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		return result;
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		incrementsLazyInitLock = new Object();

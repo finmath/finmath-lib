@@ -46,18 +46,18 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 
 	/**
 	 * Create a factory for objects of type {@link RandomVariableDifferentiableAAD}.
-	 * 
+	 *
 	 * Supported propeties are
 	 * <ul>
 	 * <li>isGradientRetainsLeafNodesOnly: Boolean</li>
 	 * <li>diracDeltaApproximationMethod: String</li>
 	 * <li>diracDeltaApproximationWidthPerStdDev: Double</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 * @param properties A key value map with properties.
 	 */
-	public RandomVariableDifferentiableAADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable, final Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 
 		/*
@@ -74,14 +74,14 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	/**
 	 * @param properties A key value map with properties.
 	 */
-	public RandomVariableDifferentiableAADFactory(Map<String, Object> properties) {
+	public RandomVariableDifferentiableAADFactory(final Map<String, Object> properties) {
 		this(new RandomVariableFromArrayFactory(), properties);
 	}
 
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 */
-	public RandomVariableDifferentiableAADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		this(randomVariableFactoryForNonDifferentiable, new HashMap<String, Object>());
 	}
 
@@ -90,12 +90,12 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, value), this);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, values), this);
 	}
 

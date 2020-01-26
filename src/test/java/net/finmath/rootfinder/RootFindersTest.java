@@ -50,21 +50,21 @@ public class RootFindersTest {
 		testRootFinderWithDerivative(rootFinderWithDerivative);
 	}
 
-	public static void testRootFinder(RootFinder rootFinder) {
+	public static void testRootFinder(final RootFinder rootFinder) {
 		System.out.println("Testing " + rootFinder.getClass().getName() + ":");
 
 		// Find a solution to x^3 + x^2 + x + 1 = 0
 		while(rootFinder.getAccuracy() > 1E-11 && !rootFinder.isDone()) {
-			double x = rootFinder.getNextPoint();
+			final double x = rootFinder.getNextPoint();
 
 			// Our test function. Analytic solution is -1.0.
-			double y = x*x*x + x*x + x + 1;
+			final double y = x*x*x + x*x + x + 1;
 
 			rootFinder.setValue(y);
 		}
 
 		// Print result:
-		DecimalFormat formatter = new DecimalFormat("0.00E00");
+		final DecimalFormat formatter = new DecimalFormat("0.00E00");
 		System.out.print("Root......: "+formatter.format(rootFinder.getBestPoint())+"\t");
 		System.out.print("Accuracy..: "+formatter.format(rootFinder.getAccuracy() )+"\t");
 		System.out.print("Iterations: "+rootFinder.getNumberOfIterations() +"\n");
@@ -73,21 +73,21 @@ public class RootFindersTest {
 	}
 
 	public static void testRootFinderWithDerivative(
-			RootFinderWithDerivative rootFinder) {
+			final RootFinderWithDerivative rootFinder) {
 		System.out.println("Testing " + rootFinder.getClass().getName() + ":");
 
 		// Find a solution to x^3 + x^2 + x + 1 = 0
 		while(rootFinder.getAccuracy() > 1E-11 && !rootFinder.isDone()) {
-			double x = rootFinder.getNextPoint();
+			final double x = rootFinder.getNextPoint();
 
-			double y = x*x*x + x*x + x + 1;
-			double p = 3*x*x + 2*x + 1;
+			final double y = x*x*x + x*x + x + 1;
+			final double p = 3*x*x + 2*x + 1;
 
 			rootFinder.setValueAndDerivative(y,p);
 		}
 
 		// Print result:
-		DecimalFormat formatter = new DecimalFormat("0.00E00");
+		final DecimalFormat formatter = new DecimalFormat("0.00E00");
 		System.out.print("Root......: "+formatter.format(rootFinder.getBestPoint())+"\t");
 		System.out.print("Accuracy..: "+formatter.format(rootFinder.getAccuracy() )+"\t");
 		System.out.print("Iterations: "+rootFinder.getNumberOfIterations() +"\n");

@@ -87,7 +87,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
 		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
 		 */
-		RationalFunction(double[] coefficientsNumerator, double[] coefficientsDenominator) {
+		RationalFunction(final double[] coefficientsNumerator, final double[] coefficientsDenominator) {
 			super();
 			this.coefficientsNumerator = coefficientsNumerator;
 			this.coefficientsDenominator = coefficientsDenominator;
@@ -98,7 +98,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 *
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
-		RationalFunction(double[] coefficients) {
+		RationalFunction(final double[] coefficients) {
 			super();
 			coefficientsNumerator = coefficients;
 			coefficientsDenominator = null;
@@ -110,13 +110,13 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * @param x Given argument.
 		 * @return Returns the value for the given argument.
 		 */
-		public double getValue(double x)
+		public double getValue(final double x)
 		{
 			double valueNumerator	= 0.0;
 			double valueDenominator	= 0.0;
 			double powerOfX	= 1.0;
 
-			for (double polynomialCoefficient : coefficientsNumerator) {
+			for (final double polynomialCoefficient : coefficientsNumerator) {
 				valueNumerator += polynomialCoefficient * powerOfX;
 				powerOfX *= x;
 			}
@@ -126,7 +126,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			}
 
 			powerOfX	= 1.0;
-			for (double polynomialCoefficient : coefficientsDenominator) {
+			for (final double polynomialCoefficient : coefficientsDenominator) {
 				valueDenominator += polynomialCoefficient * powerOfX;
 				powerOfX *= x;
 			}
@@ -145,7 +145,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	 * @param points The array of the x<sub>i</sub> sample points of a function y=f(x).
 	 * @param values The corresponding array of the y<sub>i</sub> sample values to the sample points x<sub>i</sub>.
 	 */
-	public RationalFunctionInterpolation(double[] points, double[] values) {
+	public RationalFunctionInterpolation(final double[] points, final double[] values) {
 		super();
 		this.points = points;
 		this.values = values;
@@ -160,7 +160,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	 * @param interpolationMethod The interpolation method to be used.
 	 * @param extrapolationMethod The extrapolation method to be used.
 	 */
-	public RationalFunctionInterpolation(double[] points, double[] values,  InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod) {
+	public RationalFunctionInterpolation(final double[] points, final double[] values,  final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod) {
 		super();
 		this.points = points;
 		this.values = values;
@@ -183,7 +183,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	 * @param x The abscissa at which the interpolation should be performed.
 	 * @return The interpolated value (ordinate).
 	 */
-	public double getValue(double x)
+	public double getValue(final double x)
 	{
 		synchronized(interpolatingRationalFunctionsLazyInitLock) {
 			if(interpolatingRationalFunctions == null) {
@@ -192,7 +192,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		}
 
 		// Get interpolating rational function for the given point x
-		int pointIndex = java.util.Arrays.binarySearch(points, x);
+		final int pointIndex = java.util.Arrays.binarySearch(points, x);
 		if(pointIndex >= 0) {
 			return values[pointIndex];
 		}
@@ -221,7 +221,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			}
 		}
 
-		RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
+		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
 
 		// Calculate interpolating value
 		return rationalFunction.getValue(x-points[intervallIndex]);
@@ -279,6 +279,10 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	private void doCreateRationalFunctionsForLinearInterpolation()
 	{
+		if(points.length == 0) {
+			throw new IllegalArgumentException("Interpolation requested on curve with no points.");
+		}
+
 		/*
 		 * Generate a rational function for each given interval
 		 */
@@ -286,13 +290,13 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		// create numerator polynomials (linear)
 		for(int pointIndex = 0; pointIndex < points.length-1; pointIndex++ ) {
-			double[] numeratorPolynomCoeff		= new double[2];
+			final double[] numeratorPolynomCoeff		= new double[2];
 
-			double xl = points[pointIndex];
-			double xr = points[pointIndex+1];
+			final double xl = points[pointIndex];
+			final double xr = points[pointIndex+1];
 
-			double fl = values[pointIndex];
-			double fr = values[pointIndex+1];
+			final double fl = values[pointIndex];
+			final double fr = values[pointIndex+1];
 
 			numeratorPolynomCoeff[1] = (fr-fl) / (xr-xl);
 			numeratorPolynomCoeff[0] = fl;
@@ -303,10 +307,10 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	private void doCreateRationalFunctionsForCubicSplineInterpolation()
 	{
-		int numberOfPoints = points.length;
+		final int numberOfPoints = points.length;
 
 		// Calculate interval lengths
-		double[] step = new double[numberOfPoints-1];
+		final double[] step = new double[numberOfPoints-1];
 		for (int i=0; i<numberOfPoints-1; i++ ) {
 			step[i] = points[i+1] - points[i];
 		}
@@ -317,8 +321,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 */
 		double[] secondDerivativeVector	= new double[numberOfPoints];
 
-		double[][]	secondDerivativeMarix	= new double[numberOfPoints][numberOfPoints];
-		double[]	v						= new double[numberOfPoints];
+		final double[][]	secondDerivativeMarix	= new double[numberOfPoints][numberOfPoints];
+		final double[]	v						= new double[numberOfPoints];
 
 		// Initialize A and b
 		secondDerivativeMarix[0][0] = 1.0;
@@ -350,7 +354,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		// create numerator polynomials (third order polynomial)
 		for(int i = 0; i < numberOfPoints-1; i++ ) {
-			double[] numeratortorPolynomCoeff		= new double[4];
+			final double[] numeratortorPolynomCoeff		= new double[4];
 
 			numeratortorPolynomCoeff[0] = values[i];
 			numeratortorPolynomCoeff[1] = (values[i+1] - values[i])/step[i] - (secondDerivativeVector[i+1] + 2*secondDerivativeVector[i])*step[i]/6;
@@ -366,9 +370,9 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		doCreateRationalFunctionsForAkimaInterpolation(0.0);
 	}
 
-	private void doCreateRationalFunctionsForAkimaInterpolation(double minSlopeDifferenceWeight)
+	private void doCreateRationalFunctionsForAkimaInterpolation(final double minSlopeDifferenceWeight)
 	{
-		int numberOfPoints = points.length;
+		final int numberOfPoints = points.length;
 
 		if(numberOfPoints < 4) {
 			// Akima interpolation not possible
@@ -376,9 +380,9 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		}
 		else {
 			// Calculate slopes
-			double[] step = new double[numberOfPoints-1];
-			double[] slope = new double[numberOfPoints-1];
-			double[] absSlopeDifference	= new double[numberOfPoints-2];
+			final double[] step = new double[numberOfPoints-1];
+			final double[] slope = new double[numberOfPoints-1];
+			final double[] absSlopeDifference	= new double[numberOfPoints-2];
 			for(int i = 0; i < numberOfPoints-1; i++){
 				step[i]		= (points[i+1] - points[i]);
 				slope[i]	= (values[i+1] - values[i]) / step[i];
@@ -388,7 +392,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			}
 
 			// Calculate first derivatives ...
-			double[] derivative = new double[numberOfPoints];
+			final double[] derivative = new double[numberOfPoints];
 
 			// ... for the 2 left and 2 right outer boundary points:
 			// in t_0
@@ -437,7 +441,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 			// create numerator polynomials (third order polynomial)
 			for(int i = 0; i < numberOfPoints-1; i++ ) {
-				double[] numeratorPolynomCoeff		= new double[4];
+				final double[] numeratorPolynomCoeff		= new double[4];
 
 				numeratorPolynomCoeff[0] = values[i];
 				numeratorPolynomCoeff[1] = derivative[i];
@@ -450,12 +454,12 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	}
 
 	private void doCreateRationalFunctionsForHarmonicSplineInterpolation(){
-		int numberOfPoints = points.length;
+		final int numberOfPoints = points.length;
 
 		// Calculate parameters
-		double[] step = new double[numberOfPoints-1];
-		double[] slope = new double[numberOfPoints-1];
-		double[] doubleStep	= new double[numberOfPoints-2];
+		final double[] step = new double[numberOfPoints-1];
+		final double[] slope = new double[numberOfPoints-1];
+		final double[] doubleStep	= new double[numberOfPoints-2];
 		for(int i = 0; i < numberOfPoints-1; i++){
 			step[i] = (points[i+1] - points[i]);
 			slope[i] = (values[i+1] - values[i]) / step[i];
@@ -465,7 +469,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		}
 
 		// Calculate first derivatives ...
-		double[] derivative = new double[numberOfPoints];
+		final double[] derivative = new double[numberOfPoints];
 
 		// ... for boundary points:
 		// in t_0
@@ -501,7 +505,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 				derivative[i] = 0;
 			}
 			else{
-				double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1])
+				final double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1])
 						+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
 				derivative[i] = 1.0 / weightedHarmonicMean;
 			}
@@ -514,7 +518,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 		// create numerator polynomials (third order polynomial)
 		for(int i = 0; i < numberOfPoints-1; i++ ) {
-			double[] numeratortorPolynomCoeff		= new double[4];
+			final double[] numeratortorPolynomCoeff		= new double[4];
 
 			numeratortorPolynomCoeff[0] = values[i];
 			numeratortorPolynomCoeff[1] = derivative[i];
@@ -527,7 +531,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
 		/**
 		 * Example. Shows how to use this class.
@@ -537,8 +541,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		/*
 		 * Given input points
 		 */
-		double[] givenPoints		= { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
-		double[] givenValues		= { 5.0, 6.0, 4.0, 7.0, 5.0, 6.0 };
+		final double[] givenPoints		= { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
+		final double[] givenValues		= { 5.0, 6.0, 4.0, 7.0, 5.0, 6.0 };
 
 		System.out.println("Interplation of given input points (x,y):");
 		System.out.println("  x: " + Arrays.toString(givenPoints));
@@ -551,8 +555,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(givenPoints, givenValues);
 
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
-			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
-			double value = interpolation.getValue(point);
+			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			final double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println();
@@ -561,8 +565,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.AKIMA, ExtrapolationMethod.CONSTANT);
 		System.out.println("AKIMA:");
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
-			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
-			double value = interpolation.getValue(point);
+			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			final double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println();
@@ -571,8 +575,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT);
 		System.out.println("CUBIC_SPLINE:");
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
-			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
-			double value = interpolation.getValue(point);
+			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			final double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println();
@@ -581,8 +585,8 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT);
 		System.out.println("PIECEWISE_CONSTANT:");
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
-			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
-			double value = interpolation.getValue(point);
+			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			final double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println();
@@ -591,19 +595,19 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.HARMONIC_SPLINE, ExtrapolationMethod.CONSTANT);
 		System.out.println("HARMONIC_SPLINE:");
 		for(int samplePointIndex = 0; samplePointIndex<samplePoints; samplePointIndex++) {
-			double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
-			double value = interpolation.getValue(point);
+			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];
+			final double value = interpolation.getValue(point);
 			System.out.println("" + point + "\t" + value);
 		}
 		System.out.println();
 	}
 
 	@Override
-	public double applyAsDouble(double operand) {
+	public double applyAsDouble(final double operand) {
 		return getValue(operand);
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		interpolatingRationalFunctionsLazyInitLock = new Object();

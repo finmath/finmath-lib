@@ -29,17 +29,17 @@ public class RandomVariableDifferentiableADFactory extends AbstractRandomVariabl
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
-	public RandomVariableDifferentiableADFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAD(createRandomVariableNonDifferentiable(time, value));
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAD(createRandomVariableNonDifferentiable(time, values));
 	}
 

@@ -22,18 +22,18 @@ public class SwaptionFactory {
 	private SwaptionFactory() {
 	}
 
-	public static TermStructureMonteCarloProduct createSwaption(String className, double swaprate, TimeDiscretization swapTenor, String valueUnitAsString) {
+	public static TermStructureMonteCarloProduct createSwaption(final String className, final double swaprate, final TimeDiscretization swapTenor, final String valueUnitAsString) {
 
 		if(className.equals("SwaptionAnalyticApproximation")) {
-			SwaptionAnalyticApproximation.ValueUnit valueUnit = SwaptionAnalyticApproximation.ValueUnit.valueOf(valueUnitAsString);
+			final SwaptionAnalyticApproximation.ValueUnit valueUnit = SwaptionAnalyticApproximation.ValueUnit.valueOf(valueUnitAsString);
 			return new SwaptionAnalyticApproximation(swaprate, swapTenor.getAsDoubleArray(), valueUnit);
 		}
 		else if(className.equals("SwaptionSimple")) {
-			SwaptionSimple.ValueUnit valueUnit = SwaptionSimple.ValueUnit.valueOf(valueUnitAsString);
+			final SwaptionSimple.ValueUnit valueUnit = SwaptionSimple.ValueUnit.valueOf(valueUnitAsString);
 			return new SwaptionSimple(swaprate, swapTenor.getAsDoubleArray(), valueUnit);
 		}
 		else if(className.equals("SwaptionAnalyticApproximationRebonato")) {
-			SwaptionAnalyticApproximationRebonato.ValueUnit valueUnit = SwaptionAnalyticApproximationRebonato.ValueUnit.valueOf(valueUnitAsString);
+			final SwaptionAnalyticApproximationRebonato.ValueUnit valueUnit = SwaptionAnalyticApproximationRebonato.ValueUnit.valueOf(valueUnitAsString);
 			return new SwaptionAnalyticApproximationRebonato(swaprate, swapTenor.getAsDoubleArray(), valueUnit);
 		} else {
 			throw new RuntimeException("Unknown class: " + className);

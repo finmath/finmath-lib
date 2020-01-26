@@ -32,7 +32,7 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public DigitalOptionDeltaLikelihood(double maturity, double strike) {
+	public DigitalOptionDeltaLikelihood(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -49,7 +49,7 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		/*
 		 * The following valuation code requires in-depth knowledge of the model to calculate the denstiy analytically.
@@ -59,7 +59,7 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 			try {
 				blackScholesModel = (BlackScholesModel)((MonteCarloAssetModel)model).getModel();
 			}
-			catch(Exception e) {}
+			catch(final Exception e) {}
 		}
 		else if(model instanceof MonteCarloBlackScholesModel) {
 			blackScholesModel = ((MonteCarloBlackScholesModel)model).getModel();
@@ -69,24 +69,24 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 		}
 
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
 
 		// Get some model parameters
-		double T		= maturity-evaluationTime;
-		double r		= blackScholesModel.getRiskFreeRate().doubleValue();
-		double sigma	= blackScholesModel.getVolatility().doubleValue();
+		final double T		= maturity-evaluationTime;
+		final double r		= blackScholesModel.getRiskFreeRate().doubleValue();
+		final double sigma	= blackScholesModel.getVolatility().doubleValue();
 
-		RandomVariable lr = underlyingAtMaturity.log().sub(underlyingAtToday.log()).sub(r * T - 0.5 * sigma*sigma * T).div(sigma * sigma * T).div(underlyingAtToday);
+		final RandomVariable lr = underlyingAtMaturity.log().sub(underlyingAtToday.log()).sub(r * T - 0.5 * sigma*sigma * T).div(sigma * sigma * T).div(underlyingAtToday);
 
-		RandomVariable payoff = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
+		final RandomVariable payoff = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
 
-		RandomVariable modifiedPayoff = payoff.mult(lr);
+		final RandomVariable modifiedPayoff = payoff.mult(lr);
 
-		RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
-		RandomVariable numeraireAtToday		= model.getNumeraire(0);
-		RandomVariable monteCarloWeightsAtMaturity		= model.getMonteCarloWeights(maturity);
-		RandomVariable monteCarloWeightsAtToday		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
+		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		final RandomVariable monteCarloWeightsAtMaturity		= model.getMonteCarloWeights(maturity);
+		final RandomVariable monteCarloWeightsAtToday		= model.getMonteCarloWeights(maturity);
 
 		return modifiedPayoff.div(numeraireAtMaturity).mult(numeraireAtToday).mult(monteCarloWeightsAtMaturity).div(monteCarloWeightsAtToday);
 	}

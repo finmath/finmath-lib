@@ -47,7 +47,7 @@ public interface BrownianMotion extends IndependentIncrements {
 	 * @param factor The index of the factor (independent scalar Brownian increment).
 	 * @return The factor (component) of the Brownian increments (a random variable).
 	 */
-	default RandomVariable getBrownianIncrement(double time, int factor) {
+	default RandomVariable getBrownianIncrement(final double time, final int factor) {
 		return getBrownianIncrement(getTimeDiscretization().getTimeIndex(time), factor);
 	}
 

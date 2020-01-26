@@ -22,8 +22,8 @@ public class PerformanceIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = -8181742829635380940L;
 
-	private AbstractProductComponent numeratorIndex;
-	private AbstractProductComponent denominatorIndex;
+	private final AbstractProductComponent numeratorIndex;
+	private final AbstractProductComponent denominatorIndex;
 
 	/**
 	 * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
@@ -31,14 +31,14 @@ public class PerformanceIndex extends AbstractIndex {
 	 * @param numeratorIndex First index.
 	 * @param denominatorIndex Second index.
 	 */
-	public PerformanceIndex(AbstractProductComponent numeratorIndex, AbstractProductComponent denominatorIndex) {
+	public PerformanceIndex(final AbstractProductComponent numeratorIndex, final AbstractProductComponent denominatorIndex) {
 		super();
 		this.numeratorIndex		= numeratorIndex;
 		this.denominatorIndex	= denominatorIndex;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return numeratorIndex.getValue(evaluationTime, model).div(denominatorIndex.getValue(evaluationTime, model));
 	}
 
@@ -63,7 +63,7 @@ public class PerformanceIndex extends AbstractIndex {
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames			= numeratorIndex.queryUnderlyings();
-		Set<String>	underlyingNames2		= denominatorIndex.queryUnderlyings();
+		final Set<String>	underlyingNames2		= denominatorIndex.queryUnderlyings();
 		if(underlyingNames2 != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNames2);

@@ -47,7 +47,7 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	 *
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
-	public ParameterAggregation(Set<E> parameters) {
+	public ParameterAggregation(final Set<E> parameters) {
 		this.parameters = new LinkedHashSet<>(parameters);
 	}
 
@@ -57,7 +57,7 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	 *
 	 * @param parameters A set of objects implementing ParameterObjectInterface to be combined to a single object.
 	 */
-	public ParameterAggregation(E[] parameters) {
+	public ParameterAggregation(final E[] parameters) {
 		this.parameters = new LinkedHashSet<>(Arrays.asList(parameters));
 	}
 
@@ -66,7 +66,7 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	 *
 	 * @param parameterObject The parameter object to add to this parameterization
 	 */
-	public void add(E parameterObject) {
+	public void add(final E parameterObject) {
 		parameters.add(parameterObject);
 	}
 
@@ -75,7 +75,7 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	 *
 	 * @param parameterObject The parameter object to remove.
 	 */
-	public void remove(E parameterObject) {
+	public void remove(final E parameterObject) {
 		parameters.remove(parameterObject);
 	}
 
@@ -83,18 +83,18 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	public RandomVariable[] getParameter() {
 		// Calculate the size of the total parameter vector
 		int parameterArraySize = 0;
-		for(ParameterObject parameterVector : parameters) {
+		for(final ParameterObject parameterVector : parameters) {
 			if(parameterVector.getParameter() != null) {
 				parameterArraySize += parameterVector.getParameter().length;
 			}
 		}
 
-		RandomVariable[] parameterArray = new RandomVariable[parameterArraySize];
+		final RandomVariable[] parameterArray = new RandomVariable[parameterArraySize];
 
 		// Copy parameter object parameters to aggregated parameter vector
 		int parameterIndex = 0;
-		for(ParameterObject parameterVector : parameters) {
-			RandomVariable[] parameterVectorOfDouble = parameterVector.getParameter();
+		for(final ParameterObject parameterVector : parameters) {
+			final RandomVariable[] parameterVectorOfDouble = parameterVector.getParameter();
 			if(parameterVectorOfDouble != null) {
 				System.arraycopy(parameterVectorOfDouble, 0, parameterArray, parameterIndex, parameterVectorOfDouble.length);
 				parameterIndex += parameterVectorOfDouble.length;
@@ -105,10 +105,10 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	}
 
 	@Override
-	public void setParameter(RandomVariable[] parameter) {
+	public void setParameter(final RandomVariable[] parameter) {
 		int parameterIndex = 0;
-		for(ParameterObject parametrizedObject : parameters) {
-			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter();
+		for(final ParameterObject parametrizedObject : parameters) {
+			final RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
@@ -118,11 +118,11 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 		}
 	}
 
-	public Map<E, RandomVariable[]> getObjectsToModifyForParameter(RandomVariable[] parameter) {
-		Map<E, RandomVariable[]> result = new HashMap<>();
+	public Map<E, RandomVariable[]> getObjectsToModifyForParameter(final RandomVariable[] parameter) {
+		final Map<E, RandomVariable[]> result = new HashMap<>();
 		int parameterIndex = 0;
-		for(ParameterObject parametrizedObject : parameters) {
-			RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
+		for(final ParameterObject parametrizedObject : parameters) {
+			final RandomVariable[] parameterVectorOfDouble = parametrizedObject.getParameter().clone();
 			if(parameterVectorOfDouble != null) {
 				// Copy parameter starting from parameterIndex to parameterVectorOfDouble
 				System.arraycopy(parameter, parameterIndex, parameterVectorOfDouble, 0, parameterVectorOfDouble.length);
@@ -134,7 +134,7 @@ public class ParameterAggregation<E extends ParameterObject> implements Paramete
 	}
 
 	@Override
-	public Curve getCloneForParameter(RandomVariable[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(final RandomVariable[] value) throws CloneNotSupportedException {
 		throw new UnsupportedOperationException("Method getCloneForParameter not supported on an aggregate.");
 	}
 }

@@ -54,7 +54,7 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param periodLength The parameter <i>d</i> in the formula above.
 	 */
-	public HullWhiteLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double periodLength) {
+	public HullWhiteLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final double periodLength) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.covarianceModel	= covarianceModel;
 		this.periodLength		= periodLength;
@@ -80,16 +80,16 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
 		return new HullWhiteLocalVolatilityModel(covarianceModel.getCloneWithModifiedParameters(parameters), periodLength);
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
 		if(realizationAtTimeIndex != null && realizationAtTimeIndex[component] != null) {
-			RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].mult(periodLength).add(1.0);
+			final RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].mult(periodLength).add(1.0);
 			for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);
 			}
@@ -99,12 +99,12 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	}
 
 	@Override
-	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map<String, Object> dataModified)
 			throws CalculationException {
 		double periodLength = this.periodLength;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
@@ -119,7 +119,7 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 			periodLength = (double)dataModified.getOrDefault("periodLength", periodLength);
 		}
 
-		AbstractLIBORCovarianceModelParametric newModel = new HullWhiteLocalVolatilityModel(covarianceModel, periodLength);
+		final AbstractLIBORCovarianceModelParametric newModel = new HullWhiteLocalVolatilityModel(covarianceModel, periodLength);
 		return newModel;
 	}
 }

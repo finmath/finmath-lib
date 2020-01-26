@@ -52,9 +52,9 @@ public class CalibratedModel {
 	private final double[] upperBound;
 	private final double[] parameterStep;
 
-	public CalibratedModel(OptionSurfaceData surface, CalibratableProcess model,
-			OptimizerFactory optimizerFactory, EuropeanOptionSmile pricer, double[] initialParameters,
-			double[] parameterStep) {
+	public CalibratedModel(final OptionSurfaceData surface, final CalibratableProcess model,
+			final OptimizerFactory optimizerFactory, final EuropeanOptionSmile pricer, final double[] initialParameters,
+			final double[] parameterStep) {
 		super();
 		this.surface = surface;
 		this.model = model;
@@ -73,49 +73,49 @@ public class CalibratedModel {
 	 */
 	public OptimizationResult getCalibration() throws SolverException {
 
-		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
+		final Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 			@Override
-			public void setValues(double[] parameters, double[] values) {
+			public void setValues(final double[] parameters, final double[] values) {
 
 				//We change the parameters of the model
-				CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
-				CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
+				final CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
+				final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
-				int numberOfMaturities = surface.getMaturities().length;
-				double mats[] = surface.getMaturities();
+				final int numberOfMaturities = surface.getMaturities().length;
+				final double mats[] = surface.getMaturities();
 
-				QuotingConvention targetConvention = surface.getQuotingConvention();
+				final QuotingConvention targetConvention = surface.getQuotingConvention();
 
-				ArrayList<Double> vals = new ArrayList<>();
+				final ArrayList<Double> vals = new ArrayList<>();
 
 				for(int t = 0; t<numberOfMaturities; t++) {
 
-					double[] currentStrikes = surface.getSmile(mats[t]).getStrikes();
+					final double[] currentStrikes = surface.getSmile(mats[t]).getStrikes();
 
-					EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
+					final EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 					try {
-						Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
+						final Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
 
 						for(int i = 0; i<currentStrikes.length;i++) {
 
 							if(targetConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 								//we convert prices into lognormal volatilities
-								double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
-								double optionMaturity =mats[t];
-								double optionStrike = currentStrikes[i];
-								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
+								final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
+								final double optionMaturity =mats[t];
+								final double optionStrike = currentStrikes[i];
+								final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
+								final double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
 								vals.add(net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));
 
 
 							}else if(targetConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
 								//we convert prices into normal volatilities
-								double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
-								double optionMaturity =mats[t];
-								double optionStrike = currentStrikes[i];
-								double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-								double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
+								final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
+								final double optionMaturity =mats[t];
+								final double optionStrike = currentStrikes[i];
+								final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
+								final double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);
 								vals.add(net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));
 							}else {
 								//just output the prices
@@ -123,7 +123,7 @@ public class CalibratedModel {
 							}
 
 						}
-					} catch (CalculationException e) {
+					} catch (final CalculationException e) {
 						e.printStackTrace();
 					}
 
@@ -132,7 +132,7 @@ public class CalibratedModel {
 			}
 		};
 
-		Optimizer optimizer = optimizerFactory.getOptimizer(
+		final Optimizer optimizer = optimizerFactory.getOptimizer(
 				objectiveFunction,
 				initialParameters,
 				lowerBound,
@@ -143,9 +143,9 @@ public class CalibratedModel {
 
 		optimizer.run();
 
-		ArrayList<String> calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());
+		final ArrayList<String> calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());
 
-		CalibratableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
+		final CalibratableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
 
 		return new OptimizationResult(calibratedModel,optimizer.getBestFitParameters(),optimizer.getIterations(),optimizer.getRootMeanSquaredError(),calibrationOutput);
 	}
@@ -156,23 +156,23 @@ public class CalibratedModel {
 	 */
 	private double[] formatTargetValuesForOptimizer() {
 		//Put all values in an array for the optimizer.
-		int numberOfMaturities = surface.getMaturities().length;
-		double mats[] = surface.getMaturities();
+		final int numberOfMaturities = surface.getMaturities().length;
+		final double mats[] = surface.getMaturities();
 
-		ArrayList<Double> vals = new ArrayList<>();
+		final ArrayList<Double> vals = new ArrayList<>();
 
 		for(int t = 0; t<numberOfMaturities; t++) {
-			double mat = mats[t];
-			double[] myStrikes = surface.getSurface().get(mat).getStrikes();
+			final double mat = mats[t];
+			final double[] myStrikes = surface.getSurface().get(mat).getStrikes();
 
-			OptionSmileData smileOfInterest = surface.getSurface().get(mat);
+			final OptionSmileData smileOfInterest = surface.getSurface().get(mat);
 
 			for(int k = 0; k < myStrikes.length; k++) {
 				vals.add(smileOfInterest.getSmile().get(myStrikes[k]).getValue());
 			}
 
 		}
-		Double[] targetVals = new Double[vals.size()];
+		final Double[] targetVals = new Double[vals.size()];
 		return ArrayUtils.toPrimitive(vals.toArray(targetVals));
 	}
 
@@ -181,18 +181,18 @@ public class CalibratedModel {
 	 *
 	 * @param parameters Calibration parameters.
 	 */
-	private ArrayList<String> outputCalibrationResult(double[] parameters) {
+	private ArrayList<String> outputCalibrationResult(final double[] parameters) {
 
-		ArrayList<String> calibrationOutput = new ArrayList<>();
+		final ArrayList<String> calibrationOutput = new ArrayList<>();
 
 		//We change the parameters of the model
-		CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
-		CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
+		final CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);
+		final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
-		int numberOfMaturities = surface.getMaturities().length;
-		double mats[] = surface.getMaturities();
+		final int numberOfMaturities = surface.getMaturities().length;
+		final double mats[] = surface.getMaturities();
 
-		QuotingConvention targetConvention = surface.getQuotingConvention();
+		final QuotingConvention targetConvention = surface.getQuotingConvention();
 
 		double value;
 		double targetValue;
@@ -203,13 +203,13 @@ public class CalibratedModel {
 
 		for(int t = 0; t<numberOfMaturities; t++) {
 			T = mats[t];
-			OptionSmileData currentSmile = surface.getSmile(mats[t]);
-			double[] currentStrikes = currentSmile.getStrikes();
+			final OptionSmileData currentSmile = surface.getSmile(mats[t]);
+			final double[] currentStrikes = currentSmile.getStrikes();
 
-			EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
+			final EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);
 
 			try {
-				Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
+				final Map<String, Function<Double, Double>> currentModelPrices = newPricer.getValue(0.0, newModelFourier);
 
 				for(int i = 0; i<currentStrikes.length;i++) {
 					K = currentStrikes[i];
@@ -217,21 +217,21 @@ public class CalibratedModel {
 
 					if(targetConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 						//we convert prices into lognormal volatilities
-						double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
-						double optionMaturity =mats[t];
-						double optionStrike = currentStrikes[i];
-						double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-						double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
+						final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
+						final double optionMaturity =mats[t];
+						final double optionStrike = currentStrikes[i];
+						final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
+						final double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
 						value = net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
 
 					}else if(targetConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {
 						//we convert prices into normal volatilities
-						double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
-						double optionMaturity =mats[t];
-						double optionStrike = currentStrikes[i];
-						double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
-						double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
+						final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);
+						final double optionMaturity =mats[t];
+						final double optionStrike = currentStrikes[i];
+						final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);
+						final double optionValue = currentModelPrices.get("valuePerStrike").apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);
 						value = net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 					}else {
 						//just output the prices
@@ -239,7 +239,7 @@ public class CalibratedModel {
 					}
 					calibrationOutput.add(K+ "\t" + T + "\t" + targetValue + "\t" + value+ "\t" + Math.pow(targetValue-value,2));
 				}
-			} catch (CalculationException e) {
+			} catch (final CalculationException e) {
 				e.printStackTrace();
 			}
 
@@ -261,8 +261,8 @@ public class CalibratedModel {
 		private final double rootMeanSquaredError;
 		private final ArrayList<String> calibrationOutput;
 
-		public OptimizationResult(CalibratableProcess model, double[] bestFitParameters,
-				int iterations, double rootMeanSquaredError, ArrayList<String> calibrationOutput) {
+		public OptimizationResult(final CalibratableProcess model, final double[] bestFitParameters,
+				final int iterations, final double rootMeanSquaredError, final ArrayList<String> calibrationOutput) {
 			super();
 			this.model = model;
 			this.bestFitParameters = bestFitParameters;

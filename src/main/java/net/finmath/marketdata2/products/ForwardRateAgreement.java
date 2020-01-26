@@ -24,7 +24,7 @@ import net.finmath.time.Schedule;
  */
 public class ForwardRateAgreement extends AbstractAnalyticProduct implements AnalyticProduct {
 
-	private Schedule					schedule;
+	private final Schedule					schedule;
 	private final String						forwardCurveName;
 	private final double						spread;
 	private final String						discountCurveName;
@@ -39,7 +39,7 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param discountCurveName Name of the discount curve (possibly multi curve setting).
 	 * @param isPayer If true, the fra pays fix, i.e., the payoff is forward - spread. Otherwise it is spread - forward.
 	 */
-	public ForwardRateAgreement(Schedule schedule,  double spread, String forwardCurveName, String discountCurveName, boolean isPayer) {
+	public ForwardRateAgreement(final Schedule schedule,  final double spread, final String forwardCurveName, final String discountCurveName, final boolean isPayer) {
 		super();
 		this.schedule = schedule;
 		this.forwardCurveName = forwardCurveName;
@@ -61,29 +61,29 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param forwardCurveName Name of the forward curve
 	 * @param discountCurveName Name of the discount curve (possibly multi curve setting).
 	 */
-	public ForwardRateAgreement(Schedule schedule,  double spread, String forwardCurveName, String discountCurveName) {
+	public ForwardRateAgreement(final Schedule schedule,  final double spread, final String forwardCurveName, final String discountCurveName) {
 		this(schedule, spread, forwardCurveName, discountCurveName, true /* isPayer */);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve==null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		final ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve==null && forwardCurveName!=null && forwardCurveName.length()>0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double fixingDate = schedule.getFixing(0);
-		double paymentDate = schedule.getPayment(0);
-		double periodLength = schedule.getPeriodLength(0);
+		final double fixingDate = schedule.getFixing(0);
+		final double paymentDate = schedule.getPayment(0);
+		final double periodLength = schedule.getPeriodLength(0);
 
 		RandomVariable forward = new RandomVariableFromDoubleArray(0.0);
 		if(forwardCurve != null) {
@@ -91,8 +91,8 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 		}
 
 		// Valuation of the market FRA for payer and receiver direction, neglecting convexity adjustment
-		double notional = isPayer ? 1.0 : -1.0;
-		RandomVariable discountFactorFixingDate = fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : new RandomVariableFromDoubleArray(0.0);
+		final double notional = isPayer ? 1.0 : -1.0;
+		final RandomVariable discountFactorFixingDate = fixingDate > evaluationTime ? discountCurve.getDiscountFactor(model, fixingDate) : new RandomVariableFromDoubleArray(0.0);
 		return forward.sub(spread).div(forward.mult(periodLength).add(1.0)).mult(discountFactorFixingDate).mult(periodLength*notional);
 	}
 
@@ -102,17 +102,17 @@ public class ForwardRateAgreement extends AbstractAnalyticProduct implements Ana
 	 * @param model A given model.
 	 * @return The par FRA rate.
 	 */
-	public RandomVariable getRate(AnalyticModel model) {
+	public RandomVariable getRate(final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
+		final ForwardCurveInterface forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve==null) {
 			throw new IllegalArgumentException("No forward curve of name '" + forwardCurveName + "' found in given model:\n" + model.toString());
 		}
 
-		double fixingDate = schedule.getFixing(0);
+		final double fixingDate = schedule.getFixing(0);
 		return forwardCurve.getForward(model,fixingDate);
 	}
 }

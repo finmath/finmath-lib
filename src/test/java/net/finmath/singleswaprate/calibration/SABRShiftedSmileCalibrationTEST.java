@@ -51,7 +51,7 @@ public class SABRShiftedSmileCalibrationTEST {
 	private static String receiverFileName				= "CashReceiverSwaptionPrice.sdl";
 	private static String physicalFileName				= "PhysicalSwaptionPriceATM.sdl";
 
-	private AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
+	private final AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
 
 	// cube parameters
 	private static double sabrDisplacement 		= 0.25;
@@ -119,37 +119,37 @@ public class SABRShiftedSmileCalibrationTEST {
 	@Test
 	public void testCalibration() {
 
-		List<Double> modelPayerValues		= new ArrayList<>();
-		List<Double> marketPayerValues		= new ArrayList<>();
-		List<Double> modelReceiverValues	= new ArrayList<>();
-		List<Double> marketReceiverValues	= new ArrayList<>();
+		final List<Double> modelPayerValues		= new ArrayList<>();
+		final List<Double> marketPayerValues		= new ArrayList<>();
+		final List<Double> modelReceiverValues	= new ArrayList<>();
+		final List<Double> marketReceiverValues	= new ArrayList<>();
 
 		System.out.println("Running calibration...");
-		long startTime = System.currentTimeMillis();
+		final long startTime = System.currentTimeMillis();
 
-		SABRShiftedSmileCalibration calibrator = new SABRShiftedSmileCalibration(referenceDate, payerSwaptions, receiverSwaptions, physicalSwaptions, model,
+		final SABRShiftedSmileCalibration calibrator = new SABRShiftedSmileCalibration(referenceDate, payerSwaptions, receiverSwaptions, physicalSwaptions, model,
 				sabrDisplacement, sabrBeta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(calibrationMaxIteration, Runtime.getRuntime().availableProcessors());
 		calibrator.setUseLinearInterpolation(useLinearInterpolation);
 
 		try {
 			cube = calibrator.build("ShiftedSmileCube");
-		} catch (SolverException e) {
+		} catch (final SolverException e) {
 			e.printStackTrace();
 		}
 
-		long endTime = System.currentTimeMillis();
+		final long endTime = System.currentTimeMillis();
 
 		System.out.println("\nCalibration finished after "+(endTime-startTime)/1000 +"s.");
 		System.out.println("Cube calibrated to parameters:");
 		System.out.println(cube.getParameters().toString());
 
 		System.out.println("\nValue of CSPayerSwaption\nmoneyness maturity termination | model-value market-value");
-		for(int moneyness : payerSwaptions.getMoneyness()) {
-			for(int maturity : payerSwaptions.getMaturities(moneyness)) {
-				for(int termination : payerSwaptions.getTenors(moneyness, maturity)) {
-					double valueModel	= payerValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
-					double valueMarket	= payerSwaptions.getValue(maturity, termination, moneyness);
+		for(final int moneyness : payerSwaptions.getMoneyness()) {
+			for(final int maturity : payerSwaptions.getMaturities(moneyness)) {
+				for(final int termination : payerSwaptions.getTenors(moneyness, maturity)) {
+					final double valueModel	= payerValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
+					final double valueMarket	= payerSwaptions.getValue(maturity, termination, moneyness);
 
 					System.out.println(moneyness + "\t" + maturity + "\t" + termination + "\t|\t" + valueModel + "\t" + valueMarket);
 					modelPayerValues.add(valueModel);
@@ -159,11 +159,11 @@ public class SABRShiftedSmileCalibrationTEST {
 		}
 
 		System.out.println("\nValue of CSReceiverSwaption\nmoneyness maturity termination | model-value market-value");
-		for(int moneyness : receiverSwaptions.getMoneyness()) {
-			for(int maturity : receiverSwaptions.getMaturities(moneyness)) {
-				for(int termination : receiverSwaptions.getTenors(moneyness, maturity)) {
-					double valueModel	= receiverValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
-					double valueMarket	= receiverSwaptions.getValue(maturity, termination, moneyness);
+		for(final int moneyness : receiverSwaptions.getMoneyness()) {
+			for(final int maturity : receiverSwaptions.getMaturities(moneyness)) {
+				for(final int termination : receiverSwaptions.getTenors(moneyness, maturity)) {
+					final double valueModel	= receiverValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
+					final double valueMarket	= receiverSwaptions.getValue(maturity, termination, moneyness);
 
 					System.out.println(moneyness + "\t" + maturity + "\t" + termination + "\t|\t" + valueModel + "\t" + valueMarket);
 					modelReceiverValues.add(valueModel);
@@ -184,32 +184,32 @@ public class SABRShiftedSmileCalibrationTEST {
 	@Test
 	public void testSingleSmile() throws SolverException {
 
-		double initialBaseVol = 0.01;
-		double initialVolVol = 0.15;
-		double initialRho = 0.3;
-		double[] initialParameters = new double[]{initialBaseVol, initialVolVol, initialRho};
+		final double initialBaseVol = 0.01;
+		final double initialVolVol = 0.15;
+		final double initialRho = 0.3;
+		final double[] initialParameters = new double[]{initialBaseVol, initialVolVol, initialRho};
 
-		Schedule fixSchedule	= fixMetaSchedule.generateSchedule(referenceDate, singleSmileMaturity, singleSmileTenor);
-		Schedule floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, singleSmileMaturity, singleSmileTenor);
+		final Schedule fixSchedule	= fixMetaSchedule.generateSchedule(referenceDate, singleSmileMaturity, singleSmileTenor);
+		final Schedule floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, singleSmileMaturity, singleSmileTenor);
 
-		double parSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-		double optionMaturity	= fixSchedule.getFixing(0);
+		final double parSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double optionMaturity	= fixSchedule.getFixing(0);
 
-		List<Double> marketVolatilitiesList	= new ArrayList<>();
-		List<Double> marketStrikesList		= new ArrayList<>();
+		final List<Double> marketVolatilitiesList	= new ArrayList<>();
+		final List<Double> marketStrikesList		= new ArrayList<>();
 
-		SwaptionDataLattice shiftedLattice = Utils.shiftCashToPhysicalSmile(model, physicalSwaptions, payerSwaptions, receiverSwaptions);
-		for(int moneyness : shiftedLattice.getMoneyness()) {
+		final SwaptionDataLattice shiftedLattice = Utils.shiftCashToPhysicalSmile(model, physicalSwaptions, payerSwaptions, receiverSwaptions);
+		for(final int moneyness : shiftedLattice.getMoneyness()) {
 			if(shiftedLattice.containsEntryFor(singleSmileMaturity, singleSmileTenor, moneyness)) {
 				marketVolatilitiesList.add(shiftedLattice.getValue(singleSmileMaturity, singleSmileTenor, moneyness));
 				marketStrikesList.add(parSwapRate + moneyness * 0.0001);
 			}
 		}
 
-		double[] marketVolatilities	= marketVolatilitiesList.stream().mapToDouble(Double::doubleValue).toArray();
-		double[] marketStrikes		= marketStrikesList.stream().mapToDouble(Double::doubleValue).toArray();
+		final double[] marketVolatilities	= marketVolatilitiesList.stream().mapToDouble(Double::doubleValue).toArray();
+		final double[] marketStrikes		= marketStrikesList.stream().mapToDouble(Double::doubleValue).toArray();
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(
+		final LevenbergMarquardt optimizer = new LevenbergMarquardt(
 				initialParameters,
 				marketVolatilities,
 				calibrationMaxIteration,
@@ -219,7 +219,7 @@ public class SABRShiftedSmileCalibrationTEST {
 			private static final long serialVersionUID = -109907086732741286L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) {
+			public void setValues(final double[] parameters, final double[] values) {
 
 				// making sure that volatility stays above 0
 				parameters[0] = Math.max(parameters[0], 0);
@@ -237,7 +237,7 @@ public class SABRShiftedSmileCalibrationTEST {
 		optimizer.run();
 		System.out.println("Optimizer finished after " +optimizer.getIterations() +" iterations with mean error " + optimizer.getRootMeanSquaredError());
 
-		double[] calibratedParameters = optimizer.getBestFitParameters();
+		final double[] calibratedParameters = optimizer.getBestFitParameters();
 		System.out.println("Given parameters:");
 		System.out.println("beta= "+sabrBeta);
 		System.out.println("displacement= " +sabrDisplacement);
@@ -247,14 +247,14 @@ public class SABRShiftedSmileCalibrationTEST {
 		System.out.println("nu= "+ calibratedParameters[1]);
 		System.out.println("rho= "+ calibratedParameters[2]);
 
-		List<Double> modelValues	= new ArrayList<>();
-		List<Double> marketValues	= new ArrayList<>();
+		final List<Double> modelValues	= new ArrayList<>();
+		final List<Double> marketValues	= new ArrayList<>();
 		System.out.println("\n\nSmile at "+singleSmileMaturity+"M"+singleSmileTenor+"M");
 		System.out.println("Moneyness\tSABR\tMarket");
-		for(int moneyness : shiftedLattice.getMoneyness()) {
+		for(final int moneyness : shiftedLattice.getMoneyness()) {
 			if(shiftedLattice.containsEntryFor(singleSmileMaturity, singleSmileTenor, moneyness)) {
-				double marketValue	= shiftedLattice.getValue(singleSmileMaturity, singleSmileTenor, moneyness);
-				double sabrValue	= AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(
+				final double marketValue	= shiftedLattice.getValue(singleSmileMaturity, singleSmileTenor, moneyness);
+				final double sabrValue	= AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(
 						calibratedParameters[0],
 						sabrBeta,
 						calibratedParameters[2],
@@ -275,26 +275,26 @@ public class SABRShiftedSmileCalibrationTEST {
 		}
 	}
 
-	private double payerValue(VolatilityCubeModel model, int maturity, int termination, int moneyness) {
+	private double payerValue(final VolatilityCubeModel model, final int maturity, final int termination, final int moneyness) {
 
-		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-		double strike = forwardSwapRate + moneyness/10000.0;
+		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double strike = forwardSwapRate + moneyness/10000.0;
 
-		CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+		final CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
 				cube.getName(), type);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}
 
-	private double receiverValue(VolatilityCubeModel model, int maturity, int termination, int moneyness) {
+	private double receiverValue(final VolatilityCubeModel model, final int maturity, final int termination, final int moneyness) {
 
-		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-		double strike = forwardSwapRate - moneyness/10000.0;
+		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double strike = forwardSwapRate - moneyness/10000.0;
 
-		CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+		final CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
 				cube.getName(), type);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}

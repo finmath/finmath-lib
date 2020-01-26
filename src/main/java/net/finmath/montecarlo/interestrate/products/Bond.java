@@ -27,7 +27,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	 * @param referenceDate The date corresponding to \( t = 0 \).
 	 * @param maturity The maturity given as double.
 	 */
-	public Bond(LocalDateTime referenceDate, double maturity) {
+	public Bond(final LocalDateTime referenceDate, final double maturity) {
 		super();
 		this.referenceDate = referenceDate;
 		this.maturity = maturity;
@@ -36,7 +36,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * @param maturity The maturity given as double.
 	 */
-	public Bond(double maturity) {
+	public Bond(final double maturity) {
 		super();
 		this.maturity = maturity;
 	}
@@ -52,7 +52,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		double productToModelTimeOffset = 0;
 		try {
@@ -60,19 +60,19 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
 			}
 		}
-		catch(UnsupportedOperationException e) {}
+		catch(final UnsupportedOperationException e) {}
 
 		// Get random variables
-		RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);
-		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(productToModelTimeOffset + maturity);
+		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);
+		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(productToModelTimeOffset + maturity);
 
 		// Calculate numeraire relative value
 		RandomVariable values = model.getRandomVariableForConstant(1.0);
 		values = values.div(numeraire).mult(monteCarloProbabilities);
 
 		// Convert back to values
-		RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);
 
 		// Return values
@@ -89,7 +89,7 @@ public class Bond extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * @param maturity The maturity to set.
 	 */
-	public void setMaturity(double maturity) {
+	public void setMaturity(final double maturity) {
 		this.maturity = maturity;
 	}
 

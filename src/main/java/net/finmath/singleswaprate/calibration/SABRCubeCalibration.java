@@ -45,20 +45,20 @@ import net.finmath.time.SchedulePrototype;
 public class SABRCubeCalibration {
 
 	//input
-	private LocalDate referenceDate;
+	private final LocalDate referenceDate;
 
-	private SwaptionDataLattice cashPayerPremiums;
-	private SwaptionDataLattice cashReceiverPremiums;
-	private SwaptionDataLattice physicalPremiumsATM;
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
+	private final SwaptionDataLattice physicalPremiumsATM;
 
-	private SchedulePrototype tableMetaSchedule;
+	private final SchedulePrototype tableMetaSchedule;
 
-	private String discountCurveName;
-	private String forwardCurveName;
+	private final String discountCurveName;
+	private final String forwardCurveName;
 
-	private VolatilityCubeModel model;
+	private final VolatilityCubeModel model;
 
-	private AnnuityMappingType annuityMappingType;
+	private final AnnuityMappingType annuityMappingType;
 
 	private boolean useLinearInterpolation = true;
 
@@ -112,8 +112,8 @@ public class SABRCubeCalibration {
 	 *
 	 * @throws IllegalArgumentException Triggers when data is not provided in QuotingConvention.Price.
 	 */
-	public SABRCubeCalibration(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, SwaptionDataLattice physicalPremiumsATM,
-			VolatilityCubeModel model, AnnuityMappingType annuityMappingType) {
+	public SABRCubeCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType) {
 		super();
 		if(cashPayerPremiums.getQuotingConvention() != QuotingConvention.PAYERPRICE || cashReceiverPremiums.getQuotingConvention() != QuotingConvention.RECEIVERPRICE) {
 			throw new IllegalArgumentException("Swaption data not provided in QuotingConvention.PAYERPRICE or QuotingConvention.RECEIVERPRICE respectively.");
@@ -144,9 +144,9 @@ public class SABRCubeCalibration {
 	 * @param correlationDecay The correlation decay parameter for resulting cube.
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter for the resulting cube.
 	 */
-	public SABRCubeCalibration(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, SwaptionDataLattice physicalPremiumsATM,
-			VolatilityCubeModel model, AnnuityMappingType annuityMappingType,
-			double sabrDisplacement, double sabrBeta, double  correlationDecay, double iborOisDecorrelation) {
+	public SABRCubeCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType,
+			final double sabrDisplacement, final double sabrBeta, final double  correlationDecay, final double iborOisDecorrelation) {
 		this(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model, annuityMappingType);
 
 		this.displacement = sabrDisplacement;
@@ -164,9 +164,9 @@ public class SABRCubeCalibration {
 	 *
 	 * @throws SolverException Thrown when either the calibration of final or initial parameters (if not provided) fails.
 	 */
-	public SABRVolatilityCube calibrate(String cubeName, int[] terminations) throws SolverException {
+	public SABRVolatilityCube calibrate(final String cubeName, final int[] terminations) throws SolverException {
 
-		DataTable nodes = findInterpolationNodes();
+		final DataTable nodes = findInterpolationNodes();
 		this.terminations = terminations;
 
 		if(useLinearInterpolation) {
@@ -181,12 +181,12 @@ public class SABRCubeCalibration {
 
 
 		// go through maturities in reverse order
-		Integer[] maturities = nodes.getMaturities().toArray(new Integer[0]);
+		final Integer[] maturities = nodes.getMaturities().toArray(new Integer[0]);
 		Arrays.sort(maturities, Collections.reverseOrder());
 
 		findInitialParameters();
 
-		for(int maturity : maturities) {
+		for(final int maturity : maturities) {
 
 			initializeParameters(maturity);
 
@@ -211,7 +211,7 @@ public class SABRCubeCalibration {
 	 * @param initialBaseVols The table of initial values for base volatilities.
 	 * @param initialVolvols The table of initial values for volvols.
 	 */
-	public void setInitialParameters(DataTable initialRhos, DataTable initialBaseVols, DataTable initialVolvols) {
+	public void setInitialParameters(final DataTable initialRhos, final DataTable initialBaseVols, final DataTable initialVolvols) {
 
 		this.initialRhos		= initialRhos;
 		this.initialBaseVols	= initialBaseVols;
@@ -223,24 +223,24 @@ public class SABRCubeCalibration {
 	 */
 	private DataTableLight findInterpolationNodes() {
 
-		ArrayList<Integer> nodeMaturities = new ArrayList<>();
-		ArrayList<Integer> nodeTerminations = new ArrayList<>();
-		ArrayList<Double> nodeCardinalities = new ArrayList<>();
+		final ArrayList<Integer> nodeMaturities = new ArrayList<>();
+		final ArrayList<Integer> nodeTerminations = new ArrayList<>();
+		final ArrayList<Double> nodeCardinalities = new ArrayList<>();
 
-		Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
+		final Set<Integer> payerStrikes = new TreeSet<>(cashPayerPremiums.getGridNodesPerMoneyness().keySet());
 		payerStrikes.remove(0);
-		Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
+		final Set<Integer> receiverStrikes = new TreeSet<>(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());
 		receiverStrikes.remove(0);
 
-		for(int maturity : cashPayerPremiums.getMaturities()) {
-			for(int termination : cashPayerPremiums.getTenors()) {
+		for(final int maturity : cashPayerPremiums.getMaturities()) {
+			for(final int termination : cashPayerPremiums.getTenors()) {
 				int count = 1;
-				for(int strike : payerStrikes) {
+				for(final int strike : payerStrikes) {
 					if(cashPayerPremiums.containsEntryFor(maturity, termination, strike)) {
 						count++;
 					}
 				}
-				for(int strike : receiverStrikes) {
+				for(final int strike : receiverStrikes) {
 					if(cashReceiverPremiums.containsEntryFor(maturity, termination, strike)) {
 						count++;
 					}
@@ -259,8 +259,8 @@ public class SABRCubeCalibration {
 
 		// fix holes (as interpolation needs a regular grid)
 		if(interpolationNodes.size() != interpolationNodes.getMaturities().size() * interpolationNodes.getTerminations().size()) {
-			for(int maturity : interpolationNodes.getMaturities()) {
-				for(int termination : interpolationNodes.getTerminations()) {
+			for(final int maturity : interpolationNodes.getMaturities()) {
+				for(final int termination : interpolationNodes.getTerminations()) {
 					if(! interpolationNodes.containsEntryFor(maturity, termination)) {
 						interpolationNodes = interpolationNodes.addPoint(maturity, termination, 1);
 					}
@@ -278,12 +278,12 @@ public class SABRCubeCalibration {
 	private void findInitialParameters() throws SolverException {
 
 		if(initialRhos == null || initialBaseVols == null || initialVolvols == null) {
-			SABRShiftedSmileCalibration preCalibration = new SABRShiftedSmileCalibration(referenceDate,
+			final SABRShiftedSmileCalibration preCalibration = new SABRShiftedSmileCalibration(referenceDate,
 					cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,
 					displacement, beta, correlationDecay, iborOisDecorrelation);
 			preCalibration.setCalibrationParameters(500, numberOfThreads);
 			preCalibration.setUseLinearInterpolation(useLinearInterpolation);
-			SABRVolatilityCube quickCube = preCalibration.build("ShiftedSmileCube");
+			final SABRVolatilityCube quickCube = preCalibration.build("ShiftedSmileCube");
 
 			swapRateTable = quickCube.getUnderlyingTable();
 			initialRhos = quickCube.getRhoTable();
@@ -301,16 +301,16 @@ public class SABRCubeCalibration {
 	 */
 	private void makeSwapRateTable() {
 
-		ArrayList<Double> swapRates = new ArrayList<>();
-		ArrayList<Integer> matList = new ArrayList<>();
-		ArrayList<Integer> termList = new ArrayList<>();
+		final ArrayList<Double> swapRates = new ArrayList<>();
+		final ArrayList<Integer> matList = new ArrayList<>();
+		final ArrayList<Integer> termList = new ArrayList<>();
 
-		SchedulePrototype fixMetaSchedule	= physicalPremiumsATM.getFixMetaSchedule();
-		SchedulePrototype floatMetaSchedule	= physicalPremiumsATM.getFloatMetaSchedule();
-		for(int maturity : physicalPremiumsATM.getMaturities()) {
-			for(int termination : terminations) {
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final SchedulePrototype fixMetaSchedule	= physicalPremiumsATM.getFixMetaSchedule();
+		final SchedulePrototype floatMetaSchedule	= physicalPremiumsATM.getFloatMetaSchedule();
+		for(final int maturity : physicalPremiumsATM.getMaturities()) {
+			for(final int termination : terminations) {
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
 
 				swapRates.add(Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model));
 				matList.add(maturity);
@@ -330,13 +330,13 @@ public class SABRCubeCalibration {
 	 *
 	 * @param maturity The maturity for which to calibrate.
 	 */
-	protected void initializeParameters(int maturity) {
+	protected void initializeParameters(final int maturity) {
 
-		int numberOfSmiles = terminations.length;
+		final int numberOfSmiles = terminations.length;
 		parameters = new double[numberOfSmiles * 3];
-		double[] rhos = new double[numberOfSmiles];
-		double[] baseVols = new double[numberOfSmiles];
-		double[] volvols = new double[numberOfSmiles];
+		final double[] rhos = new double[numberOfSmiles];
+		final double[] baseVols = new double[numberOfSmiles];
+		final double[] volvols = new double[numberOfSmiles];
 
 		for(int i = 0; i < numberOfSmiles; i++) {
 			rhos[i] = initialRhos.getValue(maturity, terminations[i]);
@@ -354,7 +354,7 @@ public class SABRCubeCalibration {
 	 * Build the target array.
 	 *
 	 */
-	private void generateTargets(int maturity) {
+	private void generateTargets(final int maturity) {
 
 		//convert data tables to swaptions and target array
 		//order: cashPayer(strike maturity termination) cashReceiver(strike maturity termination)
@@ -363,25 +363,25 @@ public class SABRCubeCalibration {
 		receiverSwaptions = new ArrayList<>();
 
 		//prep temp variables
-		ArrayList<Double> targetsPayer 	  = new ArrayList<>();
-		ArrayList<Double> targetsReceiver = new ArrayList<>();
+		final ArrayList<Double> targetsPayer 	  = new ArrayList<>();
+		final ArrayList<Double> targetsReceiver = new ArrayList<>();
 
 		//sort all data into array lists
-		for(int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
-			for(int termination : cashPayerPremiums.getTenors(moneyness, maturity)) {
+		for(final int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {
+			for(final int termination : cashPayerPremiums.getTenors(moneyness, maturity)) {
 				payerSwaptions.add( new SwaptionInfo(moneyness, maturity, termination));
 				targetsPayer.add( cashPayerPremiums.getValue(maturity, termination, moneyness));
 			}
 		}
 
-		for(int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {
-			for(int termination : cashReceiverPremiums.getTenors(moneyness, maturity)) {
+		for(final int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {
+			for(final int termination : cashReceiverPremiums.getTenors(moneyness, maturity)) {
 				receiverSwaptions.add( new SwaptionInfo(-moneyness, maturity, termination));
 				targetsReceiver.add( cashReceiverPremiums.getValue(maturity, termination, moneyness));
 			}
 		}
 
-		ArrayList<Double> targetsList = targetsPayer;
+		final ArrayList<Double> targetsList = targetsPayer;
 		targetsList.addAll(targetsReceiver);
 
 		this.marketTargets = ArrayUtils.toPrimitive(targetsList.toArray(new Double[0]));
@@ -400,9 +400,9 @@ public class SABRCubeCalibration {
 	 * @param parameters The raw parameters of the cube as array.
 	 * @return The parameters with their respective bounds applied.
 	 */
-	protected double[] applyParameterBounds(double[] parameters) {
-		double[] boundedParameters = new double[parameters.length];
-		int numberOfSmiles = terminations.length;
+	protected double[] applyParameterBounds(final double[] parameters) {
+		final double[] boundedParameters = new double[parameters.length];
+		final int numberOfSmiles = terminations.length;
 
 		for(int index = 0; index < numberOfSmiles; index ++)  {
 			boundedParameters[index] = Math.min(.999999, Math.max(-.999999, parameters[index]));
@@ -420,15 +420,15 @@ public class SABRCubeCalibration {
 	 * @param parameters The parameters of the slice.
 	 * @return A slice of the cube.
 	 */
-	private VolatilityCube buildSlice(String name, double[] parameters) {
+	private VolatilityCube buildSlice(final String name, final double[] parameters) {
 
-		int numberOfSmiles = terminations.length;
-		int[] maturities = new int[numberOfSmiles];
+		final int numberOfSmiles = terminations.length;
+		final int[] maturities = new int[numberOfSmiles];
 		Arrays.fill(maturities, currentMaturity);
 
-		double[] rhos = Arrays.copyOf(parameters, numberOfSmiles);
-		double[] baseVols = Arrays.copyOfRange(parameters, numberOfSmiles, numberOfSmiles * 2);
-		double[] volvols = Arrays.copyOfRange(parameters, numberOfSmiles * 2, numberOfSmiles * 3);
+		final double[] rhos = Arrays.copyOf(parameters, numberOfSmiles);
+		final double[] baseVols = Arrays.copyOfRange(parameters, numberOfSmiles, numberOfSmiles * 2);
+		final double[] volvols = Arrays.copyOfRange(parameters, numberOfSmiles * 2, numberOfSmiles * 3);
 
 		DataTable rhoTable;
 		DataTable baseVolTable;
@@ -449,7 +449,7 @@ public class SABRCubeCalibration {
 					terminations, volvols);
 		}
 
-		VolatilityCube slice = new SABRVolatilityCube(name, referenceDate, swapRateTable, displacement, beta,
+		final VolatilityCube slice = new SABRVolatilityCube(name, referenceDate, swapRateTable, displacement, beta,
 				rhoTable, baseVolTable, volvolTable, correlationDecay, iborOisDecorrelation);
 
 		return slice;
@@ -460,13 +460,13 @@ public class SABRCubeCalibration {
 	 */
 	private void gatherParameters() {
 
-		int numberOfSmiles = terminations.length;
-		int[] maturities = new int[numberOfSmiles];
+		final int numberOfSmiles = terminations.length;
+		final int[] maturities = new int[numberOfSmiles];
 		Arrays.fill(maturities, currentMaturity);
 
-		double[] rhos = Arrays.copyOf(parameters, numberOfSmiles);
-		double[] baseVols = Arrays.copyOfRange(parameters, numberOfSmiles, numberOfSmiles * 2);
-		double[] volvols = Arrays.copyOfRange(parameters, numberOfSmiles * 2, numberOfSmiles * 3);
+		final double[] rhos = Arrays.copyOf(parameters, numberOfSmiles);
+		final double[] baseVols = Arrays.copyOfRange(parameters, numberOfSmiles, numberOfSmiles * 2);
+		final double[] volvols = Arrays.copyOfRange(parameters, numberOfSmiles * 2, numberOfSmiles * 3);
 
 		rhoTable = rhoTable.addPoints(maturities, terminations, rhos);
 		baseVolTable = baseVolTable.addPoints(maturities, terminations, baseVols);
@@ -481,7 +481,7 @@ public class SABRCubeCalibration {
 	 */
 	private void runOptimization() throws SolverException {
 
-		LevenbergMarquardt optimizer = new LevenbergMarquardt(parameters, marketTargets, maxIterations, numberOfThreads) {
+		final LevenbergMarquardt optimizer = new LevenbergMarquardt(parameters, marketTargets, maxIterations, numberOfThreads) {
 
 
 			/**
@@ -490,15 +490,15 @@ public class SABRCubeCalibration {
 			private static final long serialVersionUID = -264612909413575260L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) {
+			public void setValues(double[] parameters, final double[] values) {
 
 				//apply bounds to the parameters
 				parameters = applyParameterBounds(parameters);
 
 				//get volatility cube and add to temporary model
-				String tempCubeName = "tempCubeSlice";
-				VolatilityCube cube = buildSlice(tempCubeName, parameters);
-				VolatilityCubeModel tempModel = model.addVolatilityCube(cube);
+				final String tempCubeName = "tempCubeSlice";
+				final VolatilityCube cube = buildSlice(tempCubeName, parameters);
+				final VolatilityCubeModel tempModel = model.addVolatilityCube(cube);
 
 				//pre allocate space
 				Schedule floatSchedule;
@@ -508,21 +508,21 @@ public class SABRCubeCalibration {
 				String mappingName;
 				AnnuityMapping mapping;
 				AnnuityMappingFactory factory;
-				Map<String, AnnuityMapping> container = new HashMap<>();
+				final Map<String, AnnuityMapping> container = new HashMap<>();
 
 				int index = 0;
 				//calculate cash payer swaption values
 				SchedulePrototype fixMetaSchedule	= cashPayerPremiums.getFixMetaSchedule();
 				SchedulePrototype floatMetaSchedule	= cashPayerPremiums.getFloatMetaSchedule();
-				for(SwaptionInfo swaption : payerSwaptions) {
+				for(final SwaptionInfo swaption : payerSwaptions) {
 					fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
 					floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
 					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(forwardCurveName), tempModel);
 					strike = forwardSwapRate + swaption.moneyness;
 
-					double replicationLowerBound =
+					final double replicationLowerBound =
 							replicationUseAsOffset ? forwardSwapRate + SABRCubeCalibration.this.replicationLowerBound : SABRCubeCalibration.this.replicationLowerBound;
-					double replicationUpperBound =
+					final double replicationUpperBound =
 							replicationUseAsOffset ? forwardSwapRate + SABRCubeCalibration.this.replicationUpperBound : SABRCubeCalibration.this.replicationUpperBound;
 
 					// see if appropriate mapping already exists, otherwise generate
@@ -536,7 +536,7 @@ public class SABRCubeCalibration {
 						container.put(mappingName, mapping);
 					}
 
-					CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+					final CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
 							tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);
 				}
@@ -544,15 +544,15 @@ public class SABRCubeCalibration {
 				//calculate cash receiver swaption values
 				fixMetaSchedule		= cashReceiverPremiums.getFixMetaSchedule();
 				floatMetaSchedule	= cashReceiverPremiums.getFloatMetaSchedule();
-				for(SwaptionInfo swaption : receiverSwaptions) {
+				for(final SwaptionInfo swaption : receiverSwaptions) {
 					fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
 					floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, swaption.maturity, swaption.termination);
 					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(forwardCurveName), tempModel);
 					strike = forwardSwapRate + swaption.moneyness;
 
-					double replicationLowerBound =
+					final double replicationLowerBound =
 							replicationUseAsOffset ? forwardSwapRate + SABRCubeCalibration.this.replicationLowerBound : SABRCubeCalibration.this.replicationLowerBound;
-					double replicationUpperBound =
+					final double replicationUpperBound =
 							replicationUseAsOffset ? forwardSwapRate + SABRCubeCalibration.this.replicationUpperBound : SABRCubeCalibration.this.replicationUpperBound;
 
 					// see if appropriate mapping already exists, otherwise generate
@@ -566,7 +566,7 @@ public class SABRCubeCalibration {
 						container.put(mappingName, mapping);
 					}
 
-					CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
+					final CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,
 							forwardCurveName, tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 							replicationNumberOfEvaluationPoints);
 					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);
@@ -612,7 +612,7 @@ public class SABRCubeCalibration {
 	 * @param maxIterations The maximum number of iterations done during calibration.
 	 * @param numberOfThreads The number of processor threads to be used.
 	 */
-	public void setCalibrationParameters( int maxIterations, int numberOfThreads) {
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
 		this.maxIterations		= maxIterations;
 		this.numberOfThreads 	= numberOfThreads;
 	}
@@ -640,7 +640,7 @@ public class SABRCubeCalibration {
 	 * @param upperBound The maximal strike allowed.
 	 * @param numberOfEvaluationPoints The number of points to be evaluated during the integration.
 	 */
-	public void setReplicationParameters(boolean useAsOffset, double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public void setReplicationParameters(final boolean useAsOffset, final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		this.replicationUseAsOffset = useAsOffset;
 		this.replicationLowerBound  = lowerBound;
 		this.replicationUpperBound  = upperBound;
@@ -680,7 +680,7 @@ public class SABRCubeCalibration {
 	}
 
 
-	public void setCorrelationDecay(double correlationDecay) {
+	public void setCorrelationDecay(final double correlationDecay) {
 		this.correlationDecay = correlationDecay;
 	}
 
@@ -690,7 +690,7 @@ public class SABRCubeCalibration {
 	}
 
 
-	public void setIborOisDecorrelation(double iborOisDecorrelation) {
+	public void setIborOisDecorrelation(final double iborOisDecorrelation) {
 		this.iborOisDecorrelation = iborOisDecorrelation;
 	}
 
@@ -713,7 +713,7 @@ public class SABRCubeCalibration {
 	/**
 	 * @param useLinearInterpolation Set whether the interpolation of SABR parameters should be linear as opposed to piecewise cubic spline.
 	 */
-	public void setUseLinearInterpolation(boolean useLinearInterpolation) {
+	public void setUseLinearInterpolation(final boolean useLinearInterpolation) {
 		this.useLinearInterpolation = useLinearInterpolation;
 	}
 
@@ -729,13 +729,13 @@ public class SABRCubeCalibration {
 		private final LocalDate maturity;
 		private final LocalDate termination;
 
-		SwaptionInfo(int moneyness, int maturity, int termination) {
+		SwaptionInfo(final int moneyness, final int maturity, final int termination) {
 			this.moneyness = moneyness / 10000.0;
 			this.maturity = referenceDate.plusMonths(maturity);
 			this.termination = this.maturity.plusMonths(termination);
 		}
 
-		SwaptionInfo(int moneyness, int maturity, int termination, TableConvention tableConvention) throws IOException {
+		SwaptionInfo(final int moneyness, final int maturity, final int termination, final TableConvention tableConvention) throws IOException {
 			this.moneyness = moneyness /10000.0;
 			switch(tableConvention) {
 			case MONTHS : this.maturity = referenceDate.plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;

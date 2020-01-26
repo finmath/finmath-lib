@@ -39,7 +39,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 *
 	 * @param name The name of this discount curve.
 	 */
-	private DiscountCurveInterpolation(String name) {
+	private DiscountCurveInterpolation(final String name) {
 		super(name, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);
 	}
 
@@ -51,8 +51,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	private DiscountCurveInterpolation(String name, InterpolationMethod interpolationMethod,
-			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity){
+	private DiscountCurveInterpolation(final String name, final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity){
 
 		super(name, null, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
@@ -67,8 +67,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param extrapolationMethod The extrapolation method used for the curve.
 	 * @param interpolationEntity The entity interpolated/extrapolated.
 	 */
-	private DiscountCurveInterpolation(String name, LocalDate referenceDate, InterpolationMethod interpolationMethod,
-			ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity){
+	private DiscountCurveInterpolation(final String name, final LocalDate referenceDate, final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity){
 
 		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
@@ -87,11 +87,19 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(
-			String name, LocalDate referenceDate,
-			double[] times, double[] givenDiscountFactors, boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final LocalDate referenceDate,
+			final double[] times, final double[] givenDiscountFactors, final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
-		DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
+		if(times.length == 0) {
+			throw new IllegalArgumentException("Discount curve interpolation with no points.");
+		}
+
+		if(times.length != givenDiscountFactors.length) {
+			throw new IllegalArgumentException("Length of times not equal to length of givenDiscountFactors.");
+		}
+
+		final DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], isParameter != null && isParameter[timeIndex]);
@@ -113,11 +121,11 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(
-			String name,
-			double[] times,
-			double[] givenDiscountFactors,
-			boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name,
+			final double[] times,
+			final double[] givenDiscountFactors,
+			final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 		return createDiscountCurveFromDiscountFactors(name, null, times, givenDiscountFactors, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
 
@@ -133,11 +141,11 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(
-			String name,
-			double[] times,
-			double[] givenDiscountFactors,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
-		boolean[] isParameter = new boolean[times.length];
+			final String name,
+			final double[] times,
+			final double[] givenDiscountFactors,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
+		final boolean[] isParameter = new boolean[times.length];
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			isParameter[timeIndex] = times[timeIndex] > 0;
 		}
@@ -153,8 +161,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param givenDiscountFactors Array of corresponding discount factors.
 	 * @return A new discount factor object.
 	 */
-	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(String name, double[] times, double[] givenDiscountFactors) {
-		DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name);
+	public static DiscountCurveInterpolation createDiscountCurveFromDiscountFactors(final String name, final double[] times, final double[] givenDiscountFactors) {
+		final DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name);
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			discountFactors.addDiscountFactor(times[timeIndex], givenDiscountFactors[timeIndex], times[timeIndex] > 0);
@@ -181,11 +189,11 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(
-			String name, LocalDate referenceDate,
-			double[] times, double[] givenZeroRates, boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final LocalDate referenceDate,
+			final double[] times, final double[] givenZeroRates, final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
-		double[] givenDiscountFactors = new double[givenZeroRates.length];
+		final double[] givenDiscountFactors = new double[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
@@ -212,9 +220,9 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(
-			String name, Date referenceDate,
-			double[] times, double[] givenZeroRates, boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final Date referenceDate,
+			final double[] times, final double[] givenZeroRates, final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
 		return createDiscountCurveFromZeroRates(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
@@ -238,9 +246,9 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 */
 	@Deprecated
 	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(
-			String name,
-			double[] times, double[] givenZeroRates, boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name,
+			final double[] times, final double[] givenZeroRates, final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
 		return createDiscountCurveFromZeroRates(name, (LocalDate)null, times, givenZeroRates, isParameter, interpolationMethod, extrapolationMethod, interpolationEntity);
 	}
@@ -262,12 +270,12 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(
-			String name, LocalDate referenceDate,
-			double[] times, double[] givenZeroRates,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final LocalDate referenceDate,
+			final double[] times, final double[] givenZeroRates,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
-		double[] givenDiscountFactors = new double[givenZeroRates.length];
-		boolean[] isParameter = new boolean[givenZeroRates.length];
+		final double[] givenDiscountFactors = new double[givenZeroRates.length];
+		final boolean[] isParameter = new boolean[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
@@ -289,8 +297,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param givenZeroRates Array of corresponding zero rates.
 	 * @return A new discount factor object.
 	 */
-	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(String name, double[] times, double[] givenZeroRates) {
-		double[] givenDiscountFactors = new double[givenZeroRates.length];
+	public static DiscountCurveInterpolation createDiscountCurveFromZeroRates(final String name, final double[] times, final double[] givenZeroRates) {
+		final double[] givenDiscountFactors = new double[givenZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			givenDiscountFactors[timeIndex] = Math.exp(- givenZeroRates[timeIndex] * times[timeIndex]);
@@ -317,11 +325,11 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromAnnualizedZeroRates(
-			String name, LocalDate referenceDate,
-			double[] times, double[] givenAnnualizedZeroRates, boolean[] isParameter,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final LocalDate referenceDate,
+			final double[] times, final double[] givenAnnualizedZeroRates, final boolean[] isParameter,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
-		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
+		final double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
@@ -347,12 +355,12 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @return A new discount factor object.
 	 */
 	public static DiscountCurveInterpolation createDiscountCurveFromAnnualizedZeroRates(
-			String name, LocalDate referenceDate,
-			double[] times, double[] givenAnnualizedZeroRates,
-			InterpolationMethod interpolationMethod, ExtrapolationMethod extrapolationMethod, InterpolationEntity interpolationEntity) {
+			final String name, final LocalDate referenceDate,
+			final double[] times, final double[] givenAnnualizedZeroRates,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
 
-		double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
-		boolean[] isParameter = new boolean[givenAnnualizedZeroRates.length];
+		final double[] givenDiscountFactors = new double[givenAnnualizedZeroRates.length];
+		final boolean[] isParameter = new boolean[givenAnnualizedZeroRates.length];
 
 		for(int timeIndex=0; timeIndex<times.length;timeIndex++) {
 			givenDiscountFactors[timeIndex] = Math.pow(1.0 + givenAnnualizedZeroRates[timeIndex], -times[timeIndex]);
@@ -371,8 +379,8 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param forwardRates Array of forward rates.
 	 * @return A new discount curve object.
 	 */
-	public static DiscountCurve createDiscountFactorsFromForwardRates(String name, TimeDiscretization tenor, double[] forwardRates) {
-		DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name);
+	public static DiscountCurve createDiscountFactorsFromForwardRates(final String name, final TimeDiscretization tenor, final double[] forwardRates) {
+		final DiscountCurveInterpolation discountFactors = new DiscountCurveInterpolation(name);
 
 		double df = 1.0;
 		for(int timeIndex=0; timeIndex<tenor.getNumberOfTimeSteps();timeIndex++) {
@@ -387,7 +395,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @see net.finmath.marketdata.model.curves.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public double getDiscountFactor(double maturity)
+	public double getDiscountFactor(final double maturity)
 	{
 		return getDiscountFactor(null, maturity);
 	}
@@ -396,7 +404,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @see net.finmath.marketdata.model.curves.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public double getDiscountFactor(AnalyticModel model, double maturity)
+	public double getDiscountFactor(final AnalyticModel model, final double maturity)
 	{
 		return getValue(model, maturity);
 	}
@@ -409,7 +417,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param maturity The given maturity.
 	 * @return The zero rate.
 	 */
-	public double getZeroRate(double maturity)
+	public double getZeroRate(final double maturity)
 	{
 		if(maturity == 0) {
 			return this.getZeroRate(1.0E-14);
@@ -424,9 +432,9 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 	 * @param maturities The given maturities.
 	 * @return The zero rates.
 	 */
-	public double[] getZeroRates(double[] maturities)
+	public double[] getZeroRates(final double[] maturities)
 	{
-		double[] values = new double[maturities.length];
+		final double[] values = new double[maturities.length];
 
 		for(int i=0; i<maturities.length; i++) {
 			values[i] = getZeroRate(maturities[i]);
@@ -435,7 +443,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 		return values;
 	}
 
-	protected void addDiscountFactor(double maturity, double discountFactor, boolean isParameter) {
+	protected void addDiscountFactor(final double maturity, final double discountFactor, final boolean isParameter) {
 		this.addPoint(maturity, discountFactor, isParameter);
 	}
 

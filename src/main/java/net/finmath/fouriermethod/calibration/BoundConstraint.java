@@ -10,7 +10,7 @@ public class BoundConstraint implements ScalarConstraint {
 	private final double lowerBound;
 	private final double upperBound;
 
-	public BoundConstraint(double lowerBound, double upperBound) {
+	public BoundConstraint(final double lowerBound, final double upperBound) {
 		super();
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
@@ -35,10 +35,10 @@ public class BoundConstraint implements ScalarConstraint {
 	}
 
 	@Override
-	public double apply(double parameterToTest) {
+	public double apply(final double parameterToTest) {
 
 		if(parameterToTest > upperBound || parameterToTest < lowerBound) {
-			double u = 1.0/(Math.exp(parameterToTest)+1.0); //maps R to  to [0,1];
+			final double u = 1.0/(Math.exp(parameterToTest)+1.0); //maps R to  to [0,1];
 
 			return lowerBound + u*(upperBound - lowerBound); //maps from [0,1] to [lowerBound, upperBound]
 

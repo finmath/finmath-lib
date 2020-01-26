@@ -30,8 +30,8 @@ import net.finmath.time.TimeDiscretization;
  */
 public class CorrelatedBrownianMotion implements BrownianMotion {
 
-	private BrownianMotion	uncollelatedFactors;
-	private double[][]				factorLoadings;
+	private final BrownianMotion	uncollelatedFactors;
+	private final double[][]				factorLoadings;
 
 	/**
 	 * Create a correlated Brownian motion from given independent increments
@@ -49,8 +49,8 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	 * @param uncollelatedFactors The Brownian motion providing the (uncorrelated) factors <i>dU<sub>j</sub></i>.
 	 * @param factorLoadings The factor loadings <i>f<sub>i,j</sub></i>.
 	 */
-	public CorrelatedBrownianMotion(BrownianMotion uncollelatedFactors,
-			double[][] factorLoadings) {
+	public CorrelatedBrownianMotion(final BrownianMotion uncollelatedFactors,
+			final double[][] factorLoadings) {
 		super();
 		this.uncollelatedFactors	= uncollelatedFactors;
 		this.factorLoadings			= factorLoadings;
@@ -60,11 +60,11 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getBrownianIncrement(int, int)
 	 */
 	@Override
-	public RandomVariable getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
 		RandomVariable brownianIncrement = new RandomVariableFromDoubleArray(0.0);
 		for(int factorIndex=0; factorIndex<factorLoadings[factor].length; factorIndex++) {
 			if(factorLoadings[factor][factorIndex] != 0) {
-				RandomVariable independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
+				final RandomVariable independentFactor = uncollelatedFactors.getBrownianIncrement(timeIndex, factorIndex);
 				brownianIncrement = brownianIncrement.addProduct(independentFactor, factorLoadings[factor][factorIndex]);
 			}
 		}
@@ -96,7 +96,7 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return uncollelatedFactors.getRandomVariableForConstant(value);
 	}
 
@@ -104,7 +104,7 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedSeed(int)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedSeed(seed), factorLoadings);
 	}
 
@@ -112,12 +112,12 @@ public class CorrelatedBrownianMotion implements BrownianMotion {
 	 * @see net.finmath.montecarlo.BrownianMotion#getCloneWithModifiedTimeDiscretization(net.finmath.time.TimeDiscretization)
 	 */
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new CorrelatedBrownianMotion(uncollelatedFactors.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factorLoadings);
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }

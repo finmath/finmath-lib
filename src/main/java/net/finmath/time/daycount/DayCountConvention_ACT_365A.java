@@ -44,7 +44,7 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT implemen
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
@@ -53,7 +53,7 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT implemen
 
 		// Check startDate for leap year
 		if (startDate.isLeapYear()) {
-			LocalDate leapDayStart = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
+			final LocalDate leapDayStart = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);
 			if(startDate.isBefore(leapDayStart) && !endDate.isBefore(leapDayStart)) {
 				daysPerYear = 366.0;
 			}
@@ -61,7 +61,7 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT implemen
 
 		// Check endDate for leap year
 		if (endDate.isLeapYear()){
-			LocalDate leapDayEnd = LocalDate.of(endDate.getYear(),  Month.FEBRUARY,  29);
+			final LocalDate leapDayEnd = LocalDate.of(endDate.getYear(),  Month.FEBRUARY,  29);
 			if(startDate.isBefore(leapDayEnd) && !endDate.isBefore(leapDayEnd)) {
 				daysPerYear = 366.0;
 			}
@@ -74,7 +74,7 @@ public class DayCountConvention_ACT_365A extends DayCountConvention_ACT implemen
 			}
 		}
 
-		double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
+		final double daycountFraction = getDaycount(startDate, endDate) / daysPerYear;
 
 		return daycountFraction;
 	}

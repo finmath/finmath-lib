@@ -29,7 +29,7 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConvention_ACT_ACT_ISDA() {
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
 
 		double daycountFraction;
 
@@ -66,18 +66,18 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConventionAdditivity_ACT_ACT_ISDA() {
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ISDA();
 
 		// Test additivity of day count fraction
-		double daycountFractionTotal = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.AUGUST,4));
-		double daycountFractionPart1 = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.JANUARY,1));
-		double daycountFractionPart2 = daycountConvention.getDaycountFraction(LocalDate.of(2013,Month.JANUARY,1), LocalDate.of(2013,Month.AUGUST,4));
+		final double daycountFractionTotal = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.AUGUST,4));
+		final double daycountFractionPart1 = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.JANUARY,1));
+		final double daycountFractionPart2 = daycountConvention.getDaycountFraction(LocalDate.of(2013,Month.JANUARY,1), LocalDate.of(2013,Month.AUGUST,4));
 		Assert.assertTrue(Math.abs(daycountFractionTotal - (daycountFractionPart1 + daycountFractionPart2)) < 1.0E-8);
 	}
 
 	@Test
 	public void testDayCountConvention_30E_360() {
-		DayCountConvention daycountConvention = new DayCountConvention_30E_360();
+		final DayCountConvention daycountConvention = new DayCountConvention_30E_360();
 
 		double daycountFraction;
 
@@ -94,7 +94,7 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConvention_ACT_365() {
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_365();
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_365();
 
 		double daycountFraction;
 
@@ -107,7 +107,7 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConvention_ACT_360() {
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
 
 		double daycountFraction;
 
@@ -120,7 +120,7 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConvention_ACT_ACT_YEARFRAC() {
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_YEARFRAC();
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_YEARFRAC();
 
 		double daycountFraction;
 
@@ -136,7 +136,7 @@ public class DayCountConventionTest {
 
 	@Test
 	public void testDayCountConventionAdditivity_ACT_ACT_ICMA() {
-		ArrayList<Period> periods = new ArrayList<>();
+		final ArrayList<Period> periods = new ArrayList<>();
 		LocalDate start, end;
 		for(int i=1980; i<2100; i++) {
 			start	= LocalDate.of(i, Month.FEBRUARY, 15);
@@ -156,12 +156,12 @@ public class DayCountConventionTest {
 			end		= end.withDayOfMonth(end.lengthOfMonth()); // reset the day to end of Feb when it is on a leap year.
 			periods.add(new Period(start, end, start, end));
 		}
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ICMA(periods, 4);
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_ACT_ICMA(periods, 4);
 
 		// Test additivity of day count fraction
-		double daycountFractionTotal = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.AUGUST,4));
-		double daycountFractionPart1 = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.JANUARY,1));
-		double daycountFractionPart2 = daycountConvention.getDaycountFraction(LocalDate.of(2013,Month.JANUARY,1), LocalDate.of(2013,Month.AUGUST,4));
+		final double daycountFractionTotal = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.AUGUST,4));
+		final double daycountFractionPart1 = daycountConvention.getDaycountFraction(LocalDate.of(2012,Month.MARCH,19), LocalDate.of(2013,Month.JANUARY,1));
+		final double daycountFractionPart2 = daycountConvention.getDaycountFraction(LocalDate.of(2013,Month.JANUARY,1), LocalDate.of(2013,Month.AUGUST,4));
 		Assert.assertTrue(Math.abs(daycountFractionTotal - (daycountFractionPart1 + daycountFractionPart2)) < 1.0E-8);
 	}
 
@@ -170,17 +170,17 @@ public class DayCountConventionTest {
 		/*
 		 * Quarterly periods for ICMA
 		 */
-		ArrayList<Period> periods = new ArrayList<>();
+		final ArrayList<Period> periods = new ArrayList<>();
 		for(int i=1980; i<2100; i++) {
-			LocalDate start	= LocalDate.of(i, Month.JANUARY, 1);
-			LocalDate end	= LocalDate.of(i, Month.DECEMBER, 31);
+			final LocalDate start	= LocalDate.of(i, Month.JANUARY, 1);
+			final LocalDate end	= LocalDate.of(i, Month.DECEMBER, 31);
 			periods.add(new Period(start, end, start, end));
 		}
-		DayCountConvention daycountConventionICMA = new DayCountConvention_ACT_ACT_ICMA(periods, 1);
+		final DayCountConvention daycountConventionICMA = new DayCountConvention_ACT_ACT_ICMA(periods, 1);
 
-		DayCountConvention daycountConventionISDA = new DayCountConvention_ACT_ACT_ISDA();
+		final DayCountConvention daycountConventionISDA = new DayCountConvention_ACT_ACT_ISDA();
 
-		LocalDate[] startDates = new LocalDate[] {
+		final LocalDate[] startDates = new LocalDate[] {
 				LocalDate.of(2003,  Month.NOVEMBER, 1),
 				LocalDate.of(1999,Month.FEBRUARY,1),
 				LocalDate.of(1999,Month.JULY,1),
@@ -192,7 +192,7 @@ public class DayCountConventionTest {
 				LocalDate.of(2014,Month.FEBRUARY,1)
 		};
 
-		LocalDate[] endDates = new LocalDate[] {
+		final LocalDate[] endDates = new LocalDate[] {
 				LocalDate.of(2004,Month.MAY,1),
 				LocalDate.of(1999,Month.JULY,1),
 				LocalDate.of(2000,Month.JULY,1),
@@ -205,8 +205,8 @@ public class DayCountConventionTest {
 		};
 
 		for(int i=0; i<startDates.length; i++) {
-			double daycountFractionICMA = daycountConventionICMA.getDaycount(startDates[i], endDates[i]);
-			double daycountFractionISDA = daycountConventionISDA.getDaycount(startDates[i], endDates[i]);
+			final double daycountFractionICMA = daycountConventionICMA.getDaycount(startDates[i], endDates[i]);
+			final double daycountFractionISDA = daycountConventionISDA.getDaycount(startDates[i], endDates[i]);
 
 			Assert.assertTrue(Math.abs(daycountFractionICMA - daycountFractionISDA) < 1.0E-8);
 		}

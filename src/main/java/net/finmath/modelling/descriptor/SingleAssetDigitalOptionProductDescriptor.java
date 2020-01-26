@@ -19,7 +19,7 @@ public class SingleAssetDigitalOptionProductDescriptor implements SingleAssetPro
 	private final double strike;
 	private final String nameOfUnderlying;
 
-	public SingleAssetDigitalOptionProductDescriptor(String nameOfUnderlying, LocalDate maturity, double strike) {
+	public SingleAssetDigitalOptionProductDescriptor(final String nameOfUnderlying, final LocalDate maturity, final double strike) {
 		super();
 		this.nameOfUnderlying = nameOfUnderlying;
 		this.maturity = maturity;

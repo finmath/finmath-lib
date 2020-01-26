@@ -30,13 +30,13 @@ public class ForwardCurveIndex extends AbstractIndex {
 	 *
 	 * @param forwardCurve The forward curve.
 	 */
-	public ForwardCurveIndex(ForwardCurve forwardCurve) {
+	public ForwardCurveIndex(final ForwardCurve forwardCurve) {
 		super();
 		this.forwardCurve = forwardCurve;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) {
 		return new RandomVariableFromDoubleArray(forwardCurve.getForward(null,  evaluationTime));
 	}
 

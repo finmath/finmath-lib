@@ -27,31 +27,31 @@ public class ConstantMaturitySwap extends AbstractSingleSwapRateProduct {
 	 * @param volatilityCubeName The name of the volatility cube.
 	 * @param annuityMappingType The type of annuity mapping to be used for evaluation.
 	 */
-	public ConstantMaturitySwap(Schedule fixSchedule, Schedule floatSchedule, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName, AnnuityMappingType annuityMappingType) {
+	public ConstantMaturitySwap(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final AnnuityMappingType annuityMappingType) {
 		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
 		this.annuityMappingType = annuityMappingType;
 	}
 
 	@Override
-	protected double payoffFunction(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
+	protected double payoffFunction(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
 		return swapRate * annuityMapping.getValue(swapRate);
 	}
 
 	@Override
-	protected double hedgeWeight(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
+	protected double hedgeWeight(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
 		return 2 *annuityMapping.getFirstDerivative(swapRate) + swapRate *annuityMapping.getSecondDerivative(swapRate);
 	}
 
 	@Override
-	protected double singularAddon(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model) {
+	protected double singularAddon(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
 		return 0;
 	}
 
 	@Override
-	protected AnnuityMapping buildAnnuityMapping( VolatilityCubeModel model) {
+	protected AnnuityMapping buildAnnuityMapping( final VolatilityCubeModel model) {
 
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
+		final AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
 		return factory.build(annuityMappingType, model);
 	}
 
@@ -68,19 +68,19 @@ public class ConstantMaturitySwap extends AbstractSingleSwapRateProduct {
 	 * @return The value of the cms.
 	 */
 	public static double analyticApproximation(
-			double swaprate,
-			double volatility,
-			double swapAnnuity,
-			double swapFixing,
-			double swapMaturity,
-			double payoffUnit)
+			final double swaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double swapFixing,
+			final double swapMaturity,
+			final double payoffUnit)
 	{
 
-		double a = 1.0/(swapMaturity-swapFixing);
-		double b = (payoffUnit / swapAnnuity - a) / swaprate;
-		double convexityAdjustment = (volatility*volatility*swapFixing);
+		final double a = 1.0/(swapMaturity-swapFixing);
+		final double b = (payoffUnit / swapAnnuity - a) / swaprate;
+		final double convexityAdjustment = (volatility*volatility*swapFixing);
 
-		double valueAdjusted	= swaprate + convexityAdjustment;
+		final double valueAdjusted	= swaprate + convexityAdjustment;
 
 		return (a * valueAdjusted + b * valueAdjusted * valueAdjusted + b * convexityAdjustment) / (a + b * valueAdjusted);
 	}

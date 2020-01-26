@@ -19,8 +19,8 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class EuropeanOptionThetaPathwise extends AbstractAssetMonteCarloProduct {
 
-	private double	maturity;
-	private double	strike;
+	private final double	maturity;
+	private final double	strike;
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -28,7 +28,7 @@ public class EuropeanOptionThetaPathwise extends AbstractAssetMonteCarloProduct 
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 */
-	public EuropeanOptionThetaPathwise(double maturity, double strike) {
+	public EuropeanOptionThetaPathwise(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -41,22 +41,22 @@ public class EuropeanOptionThetaPathwise extends AbstractAssetMonteCarloProduct 
 	 * @return the value
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public double getValue(AssetModelMonteCarloSimulationModel model) throws CalculationException
+	public double getValue(final AssetModelMonteCarloSimulationModel model) throws CalculationException
 	{
 		MonteCarloBlackScholesModel blackScholesModel = null;
 		try {
 			blackScholesModel = (MonteCarloBlackScholesModel)model;
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			throw new ClassCastException("This method requires a Black-Scholes type model (MonteCarloBlackScholesModel).");
 		}
 
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
-		RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
-		RandomVariable numeraireAtToday		= model.getNumeraire(0);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
+		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
+		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 
 		/*
 		 *  The following way of calculating the expected value (average) is discouraged since it makes too strong
@@ -69,15 +69,15 @@ public class EuropeanOptionThetaPathwise extends AbstractAssetMonteCarloProduct 
 			if(underlyingAtMaturity.get(path) > strike)
 			{
 				// Get some model parameters
-				double T		= maturity;
-				double S0		= underlyingAtToday.get(path);
-				double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
-				double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
+				final double T		= maturity;
+				final double S0		= underlyingAtToday.get(path);
+				final double r		= blackScholesModel.getModel().getRiskFreeRate().doubleValue();
+				final double sigma	= blackScholesModel.getModel().getVolatility().doubleValue();
 
-				double ST		= underlyingAtMaturity.get(path);
-				double WT		= (Math.log(ST/S0) - r * T + 0.5 * sigma * sigma * T)/sigma;
+				final double ST		= underlyingAtMaturity.get(path);
+				final double WT		= (Math.log(ST/S0) - r * T + 0.5 * sigma * sigma * T)/sigma;
 
-				double modifiedPayoff	= 	ST * (r-0.5*sigma*sigma + 0.5 * sigma * WT / T) - (ST-strike) * r;
+				final double modifiedPayoff	= 	ST * (r-0.5*sigma*sigma + 0.5 * sigma * WT / T) - (ST-strike) * r;
 
 				average += modifiedPayoff / numeraireAtMaturity.get(path) * monteCarloWeights.get(path) * numeraireAtToday.get(path);
 			}
@@ -87,7 +87,7 @@ public class EuropeanOptionThetaPathwise extends AbstractAssetMonteCarloProduct 
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) {
 		throw new RuntimeException("Method not supported.");
 	}
 }

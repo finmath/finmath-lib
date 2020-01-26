@@ -58,7 +58,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param optimizerFactory A factory providing the optimizer (for the given objective function)
 	 */
-	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, OptimizerFactory optimizerFactory) {
+	public Solver(final AnalyticModel model, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, final ParameterTransformation parameterTransformation, final double evaluationTime, final OptimizerFactory optimizerFactory) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -80,7 +80,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, ParameterTransformation parameterTransformation, double evaluationTime, double calibrationAccuracy) {
+	public Solver(final AnalyticModel model, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, final ParameterTransformation parameterTransformation, final double evaluationTime, final double calibrationAccuracy) {
 		super();
 		this.model = model;
 		this.calibrationProducts = calibrationProducts;
@@ -101,7 +101,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, List<Double> calibrationTargetValues, double evaluationTime, double calibrationAccuracy) {
+	public Solver(final AnalyticModel model, final Vector<AnalyticProduct> calibrationProducts, final List<Double> calibrationTargetValues, final double evaluationTime, final double calibrationAccuracy) {
 		this(model, calibrationProducts, calibrationTargetValues, null, evaluationTime, calibrationAccuracy);
 	}
 
@@ -114,7 +114,7 @@ public class Solver {
 	 * @param evaluationTime Evaluation time applied to the calibration products.
 	 * @param calibrationAccuracy The error tolerance of the solver.
 	 */
-	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts, double evaluationTime, double calibrationAccuracy) {
+	public Solver(final AnalyticModel model, final Vector<AnalyticProduct> calibrationProducts, final double evaluationTime, final double calibrationAccuracy) {
 		this(model, calibrationProducts, null, null, evaluationTime, calibrationAccuracy);
 	}
 
@@ -125,7 +125,7 @@ public class Solver {
 	 * @param model The model from which a calibrated clone should be created.
 	 * @param calibrationProducts The objective functions.
 	 */
-	public Solver(AnalyticModel model, Vector<AnalyticProduct> calibrationProducts) {
+	public Solver(final AnalyticModel model, final Vector<AnalyticProduct> calibrationProducts) {
 		this(model, calibrationProducts, 0.0, 0.0);
 	}
 
@@ -142,7 +142,7 @@ public class Solver {
 	 * @return A reference to a calibrated clone of the given model.
 	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
 	 */
-	public AnalyticModel getCalibratedModel(Set<ParameterObject> objectsToCalibrate) throws SolverException {
+	public AnalyticModel getCalibratedModel(final Set<ParameterObject> objectsToCalibrate) throws SolverException {
 		final ParameterAggregation<ParameterObject> parameterAggregate = new ParameterAggregation<>(objectsToCalibrate);
 
 		// Set solver parameters
@@ -163,9 +163,9 @@ public class Solver {
 		java.util.Arrays.fill(ones, 1.0);
 		java.util.Arrays.fill(lowerBound, Double.NEGATIVE_INFINITY);
 		java.util.Arrays.fill(upperBound, Double.POSITIVE_INFINITY);
-		Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
+		final Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 				double[] modelParameters = parameters;
 				try {
 					if(parameterTransformation != null) {
@@ -174,8 +174,8 @@ public class Solver {
 						System.arraycopy(parameterTransformation.getSolverParameter(modelParameters), 0, parameters, 0, parameters.length);
 					}
 
-					Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
-					AnalyticModel modelClone = model.getCloneForParameter(curvesParameterPairs);
+					final Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);
+					final AnalyticModel modelClone = model.getCloneForParameter(curvesParameterPairs);
 					for(int i=0; i<calibrationProducts.size(); i++) {
 						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);
 					}
@@ -184,18 +184,18 @@ public class Solver {
 							values[i] -= calibrationTargetValues.get(i);
 						}
 					}
-				} catch (CloneNotSupportedException e) {
+				} catch (final CloneNotSupportedException e) {
 					throw new SolverException(e);
 				}
 			}
 		};
 
 		if(optimizerFactory == null) {
-			int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
+			final int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);
 			optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);
 		}
 
-		Optimizer optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
+		final Optimizer optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);
 		optimizer.run();
 
 		iterations = optimizer.getIterations();
@@ -208,9 +208,9 @@ public class Solver {
 		AnalyticModel calibratedModel = null;
 		try {
 
-			Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
+			final Map<ParameterObject, double[]> curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);
 			calibratedModel = model.getCloneForParameter(curvesParameterPairs);
-		} catch (CloneNotSupportedException e) {
+		} catch (final CloneNotSupportedException e) {
 			throw new SolverException(e);
 		}
 

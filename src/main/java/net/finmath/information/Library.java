@@ -21,7 +21,7 @@ public class Library {
 		properties = new Properties();
 		try {
 			properties.load(Library.class.getResourceAsStream("/finmath-lib.properties"));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			properties = null;
 		}
 	}
@@ -39,7 +39,7 @@ public class Library {
 	 */
 	public static String getVersionString() {
 		String versionString = "UNKNOWN";
-		Properties propeties = getProperites();
+		final Properties propeties = getProperites();
 		if(propeties != null) {
 			versionString = propeties.getProperty("finmath-lib.version");
 		}
@@ -54,7 +54,7 @@ public class Library {
 	 */
 	public static String getBuildString() {
 		String versionString = "UNKNOWN";
-		Properties propeties = getProperites();
+		final Properties propeties = getProperites();
 		if(propeties != null) {
 			versionString = propeties.getProperty("finmath-lib.build");
 		}

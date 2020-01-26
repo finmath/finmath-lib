@@ -24,7 +24,7 @@ public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetPr
 	private final LocalDate maturity;
 	private final double 	strike;
 
-	public SingleAssetEuropeanOptionProductDescriptor(String underlyingName, LocalDate maturity, double strike) {
+	public SingleAssetEuropeanOptionProductDescriptor(final String underlyingName, final LocalDate maturity, final double strike) {
 		super();
 		this.underlyingName = underlyingName;
 		this.maturity = maturity;

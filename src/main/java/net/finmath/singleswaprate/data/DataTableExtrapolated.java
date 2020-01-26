@@ -27,8 +27,8 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	 * @param referenceDate The referenceDate of the table.
 	 * @param scheduleMetaData The schedule meta data of the table.
 	 */
-	public DataTableExtrapolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData) {
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData) {
 		super(name, convention, referenceDate, scheduleMetaData);
 	}
 
@@ -43,8 +43,8 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableExtrapolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData, int[] maturities, int[] terminations, double[] values) {
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final int[] maturities, final int[] terminations, final double[] values) {
 		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);
 	}
 
@@ -59,26 +59,26 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableExtrapolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData, List<Integer> maturities, List<Integer> terminations, List<Double> values) {
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final List<Integer> maturities, final List<Integer> terminations, final List<Double> values) {
 		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);
 	}
 
 	@Override
-	public double getValue(int maturity, int termination) {
+	public double getValue(final int maturity, final int termination) {
 
-		int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
-		int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
+		final int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
+		final int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
 
 		// constant extrapolation (assuming arrays are provided via TreeSet, i.e. sorted)
-		int extraMat = Math.min(Math.max(maturity, maturities[0]), maturities[maturities.length-1]);
-		int extraTer = Math.min(Math.max(termination, terminations[0]), terminations[terminations.length-1]);
+		final int extraMat = Math.min(Math.max(maturity, maturities[0]), maturities[maturities.length-1]);
+		final int extraTer = Math.min(Math.max(termination, terminations[0]), terminations[terminations.length-1]);
 
 		return super.getValue(extraMat, extraTer);
 	}
 
 	@Override
-	public double getValue(double maturity, double termination) {
+	public double getValue(final double maturity, final double termination) {
 		if(containsEntryFor(maturity, termination)) {
 			return super.getValue(maturity, termination);
 		}
@@ -94,8 +94,8 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 		}
 
 
-		int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));
-		int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;
+		final int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));
+		final int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;
 
 		return getValue(roundedMaturity, roundedTermination);
 	}
@@ -103,13 +103,13 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	@Override
 	public DataTableExtrapolated clone() {
 
-		int[] maturities = new int[size()];
-		int[] terminations = new int[size()];
-		double[] values = new double[size()];
+		final int[] maturities = new int[size()];
+		final int[] terminations = new int[size()];
+		final double[] values = new double[size()];
 
 		int i = 0;
-		for(int maturity : getMaturities()) {
-			for(int termination : getTerminationsForMaturity(maturity)) {
+		for(final int maturity : getMaturities()) {
+			for(final int termination : getTerminationsForMaturity(maturity)) {
 				maturities[i] = maturity;
 				terminations[i] = termination;
 				values[i++] = getValue(maturity, termination);
@@ -125,8 +125,8 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	}
 
 	@Override
-	public String toString(double unit) {
-		StringBuilder builder = new StringBuilder();
+	public String toString(final double unit) {
+		final StringBuilder builder = new StringBuilder();
 		builder.append("DataTableExtrapolated with constant extrapolation and base table: ");
 		builder.append(super.toString(unit));
 

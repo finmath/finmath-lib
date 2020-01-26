@@ -45,12 +45,12 @@ public class DayCountConvention_ACT_360 extends DayCountConvention_ACT implement
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
 
-		double daycountFraction = getDaycount(startDate, endDate) / 360.0;
+		final double daycountFraction = getDaycount(startDate, endDate) / 360.0;
 
 		return daycountFraction;
 	}

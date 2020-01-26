@@ -31,7 +31,7 @@ public class Cashflow extends AbstractProductComponent {
 	 * @param flowDate The flow date.
 	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
 	 */
-	public Cashflow(String currency, double flowAmount, double flowDate, boolean isPayer) {
+	public Cashflow(final String currency, final double flowAmount, final double flowDate, final boolean isPayer) {
 		super(currency);
 		this.flowAmount = flowAmount;
 		this.flowDate = flowDate;
@@ -45,7 +45,7 @@ public class Cashflow extends AbstractProductComponent {
 	 * @param flowDate The flow date.
 	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
 	 */
-	public Cashflow(double flowAmount, double flowDate, boolean isPayer) {
+	public Cashflow(final double flowAmount, final double flowDate, final boolean isPayer) {
 		this(null, flowAmount, flowDate, isPayer);
 	}
 
@@ -65,7 +65,7 @@ public class Cashflow extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Note: We use > here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
 		if(evaluationTime > flowDate) {
@@ -80,8 +80,8 @@ public class Cashflow extends AbstractProductComponent {
 		// Rebase to evaluationTime
 		if(flowDate != evaluationTime) {
 			// Get random variables
-			RandomVariable	numeraire				= model.getNumeraire(flowDate);
-			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			final RandomVariable	numeraire				= model.getNumeraire(flowDate);
+			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
 			//        RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 			values = values.div(numeraire).mult(numeraireAtEval);
 		}

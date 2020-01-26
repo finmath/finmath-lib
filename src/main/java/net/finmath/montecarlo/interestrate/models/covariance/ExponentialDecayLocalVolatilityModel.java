@@ -66,7 +66,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 * @param decay The decay <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public ExponentialDecayLocalVolatilityModel(RandomVariableFactory abstractRandomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, RandomVariable decay, boolean isCalibrateable) {
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory abstractRandomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final RandomVariable decay, final boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 		this.covarianceModel	= covarianceModel;
@@ -97,7 +97,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 * @param decay The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public ExponentialDecayLocalVolatilityModel(RandomVariableFactory abstractRandomVariableFactory, AbstractLIBORCovarianceModelParametric covarianceModel, double decay, boolean isCalibrateable) {
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory abstractRandomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 		this.covarianceModel = covarianceModel;
@@ -127,7 +127,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 * @param decay The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public ExponentialDecayLocalVolatilityModel(AbstractLIBORCovarianceModelParametric covarianceModel, double decay, boolean isCalibrateable) {
+	public ExponentialDecayLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
 		this(null, covarianceModel, decay, isCalibrateable);
 	}
 
@@ -157,13 +157,13 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 			return covarianceModel.getParameter();
 		}
 
-		RandomVariable[] covarianceParameters = covarianceModel.getParameter();
+		final RandomVariable[] covarianceParameters = covarianceModel.getParameter();
 		if(covarianceParameters == null) {
 			return new RandomVariable[] { decay };
 		}
 
 		// Append decay to the end of covarianceParameters
-		RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];
+		final RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];
 		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);
 		jointParameters[covarianceParameters.length] = decay;
 
@@ -172,8 +172,8 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 
 	@Override
 	public double[] getParameterAsDouble() {
-		RandomVariable[] parameters = getParameter();
-		double[] parametersAsDouble = new double[parameters.length];
+		final RandomVariable[] parameters = getParameter();
+		final double[] parametersAsDouble = new double[parameters.length];
 		for(int i=0; i<parameters.length; i++) {
 			parametersAsDouble[i] = parameters[i].doubleValue();
 		}
@@ -181,7 +181,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
 		if(parameters == null || parameters.length == 0) {
 			return this;
 		}
@@ -190,27 +190,27 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 			return new ExponentialDecayLocalVolatilityModel(abstractRandomVariableFactory, covarianceModel.getCloneWithModifiedParameters(parameters), decay, isCalibrateable);
 		}
 
-		RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];
+		final RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];
 		System.arraycopy(parameters, 0, covarianceParameters, 0, covarianceParameters.length);
 
-		AbstractLIBORCovarianceModelParametric newCovarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
-		RandomVariable newDisplacement = parameters[covarianceParameters.length];
+		final AbstractLIBORCovarianceModelParametric newCovarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
+		final RandomVariable newDisplacement = parameters[covarianceParameters.length];
 
 		return new ExponentialDecayLocalVolatilityModel(abstractRandomVariableFactory, newCovarianceModel, newDisplacement, isCalibrateable);
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
 		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 
-		double time = getTimeDiscretization().getTime(timeIndex);
-		double fixing = getLiborPeriodDiscretization().getTime(component);
-		double timeToMaturity = fixing-time;
+		final double time = getTimeDiscretization().getTime(timeIndex);
+		final double fixing = getLiborPeriodDiscretization().getTime(component);
+		final double timeToMaturity = fixing-time;
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
 			factorLoading[factorIndex] = factorLoading[factorIndex].mult(decay.mult(-timeToMaturity).exp());
 		}
@@ -219,7 +219,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	}
 
 	@Override
-	public RandomVariable getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -228,7 +228,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map<String, Object> dataModified)
 			throws CalculationException {
 		RandomVariable newDecay = decay;
 		boolean isCalibrateable = this.isCalibrateable;
@@ -258,7 +258,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 			}
 		}
 
-		AbstractLIBORCovarianceModelParametric newModel = new ExponentialDecayLocalVolatilityModel(newRandomVariableFactory, covarianceModel, newDecay, isCalibrateable);
+		final AbstractLIBORCovarianceModelParametric newModel = new ExponentialDecayLocalVolatilityModel(newRandomVariableFactory, covarianceModel, newDecay, isCalibrateable);
 		return newModel;
 	}
 }

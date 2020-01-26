@@ -11,7 +11,7 @@ import net.finmath.stochastic.RandomVariable;
 public class MonteCarloConditionalExpectationLinearRegressionFactory implements MonteCarloConditionalExpectationRegressionFactory {
 
 	@Override
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor) {
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final RandomVariable[] basisFunctionsEstimator, final RandomVariable[] basisFunctionsPredictor) {
 		return new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);
 	}
 

@@ -49,7 +49,7 @@ public class DayCountConvention_30U_360 implements DayCountConvention, Serializa
 	 *
 	 * @param isEndOfMonth If true, an end-of-month day will always count as "30", even if we are in February.
 	 */
-	public DayCountConvention_30U_360(boolean isEndOfMonth) {
+	public DayCountConvention_30U_360(final boolean isEndOfMonth) {
 		this.isEndOfMonth = isEndOfMonth;
 	}
 
@@ -57,18 +57,18 @@ public class DayCountConvention_30U_360 implements DayCountConvention, Serializa
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycount(endDate,startDate);
 		}
 
 		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthValue();
-		int startDateYear 	= startDate.getYear();
+		final int startDateMonth 	= startDate.getMonthValue();
+		final int startDateYear 	= startDate.getYear();
 
 		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthValue();
-		int endDateYear 	= endDate.getYear();
+		final int endDateMonth 	= endDate.getMonthValue();
+		final int endDateYear 	= endDate.getYear();
 
 		if(
 				isEndOfMonth &&
@@ -100,7 +100,7 @@ public class DayCountConvention_30U_360 implements DayCountConvention, Serializa
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }

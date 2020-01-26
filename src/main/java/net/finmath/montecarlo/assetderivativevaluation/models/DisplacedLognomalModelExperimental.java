@@ -46,7 +46,7 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
-	private RandomVariable[]	initialValueVector	= new RandomVariable[1];
+	private final RandomVariable[]	initialValueVector	= new RandomVariable[1];
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -57,10 +57,10 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	 * @param volatility The volatility.
 	 */
 	public DisplacedLognomalModelExperimental(
-			double initialValue,
-			double riskFreeRate,
-			double displacement,
-			double volatility) {
+			final double initialValue,
+			final double riskFreeRate,
+			final double displacement,
+			final double volatility) {
 		super();
 
 		this.initialValue	= initialValue;
@@ -79,8 +79,8 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-		RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = getRandomVariableForConstant(riskFreeRate - 0.5 * volatility * volatility - riskFreeRate * displacement);
 		}
@@ -88,24 +88,24 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility);
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility);
 		return new RandomVariable[] { volatilityOnPaths };
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp().sub(displacement);
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.add(displacement).log();
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) {
-		double numeraireValue = Math.exp(riskFreeRate * time);
+	public RandomVariable getNumeraire(final double time) {
+		final double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
 	}
@@ -116,19 +116,19 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public DisplacedLognomalModelExperimental getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public DisplacedLognomalModelExperimental getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
-		double	newDisplacement	= dataModified.get("displacement") != null	? ((Number)dataModified.get("displacement")).doubleValue()	: this.getVolatility();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
+		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
+		final double	newDisplacement	= dataModified.get("displacement") != null	? ((Number)dataModified.get("displacement")).doubleValue()	: this.getVolatility();
+		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
 
 		return new DisplacedLognomalModelExperimental(newInitialValue, newRiskFreeRate, newDisplacement, newVolatility);
 	}

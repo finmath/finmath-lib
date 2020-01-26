@@ -47,11 +47,11 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param quotingConvention The quoting convention reflected by the parametetric form (e.g. lognormal or normal).
 	 */
 	public CapletVolatilitiesParametric(
-			String name,
-			LocalDate referenceDate,
-			ForwardCurve forwardCurve,
-			DiscountCurve discountCurve,
-			double a, double b, double c, double d, double timeScaling, QuotingConvention quotingConvention) {
+			final String name,
+			final LocalDate referenceDate,
+			final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve,
+			final double a, final double b, final double c, final double d, final double timeScaling, final QuotingConvention quotingConvention) {
 		super(name, referenceDate, forwardCurve, discountCurve, quotingConvention, null);
 		this.timeScaling = timeScaling;
 		this.a = a;
@@ -73,10 +73,10 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
-			ForwardCurve forwardCurve,
-			DiscountCurve discountCurve,
-			double a, double b, double c, double d, double timeScaling) {
+	public CapletVolatilitiesParametric(final String name, final LocalDate referenceDate,
+			final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve,
+			final double a, final double b, final double c, final double d, final double timeScaling) {
 		super(name, referenceDate, forwardCurve, discountCurve, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.timeScaling = timeScaling;
 		this.a = a;
@@ -96,8 +96,8 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param d The parameter d
 	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate,
-			double a, double b, double c, double d, double timeScaling) {
+	public CapletVolatilitiesParametric(final String name, final LocalDate referenceDate,
+			final double a, final double b, final double c, final double d, final double timeScaling) {
 		this(name, referenceDate, null, null, a, b, c, d, timeScaling);
 	}
 
@@ -111,7 +111,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @param c The parameter c
 	 * @param d The parameter d
 	 */
-	public CapletVolatilitiesParametric(String name, LocalDate referenceDate, double a, double b, double c, double d) {
+	public CapletVolatilitiesParametric(final String name, final LocalDate referenceDate, final double a, final double b, final double c, final double d) {
 		this(name, referenceDate, a, b, c, d, 1.0);
 	}
 
@@ -119,7 +119,7 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, maturity, strike, quotingConvention);
 	}
 
@@ -127,12 +127,12 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(net.finmath.marketdata.model.AnalyticModelInterface, double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final AnalyticModel model, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		if(maturity <= 0) {
 			return 0;
 		}
 
-		double T = maturity * timeScaling;
+		final double T = maturity * timeScaling;
 
 		/*
 		 * Integral of the square of the instantaneous volatility function
@@ -140,17 +140,17 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 		 */
 		double integratedVariance;
 		if(Math.abs(c*T) > 1E-5) {
-			double u = Math.exp(-c*T);
-			double u2 = Math.exp(-2*c*T);
+			final double u = Math.exp(-c*T);
+			final double u2 = Math.exp(-2*c*T);
 
-			DoubleUnaryOperator umxlogu = x -> (u-x)/Math.log(u);
-			DoubleUnaryOperator u2mxlogu2 = x -> (u2-x)/Math.log(u2);
+			final DoubleUnaryOperator umxlogu = x -> (u-x)/Math.log(u);
+			final DoubleUnaryOperator u2mxlogu2 = x -> (u2-x)/Math.log(u2);
 
-			double expA1 = umxlogu.applyAsDouble(1.0);
-			double expA2 = umxlogu.applyAsDouble(expA1) * 2.0;
-			double expB1 = u2mxlogu2.applyAsDouble(1.0);
-			double expB2 = u2mxlogu2.applyAsDouble(expB1) * 2.0;
-			double expB3 = u2mxlogu2.applyAsDouble(expB2) * 3.0;
+			final double expA1 = umxlogu.applyAsDouble(1.0);
+			final double expA2 = umxlogu.applyAsDouble(expA1) * 2.0;
+			final double expB1 = u2mxlogu2.applyAsDouble(1.0);
+			final double expB2 = u2mxlogu2.applyAsDouble(expB1) * 2.0;
+			final double expB3 = u2mxlogu2.applyAsDouble(expB2) * 3.0;
 
 			/*
 			 * http://www.wolframalpha.com/input/?i=integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T
@@ -172,13 +172,13 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 			integratedVariance = a*a*T + a*b*T*T + 2*a*d*T + (b*b*T*T*T)/3.0 + b*d*T*T + d*d*T;
 		}
 
-		double value = Math.sqrt(integratedVariance/maturity);
+		final double value = Math.sqrt(integratedVariance/maturity);
 		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);
 	}
 
 	@Override
 	public double[] getParameter() {
-		double[] parameter = new double[4];
+		final double[] parameter = new double[4];
 		parameter[0] = a;
 		parameter[1] = b;
 		parameter[2] = c;
@@ -188,12 +188,12 @@ public class CapletVolatilitiesParametric extends AbstractVolatilitySurfaceParam
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 
 	@Override
-	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		return new CapletVolatilitiesParametric(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), value[0], value[1], value[2], value[3], timeScaling, getQuotingConvention());
 	}
 

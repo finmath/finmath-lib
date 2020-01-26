@@ -26,7 +26,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 	private double initialRho = 0.1;
 	private double initialVolvol = 0.0001;
 
-	private SwaptionDataLattice physicalATMSwaptions;
+	private final SwaptionDataLattice physicalATMSwaptions;
 
 	/**
 	 * Create the calibrator.
@@ -38,14 +38,14 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 	 * @param model The model providing context.
 	 * @param annuityMappingType The type of annuity mapping to be used for calibration.
 	 */
-	public SABRCubeParallelCalibration(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums,
-			SwaptionDataLattice physicalATMSwaptions, VolatilityCubeModel model, AnnuityMappingType annuityMappingType) {
+	public SABRCubeParallelCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final SwaptionDataLattice physicalATMSwaptions, final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType) {
 		super(referenceDate, cashPayerPremiums, cashReceiverPremiums, model, annuityMappingType);
 		this.physicalATMSwaptions = physicalATMSwaptions;
 	}
 
 	@Override
-	protected VolatilityCube buildCube(String name, double[] parameters) {
+	protected VolatilityCube buildCube(final String name, final double[] parameters) {
 
 		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(name, getReferenceDate(), physicalATMSwaptions.getFixMetaSchedule(),
 				physicalATMSwaptions.getFloatMetaSchedule(), initialDisplacement, initialBeta, parameters[0], parameters[1],
@@ -59,8 +59,8 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 	}
 
 	@Override
-	protected double[] applyParameterBounds(double[] parameters) {
-		double[] boundedParameters = new double[parameters.length];
+	protected double[] applyParameterBounds(final double[] parameters) {
+		final double[] boundedParameters = new double[parameters.length];
 
 		//		boundedParameters[0] = Math.max(0, Math.min(0.99, parameters[0])); // Math.max(0,  parameters[0]);
 		boundedParameters[0] = Math.max(-0.999999, Math.min(0.999999, parameters[0])); // parameters[1];
@@ -73,7 +73,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialCorrelationDecay;
 	}
 
-	public void setInitialCorrelationDecay(double initialCorrelationDecay) {
+	public void setInitialCorrelationDecay(final double initialCorrelationDecay) {
 		this.initialCorrelationDecay = initialCorrelationDecay;
 	}
 
@@ -81,7 +81,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialIborOisDecorrelation;
 	}
 
-	public void setInitialIborOisDecorrelation(double initialIborOisDecorrelation) {
+	public void setInitialIborOisDecorrelation(final double initialIborOisDecorrelation) {
 		this.initialIborOisDecorrelation = initialIborOisDecorrelation;
 	}
 
@@ -89,7 +89,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialDisplacement;
 	}
 
-	public void setInitialDisplacement(double initialDisplacement) {
+	public void setInitialDisplacement(final double initialDisplacement) {
 		this.initialDisplacement = initialDisplacement;
 	}
 
@@ -97,7 +97,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialBeta;
 	}
 
-	public void setInitialBeta(double initialBeta) {
+	public void setInitialBeta(final double initialBeta) {
 		this.initialBeta = initialBeta;
 	}
 
@@ -105,7 +105,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialRho;
 	}
 
-	public void setInitialRho(double initialRho) {
+	public void setInitialRho(final double initialRho) {
 		this.initialRho = initialRho;
 	}
 
@@ -113,7 +113,7 @@ public class SABRCubeParallelCalibration extends AbstractCubeCalibration {
 		return initialVolvol;
 	}
 
-	public void setInitialVolvol(double initialVolvol) {
+	public void setInitialVolvol(final double initialVolvol) {
 		this.initialVolvol = initialVolvol;
 	}
 

@@ -41,7 +41,7 @@ public class DayCountConventionFactory implements Serializable {
 	 * @param convention A convention string.
 	 * @return A day count convention object.
 	 */
-	public static DayCountConvention getDayCountConvention(String convention) {
+	public static DayCountConvention getDayCountConvention(final String convention) {
 		if(convention.compareToIgnoreCase("act/act isda") == 0) {
 			return new DayCountConvention_ACT_ACT_ISDA();
 		}
@@ -76,8 +76,8 @@ public class DayCountConventionFactory implements Serializable {
 	 * @param convention A convention string.
 	 * @return The number of days within the given period.
 	 */
-	public static double getDaycount(LocalDate startDate, LocalDate endDate, String convention) {
-		DayCountConvention daycountConvention = getDayCountConvention(convention);
+	public static double getDaycount(final LocalDate startDate, final LocalDate endDate, final String convention) {
+		final DayCountConvention daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycount(startDate, endDate);
 	}
 
@@ -90,8 +90,8 @@ public class DayCountConventionFactory implements Serializable {
 	 * @param convention A convention string.
 	 * @return The daycount fraction corresponding to the given period.
 	 */
-	public static double getDaycountFraction(LocalDate startDate, LocalDate endDate, String convention) {
-		DayCountConvention daycountConvention = getDayCountConvention(convention);
+	public static double getDaycountFraction(final LocalDate startDate, final LocalDate endDate, final String convention) {
+		final DayCountConvention daycountConvention = getDayCountConvention(convention);
 		return daycountConvention.getDaycountFraction(startDate, endDate);
 	}
 

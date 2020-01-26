@@ -21,11 +21,11 @@ public class OptionSmileData{
 	private final double maturity;
 	private final HashMap<Double,OptionData> smile;
 
-	public OptionSmileData(String underlying, LocalDate referenceDate, double[] strikes, double maturity, double[] values, QuotingConvention convention){
+	public OptionSmileData(final String underlying, final LocalDate referenceDate, final double[] strikes, final double maturity, final double[] values, final QuotingConvention convention){
 		if(strikes.length != values.length) {
 			throw new IllegalArgumentException("Number of strikes and market quotes does not coincide");
 		}else {
-			int numberOfQuotes = strikes.length;
+			final int numberOfQuotes = strikes.length;
 			smile = new HashMap<>();
 			for(int i = 0; i< numberOfQuotes; i++) {
 				smile.put(strikes[i],new OptionData(underlying, referenceDate, strikes[i],maturity,values[i], convention)) ;
@@ -57,7 +57,7 @@ public class OptionSmileData{
 		return smile;
 	}
 
-	public OptionData getOption(double strike) {
+	public OptionData getOption(final double strike) {
 		return smile.get(strike);
 	}
 

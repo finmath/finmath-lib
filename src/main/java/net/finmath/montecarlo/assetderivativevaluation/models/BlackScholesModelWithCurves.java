@@ -62,11 +62,11 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
-			RandomVariable initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			RandomVariable volatility,
-			DiscountCurve discountCurveForDiscountRate,
-			RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariable initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final RandomVariable volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
@@ -88,11 +88,11 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
-			Double initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			Double volatility,
-			DiscountCurve discountCurveForDiscountRate,
-			RandomVariableFactory abstractRandomVariableFactory) {
+			final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final Double volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		this(abstractRandomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, abstractRandomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, abstractRandomVariableFactory);
 	}
 
@@ -102,33 +102,33 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-		double time = getTime(timeIndex);
-		double timeNext = getTime(timeIndex+1);
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double time = getTime(timeIndex);
+		final double timeNext = getTime(timeIndex+1);
 
-		double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
+		final double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 
 		return new RandomVariable[] { driftAdjustment.add(rate) };
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadings;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) {
-		double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
+	public RandomVariable getNumeraire(final double time) {
+		final double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
 
 		return abstractRandomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
 	}
@@ -139,17 +139,17 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
-	public BlackScholesModelWithCurves getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public BlackScholesModelWithCurves getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		RandomVariable	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariable)dataModified.get("initialValue") : initialValue;
-		RandomVariable	newVolatility	= dataModified.get("volatility") != null	? (RandomVariable)dataModified.get("volatility") 	: volatility;
+		final RandomVariable	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariable)dataModified.get("initialValue") : initialValue;
+		final RandomVariable	newVolatility	= dataModified.get("volatility") != null	? (RandomVariable)dataModified.get("volatility") 	: volatility;
 
 		return new BlackScholesModelWithCurves(newInitialValue, discountCurveForForwardRate, newVolatility, discountCurveForDiscountRate, abstractRandomVariableFactory);
 	}

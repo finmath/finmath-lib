@@ -100,13 +100,13 @@ public class LIBORIndexTest {
 	private final int numberOfFactors = 5;
 	private final double correlationDecayParam = 0.05;
 
-	private double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
-	private double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
-	private double[] tolerance		= { 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4 , 3E-4 };		// Tolerance at 100.000 path
+	private final double[] periodStarts	= { 2.00, 2.00, 2.00, 2.50, 2.50, 2.50, 2.00, 2.00, 2.25 , 4.00 };
+	private final double[] periodEnds		= { 2.50, 2.25, 3.00, 3.00, 3.25, 3.50, 4.00, 5.00, 2.50 , 5.00 };
+	private final double[] tolerance		= { 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4, 3E-4 , 3E-4 };		// Tolerance at 100.000 path
 
-	private LIBORModelMonteCarloSimulationModel liborMarketModel;
+	private final LIBORModelMonteCarloSimulationModel liborMarketModel;
 
-	public LIBORIndexTest(Integer numberOfPaths, CurveSetup curveSetup) throws CalculationException {
+	public LIBORIndexTest(final Integer numberOfPaths, final CurveSetup curveSetup) throws CalculationException {
 
 		// Create a LIBOR market model
 		liborMarketModel = createLIBORMarketModel(curveSetup, Measure.SPOT, numberOfPaths, numberOfFactors, correlationDecayParam);
@@ -115,19 +115,19 @@ public class LIBORIndexTest {
 	@Test
 	public void testSinglePeriods() throws CalculationException {
 
-		NumberFormat formatDec2 = new DecimalFormat("0.00");
-		NumberFormat formatDec6 = new DecimalFormat("0.000000");
+		final NumberFormat formatDec2 = new DecimalFormat("0.00");
+		final NumberFormat formatDec6 = new DecimalFormat("0.000000");
 
 		for(int iTestCase = 0; iTestCase<periodStarts.length; iTestCase++) {
-			double periodStart	= periodStarts[iTestCase];
-			double periodEnd	= periodEnds[iTestCase];
-			double periodLength	= periodEnd-periodStart;
+			final double periodStart	= periodStarts[iTestCase];
+			final double periodEnd	= periodEnds[iTestCase];
+			final double periodLength	= periodEnd-periodStart;
 
-			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
-			double value = period.getValue(liborMarketModel);
+			final AbstractIndex index = new LIBORIndex(0.0, periodLength);
+			final Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
+			final double value = period.getValue(liborMarketModel);
 
-			double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
+			final double toleranceThisTest = tolerance[iTestCase]/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
 
 			System.out.println(
 					formatDec2.format(periodStart) + "\t" + formatDec2.format(periodEnd) + "\t" +
@@ -141,23 +141,23 @@ public class LIBORIndexTest {
 	@Test
 	public void testMultiPeriodFloater() throws CalculationException {
 
-		double tolerance = 2E-3;
-		ArrayList<AbstractProductComponent> periods = new ArrayList<>();
+		final double tolerance = 2E-3;
+		final ArrayList<AbstractProductComponent> periods = new ArrayList<>();
 		for(int iPeriod = 0; iPeriod<10; iPeriod++) {
-			double periodStart	= 2.0 + 0.5 * iPeriod;
-			double periodEnd	= 2.0 + 0.5 * (iPeriod+1);
-			double periodLength	= periodEnd-periodStart;
+			final double periodStart	= 2.0 + 0.5 * iPeriod;
+			final double periodEnd	= 2.0 + 0.5 * (iPeriod+1);
+			final double periodLength	= periodEnd-periodStart;
 
-			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
+			final AbstractIndex index = new LIBORIndex(0.0, periodLength);
+			final Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
 			periods.add(period);
 		}
-		AbstractProductComponent floater = new ProductCollection(periods);
-		double value = floater.getValue(liborMarketModel);
+		final AbstractProductComponent floater = new ProductCollection(periods);
+		final double value = floater.getValue(liborMarketModel);
 
-		double toleranceThisTest = tolerance/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
+		final double toleranceThisTest = tolerance/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0);
 
-		NumberFormat formatDec6 = new DecimalFormat("0.000000");
+		final NumberFormat formatDec6 = new DecimalFormat("0.000000");
 		System.out.println(
 				formatDec6.format(value) + "\t" +
 						formatDec6.format(toleranceThisTest));
@@ -168,26 +168,26 @@ public class LIBORIndexTest {
 	@Test
 	public void testUnalignedPeriods() throws CalculationException {
 
-		NumberFormat formatDec2 = new DecimalFormat("0.00");
-		NumberFormat formatDec6 = new DecimalFormat("0.000000");
+		final NumberFormat formatDec2 = new DecimalFormat("0.00");
+		final NumberFormat formatDec6 = new DecimalFormat("0.000000");
 
-		TimeDiscretization liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
+		final TimeDiscretization liborPeriodDiscretization = liborMarketModel.getLiborPeriodDiscretization();
 
 		for(int iPeriodStart=liborPeriodDiscretization.getNumberOfTimeSteps()-2; iPeriodStart < liborPeriodDiscretization.getNumberOfTimeSteps()-1; iPeriodStart++) {
 			double periodStart	= liborPeriodDiscretization.getTime(3);
 			double periodEnd	= liborPeriodDiscretization.getTime(iPeriodStart+1);
-			double periodLength	= periodEnd-periodStart;
+			final double periodLength	= periodEnd-periodStart;
 
 			// Shift period by half libor period
 			periodStart	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
 			periodEnd	+= liborPeriodDiscretization.getTime(4)-liborPeriodDiscretization.getTime(3);
 
-			AbstractIndex index = new LIBORIndex(0.0, periodLength);
-			Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
-			double value = period.getValue(liborMarketModel);
+			final AbstractIndex index = new LIBORIndex(0.0, periodLength);
+			final Period period = new Period(periodStart, periodEnd, periodStart, periodEnd, new NotionalFromConstant(1.0), index, periodLength, true, true, false);
+			final double value = period.getValue(liborMarketModel);
 
 			final double oneBasisPoint = 1.0 / 100.0 / 100.0;
-			double toleranceThisTest = oneBasisPoint/Math.sqrt((liborMarketModel.getNumberOfPaths())/200000.0);
+			final double toleranceThisTest = oneBasisPoint/Math.sqrt((liborMarketModel.getNumberOfPaths())/200000.0);
 
 			Assert.assertEquals(0.0, value / periodLength, toleranceThisTest);
 
@@ -199,20 +199,20 @@ public class LIBORIndexTest {
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			CurveSetup curveSetup,
-			Measure measure,
-			int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			final CurveSetup curveSetup,
+			final Measure measure,
+			final int numberOfPaths, final int numberOfFactors, final double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
 		 */
-		double liborPeriodLength	= 0.5;
-		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final double liborPeriodLength	= 0.5;
+		final double liborRateTimeHorzion	= 20.0;
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
-		LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
+		final LocalDate referenceDate = LocalDate.of(2014, Month.SEPTEMBER, 16);
 
-		double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
+		final double[] nssParameters = new double[] { 0.02 , -0.01, 0.16, -0.17, 4.5, 3.5 };
 
 		/*
 		 * Create forwardCurve and discountCurve. The two need to fit to each other for this test.
@@ -224,10 +224,10 @@ public class LIBORIndexTest {
 		{
 			discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, nssParameters, 1.0);
 
-			String paymentOffsetCode = "6M";
-			BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-			BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
-			DayCountConvention daycountConvention = null;//new DayCountConvention_ACT_360();
+			final String paymentOffsetCode = "6M";
+			final BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
+			final DayCountConvention daycountConvention = null;//new DayCountConvention_ACT_360();
 
 			forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 1.0, 0.0);
 			break;
@@ -250,25 +250,25 @@ public class LIBORIndexTest {
 			throw new IllegalArgumentException("Unknown curve setup: " + curveSetup.toString());
 		}
 
-		AnalyticModel analyticModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
+		final AnalyticModel analyticModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 20.0;
-		double dt		= 0.50;
+		final double lastTime	= 20.0;
+		final double dt		= 0.50;
 
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		final double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretizationFromArray.getTime(timeIndex);
-				double maturity = liborPeriodDiscretization.getTime(liborIndex);
-				double timeToMaturity = maturity - time;
+				final double time = timeDiscretizationFromArray.getTime(timeIndex);
+				final double maturity = liborPeriodDiscretization.getTime(liborIndex);
+				final double timeToMaturity = maturity - time;
 
 				double instVolatility;
 				if(timeToMaturity <= 0) {
@@ -281,12 +281,12 @@ public class LIBORIndexTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
+		final LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
-		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
+		final LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
 				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
@@ -294,7 +294,7 @@ public class LIBORIndexTest {
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
+		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
@@ -302,7 +302,7 @@ public class LIBORIndexTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<>();
+		final Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
@@ -311,15 +311,15 @@ public class LIBORIndexTest {
 		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
+		final CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 		//		LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);

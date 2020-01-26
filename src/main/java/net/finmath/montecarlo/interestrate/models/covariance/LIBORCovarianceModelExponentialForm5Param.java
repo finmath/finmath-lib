@@ -37,7 +37,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	private LIBORVolatilityModel		volatilityModel;
 	private LIBORCorrelationModel	correlationModel;
 
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, RandomVariable[] parameters) {
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final RandomVariable[] parameters) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
 		parameter = parameters.clone();
@@ -45,16 +45,16 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4].doubleValue(), false);
 	}
 
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double[] parameters) {
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double[] parameters) {
 		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, Scalar.arrayOf(parameters));
 	}
 
-	public LIBORCovarianceModelExponentialForm5Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, new double[] { 0.20, 0.05, 0.10, 0.20, 0.10});
 	}
 	@Override
 	public Object clone() {
-		LIBORCovarianceModelExponentialForm5Param model = new LIBORCovarianceModelExponentialForm5Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameter());
+		final LIBORCovarianceModelExponentialForm5Param model = new LIBORCovarianceModelExponentialForm5Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameter());
 		model.parameter = parameter;
 		model.volatilityModel = volatilityModel;
 		model.correlationModel = correlationModel;
@@ -62,8 +62,8 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(RandomVariable[] parameters) {
-		LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+		final LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();
 
 		model.parameter = parameters;
 		if(parameters[0] != parameter[0] || parameters[1] != parameter[1] || parameters[2] != parameter[2] || parameters[3] != parameter[3]) {
@@ -82,14 +82,14 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
 		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));
 	}
 
 	@Override
 	public double[] getParameterAsDouble() {
-		RandomVariable[] parameters = getParameter();
-		double[] parametersAsDouble = new double[parameters.length];
+		final RandomVariable[] parameters = getParameter();
+		final double[] parametersAsDouble = new double[parameters.length];
 		for(int i=0; i<parameters.length; i++) {
 			parametersAsDouble[i] = parameters[i].doubleValue();
 		}
@@ -97,10 +97,10 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
+			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility
 					.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
@@ -109,12 +109,12 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map<String, Object> dataModified)
 			throws CalculationException {
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
@@ -127,7 +127,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
 				parameter = abstractRandomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(new ToDoubleFunction<RandomVariable>() {
 					@Override
-					public double applyAsDouble(RandomVariable para) {
+					public double applyAsDouble(final RandomVariable para) {
 						return para.doubleValue();
 					}
 				}).toArray());
@@ -146,7 +146,7 @@ public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCova
 			}
 		}
 
-		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
+		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);
 		return newModel;
 	}
 }

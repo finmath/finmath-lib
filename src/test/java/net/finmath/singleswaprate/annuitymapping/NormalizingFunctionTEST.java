@@ -63,11 +63,11 @@ public class NormalizingFunctionTEST {
 	@BeforeClass
 	public static void setup() throws IOException, SolverException {
 
-		LocalDate referenceDate = LocalDate.of(2017, 8, 30);
-		LocalDate startDate = referenceDate.plusYears(10);
-		LocalDate endDate	= startDate.plusYears(20);
+		final LocalDate referenceDate = LocalDate.of(2017, 8, 30);
+		final LocalDate startDate = referenceDate.plusYears(10);
+		final LocalDate endDate	= startDate.plusYears(20);
 
-		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -75,7 +75,7 @@ public class NormalizingFunctionTEST {
 				new BusinessdayCalendarExcludingTARGETHolidays(),
 				0, 0, false);
 
-		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -117,7 +117,7 @@ public class NormalizingFunctionTEST {
 		forwardCurveName	= forwardCurve.getName();
 		volatilityCubeName	= "VOLA";
 
-		VolatilityCube cube = SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(
+		final VolatilityCube cube = SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(
 				volatilityCubeName,
 				referenceDate,
 				fixMetaSchedule,
@@ -138,10 +138,10 @@ public class NormalizingFunctionTEST {
 	@Test
 	public void testExpectation() {
 
-		NormalizingFunction normalizer = new ExponentialNormalizer(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, model);
-		NormalizingDummyProduct normalizerDummy = new NormalizingDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, normalizer);
+		final NormalizingFunction normalizer = new ExponentialNormalizer(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, model);
+		final NormalizingDummyProduct normalizerDummy = new NormalizingDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, normalizer);
 
-		double value = normalizerDummy.getValue(fixSchedule.getFixing(0), model);
+		final double value = normalizerDummy.getValue(fixSchedule.getFixing(0), model);
 		System.out.println("Expectation of the normalizing function is: " + value);
 
 		Assert.assertEquals(1, value, 0.01);

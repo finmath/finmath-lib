@@ -47,7 +47,7 @@ public class VolVolCube implements VolatilityCube {
 	 * @param schedule The schedule of the swap rate.
 	 * @param initialSwapRates Initial swap rates of all sub-tenors.
 	 */
-	public VolVolCube(String name, LocalDate referenceDate, String referenceCubeName, Schedule schedule, double[] initialSwapRates) {
+	public VolVolCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final Schedule schedule, final double[] initialSwapRates) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -60,7 +60,7 @@ public class VolVolCube implements VolatilityCube {
 		}
 		this.periodLength = periodLength /schedule.getNumberOfPeriods();
 
-		double[] tenors = new double[initialSwapRates.length];
+		final double[] tenors = new double[initialSwapRates.length];
 		for(int index = 0; index < tenors.length; index++) {
 			tenors[index] = schedule.getPeriodStart(index);
 		}
@@ -70,10 +70,10 @@ public class VolVolCube implements VolatilityCube {
 	}
 
 	@Override
-	public double getValue(VolatilityCubeModel model, double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 
-		VolatilityCube cube = model.getVolatilityCube(referenceCubeName);
-		ExponentialCorrelationCurve correlation = new ExponentialCorrelationCurve(name, referenceDate, baseTermination, cube.getCorrelationDecay());
+		final VolatilityCube cube = model.getVolatilityCube(referenceCubeName);
+		final ExponentialCorrelationCurve correlation = new ExponentialCorrelationCurve(name, referenceDate, baseTermination, cube.getCorrelationDecay());
 
 		double value = cube.getValue(model, termination, maturity, strike, quotingConvention);
 		value *= correlation.getValue(termination);
@@ -102,7 +102,7 @@ public class VolVolCube implements VolatilityCube {
 	}
 
 	@Override
-	public double getValue(double tenorLength, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double tenorLength, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, tenorLength, maturity, strike, quotingConvention);
 	}
 
@@ -118,7 +118,7 @@ public class VolVolCube implements VolatilityCube {
 	}
 
 	@Override
-	public double getLowestStrike(VolatilityCubeModel model) {
+	public double getLowestStrike(final VolatilityCubeModel model) {
 		return model.getVolatilityCube(referenceCubeName).getLowestStrike(model);
 	}
 

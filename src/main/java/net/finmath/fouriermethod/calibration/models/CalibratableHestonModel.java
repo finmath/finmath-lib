@@ -43,7 +43,7 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	 *
 	 * @param descriptor The model descriptor for the Heston model.
 	 */
-	public CalibratableHestonModel(HestonModelDescriptor descriptor) {
+	public CalibratableHestonModel(final HestonModelDescriptor descriptor) {
 		super();
 		this.descriptor = descriptor;
 		volatilityInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());
@@ -71,9 +71,9 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	 * @param rhoConstraint The constraint for the rho parameter.
 	 * @param applyFellerConstraint If true, the Feller constraint is applied.
 	 */
-	public CalibratableHestonModel(HestonModelDescriptor descriptor, ScalarParameterInformation volatilityConstraint,
-			ScalarParameterInformation thetaConstraint, ScalarParameterInformation kappaConstraint, ScalarParameterInformation xiConstraint,
-			ScalarParameterInformation rhoConstraint, boolean applyFellerConstraint) {
+	public CalibratableHestonModel(final HestonModelDescriptor descriptor, final ScalarParameterInformation volatilityConstraint,
+			final ScalarParameterInformation thetaConstraint, final ScalarParameterInformation kappaConstraint, final ScalarParameterInformation xiConstraint,
+			final ScalarParameterInformation rhoConstraint, final boolean applyFellerConstraint) {
 		this.descriptor = descriptor;
 		volatilityInfo = volatilityConstraint;
 		thetaInfo = thetaConstraint;
@@ -86,21 +86,21 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	}
 
 	@Override
-	public CalibratableHestonModel getCloneForModifiedParameters(double[] parameters) {
+	public CalibratableHestonModel getCloneForModifiedParameters(final double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
+		final double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
 		double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
-		double kappa = kappaInfo.getIsParameterToCalibrate() == true ? kappaInfo.getConstraint().apply(parameters[2]) : descriptor.getKappa();
-		double xi = xiInfo.getIsParameterToCalibrate() == true ? xiInfo.getConstraint().apply(parameters[3]) : descriptor.getXi();
-		double rho = rhoInfo.getIsParameterToCalibrate() == true ? rhoInfo.getConstraint().apply(parameters[4]) : descriptor.getRho();
+		final double kappa = kappaInfo.getIsParameterToCalibrate() == true ? kappaInfo.getConstraint().apply(parameters[2]) : descriptor.getKappa();
+		final double xi = xiInfo.getIsParameterToCalibrate() == true ? xiInfo.getConstraint().apply(parameters[3]) : descriptor.getXi();
+		final double rho = rhoInfo.getIsParameterToCalibrate() == true ? rhoInfo.getConstraint().apply(parameters[4]) : descriptor.getRho();
 
 		if(applyFellerConstraint && 2*kappa*theta < xi*xi) {
 			//bump long term volatility so that the Feller test is satisfied.
 			theta = xi*xi / (2 * kappa) + 1E-9;
 		}
 
-		HestonModelDescriptor newDescriptor = new HestonModelDescriptor(descriptor.getReferenceDate(),
+		final HestonModelDescriptor newDescriptor = new HestonModelDescriptor(descriptor.getReferenceDate(),
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForDiscountRate(),
 				volatility, theta, kappa, xi, rho);
 
@@ -130,8 +130,8 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	}
 
 	private double[] extractUpperBounds() {
-		double[] upperBounds = new double[5];
-		double threshold = 1E6;
+		final double[] upperBounds = new double[5];
+		final double threshold = 1E6;
 		upperBounds[0] = volatilityInfo.getConstraint().getUpperBound() > threshold ? threshold : volatilityInfo.getConstraint().getUpperBound();
 		upperBounds[1] = thetaInfo.getConstraint().getUpperBound() > threshold ? threshold : thetaInfo.getConstraint().getUpperBound();
 		upperBounds[2] = kappaInfo.getConstraint().getUpperBound() > threshold ? threshold : kappaInfo.getConstraint().getUpperBound();
@@ -142,8 +142,8 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	}
 
 	private double[] extractLowerBounds() {
-		double[] upperBounds = new double[5];
-		double threshold = -1E6;
+		final double[] upperBounds = new double[5];
+		final double threshold = -1E6;
 		upperBounds[0] = volatilityInfo.getConstraint().getLowerBound() < threshold ? threshold : volatilityInfo.getConstraint().getLowerBound();
 		upperBounds[1] = thetaInfo.getConstraint().getLowerBound() < threshold ? threshold : thetaInfo.getConstraint().getLowerBound();
 		upperBounds[2] = kappaInfo.getConstraint().getLowerBound() < threshold ? threshold : kappaInfo.getConstraint().getLowerBound();

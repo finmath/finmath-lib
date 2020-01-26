@@ -32,8 +32,8 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 	private final IndependentIncrements brownianMotion;
 
 
-	public HestonModelMonteCarloFactory(Scheme scheme, RandomVariableFactory abstractRandomVariableFactory,
-			IndependentIncrements brownianMotion) {
+	public HestonModelMonteCarloFactory(final Scheme scheme, final RandomVariableFactory abstractRandomVariableFactory,
+			final IndependentIncrements brownianMotion) {
 		super();
 		this.scheme = scheme;
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
@@ -42,7 +42,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 
 
 	@Override
-	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
+	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(final HestonModelDescriptor modelDescriptor) {
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
 			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
@@ -51,7 +51,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			 * @param model
 			 * @param process
 			 */
-			HestonMonteCarloModel(ProcessModel model, MonteCarloProcess process) {
+			HestonMonteCarloModel(final ProcessModel model, final MonteCarloProcess process) {
 				super(model, process);
 			}
 
@@ -61,12 +61,12 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
 					return productFactory.getProductFromDescriptor(productDescriptor);
 				}
 				else {
-					String name = modelDescriptor.name();
+					final String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}

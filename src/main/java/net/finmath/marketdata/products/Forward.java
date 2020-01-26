@@ -37,7 +37,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProduct 
 	 * @param spread Additional fixed payment (if any).
 	 * @param discountCurveName Name of the discount curve for the forward.
 	 */
-	public Forward(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+	public Forward(final double maturity, final double paymentOffset, final String forwardCurveName, final double spread, final String discountCurveName) {
 		super();
 		this.maturity = maturity;
 		this.paymentOffset = paymentOffset;
@@ -50,9 +50,9 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProduct 
 	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
 	 */
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
-		ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+		final ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		final DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
 
 		DiscountCurve	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
@@ -73,7 +73,7 @@ public class Forward extends AbstractAnalyticProduct implements AnalyticProduct 
 			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
-		double discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : 0.0;
+		final double discountFactor	= maturity+paymentOffset > evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : 0.0;
 
 		return forward * discountFactor / discountCurve.getDiscountFactor(model, evaluationTime);
 	}

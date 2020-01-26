@@ -19,31 +19,31 @@ import java.io.ObjectOutputStream;
  */
 public class FileUtilities {
 
-	public static Object loadObject(File pathToFile) throws ClassNotFoundException, IOException {
+	public static Object loadObject(final File pathToFile) throws ClassNotFoundException, IOException {
 		if(pathToFile == null) {
 			return null;
 		}
 
 		// Load serialized object
-		FileInputStream fis = new FileInputStream(pathToFile);
+		final FileInputStream fis = new FileInputStream(pathToFile);
 		Object object = null;
 		try(ObjectInputStream in = new ObjectInputStream(fis)) {
 			object = in.readObject();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw e;
 		}
 		return object;
 	}
 
-	public static void writeObject(File pathToFile, Object object) throws IOException {
+	public static void writeObject(final File pathToFile, final Object object) throws IOException {
 		/*
 		 * Write object to file
 		 */
-		FileOutputStream fos = new FileOutputStream(pathToFile, false /* append */);
+		final FileOutputStream fos = new FileOutputStream(pathToFile, false /* append */);
 		try(ObjectOutputStream out = new ObjectOutputStream(fos)) {
 			out.writeObject(object);
 			out.flush();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw e;
 		}
 	}

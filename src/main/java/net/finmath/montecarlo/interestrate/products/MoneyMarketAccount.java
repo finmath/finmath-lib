@@ -39,7 +39,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	 * @param initialValue The initial value, i.e., the value at inception time.
 	 * @param accrualPeriod The accrual period. If this period is &lt; 0, then the finest model LIBOR period discretization is used
 	 */
-	public MoneyMarketAccount(double inceptionTime, double initialValue, double accrualPeriod) {
+	public MoneyMarketAccount(final double inceptionTime, final double initialValue, final double accrualPeriod) {
 		super();
 		this.inceptionTime	= inceptionTime;
 		this.initialValue	= initialValue;
@@ -52,7 +52,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	 * @param inceptionTime The inception time. The value of the account at inception is 1.0. The value of the account prior to inception is zero.
 	 * @param accrualPeriod The accrual period. If this period is &lt; 0, then the finest model LIBOR period discretization is used
 	 */
-	public MoneyMarketAccount(double inceptionTime, double accrualPeriod) {
+	public MoneyMarketAccount(final double inceptionTime, final double accrualPeriod) {
 		this(inceptionTime, 1.0, accrualPeriod);
 	}
 
@@ -68,7 +68,7 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 	 * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct#getValue(double, net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel)
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		if(inceptionTime > evaluationTime) {
 			return new RandomVariableFromDoubleArray(0.0);
@@ -83,8 +83,8 @@ public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
 		// Loop over accrual periods
 		for(double time=inceptionTime; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
-			RandomVariable	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
-			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
+			final RandomVariable	forwardRate				= model.getLIBOR(time, time, time+accrualPeriod);
+			final double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
 
 			// Accrue the value using the current forward rate
 			value = value.accrue(forwardRate, currentAccrualPeriod);

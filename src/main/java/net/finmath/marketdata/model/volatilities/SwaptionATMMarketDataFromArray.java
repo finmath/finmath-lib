@@ -34,7 +34,7 @@ public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 	private final double[][]						impliedVolatilities;
 
 
-	public SwaptionATMMarketDataFromArray(double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionATMMarketDataFromArray(final double[] optionMaturities, final double[] tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
 		super();
 		forwardCurve = null;		// Implied vol only.
 		discountCurve = null;		// Implied vol only.
@@ -44,7 +44,7 @@ public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionATMMarketDataFromArray(ForwardCurve forwardCurve, DiscountCurve discountCurve, double[] optionMaturities, double[] tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionATMMarketDataFromArray(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final double[] optionMaturities, final double[] tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
@@ -54,7 +54,7 @@ public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 		this.impliedVolatilities = impliedVolatilities;
 	}
 
-	public SwaptionATMMarketDataFromArray(ForwardCurve forwardCurve, DiscountCurve discountCurve, TimeDiscretization optionMatruities, TimeDiscretization tenor, double swapPeriodLength, double[][] impliedVolatilities) {
+	public SwaptionATMMarketDataFromArray(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final TimeDiscretization optionMatruities, final TimeDiscretization tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
 		super();
 		this.forwardCurve = forwardCurve;
 		this.discountCurve = discountCurve;
@@ -80,13 +80,13 @@ public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 	}
 
 	@Override
-	public double getValue(double optionMatruity, double tenorLength, double periodLength, double strike) {
+	public double getValue(final double optionMatruity, final double tenorLength, final double periodLength, final double strike) {
 		throw new RuntimeException("Method not implemented.");
 	}
 
-	public double getVolatility(double optionMatruity, double tenorLength) {
-		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
-		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
+	public double getVolatility(final double optionMatruity, final double tenorLength) {
+		final int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
+		final int indexTenorIndex = tenor.getTimeIndex(tenorLength);
 		if(indexOptionMaturity < 0) {
 			throw new IllegalArgumentException("Option maturity not part of data.");
 		}
@@ -101,9 +101,9 @@ public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 	 * @see net.finmath.marketdata.AbstractSwaptionMarketData#getVolatility(double, double, double, double)
 	 */
 	@Override
-	public double getVolatility(double optionMatruity, double tenorLength, double periodLength, double strike) {
-		int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
-		int indexTenorIndex = tenor.getTimeIndex(tenorLength);
+	public double getVolatility(final double optionMatruity, final double tenorLength, final double periodLength, final double strike) {
+		final int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);
+		final int indexTenorIndex = tenor.getTimeIndex(tenorLength);
 		if(indexOptionMaturity < 0) {
 			throw new IllegalArgumentException("Option maturity not part of data.");
 		}

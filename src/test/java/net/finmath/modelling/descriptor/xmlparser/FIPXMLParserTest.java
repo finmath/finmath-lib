@@ -27,7 +27,7 @@ public class FIPXMLParserTest {
 	public static Collection<Object[]> generateData()
 	{
 		/// @TODO Provide a list of test files here
-		ArrayList<Object[]> parameters = new ArrayList<>();
+		final ArrayList<Object[]> parameters = new ArrayList<>();
 		parameters.add(new Object[] { new File("test.xml") });
 		return parameters;
 	}
@@ -42,9 +42,9 @@ public class FIPXMLParserTest {
 	 * @throws IOException
 	 * @throws SAXException
 	 */
-	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
+	public static void main(final String[] args) throws SAXException, IOException, ParserConfigurationException
 	{
-		JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
+		final JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
 		jfc.setDialogTitle("Choose XML");
 		jfc.setFileFilter(new FileNameExtensionFilter("FIPXML (.xml)", "xml"));
 		if(jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -54,7 +54,7 @@ public class FIPXMLParserTest {
 		(new FIPXMLParserTest(jfc.getSelectedFile())).testGetSwapProductDescriptor();
 	}
 
-	public FIPXMLParserTest(File file) {
+	public FIPXMLParserTest(final File file) {
 		super();
 		this.file = file;
 	}
@@ -65,17 +65,17 @@ public class FIPXMLParserTest {
 		InterestRateSwapProductDescriptor descriptor;
 		try {
 			descriptor = (new FIPXMLParser()).getSwapProductDescriptor(file);
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			System.out.println("There was a problem with the file: "+e.getMessage());
 			//			e.printStackTrace();
 			return;
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			System.out.println("File not found. We will exit gracefully.");
 			return;
 		}
 
-		InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
-		InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
+		final InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
+		final InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
 
 		System.out.println("Receiver leg:");
 		System.out.println(legReceiver.name());

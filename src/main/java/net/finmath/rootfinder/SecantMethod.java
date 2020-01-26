@@ -30,7 +30,7 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 	 * @param secondGuess
 	 *      A second guess for the solver to use (different from first guess).
 	 */
-	public SecantMethod(double firstGuess, double secondGuess) {
+	public SecantMethod(final double firstGuess, final double secondGuess) {
 		super(firstGuess);
 		this.secondGuess = secondGuess;
 	}
@@ -48,7 +48,7 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 	 *      by previous <code>getNextPoint</code> call.
 	 */
 	@Override
-	public void setValue(double value) {
+	public void setValue(final double value) {
 		// Calculate approximation for derivative
 		double derivative;
 		if (getNumberOfIterations() == 0) {
@@ -77,7 +77,7 @@ public class SecantMethod extends NewtonsMethod implements RootFinder {
 	 *     <code>getNextPoint</code> call.
 	 */
 	@Override
-	public void setValueAndDerivative(double value, double derivative) {
+	public void setValueAndDerivative(final double value, final double derivative) {
 		// Remember last point
 		lastPoint = super.getNextPoint();
 		lastValue = value;

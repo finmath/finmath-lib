@@ -33,17 +33,17 @@ public class RandomVariableDifferentiableAADStochasticNonOptimizedFactory extend
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
-	public RandomVariableDifferentiableAADStochasticNonOptimizedFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableAADStochasticNonOptimizedFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(new RandomVariableFromDoubleArray(time, value));
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAADStochasticNonOptimized(new RandomVariableFromDoubleArray(time, values));
 	}
 }

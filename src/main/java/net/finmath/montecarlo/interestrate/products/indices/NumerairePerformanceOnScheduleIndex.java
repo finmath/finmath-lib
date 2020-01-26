@@ -38,51 +38,51 @@ public class NumerairePerformanceOnScheduleIndex extends AbstractIndex {
 
 	private final Schedule schedule;
 
-	public NumerairePerformanceOnScheduleIndex(String name, String currency, Schedule schedule) {
+	public NumerairePerformanceOnScheduleIndex(final String name, final String currency, final Schedule schedule) {
 		super(name, currency);
 		this.schedule = schedule;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		/*
 		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
 		 */
-		double fixingTime = evaluationTime;
-		Period period = getPeriod(FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate(), fixingTime));
+		final double fixingTime = evaluationTime;
+		final Period period = getPeriod(FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate(), fixingTime));
 
-		LocalDate paymentDate = period.getPayment();
-		double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), paymentDate);
+		final LocalDate paymentDate = period.getPayment();
+		final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), paymentDate);
 
-		double periodLength = schedule.getDaycountconvention().getDaycountFraction(period.getPeriodStart(), period.getPeriodEnd());
+		final double periodLength = schedule.getDaycountconvention().getDaycountFraction(period.getPeriodStart(), period.getPeriodEnd());
 
 		/*
 		 * Fetch numeraire performance rate from model
 		 */
-		RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);
-		RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);
+		final RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);
+		final RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);
 
 		RandomVariable numeraireRatio = numeraireAtEnd.div(numeraireAtStart);
 
 		if(getName() != null && !model.getModel().getDiscountCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
-			AnalyticModel analyticModel = model.getModel().getAnalyticModel();
-			DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());
-			DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();
-			double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);
-			double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);
-			double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;
+			final AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+			final DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());
+			final DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();
+			final double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);
+			final double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);
+			final double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;
 			numeraireRatio = numeraireRatio.mult(adjustment);
 		}
 
-		RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);
+		final RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);
 
 		return forwardRate;
 	}
 
-	private Period getPeriod(LocalDateTime localDateTime) {
-		for(Period period : schedule.getPeriods()) {
+	private Period getPeriod(final LocalDateTime localDateTime) {
+		for(final Period period : schedule.getPeriods()) {
 			if(period.getFixing().isEqual(localDateTime.toLocalDate())) {
 				return period;
 			}
@@ -93,7 +93,7 @@ public class NumerairePerformanceOnScheduleIndex extends AbstractIndex {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<>();
+		final Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

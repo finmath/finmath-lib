@@ -34,15 +34,15 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param schedule TenorFromArray of the swap annuity.
 	 * @param discountCurveName Name of the discount curve for the swap annuity.
 	 */
-	public SwapAnnuity(Schedule schedule, String discountCurveName) {
+	public SwapAnnuity(final Schedule schedule, final String discountCurveName) {
 		super();
 		this.schedule = schedule;
 		this.discountCurveName = discountCurveName;
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
-		DiscountCurve discountCurve = (DiscountCurve) model.getCurve(discountCurveName);
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+		final DiscountCurve discountCurve = (DiscountCurve) model.getCurve(discountCurveName);
 
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);
 	}
@@ -54,7 +54,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(TimeDiscretization tenor, DiscountCurve discountCurve) {
+	public static double getSwapAnnuity(final TimeDiscretization tenor, final DiscountCurve discountCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);
 	}
 
@@ -67,7 +67,7 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(TimeDiscretization tenor, ForwardCurve forwardCurve) {
+	public static double getSwapAnnuity(final TimeDiscretization tenor, final ForwardCurve forwardCurve) {
 		return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);
 	}
 
@@ -80,8 +80,8 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param discountCurve The discount curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(Schedule schedule, DiscountCurve discountCurve) {
-		double evaluationTime = 0.0;	// Consider only payment time > 0
+	public static double getSwapAnnuity(final Schedule schedule, final DiscountCurve discountCurve) {
+		final double evaluationTime = 0.0;	// Consider only payment time > 0
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);
 	}
 
@@ -96,9 +96,9 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param forwardCurve The forward curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(Schedule schedule, ForwardCurve forwardCurve) {
-		DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
-		double evaluationTime = 0.0;	// Consider only payment time > 0
+	public static double getSwapAnnuity(final Schedule schedule, final ForwardCurve forwardCurve) {
+		final DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());
+		final double evaluationTime = 0.0;	// Consider only payment time > 0
 		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModelFromCurvesAndVols( new Curve[] {forwardCurve, discountCurve} ));
 	}
 
@@ -114,16 +114,16 @@ public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
 	 * @return The swap annuity.
 	 */
-	public static double getSwapAnnuity(double evaluationTime, Schedule schedule, DiscountCurve discountCurve, AnalyticModel model) {
+	public static double getSwapAnnuity(final double evaluationTime, final Schedule schedule, final DiscountCurve discountCurve, final AnalyticModel model) {
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
-			double paymentDate		= schedule.getPayment(periodIndex);
+			final double paymentDate		= schedule.getPayment(periodIndex);
 			if(paymentDate <= evaluationTime) {
 				continue;
 			}
 
-			double periodLength		= schedule.getPeriodLength(periodIndex);
-			double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
+			final double periodLength		= schedule.getPeriodLength(periodIndex);
+			final double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);
 			value += periodLength * discountFactor;
 		}
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);

@@ -45,11 +45,11 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			RandomVariableFactory abstractRandomVariableFactory,
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			RandomVariable[][]	volatility,
-			boolean isCalibrateable) {
+			final RandomVariableFactory abstractRandomVariableFactory,
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final RandomVariable[][]	volatility,
+			final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
@@ -67,10 +67,10 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			RandomVariable[][]	volatility,
-			boolean isCalibrateable) {
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final RandomVariable[][]	volatility,
+			final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
@@ -87,9 +87,9 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			RandomVariable[][]	volatility) {
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final RandomVariable[][]	volatility) {
 		this(timeDiscretization, liborPeriodDiscretization, volatility, false);
 	}
 
@@ -104,11 +104,11 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			RandomVariableFactory abstractRandomVariableFactory,
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			double[][]	volatility,
-			boolean isCalibrateable) {
+			final RandomVariableFactory abstractRandomVariableFactory,
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final double[][]	volatility,
+			final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
@@ -127,10 +127,10 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			RandomVariableFactory abstractRandomVariableFactory,
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			double[][]	volatility) {
+			final RandomVariableFactory abstractRandomVariableFactory,
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final double[][]	volatility) {
 		this(abstractRandomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility, true);
 	}
 
@@ -143,15 +143,15 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
 	 */
 	public LIBORVolatilityModelFromGivenMatrix(
-			TimeDiscretization	timeDiscretization,
-			TimeDiscretization	liborPeriodDiscretization,
-			double[][]	volatility) {
+			final TimeDiscretization	timeDiscretization,
+			final TimeDiscretization	liborPeriodDiscretization,
+			final double[][]	volatility) {
 		this(new RandomVariableFromArrayFactory(), timeDiscretization, liborPeriodDiscretization, volatility);
 	}
 
 
 	@Override
-	public RandomVariable getVolatility(int timeIndex, int component) {
+	public RandomVariable getVolatility(final int timeIndex, final int component) {
 		return volatility[timeIndex][component];
 	}
 
@@ -159,7 +159,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	public RandomVariable[] getParameter() {
 		synchronized (volatility) {
 			if(parameter == null) {
-				ArrayList<RandomVariable> parameterArray = new ArrayList<>();
+				final ArrayList<RandomVariable> parameterArray = new ArrayList<>();
 				for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
 					for(int liborPeriodIndex = 0; liborPeriodIndex< getLiborPeriodDiscretization().getNumberOfTimeSteps(); liborPeriodIndex++) {
 						if(getTimeDiscretization().getTime(timeIndex) < getLiborPeriodDiscretization().getTime(liborPeriodIndex) ) {
@@ -175,8 +175,8 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	}
 
 	@Override
-	public LIBORVolatilityModelFromGivenMatrix getCloneWithModifiedParameter(RandomVariable[] parameter) {
-		RandomVariable[][] newVoltility = new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
+	public LIBORVolatilityModelFromGivenMatrix getCloneWithModifiedParameter(final RandomVariable[] parameter) {
+		final RandomVariable[][] newVoltility = new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];
 
 		int parameterIndex = 0;
 		for(int timeIndex = 0; timeIndex<getTimeDiscretization().getNumberOfTimeSteps(); timeIndex++) {
@@ -196,11 +196,11 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	}
 
 	@Override
-	public LIBORVolatilityModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public LIBORVolatilityModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		RandomVariableFactory abstractRandomVariableFactory = null;
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
-		RandomVariable[][] volatility = this.volatility;
+		final RandomVariable[][] volatility = this.volatility;
 		boolean isCalibrateable = this.isCalibrateable;
 
 		if(dataModified != null) {
@@ -220,7 +220,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 			}
 		}
 
-		LIBORVolatilityModel newModel = new LIBORVolatilityModelFromGivenMatrix(abstractRandomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility, isCalibrateable);
+		final LIBORVolatilityModel newModel = new LIBORVolatilityModelFromGivenMatrix(abstractRandomVariableFactory, timeDiscretization, liborPeriodDiscretization, volatility, isCalibrateable);
 		return newModel;
 	}
 }

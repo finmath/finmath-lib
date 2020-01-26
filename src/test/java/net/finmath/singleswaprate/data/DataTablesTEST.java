@@ -52,10 +52,10 @@ public class DataTablesTEST {
 	@Test
 	public void testTables() throws IOException {
 
-		DataTableLight light			= new DataTableLight("TestTable", TableConvention.MONTHS, maturities, terminations, values);
-		DataTableBasic regular			= DataTableBasic.upgradeDataTableLight(light, referenceDate, scheduleMetaData);
-		DataTableInterpolated spline	= DataTableInterpolated.interpolateDataTable(regular);
-		DataTableLinear linear			= DataTableLinear.interpolateDataTable(regular);
+		final DataTableLight light			= new DataTableLight("TestTable", TableConvention.MONTHS, maturities, terminations, values);
+		final DataTableBasic regular			= DataTableBasic.upgradeDataTableLight(light, referenceDate, scheduleMetaData);
+		final DataTableInterpolated spline	= DataTableInterpolated.interpolateDataTable(regular);
+		final DataTableLinear linear			= DataTableLinear.interpolateDataTable(regular);
 
 
 		System.out.println(light.getClass());
@@ -71,25 +71,25 @@ public class DataTablesTEST {
 		System.out.println(intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -101,24 +101,24 @@ public class DataTablesTEST {
 		double doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -127,23 +127,23 @@ public class DataTablesTEST {
 		System.out.println("\n\n"+intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -155,23 +155,23 @@ public class DataTablesTEST {
 		doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -181,23 +181,23 @@ public class DataTablesTEST {
 		System.out.println("\n\n"+intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -209,23 +209,23 @@ public class DataTablesTEST {
 		doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -235,23 +235,23 @@ public class DataTablesTEST {
 		System.out.println("\n\n"+intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -263,23 +263,23 @@ public class DataTablesTEST {
 		doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -289,23 +289,23 @@ public class DataTablesTEST {
 		System.out.println("\n\n"+intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -317,23 +317,23 @@ public class DataTablesTEST {
 		doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -342,23 +342,23 @@ public class DataTablesTEST {
 		System.out.println("\n\n"+intMat+"M"+intTerm+"M via int: ");
 		try {
 			System.out.println("light: "+light.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			//			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(intMat, intTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}
@@ -370,23 +370,23 @@ public class DataTablesTEST {
 		doubleTerm = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		try {
 			System.out.println("light: "+light.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("light failed.");
 		}
 		try {
 			System.out.println("regular: "+regular.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("regular failed.");
 		}
 		try {
 			System.out.println("spline: "+spline.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("spline failed.");
 			//			Assert.fail(e.toString());
 		}
 		try {
 			System.out.println("linear: "+linear.getValue(doubleMat, doubleTerm));
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			System.out.println("linear failed.");
 			Assert.fail(e.toString());
 		}

@@ -56,10 +56,10 @@ public class FiniteDifferenceHedgedPortfolio extends AbstractAssetMonteCarloProd
 	 * @param hedgeStrategy	Specification of the hedge strategy to be used (delta, delta-gamma, etc.).
 	 */
 	public FiniteDifferenceHedgedPortfolio(
-			AbstractAssetMonteCarloProduct productToHedge,
-			AssetModelMonteCarloSimulationModel modelUsedForHedging,
-			ArrayList<AbstractAssetMonteCarloProduct> hedgeProducts,
-			HedgeStrategy hedgeStrategy) {
+			final AbstractAssetMonteCarloProduct productToHedge,
+			final AssetModelMonteCarloSimulationModel modelUsedForHedging,
+			final ArrayList<AbstractAssetMonteCarloProduct> hedgeProducts,
+			final HedgeStrategy hedgeStrategy) {
 		super();
 		this.productToHedge = productToHedge;
 		this.modelUsedForHedging = modelUsedForHedging;
@@ -69,26 +69,26 @@ public class FiniteDifferenceHedgedPortfolio extends AbstractAssetMonteCarloProd
 
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
-		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-		int numberOfPath			= model.getNumberOfPaths();
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
+		final int numberOfPath			= model.getNumberOfPaths();
 
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		ArrayList<RandomVariable>	amountOfHedgeAssets = new ArrayList<>(hedgeProducts.size());
+		final ArrayList<RandomVariable>	amountOfHedgeAssets = new ArrayList<>(hedgeProducts.size());
 
 		/*
 		 * Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariable underlyingToday = model.getAssetValue(0.0,0);
-		double initialValue = underlyingToday.get(0);
+		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);
+		final double initialValue = underlyingToday.get(0);
 
-		double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
+		final double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
 
 		return new RandomVariableFromDoubleArray(evaluationTime, 0.0);
 	}

@@ -33,13 +33,13 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 		LINEAR_REGRESSED
 	}
 
-	private double boundary = 4;
-	private boolean isBoundaryTimeDep = true;
+	private final double boundary = 4;
+	private final boolean isBoundaryTimeDep = true;
 
-	private BoundaryAdjustmentType boundaryAdjustmentType = BoundaryAdjustmentType.LINEAR_REGRESSED;
+	private final BoundaryAdjustmentType boundaryAdjustmentType = BoundaryAdjustmentType.LINEAR_REGRESSED;
 
-	private double maturity;
-	private double strike;
+	private final double maturity;
+	private final double strike;
 
 	/**
 	 * Create an European option.
@@ -47,7 +47,7 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 	 * @param maturity The maturity of the European option.
 	 * @param strike The strike of the European option.
 	 */
-	public EuropeanOptionWithBoundary(double maturity, double strike) {
+	public EuropeanOptionWithBoundary(final double maturity, final double strike) {
 		super();
 		this.maturity	= maturity;
 		this.strike		= strike;
@@ -64,24 +64,24 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Get underlying and numeraire
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
 
 		// The payoff
-		RandomVariable values = underlyingAtMaturity.sub(strike).floor(0.0);
+		final RandomVariable values = underlyingAtMaturity.sub(strike).floor(0.0);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
-		RandomVariableFromDoubleArray prob = new RandomVariableFromDoubleArray(0.0,1.0);
+		final RandomVariableFromDoubleArray prob = new RandomVariableFromDoubleArray(0.0,1.0);
 		prob.mult(monteCarloWeights).div(monteCarloProbabilitiesAtZero);
 		prob.sub(1.0);
 		prob.mult(-1.0);
@@ -91,28 +91,28 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 		return values;
 	}
 
-	public RandomVariable getBoundaryAdjustment(double fromTime, double toTime, AssetModelMonteCarloSimulationModel model, RandomVariable continuationValues) throws CalculationException {
+	public RandomVariable getBoundaryAdjustment(final double fromTime, final double toTime, final AssetModelMonteCarloSimulationModel model, final RandomVariable continuationValues) throws CalculationException {
 
-		RandomVariableFromDoubleArray values = new RandomVariableFromDoubleArray(0,0);
+		final RandomVariableFromDoubleArray values = new RandomVariableFromDoubleArray(0,0);
 
-		int fromTimeIndex	= model.getTimeIndex(fromTime);
-		double fromTimeNext = model.getTime(fromTimeIndex+1);
+		final int fromTimeIndex	= model.getTimeIndex(fromTime);
+		final double fromTimeNext = model.getTime(fromTimeIndex+1);
 
 		if(fromTimeNext < toTime) {
-			RandomVariable	monteCarloProbabilitiesEnd			= model.getMonteCarloWeights(fromTimeNext);
-			RandomVariable	monteCarloProbabilitiesStart		= model.getMonteCarloWeights(fromTime);
-			RandomVariable	monteCarloProbabilitiesTransition	= monteCarloProbabilitiesEnd.div(monteCarloProbabilitiesStart);
+			final RandomVariable	monteCarloProbabilitiesEnd			= model.getMonteCarloWeights(fromTimeNext);
+			final RandomVariable	monteCarloProbabilitiesStart		= model.getMonteCarloWeights(fromTime);
+			final RandomVariable	monteCarloProbabilitiesTransition	= monteCarloProbabilitiesEnd.div(monteCarloProbabilitiesStart);
 
-			double riskFreeRate = ((MonteCarloBlackScholesModel)model).getModel().getRiskFreeRate().doubleValue();
-			RandomVariable remainingBoundaryAdjustment = this.getBoundaryAdjustment(fromTimeNext, toTime, model, continuationValues);
+			final double riskFreeRate = ((MonteCarloBlackScholesModel)model).getModel().getRiskFreeRate().doubleValue();
+			final RandomVariable remainingBoundaryAdjustment = this.getBoundaryAdjustment(fromTimeNext, toTime, model, continuationValues);
 			remainingBoundaryAdjustment.mult(monteCarloProbabilitiesTransition).mult(Math.exp(-riskFreeRate*(fromTimeNext-fromTime)));
 
 			values.add(remainingBoundaryAdjustment);
 		}
 
-		double spot = ((MonteCarloBlackScholesModel)model).getModel().getInitialState()[0].get(0);
-		double riskFreeRate = ((MonteCarloBlackScholesModel)model).getModel().getRiskFreeRate().doubleValue();
-		double volatility = ((MonteCarloBlackScholesModel)model).getModel().getVolatility().doubleValue();
+		final double spot = ((MonteCarloBlackScholesModel)model).getModel().getInitialState()[0].get(0);
+		final double riskFreeRate = ((MonteCarloBlackScholesModel)model).getModel().getRiskFreeRate().doubleValue();
+		final double volatility = ((MonteCarloBlackScholesModel)model).getModel().getVolatility().doubleValue();
 
 		double boundaryLocal = spot*Math.exp(riskFreeRate*maturity + boundary * 0.25 * Math.sqrt(maturity));
 		//    	boundaryLocal = boundary;
@@ -123,11 +123,11 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 		}
 
 		// Boundary adjustment for one time step
-		RandomVariable underlying = model.getAssetValue(fromTime,0);
-		double optionMaturity = fromTimeNext-fromTime;
-		double optionStrike = boundaryLocal;
+		final RandomVariable underlying = model.getAssetValue(fromTime,0);
+		final double optionMaturity = fromTimeNext-fromTime;
+		final double optionStrike = boundaryLocal;
 
-		double[] boundaryAdjustmentValues = new double[underlying.size()];
+		final double[] boundaryAdjustmentValues = new double[underlying.size()];
 
 		double c = 0;
 		double d = 0;
@@ -141,11 +141,11 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 			d = Math.exp(-riskFreeRate * (toTime-fromTimeNext));
 		}
 		else if(boundaryAdjustmentType == BoundaryAdjustmentType.LINEAR_REGRESSED) {
-			RandomVariable weight = new RandomVariableFromDoubleArray(1.0);
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(toTime, model, weight));
+			final RandomVariable weight = new RandomVariableFromDoubleArray(1.0);
+			final MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(toTime, model, weight));
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
-			double[] paremetersRegressed = condExpEstimator.getLinearRegressionParameters(continuationValues.mult(weight));
+			final double[] paremetersRegressed = condExpEstimator.getLinearRegressionParameters(continuationValues.mult(weight));
 
 			c = paremetersRegressed[0] + boundaryLocal *  paremetersRegressed[1];
 			d = paremetersRegressed[1];
@@ -160,15 +160,15 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 		}
 
 		for(int i=0; i<underlying.size(); i++) {
-			double initialStockValue = underlying.get(i);
+			final double initialStockValue = underlying.get(i);
 
-			double a = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
-			double b = AnalyticFormulas.blackScholesDigitalOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final double a = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final double b = AnalyticFormulas.blackScholesDigitalOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 			boundaryAdjustmentValues[i] = c * b + d * a;
 		}
 
-		RandomVariableFromDoubleArray boundaryAdjustment = boundaryAdjustmentValues.length == 1 ? new RandomVariableFromDoubleArray(0.0, boundaryAdjustmentValues[0]) : new RandomVariableFromDoubleArray(0.0, boundaryAdjustmentValues);
+		final RandomVariableFromDoubleArray boundaryAdjustment = boundaryAdjustmentValues.length == 1 ? new RandomVariableFromDoubleArray(0.0, boundaryAdjustmentValues[0]) : new RandomVariableFromDoubleArray(0.0, boundaryAdjustmentValues);
 		values.add(boundaryAdjustment);
 
 		return values;
@@ -183,9 +183,9 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 	 * @return Vector of regression basis functions (vector of random variables).
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariable[] getRegressionBasisFunctions(double exerciseDate, AssetModelMonteCarloSimulationModel model, RandomVariable weight) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(final double exerciseDate, final AssetModelMonteCarloSimulationModel model, final RandomVariable weight) throws CalculationException {
 
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		RandomVariable basisFunction;
 
@@ -206,34 +206,34 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 	 */
 	public class ConstantBarrier implements Barrier {
 
-		private AssetModelMonteCarloSimulationModel	scheme;
+		private final AssetModelMonteCarloSimulationModel	scheme;
 
-		public ConstantBarrier(AssetModelMonteCarloSimulationModel scheme) {
+		public ConstantBarrier(final AssetModelMonteCarloSimulationModel scheme) {
 			super();
 			this.scheme	= scheme;
 		}
 
 		@Override
-		public RandomVariableFromDoubleArray[] getBarrierDirection(int timeIndex, RandomVariable[] realizationPredictor) {
+		public RandomVariableFromDoubleArray[] getBarrierDirection(final int timeIndex, final RandomVariable[] realizationPredictor) {
 			if(timeIndex >= scheme.getTimeDiscretization().getNumberOfTimeSteps()+1) {
 				return null;
 			}
 
-			RandomVariableFromDoubleArray[] barrierDirection = new RandomVariableFromDoubleArray[1];
+			final RandomVariableFromDoubleArray[] barrierDirection = new RandomVariableFromDoubleArray[1];
 			barrierDirection[0] = new RandomVariableFromDoubleArray(0.0, 1.0);
 
 			return barrierDirection;
 		}
 
 		@Override
-		public RandomVariableFromDoubleArray getBarrierLevel(int timeIndex, RandomVariable[] realizationPredictor) throws CalculationException {
+		public RandomVariableFromDoubleArray getBarrierLevel(final int timeIndex, final RandomVariable[] realizationPredictor) throws CalculationException {
 			if(timeIndex >= scheme.getTimeDiscretization().getNumberOfTimeSteps()+1) {
 				return null;
 			}
 
-			double  simulationTime  = scheme.getTime(timeIndex);
-			double riskFreeRate = ((MonteCarloBlackScholesModel)scheme).getModel().getRiskFreeRate().doubleValue();
-			double volatility = ((MonteCarloBlackScholesModel)scheme).getModel().getVolatility().doubleValue();
+			final double  simulationTime  = scheme.getTime(timeIndex);
+			final double riskFreeRate = ((MonteCarloBlackScholesModel)scheme).getModel().getRiskFreeRate().doubleValue();
+			final double volatility = ((MonteCarloBlackScholesModel)scheme).getModel().getVolatility().doubleValue();
 
 			double boundaryLocal = 1*Math.exp(riskFreeRate*maturity + boundary * 0.25 * Math.sqrt(maturity));
 			if(isBoundaryTimeDep) {
@@ -242,8 +242,8 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 			//    		double boundaryLocal = 1*Math.exp(riskFreeRate*simulationTime - 0.5 * volatility * volatility*simulationTime + boundary * volatility * Math.sqrt(simulationTime));
 			//    		double boundaryLocal = 1*Math.exp(riskFreeRate*maturity + boundary * Math.sqrt(simulationTime));
 
-			RandomVariableFromDoubleArray barrierLevel = new RandomVariableFromDoubleArray(simulationTime, Math.log(boundaryLocal));
-			RandomVariable underlying = scheme.getAssetValue(timeIndex-1, 0);
+			final RandomVariableFromDoubleArray barrierLevel = new RandomVariableFromDoubleArray(simulationTime, Math.log(boundaryLocal));
+			final RandomVariable underlying = scheme.getAssetValue(timeIndex-1, 0);
 			barrierLevel.sub(underlying.log());
 			//            barrierLevel.sub((riskFreeRate)*scheme.getTimeDiscretization().getTimeStep(timeIndex-1));
 			barrierLevel.sub((riskFreeRate-0.5*volatility*volatility)*scheme.getTimeDiscretization().getTimeStep(timeIndex-1));

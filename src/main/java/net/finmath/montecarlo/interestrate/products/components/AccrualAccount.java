@@ -29,8 +29,8 @@ public class AccrualAccount extends AbstractProductComponent {
 	private static final long serialVersionUID = 188297603697240319L;
 
 	private AnalyticModelIndex	pastFixings		= null;
-	private AbstractIndex		accrualIndex;
-	private double				accrualPeriod;
+	private final AbstractIndex		accrualIndex;
+	private final double				accrualPeriod;
 
 	/**
 	 * Create an accrual account.
@@ -40,7 +40,7 @@ public class AccrualAccount extends AbstractProductComponent {
 	 * @param accrualIndex The accrual index.
 	 * @param accrualPeriod The accrual period.
 	 */
-	public AccrualAccount(String currency, AnalyticModelIndex pastFixings, AbstractIndex accrualIndex, double accrualPeriod) {
+	public AccrualAccount(final String currency, final AnalyticModelIndex pastFixings, final AbstractIndex accrualIndex, final double accrualPeriod) {
 		super(currency);
 		this.pastFixings	= pastFixings;
 		this.accrualIndex	= accrualIndex;
@@ -53,7 +53,7 @@ public class AccrualAccount extends AbstractProductComponent {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		if(evaluationTime <= 0) {
 			return pastFixings.getValue(evaluationTime, model);
 		}
@@ -63,8 +63,8 @@ public class AccrualAccount extends AbstractProductComponent {
 		// Loop over accrual periods
 		for(double time=0.0; time<evaluationTime; time += accrualPeriod) {
 			// Get the forward fixed at the beginning of the period
-			RandomVariable	forwardRate				= accrualIndex.getValue(time, model);
-			double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
+			final RandomVariable	forwardRate				= accrualIndex.getValue(time, model);
+			final double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);
 
 			// Accrue the value using the current forward rate
 			value = value.accrue(forwardRate, currentAccrualPeriod);

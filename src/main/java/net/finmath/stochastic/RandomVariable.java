@@ -407,7 +407,7 @@ public interface RandomVariable extends Serializable {
 	 * @param conditionalExpectationOperator A given conditional expectation estimator.
 	 * @return The conditional expectation of this random variable (as a random variable)
 	 */
-	default RandomVariable getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
+	default RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
@@ -591,7 +591,7 @@ public interface RandomVariable extends Serializable {
 	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	default RandomVariable addSumProduct(RandomVariable[] factor1, RandomVariable[] factor2)
+	default RandomVariable addSumProduct(final RandomVariable[] factor1, final RandomVariable[] factor2)
 	{
 		RandomVariable result = this;
 		for(int i=0; i<factor1.length; i++) {
@@ -606,7 +606,7 @@ public interface RandomVariable extends Serializable {
 	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	default RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
+	default RandomVariable addSumProduct(final List<RandomVariable> factor1, final List<RandomVariable> factor2)
 	{
 		RandomVariable result = this;
 		for(int i=0; i<factor1.size(); i++) {

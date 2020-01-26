@@ -39,7 +39,7 @@ public abstract class LIBORVolatilityModel implements Serializable {
 	 * @param timeDiscretization The vector of simulation time discretization points.
 	 * @param liborPeriodDiscretization The vector of tenor discretization points.
 	 */
-	public LIBORVolatilityModel(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization) {
+	public LIBORVolatilityModel(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.liborPeriodDiscretization = liborPeriodDiscretization;

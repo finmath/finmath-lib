@@ -39,72 +39,72 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 	 * @param productToHedge The financial product for which the hedge portfolio should be constructed.
 	 * @param modelUsedForHedging The model used for calculating the hedge rations (deltas). This may differ from the model passed to <code>getValue</code>.
 	 */
-	public FiniteDifferenceDeltaHedgedPortfolio(AbstractAssetMonteCarloProduct productToHedge, AssetModelMonteCarloSimulationModel modelUsedForHedging) {
+	public FiniteDifferenceDeltaHedgedPortfolio(final AbstractAssetMonteCarloProduct productToHedge, final AssetModelMonteCarloSimulationModel modelUsedForHedging) {
 		super();
 		this.productToHedge = productToHedge;
 		this.modelUsedForHedging = modelUsedForHedging;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ask the model for its discretization
-		int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-		int numberOfPath			= model.getNumberOfPaths();
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
+		final int numberOfPath			= model.getNumberOfPaths();
 
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
 
 		// We store the composition of the hedge portfolio (depending on the path)
-		double[] amountOfUderlyingAsset		= new double[numberOfPath];
-		double[] amountOfNumeraireAsset		= new double[numberOfPath];
+		final double[] amountOfUderlyingAsset		= new double[numberOfPath];
+		final double[] amountOfNumeraireAsset		= new double[numberOfPath];
 
 		/*
 		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		 */
-		RandomVariable underlyingToday = model.getAssetValue(0.0,0);
-		RandomVariable numeraireToday  = model.getNumeraire(0.0);
-		double initialValueAsset		= underlyingToday.get(0);
-		double initialValueNumeraire	= numeraireToday.get(0);
+		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);
+		final RandomVariable numeraireToday  = model.getNumeraire(0.0);
+		final double initialValueAsset		= underlyingToday.get(0);
+		final double initialValueNumeraire	= numeraireToday.get(0);
 
-		double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
+		final double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);
 
 		Arrays.fill(amountOfNumeraireAsset, valueOfOptionAccordingHedgeModel/initialValueNumeraire);
 		Arrays.fill(amountOfUderlyingAsset, 0.0);
 
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
-			double time = model.getTime(timeIndex);
+			final double time = model.getTime(timeIndex);
 
 			// Get value of underlying and numeraire assets
-			RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
-			RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
+			final RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
+			final RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 			for(int path=0; path<model.getNumberOfPaths(); path++)
 			{
-				double underlyingValue	= underlyingAtTimeIndex.get(path);
-				double numeraireValue	= numeraireAtTimeIndex.get(path);
+				final double underlyingValue	= underlyingAtTimeIndex.get(path);
+				final double numeraireValue	= numeraireAtTimeIndex.get(path);
 
 				// Delta of option to replicate
-				double shift = initialValueAsset * 1E-8;
-				Map<String, Object> dataUpShift = new HashMap<>();
+				final double shift = initialValueAsset * 1E-8;
+				final Map<String, Object> dataUpShift = new HashMap<>();
 				dataUpShift.put("initialValue", new Double(underlyingValue+shift));
 				dataUpShift.put("initialTime", new Double(time));
-				Map<String, Object> dataDownShift = new HashMap<>();
+				final Map<String, Object> dataDownShift = new HashMap<>();
 				dataDownShift.put("initialValue", new Double(underlyingValue-shift));
 				dataDownShift.put("initialTime", new Double(time));
-				double delta = (
+				final double delta = (
 						productToHedge.getValue(time, modelUsedForHedging.getCloneWithModifiedData(dataUpShift)).getAverage()
 						-
 						productToHedge.getValue(time, modelUsedForHedging.getCloneWithModifiedData(dataDownShift)).getAverage()
 						) / (2*shift);
 
 				// Determine the delta hedge
-				double newNumberOfStocks		= delta;
-				double stocksToBuy				= newNumberOfStocks				- amountOfUderlyingAsset[path];
+				final double newNumberOfStocks		= delta;
+				final double stocksToBuy				= newNumberOfStocks				- amountOfUderlyingAsset[path];
 
 				// Ensure self financing
-				double numeraireAssetsToBuy			= - (stocksToBuy * underlyingValue) / numeraireValue;
-				double newNumberOfNumeraireAsset	= amountOfNumeraireAsset[path] + numeraireAssetsToBuy;
+				final double numeraireAssetsToBuy			= - (stocksToBuy * underlyingValue) / numeraireValue;
+				final double newNumberOfNumeraireAsset	= amountOfNumeraireAsset[path] + numeraireAssetsToBuy;
 
 				// Update portfolio
 				amountOfNumeraireAsset[path]	= newNumberOfNumeraireAsset;
@@ -115,14 +115,14 @@ public class FiniteDifferenceDeltaHedgedPortfolio extends AbstractAssetMonteCarl
 		/*
 		 * At maturity, calculate the value of the replication portfolio
 		 */
-		double[] portfolioValue				= new double[numberOfPath];
+		final double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets
-		RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
-		RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
+		final RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 		for(int path=0; path<underlyingAtEvaluationTime.size(); path++)
 		{
-			double underlyingValue = underlyingAtEvaluationTime.get(path);
+			final double underlyingValue = underlyingAtEvaluationTime.get(path);
 
 			portfolioValue[path] =
 					amountOfNumeraireAsset[path] * numeraireAtEvaluationTime.get(path)

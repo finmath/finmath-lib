@@ -25,12 +25,12 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	 * @param fixedPartStartTime Start time of the interval where we use the fixedPartCurve.
 	 * @param fixedPartEndTime End time of the interval where we use the fixedPartCurve.
 	 */
-	public ForwardCurveWithFixings(ForwardCurve curveInterface, ForwardCurve fixedPartCurve, double fixedPartStartTime, double fixedPartEndTime) {
+	public ForwardCurveWithFixings(final ForwardCurve curveInterface, final ForwardCurve fixedPartCurve, final double fixedPartStartTime, final double fixedPartEndTime) {
 		super(curveInterface, fixedPartCurve, fixedPartStartTime, fixedPartEndTime);
 	}
 
 	@Override
-	public double getForward(AnalyticModel model, double fixingTime) {
+	public double getForward(final AnalyticModel model, final double fixingTime) {
 		if(fixingTime > this.getFixedPartStartTime() && fixingTime < this.getFixedPartEndTime()) {
 			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime);
 		}
@@ -40,7 +40,7 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	}
 
 	@Override
-	public double getForward(AnalyticModel model, double fixingTime, double paymentOffset) {
+	public double getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset) {
 		if(fixingTime > this.getFixedPartStartTime() && fixingTime < this.getFixedPartEndTime()) {
 			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime, paymentOffset);
 		}
@@ -56,9 +56,9 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	 * @param fixingTimes The given fixing times.
 	 * @return The forward rates.
 	 */
-	public double[] getForwards(AnalyticModel model, double[] fixingTimes)
+	public double[] getForwards(final AnalyticModel model, final double[] fixingTimes)
 	{
-		double[] values = new double[fixingTimes.length];
+		final double[] values = new double[fixingTimes.length];
 
 		for(int i=0; i<fixingTimes.length; i++) {
 			values[i] = getForward(model, fixingTimes[i]);
@@ -73,12 +73,12 @@ public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCu
 	}
 
 	@Override
-	public double getPaymentOffset(double fixingTime) {
+	public double getPaymentOffset(final double fixingTime) {
 		return ((ForwardCurve)getBaseCurve()).getPaymentOffset(fixingTime);
 	}
 
 	@Override
-	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		return new ForwardCurveWithFixings((ForwardCurve)getBaseCurve().getCloneForParameter(value), (ForwardCurve)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());
 	}
 

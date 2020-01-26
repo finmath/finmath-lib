@@ -30,11 +30,11 @@ public abstract class AbstractFourierTransformProduct implements CharacteristicF
 	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValue(double, net.finmath.modelling.Model)
 	 */
 	@Override
-	public Double getValue(double evaluationTime, Model model) {
+	public Double getValue(final double evaluationTime, final Model model) {
 		Double value = null;
 		try {
 			value = getValue((CharacteristicFunctionModel) model);
-		} catch (CalculationException e) {
+		} catch (final CalculationException e) {
 		}
 
 		return value;
@@ -44,13 +44,13 @@ public abstract class AbstractFourierTransformProduct implements CharacteristicF
 	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValues(double, net.finmath.modelling.Model)
 	 */
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, Model model) {
-		Map<String, Object>  result = new HashMap<>();
+	public Map<String, Object> getValues(final double evaluationTime, final Model model) {
+		final Map<String, Object>  result = new HashMap<>();
 
 		try {
-			double value = getValue((CharacteristicFunctionModel) model);
+			final double value = getValue((CharacteristicFunctionModel) model);
 			result.put("value", value);
-		} catch (CalculationException e) {
+		} catch (final CalculationException e) {
 			result.put("exception", e);
 		}
 
@@ -61,20 +61,20 @@ public abstract class AbstractFourierTransformProduct implements CharacteristicF
 	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValue(net.finmath.fouriermethod.models.CharacteristicFunctionModel)
 	 */
 	@Override
-	public double getValue(CharacteristicFunctionModel model) throws CalculationException {
+	public double getValue(final CharacteristicFunctionModel model) throws CalculationException {
 
-		CharacteristicFunction modelCF = model.apply(getMaturity());
+		final CharacteristicFunction modelCF = model.apply(getMaturity());
 
 		final double lineOfIntegration = 0.5 * getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound();
-		DoubleUnaryOperator integrand = new DoubleUnaryOperator() {
+		final DoubleUnaryOperator integrand = new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double real) {
-				Complex z = new Complex(real,lineOfIntegration);
+			public double applyAsDouble(final double real) {
+				final Complex z = new Complex(real,lineOfIntegration);
 				return modelCF.apply(z.negate()).multiply(AbstractFourierTransformProduct.this.apply(z)).getReal();
 			}
 		};
 
-		RealIntegral integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
+		final RealIntegral integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);
 
 		return integrator.integrate(integrand) / 2.0 / Math.PI;
 	}

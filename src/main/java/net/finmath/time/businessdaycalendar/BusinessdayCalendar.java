@@ -28,7 +28,7 @@ public interface BusinessdayCalendar extends Serializable {
 		 * @param string The date roll convention name.
 		 * @return The date roll convention enum.
 		 */
-		public static DateOffsetUnit getEnum(String string) {
+		public static DateOffsetUnit getEnum(final String string) {
 			if(string == null) {
 				throw new IllegalArgumentException();
 			}
@@ -68,7 +68,7 @@ public interface BusinessdayCalendar extends Serializable {
 		 * @param string The date roll convention name.
 		 * @return The date roll convention enum.
 		 */
-		public static DateRollConvention getEnum(String string) {
+		public static DateRollConvention getEnum(final String string) {
 			if(string == null) {
 				throw new IllegalArgumentException();
 			}

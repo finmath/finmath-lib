@@ -16,7 +16,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	 * @param isParameterToCalibrate If true, the parameter will be varied during calibration.
 	 * @param constraint A constraint for the parameter.
 	 */
-	public ScalarParameterInformationImplementation(boolean isParameterToCalibrate, ScalarConstraint constraint) {
+	public ScalarParameterInformationImplementation(final boolean isParameterToCalibrate, final ScalarConstraint constraint) {
 		super();
 		this.isParameterToCalibrate = isParameterToCalibrate;
 		this.constraint = constraint;
@@ -27,7 +27,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	 *
 	 * @param isParameterToCalibrate If true, the parameter will be varied during calibration.
 	 */
-	public ScalarParameterInformationImplementation(boolean isParameterToCalibrate) {
+	public ScalarParameterInformationImplementation(final boolean isParameterToCalibrate) {
 		super();
 		this.isParameterToCalibrate = isParameterToCalibrate;
 		constraint = new Unconstrained();
@@ -37,7 +37,7 @@ public class ScalarParameterInformationImplementation implements ScalarParameter
 	 * Constructs a parameter that needs to be calibrated.
 	 * @param constraint A constraint for the parameter.
 	 */
-	public ScalarParameterInformationImplementation(ScalarConstraint constraint) {
+	public ScalarParameterInformationImplementation(final ScalarConstraint constraint) {
 		super();
 		isParameterToCalibrate = true;
 		this.constraint = constraint;

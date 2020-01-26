@@ -32,7 +32,7 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	 *
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory to be used for the storage of values.
 	 */
-	public AbstractRandomVariableDifferentiableFactory(RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public AbstractRandomVariableDifferentiableFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super();
 		this.randomVariableFactoryForNonDifferentiable = randomVariableFactoryForNonDifferentiable;
 	}
@@ -42,7 +42,7 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double value) {
 		return createRandomVariable(0.0, value);
 	}
 
@@ -52,11 +52,11 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	@Override
 	public abstract RandomVariableDifferentiable createRandomVariable(double time, double[] values);
 
-	public RandomVariable createRandomVariableNonDifferentiable(double time, double value) {
+	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double value) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, value);
 	}
 
-	public RandomVariable createRandomVariableNonDifferentiable(double time, double[] values) {
+	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double[] values) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, values);
 	}
 

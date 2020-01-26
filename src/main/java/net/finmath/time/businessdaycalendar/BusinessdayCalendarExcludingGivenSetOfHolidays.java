@@ -18,12 +18,12 @@ public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends Bus
 	private static final long serialVersionUID = -485496533316101770L;
 	private final Set<LocalDate> holidays;
 
-	public BusinessdayCalendarExcludingGivenSetOfHolidays(String name, BusinessdayCalendar baseCalendar, boolean isExcludeWeekends, Set<LocalDate> holidays) {
+	public BusinessdayCalendarExcludingGivenSetOfHolidays(final String name, final BusinessdayCalendar baseCalendar, final boolean isExcludeWeekends, final Set<LocalDate> holidays) {
 		super(name, baseCalendar, isExcludeWeekends);
 		this.holidays = holidays;
 	}
 
-	public BusinessdayCalendarExcludingGivenSetOfHolidays(String name, boolean isExcludeWeekends, Set<LocalDate> holidays) {
+	public BusinessdayCalendarExcludingGivenSetOfHolidays(final String name, final boolean isExcludeWeekends, final Set<LocalDate> holidays) {
 		this(name, null, isExcludeWeekends, holidays);
 	}
 

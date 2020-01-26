@@ -14,13 +14,13 @@ public class MonteCarloConditionalExpectationLocalizedOnDependentRegressionFacto
 
 	private final double standardDeviations;
 
-	public MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory(double standardDeviations) {
+	public MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory(final double standardDeviations) {
 		super();
 		this.standardDeviations = standardDeviations;
 	}
 
 	@Override
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor) {
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final RandomVariable[] basisFunctionsEstimator, final RandomVariable[] basisFunctionsPredictor) {
 		return new MonteCarloConditionalExpectationRegressionLocalizedOnDependents(basisFunctionsEstimator, basisFunctionsPredictor, standardDeviations);
 	}
 
