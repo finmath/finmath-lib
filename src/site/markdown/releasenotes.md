@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.1.1 (under development)
+
+### Refactorings
+
+ - Removed deprecated methods (setXxx) in AnalyticModel - the class is now immutable
+
+
 ## 4.1.0 (26.01.2020)
 
 ### General
