@@ -3,6 +3,7 @@ package net.finmath.marketdata.model.volatility.caplet.tenorconversion;
 import java.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.volatility.caplet.CapVolMarketData;
 import net.finmath.marketdata.model.volatility.caplet.CapletVolBootstrapping;
@@ -49,13 +50,13 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 		this.iCap6MCapVolMarketData = iCap6MCapVolMarketData;
 	}
 
-	public double get6MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModelFromCurvesAndVols analyticModel) throws CalculationException {
+	public double get6MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModel analyticModel) throws CalculationException {
 		//todo: Kalibriere auf Basis der 3M Correlationsdaten die zur Verf�gung stehen eine Parametrisierung der Korrelationen wie sie im Schlenkrich zu finden ist.
 		return 0.0;
 	}
 
 
-	public double get3MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModelFromCurvesAndVols analyticModel) throws CalculationException {
+	public double get3MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModel analyticModel) throws CalculationException {
 		//Auf Basis der 3M und 6M Icap daten wird mit der Formel aus Schlenkrich die Korrelation bestimmt. Achtung f�r Umrechung auf 12M br�uchte man mehr 3M Korrelationen die man sich �ber die Parametrisierung holen m�sste.
 		final double[] capletFixingTimeVectorInYears = new double[iCap3MCapVolMarketData.getMaxExpiryInMonths()/iCap3MCapVolMarketData.getUnderlyingTenorInMonths()-1];
 		for (int i = 0; i < capletFixingTimeVectorInYears.length; i++) {
@@ -102,7 +103,7 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 		final double[] sumNu = new double[correlationMatrix3M.length/2-(1-correlationMatrix3M.length%2)];
 
 		for (int i = 0; i < correlationMatrix3M.length/2-(1-correlationMatrix3M.length%2); i++) {
-			final LocalDate localDate = iCap3MCapletVolBootrapper.getParsedModel().getReferenceDate();
+			final LocalDate localDate = iCap3MCapletVolBootrapper.getDiscountCurve().getReferenceDate();
 			final Schedule schedule3M = ScheduleGenerator.createScheduleFromConventions(
 					localDate,
 					localDate.plusMonths(2*(i+1)*iCap3MCapVolMarketData.getUnderlyingTenorInMonths()),
@@ -173,7 +174,7 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 		return correlationMatrix3M[rowIndex][columnIndex];
 	}
 
-	double get1MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModelFromCurvesAndVols analyticModel) {
+	double get1MCorrelation(final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModel analyticModel) {
 		return 0;
 	}
 
@@ -202,7 +203,7 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 	}
 
 	@Override
-	public double getCorrelation(final int oldTenor, final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModelFromCurvesAndVols analyticModel, final String indexForDiscount) throws CalculationException {
+	public double getCorrelation(final int oldTenor, final double firstForwardFixingTimeVectorInYears, final double secondForwardFixingTimeVectorInYears, final AnalyticModel analyticModel, final String indexForDiscount) throws CalculationException {
 		if(oldTenor == 6) {
 			return get6MCorrelation(firstForwardFixingTimeVectorInYears, secondForwardFixingTimeVectorInYears, analyticModel);
 		}

@@ -203,29 +203,6 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		return newModel;
 	}
 
-	/**
-	 * @deprecated This class will become immutable. Use addCurve instead.
-	 */
-	@Override
-	@Deprecated
-	public void setCurve(final Curve curve)
-	{
-		curvesMap.put(curve.getName(), curve);
-	}
-
-	/**
-	 * Set some curves.
-	 *
-	 * @param curves Array of curves to set.
-	 * @deprecated This class will become immutable. Use addCurve instead.
-	 */
-	@Deprecated
-	public void setCurves(final Curve[] curves) {
-		for(final Curve curve : curves) {
-			setCurve(curve);
-		}
-	}
-
 	@Override
 	public DiscountCurve getDiscountCurve(final String discountCurveName) {
 		DiscountCurve discountCurve = null;
@@ -301,12 +278,12 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		return newModel;
 	}
 
-	/**
-	 * @deprecated This class will become immutable. Use addVolatilitySurface instead.
-	 */
-	@Override
-	@Deprecated
-	public void setVolatilitySurface(final VolatilitySurface volatilitySurface)
+	private void setCurve(final Curve curve)
+	{
+		curvesMap.put(curve.getName(), curve);
+	}
+
+	private void setVolatilitySurface(final VolatilitySurface volatilitySurface)
 	{
 		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}

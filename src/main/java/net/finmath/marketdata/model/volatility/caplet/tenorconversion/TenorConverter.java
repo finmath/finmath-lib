@@ -1,6 +1,7 @@
 package net.finmath.marketdata.model.volatility.caplet.tenorconversion;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -30,7 +31,7 @@ public class TenorConverter {
 
 	private final String indexForDiscount, indexOldTenor, indexNewTenor;
 
-	private transient AnalyticModelFromCurvesAndVols analyticModel;
+	private transient AnalyticModel analyticModel;
 
 	/**
 	 * The constructor of the tenor conversion class
@@ -42,7 +43,7 @@ public class TenorConverter {
 	 * @param strikeVector The strikes of the caplets.
 	 * @param capletVolatilities The caplet volatilities.
 	 * @param capTenorStructure Enum determining the currency.
-	 * @param analyticModel The analytic model containing the curves.
+	 * @param analyticModel2 The analytic model containing the curves.
 	 * @param indexForDiscount Index of the discount curve.
 	 * @param indexOldTenor Index of the old forward curve.
 	 * @param indexNewTenor Index of the new forward curve.
@@ -50,7 +51,7 @@ public class TenorConverter {
 	public TenorConverter(final CorrelationProvider correlationProvider, final int currentTenorInMonths,
 			final int newTenorInMonths, final double[] capletFixingTimeVectorInYears, final double[] strikeVector,
 			final double[][] capletVolatilities, final CapTenorStructure capTenorStructure,
-			final AnalyticModelFromCurvesAndVols analyticModel, final String indexForDiscount,
+			final AnalyticModel analyticModel2, final String indexForDiscount,
 			final String indexOldTenor, final String indexNewTenor) {
 		this.currentTenorInMonths = currentTenorInMonths;
 		this.newTenorInMonths = newTenorInMonths;
@@ -74,13 +75,13 @@ public class TenorConverter {
 			break;
 		}
 
-		this.analyticModel = analyticModel;
-		discountCurve = analyticModel.getDiscountCurve(currency + "_" + indexForDiscount);
+		this.analyticModel = analyticModel2;
+		discountCurve = analyticModel2.getDiscountCurve(currency + "_" + indexForDiscount);
 		discountForForwardCurveOldTenor = null;
 		discountForForwardCurveNewTenor = null;
 		forwardCurveOldTenor = this.analyticModel.getForwardCurve("Forward_" + currency + "_" + indexNewTenor);
 		forwardCurveNewTenor = this.analyticModel.getForwardCurve("Forward_" + currency + "_" + indexNewTenor);
-		capletVolatilitySurface = new CapletVolatilitySurface("Tenor " + this.currentTenorInMonths + " Months", analyticModel.getReferenceDate(), this.capletVolatilities, this.capletFixingTimeVectorInYears, this.strikeVector, forwardCurveOldTenor, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
+		capletVolatilitySurface = new CapletVolatilitySurface("Tenor " + this.currentTenorInMonths + " Months", discountCurve.getReferenceDate(), this.capletVolatilities, this.capletFixingTimeVectorInYears, this.strikeVector, forwardCurveOldTenor, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
 	}
 
 	/**

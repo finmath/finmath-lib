@@ -3,6 +3,7 @@ package net.finmath.marketdata.model.volatility.caplet;
 import java.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
@@ -38,20 +39,20 @@ public class CapletVolBootstrapping {
 	private double[] capletFixingTimeVectorInYears;
 	private final CorrelationProvider correlationProvider;
 
-	private transient AnalyticModelFromCurvesAndVols analyticModel;
+	private transient AnalyticModel analyticModel;
 
 	/**
 	 * The constructor of the caplet bootstrapping class.
 	 *
 	 * @param correlationProvider The correlationProvider which is necessary only if the underlying cap data changes its tenor (common for EUR cap data).
 	 * @param capVolMarketData The market data for the caps.
-	 * @param analyticModel The analytic model for forward and discount curves.
+	 * @param parsedModel The analytic model for forward and discount curves.
 	 */
-	public CapletVolBootstrapping(final CorrelationProvider correlationProvider, final CapVolMarketData capVolMarketData, final AnalyticModelFromCurvesAndVols analyticModel) {
+	public CapletVolBootstrapping(final CorrelationProvider correlationProvider, final CapVolMarketData capVolMarketData, final AnalyticModel parsedModel) {
 		super();
 		this.capVolMarketData = capVolMarketData;
 		this.correlationProvider = correlationProvider;
-		this.analyticModel = analyticModel;
+		this.analyticModel = parsedModel;
 		String currency = null;
 		switch (capVolMarketData.getCapTenorStructure()) {
 		case EUR:
@@ -62,18 +63,18 @@ public class CapletVolBootstrapping {
 			currency = "USD";
 			break;
 		}
-		forwardCurve = analyticModel.getForwardCurve("Forward_" + currency + "_" + capVolMarketData.getIndex());
-		discountCurve = analyticModel.getDiscountCurve(currency + "_" + capVolMarketData.getDiscountIndex());
+		forwardCurve = parsedModel.getForwardCurve("Forward_" + currency + "_" + capVolMarketData.getIndex());
+		discountCurve = parsedModel.getDiscountCurve(currency + "_" + capVolMarketData.getDiscountIndex());
 	}
 
 	/**
 	 * Overloaded constructor of the caplet bootstrapping class if a correlation provider isn't necessary.
 	 *
 	 * @param capVolMarketData The market data for the caps.
-	 * @param analyticModel The analytic model for forward and discount curves.
+	 * @param parsedModel The analytic model for forward and discount curves.
 	 */
-	public CapletVolBootstrapping(final CapVolMarketData capVolMarketData, final AnalyticModelFromCurvesAndVols analyticModel) {
-		this(null, capVolMarketData, analyticModel);
+	public CapletVolBootstrapping(final CapVolMarketData capVolMarketData, final AnalyticModel parsedModel) {
+		this(null, capVolMarketData, parsedModel);
 	}
 
 	/**
@@ -190,14 +191,14 @@ public class CapletVolBootstrapping {
 					//bisection method
 					final int currentExpiryRow = capVolMarketData.getRowIndex(currentExpiryInMonths);
 					final BusinessdayCalendar businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends());
-					final LocalDate localDate = analyticModel.getReferenceDate();
+					final LocalDate localDate = discountCurve.getReferenceDate();
 					final LocalDate startDate = businessdayCalendar.getRolledDate(localDate, 2);
 					//Quoting convention k�nnte auch �bergeben werden
 					VolatilitySurface capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, capVolMarketData.getCapVolData(currentExpiryRow, j), capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
 					//Schedule k�nnte auch �bergeben werden
 					final Schedule schedule = ScheduleGenerator.createScheduleFromConventions(localDate, startDate, localDate.plusMonths(currentExpiryInMonths), frequency, DaycountConvention.ACT_365, ShortPeriodConvention.FIRST, DateRollConvention.MODIFIED_FOLLOWING, businessdayCalendar, -2, 0);
 					final CapShiftedVol cap = new CapShiftedVol(schedule, forwardCurve.getName(), capVolMarketData.getStrike(j), false, discountCurve.getName(), capletVolatilities.getName(), capVolMarketData.getShift());
-					final double capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+					final double capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 					double sumCapletPrices = Double.MAX_VALUE;
 					double leftPoint = capVolMarketData.getCapVolData(currentExpiryRow, j)*2;
 					while (capPrice - sumCapletPrices <= 0) {
@@ -209,7 +210,7 @@ public class CapletVolBootstrapping {
 							}
 						}
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, capletVolMatrix, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						if(capPrice - sumCapletPrices == 0) {
 							break;
 						}
@@ -225,7 +226,7 @@ public class CapletVolBootstrapping {
 							}
 						}
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, capletVolMatrix, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						if(capPrice - sumCapletPrices == 0) {
 							break;
 						}
@@ -242,7 +243,7 @@ public class CapletVolBootstrapping {
 							}
 						}
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, capletVolMatrix, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						bisectionSearch.setValue(capPrice - sumCapletPrices);
 					}
 					final double volaBestPoint = bisectionSearch.getBestPoint();
@@ -308,17 +309,17 @@ public class CapletVolBootstrapping {
 				else {
 					//rootfinder
 					//bisection method
-					final LocalDate localDate = analyticModel.getReferenceDate();
+					final LocalDate localDate = discountCurve.getReferenceDate();
 					VolatilitySurface capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, inputCapletVolMatrix, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
 					final Schedule schedule = ScheduleGenerator.createScheduleFromConventions(localDate, localDate, localDate.plusMonths(currentExpiryInMonths), frequency, DaycountConvention.ACT_365, ShortPeriodConvention.FIRST, DateRollConvention.MODIFIED_FOLLOWING, new BusinessdayCalendarExcludingTARGETHolidays(new BusinessdayCalendarExcludingWeekends()), -2, 0);
 					final CapShiftedVol cap = new CapShiftedVol(schedule, forwardCurve.getName(), capVolMarketData.getStrike(j), false, discountCurve.getName(), capletVolatilities.getName(), capVolMarketData.getShift());
-					final double sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+					final double sumCapletPrices = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 					double capPrice = Double.MAX_VALUE;
 					double leftPoint = inputCapletVolMatrix[lastExpiryInMonths/capVolMarketData.getUnderlyingTenorInMonths()-1][j];
 					while (capPrice - sumCapletPrices >= 0) {
 						leftPoint /= 1.5;
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, leftPoint, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						if(capPrice - sumCapletPrices == 0) {
 							break;
 						}
@@ -328,7 +329,7 @@ public class CapletVolBootstrapping {
 					while (capPrice - sumCapletPrices <= 0) {
 						rightPoint += 0.1;
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, rightPoint, capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						if(capPrice - sumCapletPrices == 0) {
 							break;
 						}
@@ -339,7 +340,7 @@ public class CapletVolBootstrapping {
 					bisectionSearch.setValue(rightValue);
 					while (bisectionSearch.isDone() != true) {
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, bisectionSearch.getNextPoint(), capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
-						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurface(capletVolatilities));
+						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						bisectionSearch.setValue(capPrice - sumCapletPrices);
 					}
 					final double volaBestPoint = bisectionSearch.getBestPoint();
@@ -354,7 +355,7 @@ public class CapletVolBootstrapping {
 		return capVolMatrix;
 	}
 
-	public AnalyticModelFromCurvesAndVols getParsedModel() {
+	public AnalyticModel getParsedModel() {
 		return analyticModel;
 	}
 
