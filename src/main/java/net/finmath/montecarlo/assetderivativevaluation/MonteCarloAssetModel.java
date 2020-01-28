@@ -138,17 +138,11 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		return model.getProcess().getTimeIndex(time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getRandomVariableForConstant(double)
-	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(int)
-	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
@@ -161,5 +155,10 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 */
 	public ProcessModel getModel() {
 		return model;
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " [model=" + model + "]";
 	}
 }

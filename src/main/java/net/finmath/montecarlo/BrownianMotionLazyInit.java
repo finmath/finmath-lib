@@ -204,11 +204,12 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 
 	@Override
 	public String toString() {
-		return super.toString()
+		return this.getClass().getSimpleName() + " ["
 				+ "\n" + "timeDiscretizationFromArray: " + timeDiscretization.toString()
 				+ "\n" + "numberOfPaths: " + numberOfPaths
 				+ "\n" + "numberOfFactors: " + numberOfFactors
-				+ "\n" + "seed: " + seed;
+				+ "\n" + "seed: " + seed
+				+ "]";
 	}
 
 	@Override

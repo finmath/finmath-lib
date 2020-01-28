@@ -5,6 +5,7 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.models;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -158,15 +159,6 @@ public class BlackScholesModel extends AbstractProcessModel {
 		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, abstractRandomVariableFactory);
 	}
 
-	@Override
-	public String toString() {
-		return super.toString() + "\n" +
-				"BlackScholesModel:\n" +
-				"  initial value...:" + getInitialValue() + "\n" +
-				"  risk free rate..:" +  getRiskFreeRate() + "\n" +
-				"  volatiliy.......:" + getVolatility();
-	}
-
 	/**
 	 * Return the initial value of this model.
 	 *
@@ -193,5 +185,13 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 */
 	public RandomVariable getVolatility() {
 		return factorLoadings[0];
+	}
+
+	@Override
+	public String toString() {
+		return "BlackScholesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
+				+ volatility + ", abstractRandomVariableFactory=" + abstractRandomVariableFactory + ", initialState="
+				+ Arrays.toString(initialState) + ", drift=" + Arrays.toString(drift) + ", factorLoadings="
+				+ Arrays.toString(factorLoadings) + ", getProcess()=" + getProcess() + "]";
 	}
 }
