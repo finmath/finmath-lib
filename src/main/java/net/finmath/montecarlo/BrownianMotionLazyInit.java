@@ -109,6 +109,11 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 	}
 
 	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
+
+	@Override
 	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
 
 		// Thread safe lazy initialization
@@ -204,12 +209,9 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " ["
-				+ "\n" + "timeDiscretizationFromArray: " + timeDiscretization.toString()
-				+ "\n" + "numberOfPaths: " + numberOfPaths
-				+ "\n" + "numberOfFactors: " + numberOfFactors
-				+ "\n" + "seed: " + seed
-				+ "]";
+		return "BrownianMotionLazyInit [timeDiscretization=" + timeDiscretization + ", numberOfFactors="
+				+ numberOfFactors + ", numberOfPaths=" + numberOfPaths + ", seed=" + seed
+				+ ", abstractRandomVariableFactory=" + abstractRandomVariableFactory + "]";
 	}
 
 	@Override
@@ -233,11 +235,6 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 			return false;
 		}
 		return timeDiscretization.equals(that.timeDiscretization);
-	}
-
-	@Override
-	public RandomVariable getIncrement(final int timeIndex, final int factor) {
-		return getBrownianIncrement(timeIndex, factor);
 	}
 
 	@Override
