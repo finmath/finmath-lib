@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface;
