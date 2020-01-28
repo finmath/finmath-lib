@@ -34,9 +34,9 @@ public class RandomVariableDifferentiableArithmeticTest {
 		});
 	}
 
-	private final AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable;
+	private final RandomVariableDifferentiableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableArithmeticTest(final AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableArithmeticTest(final RandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}
 

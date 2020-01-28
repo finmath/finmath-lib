@@ -18,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
+public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory implements RandomVariableDifferentiableFactory {
 
 	/**
 	 *
@@ -52,10 +52,12 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	@Override
 	public abstract RandomVariableDifferentiable createRandomVariable(double time, double[] values);
 
+	@Override
 	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double value) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, value);
 	}
 
+	@Override
 	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double[] values) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, values);
 	}

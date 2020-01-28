@@ -43,9 +43,9 @@ public class RandomVariableDifferentiableTest {
 		});
 	}
 
-	private final AbstractRandomVariableDifferentiableFactory randomVariableFactory;
+	private final RandomVariableDifferentiableFactory randomVariableFactory;
 
-	public RandomVariableDifferentiableTest(final AbstractRandomVariableDifferentiableFactory factory) {
+	public RandomVariableDifferentiableTest(final RandomVariableDifferentiableFactory factory) {
 		randomVariableFactory = factory;
 	}
 
