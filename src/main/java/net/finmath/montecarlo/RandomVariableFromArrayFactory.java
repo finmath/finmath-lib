@@ -58,4 +58,10 @@ public class RandomVariableFromArrayFactory extends AbstractRandomVariableFactor
 			return new RandomVariableFromFloatArray(time, values);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " [isUseDoublePrecisionFloatingPointImplementation="
+				+ isUseDoublePrecisionFloatingPointImplementation + "]";
+	}
 }

@@ -1497,7 +1497,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 
 	@Override
 	public String toString() {
-		return "RandomVariableFromDoubleArray [time=" + time + ", realizations="
+		return getClass().getSimpleName() + " [time=" + time + ", realizations="
 				+ (isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations)) + ", isDeterministic()=" + isDeterministic() + ", typePriority=" + typePriority + "]";
 	}
 }

@@ -14,9 +14,6 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class RandomVariableFloatFactory extends AbstractRandomVariableFactory {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 3368581641610610123L;
 
 	public RandomVariableFloatFactory() {

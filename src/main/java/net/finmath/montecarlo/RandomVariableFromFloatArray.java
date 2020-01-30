@@ -1452,9 +1452,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 
 	@Override
 	public String toString() {
-		return super.toString()
-				+ "\n" + "time: " + time
-				+ "\n" + "realizations: " +
-				(isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations));
+		return getClass().getSimpleName() + " [time=" + time + ", realizations="
+				+ (isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations)) + ", isDeterministic()=" + isDeterministic() + ", typePriority=" + typePriority + "]";
 	}
 }
