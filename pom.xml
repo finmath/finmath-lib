@@ -226,7 +226,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.1.1</version>
 				<configuration>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
@@ -240,7 +240,7 @@
 					</header>
 					<footer>
 			   			<![CDATA[
-						<i>Copyright &copy; 2019 Christian&nbsp;P.&nbsp;Fries.</i>
+						<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
 			   			]]>
 					</footer>
 					<tags>

@@ -8,9 +8,15 @@ finmath lib Release Notes
 
 ## 4.1.1 (under development)
 
+### General
+
+ - Improved toString() for nicer output in jshell
+
 ### Refactorings
 
  - Removed deprecated methods (setXxx) in AnalyticModel - the class is now immutable
+
+ - Refactoring rename RandomVariableDifferentiableFactory: AbstractRandomVariableDifferentiableFactory extract interface RandomVariableDifferentiableFactory
 
 
 ## 4.1.0 (26.01.2020)
