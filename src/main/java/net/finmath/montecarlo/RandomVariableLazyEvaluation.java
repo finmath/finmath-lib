@@ -259,7 +259,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	@Override
 	public double getAverage(final RandomVariable probabilities) {
 		if(isDeterministic()) {
-			return valueIfNonStochastic;
+			return valueIfNonStochastic * probabilities.getAverage();
 		}
 		if(size() == 0) {
 			return Double.NaN;
@@ -989,7 +989,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		return apply(new DoubleUnaryOperator() {
 			@Override
 			public double applyAsDouble(final double x) {
-				return FastMath.pow(x, exponent);
+				return Math.pow(x, exponent);
 			}
 		});
 	}
@@ -1020,7 +1020,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable sqrt() {
-		return apply(FastMath::sqrt);
+		return apply(Math::sqrt);
 	}
 
 	/* (non-Javadoc)
@@ -1028,7 +1028,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable exp() {
-		return apply(FastMath::exp);
+		return apply(Math::exp);
 	}
 
 	/* (non-Javadoc)
@@ -1036,7 +1036,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable log() {
-		return apply(FastMath::log);
+		return apply(Math::log);
 	}
 
 	/* (non-Javadoc)
@@ -1044,7 +1044,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable sin() {
-		return apply(FastMath::sin);
+		return apply(Math::sin);
 	}
 
 	/* (non-Javadoc)
@@ -1052,7 +1052,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable cos() {
-		return apply(FastMath::cos);
+		return apply(Math::cos);
 	}
 
 	/* (non-Javadoc)
@@ -1127,12 +1127,12 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 
 	@Override
 	public RandomVariable cap(final RandomVariable cap) {
-		return apply(FastMath::min, cap);
+		return apply(Math::min, cap);
 	}
 
 	@Override
 	public RandomVariable floor(final RandomVariable floor) {
-		return apply(FastMath::max, floor);
+		return apply(Math::max, floor);
 	}
 
 	@Override

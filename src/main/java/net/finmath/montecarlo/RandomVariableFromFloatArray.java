@@ -335,7 +335,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public double getAverage(final RandomVariable probabilities) {
 		if(isDeterministic()) {
-			return valueIfNonStochastic;
+			return valueIfNonStochastic * probabilities.getAverage();
 		}
 		if(size() == 0) {
 			return Double.NaN;
@@ -895,13 +895,13 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public RandomVariableFromFloatArray exp() {
 		if(isDeterministic()) {
-			final double newValueIfNonStochastic = FastMath.exp(valueIfNonStochastic);
+			final double newValueIfNonStochastic = Math.exp(valueIfNonStochastic);
 			return new RandomVariableFromFloatArray(time, newValueIfNonStochastic);
 		}
 		else {
 			final float[] newRealizations = new float[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = (float)FastMath.exp(realizations[i]);
+				newRealizations[i]		 = (float)Math.exp(realizations[i]);
 			}
 			return new RandomVariableFromFloatArray(time, newRealizations);
 		}
@@ -916,7 +916,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 		else {
 			final float[] newRealizations = new float[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = (float)FastMath.log(realizations[i]);
+				newRealizations[i]		 = (float)Math.log(realizations[i]);
 			}
 			return new RandomVariableFromFloatArray(time, newRealizations);
 		}
@@ -925,13 +925,13 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public RandomVariable sin() {
 		if(isDeterministic()) {
-			final double newValueIfNonStochastic = FastMath.sin(valueIfNonStochastic);
+			final double newValueIfNonStochastic = Math.sin(valueIfNonStochastic);
 			return new RandomVariableFromFloatArray(time, newValueIfNonStochastic);
 		}
 		else {
 			final float[] newRealizations = new float[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = (float)FastMath.sin(realizations[i]);
+				newRealizations[i]		 = (float)Math.sin(realizations[i]);
 			}
 			return new RandomVariableFromFloatArray(time, newRealizations);
 		}
@@ -940,13 +940,13 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	@Override
 	public RandomVariable cos() {
 		if(isDeterministic()) {
-			final double newValueIfNonStochastic = FastMath.cos(valueIfNonStochastic);
+			final double newValueIfNonStochastic = Math.cos(valueIfNonStochastic);
 			return new RandomVariableFromFloatArray(time, newValueIfNonStochastic);
 		}
 		else {
 			final float[] newRealizations = new float[realizations.length];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = (float)FastMath.cos(realizations[i]);
+				newRealizations[i]		 = (float)Math.cos(realizations[i]);
 			}
 			return new RandomVariableFromFloatArray(time, newRealizations);
 		}
@@ -1148,19 +1148,19 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			final double newValueIfNonStochastic = FastMath.min(valueIfNonStochastic, randomVariable.get(0));
+			final double newValueIfNonStochastic = Math.min(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariableFromFloatArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			final float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = FastMath.min((float)valueIfNonStochastic, (float)randomVariable.get(i));
+				newRealizations[i]		 = Math.min((float)valueIfNonStochastic, (float)randomVariable.get(i));
 			}
 			return new RandomVariableFromFloatArray(newTime, newRealizations);
 		} else {
 			final float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = FastMath.min(realizations[i], (float)randomVariable.get(i));
+				newRealizations[i]		 = Math.min(realizations[i], (float)randomVariable.get(i));
 			}
 			return new RandomVariableFromFloatArray(newTime, newRealizations);
 		}
@@ -1177,19 +1177,19 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 		final double newTime = Math.max(time, randomVariable.getFiltrationTime());
 
 		if(isDeterministic() && randomVariable.isDeterministic()) {
-			final double newValueIfNonStochastic = FastMath.max(valueIfNonStochastic, randomVariable.get(0));
+			final double newValueIfNonStochastic = Math.max(valueIfNonStochastic, randomVariable.get(0));
 			return new RandomVariableFromFloatArray(newTime, newValueIfNonStochastic);
 		}
 		else if(isDeterministic()) {
 			final float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = (float) FastMath.max(valueIfNonStochastic, (float)randomVariable.get(i));
+				newRealizations[i]		 = (float) Math.max(valueIfNonStochastic, (float)randomVariable.get(i));
 			}
 			return new RandomVariableFromFloatArray(newTime, newRealizations);
 		} else {
 			final float[] newRealizations = new float[Math.max(size(), randomVariable.size())];
 			for(int i=0; i<newRealizations.length; i++) {
-				newRealizations[i]		 = FastMath.max(realizations[i], (float)randomVariable.get(i));
+				newRealizations[i]		 = Math.max(realizations[i], (float)randomVariable.get(i));
 			}
 			return new RandomVariableFromFloatArray(newTime, newRealizations);
 		}
