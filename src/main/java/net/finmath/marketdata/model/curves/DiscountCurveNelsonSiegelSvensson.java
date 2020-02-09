@@ -81,8 +81,8 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 		final double tau1		= parameter[4];
 		final double tau2		= parameter[5];
 
-		final double x1 = tau1 > 0 ? FastMath.exp(-maturity/tau1) : 0.0;
-		final double x2 = tau2 > 0 ? FastMath.exp(-maturity/tau2) : 0.0;
+		final double x1 = tau1 > 0 ? Math.exp(-maturity/tau1) : 0.0;
+		final double x2 = tau2 > 0 ? Math.exp(-maturity/tau2) : 0.0;
 
 		final double y1 = tau1 > 0 ? (maturity > 0.0 ? (1.0-x1)/maturity*tau1 : 1.0) : 0.0;
 		final double y2 = tau2 > 0 ? (maturity > 0.0 ? (1.0-x2)/maturity*tau2 : 1.0) : 0.0;
