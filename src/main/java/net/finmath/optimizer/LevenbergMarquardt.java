@@ -460,8 +460,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 	 *
 	 * @param lambda the lambda to set
 	 */
-	public void setLambda(final double lambda) {
+	public LevenbergMarquardt setLambda(final double lambda) {
 		this.lambda = lambda;
+		return this;
 	}
 
 	/**

@@ -15,16 +15,22 @@ import net.finmath.optimizer.Optimizer.ObjectiveFunction;
 public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 
 	private final LevenbergMarquardt.RegularizationMethod regularizationMethod;
-	private final int	maxIterations;
+	private final double	lambda;
+	private final int		maxIterations;
 	private final double	errorTolerance;
-	private final int	maxThreads;
+	private final int		maxThreads;
 
-	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final int maxIterations, final double errorTolerance, final int maxThreads) {
+	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final double lambda, final int maxIterations, final double errorTolerance, final int maxThreads) {
 		super();
 		this.regularizationMethod = regularizationMethod;
+		this.lambda = lambda;
 		this.maxIterations = maxIterations;
 		this.errorTolerance = errorTolerance;
 		this.maxThreads = maxThreads;
+	}
+
+	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final int maxIterations, final double errorTolerance, final int maxThreads) {
+		this(regularizationMethod, 0.001, maxIterations, errorTolerance, maxThreads);
 	}
 
 	public OptimizerFactoryLevenbergMarquardt(final int maxIterations, final double errorTolerance, final int maxThreads) {
@@ -61,6 +67,7 @@ public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
 				objectiveFunction.setValues(parameters, values);
 			}
 		})
+				.setLambda(lambda)
 				.setErrorTolerance(errorTolerance)
 				.setParameterSteps(parameterSteps);
 	}
