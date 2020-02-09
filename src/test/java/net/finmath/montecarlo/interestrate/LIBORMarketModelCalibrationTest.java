@@ -47,6 +47,7 @@ import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
@@ -83,7 +84,9 @@ public class LIBORMarketModelCalibrationTest {
 	private static DecimalFormat formatterParam		= new DecimalFormat(" #0.000;-#0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	private CalibrationProduct createCalibrationItem(final double weight, final double exerciseDate, final double swapPeriodLength, final int numberOfPeriods, final double moneyness, final double targetVolatility, final String targetVolatilityType, final ForwardCurve forwardCurve, final DiscountCurve discountCurve) throws CalculationException {
+	private RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
+
+	private CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurve forwardCurve, DiscountCurve discountCurve) throws CalculationException {
 
 		final double[]	fixingDates			= new double[numberOfPeriods];
 		final double[]	paymentDates		= new double[numberOfPeriods];
@@ -260,9 +263,14 @@ public class LIBORMarketModelCalibrationTest {
 		// Pass the calibrationParameters to the model.
 		properties.put("calibrationParameters", calibrationParameters);
 
-		final LIBORMarketModelFromCovarianceModel liborMarketModelCalibrated = new LIBORMarketModelFromCovarianceModel(
+		final LIBORMarketModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
 				liborPeriodDiscretization,
-				forwardCurveInterpolation, discountCurve, covarianceModelStochasticParametric, calibrationProducts.toArray(new CalibrationProduct[0]), properties);
+				null,
+				forwardCurveInterpolation,
+				discountCurve,
+				randomVariableFactory,
+				covarianceModelStochasticParametric,
+				calibrationProducts.toArray(new CalibrationProduct[0]), properties);
 
 
 		/*
@@ -501,14 +509,14 @@ public class LIBORMarketModelCalibrationTest {
 		for(int i=0; i<calibrationItemNames.size(); i++) {
 			calibrationItemsLMM[i] = new CalibrationProduct(calibrationProducts.get(i).getProduct(),calibrationProducts.get(i).getTargetValue(),calibrationProducts.get(i).getWeight());
 		}
-		final LIBORModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
+		final LIBORMarketModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
 				liborPeriodDiscretization,
 				curveModel,
-				forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve),
-				new RandomVariableFromArrayFactory(),
+				forwardCurve,
+				new DiscountCurveFromForwardCurve(forwardCurve),
+				randomVariableFactory,
 				covarianceModelDisplaced,
-				calibrationItemsLMM,
-				properties);
+				calibrationItemsLMM, properties);
 
 		final long millisCalibrationEnd = System.currentTimeMillis();
 
