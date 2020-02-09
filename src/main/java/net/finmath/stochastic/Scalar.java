@@ -252,7 +252,7 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable expm1() {
-		return new Scalar(FastMath.expm1(value));
+		return new Scalar(Math.expm1(value));
 	}
 
 	@Override
