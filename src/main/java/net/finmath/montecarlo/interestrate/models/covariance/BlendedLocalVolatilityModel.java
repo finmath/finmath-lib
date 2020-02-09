@@ -108,10 +108,10 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	public BlendedLocalVolatilityModel(final RandomVariableFactory abstractRandomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final ForwardCurve forwardCurve, final double displacement, final boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory != null ? abstractRandomVariableFactory : new RandomVariableFromArrayFactory();
 		this.covarianceModel	= covarianceModel;
 		this.forwardCurve		= forwardCurve;
-		this.displacement		= abstractRandomVariableFactory.createRandomVariable(displacement);
+		this.displacement		= this.abstractRandomVariableFactory.createRandomVariable(displacement);
 		this.isCalibrateable	= isCalibrateable;
 	}
 
