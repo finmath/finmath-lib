@@ -1,7 +1,5 @@
 package net.finmath.marketdata.model.volatility.caplet;
 
-import net.finmath.exception.CalculationException;
-
 /**
  * This class is a container for all the cap data needed to perform the caplet bootstrapping.
  *

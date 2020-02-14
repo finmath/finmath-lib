@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import org.apache.commons.math3.util.FastMath;
-
 import net.finmath.marketdata.model.AnalyticModel;
 
 /**
