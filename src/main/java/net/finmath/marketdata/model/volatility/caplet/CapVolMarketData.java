@@ -51,7 +51,7 @@ public class CapVolMarketData {
 			final double shift,
 			final int underlyingTenorInMonths,
 			final int tenorChangeTimeInMonths,
-			final int underlyingTenorInMonthsBeforeChange) throws CalculationException {
+			final int underlyingTenorInMonthsBeforeChange) {
 		super();
 		this.capTenorStructure = capTenorStructure;
 		this.expiryVectorInMonths = expiryVectorInMonths;
@@ -66,10 +66,10 @@ public class CapVolMarketData {
 		this.discountIndex = discountIndex;
 
 		if (this.expiryVectorInMonths.length != this.capVolatilities.length) {
-			throw new CalculationException("number of maturities and matrix not compatible. Maturity dates: " + this.expiryVectorInMonths.length + ", Matrix rows: " + this.capVolatilities[0].length);
+			throw new IllegalArgumentException("number of maturities and matrix not compatible. Maturity dates: " + this.expiryVectorInMonths.length + ", Matrix rows: " + this.capVolatilities[0].length);
 		}
 		if (this.strikeVector.length != this.capVolatilities[0].length) {
-			throw new CalculationException("number of strikes and matrix not compatible. Strikes: " + this.strikeVector.length + ", Matrix columns: " + this.capVolatilities[0].length);
+			throw new IllegalArgumentException("number of strikes and matrix not compatible. Strikes: " + this.strikeVector.length + ", Matrix columns: " + this.capVolatilities[0].length);
 		}
 
 		expiryVectorInYears = new double[this.expiryVectorInMonths.length];
@@ -82,17 +82,16 @@ public class CapVolMarketData {
 	 * Overloaded constructor of the cap volatility market data class
 	 * that assumes no tenor change.
 	 *
-	 * @param shift The shift of the volatilities.
-	 * @param underlyingTenorInMonths The underlying tenor in months.
+	 * @param index The forward curve index.
+	 * @param discountIndex The discount curve index.
 	 * @param capVolatilities The matrix with cap volatilities as entries.
 	 * @param expiryVectorInMonths The expiry dates given in months.
 	 * @param strikeVector The caplet strikes.
-	 * @param index The forward curve index.
-	 * @param discountIndex The discount curve index.
 	 * @param capTenorStructure Enum that determines the currency.
+	 * @param shift The shift of the volatilities.
 	 * @param underlyingTenorInMonths The underlying tenor in months.
 	 */
-	public CapVolMarketData(final String index, final String discountIndex, final CapTenorStructure capTenorStructure, final int[] expiryVectorInMonths, final double[] strikeVector, final double[][] capVolatilities, final double shift, final int underlyingTenorInMonths) throws CalculationException {
+	public CapVolMarketData(final String index, final String discountIndex, final CapTenorStructure capTenorStructure, final int[] expiryVectorInMonths, final double[] strikeVector, final double[][] capVolatilities, final double shift, final int underlyingTenorInMonths) {
 		this(index, discountIndex, null, capTenorStructure, expiryVectorInMonths, strikeVector, capVolatilities, shift, underlyingTenorInMonths, 0, underlyingTenorInMonths);
 	}
 
