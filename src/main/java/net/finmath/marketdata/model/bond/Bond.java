@@ -195,7 +195,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
 		value +=  discountFactor * survivalProbabilityFactor * basisFactorFactor;
 
-		// @TODO: The forward value should use division of all curves
+		// @TODO The forward value should use division of all curves
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 

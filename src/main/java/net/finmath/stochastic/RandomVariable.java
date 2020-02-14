@@ -275,9 +275,7 @@ public interface RandomVariable extends Serializable {
 	 * set with equal distance over an the interval of the specified standard deviation.
 	 *
 	 * The interval points used are
-	 * <center>
 	 * <code>x[i] = mean + alpha[i] * standardDeviations * sigma</code>
-	 * </center>
 	 * where
 	 * <ul>
 	 * <li>i = 0,..., numberOfPoints-1,</li>

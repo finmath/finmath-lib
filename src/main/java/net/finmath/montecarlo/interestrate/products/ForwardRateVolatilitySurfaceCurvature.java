@@ -19,13 +19,9 @@ import net.finmath.stochastic.RandomVariable;
  *
  * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationModel)}</code> method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
- * <center>
  * \[	\sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \]
- * </center>
  * (this is the root mean square / L2 norm of <i>f</i>) where
- * <center>
  * \[	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i}) } \]
- * </center>
  * and where
  * <i>
  * 	x<sub>i</sub> = &sigma;<sup>2</sup>(t<sub>i</sub>)

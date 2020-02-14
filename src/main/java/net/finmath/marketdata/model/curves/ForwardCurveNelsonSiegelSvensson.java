@@ -156,8 +156,8 @@ public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements S
 	}
 
 	/*
-	 * @TODO: This operates on model internal time and not on curve time - which is inefficient. Performance improvement possible.
-	 * @TODO: Should use a cache
+	 * @TODO This operates on model internal time and not on curve time - which is inefficient. Performance improvement possible.
+	 * @TODO Should use a cache
 	 */
 	@Override
 	public double getPaymentOffset(final double fixingTime) {

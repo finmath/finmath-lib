@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  */
 public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
 
-	// @TODO: CurveFromInterpolationPoints data currently not used.
+	// @TODO CurveFromInterpolationPoints data currently not used.
 	private final ForwardCurve				forwardCurve;
 	private final DiscountCurve			discountCurve;
 

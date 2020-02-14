@@ -70,7 +70,6 @@ import net.finmath.functions.LinearAlgebra;
  * </p>
  *
  * The following simple example finds a solution for the equation <br>
- * <center>
  * <table>
  * <caption>Sample linear system of equations.</caption>
  * <tr><td>
@@ -80,7 +79,6 @@ import net.finmath.functions.LinearAlgebra;
  * 2.0 * x<sub>1</sub> + 1.0 * x<sub>2</sub> = 10.0
  * </td></tr>
  * </table>
- * </center>
  *
  * <pre>
  * <code>

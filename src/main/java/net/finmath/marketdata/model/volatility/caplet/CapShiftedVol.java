@@ -21,8 +21,8 @@ import net.finmath.time.Schedule;
  *
  * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
  *
- * @TODO: Support convexity adjustment if fixing is in arrears.
- * @TODO: Fix JavaDoc for shift.
+ * @TODO Support convexity adjustment if fixing is in arrears.
+ * @TODO Fix JavaDoc for shift.
  * 
  * @author Christian Fries
  * @version 1.0

@@ -398,7 +398,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 	@Override
 	public RandomVariable getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset)
 	{
-		// @TODO: A warning should be issued that this implementation does not use
+		// @TODO A warning should be issued that this implementation does not use
 		//		if(paymentOffset != this.getPaymentOffset(fixingTime)) {
 		//			Logger.getLogger("net.finmath").warning("Requesting forward with paymentOffsets not agreeing with original calibration. Requested: " + paymentOffsets +". Calibrated: " + getPaymentOffset(fixingTime) + ".");
 		//		}

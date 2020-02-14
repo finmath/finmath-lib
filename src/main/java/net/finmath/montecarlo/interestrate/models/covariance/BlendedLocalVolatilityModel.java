@@ -197,9 +197,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is
-	 * <center>
 	 * <i>(a L<sub>i,0</sub> + (1-a)L<sub>i</sub>(t)) F<sub>i</sub>(t)</i>
-	 * </center>
 	 * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.
@@ -270,7 +268,7 @@ public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelPar
 		double forward = 1.0;
 		if(forwardCurve != null) {
 			final double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);
-			// @TODO: Consider using a model context here
+			// @TODO Consider using a model context here
 			forward = forwardCurve.getForward(null, Math.max(timeToMaturity, 0.0));
 		}
 

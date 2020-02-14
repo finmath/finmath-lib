@@ -112,7 +112,7 @@ public class Period extends AbstractPeriod {
 		RandomVariableInterface	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
 		RandomVariableInterface	numeraireAtEval			= model.getNumeraire(evaluationTime);
 		RandomVariableInterface	numeraire				= model.getNumeraire(getPaymentDate());
-		// @TODO: Add support for weighted Monte-Carlo.
+		// @TODO Add support for weighted Monte-Carlo.
 		//        RandomVariableInterface	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 
 		RandomVariableInterface values;

@@ -35,7 +35,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
  * It needs a forward curve and a discount curve. The tenor length of the Caplet is inferred
  * from the forward curve.
  *
- * @TODO: Need to add forward and discount curve to support implied vol.
+ * @TODO Need to add forward and discount curve to support implied vol.
  * @author Christian Fries
  * @version 1.0
  */
@@ -141,7 +141,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 
 			final double maturityGreaterOfEqual	= maturities[maturityGreaterEqualIndex];
 
-			// @TODO: Below we should trigger an exception if no forwardCurve is supplied but needed.
+			// @TODO Below we should trigger an exception if no forwardCurve is supplied but needed.
 			// Interpolation / extrapolation is performed on iso-moneyness lines.
 			final double adjustedStrike = getForwardCurve().getValue(model, maturityGreaterOfEqual) + (strike - getForwardCurve().getValue(model, maturity));
 
@@ -171,7 +171,7 @@ public class CapletVolatilities extends AbstractVolatilitySurface {
 			e.printStackTrace();
 		}
 
-		// @TODO: Name and reference date have to be set?!
+		// @TODO Name and reference date have to be set?!
 		final CapletVolatilities capletVolatilities = new CapletVolatilities(null, null);
 
 		// Parse data

@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * Implements the valuation of a single cashflow by a discount curve.
  *
- * @TODO: Currency is neither checked nor used.
+ * @TODO Currency is neither checked nor used.
  *
  * @author Christian Fries
  * @version 1.0

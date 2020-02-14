@@ -46,7 +46,8 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * The calibration products have to be provided via a vector of <code>CalibrationSpec</code>s.
  *
  * The products provides are
- * <table summary="List of calibration products types">
+ * <table>
+ * <caption>List of calibration products types</caption>
  * 	<tr>
  * 		<td>Value of Type String</td>
  * 		<td>Classes</td>

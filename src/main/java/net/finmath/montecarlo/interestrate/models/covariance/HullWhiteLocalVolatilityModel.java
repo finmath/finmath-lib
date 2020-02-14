@@ -16,9 +16,7 @@ import net.finmath.stochastic.RandomVariable;
  * using the special function corresponding to the Hull-White local volatility.
  *
  * The model constructed for the <i>i</i>-th factor loading is
- * <center>
  * <i>(1+L<sub>i</sub>(t) d) F<sub>i</sub>(t)</i>
- * </center>
  * where <i>d</i> is a constant (the period length), <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
  * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
@@ -42,9 +40,7 @@ public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 
 	/**
 	 * The model constructed for the <i>i</i>-th factor loading is
-	 * <center>
 	 * <i>(1+L<sub>i</sub>(t) d) F<sub>i</sub>(t)</i>
-	 * </center>
 	 * where <i>d</i> is a constant (the period length), <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.

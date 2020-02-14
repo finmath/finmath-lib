@@ -138,7 +138,7 @@ public class Period extends AbstractPeriod {
 			}
 		}
 		catch(final UnsupportedOperationException e) {
-			// @TODO: Models that do not provide a reference date will become disfunctional in future releases.
+			// @TODO Models that do not provide a reference date will become disfunctional in future releases.
 		}
 
 		if(evaluationTime >= productToModelTimeOffset + getPaymentDate()) {
@@ -149,7 +149,7 @@ public class Period extends AbstractPeriod {
 		final RandomVariable	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
 		final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
 		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + getPaymentDate());
-		// @TODO: Add support for weighted Monte-Carlo.
+		// @TODO Add support for weighted Monte-Carlo.
 		//        RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 
 		RandomVariable values;

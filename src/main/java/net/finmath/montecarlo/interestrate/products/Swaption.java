@@ -159,7 +159,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct implements net.finm
 			final RandomVariable payoff = libor.sub(swaprate).mult(periodLength).mult(notional);
 
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
-			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
+			// @TODO Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			final double discountingDate = Math.max(fixingDate,exerciseDate);
 			double discountingAdjustment = 1.0;
 			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {
@@ -168,7 +168,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct implements net.finm
 				final ForwardCurve forwardCurve = model.getModel().getForwardRateCurve();
 				final DiscountCurve discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardCurve);
 
-				// @TODO: Need to add functional dependency for ADD on discounting adjustment
+				// @TODO Need to add functional dependency for ADD on discounting adjustment
 				final double forwardBondOnForwardCurve = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurveFromForwardCurve.getDiscountFactor(analyticModel, paymentDate);
 				final double forwardBondOnDiscountCurve = discountCurve.getDiscountFactor(analyticModel, discountingDate) / discountCurve.getDiscountFactor(analyticModel, paymentDate);
 				discountingAdjustment = forwardBondOnForwardCurve / forwardBondOnDiscountCurve;

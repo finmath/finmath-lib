@@ -131,11 +131,9 @@ public class Solver {
 
 	/**
 	 * Find the model such that the equation
-	 * <center>
 	 * <code>
 	 * objectiveFunctions.getValue(model) = 0
 	 * </code>
-	 * </center>
 	 * holds.
 	 *
 	 * @param objectsToCalibrate The set of parameterized objects to calibrate.

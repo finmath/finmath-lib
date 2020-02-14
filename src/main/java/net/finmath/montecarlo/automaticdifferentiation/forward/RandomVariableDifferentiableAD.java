@@ -308,7 +308,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				break;
 			case POW:
 				// second argument will always be deterministic and constant.
-				// @TODO: Optimize this part by making use of Y being scalar.
+				// @TODO Optimize this part by making use of Y being scalar.
 				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
