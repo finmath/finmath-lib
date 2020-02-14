@@ -290,7 +290,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 			executor.shutdown();
 		}
 		catch(SecurityException e) {
-			// @TODO Improve exception handling here
+			// @todo Improve exception handling here
 		}
 	}
 
@@ -348,7 +348,7 @@ public class ProcessEulerScheme extends AbstractProcess {
 
 	@Override
 	public AbstractProcessInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
-		// @TODO Implement cloning with modified properties
+		// @todo Implement cloning with modified properties
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 

@@ -292,7 +292,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			executor.shutdown();
 		}
 		catch(final SecurityException e) {
-			// @TODO Improve exception handling here
+			// @todo Improve exception handling here
 		}
 	}
 
@@ -350,7 +350,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	@Override
 	public MonteCarloProcess getCloneWithModifiedData(final Map<String, Object> dataModified) {
-		// @TODO Implement cloning with modified properties
+		// @todo Implement cloning with modified properties
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 

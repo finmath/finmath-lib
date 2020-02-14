@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariable;
  *
  * The implementation require Java 8 or better.
  *
- * @TODO The implementation of getAverage does not use a Kahan summation, while <code>RandomVariableFromDoubleArray</code> does.
+ * @todo The implementation of getAverage does not use a Kahan summation, while <code>RandomVariableFromDoubleArray</code> does.
  *
  * @author Christian Fries
  * @author OSC

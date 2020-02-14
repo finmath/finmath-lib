@@ -481,7 +481,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			 * Density regression
 			 */
 			final double underlyingStdDev = indicator.getStandardDeviation();
-			final int numberOfSamplePointsHalf = 50;			// @TODO numberOfSamplePoints should become a parameter.
+			final int numberOfSamplePointsHalf = 50;			// @todo numberOfSamplePoints should become a parameter.
 			final double sampleIntervalWidthHalf = diracDeltaApproximationDensityRegressionWidthPerStdDev/2 * underlyingStdDev / numberOfSamplePointsHalf;
 			final double[] samplePointX = new double[numberOfSamplePointsHalf*2];
 			final double[] samplePointY = new double[numberOfSamplePointsHalf*2];

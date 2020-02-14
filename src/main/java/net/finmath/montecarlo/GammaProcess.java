@@ -110,7 +110,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 
 	@Override
 	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		/// @TODO This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
+		/// @todo This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
 		return new GammaProcess(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), shape);
 	}
 

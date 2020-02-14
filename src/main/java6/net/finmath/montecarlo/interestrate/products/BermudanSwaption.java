@@ -177,7 +177,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct {
 		ArrayList<RandomVariableInterface> basisFunctions = new ArrayList<RandomVariableInterface>();
 
 		// Constant
-		// @TODO Use non differentiable
+		// @todo Use non differentiable
 		RandomVariableInterface basisFunction = new RandomVariable(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 

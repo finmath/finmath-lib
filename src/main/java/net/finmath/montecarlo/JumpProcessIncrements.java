@@ -103,7 +103,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	@Override
 	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+		/// @todo This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new JumpProcessIncrements(newTimeDiscretization, jumpIntensities, getNumberOfPaths(), getSeed());
 	}
 

@@ -176,7 +176,7 @@ public class BlackScholesMonteCarloValuationTest {
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		// @TODO This needs to be changes to use random variables.
+		// @todo This needs to be changes to use random variables.
 		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
 		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 
@@ -381,7 +381,7 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		// @TODO This needs to be changes to use random variables.
+		// @todo This needs to be changes to use random variables.
 		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
 		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 
@@ -454,7 +454,7 @@ public class BlackScholesMonteCarloValuationTest {
 		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		double initialValue	= blackScholesModel.getAssetValue(0.0, 0).get(0);
-		// @TODO This needs to be changes to use random variables.
+		// @todo This needs to be changes to use random variables.
 		double riskFreeRate	= blackScholesModel.getModel().getRiskFreeRate().getAverage();
 		double volatility	= blackScholesModel.getModel().getVolatility().getAverage();
 

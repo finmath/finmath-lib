@@ -149,7 +149,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	 *
 	 * Important: The realizations array is not cloned (no defensive copy is made).
 	 *
-	 * @TODO A future version should perform a defensive copy.
+	 * @todo A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
@@ -168,7 +168,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 	 *
 	 * Important: The realizations array is not cloned (not defensive copy is made).
 	 *
-	 * @TODO A future version should perform a defensive copy.
+	 * @todo A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
@@ -1253,7 +1253,7 @@ public class RandomVariableFromFloatArray implements RandomVariable {
 
 	/*
 	 * Ternary operators: checking for return type priority.
-	 * @TODO add checking for return type priority.
+	 * @todo add checking for return type priority.
 	 */
 
 	@Override

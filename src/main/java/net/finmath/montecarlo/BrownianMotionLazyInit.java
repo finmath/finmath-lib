@@ -104,7 +104,7 @@ public class BrownianMotionLazyInit implements BrownianMotion, Serializable {
 
 	@Override
 	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+		/// @todo This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new BrownianMotionLazyInit(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed());
 	}
 

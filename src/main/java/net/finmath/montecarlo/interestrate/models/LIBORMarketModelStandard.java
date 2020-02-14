@@ -473,8 +473,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
-			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+			// @todo reference to AnalyticModelFromCuvesAndVols must not be null
+			// @todo This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			final double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			final double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
 			final double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
@@ -498,8 +498,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
-			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+			// @todo reference to AnalyticModelFromCuvesAndVols must not be null
+			// @todo This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			final double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-periodStart);
 			final double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
 			final double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (nextStartTime-periodStart)/(nextStartTime-previousStartTime));

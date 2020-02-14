@@ -110,7 +110,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
-	 * @TODO Performance upon repeated call can be optimized by caching XTX.
+	 * @todo Performance upon repeated call can be optimized by caching XTX.
 	 *
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.

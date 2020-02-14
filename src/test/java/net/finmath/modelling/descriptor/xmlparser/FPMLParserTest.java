@@ -44,7 +44,7 @@ public class FPMLParserTest {
 	@Parameters(name="file={0}}")
 	public static Collection<Object[]> generateData()
 	{
-		/// @TODO Provide a list of test files here
+		/// @todo Provide a list of test files here
 		final ArrayList<Object[]> parameters = new ArrayList<>();
 
 		final ClassLoader classLoader = FPMLParserTest.class.getClassLoader();

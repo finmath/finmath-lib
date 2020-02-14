@@ -1357,8 +1357,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// Analytic adjustment for the interpolation
-		// @TODO reference to AnalyticModelFromCuvesAndVols must not be null
-		// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+		// @todo reference to AnalyticModelFromCuvesAndVols must not be null
+		// @todo This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 		final double analyticOnePlusLongLIBORDt   = 1 + getForwardRateCurve().getForward(getAnalyticModel(), tenorPeriodStartTime, tenorDt) * tenorDt;
 		final double analyticOnePlusShortLIBORDt	= 1 + getForwardRateCurve().getForward(getAnalyticModel(), periodStartTime, smallDt) * smallDt;
 

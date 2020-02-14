@@ -117,7 +117,7 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		}
 		else {
 			/**
-			 *  @TODO In case paymentDate is relevant for the index modeling, it should be checked
+			 *  @todo In case paymentDate is relevant for the index modeling, it should be checked
 			 *  if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
 			 *  In such a case, this method may be overridden.
 			 */
