@@ -138,9 +138,9 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 				K[i][k] = (strikeATM - (iCap6MCapletVolBootrapper.getForwardCurve().getForward(
 						iCap6MCapletVolBootrapper.getParsedModel(), capletFixingTimeVectorInYears[i * 2 + 1])
 						- sumNu[i] * iCap3MCapletVolBootrapper.getForwardCurve()
-								.getForward(iCap3MCapletVolBootrapper.getParsedModel(),
-										capletFixingTimeVectorInYears[i * 2 + 1]
-												+ k * iCap3MCapVolMarketData.getUnderlyingTenorInMonths() / 12.0)))
+						.getForward(iCap3MCapletVolBootrapper.getParsedModel(),
+								capletFixingTimeVectorInYears[i * 2 + 1]
+										+ k * iCap3MCapVolMarketData.getUnderlyingTenorInMonths() / 12.0)))
 						/ sumNu[i];
 			}
 

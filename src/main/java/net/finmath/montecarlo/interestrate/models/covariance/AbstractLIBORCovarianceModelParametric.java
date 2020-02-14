@@ -183,8 +183,8 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 
 				final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
-//				System.arraycopy(calibrationCovarianceModel.getParameter(), 0, parameters, 0, parameters.length);
-						
+				//				System.arraycopy(calibrationCovarianceModel.getParameter(), 0, parameters, 0, parameters.length);
+
 				// Create a LIBOR market model with the new covariance structure.
 				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
 				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
@@ -382,7 +382,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 
 				final AbstractLIBORCovarianceModelParametric calibrationCovarianceModel = AbstractLIBORCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);
-//				System.arraycopy(calibrationCovarianceModel.getParameterAsDouble(), 0, parameters, 0, parameters.length);
+				//				System.arraycopy(calibrationCovarianceModel.getParameterAsDouble(), 0, parameters, 0, parameters.length);
 
 				// Create a LIBOR market model with the new covariance structure.
 				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);

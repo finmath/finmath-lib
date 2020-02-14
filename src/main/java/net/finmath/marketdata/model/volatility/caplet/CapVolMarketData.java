@@ -72,7 +72,7 @@ public class CapVolMarketData {
 
 		expiryVectorInYears = new double[this.expiryVectorInMonths.length];
 		for (int i = 0; i < this.expiryVectorInMonths.length; i++) {
-			expiryVectorInYears[i] = ((double) this.expiryVectorInMonths[i])/12.0;
+			expiryVectorInYears[i] = (this.expiryVectorInMonths[i])/12.0;
 		}
 	}
 

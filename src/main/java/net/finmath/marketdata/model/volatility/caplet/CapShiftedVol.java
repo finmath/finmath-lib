@@ -23,7 +23,7 @@ import net.finmath.time.Schedule;
  *
  * @TODO Support convexity adjustment if fixing is in arrears.
  * @TODO Fix JavaDoc for shift.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
