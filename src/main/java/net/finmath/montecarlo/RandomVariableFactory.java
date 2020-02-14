@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariable;
 public interface RandomVariableFactory {
 
 	/**
-	 * Create a (deterministic) random variable form a constant.
+	 * Create a (deterministic) random variable from a constant.
 	 *
 	 * @param value A constant value.
 	 * @return The <code>RandomVariable</code>.
@@ -25,7 +25,7 @@ public interface RandomVariableFactory {
 	RandomVariable createRandomVariable(double value);
 
 	/**
-	 * Create a (deterministic) random variable form a constant using a specific filtration time.
+	 * Create a (deterministic) random variable from a constant using a specific filtration time.
 	 *
 	 * @param time The filtration time of the random variable.
 	 * @param value A constant value.
@@ -34,7 +34,7 @@ public interface RandomVariableFactory {
 	RandomVariable createRandomVariable(double time, double value);
 
 	/**
-	 * Create a random variable form an array using a specific filtration time.
+	 * Create a random variable from an array using a specific filtration time.
 	 *
 	 * @param time The filtration time of the random variable.
 	 * @param values Array representing values of the random variable at the sample paths.
