@@ -122,7 +122,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 	 * @return Depending on the value of value unit, the method returns either
 	 * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
 	 * or the value using the Black formula (ValueUnit.VALUE).
-	 * @todo make initial values an arg and use evaluation time.
+	 * @TODO make initial values an arg and use evaluation time.
 	 */
 	public RandomVariableInterface getValues(double evaluationTime, LIBORMarketModelInterface model) {
 		if(evaluationTime > 0) {

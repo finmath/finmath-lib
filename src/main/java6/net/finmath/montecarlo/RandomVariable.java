@@ -94,7 +94,7 @@ public class RandomVariable implements RandomVariableInterface {
 	 *
 	 * Important: The realizations array is not cloned (not defensive copy is made).
 	 *
-	 * @todo A future version should perform a defensive copy.
+	 * @TODO A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.

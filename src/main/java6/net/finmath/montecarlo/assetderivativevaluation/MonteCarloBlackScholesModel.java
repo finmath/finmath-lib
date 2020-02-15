@@ -156,7 +156,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationInterface#getCloneWithModifiedData(java.util.Map)
-	 * @todo THE METHOD NEED TO BE CHANGED. NEED
+	 * @TODO THE METHOD NEED TO BE CHANGED. NEED
 	 */
 	@Override
 	public AssetModelMonteCarloSimulationInterface getCloneWithModifiedData(Map<String, Object> dataModified) {
@@ -243,7 +243,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	/* (non-Javadoc)
 	 * @see net.finmath.montecarlo.MonteCarloSimulationInterface#getRandomVariableForConstant(double)
-	 * @todo Move this to base class
+	 * @TODO Move this to base class
 	 */
 	@Override
 	public RandomVariableInterface getRandomVariableForConstant(double value) {

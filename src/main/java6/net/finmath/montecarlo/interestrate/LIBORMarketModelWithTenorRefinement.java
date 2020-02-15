@@ -190,7 +190,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 				throw new ClassCastException("Calibration is currently restricted to parametric covariance models (TermStructureCovarianceModelParametricInterface).");
 			}
 
-			// @todo Should be more elegant. Convert array for constructor
+			// @TODO Should be more elegant. Convert array for constructor
 			AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
 			double[]							calibrationTargetValues	= new double[calibrationItems.length];
 			double[]							calibrationWeights		= new double[calibrationItems.length];
@@ -369,7 +369,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double						periodEnd		= periodStart + periodLength;
 			double						tenorTime		= covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 
-			// @todo Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
+			// @TODO Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
 			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 			double weight = getWeightForTenorRefinement(periodStart,periodStart,periodStart,periodEnd);
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
@@ -492,7 +492,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 		int periodStartIndex = numeriareDiscretization.getTimeIndex(periodStart);
 		int periodEndIndex = numeriareDiscretization.getTimeIndex(periodEnd);
 
-		/// @todo Need to improve LIBOR interpolation if required
+		/// @TODO Need to improve LIBOR interpolation if required
 		if(periodStartIndex < 0) {
 			periodStartIndex = -periodStartIndex-1;
 		}
@@ -689,7 +689,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 	@Override
 	public RandomVariableInterface getLIBOR(double time, double periodStart, double periodEnd) {
 		int timeIndex = getProcess().getTimeIndex(time);
-		// @todo Improve interpolation in simulation time here, if required.
+		// @TODO Improve interpolation in simulation time here, if required.
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex-1-1;
 		}

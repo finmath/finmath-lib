@@ -891,7 +891,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 
 	/*
 	 * Ternary operators: checking for return type priority.
-	 * @todo add checking for return type priority.
+	 * @TODO add checking for return type priority.
 	 */
 
 	@Override

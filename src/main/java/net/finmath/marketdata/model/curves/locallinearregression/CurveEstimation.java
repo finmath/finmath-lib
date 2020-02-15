@@ -121,7 +121,7 @@ public class CurveEstimation{
 	 * @return The regression curve.
 	 */
 	public Curve getRegressionCurve(){
-		// @todo Add threadsafe lazy init.
+		// @TODO Add threadsafe lazy init.
 		if(regressionCurve !=null) {
 			return regressionCurve;
 		}

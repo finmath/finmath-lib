@@ -516,7 +516,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 					valueCurrent[valueIndex] = isPointAccepted.choose(valueTest[valueIndex], valueCurrent[valueIndex]);
 				}
 
-				// @todo Always update change? - maybe improve?
+				// @TODO Always update change? - maybe improve?
 				errorRootMeanSquaredChange = isPointAccepted.choose(errorMeanSquaredCurrent.sqrt().sub(errorMeanSquaredTest.sqrt()), errorRootMeanSquaredChange);
 				errorMeanSquaredCurrent = errorMeanSquaredTest.cap(errorMeanSquaredCurrent);
 
@@ -661,7 +661,7 @@ public abstract class StochasticPathwiseLevenbergMarquardt implements Serializab
 		clonedOptimizer.errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;
 		return clonedOptimizer;
 		 */
-		// @todo add clone
+		// @TODO add clone
 		return null;
 	}
 

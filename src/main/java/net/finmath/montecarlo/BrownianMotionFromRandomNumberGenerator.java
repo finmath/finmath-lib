@@ -104,7 +104,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 
 	@Override
 	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		/// @todo This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new BrownianMotionFromRandomNumberGenerator(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), randomNumberGenerator);
 	}
 

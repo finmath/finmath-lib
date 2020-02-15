@@ -26,7 +26,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
  * between forward rates of the form F(0,0.5*i,0.5*i+0.3) and F(0,0.5*i+0.25,0.5*(i+1)).
  * Those aren't enough though to convert tenors from anything else than 3M to 6M.
  *
- * @todo Calibrate a parameterization as suggested by Schlenkrich given the calculated 3M correlations and use this parameterization to extract all missing correlations.
+ * @TODO Calibrate a parameterization as suggested by Schlenkrich given the calculated 3M correlations and use this parameterization to extract all missing correlations.
  *
  * @author Daniel Willhalm
  */

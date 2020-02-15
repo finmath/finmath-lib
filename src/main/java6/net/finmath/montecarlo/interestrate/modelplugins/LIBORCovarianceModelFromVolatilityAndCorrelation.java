@@ -57,7 +57,7 @@ public class LIBORCovarianceModelFromVolatilityAndCorrelation extends AbstractLI
 		RandomVariableInterface factorLoadingPseudoInverse = volatilityModel.getVolatility(timeIndex, component).invert()
 				.mult(correlationModel.getFactorLoading(timeIndex, factor, component));
 
-		// @todo numberOfComponents should be stored as a member?!
+		// @TODO numberOfComponents should be stored as a member?!
 		int numberOfComponents = getLiborPeriodDiscretization().getNumberOfTimeSteps();
 
 		double factorWeight = 0.0;

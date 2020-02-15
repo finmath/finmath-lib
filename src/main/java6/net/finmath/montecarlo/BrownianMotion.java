@@ -103,7 +103,7 @@ public class BrownianMotion implements BrownianMotionInterface, Serializable {
 
 	@Override
 	public BrownianMotionInterface getCloneWithModifiedTimeDiscretization(TimeDiscretizationInterface newTimeDiscretization) {
-		/// @todo This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new BrownianMotion(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed());
 	}
 

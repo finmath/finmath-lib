@@ -86,7 +86,7 @@ public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolati
 		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		final Double	evaluationTimeParameter		= (Double)calibrationParameters.get("evaluationTime");
 
-		// @todo currently ignored, we use the setting form the OptimizerFactory
+		// @TODO currently ignored, we use the setting form the OptimizerFactory
 		final int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;
 		final double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;
 		final double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;

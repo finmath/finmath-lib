@@ -136,7 +136,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 *
 	 * Important: The realizations array is not cloned (no defensive copy is made).
 	 *
-	 * @todo A future version should perform a defensive copy.
+	 * @TODO A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
@@ -158,7 +158,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 *
 	 * Important: The realizations array is not cloned (not defensive copy is made).
 	 *
-	 * @todo A future version should perform a defensive copy.
+	 * @TODO A future version should perform a defensive copy.
 	 *
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
@@ -1332,7 +1332,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 
 	/*
 	 * Ternary operators: checking for return type priority.
-	 * @todo add checking for return type priority.
+	 * @TODO add checking for return type priority.
 	 */
 
 	@Override

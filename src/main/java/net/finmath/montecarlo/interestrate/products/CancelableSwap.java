@@ -132,7 +132,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		// Constant
-		// @todo Use non differentiable
+		// @TODO Use non differentiable
 		final RandomVariable basisFunction = new RandomVariableFromDoubleArray(1.0);//.getRandomVariableForConstant(1.0);
 		basisFunctions.add(basisFunction);
 

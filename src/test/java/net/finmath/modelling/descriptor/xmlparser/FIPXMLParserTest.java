@@ -26,7 +26,7 @@ public class FIPXMLParserTest {
 	@Parameters(name="file={0}}")
 	public static Collection<Object[]> generateData()
 	{
-		/// @todo Provide a list of test files here
+		/// @TODO Provide a list of test files here
 		final ArrayList<Object[]> parameters = new ArrayList<>();
 		parameters.add(new Object[] { new File("test.xml") });
 		return parameters;

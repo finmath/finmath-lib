@@ -132,7 +132,7 @@ public class LIBORIndexTest {
 
 			double toleranceThisTest = tolerance[iTestCase] * volatilityScaling/Math.sqrt((liborMarketModel.getNumberOfPaths())/100000.0) + 1E-12;
 
-			// @todo Add correct benchmark for case CurveSetup.DISCRETE_FORWARDCURVE
+			// @TODO Add correct benchmark for case CurveSetup.DISCRETE_FORWARDCURVE
 			// The setup DISCRETE_FORWARDCURVE has a different behaviour for interpolated forwards, so we will see deviations on unaligned periods:
 			if(curveSetup == CurveSetup.DISCRETE_FORWARDCURVE) {
 				toleranceThisTest += 5.0/100.0/100.0 * (periodEnd-periodStart);

@@ -39,7 +39,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(final BlackScholesModelDescriptor modelDescriptor) {
 
 		final double initialValue = modelDescriptor.getInitialValue();
-		// @todo The model does not support a curve for the forward
+		// @TODO The model does not support a curve for the forward
 		final double riskFreeRate = -Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));
 		final double volatility = modelDescriptor.getVolatility();
 

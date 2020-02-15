@@ -34,7 +34,7 @@ import net.finmath.time.ScheduleFromPeriods;
  *
  * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
  *
- * @todo Support convexity adjustment if fixing is in arrears.
+ * @TODO Support convexity adjustment if fixing is in arrears.
  *
  * @author Christian Fries
  * @version 1.0

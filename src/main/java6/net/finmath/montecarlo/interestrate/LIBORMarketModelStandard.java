@@ -211,7 +211,7 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 
-		// @todo Should be more elegant. Convert array for constructor
+		// @TODO Should be more elegant. Convert array for constructor
 		AbstractLIBORMonteCarloProduct[]	calibrationProducts		= new AbstractLIBORMonteCarloProduct[calibrationItems.length];
 		double[]							calibrationTargetValues	= new double[calibrationItems.length];
 		double[]							calibrationWeights		= new double[calibrationItems.length];
@@ -499,8 +499,8 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @todo reference to AnalyticModel must not be null
-			// @todo This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+			// @TODO reference to AnalyticModel must not be null
+			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, periodEnd-previousEndTime);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousEndTime, nextEndTime-previousEndTime);
 			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextEndTime-previousEndTime)) * (nextEndTime-periodEnd)/(nextEndTime-previousEndTime));
@@ -524,8 +524,8 @@ public class LIBORMarketModelStandard extends AbstractModel implements LIBORMark
 							).sub(1.0).div(periodEnd-periodStart);
 
 			// Analytic adjustment for the interpolation
-			// @todo reference to AnalyticModel must not be null
-			// @todo This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
+			// @TODO reference to AnalyticModel must not be null
+			// @TODO This adjustment only applies if the corresponding adjustment in getNumeraire is enabled
 			double analyticLibor				= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-periodStart);
 			double analyticLiborShortPeriod		= getForwardRateCurve().getForward(getAnalyticModel(), previousStartTime, nextStartTime-previousStartTime);
 			double analyticInterpolatedOnePlusLiborDt		= (1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) / Math.exp(Math.log(1 + analyticLiborShortPeriod * (nextStartTime-previousStartTime)) * (nextStartTime-periodStart)/(nextStartTime-previousStartTime));
