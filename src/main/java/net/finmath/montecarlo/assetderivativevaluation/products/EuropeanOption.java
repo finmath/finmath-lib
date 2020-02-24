@@ -120,4 +120,10 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 		return result;
 	}
+
+	@Override
+	public String toString() {
+		return "EuropeanOption [maturity=" + maturity + ", strike=" + strike + ", underlyingIndex=" + underlyingIndex
+				+ ", nameOfUnderliyng=" + nameOfUnderliyng + "]";
+	}
 }
