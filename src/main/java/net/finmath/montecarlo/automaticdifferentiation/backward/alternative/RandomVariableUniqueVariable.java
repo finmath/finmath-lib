@@ -796,29 +796,29 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 		}
 
 		final RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);
-		final ArrayList<RandomVariable> currentParentRandomVaribles = currentRandomVariable.getParentRandomVariables();
+		final ArrayList<RandomVariable> currentParentRandomVariables = currentRandomVariable.getParentRandomVariables();
 
 		RandomVariable resultrandomvariable;
 
 		switch(currentRandomVariable.getParentOperatorType()){
 		/* functions with one argument  */
 		case SQUARED:
-			resultrandomvariable = currentParentRandomVaribles.get(0).mult(2.0);
+			resultrandomvariable = currentParentRandomVariables.get(0).mult(2.0);
 			break;
 		case SQRT:
-			resultrandomvariable = currentParentRandomVaribles.get(0).sqrt().invert().mult(0.5);
+			resultrandomvariable = currentParentRandomVariables.get(0).sqrt().invert().mult(0.5);
 			break;
 		case EXP:
-			resultrandomvariable = currentParentRandomVaribles.get(0).exp();
+			resultrandomvariable = currentParentRandomVariables.get(0).exp();
 			break;
 		case LOG:
-			resultrandomvariable = currentParentRandomVaribles.get(0).invert();
+			resultrandomvariable = currentParentRandomVariables.get(0).invert();
 			break;
 		case SIN:
-			resultrandomvariable = currentParentRandomVaribles.get(0).cos();
+			resultrandomvariable = currentParentRandomVariables.get(0).cos();
 			break;
 		case COS:
-			resultrandomvariable = currentParentRandomVaribles.get(0).sin().mult(-1.0);
+			resultrandomvariable = currentParentRandomVariables.get(0).sin().mult(-1.0);
 			break;
 
 			/* functions with two arguments */
@@ -833,16 +833,16 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 			break;
 		case MULT:
 			if(variableIndex == currentRandomVariable.getParentIDs()[0]){
-				resultrandomvariable = currentParentRandomVaribles.get(1);
+				resultrandomvariable = currentParentRandomVariables.get(1);
 			} else {
-				resultrandomvariable = currentParentRandomVaribles.get(0);
+				resultrandomvariable = currentParentRandomVariables.get(0);
 			}
 			break;
 		case DIV:
 			if(variableIndex == currentRandomVariable.getParentIDs()[0]){
-				resultrandomvariable = currentParentRandomVaribles.get(1).invert();
+				resultrandomvariable = currentParentRandomVariables.get(1).invert();
 			} else {
-				resultrandomvariable = currentParentRandomVaribles.get(0).div(currentParentRandomVaribles.get(1).squared()).mult(-1);
+				resultrandomvariable = currentParentRandomVariables.get(0).div(currentParentRandomVariables.get(1).squared()).mult(-1);
 			}
 			break;
 
