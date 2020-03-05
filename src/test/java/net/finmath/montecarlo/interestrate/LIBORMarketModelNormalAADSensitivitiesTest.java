@@ -556,7 +556,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	/**
 	 * A test for the LIBOR Market Model delta calculated by AAD.
 	 * The test calculates all model deltas using AAD, but only one model delta using finite difference to benchmark that one.
-	 * @throws CalculationException
+	 * 
+	 * @throws CalculationException Thrown if valuation inside calibration fails.
 	 */
 	@Test
 	public void testDelta() throws CalculationException {
@@ -717,7 +718,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	/**
 	 * A test for the LIBOR Market Model delta calculated by AAD.
 	 * The test calculates all model deltas using AAD, but only one model delta using finite difference to benchmark that one.
-	 * @throws CalculationException
+	 * 
+	 * @throws CalculationException Thrown if valuation inside calibration fails.
 	 */
 	@Test
 	public void testGenericDelta() throws CalculationException {
