@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.2.2" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <interface id="1" language="java" name="net.finmath.marketdata.model.AnalyticModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/marketdata/model/AnalyticModel.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-73" y="407"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="2" language="java" name="net.finmath.modelling.Model" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/modelling/Model.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="397" y="28"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="3" language="java" name="net.finmath.modelling.DescribedModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/modelling/DescribedModel.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="971" y="46"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="4" language="java" name="net.finmath.montecarlo.MonteCarloSimulationModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/MonteCarloSimulationModel.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="447" y="353"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="5" language="java" name="net.finmath.fouriermethod.models.CharacteristicFunctionModel" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/fouriermethod/models/CharacteristicFunctionModel.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="895" y="290"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="6" language="java" 
+    name="net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/assetderivativevaluation/AssetModelMonteCarloSimulationModel.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="221" y="712"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="7" language="java" name="net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/TermStructureMonteCarloSimulationModel.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="772" y="685"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="8" language="java" name="net.finmath.modelling.Product" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/modelling/Product.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="480" y="966"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="9" language="java" name="net.finmath.montecarlo.AbstractMonteCarloProduct" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/AbstractMonteCarloProduct.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="361" y="1325"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="net.finmath.fouriermethod.products.AbstractFourierTransformProduct" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/fouriermethod/products/AbstractFourierTransformProduct.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="962" y="1271"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="11" language="java" name="net.finmath.marketdata.products.AnalyticProduct" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/marketdata/products/AnalyticProduct.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="-172" y="1217"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <class id="12" language="java" name="net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="824" y="1660"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" 
+    name="net.finmath.montecarlo.assetderivativevaluation.products.AbstractAssetMonteCarloProduct" project="finmath lib" 
+    
+    file="/finmath lib/src/main/java/net/finmath/montecarlo/assetderivativevaluation/products/AbstractAssetMonteCarloProduct.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="113" y="1624"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </class>  
+  <interface id="14" language="java" name="net.finmath.modelling.DescribedProduct" project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/modelling/DescribedProduct.java" binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="953" y="957"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="15" language="java" name="net.finmath.finitedifference.models.FiniteDifference1DModel" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/finitedifference/models/FiniteDifference1DModel.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1360" y="344"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <interface id="16" language="java" name="net.finmath.finitedifference.products.FiniteDifference1DProduct" 
+    project="finmath lib" 
+    file="/finmath lib/src/main/java/net/finmath/finitedifference/products/FiniteDifference1DProduct.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="1410" y="1226"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="false" private="false" static="false"/>      
+      <operations public="true" package="true" protected="false" private="false" static="false"/>    
+    </display>  
+  </interface>  
+  <generalization id="17">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="18">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="19">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="20">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="21">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="22">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="23">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="24">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="25">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <generalization id="26">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="4"/>  
+  </generalization>  
+  <generalization id="27">    
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="28">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="2"/>  
+  </generalization>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="false" private="false" static="false"/>    
+    <operations public="true" package="true" protected="false" private="false" static="false"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>
