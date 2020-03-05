@@ -12,6 +12,7 @@ About finmath lib
 [![Latest release](https://img.shields.io/github/release/finmath/finmath-lib.svg)](https://github.com/finmath/finmath-lib/releases/latest)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.finmath/finmath-lib)
 [![Build Status](https://travis-ci.org/finmath/finmath-lib.svg?branch=master)](https://travis-ci.org/finmath/finmath-lib)
+[![javadoc](https://javadoc.io/badge2/net.finmath/finmath-lib/javadoc.svg)](https://javadoc.io/doc/net.finmath/finmath-lib)
 
 **Project home page: http://finmath.net/finmath-lib**
 
