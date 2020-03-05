@@ -44,6 +44,7 @@ import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.optimizer.SolverException;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -403,7 +404,8 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	/**
 	 * A test for the LIBOR Market Model vega calculated by AAD.
 	 * The test calculates all model vegas using AAD, but only one model vega using finite difference to benchmark that one.
-	 * @throws CalculationException
+	 * 
+	 * @throws CalculationException Thrown if valuation inside calibration fails.
 	 */
 	@Test
 	public void testVega() throws CalculationException {

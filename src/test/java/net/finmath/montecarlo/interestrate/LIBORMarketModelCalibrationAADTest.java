@@ -192,8 +192,8 @@ public class LIBORMarketModelCalibrationAADTest {
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
 	 *
-	 * @throws CalculationException
-	 * @throws SolverException
+	 * @throws CalculationException Thrown if valuation inside calibration fails.
+	 * @throws SolverException Thrown by calibration solver.
 	 */
 	@Test
 	public void testATMSwaptionCalibration() throws CalculationException, SolverException {

@@ -62,9 +62,9 @@ public class FPMLParserTest {
 	 * This main method will prompt the user for a test file an run the test with the given file.
 	 *
 	 * @param args Arguments - not used.
-	 * @throws ParserConfigurationException
-	 * @throws IOException
-	 * @throws SAXException
+	 * @throws ParserConfigurationException Thrown by the parser.
+	 * @throws IOException Thrown, e.g., if the file could not be opened.
+	 * @throws SAXException Thrown by the XML parser.
 	 */
 	public static void main(final String[] args) throws SAXException, IOException, ParserConfigurationException
 	{
