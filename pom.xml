@@ -283,7 +283,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.1</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
@@ -351,7 +351,7 @@
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.2.0</version>
+				<version>4.4.1</version>
 				<configuration>
 				</configuration>
 				<executions>
