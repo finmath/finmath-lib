@@ -314,10 +314,20 @@ public class DataTableBasic implements DataTable, Cloneable {
 		private LocalDate dateFromOffset(final LocalDate startDate, final int offset) {
 			LocalDate date = null;
 			switch(convention) {
-			case YEARS: date = startDate.plusYears(offset); break;
-			case MONTHS: date = startDate.plusMonths(offset); break;
-			case DAYS: date = startDate.plusDays(offset); break;
-			case WEEKS: date = startDate.plusWeeks(offset); break;
+			case YEARS:
+				date = startDate.plusYears(offset);
+				break;
+			case MONTHS:
+				date = startDate.plusMonths(offset);
+				break;
+			case DAYS:
+				date = startDate.plusDays(offset);
+				break;
+			case WEEKS:
+				date = startDate.plusWeeks(offset);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown convention " + convention + ".");
 			}
 			return date;
 		}

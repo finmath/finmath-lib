@@ -571,7 +571,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>3.1.1</version>
 						<configuration>
 							<configLocation>finmath-checkstyle-java-6.xml</configLocation>
 						</configuration>
@@ -690,7 +690,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.1</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>

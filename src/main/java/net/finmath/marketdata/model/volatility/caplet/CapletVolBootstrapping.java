@@ -61,6 +61,8 @@ public class CapletVolBootstrapping {
 		case USD:
 			currency = "USD";
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown currency " + capVolMarketData.getCapTenorStructure() + ".");
 		}
 		forwardCurve = parsedModel.getForwardCurve("Forward_" + currency + "_" + capVolMarketData.getIndex());
 		discountCurve = parsedModel.getDiscountCurve(currency + "_" + capVolMarketData.getDiscountIndex());
@@ -106,6 +108,8 @@ public class CapletVolBootstrapping {
 		case 12:
 			frequency = Frequency.ANNUAL;
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown tenor " + capVolMarketData.getUnderlyingTenorInMonths() + ".");
 		}
 
 		//Conversion if underlying tenors are different; not tested yet
@@ -289,6 +293,8 @@ public class CapletVolBootstrapping {
 		case 12:
 			frequency = Frequency.ANNUAL;
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown tenor " + capVolMarketData.getUnderlyingTenorInMonths() + ".");
 		}
 		//loop over the number of strikes of the market cap volatilities
 		for (int j = 0; j < capVolMarketData.getNumberOfStrikes(); j++) {

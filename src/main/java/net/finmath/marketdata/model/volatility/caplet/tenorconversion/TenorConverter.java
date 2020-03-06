@@ -68,10 +68,11 @@ public class TenorConverter {
 		case EUR:
 			currency = "EUR";
 			break;
-
 		case USD:
 			currency = "USD";
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown currency " + capTenorStructure + ".");
 		}
 
 		this.analyticModel = analyticModel2;

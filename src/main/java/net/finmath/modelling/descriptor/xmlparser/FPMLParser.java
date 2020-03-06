@@ -86,8 +86,10 @@ public class FPMLParser implements XMLParser {
 
 
 		switch (tradeName) {
-		case "SWAP" : return getSwapProductDescriptor(trade);
-		default: throw new IllegalArgumentException("This FpML parser is not set up to process trades of type "+tradeName+".");
+		case "SWAP" :
+			return getSwapProductDescriptor(trade);
+		default:
+			throw new IllegalArgumentException("This FpML parser is not set up to process trades of type "+tradeName+".");
 		}
 
 	}
@@ -156,14 +158,20 @@ public class FPMLParser implements XMLParser {
 		Frequency frequency = null;
 		final Element calcNode = (Element) leg.getElementsByTagName("calculationPeriodFrequency").item(0);
 		final int multiplier = Integer.parseInt(calcNode.getElementsByTagName("periodMultiplier").item(0).getTextContent());
+
 		switch(calcNode.getElementsByTagName("period").item(0).getTextContent().toUpperCase()) {
 		case "D" : if(multiplier == 1) {frequency = Frequency.DAILY;} break;
 		case "Y" : if(multiplier == 1) {frequency = Frequency.ANNUAL;} break;
-		case "M" : switch(multiplier) {
-		case 1 : frequency = Frequency.MONTHLY;
-		case 3 : frequency = Frequency.QUARTERLY;
-		case 6 : frequency = Frequency.SEMIANNUAL;
-		}
+		case "M" :
+			switch(multiplier) {
+			case 1 : frequency = Frequency.MONTHLY;
+			case 3 : frequency = Frequency.QUARTERLY;
+			case 6 : frequency = Frequency.SEMIANNUAL;
+			default:
+				throw new IllegalArgumentException("Unknown period "+calcNode.getElementsByTagName("period").item(0).getTextContent()+".");
+			}
+		default:
+			throw new IllegalArgumentException("Unknown period "+calcNode.getElementsByTagName("period").item(0).getTextContent()+".");
 		}
 
 		//build schedule

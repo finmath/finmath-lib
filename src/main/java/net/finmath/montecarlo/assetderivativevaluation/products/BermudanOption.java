@@ -187,6 +187,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 				underlying	= valueOfPaymentsIfExercised.sub(martingale);
 				trigger		= value.sub(underlying);
 				break;
+			default:
+				throw new IllegalArgumentException("Unknown exerciseMethod " + exerciseMethod + ".");
 			}
 
 			// If trigger is positive keep value, otherwise take underlying

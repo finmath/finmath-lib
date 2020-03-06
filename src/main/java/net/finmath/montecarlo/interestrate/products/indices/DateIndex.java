@@ -75,6 +75,8 @@ public class DateIndex extends AbstractIndex {
 		case NUMBER_OF_DAYS_IN_MONTH:
 			value = referenceDate.lengthOfMonth();
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown dateIndexType " + dateIndexType + ".");
 		}
 
 		return model.getRandomVariableForConstant(value);

@@ -65,6 +65,7 @@ import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
+import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardtLRO;
 import net.finmath.optimizer.SolverException;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
@@ -84,7 +85,7 @@ public class LIBORMarketModelCalibrationTest {
 	private static DecimalFormat formatterParam		= new DecimalFormat(" #0.000;-#0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	private RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
+	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurve forwardCurve, DiscountCurve discountCurve) throws CalculationException {
 
@@ -258,11 +259,17 @@ public class LIBORMarketModelCalibrationTest {
 		final int maxIterations = 100;
 		final int numberOfThreads = 4;		// two concurrent models
 		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		//		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardtLRO(maxIterations, accuracy, numberOfThreads);
 		calibrationParameters.put("optimizerFactory", optimizerFactory);
 
 		// Pass the calibrationParameters to the model.
 		properties.put("calibrationParameters", calibrationParameters);
 
+		final long millisCalibrationStart = System.currentTimeMillis();
+
+		/*
+		 * Create corresponding LIBOR Market Model
+		 */
 		final LIBORMarketModel liborMarketModelCalibrated = LIBORMarketModelFromCovarianceModel.of(
 				liborPeriodDiscretization,
 				null,
@@ -271,6 +278,8 @@ public class LIBORMarketModelCalibrationTest {
 				randomVariableFactory,
 				covarianceModelStochasticParametric,
 				calibrationProducts.toArray(new CalibrationProduct[0]), properties);
+
+		final long millisCalibrationEnd = System.currentTimeMillis();
 
 
 		/*
@@ -304,6 +313,9 @@ public class LIBORMarketModelCalibrationTest {
 				//
 			}
 		}
+
+		System.out.println("Time required for calibration of volatilities...: " + (millisCalibrationEnd-millisCalibrationStart)/1000.0 + " s.");
+
 		final double averageDeviation = deviationSum/calibrationProducts.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
 		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationProducts.size())));
@@ -478,10 +490,11 @@ public class LIBORMarketModelCalibrationTest {
 		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.NORMAL.name());
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
-		final Double accuracy = new Double(1E-6);	// Lower accuracy to reduce runtime of the unit test
-		final int maxIterations = 100;
-		final int numberOfThreads = 4;
-		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		final Double accuracy = new Double(1E-8);	// Lower accuracy to reduce runtime of the unit test
+		final int maxIterations = 200;
+		final int numberOfThreads = 1;
+		//		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
+		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardtLRO(maxIterations, accuracy, numberOfThreads);
 
 		final double[] parameterStandardDeviation = new double[covarianceModelParametric.getParameterAsDouble().length];
 		final double[] parameterLowerBound = new double[covarianceModelParametric.getParameterAsDouble().length];
@@ -590,8 +603,8 @@ public class LIBORMarketModelCalibrationTest {
 		}
 
 
-		System.out.println("Calibration of curves........." + (millisCurvesEnd-millisCurvesStart)/1000.0);
-		System.out.println("Calibration of volatilities..." + (millisCalibrationEnd-millisCalibrationStart)/1000.0);
+		System.out.println("Time required for calibration of curves.........: " + (millisCurvesEnd-millisCurvesStart)/1000.0 + " s.");
+		System.out.println("Time required for calibration of volatilities...: " + (millisCalibrationEnd-millisCalibrationStart)/1000.0 + " s.");
 
 		final double averageDeviation = deviationSum/calibrationProducts.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
