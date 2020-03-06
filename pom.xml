@@ -723,7 +723,7 @@
 	</scm>
 
 	<ciManagement>
-		<system>jenkins</system>
-		<url>http://ci.finmath.net</url>
+		<system>travis-ci</system>
+		<url>https://travis-ci.org/finmath/finmath-lib</url>
 	</ciManagement>
 </project>
