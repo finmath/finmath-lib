@@ -63,5 +63,4 @@ public interface RandomVariableDifferentiableFactory extends RandomVariableFacto
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable createRandomVariableNonDifferentiable(double time, double[] values);
-
 }

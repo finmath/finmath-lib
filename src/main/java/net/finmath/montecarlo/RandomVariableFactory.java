@@ -57,5 +57,4 @@ public interface RandomVariableFactory {
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable[][] createRandomVariableMatrix(double[][] values);
-
 }
