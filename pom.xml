@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- For publishing to sonatype / central maven repo -->
@@ -633,6 +635,24 @@
 					<additionalOptions>
 						<additionalOption>--allow-script-in-comments</additionalOption>
 					</additionalOptions>
+					<groups>
+						<group>
+							<title>Market Data (Curves and Volatilities)</title>
+							<packages>net.finmath.marketdata*</packages>
+						</group>
+						<group>
+							<title>Algorithmic Differentiation</title>
+							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+						</group>
+						<group>
+							<title>Monte-Carlo Methods</title>
+							<packages>net.finmath.montecarlo*</packages>
+						</group>
+						<group>
+							<title>Fourier Methods</title>
+							<packages>net.finmath.fouriermethod*</packages>
+						</group>
+					</groups>
 				</configuration>
 			</plugin>
 			<plugin>
