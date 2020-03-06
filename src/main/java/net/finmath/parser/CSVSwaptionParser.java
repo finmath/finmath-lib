@@ -158,7 +158,7 @@ public class CSVSwaptionParser {
 				throw new IllegalArgumentException("Files in zip archive not aligned for reference date.");
 			}
 
-			// TODO: Add logging in case stream fails.
+			// TODO Add logging in case stream fails.
 			try(InputStream atmStream = atmZip.getInputStream(atmEntry)) {
 				try(InputStream otmStream = otmZip.getInputStream(otmEntry)) {
 					lattices.add(parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName));

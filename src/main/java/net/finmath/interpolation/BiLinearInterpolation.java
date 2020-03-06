@@ -26,9 +26,9 @@ import java.util.function.BiFunction;
  */
 public class BiLinearInterpolation implements BiFunction<Double, Double, Double> {
 
-	private final double x[];
-	private final double y[];
-	private final double z[][];
+	private final double[] x;
+	private final double[] y;
+	private final double[][] z;
 
 	public BiLinearInterpolation(final double[] x, final double[] y, final double[][] z) {
 		super();

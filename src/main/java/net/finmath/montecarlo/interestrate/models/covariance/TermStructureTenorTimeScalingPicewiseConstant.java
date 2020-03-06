@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretization;
 public class TermStructureTenorTimeScalingPicewiseConstant implements TermStructureTenorTimeScalingInterface {
 
 	private final TimeDiscretization timeDiscretization;
-	private final double timesIntegrated[];
+	private final double[] timesIntegrated;
 
 	private final double floor = 0.1-1.0, cap = 10.0-1.0;
 	private final double parameterScaling = 100.0;

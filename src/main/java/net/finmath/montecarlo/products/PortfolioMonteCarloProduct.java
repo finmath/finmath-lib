@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariable;
 public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
 	private final MonteCarloProduct[] products;
-	private final double weights[];
+	private final double[] weights;
 	private final Optional<Integer> numberOfThreads;
 
 	/**

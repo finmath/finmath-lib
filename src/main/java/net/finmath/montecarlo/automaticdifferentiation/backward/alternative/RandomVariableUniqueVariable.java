@@ -721,7 +721,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 		omega_hat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);
 
 		/*
-		 * TODO: Find way that calculations form here on are not 'recorded' by the factory
+		 * TODO Find way that calculations form here on are not 'recorded' by the factory
 		 * IDEA: Let the calculation below run on {@link RandomVariableFromDoubleArray}, ie cast everything down!
 		 * */
 
@@ -729,7 +729,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 			// apply chain rule
 			omega_hat[functionIndex] = new RandomVariableFromDoubleArray(0.0);
 
-			/*TODO: save all D_{i,j}*\omega_j in vector and sum up later */
+			/*TODO save all D_{i,j}*\omega_j in vector and sum up later */
 			for(final RandomVariableUniqueVariable parent:parentsVariables){
 
 				final int variableIndex = parent.getVariableID();
@@ -743,7 +743,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 		 * IDEA: quit calculation after minimal true variable index is reached */
 		final RandomVariable[] gradient = new RandomVariable[numberOfVariables];
 
-		/* TODO: sort array in correct manner! */
+		/* TODO sort array in correct manner! */
 		final int[] indicesOfVariables = getIDsOfVariablesInList();
 
 		for(int i = 0; i < numberOfVariables; i++){

@@ -82,7 +82,7 @@ public class CalibratedModel {
 				final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
 				final int numberOfMaturities = surface.getMaturities().length;
-				final double mats[] = surface.getMaturities();
+				final double[] mats = surface.getMaturities();
 
 				final QuotingConvention targetConvention = surface.getQuotingConvention();
 
@@ -157,7 +157,7 @@ public class CalibratedModel {
 	private double[] formatTargetValuesForOptimizer() {
 		//Put all values in an array for the optimizer.
 		final int numberOfMaturities = surface.getMaturities().length;
-		final double mats[] = surface.getMaturities();
+		final double[] mats = surface.getMaturities();
 
 		final ArrayList<Double> vals = new ArrayList<>();
 
@@ -190,7 +190,7 @@ public class CalibratedModel {
 		final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();
 
 		final int numberOfMaturities = surface.getMaturities().length;
-		final double mats[] = surface.getMaturities();
+		final double[] mats = surface.getMaturities();
 
 		final QuotingConvention targetConvention = surface.getQuotingConvention();
 

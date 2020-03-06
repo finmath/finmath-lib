@@ -68,7 +68,7 @@ public class RandomVariableAAD implements RandomVariable {
 	public static RandomVariableAAD constructNewAADRandomVariable(final RandomVariable randomVariable, final int[] parentIndices,
 			final OperatorType parentOperator, final ArrayList<Integer> childrenIndices, final boolean isConstant){
 
-		/* TODO: how to handle cases with different realization lengths? */
+		/* TODO how to handle cases with different realization lengths? */
 		if(!arrayListOfAllAADRandomVariables.isEmpty()){
 			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()) {
 				throw new IllegalArgumentException("RandomVariables with different sizes are not supported at the moment!");

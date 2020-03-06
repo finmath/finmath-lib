@@ -107,7 +107,7 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Fetch curve
-		final RandomVariable forwardRates[] = new RandomVariable[periodLengths.length];
+		final RandomVariable[] forwardRates = new RandomVariable[periodLengths.length];
 		double periodStart = evaluationTime+fixingOffset;
 		for(int periodIndex = 0; periodIndex < periodLengths.length; periodIndex++) {
 			forwardRates[periodIndex] = model.getLIBOR(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);

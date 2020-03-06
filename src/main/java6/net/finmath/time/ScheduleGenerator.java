@@ -287,11 +287,11 @@ public class ScheduleGenerator {
 
 				// Roll fixing date
 				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
-				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
+				// TODO There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
 
 				// Roll payment date
 				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
-				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
+				// TODO There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
 
 				// Create period
 				periods.add(new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));
@@ -342,11 +342,11 @@ public class ScheduleGenerator {
 
 				// Roll fixing date
 				LocalDate fixingDate = businessdayCalendar.getRolledDate(periodStartDate, fixingOffsetDays);
-				// TODO: There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
+				// TODO There might be an additional calendar adjustment of the fixingDate, if the index has its own businessdayCalendar.
 
 				// Roll payment date
 				LocalDate paymentDate = businessdayCalendar.getRolledDate(periodEndDate, paymentOffsetDays);
-				// TODO: There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
+				// TODO There might be an additional calendar adjustment of the paymentDate, if the index has its own businessdayCalendar.
 
 				// Create period
 				periods.add(0, new Period(fixingDate, paymentDate, periodStartDate, periodEndDate));

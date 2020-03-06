@@ -54,7 +54,7 @@ public interface RandomVariableArray extends RandomVariable {
 			return doubleArray;
 		}
 		else {
-			// TODO: The following code requires a consistent level on all elements
+			// TODO The following code requires a consistent level on all elements
 			final Object[] doubleArray = new Object[getNumberOfElements()];
 			for(int i=0; i<getNumberOfElements(); i++) {
 				doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();
