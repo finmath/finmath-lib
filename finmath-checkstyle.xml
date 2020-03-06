@@ -45,9 +45,7 @@
 		<property name="message" value="Line has trailing spaces." />
 	</module>
 
-	<module name="LineLength">
-		<property name="max" value="400" />
-	</module>
+	<!-- <module name="LineLength"> <property name="max" value="400" /> </module> -->
 
 	<!-- Checks for Headers -->
 	<!-- See http://checkstyle.sf.net/config_header.html -->
@@ -143,27 +141,20 @@
 		<!-- <module name="AvoidInlineConditionals" /> -->
 		<module name="EmptyStatement" />
 		<module name="EqualsHashCode" />
-		<!--
-		<module name="HiddenField">
-			<property name="ignoreConstructorParameter" value="true" />
-			<property name="ignoreSetter" value="true" />
-			<property name="setterCanReturnItsClass" value="true" />
-		</module>
- 		-->
- 		<module name="IllegalInstantiation" />
+		<!-- <module name="HiddenField"> <property name="ignoreConstructorParameter" 
+			value="true" /> <property name="ignoreSetter" value="true" /> <property name="setterCanReturnItsClass" 
+			value="true" /> </module> -->
+		<module name="IllegalInstantiation" />
 		<module name="InnerAssignment" />
 		<!-- <module name="MagicNumber" /> -->
 		<module name="MissingSwitchDefault" />
-		<!--
-		<module name="SimplifyBooleanExpression" />
-		 -->
+		<!-- <module name="SimplifyBooleanExpression" /> -->
 		<module name="SimplifyBooleanReturn" />
 
 		<!-- Checks for class design -->
 		<!-- See http://checkstyle.sf.net/config_design.html -->
-		<!--
-		<module name="DesignForExtension" /> <module name="FinalClass" /> 
-		<module name="HideUtilityClassConstructor" /> <module name="InterfaceIsType" 
+		<!-- <module name="DesignForExtension" /> <module name="FinalClass" /> 
+			<module name="HideUtilityClassConstructor" /> <module name="InterfaceIsType" 
 			/> -->
 
 		<module name="VisibilityModifier">
@@ -172,8 +163,14 @@
 
 		<!-- Miscellaneous other checks. -->
 		<!-- See http://checkstyle.sf.net/config_misc.html -->
-		<!-- <module name="ArrayTypeStyle" /> <module name="FinalParameters" /> 
-			<module name="TodoComment" /> <module name="UpperEll" /> -->
+		<module name="ArrayTypeStyle" />
+		<!--
+		<module name="FinalParameters">
+			<property name="ignorePrimitiveTypes" value="true" />
+		</module>
+		 -->
+		<module name="TodoComment" />
+		<module name="UpperEll" />
 
 		<module name="RegexpSinglelineJava">
 			<property name="format" value="^\t*(?! \*) " />
