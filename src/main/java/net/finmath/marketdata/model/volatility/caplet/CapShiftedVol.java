@@ -65,6 +65,7 @@ public class CapShiftedVol extends Cap {
 	 * @param model The model.
 	 * @return Value of this product under the given model.
 	 */
+	@Override
 	public double getValueAsPrice(final double evaluationTime, final AnalyticModel model) {
 		final ForwardCurve	forwardCurve	= model.getForwardCurve(super.getForwardCurveName());
 		final DiscountCurve	discountCurve	= model.getDiscountCurve(super.getDiscountCurveName());

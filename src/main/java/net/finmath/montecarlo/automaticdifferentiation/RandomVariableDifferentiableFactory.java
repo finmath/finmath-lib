@@ -23,6 +23,7 @@ public interface RandomVariableDifferentiableFactory extends RandomVariableFacto
 	 * @param value A constant value.
 	 * @return The <code>RandomVariableDifferentiable</code>.
 	 */
+	@Override
 	RandomVariableDifferentiable createRandomVariable(double value);
 
 	/**
@@ -32,6 +33,7 @@ public interface RandomVariableDifferentiableFactory extends RandomVariableFacto
 	 * @param value A constant value.
 	 * @return The <code>RandomVariableDifferentiable</code>.
 	 */
+	@Override
 	RandomVariableDifferentiable createRandomVariable(double time, double value);
 
 	/**
@@ -41,6 +43,7 @@ public interface RandomVariableDifferentiableFactory extends RandomVariableFacto
 	 * @param values Array representing values of the random variable at the sample paths.
 	 * @return The <code>RandomVariableDifferentiable</code>.
 	 */
+	@Override
 	RandomVariableDifferentiable createRandomVariable(double time, double[] values);
 
 	/**

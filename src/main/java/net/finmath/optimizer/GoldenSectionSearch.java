@@ -227,7 +227,7 @@ public class GoldenSectionSearch {
 	/**
 	 * Get the golden section of an interval as gs * left + (1-gs) * right, where
 	 * gs is GOLDEN_SECTION_RATIO.
-	 * 
+	 *
 	 * @param left Left point of the interval.
 	 * @param right Right point of the interval.
 	 * @return Returns the golden section of an interval.

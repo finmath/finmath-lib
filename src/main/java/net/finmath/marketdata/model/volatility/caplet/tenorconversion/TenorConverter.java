@@ -58,7 +58,7 @@ public class TenorConverter {
 		this.strikeVector = strikeVector;
 		this.capletVolatilities = capletVolatilities;
 		this.correlationProvider = correlationProvider;
-		;
+
 		this.indexForDiscount = indexForDiscount;
 		this.indexOldTenor = indexOldTenor;
 		this.indexNewTenor = indexNewTenor;

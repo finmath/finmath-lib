@@ -89,6 +89,7 @@ public class MonteCarloConditionalExpectationRegressionLocalizedOnDependents ext
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.
 	 */
+	@Override
 	public double[] getLinearRegressionParameters(RandomVariable dependents) {
 
 		final RandomVariable localizerWeights = dependents.squared().sub(Math.pow(dependents.getStandardDeviation()*standardDeviations,2.0)).choose(new Scalar(0.0), new Scalar(1.0));
