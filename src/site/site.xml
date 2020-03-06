@@ -30,7 +30,7 @@
 		<menu name="finmath lib">
 			<item name="Introduction" href="index.html" />
 			<item name="API Documentation" href="apidocs" />
-			<item name="Download" href="http://www.finmath.net/releases/?C=M;O=D" />
+			<item name="Download" href="http://www.finmath.net/finmath-lib/releases" />
 			<item name="Getting Started" href="gettingstarted.html" />
 			<item name="Building from Source" href="building.html" collapse="true">
 				<item name="Maven Build" href="maven.html" />
@@ -49,6 +49,7 @@
 		</menu>
 		
 		<menu name="Usages">
+			<item name="Experiments" href="/finmath-experiments" />
 			<item name="Spreadsheets" href="http://finmath.net/spreadsheets/" />
 			<item name="Special Topics" href="http://finmath.net/topics/" />
 			<item name="Applets" href="http://christian-fries.de/finmath/applets/" />
