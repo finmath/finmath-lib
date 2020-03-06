@@ -50,8 +50,8 @@
 		
 		<menu name="Usages">
 			<item name="Experiments" href="/finmath-experiments" />
-			<item name="Spreadsheets" href="http://finmath.net/finmath-spreadsheets/" />
-			<item name="Special Topics" href="http://finmath.net/topics/" />
+			<item name="Spreadsheets" href="/finmath-spreadsheets/" />
+			<item name="Special Topics" href="/finmath-spreadsheets/topics/" />
 			<item name="Applets" href="http://christian-fries.de/finmath/applets/" />
 		</menu>
 
