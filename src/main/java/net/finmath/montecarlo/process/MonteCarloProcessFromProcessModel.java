@@ -29,6 +29,18 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 * Create a discretization scheme / a time discrete process.
 	 *
 	 * @param timeDiscretization The time discretization used for the discretization scheme.
+	 * @param model Set the model used to generate the stochastic process. The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
+	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization, final ProcessModel model) {
+		super();
+		this.timeDiscretization	= timeDiscretization;
+		this.model = model;
+	}
+
+	/**
+	 * Create a discretization scheme / a time discrete process.
+	 *
+	 * @param timeDiscretization The time discretization used for the discretization scheme.
 	 */
 	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization) {
 		super();
@@ -41,9 +53,13 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 * Delegation to model
 	 */
 
+	/**
+	 * Set the model used to generate the stochastic process.
+	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
 	@Override
 	public void setModel(final ProcessModel model) {
-		if(this.model != null) {
+		if(this.model != null && this.model != model) {
 			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
 		}
 
