@@ -30,7 +30,11 @@
 		<src.main.kotlin.dir>src/main/kotlin</src.main.kotlin.dir>
 		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
 		<kotlin.version>1.2.0</kotlin.version>
+		<!-- maven plugins -->
 		<junit.version>4.12</junit.version>
+		<javadoc.version>3.1.1</javadoc.version>
+		<checkstyle.version>3.1.1</checkstyle.version>
+		<clover.version>4.4.1</clover.version>
 	</properties>
 
 	<licenses>
@@ -223,7 +227,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>${javadoc.version}</version>
 				<configuration>
 					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
@@ -285,7 +289,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>${checkstyle.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
@@ -393,7 +397,7 @@
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.4.1</version>
+				<version>${clover.version}</version>
 				<configuration>
 				</configuration>
 				<executions>
@@ -611,7 +615,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>3.1.1</version>
+						<version>${checkstyle.version}</version>
 						<configuration>
 							<configLocation>finmath-checkstyle-java-6.xml</configLocation>
 						</configuration>
@@ -638,7 +642,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>${javadoc.version}</version>
 				<configuration>
 					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
@@ -723,14 +727,14 @@
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.2.0</version>
+				<version>${clover.version}</version>
 				<configuration>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>${checkstyle.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
