@@ -49,6 +49,12 @@
 			<url>http://www.christian-fries.de</url>
 			<timezone>1</timezone>
 		</developer>
+		<developer>
+			<name>Alessandro Gnoatto</name>
+			<email>alessandro@alessandrognoatto.com</email>
+			<url>http://www.alessandrognoatto.com</url>
+			<timezone>1</timezone>
+		</developer>
 	</developers>
 
 	<contributors>
@@ -78,12 +84,6 @@
 		<contributor>
 			<name>Ruben Dias Duarte</name>
 			<email>ruben.diasduarte@gmail.com</email>
-			<timezone>1</timezone>
-		</contributor>
-		<contributor>
-			<name>Alessandro Gnoatto</name>
-			<email>alessandro@alessandrognoatto.com</email>
-			<url>www.alessandrognoatto.com</url>
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
