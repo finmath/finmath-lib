@@ -271,6 +271,35 @@
 					<additionalOptions>
 						<additionalOption>--allow-script-in-comments</additionalOption>
 					</additionalOptions>
+					<groups>
+						<group>
+							<title>Market Data (Curves and Volatilities)</title>
+							<packages>net.finmath.marketdata</packages>
+							<packages>net.finmath.marketdata.*</packages>
+						</group>
+						<group>
+							<title>Analytic Functions</title>
+							<packages>net.finmath.functions</packages>
+							<packages>net.finmath.functions.*</packages>
+						</group>
+						<group>
+							<title>Algorithmic Differentiation</title>
+							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+						</group>
+						<group>
+							<title>Monte-Carlo Methods</title>
+							<packages>net.finmath.montecarlo*</packages>
+						</group>
+						<group>
+							<title>Fourier Methods</title>
+							<packages>net.finmath.fouriermethod*</packages>
+						</group>
+						<group>
+							<title>Finite Difference Methods (PDEs)</title>
+							<packages>net.finmath..finitedifference</packages>
+							<packages>net.finmath..finitedifference.*</packages>
+						</group>
+					</groups>
 				</configuration>
 				<executions>
 					<execution>
@@ -688,7 +717,13 @@
 					<groups>
 						<group>
 							<title>Market Data (Curves and Volatilities)</title>
-							<packages>net.finmath.marketdata*</packages>
+							<packages>net.finmath.marketdata</packages>
+							<packages>net.finmath.marketdata.*</packages>
+						</group>
+						<group>
+							<title>Analytic Functions</title>
+							<packages>net.finmath.functions</packages>
+							<packages>net.finmath.functions.*</packages>
 						</group>
 						<group>
 							<title>Algorithmic Differentiation</title>
@@ -701,6 +736,11 @@
 						<group>
 							<title>Fourier Methods</title>
 							<packages>net.finmath.fouriermethod*</packages>
+						</group>
+						<group>
+							<title>Finite Difference Methods (PDEs)</title>
+							<packages>net.finmath..finitedifference</packages>
+							<packages>net.finmath..finitedifference.*</packages>
 						</group>
 					</groups>
 				</configuration>
