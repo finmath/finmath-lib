@@ -52,14 +52,10 @@ net.finmath.montecarlo.hybridassetinterestrate
 net.finmath.montecarlo.hybridassetinterestrate.products
 net.finmath.montecarlo.interestrate
 net.finmath.montecarlo.interestrate.models
-net.finmath.montecarlo.interestrate.models.barriers
 net.finmath.montecarlo.interestrate.models.covariance
-net.finmath.montecarlo.interestrate.models.factordrift
-net.finmath.montecarlo.interestrate.models.factordrift.localizer
 net.finmath.montecarlo.interestrate.products
 net.finmath.montecarlo.interestrate.products.components
 net.finmath.montecarlo.interestrate.products.indices
-net.finmath.montecarlo.interestrate.simple
 net.finmath.montecarlo.model
 net.finmath.montecarlo.process
 net.finmath.montecarlo.process.component.barrier

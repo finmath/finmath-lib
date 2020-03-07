@@ -12,7 +12,6 @@ net.finmath.marketdata.model.bond
 net.finmath.marketdata.model.curves
 net.finmath.marketdata.model.curves.locallinearregression
 net.finmath.marketdata.model.volatilities
-net.finmath.marketdata.model.volatility.caplet.bootstrapping
 net.finmath.marketdata.products
 net.finmath.modelling
 net.finmath.modelling.descriptor
