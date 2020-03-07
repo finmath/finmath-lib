@@ -313,10 +313,15 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- Publish the site to GitHub gh-pages: use mvn site site:deploy site-deploy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
 				<version>3.8.2</version>
+				<configuration>
+					<skipDeploy>true</skipDeploy>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<!-- add support for ssh/scp -->
@@ -331,6 +336,41 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>stage-for-scm-publish</id>
+						<phase>post-site</phase>
+						<goals>
+							<goal>stage</goal>
+						</goals>
+						<configuration>
+							<skipDeploy>false</skipDeploy><!-- MSITE-652: configuration won't 
+								be necessary with m-site-p 3.2 -->
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-publish-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<scmBranch>gh-pages</scmBranch>
+				</configuration>
+				<executions>
+					<execution>
+						<id>scm-publish</id>
+						<phase>site-deploy</phase>
+						<goals>
+							<goal>publish-scm</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -706,13 +746,16 @@
 	</reporting>
 
 	<distributionManagement>
-
-		<!-- maven repositories inherited from parent pom -->
-
+		<site>
+			<id>github</id>
+			<url>scm:git:https://github.com/finmath/finmath-lib.git</url>
+		</site>
+		<!--
 		<site>
 			<id>finmath-site</id>
 			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
 		</site>
+		-->
 	</distributionManagement>
 
 	<scm>
