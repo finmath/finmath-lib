@@ -6,7 +6,16 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.1.1 (under development)
+## 4.1.2
+
+### General
+
+ - Moved site to GitHub pages.
+ - Improved JavaDoc.
+ - Improved Documentation.
+
+
+## 4.1.1
 
 ### General
 
