@@ -46,7 +46,12 @@
 		</license>
 	</licenses>
 
-	<developers>
+	<organization>
+		<name>finmath.net</name>
+		<url>http://finmath.net</url>
+	</organization>
+  
+  	<developers>
 		<developer>
 			<id>fries</id>
 			<name>Christian Fries</name>
