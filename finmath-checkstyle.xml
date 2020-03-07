@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 
-<!-- finmath lib checkstyle configuration. Adapted from the sun coding conventions. 
-	Currently many checks are disabled as we are slowing adding our own conventions. 
-	For updates check the finmath lib project home page. -->
+<!--
+	finmath lib checkstyle configuration.
+	Adapted from the sun coding conventions.
+	Currently many checks are disabled as we are slowing adding our own conventions.
+	For updates check the finmath lib project home page. 
+-->
 
 <module name="Checker">
 	<!-- If you set the basedir property below, then all reported file names 
