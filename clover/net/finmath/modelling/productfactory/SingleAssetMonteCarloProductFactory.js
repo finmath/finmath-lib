@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":112,"id":9550,"methods":[{"el":39,"sc":2,"sl":37},{"el":56,"sc":2,"sl":41}],"name":"SingleAssetMonteCarloProductFactory","sl":28},{"el":84,"id":9565,"methods":[{"el":78,"sc":3,"sl":75},{"el":83,"sc":3,"sl":80}],"name":"SingleAssetMonteCarloProductFactory.EuropeanOptionMonteCarlo","sl":65},{"el":111,"id":9570,"methods":[{"el":105,"sc":3,"sl":102},{"el":110,"sc":3,"sl":107}],"name":"SingleAssetMonteCarloProductFactory.DigitalOptionMonteCarlo","sl":92}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_152":{"methods":[{"sl":37},{"sl":41},{"sl":75}],"name":"test","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":45},{"sl":46},{"sl":76},{"sl":77}]},"test_281":{"methods":[{"sl":37},{"sl":41},{"sl":102}],"name":"hTest","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":48},{"sl":49},{"sl":50},{"sl":103},{"sl":104}]},"test_319":{"methods":[{"sl":37},{"sl":41},{"sl":75}],"name":"test","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":45},{"sl":46},{"sl":76},{"sl":77}]},"test_434":{"methods":[{"sl":37},{"sl":41},{"sl":102}],"name":"bsTest","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":48},{"sl":49},{"sl":50},{"sl":103},{"sl":104}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [319, 281, 152, 434], [319, 281, 152, 434], [], [], [319, 281, 152, 434], [], [], [319, 281, 152, 434], [319, 152], [319, 152], [], [281, 434], [281, 434], [281, 434], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [319, 152], [319, 152], [319, 152], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [281, 434], [281, 434], [281, 434], [], [], [], [], [], [], [], []]

@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":115,"id":9525,"methods":[{"el":39,"sc":2,"sl":37},{"el":57,"sc":2,"sl":41}],"name":"SingleAssetFourierProductFactory","sl":28},{"el":86,"id":9540,"methods":[{"el":79,"sc":3,"sl":76},{"el":84,"sc":3,"sl":81}],"name":"SingleAssetFourierProductFactory.EuropeanOptionFourierMethod","sl":66},{"el":114,"id":9545,"methods":[{"el":107,"sc":3,"sl":104},{"el":112,"sc":3,"sl":109}],"name":"SingleAssetFourierProductFactory.DigitalOptionFourierMethod","sl":94}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_152":{"methods":[{"sl":37},{"sl":41},{"sl":76}],"name":"test","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":45},{"sl":46},{"sl":77},{"sl":78}]},"test_281":{"methods":[{"sl":37},{"sl":41},{"sl":104}],"name":"hTest","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":48},{"sl":49},{"sl":50},{"sl":105},{"sl":106}]},"test_319":{"methods":[{"sl":37},{"sl":41},{"sl":76}],"name":"test","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":45},{"sl":46},{"sl":77},{"sl":78}]},"test_434":{"methods":[{"sl":37},{"sl":41},{"sl":104}],"name":"bsTest","pass":true,"statements":[{"sl":38},{"sl":44},{"sl":48},{"sl":49},{"sl":50},{"sl":105},{"sl":106}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [152, 434, 319, 281], [152, 434, 319, 281], [], [], [152, 434, 319, 281], [], [], [152, 434, 319, 281], [152, 319], [152, 319], [], [434, 281], [434, 281], [434, 281], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [152, 319], [152, 319], [152, 319], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [434, 281], [434, 281], [434, 281], [], [], [], [], [], [], [], [], []]
