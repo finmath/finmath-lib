@@ -7,6 +7,11 @@ Below you find some high level design principles. With respect to the low-level 
 ## Design Principles
 
 
+### Implementation against Interfaces
+
+The library is developed to allow users to focus on its interfaces. Code should implement against an interface (e.g., the left hand side of an assignment should be an interface).
+
+
 ### Naming, Code is Documentation
 
 Class names, member names and variable names are as descriptive as possible (feasible).
@@ -22,23 +27,33 @@ A reassignment of a reference that alters the meaning should be avoided. A tempo
 Wrong:
 
 ```
- 	var discountFactor = (1 + forwardRate * periodLength);
- 	discountFactor = 1.0/discountFactor;
+	var discountFactor = (1 + forwardRate * periodLength);
+	discountFactor = 1.0/discountFactor;
 ```
 
 Correct:
 
 ```
- 	var forwardBond = (1 + forwardRate * periodLength);
- 	var discountFactor = 1.0/forwardBond;
+	var forwardBond = (1 + forwardRate * periodLength);
+	var discountFactor = 1.0/forwardBond;
 ```
 
 
-### Implementation against Interfaces, Naming of Interfaces
-
-The library is developed to allow users to focus on its interfaces. Code should implement against an interface (e.g., the left hand side of an assignment should be an interface).
+### Naming of Interfaces
 
 Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
+
+
+### Naming of Collections
+
+Collections are names as the plural of their items. Example:
+```
+	Period period = periods.get(periodIndex);
+```
+In cases where it adds clarity the collection type can be used as a suffix instead of the plural. Example:
+```
+	RandomVariable sensitivity = sensitivityMap.get(riskFactor);
+```
 
 
 ### Thread Safety
