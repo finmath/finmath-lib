@@ -171,6 +171,25 @@
         <main id="bodyColumn"  class="span10" >
 <h1>Coding Conventions</h1><section>
 <h2><a name="Design_Principles"></a>Design Principles</h2><section>
+<h3><a name="Naming.2C_Code_is_Documentation"></a>Naming, Code is Documentation</h3>
+<p>Class names, member names and variable names are as descriptive as possible (feasable). Names are formed using camel notation from the general to the special property. Implementation details are appended. Examples: - periodStart - periodEnd - RandomVariableFromDoubleArray - DiscountCurveInterpolation</p>
+<p>A reassignment of a reference that alters the meaning should be avoided. A temporary assignment with a different meaning should be avoided. Example:</p>
+<p>Wrong:</p>
+
+<div>
+<div>
+<pre class="source"> 	var discountFactor = (1 + forwardRate * periodLength);
+ 	discountFactor = 1.0/discountFactor;
+</pre></div></div>
+
+<p>Correct:</p>
+
+<div>
+<div>
+<pre class="source"> 	var forwardBond = (1 + forwardRate * periodLength);
+ 	var discountFactor = 1.0/forwardBond;
+</pre></div></div>
+</section><section>
 <h3><a name="Implementation_against_interfaces"></a>Implementation against interfaces</h3>
 <p>The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like BrownianMotion  or RandomVariable or Curve). Implementation pick up the name of the main interface followed by a specifictation of an implementation aspect (like RandomVariableFromDoubleArray)</p></section><section>
 <h3><a name="Thread_Safety"></a>Thread Safety</h3>
