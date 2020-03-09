@@ -3,6 +3,34 @@
 
 ## Design Principles
 
+
+### Naming, Code is Documentation
+
+Class names, member names and variable names are as descriptive as possible (feasable).
+Names are formed using camel notation from the general to the special property. Implementation
+details are appended. Examples:
+  - `periodStart`
+  - `periodEnd`
+  - `RandomVariableFromDoubleArray`
+  - `DiscountCurveInterpolation`
+
+A reassignment of a reference that alters the meaning should be avoided. A temporary assignment with a different meaning should be avoided. Example:
+
+Wrong:
+
+```
+ 	var discountFactor = (1 + forwardRate * periodLength);
+ 	discountFactor = 1.0/discountFactor;
+```
+
+Correct:
+
+```
+ 	var forwardBond = (1 + forwardRate * periodLength);
+ 	var discountFactor = 1.0/forwardBond;
+```
+
+
 ### Implementation against interfaces
 
 The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specifictation of an implementation aspect (like `RandomVariableFromDoubleArray`) 
