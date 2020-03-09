@@ -47,10 +47,13 @@ Interfaces should come with names describing the core concept (like `BrownianMot
 ### Naming of Collections
 
 Collections are names as the plural of their items. Example:
+
 ```
 	Period period = periods.get(periodIndex);
 ```
+
 In cases where it adds clarity the collection type can be used as a suffix instead of the plural. Example:
+
 ```
 	RandomVariable sensitivity = sensitivityMap.get(riskFactor);
 ```
