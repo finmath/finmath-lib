@@ -6,7 +6,7 @@
 
 ### Naming, Code is Documentation
 
-Class names, member names and variable names are as descriptive as possible (feasable).
+Class names, member names and variable names are as descriptive as possible (feasible).
 Names are formed using camel notation from the general to the special property. Implementation
 details are appended. Examples:
   - `periodStart`
@@ -33,7 +33,7 @@ Correct:
 
 ### Implementation against interfaces
 
-The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specifictation of an implementation aspect (like `RandomVariableFromDoubleArray`) 
+The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`) 
 
 
 ### Thread Safety
