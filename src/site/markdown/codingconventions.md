@@ -1,6 +1,9 @@
 # Coding Conventions
 
 
+Below you find some high level design principles. With respect to the low-level code style, see the checkstyle file.
+
+
 ## Design Principles
 
 
@@ -31,9 +34,11 @@ Correct:
 ```
 
 
-### Implementation against interfaces
+### Implementation against Interfaces, Naming of Interfaces
 
-The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`) 
+The library is developed to allow users to focus on its interfaces. Code should implement against an interface (e.g., the left hand side of an assignment should be an interface).
+
+Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
 
 
 ### Thread Safety
@@ -71,9 +76,11 @@ We deviate in some places:
 
 -   We usually do not make a space after statements like `íf`, `for`. We interpret `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
 
+```
     if(condition) {
       // code
     }
+```
 
 The project is using a checkstyle profile, which currently only a very limited set 
 of style issues. See [finmath-checkstyle.xml](https://github.com/finmath/finmath-lib/blob/master/finmath-checkstyle.xml).
