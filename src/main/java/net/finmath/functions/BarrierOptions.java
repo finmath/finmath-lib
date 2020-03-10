@@ -38,6 +38,8 @@ public class BarrierOptions {
 			case DOWN_OUT:
 				eta = 1;
 				break;
+			default:
+				throw new IllegalArgumentException("Invalid barrier type.");
 		}
 
 		double volSq = volatility * volatility;
