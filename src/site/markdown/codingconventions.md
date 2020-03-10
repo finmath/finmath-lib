@@ -17,6 +17,7 @@ The library is developed to allow users to focus on its interfaces. Code should 
 Class names, member names and variable names are as descriptive as possible (feasible).
 Names are formed using camel notation from the general to the special property. Implementation
 details are appended. Examples:
+
   - `periodStart`
   - `periodEnd`
   - `RandomVariableFromDoubleArray`
@@ -41,12 +42,12 @@ Correct:
 
 ### Naming of Interfaces
 
-Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
+Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementations pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
 
 
 ### Naming of Collections
 
-Collections are names as the plural of their items. Example:
+Collections are named as the plural of their items. Example:
 
 ```
 	Period period = periods.get(periodIndex);
