@@ -213,8 +213,9 @@ ul.subNavList li{
     text-transform:uppercase;
 }
 .navBarCell1Rev {
-    background-color:#F8981D;
-    color:#253441;
+    background-color:#CFCFCF;
+    color:#101010;
+    font-weight:bold;
     margin: auto 5px;
 }
 .skipNav {
@@ -428,7 +429,7 @@ Table styles
     padding-bottom:7px;
     display:inline-block;
     float:left;
-    background-color:#F8981D;
+    background-color:#CFCFCF;
     border: none;
     height:16px;
 }
@@ -440,7 +441,8 @@ Table styles
     margin-right:3px;
     display:inline-block;
     float:left;
-    background-color:#F8981D;
+    color:#ffffff;
+    background-color:#900000;
     height:16px;
 }
 .memberSummary caption span.tableTab span {
@@ -451,7 +453,7 @@ Table styles
     margin-right:3px;
     display:inline-block;
     float:left;
-    background-color:#4D7A97;
+    background-color:#CFCFCF;
     height:16px;
 }
 .memberSummary caption span.tableTab, .memberSummary caption span.activeTableTab {
@@ -468,7 +470,7 @@ Table styles
     width:5px;
     position:relative;
     float:left;
-    background-color:#F8981D;
+    background-color:#CFCFCF;
 }
 .memberSummary .activeTableTab .tabEnd {
     display:none;
@@ -476,16 +478,15 @@ Table styles
     margin-right:3px;
     position:relative; 
     float:left;
-    background-color:#F8981D;
+    background-color:#900000;
 }
 .memberSummary .tableTab .tabEnd {
     display:none;
     width:5px;
     margin-right:3px;
     position:relative;
-    background-color:#4D7A97;
     float:left;
-
+    background-color:#CFCFCF;
 }
 .overviewSummary td, .memberSummary td, .typeSummary td,
 .useSummary td, .constantsSummary td, .deprecatedSummary td {
@@ -500,7 +501,7 @@ td.colOne, td.colFirst, td.colLast, .useSummary td, .constantsSummary td{
     padding-top:8px;
     padding-bottom:3px;
 }
-th.colFirst, th.colLast, th.colOne, .constantsSummary th {
+th.colFirst, th.colSecond, th.colLast, th.colOne, .constantsSummary th {
     background:#dee3e9;
     text-align:left;
     padding:8px 3px 3px 7px;
