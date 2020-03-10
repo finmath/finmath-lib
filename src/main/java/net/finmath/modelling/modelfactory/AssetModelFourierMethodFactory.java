@@ -3,6 +3,7 @@ package net.finmath.modelling.modelfactory;
 import net.finmath.fouriermethod.models.BlackScholesModel;
 import net.finmath.fouriermethod.models.HestonModel;
 import net.finmath.fouriermethod.models.MertonModel;
+import net.finmath.fouriermethod.models.VarianceGammaModel;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.ModelFactory;
@@ -11,6 +12,7 @@ import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
 
 /**
@@ -42,6 +44,10 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 		}
 		else if(descriptor instanceof MertonModelDescriptor) {
 			DescribedModel<MertonModelDescriptor> model = new MertonModelFourier((MertonModelDescriptor) descriptor);
+			return model;
+		}
+		else if(descriptor instanceof VarianceGammaModelDescriptor) {
+			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelFourier((VarianceGammaModelDescriptor) descriptor);
 			return model;
 		}
 		else {
@@ -168,6 +174,42 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 			return descriptor;
 		}
 
+		@Override
+		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
+				ProductDescriptor productDescriptor) {
+			return productFactory.getProductFromDescriptor(productDescriptor);
+		}
+
+	}
+
+	/**
+	 * A described Variance Gamma model using Fourier method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class VarianceGammaModelFourier extends VarianceGammaModel implements DescribedModel<VarianceGammaModelDescriptor>{
+
+		private final VarianceGammaModelDescriptor descriptor;
+		private final SingleAssetFourierProductFactory productFactory;
+
+		private VarianceGammaModelFourier(VarianceGammaModelDescriptor descriptor) {
+			super(null,
+					descriptor.getInitialValue(),
+					descriptor.getDiscountCurveForForwardRate(),
+					descriptor.getDiscountCurveForDiscountRate(),
+					descriptor.getSigma(),
+					descriptor.getTheta(),
+					descriptor.getNu());
+
+			this.descriptor = descriptor;
+			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());
+		}
+
+		@Override
+		public VarianceGammaModelDescriptor getDescriptor() {
+			return descriptor;
+		}
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
 				ProductDescriptor productDescriptor) {

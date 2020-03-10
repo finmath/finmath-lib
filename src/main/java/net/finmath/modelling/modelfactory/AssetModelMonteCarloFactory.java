@@ -8,6 +8,7 @@ import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
@@ -61,6 +62,10 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		}
 		else if(descriptor instanceof MertonModelDescriptor) {
 			DescribedModel<MertonModelDescriptor> model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
+			return model;
+		}
+		else if(descriptor instanceof VarianceGammaModelDescriptor) {
+			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else {
@@ -182,6 +187,38 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+			return productFactory.getProductFromDescriptor(productDescriptor);
+		}
+	}
+
+	/**
+	 * A described Variance Gamma model using Monte Carlo method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class VarianceGammaModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel<VarianceGammaModelDescriptor>{
+
+		private final VarianceGammaModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, AbstractRandomVariableFactory randomVariableFactory,
+				IndependentIncrements stochasticDriver) {
+			super(new net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel(descriptor),
+					new EulerSchemeFromProcessModel(stochasticDriver));
+			this.descriptor = descriptor;
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+		}
+
+		@Override
+		public VarianceGammaModelDescriptor getDescriptor() {
+			return descriptor;
+		}
+
+		@Override
+		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
+				ProductDescriptor productDescriptor) {
 			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -40,6 +41,20 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	private final double sigma;
 	private final double theta;
 	private final double nu;
+
+	/**
+	 * Create the model from a descriptor.
+	 *
+	 * @param descriptor A descriptor of the model.
+	 */
+	public VarianceGammaModel(VarianceGammaModelDescriptor descriptor) {
+		this(descriptor.getInitialValue(),
+				descriptor.getDiscountCurveForForwardRate(),
+				descriptor.getDiscountCurveForDiscountRate(),
+				descriptor.getSigma(),
+				descriptor.getTheta(),
+				descriptor.getNu());
+	}
 
 	/**
 	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
