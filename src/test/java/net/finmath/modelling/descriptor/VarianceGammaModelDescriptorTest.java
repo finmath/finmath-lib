@@ -80,17 +80,17 @@ public class VarianceGammaModelDescriptorTest {
 		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, varianceGammaModelFourier);
 
 		System.out.println(valueFourier);
-		
+
 		/*
 		 * Create Monte Carlo implementation of model and product
 		 */
 		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 		VarianceGammaProcess varianceGammaProcess = new VarianceGammaProcess(sigma, nu, theta, timeDiscretization,
 				1, numberOfPaths, seed);
-		
+
 		// Create Fourier implementation of Heston model
 		DescribedModel<?> varianceGammaModelMonteCarlo = (new AssetModelMonteCarloFactory(varianceGammaProcess)).getModelFromDescriptor(varianceGammaModelDescriptor);
-		
+
 		// Create product implementation compatible with Variance Gamma model
 		Product europeanOptionMonteCarlo = varianceGammaModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
