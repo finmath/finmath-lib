@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
@@ -46,6 +47,33 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		this.randomVariableFactory = randomVariableFactory;
 		this.stochasticDriver = stochasticDriver;
 	}
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory,
+			IndependentIncrements stochasticDriver) {
+		super();
+		this.scheme = null;
+		this.randomVariableFactory = randomVariableFactory;
+		this.stochasticDriver = stochasticDriver;
+	}
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(IndependentIncrements stochasticDriver) {
+		super();
+		this.scheme = null;
+		this.randomVariableFactory =  new RandomVariableFactory();
+		this.stochasticDriver = stochasticDriver;
+	}
+
 	@Override
 	public DescribedModel<? extends AssetModelDescriptor> getModelFromDescriptor(AssetModelDescriptor descriptor) {
 
