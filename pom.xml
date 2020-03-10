@@ -28,12 +28,17 @@
 		<src.main.kotlin.dir>src/main/kotlin</src.main.kotlin.dir>
 		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
 		<kotlin.version>1.2.0</kotlin.version>
+		<commons-math.version>3.6.1</commons-math.version>
+		<commons-lang.version>3.9</commons-lang.version>
 		<junit.version>4.12</junit.version>
 		<!-- maven plugins -->
-		<surefire.version>2.21.0</surefire.version>
-		<javadoc.version>3.1.1</javadoc.version>
-		<checkstyle.version>3.1.1</checkstyle.version>
-		<clover.version>4.4.1</clover.version>
+		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
+		<surefire-report-plugin.version>3.0.0-M4</surefire-report-plugin.version>
+		<javadoc-plugin.version>3.1.1</javadoc-plugin.version>
+		<source-plugin.version>3.2.1</source-plugin.version>
+		<site-plugin.version>3.8.2</site-plugin.version>
+		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
+		<clover-plugin.version>4.4.1</clover-plugin.version>
 	</properties>
 
 	<licenses>
@@ -109,6 +114,10 @@
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
+			<name>Lorenzo Torricelli</name>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
 			<name>Mario Viehmann</name>
 			<email>marioviehmann@gmail.com</email>
 			<timezone>1</timezone>
@@ -133,12 +142,12 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
+			<version>${commons-math.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.7</version>
+			<version>${commons-lang.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jblas</groupId>
@@ -193,7 +202,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${source-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -207,7 +216,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${javadoc.version}</version>
+				<version>${javadoc-plugin.version}</version>
 				<configuration>
 					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
@@ -238,8 +247,8 @@
 						</tag>
 					</tags>
 					<links>
-						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-release</link>
-						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.3</link>
+						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link>
 					</links>
 					<detectLinks>true</detectLinks>
 					<additionalOptions>
@@ -287,7 +296,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${surefire.version}</version>
+				<version>${surefire-plugin.version}</version>
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
@@ -298,7 +307,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
+				<version>${checkstyle-plugin.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
@@ -331,7 +340,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.8.2</version>
+				<version>${site-plugin.version}</version>
 				<configuration>
 					<skipDeploy>true</skipDeploy>
 				</configuration>
@@ -406,7 +415,7 @@
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>${clover.version}</version>
+				<version>${clover-plugin.version}</version>
 				<configuration>
 				</configuration>
 				<executions>
@@ -624,7 +633,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>${checkstyle.version}</version>
+						<version>${checkstyle-plugin.version}</version>
 						<configuration>
 							<configLocation>finmath-checkstyle-java-6.xml</configLocation>
 						</configuration>
@@ -651,7 +660,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${javadoc.version}</version>
+				<version>${javadoc-plugin.version}</version>
 				<configuration>
 					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
@@ -682,7 +691,8 @@
 						</tag>
 					</tags>
 					<links>
-						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
+						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link>
 					</links>
 					<detectLinks>true</detectLinks>
 					<additionalOptions>
@@ -742,19 +752,19 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.20.1</version>
+				<version>${surefire-report-plugin.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>${clover.version}</version>
+				<version>${clover-plugin.version}</version>
 				<configuration>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
+				<version>${checkstyle-plugin.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
