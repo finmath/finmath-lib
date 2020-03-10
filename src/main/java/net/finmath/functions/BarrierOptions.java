@@ -24,12 +24,12 @@ public class BarrierOptions {
 
 		int phi = isCall ? +1 : -1;
 		int eta = 0;
-	
+
 		switch(barrierType) {
 			case UP_IN:
 				eta = -1;
 				break;
-			case DOWN_IN:	
+			case DOWN_IN:
 				eta = 1;
 				break;
 			case UP_OUT:
@@ -48,40 +48,40 @@ public class BarrierOptions {
 
 		double muVolTime = (1 + mu) * volTime;
 
-		double x1 = Math.log(initialStockValue / optionStrike)/ volTime 
+		double x1 = Math.log(initialStockValue / optionStrike)/ volTime
 				+ muVolTime;
-		double x2 = Math.log(initialStockValue / barrierValue)/ volTime 
+		double x2 = Math.log(initialStockValue / barrierValue)/ volTime
 				+ muVolTime;
 
-		double y1 = Math.log(barrierValue * barrierValue / (initialStockValue * optionStrike)) 
+		double y1 = Math.log(barrierValue * barrierValue / (initialStockValue * optionStrike))
 				/ volTime + muVolTime;
 		double y2 = Math.log(barrierValue / initialStockValue) / volTime + muVolTime;
 
 		double A = phi  * initialStockValue * Math.exp((dividendYield-riskFreeRate) * optionMaturity)
-				* NormalDistribution.cumulativeDistribution(phi * x1) 
+				* NormalDistribution.cumulativeDistribution(phi * x1)
 				- phi * optionStrike *Math.exp(-riskFreeRate * optionMaturity)
 				* NormalDistribution.cumulativeDistribution(phi* (x1 - volTime));
 		double B = phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
 				* NormalDistribution.cumulativeDistribution(phi * x2)
-			    - phi * optionStrike * Math.exp(-riskFreeRate *optionMaturity)
-			    * NormalDistribution.cumulativeDistribution(phi * (x2 - volTime));
+				- phi * optionStrike * Math.exp(-riskFreeRate *optionMaturity)
+				* NormalDistribution.cumulativeDistribution(phi * (x2 - volTime));
 		double C = phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
 				* Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
 				* NormalDistribution.cumulativeDistribution(eta * y1)
-				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity) 
-				* Math.pow(barrierValue / initialStockValue, 2 * mu) 
+				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
+				* Math.pow(barrierValue / initialStockValue, 2 * mu)
 				* NormalDistribution.cumulativeDistribution(eta * (y1-volTime));
-		double D =  phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity) 
+		double D =  phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
 				* Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
 				* NormalDistribution.cumulativeDistribution(eta * y2)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-				* Math.pow(barrierValue / initialStockValue, 2 * mu) 
+				* Math.pow(barrierValue / initialStockValue, 2 * mu)
 				* NormalDistribution.cumulativeDistribution(eta * (y2-volTime));
-		double E = rebate * Math.exp(-riskFreeRate * optionMaturity) 
-				* (NormalDistribution.cumulativeDistribution(eta * (x2-volTime)) 
-						- Math.pow(barrierValue / initialStockValue, 2*mu) 
+		double E = rebate * Math.exp(-riskFreeRate * optionMaturity)
+				* (NormalDistribution.cumulativeDistribution(eta * (x2-volTime))
+						- Math.pow(barrierValue / initialStockValue, 2*mu)
 						* NormalDistribution.cumulativeDistribution(eta * (y2-volTime)));
-		double F = rebate *(Math.pow(barrierValue / initialStockValue, mu + lambda) 
+		double F = rebate *(Math.pow(barrierValue / initialStockValue, mu + lambda)
 				* NormalDistribution.cumulativeDistribution(eta * z)
 				+ Math.pow(barrierValue / initialStockValue, mu-lambda)
 				* NormalDistribution.cumulativeDistribution(eta * (z - 2 * lambda * volTime)));
@@ -90,10 +90,10 @@ public class BarrierOptions {
 
 		switch(barrierType) {
 			/*
-			 * In options are paid for today but first come into existence 
+			 * In options are paid for today but first come into existence
 			 * if the asset price S hits the barrier H before expiration.
 			 * It is possible to include a pres-pecified cash rebate K,
-			 * which is paid out at option expiration if the option 
+			 * which is paid out at option expiration if the option
 			 * has not been knocked in during its lifetime.
 			 */
 			case DOWN_IN: //Down in call e put ok
@@ -144,7 +144,7 @@ public class BarrierOptions {
 				break;
 			/*
 			 * Out options are similar to standard options except that
-			 * the option becomes worthless if the asset price S hits 
+			 * the option becomes worthless if the asset price S hits
 			 * the barrier before expiration.
 			 * It is possible to include a prespecified cash rebate K,
 			 * which is paid out if the option is knocked out before expiration.
@@ -182,7 +182,6 @@ public class BarrierOptions {
 					}else {
 						//(eta=-1, phi=1)
 						optionValue = A - B + C - D + F;
-						
 					}
 				}else {
 					//up and out put
