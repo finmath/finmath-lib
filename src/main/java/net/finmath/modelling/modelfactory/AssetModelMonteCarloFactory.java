@@ -65,7 +65,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 			return model;
 		}
 		else if(descriptor instanceof VarianceGammaModelDescriptor) {
-			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
+			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, stochasticDriver);
 			return model;
 		}
 		else {
@@ -203,8 +203,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		private final SingleAssetMonteCarloProductFactory productFactory;
 
-		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, AbstractRandomVariableFactory randomVariableFactory,
-				IndependentIncrements stochasticDriver) {
+		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel(descriptor),
 					new EulerSchemeFromProcessModel(stochasticDriver));
 			this.descriptor = descriptor;
