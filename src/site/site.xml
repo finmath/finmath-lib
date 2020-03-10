@@ -42,6 +42,7 @@
 			</item>
 			<item name="Releases" href="https://github.com/finmath/finmath-lib/releases" />
 			<item name="Release Notes" href="releasenotes.html" />
+			<item name="Coding Conventions" href="codingconventions.html" />
 		</menu>
 
 		<menu name="Concepts">
