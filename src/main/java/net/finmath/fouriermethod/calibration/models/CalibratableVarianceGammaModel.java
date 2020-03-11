@@ -36,7 +36,7 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	 * Basic constructor where all parameters are to be calibrated.
 	 * All parameters are unconstrained.
 	 *
-	 * @param descriptor The model descriptor for the Heston model.
+	 * @param descriptor The model descriptor for the Variance Gamma model.
 	 */
 	public CalibratableVarianceGammaModel(VarianceGammaModelDescriptor descriptor) {
 		super();
@@ -50,10 +50,10 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 
 	/**
 	 * 
-	 * @param descriptor
-	 * @param sigmaConstraint
-	 * @param thetaConstraint
-	 * @param nuConstraint
+	 * @param descriptor The model descriptor for the Variance Gamma model.
+	 * @param sigmaInfo A constraint for the parameter sigma.
+	 * @param thetaInfo A constraint for the parameter theta.
+	 * @param nuInfo A constraint for the parameter nu.
 	 */
 	public CalibratableVarianceGammaModel(VarianceGammaModelDescriptor descriptor, ScalarParameterInformation sigmaInfo,
 			ScalarParameterInformation thetaInfo, ScalarParameterInformation nuInfo) {
