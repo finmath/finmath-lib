@@ -18,13 +18,23 @@ import net.finmath.time.TimeDiscretization;
 public class MertonJumpProcess implements IndependentIncrements, Serializable {
 
 	private static final long serialVersionUID = -6984273344382051927L;
-	
+
 	private final RandomVariableFactory randomVariableFactory;
 	private final IndependentIncrements internalProcess;
 	private final double jumpIntensity;
 	private final double jumpSizeMean;
 	private final double jumpSizeStDev;
-	
+
+	/**
+	 * Constructs a Merton Jump Process for Monte Carlo simulation.
+	 * 
+	 * @param jumpIntensity
+	 * @param jumpSizeMean
+	 * @param jumpSizeStDev
+	 * @param timeDiscretization
+	 * @param numberOfPaths
+	 * @param seed
+	 */
 	public MertonJumpProcess(double jumpIntensity, double jumpSizeMean, double jumpSizeStDev,
 			TimeDiscretization timeDiscretization,
 			int numberOfPaths, int seed) {
@@ -34,7 +44,7 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 		this.jumpIntensity = jumpIntensity;
 		this.jumpSizeMean = jumpSizeMean;
 		this.jumpSizeStDev = jumpSizeStDev;
-		
+
 		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
 			@Override
 			public IntFunction<DoubleUnaryOperator> apply(int i) {
@@ -78,7 +88,7 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 				};
 			}
 		};
-		
+
 		IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
 			private static final long serialVersionUID = -7858107751226404629L;
 
@@ -94,10 +104,10 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 				}
 			}
 		};
-		
-		this.internalProcess = icrements;	
+
+		this.internalProcess = icrements;
 	}
-	
+
 	@Override
 	public RandomVariable getIncrement(int timeIndex, int factor) {
 		return internalProcess.getIncrement(timeIndex, factor);
