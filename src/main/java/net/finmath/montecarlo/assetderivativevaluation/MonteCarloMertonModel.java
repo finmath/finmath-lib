@@ -8,14 +8,10 @@ package net.finmath.montecarlo.assetderivativevaluation;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntFunction;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.functions.NormalDistribution;
-import net.finmath.functions.PoissonDistribution;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.IndependentIncrementsFromICDF;
+import net.finmath.montecarlo.MertonJumpProcess;
 import net.finmath.montecarlo.assetderivativevaluation.models.MertonModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
@@ -85,65 +81,8 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		// Create the model
 		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
-		final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
-			@Override
-			public IntFunction<DoubleUnaryOperator> apply(final int i) {
-				return new IntFunction<DoubleUnaryOperator>() {
-					@Override
-					public DoubleUnaryOperator apply(final int j) {
-						if(j==0) {
-							// The Brownian increment
-							final double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
-							return new DoubleUnaryOperator() {
-								@Override
-								public double applyAsDouble(final double x) {
-									return NormalDistribution.inverseCumulativeDistribution(x)*sqrtOfTimeStep;
-								}
-							};
-						}
-						else if(j==1) {
-							// The random jump size
-							return new DoubleUnaryOperator() {
-								@Override
-								public double applyAsDouble(final double x) {
-									return NormalDistribution.inverseCumulativeDistribution(x);
-								}
-							};
-						}
-						else if(j==2) {
-							// The jump increment
-							final double timeStep = timeDiscretization.getTimeStep(i);
-							final PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
-							return new DoubleUnaryOperator() {
-								@Override
-								public double applyAsDouble(final double x) {
-									return poissonDistribution.inverseCumulativeDistribution(x);
-								}
-							};
-						}
-						else {
-							return null;
-						}
-					}
-				};
-			}
-		};
-
-		final IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
-			private static final long serialVersionUID = -7858107751226404629L;
-
-			@Override
-			public RandomVariable getIncrement(final int timeIndex, final int factor) {
-				if(factor == 1) {
-					final RandomVariable Z = super.getIncrement(timeIndex, 1);
-					final RandomVariable N = super.getIncrement(timeIndex, 2);
-					return Z.mult(N.sqrt());
-				}
-				else {
-					return super.getIncrement(timeIndex, factor);
-				}
-			}
-		};
+		// Create the Compound Poisson process
+		IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(icrements);
