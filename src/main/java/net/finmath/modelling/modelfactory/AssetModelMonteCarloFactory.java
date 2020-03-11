@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
@@ -28,22 +29,22 @@ import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescriptor> {
 
 	private final HestonModel.Scheme scheme;
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 	private final IndependentIncrements stochasticDriver;
 
 
 	/**
 	 * Create the factory.
 	 *
-	 * @param abstractRandomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
 	 * @param stochasticDriver The stochastic driver of the process.
 	 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients. (Optional parameter, only required by Heston Model).
 	 */
-	public AssetModelMonteCarloFactory(final RandomVariableFactory abstractRandomVariableFactory,
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
 			final IndependentIncrements stochasticDriver, final Scheme scheme) {
 		super();
 		this.scheme = scheme;
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.stochasticDriver = stochasticDriver;
 	}
 
@@ -53,7 +54,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
 	 * @param stochasticDriver The stochastic driver of the process.
 	 */
-	public AssetModelMonteCarloFactory(AbstractRandomVariableFactory randomVariableFactory,
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
 			IndependentIncrements stochasticDriver) {
 		super();
 		this.scheme = null;
@@ -69,7 +70,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 	public AssetModelMonteCarloFactory(IndependentIncrements stochasticDriver) {
 		super();
 		this.scheme = null;
-		this.randomVariableFactory =  new RandomVariableFactory();
+		this.randomVariableFactory =  new RandomVariableFromArrayFactory();
 		this.stochasticDriver = stochasticDriver;
 	}
 
@@ -77,18 +78,18 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 	public DescribedModel<? extends AssetModelDescriptor> getModelFromDescriptor(final AssetModelDescriptor descriptor) {
 
 		if(descriptor instanceof BlackScholesModelDescriptor) {
-			final DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelMonteCarlo((BlackScholesModelDescriptor) descriptor, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelMonteCarlo((BlackScholesModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else if(descriptor instanceof HestonModelDescriptor) {
 			if(scheme == null) {
 				throw new RuntimeException("Need to provide truncation scheme to factory in order to be able to build a Heston Model");
 			}
-			final DescribedModel<HestonModelDescriptor> model = new HestonModelMonteCarlo((HestonModelDescriptor) descriptor, scheme, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<HestonModelDescriptor> model = new HestonModelMonteCarlo((HestonModelDescriptor) descriptor, scheme, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else if(descriptor instanceof MertonModelDescriptor) {
-			final DescribedModel<MertonModelDescriptor> model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<MertonModelDescriptor> model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else if(descriptor instanceof VarianceGammaModelDescriptor) {
