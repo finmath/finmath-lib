@@ -35,7 +35,7 @@ public class DayCountConvention_NL_365 implements DayCountConvention, Serializab
 	}
 
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycount(endDate,startDate);
 		}
@@ -48,7 +48,7 @@ public class DayCountConvention_NL_365 implements DayCountConvention, Serializab
 		 */
 		for(int year = startDate.getYear() ; year <= endDate.getYear(); year++) {
 			if (IsoChronology.INSTANCE.isLeapYear(year)) {
-				LocalDate leapDay = LocalDate.of(year,Month.FEBRUARY, 29);
+				final LocalDate leapDay = LocalDate.of(year,Month.FEBRUARY, 29);
 				if(startDate.isBefore(leapDay) && !endDate.isBefore(leapDay)) {
 					daycount -= 1.0;
 				}
@@ -63,12 +63,12 @@ public class DayCountConvention_NL_365 implements DayCountConvention, Serializab
 	}
 
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycountFraction(endDate,startDate);
 		}
 
-		double daycountFraction = getDaycount(startDate, endDate) / 365.0;
+		final double daycountFraction = getDaycount(startDate, endDate) / 365.0;
 
 		return daycountFraction;
 	}

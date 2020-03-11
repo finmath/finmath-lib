@@ -44,5 +44,4 @@ public interface ShortRateVolatilityModelParametric extends ShortRateVolatilityM
 	 * @return An instance of AbstractShortRateVolatilityModel with modified parameters.
 	 */
 	ShortRateVolatilityModelParametric getCloneWithModifiedParameters(double[] parameters);
-
 }

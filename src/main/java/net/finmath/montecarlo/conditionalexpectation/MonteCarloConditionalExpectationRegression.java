@@ -47,7 +47,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	public class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
 		private final RandomVariable[] basisFunctions;
 
-		public RegressionBasisFunctionsGiven(RandomVariable[] basisFunctions) {
+		public RegressionBasisFunctionsGiven(final RandomVariable[] basisFunctions) {
 			super();
 			this.basisFunctions = basisFunctions;
 		}
@@ -75,7 +75,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 *
 	 * @param basisFunctions A vector of random variables to be used as basis functions.
 	 */
-	public MonteCarloConditionalExpectationRegression(RandomVariable[] basisFunctions) {
+	public MonteCarloConditionalExpectationRegression(final RandomVariable[] basisFunctions) {
 		this();
 		basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctions));
 		basisFunctionsPredictor = basisFunctionsEstimator;
@@ -87,19 +87,19 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param basisFunctionsEstimator A vector of random variables to be used as basis functions for estimation.
 	 * @param basisFunctionsPredictor A vector of random variables to be used as basis functions for prediction.
 	 */
-	public MonteCarloConditionalExpectationRegression(RandomVariable[] basisFunctionsEstimator, RandomVariable[] basisFunctionsPredictor) {
+	public MonteCarloConditionalExpectationRegression(final RandomVariable[] basisFunctionsEstimator, final RandomVariable[] basisFunctionsPredictor) {
 		this();
 		this.basisFunctionsEstimator = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsEstimator));
 		this.basisFunctionsPredictor = new RegressionBasisFunctionsGiven(getNonZeroBasisFunctions(basisFunctionsPredictor));
 	}
 
 	@Override
-	public RandomVariable getConditionalExpectation(RandomVariable randomVariable) {
+	public RandomVariable getConditionalExpectation(final RandomVariable randomVariable) {
 		// Get regression parameters x as the solution of XTX x = XT y
-		double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
+		final double[] linearRegressionParameters = getLinearRegressionParameters(randomVariable);
 
 		// Calculate estimate, i.e. X x
-		RandomVariable[] basisFunctions = basisFunctionsPredictor.getBasisFunctions();
+		final RandomVariable[] basisFunctions = basisFunctionsPredictor.getBasisFunctions();
 		RandomVariable conditionalExpectation = basisFunctions[0].mult(linearRegressionParameters[0]);
 		for(int i=1; i<basisFunctions.length; i++) {
 			conditionalExpectation = conditionalExpectation.addProduct(basisFunctions[i], linearRegressionParameters[i]);
@@ -115,14 +115,14 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.
 	 */
-	public double[] getLinearRegressionParameters(RandomVariable dependents) {
+	public double[] getLinearRegressionParameters(final RandomVariable dependents) {
 
-		RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
+		final RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
 
 		synchronized (solverLock) {
 			if(solver == null) {
 				// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
-				double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
+				final double[][] XTX = new double[basisFunctions.length][basisFunctions.length];
 				for(int i=0; i<basisFunctions.length; i++) {
 					for(int j=i; j<basisFunctions.length; j++) {
 						XTX[i][j] = basisFunctions[i].mult(basisFunctions[j]).getAverage();	// Scalar product
@@ -135,13 +135,13 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		}
 
 		// Build XTy - the projection of the dependents random variable on the basis functions.
-		double[] XTy = new double[basisFunctions.length];
+		final double[] XTy = new double[basisFunctions.length];
 		for(int i=0; i<basisFunctions.length; i++) {
 			XTy[i] = dependents.mult(basisFunctions[i]).getAverage();				// Scalar product
 		}
 
 		// Solve X^T X x = X^T y - which gives us the regression coefficients x = linearRegressionParameters
-		double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
+		final double[] linearRegressionParameters = solver.solve(new ArrayRealVector(XTy)).toArray();
 
 		return linearRegressionParameters;
 	}
@@ -154,7 +154,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 		return basisFunctionsPredictor;
 	}
 
-	private RandomVariable[] getNonZeroBasisFunctions(RandomVariable[] basisFunctions) {
+	private RandomVariable[] getNonZeroBasisFunctions(final RandomVariable[] basisFunctions) {
 		int numberOfNonZeroBasisFunctions = 0;
 		for(int indexBasisFunction = 0; indexBasisFunction<basisFunctions.length; indexBasisFunction++) {
 			if(basisFunctions[indexBasisFunction] != null) {
@@ -162,10 +162,10 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 			}
 		}
 
-		RandomVariable[] nonZerobasisFunctions = new RandomVariable[numberOfNonZeroBasisFunctions];
+		final RandomVariable[] nonZerobasisFunctions = new RandomVariable[numberOfNonZeroBasisFunctions];
 
 		int indexOfNonZeroBasisFunctions = 0;
-		for (RandomVariable basisFunction : basisFunctions) {
+		for (final RandomVariable basisFunction : basisFunctions) {
 			if (basisFunction != null) {
 				nonZerobasisFunctions[indexOfNonZeroBasisFunctions] = basisFunction;
 				indexOfNonZeroBasisFunctions++;

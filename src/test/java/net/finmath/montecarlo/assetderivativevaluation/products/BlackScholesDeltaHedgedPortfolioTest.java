@@ -46,10 +46,10 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 	public AssetModelMonteCarloSimulationModel getModel()
 	{
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create an instance of a black scholes monte carlo model
-		AssetModelMonteCarloSimulationModel model = new MonteCarloBlackScholesModel(
+		final AssetModelMonteCarloSimulationModel model = new MonteCarloBlackScholesModel(
 				timeDiscretization,
 				numberOfPaths,
 				initialValue,
@@ -61,26 +61,26 @@ public class BlackScholesDeltaHedgedPortfolioTest {
 
 	@Test
 	public void testHedgePerformance() throws CalculationException {
-		double maturity = timeHorizon;
-		double strike = initialValue*Math.exp(riskFreeRate * maturity);
+		final double maturity = timeHorizon;
+		final double strike = initialValue*Math.exp(riskFreeRate * maturity);
 
-		long timingCalculationStart = System.currentTimeMillis();
+		final long timingCalculationStart = System.currentTimeMillis();
 
-		EuropeanOption option = new EuropeanOption(maturity,strike);
-		BlackScholesDeltaHedgedPortfolio hedge = new BlackScholesDeltaHedgedPortfolio(maturity, strike, riskFreeRate, volatility);
+		final EuropeanOption option = new EuropeanOption(maturity,strike);
+		final BlackScholesDeltaHedgedPortfolio hedge = new BlackScholesDeltaHedgedPortfolio(maturity, strike, riskFreeRate, volatility);
 
-		RandomVariable hedgeValue = hedge.getValue(maturity, model);
+		final RandomVariable hedgeValue = hedge.getValue(maturity, model);
 
-		long timingCalculationEnd = System.currentTimeMillis();
+		final long timingCalculationEnd = System.currentTimeMillis();
 
-		RandomVariable underlyingAtMaturity = model.getAssetValue(maturity, 0);
-		RandomVariable optionValue = option.getValue(maturity, model);
-		RandomVariable hedgeError = optionValue.sub(hedgeValue);
+		final RandomVariable underlyingAtMaturity = model.getAssetValue(maturity, 0);
+		final RandomVariable optionValue = option.getValue(maturity, model);
+		final RandomVariable hedgeError = optionValue.sub(hedgeValue);
 
-		double hedgeErrorRMS = hedgeError.getStandardDeviation();
+		final double hedgeErrorRMS = hedgeError.getStandardDeviation();
 
-		TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
-		double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
+		final TimeDiscretization td = new TimeDiscretizationFromArray(-1.0-0.01, 101, 0.02);
+		final double[] hedgeErrorHist = hedgeError.getHistogram(td.getAsDoubleArray());
 
 		if(isPrintHedgeErrorDistribution) {
 			System.out.println(td.getTime(0) + "\t" + hedgeErrorHist[0]);

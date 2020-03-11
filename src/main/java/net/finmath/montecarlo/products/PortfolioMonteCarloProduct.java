@@ -30,8 +30,8 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 
-	private MonteCarloProduct[] products;
-	private double weights[];
+	private final MonteCarloProduct[] products;
+	private final double[] weights;
 	private final Optional<Integer> numberOfThreads;
 
 	/**
@@ -43,9 +43,9 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 * @param numberOfThreads Number of parallel threads to used. Required to be &gt; 0.
 	 */
 	public PortfolioMonteCarloProduct(
-			MonteCarloProduct[] products,
-			double[] weights,
-			Optional<Integer> numberOfThreads) {
+			final MonteCarloProduct[] products,
+			final double[] weights,
+			final Optional<Integer> numberOfThreads) {
 		super();
 		this.products = products;
 		this.weights = weights;
@@ -64,8 +64,8 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 * @param weights An array of weights.
 	 */
 	public PortfolioMonteCarloProduct(
-			MonteCarloProduct[] products,
-			double[] weights) {
+			final MonteCarloProduct[] products,
+			final double[] weights) {
 		this(products, weights, Optional.empty());
 	}
 
@@ -74,7 +74,7 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 *
 	 * @param products An array of products.
 	 */
-	public PortfolioMonteCarloProduct(MonteCarloProduct[] products) {
+	public PortfolioMonteCarloProduct(final MonteCarloProduct[] products) {
 		this(products, weightsOfOne(products.length));
 	}
 
@@ -84,8 +84,8 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 	 * @param length Length of the array.
 	 * @return Array of double with given length, each entry being 1.0.
 	 */
-	private static double[] weightsOfOne(int length) {
-		double[] weightsOfOne = new double[length];
+	private static double[] weightsOfOne(final int length) {
+		final double[] weightsOfOne = new double[length];
 		Arrays.fill(weightsOfOne, 1.0);
 		return weightsOfOne;
 	}
@@ -97,18 +97,18 @@ public class PortfolioMonteCarloProduct extends AbstractMonteCarloProduct {
 			return null;
 		}
 
-		int numberOfThreadsEffective = numberOfThreads.orElse(Runtime.getRuntime().availableProcessors());
-		ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsEffective);
+		final int numberOfThreadsEffective = numberOfThreads.orElse(Runtime.getRuntime().availableProcessors());
+		final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreadsEffective);
 
 		RandomVariable value = null;
 		try {
 			// Start calculation threads for each product
-			Vector<Future<RandomVariable>> values = new Vector<>(products.length);
+			final Vector<Future<RandomVariable>> values = new Vector<>(products.length);
 			for(int i=0; i<products.length; i++) {
 				final MonteCarloProduct product = products[i];
 				final double weight = weights[i];
 
-				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
+				final Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 					@Override
 					public RandomVariable call() throws CalculationException {
 						return product.getValue(evaluationTime, model).mult(weight);

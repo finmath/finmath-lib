@@ -23,14 +23,26 @@ import net.finmath.time.TimeDiscretization;
 public abstract class MonteCarloProcessFromProcessModel implements MonteCarloProcess, Cloneable {
 
 	private ProcessModel			model;
-	private TimeDiscretization		timeDiscretization;
+	private final TimeDiscretization		timeDiscretization;
+
+	/**
+	 * Create a discretization scheme / a time discrete process.
+	 *
+	 * @param timeDiscretization The time discretization used for the discretization scheme.
+	 * @param model Set the model used to generate the stochastic process. The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
+	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization, final ProcessModel model) {
+		super();
+		this.timeDiscretization	= timeDiscretization;
+		this.model = model;
+	}
 
 	/**
 	 * Create a discretization scheme / a time discrete process.
 	 *
 	 * @param timeDiscretization The time discretization used for the discretization scheme.
 	 */
-	public MonteCarloProcessFromProcessModel(TimeDiscretization timeDiscretization) {
+	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization	= timeDiscretization;
 	}
@@ -41,9 +53,13 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 * Delegation to model
 	 */
 
+	/**
+	 * Set the model used to generate the stochastic process.
+	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
 	@Override
-	public void setModel(ProcessModel model) {
-		if(this.model != null) {
+	public void setModel(final ProcessModel model) {
+		if(this.model != null && this.model != model) {
 			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
 		}
 
@@ -59,21 +75,21 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 		return model.getInitialState();
 	}
 
-	public RandomVariable[]	getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+	public RandomVariable[]	getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		return model.getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
 	}
 
-	public RandomVariable[]	getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[]	getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		// Delegate to model
 		return model.getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
 
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		// Delegate to model
 		return model.applyStateSpaceTransform(componentIndex, randomVariable);
 	}
 
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		// Delegate to model
 		return model.applyStateSpaceTransformInverse(componentIndex, randomVariable);
 	}
@@ -88,7 +104,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		if(timeIndex < 0 || timeIndex >= timeDiscretization.getNumberOfTimes()) {
 			throw new ArrayIndexOutOfBoundsException("Index " + timeIndex + " for process time discretization out of bounds.");
 		}
@@ -96,7 +112,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return timeDiscretization.getTimeIndex(time);
 	}
 

@@ -10,17 +10,17 @@ package net.finmath.singleswaprate.annuitymapping;
 public class ConstantNormalizer implements NormalizingFunction {
 
 	@Override
-	public double getValue(double swapRate) {
+	public double getValue(final double swapRate) {
 		return 1;
 	}
 
 	@Override
-	public double getFirstDerivative(double swapRate) {
+	public double getFirstDerivative(final double swapRate) {
 		return 0;
 	}
 
 	@Override
-	public double getSecondDerivative(double swapRate) {
+	public double getSecondDerivative(final double swapRate) {
 		return 0;
 	}
 

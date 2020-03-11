@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-import org.apache.commons.math3.util.FastMath;
-
 import net.finmath.marketdata.model.AnalyticModel;
 
 /**
@@ -49,7 +47,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
 	 * @param timeScaling The time parameter argument rescaling. See {@link #getDiscountFactor(AnalyticModel, double)}.
 	 */
-	public DiscountCurveNelsonSiegelSvensson(String name, LocalDate referenceDate, double[] parameter, double timeScaling) {
+	public DiscountCurveNelsonSiegelSvensson(final String name, final LocalDate referenceDate, final double[] parameter, final double timeScaling) {
 		super(name, referenceDate);
 		this.timeScaling = timeScaling;
 
@@ -57,7 +55,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	}
 
 	@Override
-	public double getDiscountFactor(double maturity)
+	public double getDiscountFactor(final double maturity)
 	{
 		return getDiscountFactor(null, maturity);
 	}
@@ -69,31 +67,31 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * @see net.finmath.marketdata.model.curves.DiscountCurve#getDiscountFactor(net.finmath.marketdata.model.AnalyticModel, double)
 	 */
 	@Override
-	public double getDiscountFactor(AnalyticModel model, double maturity)
+	public double getDiscountFactor(final AnalyticModel model, double maturity)
 	{
 		// Change time scale
 		maturity *= timeScaling;
 
-		double beta1	= parameter[0];
-		double beta2	= parameter[1];
-		double beta3	= parameter[2];
-		double beta4	= parameter[3];
-		double tau1		= parameter[4];
-		double tau2		= parameter[5];
+		final double beta1	= parameter[0];
+		final double beta2	= parameter[1];
+		final double beta3	= parameter[2];
+		final double beta4	= parameter[3];
+		final double tau1		= parameter[4];
+		final double tau2		= parameter[5];
 
-		double x1 = tau1 > 0 ? FastMath.exp(-maturity/tau1) : 0.0;
-		double x2 = tau2 > 0 ? FastMath.exp(-maturity/tau2) : 0.0;
+		final double x1 = tau1 > 0 ? Math.exp(-maturity/tau1) : 0.0;
+		final double x2 = tau2 > 0 ? Math.exp(-maturity/tau2) : 0.0;
 
-		double y1 = tau1 > 0 ? (maturity > 0.0 ? (1.0-x1)/maturity*tau1 : 1.0) : 0.0;
-		double y2 = tau2 > 0 ? (maturity > 0.0 ? (1.0-x2)/maturity*tau2 : 1.0) : 0.0;
+		final double y1 = tau1 > 0 ? (maturity > 0.0 ? (1.0-x1)/maturity*tau1 : 1.0) : 0.0;
+		final double y2 = tau2 > 0 ? (maturity > 0.0 ? (1.0-x2)/maturity*tau2 : 1.0) : 0.0;
 
-		double zeroRate = beta1 + beta2 * y1 + beta3 * (y1-x1) + beta4 * (y2-x2);
+		final double zeroRate = beta1 + beta2 * y1 + beta3 * (y1-x1) + beta4 * (y2-x2);
 
 		return Math.exp(- zeroRate * maturity);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -104,7 +102,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * @param maturity The given maturity.
 	 * @return The zero rate.
 	 */
-	public double getZeroRate(double maturity)
+	public double getZeroRate(final double maturity)
 	{
 		if(maturity == 0) {
 			return this.getZeroRate(1.0E-14);
@@ -119,9 +117,9 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	 * @param maturities The given maturities.
 	 * @return The zero rates.
 	 */
-	public double[] getZeroRates(double[] maturities)
+	public double[] getZeroRates(final double[] maturities)
 	{
-		double[] values = new double[maturities.length];
+		final double[] values = new double[maturities.length];
 
 		for(int i=0; i<maturities.length; i++) {
 			values[i] = getZeroRate(maturities[i]);
@@ -139,7 +137,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 			}
 
 			@Override
-			public CurveBuilder addPoint(double time, double value, boolean isParameter) {
+			public CurveBuilder addPoint(final double time, final double value, final boolean isParameter) {
 				return this;
 			}
 		};
@@ -152,7 +150,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 
 	@Override
 	@Deprecated
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException();
 
 	}
@@ -167,7 +165,7 @@ public class DiscountCurveNelsonSiegelSvensson extends AbstractCurve implements 
 	}
 
 	@Override
-	public DiscountCurveNelsonSiegelSvensson getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public DiscountCurveNelsonSiegelSvensson getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		return new DiscountCurveNelsonSiegelSvensson(getName(), getReferenceDate(), value, timeScaling);
 	}
 

@@ -16,11 +16,11 @@ import net.finmath.stochastic.RandomVariable;
  */
 public interface StochasticOptimizerFactory {
 
-	default StochasticOptimizer getOptimizer(ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] targetValues) {
+	default StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
-	default StochasticOptimizer getOptimizer(ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[] upperBound, RandomVariable[] targetValues) {
+	default StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[] upperBound, final RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 

@@ -45,7 +45,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 *
 	 * @param underlying The underlying.
 	 */
-	public ExposureEstimator(AbstractLIBORMonteCarloProduct underlying) {
+	public ExposureEstimator(final AbstractLIBORMonteCarloProduct underlying) {
 		super();
 		this.underlying		= underlying;
 	}
@@ -75,7 +75,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		final RandomVariable one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);
@@ -83,30 +83,30 @@ public class ExposureEstimator extends AbstractProductComponent {
 		RandomVariable values = underlying.getValue(evaluationTime, model);
 
 		if(values.getFiltrationTime() > evaluationTime) {
-			RandomVariable filterNaN = values.isNaN().sub(1.0).mult(-1.0);
-			RandomVariable valuesFiltered = values.mult(filterNaN);
+			final RandomVariable filterNaN = values.isNaN().sub(1.0).mult(-1.0);
+			final RandomVariable valuesFiltered = values.mult(filterNaN);
 
 			/*
 			 * Cut off two standard deviations from regression
 			 */
-			double valuesMean		= valuesFiltered.getAverage();
-			double valuesStdDev	= valuesFiltered.getStandardDeviation();
-			double valuesFloor		= valuesMean*(1.0-Math.signum(valuesMean)*1E-5)-3.0*valuesStdDev;
-			double valuesCap		= valuesMean*(1.0+Math.signum(valuesMean)*1E-5)+3.0*valuesStdDev;
+			final double valuesMean		= valuesFiltered.getAverage();
+			final double valuesStdDev	= valuesFiltered.getStandardDeviation();
+			final double valuesFloor		= valuesMean*(1.0-Math.signum(valuesMean)*1E-5)-3.0*valuesStdDev;
+			final double valuesCap		= valuesMean*(1.0+Math.signum(valuesMean)*1E-5)+3.0*valuesStdDev;
 			RandomVariable filter = values.sub(valuesFloor).choose(one, zero)
 					.mult(values.sub(valuesCap).mult(-1.0).choose(one, zero));
 			filter = filter.mult(filterNaN);
 			// Filter values and regressionBasisFunctions
 			values = values.mult(filter);
 
-			RandomVariable[] regressionBasisFunctions			= getRegressionBasisFunctions(evaluationTime, model);
-			RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
+			final RandomVariable[] regressionBasisFunctions			= getRegressionBasisFunctions(evaluationTime, model);
+			final RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
 			for(int i=0; i<regressionBasisFunctions.length; i++) {
 				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
 			}
 
 			// Remove foresight through conditional expectation
-			MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
+			final MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 			values         = condExpEstimator.getConditionalExpectation(values);
@@ -124,9 +124,9 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	private RandomVariable[] getRegressionBasisFunctions(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	private RandomVariable[] getRegressionBasisFunctions(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		RandomVariable basisFunction;
 
@@ -145,7 +145,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 			liborPeriodIndex = -liborPeriodIndex-1;
 		}
 		liborPeriodIndexEnd = liborPeriodIndex+1;
-		double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 		basisFunction = basisFunction.discount(rate, periodLength1);
@@ -162,7 +162,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 		}
 		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;
 
-		double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength2 != periodLength1) {
 			rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
@@ -184,7 +184,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 			liborPeriodIndex = -liborPeriodIndex-1;
 		}
 		liborPeriodIndexEnd = model.getNumberOfLibors();
-		double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength3 != periodLength1 && periodLength3 != periodLength2) {
 			rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));

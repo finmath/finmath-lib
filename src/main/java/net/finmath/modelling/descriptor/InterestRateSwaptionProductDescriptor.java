@@ -26,8 +26,8 @@ public class InterestRateSwaptionProductDescriptor implements InterestRateProduc
 	 * @param excerciseDate Exercise date of the option as abolute LocalDate.
 	 * @param strikeRate Strike rate of the option.
 	 */
-	public InterestRateSwaptionProductDescriptor(InterestRateSwapProductDescriptor swap, LocalDate excerciseDate,
-			double strikeRate) {
+	public InterestRateSwaptionProductDescriptor(final InterestRateSwapProductDescriptor swap, final LocalDate excerciseDate,
+			final double strikeRate) {
 		super();
 		this.swap = swap;
 		this.excerciseDate = excerciseDate;

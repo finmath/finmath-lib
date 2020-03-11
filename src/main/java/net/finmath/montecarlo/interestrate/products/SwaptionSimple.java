@@ -36,7 +36,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements ne
 	 * @param swaprate The strike swaprate of the swaption.
 	 * @param swapTenor The swap tenor in doubles.
 	 */
-	public SwaptionSimple(double swaprate, TimeDiscretization swapTenor) {
+	public SwaptionSimple(final double swaprate, final TimeDiscretization swapTenor) {
 		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE);
 	}
 
@@ -46,7 +46,7 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements ne
 	 * @param swapTenor The swap tenor in doubles.
 	 * @param valueUnit See <code>getValue(AbstractLIBORMarketModel model)</code>
 	 */
-	public SwaptionSimple(double swaprate, double[] swapTenor, ValueUnit valueUnit) {
+	public SwaptionSimple(final double swaprate, final double[] swapTenor, final ValueUnit valueUnit) {
 		super();
 		tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.swaprate = swaprate;
@@ -65,35 +65,35 @@ public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements ne
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable value = swaption.getValue(evaluationTime, model);
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final RandomVariable value = swaption.getValue(evaluationTime, model);
 
 		if(valueUnit == ValueUnit.VALUE) {
 			return value;
 		}
 
-		ForwardCurve forwardCurve	 = model.getModel().getForwardRateCurve();
-		DiscountCurve discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
+		final ForwardCurve forwardCurve	 = model.getModel().getForwardRateCurve();
+		final DiscountCurve discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
 
-		double parSwaprate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
-		double optionMaturity = tenor.getTime(0);
-		double strikeSwaprate = swaprate;
-		double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
+		final double parSwaprate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
+		final double optionMaturity = tenor.getTime(0);
+		final double strikeSwaprate = swaprate;
+		final double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
 
 		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
-			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			final double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
 		}
 		else if(valueUnit == ValueUnit.VOLATILITYNORMAL) {
-			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			final double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility);
 		}
 		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE  || valueUnit == ValueUnit.INTEGRATEDLOGNORMALVARIANCE) {
-			double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			final double volatility = AnalyticFormulas.blackScholesOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}
 		else if(valueUnit == ValueUnit.INTEGRATEDVARIANCENORMAL || valueUnit == ValueUnit.INTEGRATEDNORMALVARIANCE) {
-			double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
+			final double volatility = AnalyticFormulas.bachelierOptionImpliedVolatility(parSwaprate, optionMaturity, strikeSwaprate, swapAnnuity, value.getAverage());
 			return model.getRandomVariableForConstant(volatility * volatility * optionMaturity);
 		}
 		else {

@@ -33,9 +33,9 @@ import net.finmath.time.TimeDiscretization;
  */
 public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements HybridAssetLIBORModelMonteCarloSimulation {
 
-	private LIBORModelMonteCarloSimulationModel	liborSimulation;
-	private AssetModelMonteCarloSimulationModel	assetSimulation;
-	private DiscountCurve					discountCurve;
+	private final LIBORModelMonteCarloSimulationModel	liborSimulation;
+	private final AssetModelMonteCarloSimulationModel	assetSimulation;
+	private final DiscountCurve					discountCurve;
 
 	/**
 	 * Create an Equity Hybrid LIBOR Market Model composed of an object implementing
@@ -51,9 +51,9 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	 * @param discountCurve An optional object implementing <code>DiscountCurveInterface</code> to adjust the numeraire for a deterministic discounting spread.
 	 */
 	public HybridAssetLIBORModelMonteCarloSimulationFromModels(
-			LIBORModelMonteCarloSimulationModel liborSimulation,
-			AssetModelMonteCarloSimulationModel assetSimulation,
-			DiscountCurve discountCurve) {
+			final LIBORModelMonteCarloSimulationModel liborSimulation,
+			final AssetModelMonteCarloSimulationModel assetSimulation,
+			final DiscountCurve discountCurve) {
 		super();
 		this.liborSimulation = liborSimulation;
 		this.assetSimulation = assetSimulation;
@@ -65,8 +65,8 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	public HybridAssetLIBORModelMonteCarloSimulationFromModels(
-			LIBORModelMonteCarloSimulationModel liborSimulation,
-			AssetModelMonteCarloSimulationModel assetSimulation) {
+			final LIBORModelMonteCarloSimulationModel liborSimulation,
+			final AssetModelMonteCarloSimulationModel assetSimulation) {
 		this(liborSimulation, assetSimulation, null);
 	}
 
@@ -91,7 +91,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return liborSimulation.getTime(timeIndex);
 	}
 
@@ -101,7 +101,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return liborSimulation.getTimeIndex(time);
 	}
 
@@ -111,59 +111,59 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return liborSimulation.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public double getLiborPeriod(int timeIndex) {
+	public double getLiborPeriod(final int timeIndex) {
 		return liborSimulation.getLiborPeriod(timeIndex);
 	}
 
 	@Override
-	public int getLiborPeriodIndex(double time) {
+	public int getLiborPeriodIndex(final double time) {
 		return liborSimulation.getLiborPeriodIndex(time);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return liborSimulation.getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
-	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
 		return liborSimulation.getLIBOR(timeIndex, liborIndex);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		return liborSimulation.getMonteCarloWeights(time);
 	}
 
 	@Override
-	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException {
+	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException {
 		return liborSimulation.getLIBOR(time, periodStart, periodEnd);
 	}
 
 	@Override
-	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedData( Map<String, Object> dataModified) {
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedData( final Map<String, Object> dataModified) {
 		return null;
 	}
 
 	@Override
-	public RandomVariable[] getLIBORs(int timeIndex) throws CalculationException {
+	public RandomVariable[] getLIBORs(final int timeIndex) throws CalculationException {
 		return liborSimulation.getLIBORs(timeIndex);
 	}
 
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 
 		RandomVariable numeraire = liborSimulation.getNumeraire(time);
 
 		if(discountCurve != null) {
 			// This includes a control for zero bonds
-			double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(time);
+			final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 
@@ -171,7 +171,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public RandomVariable getNumeraire(int timeIndex) throws CalculationException {
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
 		return getNumeraire(getTime(timeIndex));
 	}
 
@@ -197,7 +197,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	 */
 	@Override
 	@Deprecated
-	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedSeed(int seed) {
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedSeed(final int seed) {
 		return null;
 	}
 
@@ -207,12 +207,12 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public RandomVariable getAssetValue(int timeIndex, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
 		return assetSimulation.getAssetValue(timeIndex, assetIndex).mult(liborSimulation.getNumeraire(getTime(timeIndex))).div(assetSimulation.getNumeraire(timeIndex));
 	}
 
 	@Override
-	public RandomVariable getAssetValue(double time, int assetIndex) throws CalculationException {
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 
 		// We round to the previous stock vaue (may generate loss of volatility and inconsistent forwards).

@@ -24,9 +24,9 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 	private final double[]	parameterUppderBound;
 	private final double[]	parameterStandardDeviation;
 
-	public OptimizerFactoryCMAES(double accuracy, int maxIterations,
-			double[] parameterLowerBound, double[] parameterUppderBound,
-			double[] parameterStandardDeviation) {
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations,
+			final double[] parameterLowerBound, final double[] parameterUppderBound,
+			final double[] parameterStandardDeviation) {
 		super();
 		this.accuracy = accuracy;
 		this.maxIterations = maxIterations;
@@ -35,7 +35,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 		this.parameterStandardDeviation = parameterStandardDeviation;
 	}
 
-	public OptimizerFactoryCMAES(double accuracy, int maxIterations, double[] parameterStandardDeviation) {
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations, final double[] parameterStandardDeviation) {
 		super();
 		this.accuracy = accuracy;
 		this.maxIterations = maxIterations;
@@ -44,7 +44,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 		this.parameterStandardDeviation = parameterStandardDeviation;
 	}
 
-	public OptimizerFactoryCMAES(double accuracy, int maxIterations) {
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations) {
 		super();
 		this.accuracy = accuracy;
 		this.maxIterations = maxIterations;
@@ -59,12 +59,12 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 	}
 
 	@Override
-	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, double[] targetValues) {
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, final double[] targetValues) {
 		final double[] values = new double[targetValues.length];
 		final double[] effectiveParameterLowerBound			= parameterLowerBound != null ? parameterLowerBound : lowerBound;
 		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? parameterUppderBound : upperBound;
@@ -95,14 +95,14 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 			public void run() {
 				optimizer = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, accuracy, true, 0, 0, new MersenneTwister(3141), false, new SimplePointChecker<org.apache.commons.math3.optim.PointValuePair>(0, 0)) {
 					@Override
-					public double computeObjectiveValue(double[] parameters) {
+					public double computeObjectiveValue(final double[] parameters) {
 						try {
 							objectiveFunction.setValues(parameters, values);
-						} catch (SolverException e) {
+						} catch (final SolverException e) {
 							return Double.NaN;
 						}
 						double rms = 0;
-						for(double value : values) {
+						for(final double value : values) {
 							rms += value*value;
 						}
 						return Math.sqrt(rms);
@@ -134,7 +134,7 @@ public class OptimizerFactoryCMAES implements OptimizerFactory {
 							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(initialParameters.length))),
 							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(effectiveParameterStandardDeviation)
 							);
-				} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
+				} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {
 					new SolverException(e);
 				}
 			}

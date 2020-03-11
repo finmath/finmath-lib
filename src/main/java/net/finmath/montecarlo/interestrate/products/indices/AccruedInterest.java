@@ -58,11 +58,11 @@ public class AccruedInterest extends AbstractIndex {
 	 * @param daycountConvention The day count convention.
 	 * @param isNegativeAccruedInterest If true, the class represents the coupon payment minus the accrued interest, i.e., \( I(t_{0}) \cdot \frac{\max(\text{dcf}(T_{start},t),0)}{\text{dcf}(T_{start},T_{end})} \).
 	 */
-	public AccruedInterest(String name,
-			String currency,
-			LocalDate referenceDate, LocalDate periodStartDate,
-			LocalDate periodEndDate, AbstractIndex index, Double indexFixingTime,
-			DayCountConvention daycountConvention, boolean isNegativeAccruedInterest) {
+	public AccruedInterest(final String name,
+			final String currency,
+			final LocalDate referenceDate, final LocalDate periodStartDate,
+			final LocalDate periodEndDate, final AbstractIndex index, final Double indexFixingTime,
+			final DayCountConvention daycountConvention, final boolean isNegativeAccruedInterest) {
 		super(name, currency);
 		this.referenceDate = referenceDate;
 		this.periodStartDate = periodStartDate;
@@ -74,9 +74,9 @@ public class AccruedInterest extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double fixingTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double fixingTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		double daycountFraction	= daycountConvention.getDaycountFraction(periodStartDate, getModelDate(fixingTime));
-		double daycountPeriod	= daycountConvention.getDaycountFraction(periodStartDate, periodEndDate);
+		final double daycountPeriod	= daycountConvention.getDaycountFraction(periodStartDate, periodEndDate);
 		daycountFraction = Math.min(Math.max(daycountFraction, 0.0), daycountPeriod);
 		if(isNegativeAccruedInterest) {
 			daycountFraction = daycountPeriod - daycountFraction;
@@ -90,7 +90,7 @@ public class AccruedInterest extends AbstractIndex {
 		return index.queryUnderlyings();
 	}
 
-	private LocalDate getModelDate(double fixingTime) {
+	private LocalDate getModelDate(final double fixingTime) {
 		return referenceDate.plusDays(Math.round((float)(fixingTime*365.0)));
 	}
 }

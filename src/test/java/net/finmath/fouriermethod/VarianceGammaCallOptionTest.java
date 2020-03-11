@@ -48,13 +48,13 @@ public class VarianceGammaCallOptionTest {
 	@Test
 	public void testMartingaleProperty() throws CalculationException{
 		//Characteristic function for Fourier pricing
-		CharacteristicFunctionModel model = new VarianceGammaModel(initialValue,riskFreeRate, riskFreeRate, sigma,theta,nu);
+		final CharacteristicFunctionModel model = new VarianceGammaModel(initialValue,riskFreeRate, riskFreeRate, sigma,theta,nu);
 
-		Complex minusI = new Complex(0.0,-1.0);
+		final Complex minusI = new Complex(0.0,-1.0);
 		System.out.println("Testing the martingale property of the characteristic function over multiple time horizons.");
 
 		for(int i = 0; i<10; i++) {
-			double time = 0.5 * i;
+			final double time = 0.5 * i;
 			System.out.println(model.apply(time).apply(minusI));
 		}
 	}
@@ -62,35 +62,35 @@ public class VarianceGammaCallOptionTest {
 	@Test
 	public void testMartingalePropertyMonteCarlo() throws CalculationException{
 		//Time discretization for Monte Carlo
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
+		final AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
 				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, sigma, theta, nu);
 
 		System.out.println("Testing the martingale property of the Monte Carlo discretization over multiple time horizons.");
 
 		for(int i = 0; i<10; i++) {
-			double time = 0.2 * i;
+			final double time = 0.2 * i;
 			System.out.println(monteCarloVarianceGammaModel.getAssetValue(time, 0).div(monteCarloVarianceGammaModel.getNumeraire(time)).getAverage());
 		}
 	}
 	@Test
 	public void test() throws CalculationException {
 		//Characteristic function for Fourier pricing
-		CharacteristicFunctionModel model = new VarianceGammaModel(initialValue,riskFreeRate, riskFreeRate, sigma,theta,nu);
+		final CharacteristicFunctionModel model = new VarianceGammaModel(initialValue,riskFreeRate, riskFreeRate, sigma,theta,nu);
 
 		//Time discretization for Monte Carlo
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
+		final AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(
 				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, sigma, theta, nu);
 
 		/*
 		 * FFT inversion of the whole smile at once.
 		 */
-		EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
+		final EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
 
-		Map<String, Function<Double, Double>> fftPrices = mySmile.getValue(0.0,model);
+		final Map<String, Function<Double, Double>> fftPrices = mySmile.getValue(0.0,model);
 
 		System.out.println("Comparison of standard Fourier pricer, FFT pricer and Monte Carlo.");
 		System.out.println("Strike" + "\t" + "Fourier Price" + "\t" + "FFT Price"+ "\t" + "External Validation Price");
@@ -99,14 +99,14 @@ public class VarianceGammaCallOptionTest {
 			 * Fourier transform of each call option separately.
 			 * In contrasto to the FFT this operation is O(M^2)
 			 */
-			FourierTransformProduct product = new EuropeanOption(maturity, strikes[i]);
+			final FourierTransformProduct product = new EuropeanOption(maturity, strikes[i]);
 
 			//Monte Carlo Product
-			net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption mcProduct = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(maturity,strikes[i]);
+			final net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption mcProduct = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(maturity,strikes[i]);
 
-			double value			= product.getValue(model);
-			double mcValue          = mcProduct.getValue(monteCarloVarianceGammaModel);
-			double fftPrice			= fftPrices.get("valuePerStrike").apply(strikes[i]);
+			final double value			= product.getValue(model);
+			final double mcValue          = mcProduct.getValue(monteCarloVarianceGammaModel);
+			final double fftPrice			= fftPrices.get("valuePerStrike").apply(strikes[i]);
 			System.out.println(strikes[i] + "\t" + value + "\t" + fftPrice + "\t" + mcValue);
 		}
 	}

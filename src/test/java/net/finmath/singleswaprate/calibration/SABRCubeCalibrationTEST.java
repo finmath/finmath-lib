@@ -18,8 +18,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
@@ -38,32 +38,32 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 
 public class SABRCubeCalibrationTEST {
 
-	private double testAccuracy = 0.01;
-	private int calibrationMaxIteration = 5;
+	private final double testAccuracy = 0.01;
+	private final int calibrationMaxIteration = 5;
 	private static boolean useLinearInterpolation	= true;
 
-	private boolean replicationUseAsOffset = true;
-	private double replicationLowerBound   = -0.15;
-	private double replicationUpperBound   = 0.15;
-	private int replicationNumberOfEvaluationPoints = 50;
+	private final boolean replicationUseAsOffset = true;
+	private final double replicationLowerBound   = -0.15;
+	private final double replicationUpperBound   = 0.15;
+	private final int replicationNumberOfEvaluationPoints = 50;
 
 	// files
-	private String curveFilePath				= "./src/test/resources/curves";
-	private String discountCurveFileName		= "EUR-EONIA.crv";
-	private String forwardCurveFileName			= "EUR-OIS6M.crv";
-	private String swaptionFilePath				= "./src/test/resources/swaptions";
-	private String payerFileName				= "CashPayerSwaptionPrice.sdl";
-	private String receiverFileName				= "CashReceiverSwaptionPrice.sdl";
-	private String physicalFileName				= "PhysicalSwaptionPriceATM.sdl";
+	private final String curveFilePath				= "./src/test/resources/curves";
+	private final String discountCurveFileName		= "EUR-EONIA.crv";
+	private final String forwardCurveFileName			= "EUR-OIS6M.crv";
+	private final String swaptionFilePath				= "./src/test/resources/swaptions";
+	private final String payerFileName				= "CashPayerSwaptionPrice.sdl";
+	private final String receiverFileName				= "CashReceiverSwaptionPrice.sdl";
+	private final String physicalFileName				= "PhysicalSwaptionPriceATM.sdl";
 
-	private AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
+	private final AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
 
 	// cube parameters
-	private double displacement = 0.25;
-	private double beta = 0.5;
-	private double correlationDecay = 0.045;
-	private double iborOisDecorrelation = 1.2;
-	private LocalDate referenceDate = LocalDate.of(2017, 8, 30);
+	private final double displacement = 0.25;
+	private final double beta = 0.5;
+	private final double correlationDecay = 0.045;
+	private final double iborOisDecorrelation = 1.2;
+	private final LocalDate referenceDate = LocalDate.of(2017, 8, 30);
 
 	//schedule data
 	private SchedulePrototype floatMetaSchedule;
@@ -71,8 +71,8 @@ public class SABRCubeCalibrationTEST {
 
 
 	private VolatilityCubeModel model;
-	private String discountCurveName;
-	private String forwardCurveName;
+	private final String discountCurveName;
+	private final String forwardCurveName;
 	private VolatilityCube cube;
 	private SwaptionDataLattice payerSwaptions;
 	private SwaptionDataLattice receiverSwaptions;
@@ -127,9 +127,9 @@ public class SABRCubeCalibrationTEST {
 	public void testSABRCubeCalibration() {
 
 		System.out.println("Running calibration...");
-		long startTime = System.currentTimeMillis();
+		final long startTime = System.currentTimeMillis();
 
-		SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, payerSwaptions, receiverSwaptions, physicalSwaptions,
+		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, payerSwaptions, receiverSwaptions, physicalSwaptions,
 				model, type, displacement, beta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(calibrationMaxIteration, Runtime.getRuntime().availableProcessors());
 		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
@@ -138,26 +138,26 @@ public class SABRCubeCalibrationTEST {
 			calibrator.setInitialParameters(initialRhos, initialBaseVols, initialVolvols);
 		}
 
-		int[] terminations = physicalSwaptions.getTenors();
+		final int[] terminations = physicalSwaptions.getTenors();
 
 		try {
 			cube = calibrator.calibrate("CalibratedSABRCube", terminations);
-		} catch (SolverException e) {
+		} catch (final SolverException e) {
 			e.printStackTrace();
 		}
 
-		long endTime = System.currentTimeMillis();
+		final long endTime = System.currentTimeMillis();
 
 		System.out.println("\nCalibration finished after "+(endTime-startTime)/1000 +"s.");
 		System.out.println("Cube calibrated to parameters:");
 		System.out.println(cube.getParameters().toString());
 
 		System.out.println("\nValue of CSPayerSwaption\nmoneyness maturity termination | model-value market-value");
-		for(int moneyness : payerSwaptions.getMoneyness()) {
-			for(int maturity : payerSwaptions.getMaturities(moneyness)) {
-				for(int termination : payerSwaptions.getTenors(moneyness, maturity)) {
-					double valueModel	= payerValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
-					double valueMarket	= payerSwaptions.getValue(maturity, termination, moneyness);
+		for(final int moneyness : payerSwaptions.getMoneyness()) {
+			for(final int maturity : payerSwaptions.getMaturities(moneyness)) {
+				for(final int termination : payerSwaptions.getTenors(moneyness, maturity)) {
+					final double valueModel	= payerValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
+					final double valueMarket	= payerSwaptions.getValue(maturity, termination, moneyness);
 
 					System.out.println(moneyness + "\t" + maturity + "\t" + termination + "\t|\t" + valueModel + "\t" + valueMarket);
 					Assert.assertEquals(valueMarket, valueModel, testAccuracy);
@@ -166,11 +166,11 @@ public class SABRCubeCalibrationTEST {
 		}
 
 		System.out.println("\nValue of CSReceiverSwaption\nmoneyness maturity termination | model-value market-value");
-		for(int moneyness : receiverSwaptions.getMoneyness()) {
-			for(int maturity : receiverSwaptions.getMaturities(moneyness)) {
-				for(int termination : receiverSwaptions.getTenors(moneyness, maturity)) {
-					double valueModel	= receiverValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
-					double valueMarket	= receiverSwaptions.getValue(maturity, termination, moneyness);
+		for(final int moneyness : receiverSwaptions.getMoneyness()) {
+			for(final int maturity : receiverSwaptions.getMaturities(moneyness)) {
+				for(final int termination : receiverSwaptions.getTenors(moneyness, maturity)) {
+					final double valueModel	= receiverValue(model.addVolatilityCube(cube), maturity, termination, moneyness);
+					final double valueMarket	= receiverSwaptions.getValue(maturity, termination, moneyness);
 
 					System.out.println(moneyness + "\t" + maturity + "\t" + termination + "\t|\t" + valueModel + "\t" + valueMarket);
 					Assert.assertEquals(valueMarket, valueModel, testAccuracy);
@@ -179,13 +179,13 @@ public class SABRCubeCalibrationTEST {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
-		SABRCubeCalibrationTEST test = new SABRCubeCalibrationTEST();
+		final SABRCubeCalibrationTEST test = new SABRCubeCalibrationTEST();
 
 		if(JOptionPane.showConfirmDialog(null, "Load tables from file for custom initial calibration parameters?", "Initial Parameters",
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-			JFileChooser jfc = new JFileChooser();
+			final JFileChooser jfc = new JFileChooser();
 			jfc.setDialogTitle("Select file containing tables");
 			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			jfc.setMultiSelectionEnabled(false);
@@ -200,15 +200,16 @@ public class SABRCubeCalibrationTEST {
 						try {
 							obj = in.readObject();
 							if(obj instanceof Map<?,?>) {
-								Map<?, ?> map	= (Map<?, ?>) obj;
+								final Map<?, ?> map	= (Map<?, ?>) obj;
 								@SuppressWarnings("unchecked")
+								final
 								DataTable table = new DataTableLight(
 										(String) map.get("name"),
 										DataTable.TableConvention.valueOf((String) map.get("tableConvention")),
 										(List<Integer>) map.get("maturities"),
 										(List<Integer>) map.get("terminations"),
 										(List<Double>) map.get("values"));
-								String name = table.getName().toUpperCase();
+								final String name = table.getName().toUpperCase();
 								if(name.contains("RHO")) {
 									initialRhos = table;
 								} else if(name.contains("VOLVOL")) {
@@ -217,7 +218,7 @@ public class SABRCubeCalibrationTEST {
 									initialBaseVols = table;
 								}
 							}
-						} catch (EOFException e) {
+						} catch (final EOFException e) {
 							break;
 						}
 					}
@@ -240,97 +241,100 @@ public class SABRCubeCalibrationTEST {
 
 	public void askForSwaptions() {
 		System.out.println("Evaluate other swaptions?");
-		Scanner in = new Scanner(System.in);
-		String line;
-		while(in.hasNextLine()) {
-			line = in.nextLine();
+		try(Scanner in = new Scanner(System.in)) {
+			String line;
+			while(in.hasNextLine()) {
+				line = in.nextLine();
 
-			if(line.equals("q")) {
-				in.close(); break;
-			}
+				if(line.equals("q")) {
+					in.close(); break;
+				}
 
-			String[] inputs;
-			int moneyness;
-			int maturity;
-			int termination;
+				String[] inputs;
+				int moneyness;
+				int maturity;
+				int termination;
 
-			try {
-				inputs = line.split(" ");
-				moneyness = Integer.parseInt(inputs[1]);
-				maturity = Integer.parseInt(inputs[2]);
-				termination = Integer.parseInt(inputs[3]);
-			} catch (Exception e) {
-				System.out.println("Usage: p/r moneyness maturity termination");
-				System.out.println("Or type q to quit.");
-				continue;
-			}
-
-			switch(inputs[0]) {
-			case "p" :
-				System.out.println("Value of CSPayerSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
 				try {
-					System.out.println("Model: "+ payerValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Model failed to evaluate.");
-					System.out.println("Print stack trace? y/n");
-					while(in.hasNext())
-						if(in.next().equals("y"))
-						{ e.printStackTrace(); break; }
-						else if(in.next().equals("n")) {
-							break;
+					inputs = line.split(" ");
+					moneyness = Integer.parseInt(inputs[1]);
+					maturity = Integer.parseInt(inputs[2]);
+					termination = Integer.parseInt(inputs[3]);
+				} catch (final Exception e) {
+					System.out.println("Usage: p/r moneyness maturity termination");
+					System.out.println("Or type q to quit.");
+					continue;
+				}
+
+				switch(inputs[0]) {
+				case "p" :
+					System.out.println("Value of CSPayerSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
+					try {
+						System.out.println("Model: "+ payerValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
+					} catch (final Exception e) {
+						System.out.println("Model failed to evaluate.");
+						System.out.println("Print stack trace? y/n");
+						while(in.hasNext()) {
+							if(in.next().equals("y"))
+							{ e.printStackTrace(); break; }
+							else if(in.next().equals("n")) {
+								break;
+							}
 						}
-				}
-				try {
-					System.out.println("Market: " + payerSwaptions.getValue(maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Market data not available.");
-				}
-				break;
+					}
+					try {
+						System.out.println("Market: " + payerSwaptions.getValue(maturity, termination, moneyness));
+					} catch (final Exception e) {
+						System.out.println("Market data not available.");
+					}
+					break;
 
-			case "r" :
-				System.out.println("Value of CSReceiverSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
-				try {
-					System.out.println("Model: "+ receiverValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Model failed to evaluate.");
-					System.out.println("Print stack trace? y/n");
-					while(in.hasNext())
-						if(in.next().equals("y"))
-						{ e.printStackTrace(); break; }
-						else if(in.next().equals("n")) {
-							break;
+				case "r" :
+					System.out.println("Value of CSReceiverSwaption, moneyness "+moneyness+", maturity "+maturity+", termination "+termination);
+					try {
+						System.out.println("Model: "+ receiverValue(model.addVolatilityCube(cube),maturity, termination, moneyness));
+					} catch (final Exception e) {
+						System.out.println("Model failed to evaluate.");
+						System.out.println("Print stack trace? y/n");
+						while(in.hasNext()) {
+							if(in.next().equals("y"))
+							{ e.printStackTrace(); break; }
+							else if(in.next().equals("n")) {
+								break;
+							}
 						}
+					}
+					try {
+						System.out.println("Market: " + receiverSwaptions.getValue(maturity, termination, moneyness));
+					} catch (final Exception e) {
+						System.out.println("Market data not available.");
+					}
+					break;
 				}
-				try {
-					System.out.println("Market: " + receiverSwaptions.getValue(maturity, termination, moneyness));
-				} catch (Exception e) {
-					System.out.println("Market data not available.");
-				}
-				break;
 			}
 		}
 	}
 
-	private double payerValue(VolatilityCubeModel model, int maturity, int termination, int moneyness) {
+	private double payerValue(final VolatilityCubeModel model, final int maturity, final int termination, final int moneyness) {
 
-		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-		double strike = forwardSwapRate + moneyness/10000.0;
+		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double strike = forwardSwapRate + moneyness/10000.0;
 
-		CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+		final CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
 				cube.getName(), type, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}
 
-	private double receiverValue(VolatilityCubeModel model, int maturity, int termination, int moneyness) {
+	private double receiverValue(final VolatilityCubeModel model, final int maturity, final int termination, final int moneyness) {
 
-		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-		double strike = forwardSwapRate - moneyness/10000.0;
+		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final double forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double strike = forwardSwapRate - moneyness/10000.0;
 
-		CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
+		final CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
 				cube.getName(), type, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}

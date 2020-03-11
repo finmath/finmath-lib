@@ -61,14 +61,14 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
 	 * @param recoveryRate The recovery rate of the bond.
 	 */
-	public Bond(Schedule                    schedule,
-			String             discountCurveName,
-			String              forwardCurveName,
-			String  survivalProbabilityCurveName,
-			String          basisFactorCurveName,
-			double                   fixedCoupon,
-			double                floatingSpread,
-			double                  recoveryRate) {
+	public Bond(final Schedule                    schedule,
+			final String             discountCurveName,
+			final String              forwardCurveName,
+			final String  survivalProbabilityCurveName,
+			final String          basisFactorCurveName,
+			final double                   fixedCoupon,
+			final double                floatingSpread,
+			final double                  recoveryRate) {
 		super();
 		this.schedule = schedule;
 		this.discountCurveName = discountCurveName;
@@ -90,7 +90,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 * @param recoveryRate The recovery rate of the bond.
 	 */
-	public Bond(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double recoveryRate) {
+	public Bond(final Schedule schedule, final String discountCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon, final double recoveryRate) {
 		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, recoveryRate);
 	}
 
@@ -105,7 +105,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
 	 */
-	public Bond(Schedule schedule, String discountCurveName,String forwardCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon, double floatingSpread) {
+	public Bond(final Schedule schedule, final String discountCurveName,final String forwardCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon, final double floatingSpread) {
 		this(schedule, discountCurveName, forwardCurveName,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,floatingSpread, 0);
 	}
 
@@ -118,7 +118,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param basisFactorCurveName Name of the basis factor curve.
 	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
 	 */
-	public Bond(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName ,String basisFactorCurveName, double fixedCoupon) {
+	public Bond(final Schedule schedule, final String discountCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon) {
 		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, 0);
 	}
 
@@ -126,44 +126,44 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 
-		boolean positiveRecoveryRate = recoveryRate>0;
+		final boolean positiveRecoveryRate = recoveryRate>0;
 
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
+		final Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
 		if(survivalProbabilityCurve == null) {
 			throw new IllegalArgumentException("No survival probability curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		Curve basisFactorCurve = model.getCurve(basisFactorCurveName);
+		final Curve basisFactorCurve = model.getCurve(basisFactorCurveName);
 		if(basisFactorCurve == null) {
 			throw new IllegalArgumentException("No basis factor curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
-			double paymentDate	= schedule.getPayment(periodIndex);
-			double periodLength	= schedule.getPeriodLength(periodIndex);
+			final double paymentDate	= schedule.getPayment(periodIndex);
+			final double periodLength	= schedule.getPeriodLength(periodIndex);
 
-			double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+			final double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 
-			double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
+			final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
 
-			double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
+			final double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
 
 			double couponPayment=fixedCoupon ;
 			if(forwardCurve != null ) {
@@ -179,23 +179,23 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 					previousPaymentDate	= schedule.getPayment(periodIndex-1);
 				}
 
-				double previousSurvivalProbabilityFactor	= previousPaymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, previousPaymentDate) : 1.0;
+				final double previousSurvivalProbabilityFactor	= previousPaymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, previousPaymentDate) : 1.0;
 
 				value += recoveryRate * discountFactor * (previousSurvivalProbabilityFactor- survivalProbabilityFactor) *  basisFactorFactor;
 			}
 		}
 
-		double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);
+		final double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);
 
-		double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
+		final double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 
-		double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
+		final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
 
-		double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
+		final double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
 
 		value +=  discountFactor * survivalProbabilityFactor * basisFactorFactor;
 
-		// @TODO: The forward value should use division of all curves
+		// @TODO The forward value should use division of all curves
 		return value / discountCurve.getDiscountFactor(model, evaluationTime);
 	}
 
@@ -206,14 +206,14 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the coupon payment in the given period.
 	 */
-	public double getCouponPayment(int periodIndex, AnalyticModel model) {
+	public double getCouponPayment(final int periodIndex, final AnalyticModel model) {
 
-		ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double periodLength	= schedule.getPeriodLength(periodIndex);
+		final double periodLength	= schedule.getPeriodLength(periodIndex);
 		double couponPayment=fixedCoupon ;
 		if(forwardCurve != null ) {
 			couponPayment = floatingSpread+forwardCurve.getForward(model, schedule.getFixing(periodIndex));
@@ -232,14 +232,14 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the bond for the given curve and spread.
 	 */
-	public double getValueWithGivenSpreadOverCurve(double evaluationTime,Curve referenceCurve, double spread, AnalyticModel model) {
+	public double getValueWithGivenSpreadOverCurve(final double evaluationTime,final Curve referenceCurve, final double spread, final AnalyticModel model) {
 		double value=0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods();periodIndex++) {
-			double paymentDate	= schedule.getPayment(periodIndex);
+			final double paymentDate	= schedule.getPayment(periodIndex);
 			value+= paymentDate>evaluationTime ? getCouponPayment(periodIndex,model)*Math.exp(-spread*paymentDate)*referenceCurve.getValue(paymentDate): 0.0;
 		}
 
-		double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);
+		final double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		return paymentDate>evaluationTime ? value+Math.exp(-spread*paymentDate)*referenceCurve.getValue(paymentDate):0.0;
 	}
 
@@ -253,8 +253,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The value of the bond for the given yield.
 	 */
-	public double getValueWithGivenYield(double evaluationTime, double rate, AnalyticModel model) {
-		DiscountCurve referenceCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});
+	public double getValueWithGivenYield(final double evaluationTime, final double rate, final AnalyticModel model) {
+		final DiscountCurve referenceCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors("referenceCurve", new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});
 		return getValueWithGivenSpreadOverCurve(evaluationTime, referenceCurve, rate, model);
 	}
 
@@ -267,12 +267,12 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The optimal spread value.
 	 */
-	public double getSpread(double bondPrice, Curve referenceCurve, AnalyticModel model) {
-		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
+	public double getSpread(final double bondPrice, final Curve referenceCurve, final AnalyticModel model) {
+		final GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
-			double x = search.getNextPoint();
-			double fx=getValueWithGivenSpreadOverCurve(0.0,referenceCurve,x,model);
-			double y = (bondPrice-fx)*(bondPrice-fx);
+			final double x = search.getNextPoint();
+			final double fx=getValueWithGivenSpreadOverCurve(0.0,referenceCurve,x,model);
+			final double y = (bondPrice-fx)*(bondPrice-fx);
 
 			search.setValue(y);
 		}
@@ -287,12 +287,12 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The optimal yield value.
 	 */
-	public double getYield(double bondPrice, AnalyticModel model) {
-		GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
+	public double getYield(final double bondPrice, final AnalyticModel model) {
+		final GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
-			double x = search.getNextPoint();
-			double fx=getValueWithGivenYield(0.0,x,model);
-			double y = (bondPrice-fx)*(bondPrice-fx);
+			final double x = search.getNextPoint();
+			final double fx=getValueWithGivenYield(0.0,x,model);
+			final double y = (bondPrice-fx)*(bondPrice-fx);
 
 			search.setValue(y);
 		}
@@ -306,11 +306,11 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
 	 */
-	public double getAccruedInterest(LocalDate date, AnalyticModel model) {
-		int periodIndex=schedule.getPeriodIndex(date);
-		Period period=schedule.getPeriod(periodIndex);
-		DayCountConvention dcc= schedule.getDaycountconvention();
-		double accruedInterest=getCouponPayment(periodIndex,model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);
+	public double getAccruedInterest(final LocalDate date, final AnalyticModel model) {
+		final int periodIndex=schedule.getPeriodIndex(date);
+		final Period period=schedule.getPeriod(periodIndex);
+		final DayCountConvention dcc= schedule.getDaycountconvention();
+		final double accruedInterest=getCouponPayment(periodIndex,model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);
 		return accruedInterest;
 	}
 
@@ -321,8 +321,8 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	 * @param model The model under which the product is valued.
 	 * @return The accrued interest.
 	 */
-	public double getAccruedInterest(double time, AnalyticModel model) {
-		LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);
+	public double getAccruedInterest(final double time, final AnalyticModel model) {
+		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);
 		return getAccruedInterest(date, model);
 	}
 

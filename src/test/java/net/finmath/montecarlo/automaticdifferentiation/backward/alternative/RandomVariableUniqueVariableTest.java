@@ -15,27 +15,27 @@ public class RandomVariableUniqueVariableTest {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
-		RandomVariableUniqueVariable a = new RandomVariableUniqueVariable(5.0 , new double[]{1.0, 2.0, 3.0 ,4.0, 10.0});
+		final RandomVariableUniqueVariable a = new RandomVariableUniqueVariable(5.0 , new double[]{1.0, 2.0, 3.0 ,4.0, 10.0});
 		System.out.println(a);
 
-		RandomVariableUniqueVariable b = new RandomVariableUniqueVariable(7.0, new double[]{1.0, 2.0, 3.0, 5.0, 6.0});
+		final RandomVariableUniqueVariable b = new RandomVariableUniqueVariable(7.0, new double[]{1.0, 2.0, 3.0, 5.0, 6.0});
 		System.out.println(b);
 
-		RandomVariableUniqueVariable c = (RandomVariableUniqueVariable) a.add(b);
+		final RandomVariableUniqueVariable c = (RandomVariableUniqueVariable) a.add(b);
 		System.out.println(c);
 
-		RandomVariableUniqueVariable d = (RandomVariableUniqueVariable) c.mult(b);
+		final RandomVariableUniqueVariable d = (RandomVariableUniqueVariable) c.mult(b);
 		System.out.println(d);
 
-		RandomVariableUniqueVariable e = (RandomVariableUniqueVariable) a.div(d);
+		final RandomVariableUniqueVariable e = (RandomVariableUniqueVariable) a.div(d);
 		System.out.println(e);
 
-		RandomVariableUniqueVariable f = (RandomVariableUniqueVariable) e.exp();
+		final RandomVariableUniqueVariable f = (RandomVariableUniqueVariable) e.exp();
 		System.out.println(f);
 
-		RandomVariable[] g =  f.getGradient();
+		final RandomVariable[] g =  f.getGradient();
 		for(int i = 0; i < g.length; i++){
 			System.out.println(g[i]);
 		}

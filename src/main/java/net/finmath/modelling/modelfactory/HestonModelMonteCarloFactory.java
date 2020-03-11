@@ -13,8 +13,8 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.montecarlo.model.ProcessModel;
@@ -28,21 +28,21 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
 public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDescriptor> {
 
 	private final net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme scheme;
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 	private final IndependentIncrements brownianMotion;
 
 
-	public HestonModelMonteCarloFactory(Scheme scheme, AbstractRandomVariableFactory randomVariableFactory,
-			IndependentIncrements brownianMotion) {
+	public HestonModelMonteCarloFactory(final Scheme scheme, final RandomVariableFactory abstractRandomVariableFactory,
+			final IndependentIncrements brownianMotion) {
 		super();
 		this.scheme = scheme;
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 		this.brownianMotion = brownianMotion;
 	}
 
 
 	@Override
-	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(HestonModelDescriptor modelDescriptor) {
+	public DescribedModel<HestonModelDescriptor> getModelFromDescriptor(final HestonModelDescriptor modelDescriptor) {
 		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<HestonModelDescriptor> {
 
 			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());
@@ -51,7 +51,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			 * @param model
 			 * @param process
 			 */
-			HestonMonteCarloModel(ProcessModel model, MonteCarloProcess process) {
+			HestonMonteCarloModel(final ProcessModel model, final MonteCarloProcess process) {
 				super(model, process);
 			}
 
@@ -61,19 +61,19 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetProductDescriptor) {
 					return productFactory.getProductFromDescriptor(productDescriptor);
 				}
 				else {
-					String name = modelDescriptor.name();
+					final String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}
 		}
 
 		return new HestonMonteCarloModel(
-				new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(modelDescriptor, scheme, randomVariableFactory),
+				new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(modelDescriptor, scheme, abstractRandomVariableFactory),
 				new EulerSchemeFromProcessModel(brownianMotion)
 				);
 	}

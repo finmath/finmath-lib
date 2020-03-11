@@ -35,16 +35,16 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	 * @param spread Fixed spread on the forward or fix rate.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double notional, double spread, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(final String forwardCurveName, final String discountCurveName, final ScheduleDescriptor legSchedule, final double notional, final double spread, final boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;
 
 		this.legSchedule = legSchedule;
-		double[] notionals = new double[legSchedule.getNumberOfPeriods()];
+		final double[] notionals = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(notionals, notional);
 		this.notionals = notionals;
-		double[] spreads = new double[legSchedule.getNumberOfPeriods()];
+		final double[] spreads = new double[legSchedule.getNumberOfPeriods()];
 		Arrays.fill(spreads, spread);
 		this.spreads = spreads;
 		//		this.couponFlow = couponFlow;
@@ -62,7 +62,7 @@ public class InterestRateSwapLegProductDescriptor implements InterestRateProduct
 	 * @param spreads Array of fixed spreads on the forward or fix rates for each period.
 	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
 	 */
-	public InterestRateSwapLegProductDescriptor(String forwardCurveName, String discountCurveName, ScheduleDescriptor legSchedule, double[] notionals, double[] spreads, boolean isNotionalExchanged) {
+	public InterestRateSwapLegProductDescriptor(final String forwardCurveName, final String discountCurveName, final ScheduleDescriptor legSchedule, final double[] notionals, final double[] spreads, final boolean isNotionalExchanged) {
 		super();
 		this.forwardCurveName = forwardCurveName;
 		this.discountCurveName = discountCurveName;

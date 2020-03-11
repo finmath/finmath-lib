@@ -53,7 +53,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private AbstractRandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+	private final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	gammaIncrements;
 
@@ -68,12 +68,12 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	 * @param scale The scale parameter of the Gamma distribution.
 	 */
 	public GammaProcess(
-			TimeDiscretization timeDiscretization,
-			int numberOfFactors,
-			int numberOfPaths,
-			int seed,
-			double shape,
-			double scale) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final double shape,
+			final double scale) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
@@ -95,27 +95,27 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	 * @param shape The shape parameter of the Gamma distribution.
 	 */
 	public GammaProcess(
-			TimeDiscretization timeDiscretization,
-			int numberOfFactors,
-			int numberOfPaths,
-			int seed,
-			double shape) {
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final double shape) {
 		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, shape, 1.0);
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedSeed(int seed) {
+	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
 		return new GammaProcess(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, shape);
 	}
 
 	@Override
-	public IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
 		return new GammaProcess(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), shape);
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if(gammaIncrements == null) {
@@ -139,15 +139,15 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 		}
 
 		// Create random number sequence generator
-		MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
+		final MersenneTwister			mersenneTwister		= new MersenneTwister(seed);
 
 		// Allocate memory
-		double[][][] gammaIncrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];
+		final double[][][] gammaIncrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];
 
 		// Pre-calculate distributions
-		GammaDistribution[] gammaDistributions = new GammaDistribution[timeDiscretization.getNumberOfTimeSteps()];
+		final GammaDistribution[] gammaDistributions = new GammaDistribution[timeDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<gammaDistributions.length; timeIndex++) {
-			double deltaT = timeDiscretization.getTimeStep(timeIndex);
+			final double deltaT = timeDiscretization.getTimeStep(timeIndex);
 			gammaDistributions[timeIndex] = new GammaDistribution(shape * deltaT, scale);
 		}
 
@@ -160,10 +160,10 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 		 */
 		for(int path=0; path<numberOfPaths; path++) {
 			for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-				GammaDistribution gammaDistribution = gammaDistributions[timeIndex];
+				final GammaDistribution gammaDistribution = gammaDistributions[timeIndex];
 				// Generate uncorrelated Gamma distributed increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					double uniformIncrement = mersenneTwister.nextDouble();
+					final double uniformIncrement = mersenneTwister.nextDouble();
 					gammaIncrementsArray[timeIndex][factor][path] = gammaDistribution.inverseCumulativeDistribution(uniformIncrement);
 				}
 			}
@@ -174,10 +174,10 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 
 		// Wrap the values in RandomVariableFromDoubleArray objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double time = timeDiscretization.getTime(timeIndex+1);
+			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				gammaIncrements[timeIndex][factor] =
-						randomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
+						abstractRandomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -198,8 +198,8 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+	public RandomVariable getRandomVariableForConstant(final double value) {
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) {
 			return true;
 		}
@@ -228,7 +228,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 			return false;
 		}
 
-		GammaProcess that = (GammaProcess) o;
+		final GammaProcess that = (GammaProcess) o;
 
 		if (numberOfFactors != that.numberOfFactors) {
 			return false;

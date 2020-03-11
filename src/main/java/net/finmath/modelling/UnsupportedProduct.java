@@ -30,23 +30,23 @@ public class UnsupportedProduct implements Product, AnalyticProduct, Serializabl
 	 *
 	 * @param exception The exception to be thrown if this product is evaluated.
 	 */
-	public UnsupportedProduct(Exception exception) {
+	public UnsupportedProduct(final Exception exception) {
 		super();
 		this.exception = exception;
 	}
 
 	@Override
-	public Object getValue(double evaluationTime, Model model) {
+	public Object getValue(final double evaluationTime, final Model model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, Model model) {
+	public Map<String, Object> getValues(final double evaluationTime, final Model model) {
 		throw exception instanceof RuntimeException ? (RuntimeException)exception : new RuntimeException(exception);
 	}
 

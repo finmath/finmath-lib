@@ -22,8 +22,8 @@ public class InterestRateSwapProductDescriptor implements InterestRateProductDes
 	 * @param legReceiver The descriptor of the receiver leg.
 	 * @param legPayer The descriptor of the payer leg.
 	 */
-	public InterestRateSwapProductDescriptor(InterestRateProductDescriptor legReceiver,
-			InterestRateProductDescriptor legPayer) {
+	public InterestRateSwapProductDescriptor(final InterestRateProductDescriptor legReceiver,
+			final InterestRateProductDescriptor legPayer) {
 		super();
 		this.legReceiver = legReceiver;
 		this.legPayer = legPayer;

@@ -31,12 +31,12 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	 * @return The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default RandomVariable getLIBOR(LocalDateTime date, LocalDateTime periodStartDate, LocalDateTime periodEndDate) throws CalculationException {
-		LocalDateTime referenceDate = getReferenceDate();
+	default RandomVariable getLIBOR(final LocalDateTime date, final LocalDateTime periodStartDate, final LocalDateTime periodEndDate) throws CalculationException {
+		final LocalDateTime referenceDate = getReferenceDate();
 
-		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
-		double periodStart = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodStartDate);
-		double periodEnd = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodEndDate);
+		final double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
+		final double periodStart = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodStartDate);
+		final double periodEnd = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodEndDate);
 
 		return getLIBOR(time, periodStart, periodEnd);
 	}
@@ -59,8 +59,8 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default RandomVariable getNumeraire(LocalDateTime date) throws CalculationException {
-		double time = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
+	default RandomVariable getNumeraire(final LocalDateTime date) throws CalculationException {
+		final double time = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);
 		return getNumeraire(time);
 	}
 

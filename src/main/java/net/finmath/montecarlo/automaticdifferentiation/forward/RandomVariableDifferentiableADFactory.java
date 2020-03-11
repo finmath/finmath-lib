@@ -6,8 +6,8 @@
 
 package net.finmath.montecarlo.automaticdifferentiation.forward;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
@@ -23,23 +23,23 @@ public class RandomVariableDifferentiableADFactory extends AbstractRandomVariabl
 	private static final long serialVersionUID = 252965311623985432L;
 
 	public RandomVariableDifferentiableADFactory() {
-		super(new RandomVariableFactory());
+		super(new RandomVariableFromArrayFactory());
 	}
 
 	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable facotory for the underlying values.
 	 */
-	public RandomVariableDifferentiableADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super(randomVariableFactoryForNonDifferentiable);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAD(createRandomVariableNonDifferentiable(time, value));
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAD(createRandomVariableNonDifferentiable(time, values));
 	}
 

@@ -48,7 +48,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
 	 */
-	private RandomVariable[]	initialValueVector	= new RandomVariable[1];
+	private final RandomVariable[]	initialValueVector	= new RandomVariable[1];
 
 	/**
 	 * Create a blended normal/lognormal model.
@@ -60,11 +60,11 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * @param isUseMilsteinCorrection If true, the drift will include the Milstein correction (making an Euler scheme a Milstein scheme).
 	 */
 	public InhomogeneousDisplacedLognomalModel(
-			double initialValue,
-			double riskFreeRate,
-			double displacement,
-			double volatility,
-			boolean isUseMilsteinCorrection) {
+			final double initialValue,
+			final double riskFreeRate,
+			final double displacement,
+			final double volatility,
+			final boolean isUseMilsteinCorrection) {
 		super();
 
 		this.initialValue	= initialValue;
@@ -84,10 +84,10 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * @param volatility The volatility.
 	 */
 	public InhomogeneousDisplacedLognomalModel(
-			double initialValue,
-			double riskFreeRate,
-			double displacement,
-			double volatility) {
+			final double initialValue,
+			final double riskFreeRate,
+			final double displacement,
+			final double volatility) {
 		this(initialValue, riskFreeRate, displacement, volatility, false);
 	}
 
@@ -101,9 +101,9 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-		double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
-		RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate * dt)-1)/dt);
 			if(isUseMilsteinCorrection) {
@@ -114,9 +114,9 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
-		RandomVariable[] volatilityOnPaths = new RandomVariable[realizationAtTimeIndex.length];
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+		final RandomVariable[] volatilityOnPaths = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			volatilityOnPaths[componentIndex] = realizationAtTimeIndex[componentIndex].add(displacement).mult(volatility * Math.exp(riskFreeRate * dt));
 		}
@@ -124,18 +124,18 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) {
-		double numeraireValue = Math.exp(riskFreeRate * time);
+	public RandomVariable getNumeraire(final double time) {
+		final double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
 	}
@@ -146,19 +146,19 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public InhomogeneousDisplacedLognomalModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public InhomogeneousDisplacedLognomalModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
-		double	newDisplacement	= dataModified.get("displacement") != null	? ((Number)dataModified.get("displacement")).doubleValue()	: this.getVolatility();
-		double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
+		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
+		final double	newDisplacement	= dataModified.get("displacement") != null	? ((Number)dataModified.get("displacement")).doubleValue()	: this.getVolatility();
+		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
 
 		return new InhomogeneousDisplacedLognomalModel(newInitialValue, newRiskFreeRate, newDisplacement, newVolatility, isUseMilsteinCorrection);
 	}

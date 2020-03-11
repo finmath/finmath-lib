@@ -15,14 +15,13 @@ import java.util.stream.DoubleStream;
 
 import net.finmath.functions.DoubleTernaryOperator;
 
-
 /**
  * This interface describes the methods implemented by an immutable random variable.
- * 
+ *
  * The random variable is immutable, i.e. method calls like add, sub, mult will return
  * a new instance and leave the method receiver random variable unchanged (immutable).
  * This is used to ensure that arguments or return values are not changed.
- * 
+ *
  * @author Christian Fries
  * @version 1.5
  */
@@ -276,9 +275,7 @@ public interface RandomVariable extends Serializable {
 	 * set with equal distance over an the interval of the specified standard deviation.
 	 *
 	 * The interval points used are
-	 * <center>
 	 * <code>x[i] = mean + alpha[i] * standardDeviations * sigma</code>
-	 * </center>
 	 * where
 	 * <ul>
 	 * <li>i = 0,..., numberOfPoints-1,</li>
@@ -408,7 +405,7 @@ public interface RandomVariable extends Serializable {
 	 * @param conditionalExpectationOperator A given conditional expectation estimator.
 	 * @return The conditional expectation of this random variable (as a random variable)
 	 */
-	default RandomVariable getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
+	default RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return conditionalExpectationOperator.getConditionalExpectation(this);
 	}
@@ -430,6 +427,14 @@ public interface RandomVariable extends Serializable {
 	 * @return New random variable with the result of the function.
 	 */
 	RandomVariable exp();
+
+	/**
+	 * Applies x &rarr; expm1(x) (that is x &rarr; exp(x)-1.0) to this random variable.
+	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable expm1() {
+		return this.exp().sub(1.0);
+	}
 
 	/**
 	 * Applies x &rarr; log(x) to this random variable.
@@ -584,7 +589,7 @@ public interface RandomVariable extends Serializable {
 	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	default RandomVariable addSumProduct(RandomVariable[] factor1, RandomVariable[] factor2)
+	default RandomVariable addSumProduct(final RandomVariable[] factor1, final RandomVariable[] factor2)
 	{
 		RandomVariable result = this;
 		for(int i=0; i<factor1.length; i++) {
@@ -599,7 +604,7 @@ public interface RandomVariable extends Serializable {
 	 * @param factor2 The factor 2. A list of random variables (compatible with this random variable).
 	 * @return New random variable with the result of the function.
 	 */
-	default RandomVariable addSumProduct(List<RandomVariable> factor1, List<RandomVariable> factor2)
+	default RandomVariable addSumProduct(final List<RandomVariable> factor1, final List<RandomVariable> factor2)
 	{
 		RandomVariable result = this;
 		for(int i=0; i<factor1.size(); i++) {

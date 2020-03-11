@@ -20,12 +20,12 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	private int		numberOfIterations	= 0;               		// Number of numberOfIterations
 	private double	bestPoint;				              		// Best point so far
 	private double	accuracy			= Double.MAX_VALUE;		// Current accuracy of solution
-	private boolean	isDone				= false;             	// Will be true if machine accuracy has been reached
+	private final boolean	isDone				= false;             	// Will be true if machine accuracy has been reached
 
 	/**
 	 * @param guess initial guess where the solver will start
 	 */
-	public NewtonsMethod(double guess) {
+	public NewtonsMethod(final double guess) {
 		nextPoint	= guess;
 		bestPoint	= guess;
 	}
@@ -55,7 +55,7 @@ public class NewtonsMethod implements RootFinderWithDerivative {
 	 *     <code>getNextPoint</code> call.
 	 */
 	@Override
-	public void setValueAndDerivative(double value, double derivative) {
+	public void setValueAndDerivative(final double value, final double derivative) {
 
 		if(Math.abs(value) < accuracy)
 		{

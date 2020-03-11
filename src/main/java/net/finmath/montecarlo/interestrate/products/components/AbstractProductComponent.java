@@ -43,14 +43,14 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 			Runtime.getRuntime().availableProcessors(),
 			10L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new ThreadFactory() {
 				@Override
-				public Thread newThread(Runnable runnable) {
-					Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+				public Thread newThread(final Runnable runnable) {
+					final Thread thread = Executors.defaultThreadFactory().newThread(runnable);
 					thread.setDaemon(true);
 					return thread;
 				}
 			});
 
-	public AbstractProductComponent(String currency) {
+	public AbstractProductComponent(final String currency) {
 		super(currency);
 	}
 
@@ -66,9 +66,9 @@ public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloPr
 	public abstract Set<String> queryUnderlyings();
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable value = this.getValue(evaluationTime, model);
-		Map<String, Object> result = new HashMap<>();
+	public Map<String, Object> getValues(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final RandomVariable value = this.getValue(evaluationTime, model);
+		final Map<String, Object> result = new HashMap<>();
 		result.put("value", value);
 		return result;
 	}

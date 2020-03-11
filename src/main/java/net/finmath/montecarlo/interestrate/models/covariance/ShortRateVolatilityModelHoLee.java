@@ -23,7 +23,7 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModel {
 
 	private final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0);
 
-	public ShortRateVolatilityModelHoLee(double volatility) {
+	public ShortRateVolatilityModelHoLee(final double volatility) {
 		super();
 		this.volatility = new Scalar(volatility);
 	}
@@ -34,12 +34,12 @@ public class ShortRateVolatilityModelHoLee implements ShortRateVolatilityModel {
 	}
 
 	@Override
-	public RandomVariable getVolatility(int timeIndex) {
+	public RandomVariable getVolatility(final int timeIndex) {
 		return volatility;
 	}
 
 	@Override
-	public RandomVariable getMeanReversion(int timeIndex) {
+	public RandomVariable getMeanReversion(final int timeIndex) {
 		return new Scalar(0.0);
 	}
 }

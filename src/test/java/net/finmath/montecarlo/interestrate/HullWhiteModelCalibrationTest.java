@@ -37,7 +37,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
@@ -64,11 +64,11 @@ public class HullWhiteModelCalibrationTest {
 	private static DecimalFormat formatterParam		= new DecimalFormat(" #0.000;-#0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	private CalibrationProduct createCalibrationItem(double weight, double exerciseDate, double swapPeriodLength, int numberOfPeriods, double moneyness, double targetVolatility, String targetVolatilityType, ForwardCurve forwardCurve, DiscountCurve discountCurve) throws CalculationException {
+	private CalibrationProduct createCalibrationItem(final double weight, final double exerciseDate, final double swapPeriodLength, final int numberOfPeriods, final double moneyness, final double targetVolatility, final String targetVolatilityType, final ForwardCurve forwardCurve, final DiscountCurve discountCurve) throws CalculationException {
 
-		double[]	fixingDates			= new double[numberOfPeriods];
-		double[]	paymentDates		= new double[numberOfPeriods];
-		double[]	swapTenor			= new double[numberOfPeriods + 1];
+		final double[]	fixingDates			= new double[numberOfPeriods];
+		final double[]	paymentDates		= new double[numberOfPeriods];
+		final double[]	swapTenor			= new double[numberOfPeriods + 1];
 
 		for (int periodStartIndex = 0; periodStartIndex < numberOfPeriods; periodStartIndex++) {
 			fixingDates[periodStartIndex] = exerciseDate + periodStartIndex * swapPeriodLength;
@@ -78,10 +78,10 @@ public class HullWhiteModelCalibrationTest {
 		swapTenor[numberOfPeriods] = exerciseDate + numberOfPeriods * swapPeriodLength;
 
 		// Swaptions swap rate
-		double swaprate = moneyness + getParSwaprate(forwardCurve, discountCurve, swapTenor);
+		final double swaprate = moneyness + getParSwaprate(forwardCurve, discountCurve, swapTenor);
 
 		// Set swap rates for each period
-		double[] swaprates = new double[numberOfPeriods];
+		final double[] swaprates = new double[numberOfPeriods];
 		Arrays.fill(swaprates, swaprate);
 
 		/*
@@ -89,7 +89,7 @@ public class HullWhiteModelCalibrationTest {
 		 * Alternatively you may change here to Monte-Carlo valuation on price or
 		 * use an analytic approximation formula, etc.
 		 */
-		SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
+		final SwaptionSimple swaptionMonteCarlo = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
 		//		double targetValuePrice = AnalyticFormulas.blackModelSwaptionValue(swaprate, targetVolatility, fixingDates[0], swaprate, getSwapAnnuity(discountCurve, swapTenor));
 		return new CalibrationProduct(swaptionMonteCarlo, targetVolatility, weight);
 	}
@@ -108,7 +108,7 @@ public class HullWhiteModelCalibrationTest {
 
 		final int numberOfPaths		= 1000;
 
-		long millisCurvesStart = System.currentTimeMillis();
+		final long millisCurvesStart = System.currentTimeMillis();
 
 		/*
 		 * Calibration test
@@ -127,7 +127,7 @@ public class HullWhiteModelCalibrationTest {
 		final DiscountCurve discountCurve = curveModel.getDiscountCurve("discountCurve-EUR");
 		//		curveModel.addCurve(discountCurve.getName(), discountCurve);
 
-		long millisCurvesEnd = System.currentTimeMillis();
+		final long millisCurvesEnd = System.currentTimeMillis();
 		System.out.println();
 
 		/*
@@ -138,24 +138,24 @@ public class HullWhiteModelCalibrationTest {
 		/*
 		 * Create a set of calibration products.
 		 */
-		ArrayList<String>					calibrationItemNames	= new ArrayList<>();
+		final ArrayList<String>					calibrationItemNames	= new ArrayList<>();
 		final ArrayList<CalibrationProduct>	calibrationProducts		= new ArrayList<>();
 
-		double	swapPeriodLength	= 0.5;
+		final double	swapPeriodLength	= 0.5;
 
 		//Create co-terminals (atmExpiry + atmTenor = 11Y)
-		String[] atmExpiries = {"1Y", "2Y", "3Y", "4Y", "5Y", "7Y", "10Y"};
-		String[] atmTenors = {"1Y", "4Y", "6Y", "7Y", "8Y", "9Y", "10Y"};
+		final String[] atmExpiries = {"1Y", "2Y", "3Y", "4Y", "5Y", "7Y", "10Y"};
+		final String[] atmTenors = {"1Y", "4Y", "6Y", "7Y", "8Y", "9Y", "10Y"};
 
-		double[] atmNormalVolatilities = {0.00504, 0.005, 0.00495, 0.00454, 0.00418, 0.00404, 0.00394};
+		final double[] atmNormalVolatilities = {0.00504, 0.005, 0.00495, 0.00454, 0.00418, 0.00404, 0.00394};
 
-		LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30);
-		BusinessdayCalendarExcludingTARGETHolidays cal = new BusinessdayCalendarExcludingTARGETHolidays();
-		DayCountConvention_ACT_365 modelDC = new DayCountConvention_ACT_365();
+		final LocalDate referenceDate = LocalDate.of(2016, Month.SEPTEMBER, 30);
+		final BusinessdayCalendarExcludingTARGETHolidays cal = new BusinessdayCalendarExcludingTARGETHolidays();
+		final DayCountConvention_ACT_365 modelDC = new DayCountConvention_ACT_365();
 		for(int i=0; i<atmNormalVolatilities.length; i++ ) {
 
-			LocalDate exerciseDate = cal.getDateFromDateAndOffsetCode(referenceDate, atmExpiries[i]);
-			LocalDate tenorEndDate = cal.getDateFromDateAndOffsetCode(exerciseDate, atmTenors[i]);
+			final LocalDate exerciseDate = cal.getDateFromDateAndOffsetCode(referenceDate, atmExpiries[i]);
+			final LocalDate tenorEndDate = cal.getDateFromDateAndOffsetCode(exerciseDate, atmTenors[i]);
 			double	exercise		= modelDC.getDaycountFraction(referenceDate, exerciseDate);
 			double	tenor			= modelDC.getDaycountFraction(exerciseDate, tenorEndDate);
 
@@ -167,79 +167,79 @@ public class HullWhiteModelCalibrationTest {
 				continue;
 			}
 
-			int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
+			final int numberOfPeriods = (int)Math.round(tenor / swapPeriodLength);
 
-			double	moneyness			= 0.0;
-			double	targetVolatility	= atmNormalVolatilities[i];
+			final double	moneyness			= 0.0;
+			final double	targetVolatility	= atmNormalVolatilities[i];
 
-			String	targetVolatilityType = "VOLATILITYNORMAL";
+			final String	targetVolatilityType = "VOLATILITYNORMAL";
 
-			double	weight = 1.0;
+			final double	weight = 1.0;
 
 			calibrationProducts.add(createCalibrationItem(weight, exercise, swapPeriodLength, numberOfPeriods, moneyness, targetVolatility, targetVolatilityType, forwardCurve, discountCurve));
 			calibrationItemNames.add(atmExpiries[i]+"\t"+atmTenors[i]);
 		}
 
 		// If simulation time is below libor time, exceptions will be hard to track.
-		double lastTime	= 40.0;
-		double dt		= 0.25;
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final double lastTime	= 40.0;
+		final double dt		= 0.25;
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 		final TimeDiscretization liborPeriodDiscretization = timeDiscretizationFromArray;
 
-		TimeDiscretization volatilityDiscretization = new TimeDiscretizationFromArray(new double[] {0, 1 ,2, 3, 5, 7, 10, 15});
+		final TimeDiscretization volatilityDiscretization = new TimeDiscretizationFromArray(new double[] {0, 1 ,2, 3, 5, 7, 10, 15});
 		//		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory();
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
-		AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
+		final AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFromArrayFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
 
-		BrownianMotionLazyInit brownianMotion = new BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
+		final BrownianMotionLazyInit brownianMotion = new BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 		//		//Create map (mainly use calibration defaults)
-		Map<String, Object> properties = new HashMap<>();
-		Map<String, Object> calibrationParameters = new HashMap<>();
+		final Map<String, Object> properties = new HashMap<>();
+		final Map<String, Object> calibrationParameters = new HashMap<>();
 		calibrationParameters.put("brownianMotion", brownianMotion);
 		properties.put("calibrationParameters", calibrationParameters);
 
-		long millisCalibrationStart = System.currentTimeMillis();
-		CalibrationProduct[] calibrationItemsHW = new CalibrationProduct[calibrationItemNames.size()];
+		final long millisCalibrationStart = System.currentTimeMillis();
+		final CalibrationProduct[] calibrationItemsHW = new CalibrationProduct[calibrationItemNames.size()];
 		for(int i=0; i<calibrationItemNames.size(); i++) {
 			calibrationItemsHW[i] = new CalibrationProduct(calibrationProducts.get(i).getProduct(),calibrationProducts.get(i).getTargetValue(),calibrationProducts.get(i).getWeight());
 		}
 
 		// TODO Left hand side type should be interface, once interface are refactored.
-		HullWhiteModel hullWhiteModel = HullWhiteModel.of(randomVariableFactory, liborPeriodDiscretization, new AnalyticModelFromCurvesAndVols(new Curve[] {discountCurve, forwardCurve}), forwardCurve, discountCurve, volatilityModel, calibrationItemsHW, properties);
-		long millisCalibrationEnd = System.currentTimeMillis();
+		final HullWhiteModel hullWhiteModel = HullWhiteModel.of(randomVariableFromArrayFactory, liborPeriodDiscretization, new AnalyticModelFromCurvesAndVols(new Curve[] {discountCurve, forwardCurve}), forwardCurve, discountCurve, volatilityModel, calibrationItemsHW, properties);
+		final long millisCalibrationEnd = System.currentTimeMillis();
 
 		System.out.println("\nCalibrated parameters are:");
-		double[] param = ((ShortRateVolatilityModelParametric) hullWhiteModel.getVolatilityModel()).getParameterAsDouble();
-		for (double p : param) {
+		final double[] param = ((ShortRateVolatilityModelParametric) hullWhiteModel.getVolatilityModel()).getParameterAsDouble();
+		for (final double p : param) {
 			System.out.println(p);
 		}
 
-		LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(hullWhiteModel, process);
+		final LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(hullWhiteModel, process);
 
 		System.out.println("\nValuation on calibrated model:");
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
-				double valueModel = calibrationProduct.getValue(hullWhiteModelSimulation);
-				double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
-				double error = valueModel-valueTarget;
+				final double valueModel = calibrationProduct.getValue(hullWhiteModelSimulation);
+				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
+				final double error = valueModel-valueTarget;
 				deviationSum += error;
 				deviationSquaredSum += error*error;
 				System.out.println(calibrationItemNames.get(i) + "\t" + "Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));// + "\t" + calibrationProduct.toString());
 			}
-			catch(Exception e) {
+			catch(final Exception e) {
 			}
 		}
 
 		System.out.println("Calibration of curves........." + (millisCurvesEnd-millisCurvesStart)/1000.0);
 		System.out.println("Calibration of volatilities..." + (millisCalibrationEnd-millisCalibrationStart)/1000.0);
 
-		double averageDeviation = deviationSum/calibrationProducts.size();
+		final double averageDeviation = deviationSum/calibrationProducts.size();
 		System.out.println("Mean Deviation:" + formatterValue.format(averageDeviation));
 		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationProducts.size())));
 		System.out.println("__________________________________________________________________________________________\n");
@@ -255,7 +255,7 @@ public class HullWhiteModelCalibrationTest {
 		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
 		final double[] rates					= { -0.00216 ,-0.00208 ,-0.00222 ,-0.00216 ,-0.0019 ,-0.0014 ,-0.00072 ,0.00011 ,0.00103 ,0.00196 ,0.00285 ,0.00367 ,0.0044 ,0.00604 ,0.00733 ,0.00767 ,0.00773 ,0.00765 ,0.00752 ,0.007138 ,0.007 };
 
-		HashMap<String, Object> parameters = new HashMap<>();
+		final HashMap<String, Object> parameters = new HashMap<>();
 
 		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
 		parameters.put("currency", "EUR");
@@ -270,7 +270,7 @@ public class HullWhiteModelCalibrationTest {
 		return getCalibratedCurve(null, parameters);
 	}
 
-	private static AnalyticModel getCalibratedCurve(AnalyticModel model2, Map<String, Object> parameters) throws SolverException {
+	private static AnalyticModel getCalibratedCurve(final AnalyticModel model2, final Map<String, Object> parameters) throws SolverException {
 
 		final LocalDate	referenceDate		= (LocalDate) parameters.get("referenceDate");
 		final String	currency			= (String) parameters.get("currency");
@@ -289,10 +289,10 @@ public class HullWhiteModelCalibrationTest {
 		Assert.assertEquals(frequency.length, frequencyFloat.length);
 		Assert.assertEquals(daycountConventions.length, daycountConventionsFloat.length);
 
-		int		spotOffsetDays = 2;
-		String	forwardStartPeriod = "0D";
+		final int		spotOffsetDays = 2;
+		final String	forwardStartPeriod = "0D";
 
-		String curveNameDiscount = "discountCurve-" + currency;
+		final String curveNameDiscount = "discountCurve-" + currency;
 
 		/*
 		 * We create a forward curve by referencing the same discount curve, since
@@ -302,20 +302,20 @@ public class HullWhiteModelCalibrationTest {
 		 * would result in a problem where both, the forward curve and the discount curve
 		 * have free parameters.
 		 */
-		ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
+		final ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
-		double[] curveMaturities	= new double[rates.length+1];
-		double[] curveValue			= new double[rates.length+1];
-		boolean[] curveIsParameter	= new boolean[rates.length+1];
+		final Vector<AnalyticProduct> calibrationProducts = new Vector<>();
+		final double[] curveMaturities	= new double[rates.length+1];
+		final double[] curveValue			= new double[rates.length+1];
+		final boolean[] curveIsParameter	= new boolean[rates.length+1];
 		curveMaturities[0] = 0.0;
 		curveValue[0] = 1.0;
 		curveIsParameter[0] = false;
 		for(int i=0; i<rates.length; i++) {
 
-			Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			final Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 
 			curveMaturities[i+1] = Math.max(schedulePay.getPayment(schedulePay.getNumberOfPeriods()-1),scheduleRec.getPayment(scheduleRec.getNumberOfPeriods()-1));
 			curveValue[i+1] = 1.0;
@@ -323,11 +323,12 @@ public class HullWhiteModelCalibrationTest {
 			calibrationProducts.add(new Swap(schedulePay, null, rates[i], curveNameDiscount, scheduleRec, forwardCurve.getName(), 0.0, curveNameDiscount));
 		}
 
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
 
 		// Create a discount curve
-		DiscountCurveInterpolation			discountCurveInterpolation					= DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		final DiscountCurveInterpolation discountCurveInterpolation = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				curveNameDiscount								/* name */,
+				referenceDate	/* referenceDate */,
 				curveMaturities	/* maturities */,
 				curveValue		/* discount factors */,
 				curveIsParameter,
@@ -344,44 +345,44 @@ public class HullWhiteModelCalibrationTest {
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObject> curvesToCalibrate = new HashSet<>();
+		final Set<ParameterObject> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurveInterpolation);
 
 		/*
 		 * Calibrate the curve
 		 */
-		Solver solver = new Solver(model, calibrationProducts, 0.0, 1E-4 /* target accuracy */);
-		AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
+		final Solver solver = new Solver(model, calibrationProducts, 0.0, 1E-4 /* target accuracy */);
+		final AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
 
 		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
 
 		// Get best parameters
-		double[] parametersBest = calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getParameter();
+		final double[] parametersBest = calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getParameter();
 
 		// Test calibration
 		model			= calibratedModel;
 
 		double squaredErrorSum = 0.0;
-		for(AnalyticProduct c : calibrationProducts) {
-			double value = c.getValue(0.0, model);
-			double valueTaget = 0.0;
-			double error = value - valueTaget;
+		for(final AnalyticProduct c : calibrationProducts) {
+			final double value = c.getValue(0.0, model);
+			final double valueTaget = 0.0;
+			final double error = value - valueTaget;
 			squaredErrorSum += error*error;
 		}
-		double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
+		final double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
 
 		System.out.println("Independent checked acccurary: " + rms);
 
 		System.out.println("Calibrated discount curve: ");
 		for(int i=0; i<curveMaturities.length; i++) {
-			double maturity = curveMaturities[i];
+			final double maturity = curveMaturities[i];
 			System.out.println(maturity + "\t" + calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getDiscountFactor(maturity));
 		}
 		return model;
 	}
 
-	private static double getParSwaprate(ForwardCurve forwardCurve, DiscountCurve discountCurve, double[] swapTenor) {
+	private static double getParSwaprate(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final double[] swapTenor) {
 		return net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve, discountCurve);
 	}
 }

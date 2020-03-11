@@ -34,7 +34,7 @@ public class BusinessdayCalendarExcludingWeekends extends AbstractBusinessdayCal
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingWeekends(BusinessdayCalendar baseCalendar) {
+	public BusinessdayCalendarExcludingWeekends(final BusinessdayCalendar baseCalendar) {
 		this.baseCalendar = baseCalendar;
 	}
 
@@ -42,7 +42,7 @@ public class BusinessdayCalendarExcludingWeekends extends AbstractBusinessdayCal
 	 * @see net.finmath.time.BusinessdayCalendarInterface#isBuisinessday(java.util.Calendar)
 	 */
 	@Override
-	public boolean isBusinessday(LocalDate date) {
+	public boolean isBusinessday(final LocalDate date) {
 		return	(baseCalendar == null || baseCalendar.isBusinessday(date))
 				&& date.getDayOfWeek() != DayOfWeek.SATURDAY
 				&& date.getDayOfWeek() != DayOfWeek.SUNDAY;

@@ -20,12 +20,12 @@ import net.finmath.stochastic.Scalar;
  * @version 1.0
  */
 public class LIBORBond extends AbstractLIBORMonteCarloProduct {
-	private double maturity;
+	private final double maturity;
 
 	/**
 	 * @param maturity The maturity given as double.
 	 */
-	public LIBORBond(double maturity) {
+	public LIBORBond(final double maturity) {
 		super();
 		this.maturity = maturity;
 	}
@@ -41,7 +41,7 @@ public class LIBORBond extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		if(evaluationTime > maturity) {
 			return new Scalar(0);
 		}

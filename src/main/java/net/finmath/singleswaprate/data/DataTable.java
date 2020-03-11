@@ -43,19 +43,19 @@ public interface DataTable extends Serializable, Cloneable {
 	 * @param table The table to be exported.
 	 * @return Map of the table contents.
 	 */
-	static Map<String, Object> exportTable(DataTable table) {
-		Map<String, Object> map = new HashMap<>();
+	static Map<String, Object> exportTable(final DataTable table) {
+		final Map<String, Object> map = new HashMap<>();
 		map.put("name", table.getName());
 		map.put("tableConvention", table.getConvention().toString());
 		map.put("referenceDate", table.getReferenceDate());
 		map.put("scheduleMetaData", table.getScheduleMetaData().toString());
 
-		List<Integer> maturities	= new ArrayList<>();
-		List<Integer> terminations	= new ArrayList<>();
-		List<Double> values			= new ArrayList<>();
+		final List<Integer> maturities	= new ArrayList<>();
+		final List<Integer> terminations	= new ArrayList<>();
+		final List<Double> values			= new ArrayList<>();
 
-		for(int mat : table.getMaturities()) {
-			for(int ter : table.getTerminationsForMaturity(mat)) {
+		for(final int mat : table.getMaturities()) {
+			for(final int ter : table.getTerminationsForMaturity(mat)) {
 				maturities.add(mat);
 				terminations.add(ter);
 				values.add(table.getValue(mat, ter));

@@ -35,7 +35,7 @@ public class ExponentialCorrelationCurve extends AbstractCurve implements Clonea
 	 * @param termination The date as double, from which the correlation is measured
 	 * @param correlationDecay The rate at which the correlation decays
 	 */
-	public ExponentialCorrelationCurve(String name, LocalDate referenceDate, double termination, double correlationDecay) {
+	public ExponentialCorrelationCurve(final String name, final LocalDate referenceDate, final double termination, final double correlationDecay) {
 		super(name, referenceDate);
 
 		this.termination = termination;
@@ -43,9 +43,12 @@ public class ExponentialCorrelationCurve extends AbstractCurve implements Clonea
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
-		if(time > termination) return 1.0;
-		else return Math.exp(correlationDecay *(time -termination));
+	public double getValue(final AnalyticModel model, final double time) {
+		if(time > termination) {
+			return 1.0;
+		} else {
+			return Math.exp(correlationDecay *(time -termination));
+		}
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class ExponentialCorrelationCurve extends AbstractCurve implements Clonea
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 

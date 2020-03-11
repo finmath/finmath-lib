@@ -13,8 +13,6 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import org.apache.commons.math3.util.FastMath;
-
 import net.finmath.functions.DoubleTernaryOperator;
 import net.finmath.stochastic.RandomVariable;
 
@@ -55,7 +53,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 *
 	 * @param value Object implementing <code>RandomVariable</code>.
 	 */
-	public RandomVariableLazyEvaluation(RandomVariable value) {
+	public RandomVariableLazyEvaluation(final RandomVariable value) {
 		super();
 		time = value.getFiltrationTime();
 		realizations = value.isDeterministic() ? null : value::get;
@@ -68,7 +66,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 *
 	 * @param value the value, a constant.
 	 */
-	public RandomVariableLazyEvaluation(double value) {
+	public RandomVariableLazyEvaluation(final double value) {
 		this(0.0, value);
 	}
 
@@ -78,12 +76,12 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @param value Object implementing <code>RandomVariable</code>.
 	 * @param function A function mapping double to double.
 	 */
-	public RandomVariableLazyEvaluation(RandomVariable value, DoubleUnaryOperator function) {
+	public RandomVariableLazyEvaluation(final RandomVariable value, final DoubleUnaryOperator function) {
 		super();
 		time = value.getFiltrationTime();
 		realizations = value.isDeterministic() ? null : new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return function.applyAsDouble(value.get(i));
 			}
 		};
@@ -97,7 +95,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param value the value, a constant.
 	 */
-	public RandomVariableLazyEvaluation(double time, double value) {
+	public RandomVariableLazyEvaluation(final double time, final double value) {
 		super();
 		this.time = time;
 		realizations = null;
@@ -112,13 +110,13 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @param numberOfPath The number of path/state of the associated Monte-Carlo simulation or lattice.
 	 * @param value the value, a constant.
 	 */
-	public RandomVariableLazyEvaluation(double time, int numberOfPath, double value) {
+	public RandomVariableLazyEvaluation(final double time, final int numberOfPath, final double value) {
 		super();
 		this.time = time;
 		size = numberOfPath;
 		realizations = new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return value;
 			}
 		};
@@ -131,13 +129,13 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @param time the filtration time, set to 0.0 if not used.
 	 * @param realisations the vector of realizations.
 	 */
-	public RandomVariableLazyEvaluation(double time, double[] realisations) {
+	public RandomVariableLazyEvaluation(final double time, final double[] realisations) {
 		super();
 		this.time = time;
 		size = realisations.length;
 		realizations = new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int i) {
+			public double applyAsDouble(final int i) {
 				return realisations[i];
 			}
 		};
@@ -152,7 +150,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @param realisations the vector of realizations.
 	 * @param size The number of path/state of the associated Monte-Carlo simulation or lattice.
 	 */
-	public RandomVariableLazyEvaluation(double time, IntToDoubleFunction realisations, int size) {
+	public RandomVariableLazyEvaluation(final double time, final IntToDoubleFunction realisations, final int size) {
 		super();
 		this.time = time;
 		realizations = realisations;
@@ -164,7 +162,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.montecarlo.RandomVariableFromDoubleArray)
 	 */
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		if(time != randomVariable.getFiltrationTime()) {
 			return false;
 		}
@@ -197,7 +195,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		} else {
@@ -257,9 +255,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		if(isDeterministic()) {
-			return valueIfNonStochastic;
+			return valueIfNonStochastic * probabilities.getAverage();
 		}
 		if(size() == 0) {
 			return Double.NaN;
@@ -282,7 +280,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 
 		double sum			= 0.0;
 		double sumOfSquared = 0.0;
-		for (double realization : getRealizations()) {
+		for (final double realization : getRealizations()) {
 			sum += realization;
 			sumOfSquared += realization * realization;
 		}
@@ -290,7 +288,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	}
 
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -335,7 +333,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -365,7 +363,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return 0.0;
 		}
@@ -380,7 +378,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile()
 	 */
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -388,10 +386,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			return Double.NaN;
 		}
 
-		double[] realizationsSorted = getRealizations().clone();
+		final double[] realizationsSorted = getRealizations().clone();
 		Arrays.sort(realizationsSorted);
 
-		int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);
+		final int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);
 
 		return realizationsSorted[indexOfQuantileValue];
 	}
@@ -400,7 +398,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -415,7 +413,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getConditionalVaR()
 	 */
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		if(isDeterministic()) {
 			return valueIfNonStochastic;
 		}
@@ -426,11 +424,11 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			return getQuantileExpectation(quantileEnd, quantileStart);
 		}
 
-		double[] realizationsSorted = getRealizations().clone();
+		final double[] realizationsSorted = getRealizations().clone();
 		Arrays.sort(realizationsSorted);
 
-		int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);
-		int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);
+		final int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);
+		final int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);
 
 		double quantileExpectation = 0.0;
 		for (int i=indexOfQuantileValueStart; i<=indexOfQuantileValueEnd;i++) {
@@ -445,9 +443,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram()
 	 */
 	@Override
-	public double[] getHistogram(double[] intervalPoints)
+	public double[] getHistogram(final double[] intervalPoints)
 	{
-		double[] histogramValues = new double[intervalPoints.length+1];
+		final double[] histogramValues = new double[intervalPoints.length+1];
 
 		if(isDeterministic()) {
 			/*
@@ -471,7 +469,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			 * There is one exception:
 			 * If the size of the random variable is 0, all entries will be zero.
 			 */
-			double[] realizationsSorted = getRealizations().clone();
+			final double[] realizationsSorted = getRealizations().clone();
 			Arrays.sort(realizationsSorted);
 
 			int sampleIndex=0;
@@ -503,20 +501,20 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int,double)
 	 */
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
-		double[] intervalPoints = new double[numberOfPoints];
-		double[] anchorPoints	= new double[numberOfPoints+1];
-		double center	= getAverage();
-		double radius	= standardDeviations * getStandardDeviation();
-		double stepSize	= (numberOfPoints-1) / 2.0;
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+		final double[] intervalPoints = new double[numberOfPoints];
+		final double[] anchorPoints	= new double[numberOfPoints+1];
+		final double center	= getAverage();
+		final double radius	= standardDeviations * getStandardDeviation();
+		final double stepSize	= (numberOfPoints-1) / 2.0;
 		for(int i=0; i<numberOfPoints;i++) {
-			double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;
+			final double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;
 			intervalPoints[i]	= center + alpha * radius;
 			anchorPoints[i]		= center + alpha * radius - radius / (2 * stepSize);
 		}
 		anchorPoints[numberOfPoints] = center + 1 * radius + radius / (2 * stepSize);
 
-		double[][] result = new double[2][];
+		final double[][] result = new double[2][];
 		result[0] = anchorPoints;
 		result[1] = getHistogram(intervalPoints);
 
@@ -534,10 +532,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariable#expand()
 	 */
-	public RandomVariable expand(int numberOfPaths) {
+	public RandomVariable expand(final int numberOfPaths) {
 		if(isDeterministic()) {
 			// Expand random variable to a vector of path values
-			double[] clone = new double[numberOfPaths];
+			final double[] clone = new double[numberOfPaths];
 			Arrays.fill(clone,valueIfNonStochastic);
 			return new RandomVariableFromDoubleArray(time,clone);
 
@@ -553,7 +551,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	@Override
 	public double[] getRealizations() {
 		if(isDeterministic()) {
-			double[] result = new double[1];
+			final double[] result = new double[1];
 			result[0] = get(0);
 			return result;
 		}
@@ -608,15 +606,15 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		if(isDeterministic()) {
 			return new RandomVariableLazyEvaluation(time, operator.applyAsDouble(valueIfNonStochastic));
 		}
 		else
 		{
-			IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+			final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 				@Override
-				public double applyAsDouble(int i) {
+				public double applyAsDouble(final int i) {
 					return operator.applyAsDouble(realizations.applyAsDouble(i));
 				}
 			};
@@ -632,7 +630,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				realizationsArray = getRealizationsStream().toArray();
 				realizations = new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return realizationsArray[i];
 					}
 				};
@@ -642,17 +640,17 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, final RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 
-		double      newTime           = Math.max(time, argument.getFiltrationTime());
+		final double      newTime           = Math.max(time, argument.getFiltrationTime());
 
 		if(isDeterministic() && argument.isDeterministic()) {
 			return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));
 		}
 		else if(!isDeterministic() && argument.isDeterministic()) {
-			IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+			final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 				@Override
-				public double applyAsDouble(int i) {
+				public double applyAsDouble(final int i) {
 					return operator.applyAsDouble(realizations.applyAsDouble(i), argument.get(0));
 				}
 			};
@@ -661,9 +659,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		else if(isDeterministic() && !argument.isDeterministic()) {
 			if(false) {
 				final IntToDoubleFunction argumentRealizations = argument.getOperator();
-				IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return operator.applyAsDouble(valueIfNonStochastic, argumentRealizations.applyAsDouble(i));
 					}
 				};
@@ -671,9 +669,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			}
 			else {
 				final double[] argumentRealizations = argument.getRealizations();
-				IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return operator.applyAsDouble(valueIfNonStochastic, argumentRealizations[i]);
 					}
 				};
@@ -684,9 +682,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		{
 			if(false) {
 				final IntToDoubleFunction argumentRealizations = argument.getOperator();
-				IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations.applyAsDouble(i));
 					}
 				};
@@ -694,9 +692,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			}
 			else {
 				final double[] argumentRealizations = argument.getRealizations();
-				IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
+				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations[i]);
 					}
 				};
@@ -706,7 +704,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 
 	}
 
-	public RandomVariable apply(DoubleBinaryOperator operatorOuter, DoubleBinaryOperator operatorInner, RandomVariable argument1, RandomVariable argument2)
+	public RandomVariable apply(final DoubleBinaryOperator operatorOuter, final DoubleBinaryOperator operatorInner, final RandomVariable argument1, final RandomVariable argument2)
 	{
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
@@ -715,7 +713,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			return new RandomVariableLazyEvaluation(newTime, operatorOuter.applyAsDouble(valueIfNonStochastic, operatorInner.applyAsDouble(argument1.get(0), argument2.get(0))));
 		}
 		else {
-			int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+			final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
 
 			if(false) {
 				if(argument1.isDeterministic() && argument2.isDeterministic()) {
@@ -724,7 +722,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 					final double	innerResult = operatorInner.applyAsDouble(argument1Realization, argument2Realization);
 					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult);
 						}
 					}, newSize);
@@ -732,7 +730,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), operatorInner.applyAsDouble(argument1.get(i), argument2.get(i)));
 						}
 					}, newSize);
@@ -745,7 +743,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 					final double	argument2Realization = argument2.get(0);
 					innerResult = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorInner.applyAsDouble(argument1Realization, argument2Realization);
 						}
 					};
@@ -755,7 +753,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 					final double[]	argument2Realizations	= argument2.getRealizations();
 					innerResult = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorInner.applyAsDouble(argument1Realization, argument2Realizations[i]);
 						}
 					};
@@ -765,7 +763,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 					final double	argument2Realization	= argument2.get(0);
 					innerResult = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorInner.applyAsDouble(argument1Realizations[i], argument2Realization);
 						}
 					};
@@ -775,7 +773,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 					final double[]	argument2Realizations	= argument2.getRealizations();
 					innerResult = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorInner.applyAsDouble(argument1Realizations[i], argument2Realizations[i]);
 						}
 					};
@@ -784,7 +782,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				if(isDeterministic()) {
 					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorOuter.applyAsDouble(valueIfNonStochastic,          innerResult.applyAsDouble(i));
 						}
 					}, newSize);
@@ -792,7 +790,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult.applyAsDouble(i));
 						}
 					}, newSize);
@@ -803,7 +801,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2)
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2)
 	{
 		double newTime = Math.max(time, argument1.getFiltrationTime());
 		newTime = Math.max(newTime, argument2.getFiltrationTime());
@@ -812,7 +810,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));
 		}
 		else {
-			int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
+			final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());
 			IntToDoubleFunction result;
 			if(argument1.isDeterministic() && argument2.isDeterministic()) {
 				final double	argument1Realization = argument1.get(0);
@@ -820,7 +818,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				if(isDeterministic()) {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realization);
 						}
 					};
@@ -828,7 +826,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realization, argument2Realization);
 						}
 					};
@@ -841,7 +839,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				if(isDeterministic()) {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realizations[i]);
 						}
 					};
@@ -849,7 +847,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realization, argument2Realizations[i]);
 						}
 					};
@@ -862,7 +860,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				if(isDeterministic()) {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realization);
 						}
 					};
@@ -870,7 +868,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realizations[i], argument2Realization);
 						}
 					};
@@ -883,7 +881,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				if(isDeterministic()) {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realizations[i]);
 						}
 					};
@@ -891,7 +889,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 				else {
 					result = new IntToDoubleFunction() {
 						@Override
-						public double applyAsDouble(int i) {
+						public double applyAsDouble(final int i) {
 							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realizations[i], argument2Realizations[i]);
 						}
 					};
@@ -907,10 +905,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#cap(double)
 	 */
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return Math.min(x, cap);
 			}
 		});
@@ -920,10 +918,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#floor(double)
 	 */
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return Math.max(x, floor);
 			}
 		});
@@ -933,10 +931,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#add(double)
 	 */
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return x + value;
 			}
 		});
@@ -946,10 +944,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(double)
 	 */
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return x - value;
 			}
 		});
@@ -959,10 +957,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(double)
 	 */
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return x * value;
 			}
 		});
@@ -972,10 +970,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#div(double)
 	 */
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return x / value;
 			}
 		});
@@ -985,11 +983,11 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#pow(double)
 	 */
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
-				return FastMath.pow(x, exponent);
+			public double applyAsDouble(final double x) {
+				return Math.pow(x, exponent);
 			}
 		});
 	}
@@ -1009,7 +1007,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariable squared() {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return x * x;
 			}
 		});
@@ -1020,7 +1018,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable sqrt() {
-		return apply(FastMath::sqrt);
+		return apply(Math::sqrt);
 	}
 
 	/* (non-Javadoc)
@@ -1028,7 +1026,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable exp() {
-		return apply(FastMath::exp);
+		return apply(Math::exp);
 	}
 
 	/* (non-Javadoc)
@@ -1036,7 +1034,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable log() {
-		return apply(FastMath::log);
+		return apply(Math::log);
 	}
 
 	/* (non-Javadoc)
@@ -1044,7 +1042,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable sin() {
-		return apply(FastMath::sin);
+		return apply(Math::sin);
 	}
 
 	/* (non-Javadoc)
@@ -1052,17 +1050,17 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	@Override
 	public RandomVariable cos() {
-		return apply(FastMath::cos);
+		return apply(Math::cos);
 	}
 
 	/* (non-Javadoc)
 	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x + y;
 			}
 		}, randomVariable);
@@ -1073,20 +1071,20 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x - y;
 			}
 		}, randomVariable);
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return -x + y;
 			}
 		}, randomVariable);
@@ -1096,70 +1094,70 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x * y;
 			}
 		}, randomVariable);
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x / y;
 			}
 		}, randomVariable);
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return y / x;
 			}
 		}, randomVariable);
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
-		return apply(FastMath::min, cap);
+	public RandomVariable cap(final RandomVariable cap) {
+		return apply(Math::min, cap);
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
-		return apply(FastMath::max, floor);
+	public RandomVariable floor(final RandomVariable floor) {
+		return apply(Math::max, floor);
 	}
 
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x * (1.0 + y * periodLength);
 			}
 		}, rate);
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x / (1.0 + y * periodLength);
 			}
 		}, rate);
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return apply(new DoubleTernaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y, double z) {
+			public double applyAsDouble(final double x, final double y, final double z) {
 				return (x >= 0 ? y : z);
 			}
 		}, valueIfTriggerNonNegative, valueIfTriggerNegative);
@@ -1169,7 +1167,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariable invert() {
 		return apply(new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double x) {
+			public double applyAsDouble(final double x) {
 				return 1.0 / x;
 			}
 		});
@@ -1190,7 +1188,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x + y * factor2;
 			}
 		}, factor1);
@@ -1201,15 +1199,15 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x + y;
 			}
 		}, new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x * y;
 			}
 		}, factor1, factor2);
@@ -1219,15 +1217,15 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x + y;
 			}
 		}, new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x / y;
 			}
 		}, numerator, denominator);
@@ -1237,15 +1235,15 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return apply(new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x - y;
 			}
 		}, new DoubleBinaryOperator() {
 			@Override
-			public double applyAsDouble(double x, double y) {
+			public double applyAsDouble(final double x, final double y) {
 				return x / y;
 			}
 		}, numerator, denominator);
@@ -1257,7 +1255,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 			return new RandomVariableLazyEvaluation(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);
 		}
 		else {
-			double[] newRealizations = new double[size()];
+			final double[] newRealizations = new double[size()];
 			for(int i=0; i<newRealizations.length; i++) {
 				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;
 			}

@@ -24,7 +24,7 @@ import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
@@ -66,27 +66,27 @@ public class HestonModelDescriptorTest {
 		/*
 		 * Create Heston Model descriptor
 		 */
-		HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
+		final HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
 
 		/*
 		 * Create European option descriptor
 		 */
-		String underlyingName = "eurostoxx";
-		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
+		final String underlyingName = "eurostoxx";
+		final ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
 		 */
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
+		final DescribedModel<?> hestonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		Product europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
+		final Product europeanOptionFourier = hestonModelFourier.getProductFromDescriptor(europeanOptionDescriptor);
 
 		// Evaluate product
-		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
+		final double evaluationTime = 0.0;
+		final Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, hestonModelFourier);
 
 		System.out.println(valueFourier);
 
@@ -95,20 +95,20 @@ public class HestonModelDescriptorTest {
 		 */
 
 		// Create a time discretization
-		BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
-		RandomVariableFactory randomVariableFactory = new RandomVariableFactory();
+		final BrownianMotion brownianMotion = getBronianMotion(numberOfTimeSteps, deltaT, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory = new RandomVariableFromArrayFactory();
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
+		final DescribedModel<?> hestonModelMonteCarlo = (new AssetModelMonteCarloFactory(randomVariableFromArrayFactory, brownianMotion, Scheme.FULL_TRUNCATION)).getModelFromDescriptor(hestonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		Product europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
+		final Product europeanOptionMonteCarlo = hestonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
 
-		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
+		final Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, hestonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
 
-		double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
+		final double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 1E-3);
 	}
 
@@ -121,13 +121,13 @@ public class HestonModelDescriptorTest {
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+	private static DiscountCurve getDiscountCurve(final String name, final LocalDate referenceDate, final double riskFreeRate) {
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 
@@ -141,9 +141,9 @@ public class HestonModelDescriptorTest {
 	 * @param seed The seed for the random number generator.
 	 * @return A Brownian motion implementing BrownianMotion with the given specs.
 	 */
-	private static BrownianMotion getBronianMotion(int numberOfTimeSteps, double deltaT, int numberOfFactors, int numberOfPaths, int seed) {
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+	private static BrownianMotion getBronianMotion(final int numberOfTimeSteps, final double deltaT, final int numberOfFactors, final int numberOfPaths, final int seed) {
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 		return brownianMotion;
 	}
 

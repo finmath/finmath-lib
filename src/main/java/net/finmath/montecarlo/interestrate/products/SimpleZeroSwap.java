@@ -37,11 +37,11 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param isPayFix If true, the swap is receive float - pay fix, otherwise its receive fix - pay float.
 	 */
 	public SimpleZeroSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			AbstractIndex floatIndex,
-			boolean isPayFix) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final AbstractIndex floatIndex,
+			final boolean isPayFix) {
 		super();
 		this.fixingDates = fixingDates;
 		this.paymentDates = paymentDates;
@@ -59,10 +59,10 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param isPayFix If true, the swap is receive float - pay fix, otherwise its receive fix - pay float.
 	 */
 	public SimpleZeroSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates,
-			boolean isPayFix) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates,
+			final boolean isPayFix) {
 		this(fixingDates, paymentDates, swaprates, null, isPayFix);
 	}
 
@@ -74,9 +74,9 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprates Vector of strikes (must have same length as fixing dates)
 	 */
 	public SimpleZeroSwap(
-			double[] fixingDates,
-			double[] paymentDates,
-			double[] swaprates) {
+			final double[] fixingDates,
+			final double[] paymentDates,
+			final double[] swaprates) {
 		this(fixingDates, paymentDates, swaprates, true);
 	}
 
@@ -91,30 +91,30 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
 		RandomVariable notional					= model.getRandomVariableForConstant(1.0);
 		for(int period=0; period<fixingDates.length; period++)
 		{
-			double fixingDate		= fixingDates[period];
-			double paymentDate		= paymentDates[period];
-			double swaprate 		= swaprates[period];
-			double periodLength		= paymentDate - fixingDate;
+			final double fixingDate		= fixingDates[period];
+			final double paymentDate		= paymentDates[period];
+			final double swaprate 		= swaprates[period];
+			final double periodLength		= paymentDate - fixingDate;
 
 			if(paymentDate < evaluationTime) {
 				continue;
 			}
 
 			// Get random variables
-			RandomVariable index	= floatIndex != null ? floatIndex.getValue(fixingDate, model) : model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			final RandomVariable index	= floatIndex != null ? floatIndex.getValue(fixingDate, model) : model.getLIBOR(fixingDate, fixingDate, paymentDate);
 			RandomVariable payoff	= index.sub(swaprate).mult(periodLength).mult(notional);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}
 
-			RandomVariable numeraire				= model.getNumeraire(paymentDate);
-			RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
+			final RandomVariable numeraire				= model.getNumeraire(paymentDate);
+			final RandomVariable monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);
 
 			values = values.add(payoff);
@@ -122,8 +122,8 @@ public class SimpleZeroSwap extends AbstractLIBORMonteCarloProduct {
 			notional = notional.mult(swaprate*periodLength);
 		}
 
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

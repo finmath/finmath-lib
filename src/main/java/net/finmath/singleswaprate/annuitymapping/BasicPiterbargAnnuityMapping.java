@@ -12,8 +12,8 @@ import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
 import net.finmath.singleswaprate.products.AnnuityDummyProduct;
 import net.finmath.singleswaprate.products.NormalizingDummyProduct;
 import net.finmath.time.Period;
-import net.finmath.time.ScheduleFromPeriods;
 import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
 
 /**
  * Implements an annuity mapping following Vladimir Piterbarg's approach. This class does not take into account multi curve convexity adjustment.
@@ -48,7 +48,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param discountCurveName The name of the discount curve.
 	 * @param volatilityCubeName The name of the volatility cube.
 	 */
-	public BasicPiterbargAnnuityMapping(Schedule fixSchedule, Schedule floatSchedule, VolatilityCubeModel model, String discountCurveName, String volatilityCubeName) {
+	public BasicPiterbargAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final VolatilityCubeModel model, final String discountCurveName, final String volatilityCubeName) {
 		this(fixSchedule, floatSchedule, Double.NaN, model, discountCurveName, volatilityCubeName);
 	}
 
@@ -62,8 +62,8 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param discountCurveName The name of the discount curve.
 	 * @param volatilityCubeName The name of the volatility cube.
 	 */
-	public BasicPiterbargAnnuityMapping(Schedule fixSchedule, Schedule floatSchedule, double strike, VolatilityCubeModel model,
-			String discountCurveName, String volatilityCubeName) {
+	public BasicPiterbargAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final double strike, final VolatilityCubeModel model,
+			final String discountCurveName, final String volatilityCubeName) {
 		this(fixSchedule, floatSchedule, strike, model, discountCurveName, volatilityCubeName, 0, 0, -1);
 	}
 
@@ -80,14 +80,14 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param upperBound The maximum strike the Piterbarg annuity mapping may use during replication, when normalizing.
 	 * @param numberOfEvaluationPoints The number of points the replication may evaluate Piterbarg annuity mapping is normalizing.
 	 */
-	public BasicPiterbargAnnuityMapping(Schedule fixSchedule, Schedule floatSchedule, double strike, VolatilityCubeModel model,
-			String discountCurveName, String volatilityCubeName, double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public BasicPiterbargAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, double strike, final VolatilityCubeModel model,
+			final String discountCurveName, final String volatilityCubeName, final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		super();
 		this.numberOfPeriods = fixSchedule.getNumberOfPeriods();
 
-		double maturity 	= fixSchedule.getPeriodStart(0);
-		double[] periodLengths	= new double[numberOfPeriods];
-		double[] periodEnds		= new double[numberOfPeriods];
+		final double maturity 	= fixSchedule.getPeriodStart(0);
+		final double[] periodLengths	= new double[numberOfPeriods];
+		final double[] periodEnds		= new double[numberOfPeriods];
 		for(int index = 0; index < numberOfPeriods; index++) {
 			periodLengths[index] 	= fixSchedule.getPeriodLength(index);
 			periodEnds[index]		= fixSchedule.getPeriodEnd(index);
@@ -97,8 +97,8 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		this.initialAnnuities = getAnnuities(fixSchedule, discountCurveName, model);
 		this.initialSwapRates = getForwardSwapRates(fixSchedule, discountCurveName, model);
 
-		String volvolCubeName = "VolVolFrom" + volatilityCubeName;
-		VolatilityCube volvolCube = new VolVolCube(volvolCubeName, model.getVolatilityCube(volatilityCubeName).getReferenceDate(),
+		final String volvolCubeName = "VolVolFrom" + volatilityCubeName;
+		final VolatilityCube volvolCube = new VolVolCube(volvolCubeName, model.getVolatilityCube(volatilityCubeName).getReferenceDate(),
 				volatilityCubeName, fixSchedule, initialSwapRates);
 
 		if(Double.isNaN(strike)) {
@@ -109,13 +109,13 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		this.exponentialDriverMeans = findExponentialDriverMeans(periodEnds, maturity, strike, volvolCube, model);
 
 		//calculation of arrays of the denominators and exponents of the individual summands in the function of the annuity mapping
-		double[] exponents    = new double[numberOfPeriods];
-		double[] denominators = new double[numberOfPeriods];
+		final double[] exponents    = new double[numberOfPeriods];
+		final double[] denominators = new double[numberOfPeriods];
 		Arrays.fill(denominators, 1.0);
 
 		double currentSummand;
 		double currentFactor;
-		double terminalVolvol = volvolCube.getValue(model, periodEnds[numberOfPeriods-1], maturity, strike, quotingConvention);
+		final double terminalVolvol = volvolCube.getValue(model, periodEnds[numberOfPeriods-1], maturity, strike, quotingConvention);
 
 		for(int outerIndex = numberOfPeriods-1; outerIndex > -1; outerIndex--){
 
@@ -132,7 +132,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		this.denominators 	= denominators;
 
 		//calibrate the normalizing function to the measure of the annuity
-		NormalizingDummyProduct unscaledNormalizerDummy = new NormalizingDummyProduct(fixSchedule, floatSchedule, discountCurveName, null, volatilityCubeName,
+		final NormalizingDummyProduct unscaledNormalizerDummy = new NormalizingDummyProduct(fixSchedule, floatSchedule, discountCurveName, null, volatilityCubeName,
 				new ExponentialNormalizer(initialSwapRates[initialSwapRates.length-1], 1));
 		if(numberOfEvaluationPoints > 0) {
 			unscaledNormalizerDummy.setIntegrationParameters(lowerBound, upperBound, numberOfEvaluationPoints);
@@ -141,9 +141,9 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 				1 / unscaledNormalizerDummy.getValue(fixSchedule.getFixing(0), model));
 
 		//create a base mapping without correction of the expectation and calibrate the expectation correction
-		BasicPiterbargAnnuityMapping uncorrectedMapping = new BasicPiterbargAnnuityMapping(numberOfPeriods, periodLengths, initialAnnuities,
+		final BasicPiterbargAnnuityMapping uncorrectedMapping = new BasicPiterbargAnnuityMapping(numberOfPeriods, periodLengths, initialAnnuities,
 				initialSwapRates, exponentialDriverMeans, exponents, denominators, normalizer);
-		AnnuityDummyProduct uncorrectedAnnuityDummy = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, null, volatilityCubeName,
+		final AnnuityDummyProduct uncorrectedAnnuityDummy = new AnnuityDummyProduct(fixSchedule, floatSchedule, discountCurveName, null, volatilityCubeName,
 				uncorrectedMapping);
 		if(numberOfEvaluationPoints > 0) {
 			uncorrectedAnnuityDummy.setIntegrationParameters(lowerBound, upperBound, numberOfEvaluationPoints);
@@ -164,8 +164,8 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param denominators
 	 * @param normalizer
 	 */
-	private BasicPiterbargAnnuityMapping(int numberOfPeriods, double[] periodLengths, double[] initialAnnuities,
-			double[] initialSwapRates, double[] exponentialDriverMeans, double[] exponents, double[] denominators, NormalizingFunction normalizer) {
+	private BasicPiterbargAnnuityMapping(final int numberOfPeriods, final double[] periodLengths, final double[] initialAnnuities,
+			final double[] initialSwapRates, final double[] exponentialDriverMeans, final double[] exponents, final double[] denominators, final NormalizingFunction normalizer) {
 		super();
 		this.numberOfPeriods = numberOfPeriods;
 		this.periodLengths = periodLengths;
@@ -179,7 +179,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	}
 
 	@Override
-	public double getValue(double swapRate) {
+	public double getValue(final double swapRate) {
 
 		double term  = periodLengths[numberOfPeriods-1] *swapRate +1.0;
 		term 		/= periodLengths[numberOfPeriods-1] *initialSwapRates[numberOfPeriods -1] +1.0;
@@ -194,7 +194,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	}
 
 	@Override
-	public double getFirstDerivative(double swapRate) {
+	public double getFirstDerivative(final double swapRate) {
 
 		double term  = periodLengths[numberOfPeriods-1] *swapRate +1.0;
 		term 		/= periodLengths[numberOfPeriods-1] *initialSwapRates[numberOfPeriods -1] +1.0;
@@ -215,7 +215,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	}
 
 	@Override
-	public double getSecondDerivative(double swapRate) {
+	public double getSecondDerivative(final double swapRate) {
 
 		double term  = periodLengths[numberOfPeriods-1] *swapRate +1.0;
 		term 		/= periodLengths[numberOfPeriods-1] *initialSwapRates[numberOfPeriods -1] +1.0;
@@ -254,11 +254,11 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param model
 	 * @return
 	 */
-	private double[] findExponentialDriverMeans(double[] timePoints, double maturity, double strike, VolatilityCube volvolCube,
-			VolatilityCubeModel model){
+	private double[] findExponentialDriverMeans(final double[] timePoints, final double maturity, final double strike, final VolatilityCube volvolCube,
+			final VolatilityCubeModel model){
 
-		double[] exponentialMeans = new double[numberOfPeriods];
-		double[] volatilities = new double[numberOfPeriods];
+		final double[] exponentialMeans = new double[numberOfPeriods];
+		final double[] volatilities = new double[numberOfPeriods];
 		for(int index = 0; index < numberOfPeriods; index++){
 			volatilities[index] = volvolCube.getValue(model, timePoints[index], maturity, strike, quotingConvention);
 		}
@@ -270,8 +270,8 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		double adjustment;
 
 		//used to calculate the adjustment term in the loop
-		double[] volatilitySums = new double[numberOfPeriods];
-		double[] adjustmentSummands = new double[numberOfPeriods];
+		final double[] volatilitySums = new double[numberOfPeriods];
+		final double[] adjustmentSummands = new double[numberOfPeriods];
 		for(int index = 0; index < numberOfPeriods; index++) {
 			volatilitySums[index] = volatilities[0];
 			adjustmentSummands[index] = 1.0;
@@ -310,14 +310,14 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param model
 	 * @return
 	 */
-	private double[] getAnnuities(Schedule schedule, String discountCurveName, AnalyticModel model){
-		double[] annuities = new double[schedule.getNumberOfPeriods()];
+	private double[] getAnnuities(final Schedule schedule, final String discountCurveName, final AnalyticModel model){
+		final double[] annuities = new double[schedule.getNumberOfPeriods()];
 		for(int annuityIndex=0; annuityIndex < schedule.getNumberOfPeriods();annuityIndex++){
-			Period[] periods = new Period[annuityIndex +1];
+			final Period[] periods = new Period[annuityIndex +1];
 			for(int periodIndex=0; periodIndex <= annuityIndex; periodIndex++){
 				periods[periodIndex] = schedule.getPeriod(periodIndex);
 			}
-			ScheduleFromPeriods partSchedule = new ScheduleFromPeriods(schedule.getReferenceDate(), schedule.getDaycountconvention(), periods);
+			final ScheduleFromPeriods partSchedule = new ScheduleFromPeriods(schedule.getReferenceDate(), schedule.getDaycountconvention(), periods);
 			annuities[annuityIndex] = SwapAnnuity.getSwapAnnuity(schedule.getFixing(0), partSchedule, model.getDiscountCurve(discountCurveName), model);
 		}
 		return annuities;
@@ -331,9 +331,9 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 	 * @param model
 	 * @return
 	 */
-	private double[] getForwardSwapRates(Schedule schedule, String discountCurveName, AnalyticModel model){
-		double[] swapRates = new double[schedule.getNumberOfPeriods()];
-		double discount = model.getDiscountCurve(discountCurveName).getDiscountFactor(model, schedule.getFixing(0));
+	private double[] getForwardSwapRates(final Schedule schedule, final String discountCurveName, final AnalyticModel model){
+		final double[] swapRates = new double[schedule.getNumberOfPeriods()];
+		final double discount = model.getDiscountCurve(discountCurveName).getDiscountFactor(model, schedule.getFixing(0));
 		for(int swapRateIndex=0; swapRateIndex < schedule.getNumberOfPeriods();swapRateIndex++){
 			swapRates[swapRateIndex] = 1 - model.getDiscountCurve(discountCurveName).getDiscountFactor(model, schedule.getPayment(swapRateIndex)) / discount;
 			swapRates[swapRateIndex] /= initialAnnuities[swapRateIndex];

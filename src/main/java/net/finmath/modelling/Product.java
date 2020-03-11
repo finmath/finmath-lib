@@ -42,5 +42,5 @@ public interface Product {
 	 * @param model The model under which the product is valued.
 	 * @return Map containing the value of the product using the given model.
 	 */
-	default Map<String, Object> getValues(double evaluationTime, Model model) { throw new UnsupportedOperationException(); }
+	default Map<String, Object> getValues(final double evaluationTime, final Model model) { throw new UnsupportedOperationException(); }
 }

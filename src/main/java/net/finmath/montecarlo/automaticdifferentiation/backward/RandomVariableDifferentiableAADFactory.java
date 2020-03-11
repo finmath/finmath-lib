@@ -9,8 +9,8 @@ package net.finmath.montecarlo.automaticdifferentiation.backward;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 
@@ -44,7 +44,20 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 
 	private final boolean isGradientRetainsLeafNodesOnly;
 
-	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable, Map<String, Object> properties) {
+	/**
+	 * Create a factory for objects of type {@link RandomVariableDifferentiableAAD}.
+	 *
+	 * Supported propeties are
+	 * <ul>
+	 * <li>isGradientRetainsLeafNodesOnly: Boolean</li>
+	 * <li>diracDeltaApproximationMethod: String</li>
+	 * <li>diracDeltaApproximationWidthPerStdDev: Double</li>
+	 * </ul>
+	 *
+	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
+	 * @param properties A key value map with properties.
+	 */
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable, final Map<String, Object> properties) {
 		super(randomVariableFactoryForNonDifferentiable);
 
 		/*
@@ -59,23 +72,30 @@ public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariab
 	}
 
 	/**
+	 * @param properties A key value map with properties.
+	 */
+	public RandomVariableDifferentiableAADFactory(final Map<String, Object> properties) {
+		this(new RandomVariableFromArrayFactory(), properties);
+	}
+
+	/**
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
 	 */
-	public RandomVariableDifferentiableAADFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		this(randomVariableFactoryForNonDifferentiable, new HashMap<String, Object>());
 	}
 
 	public RandomVariableDifferentiableAADFactory() {
-		this(new RandomVariableFactory());
+		this(new RandomVariableFromArrayFactory());
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, value), this);
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double time, double[] values) {
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, values), this);
 	}
 

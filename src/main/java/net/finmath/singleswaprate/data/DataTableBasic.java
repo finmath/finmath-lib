@@ -30,15 +30,15 @@ public class DataTableBasic implements DataTable, Cloneable {
 	 *
 	 * @return The upgraded table.
 	 */
-	public static DataTableBasic upgradeDataTableLight(DataTableLight baseTable, LocalDate referenceDate, SchedulePrototype scheduleMetaData) {
+	public static DataTableBasic upgradeDataTableLight(final DataTableLight baseTable, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData) {
 
-		int[] maturities = new int[baseTable.size()];
-		int[] terminations = new int[baseTable.size()];
-		double[] values = new double[baseTable.size()];
+		final int[] maturities = new int[baseTable.size()];
+		final int[] terminations = new int[baseTable.size()];
+		final double[] values = new double[baseTable.size()];
 
 		int i = 0;
-		for(int maturity : baseTable.getMaturities()) {
-			for(int termination : baseTable.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : baseTable.getMaturities()) {
+			for(final int termination : baseTable.getTerminationsForMaturity(maturity)) {
 				maturities[i] = maturity;
 				terminations[i] = termination;
 				values[i++] = baseTable.getValue(maturity, termination);
@@ -54,10 +54,10 @@ public class DataTableBasic implements DataTable, Cloneable {
 	private final LocalDate referenceDate;
 	private final SchedulePrototype metaSchedule;
 
-	private final TreeSet<Integer> maturitySet = new TreeSet<Integer>();
-	private final TreeSet<Integer> terminationSet = new TreeSet<Integer>();
+	private final TreeSet<Integer> maturitySet = new TreeSet<>();
+	private final TreeSet<Integer> terminationSet = new TreeSet<>();
 
-	private final HashMap<DoubleKey, Double> entries = new HashMap<DoubleKey, Double>();
+	private final HashMap<DoubleKey, Double> entries = new HashMap<>();
 
 	/**
 	 * Create an empty table.
@@ -67,7 +67,7 @@ public class DataTableBasic implements DataTable, Cloneable {
 	 * @param referenceDate The referenceDate of the table.
 	 * @param scheduleMetaData The schedule meta data of the table.
 	 */
-	public DataTableBasic(String name, TableConvention convention, LocalDate referenceDate, SchedulePrototype scheduleMetaData){
+	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData){
 		this.name = name;
 		this.convention = convention;
 		this.referenceDate = referenceDate;
@@ -85,8 +85,8 @@ public class DataTableBasic implements DataTable, Cloneable {
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableBasic(String name, TableConvention convention, LocalDate referenceDate, SchedulePrototype scheduleMetaData,
-			int[] maturities, int[] terminations, double[] values){
+	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData,
+			final int[] maturities, final int[] terminations, final double[] values){
 		this(name, convention, referenceDate, scheduleMetaData);
 		for(int index = 0; index < maturities.length; index++) {
 			entries.put(new DoubleKey(maturities[index], terminations[index]), values[index]);
@@ -106,13 +106,13 @@ public class DataTableBasic implements DataTable, Cloneable {
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableBasic(String name, TableConvention convention, LocalDate referenceDate, SchedulePrototype scheduleMetaData,
-			List<Integer> maturities, List<Integer> terminations, List<Double> values){
+	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData,
+			final List<Integer> maturities, final List<Integer> terminations, final List<Double> values){
 		this(name, convention, referenceDate, scheduleMetaData);
 		for(int index = 0; index < maturities.size(); index++) {
-			int mat = maturities.get(index);
-			int term = terminations.get(index);
-			double val =values.get(index);
+			final int mat = maturities.get(index);
+			final int term = terminations.get(index);
+			final double val =values.get(index);
 
 			entries.put(new DoubleKey(mat, term), val);
 			maturitySet.add(mat);
@@ -121,8 +121,8 @@ public class DataTableBasic implements DataTable, Cloneable {
 	}
 
 	@Override
-	public DataTable addPoint(int maturity, int termination, double value) {
-		DataTableBasic newTable = clone();
+	public DataTable addPoint(final int maturity, final int termination, final double value) {
+		final DataTableBasic newTable = clone();
 		newTable.entries.put(new DoubleKey(maturity, termination),value);
 		newTable.maturitySet.add(maturity);
 		newTable.terminationSet.add(termination);
@@ -130,8 +130,8 @@ public class DataTableBasic implements DataTable, Cloneable {
 	}
 
 	@Override
-	public DataTable addPoints(int[] maturities, int[] terminations, double[] values) {
-		DataTableBasic newTable = clone();
+	public DataTable addPoints(final int[] maturities, final int[] terminations, final double[] values) {
+		final DataTableBasic newTable = clone();
 		for(int index = 0; index < maturities.length; index++) {
 			newTable.entries.put(new DoubleKey(maturities[index], terminations[index]), values[index]);
 			newTable.maturitySet.add(maturities[index]);
@@ -141,17 +141,23 @@ public class DataTableBasic implements DataTable, Cloneable {
 	}
 
 	@Override
-	public double getValue(int maturity, int termination) {
-		DoubleKey key = new DoubleKey(maturity, termination);
-		if(entries.containsKey(key)) return entries.get(new DoubleKey(maturity,termination));
-		else throw new NullPointerException("Key not found.");
+	public double getValue(final int maturity, final int termination) {
+		final DoubleKey key = new DoubleKey(maturity, termination);
+		if(entries.containsKey(key)) {
+			return entries.get(new DoubleKey(maturity,termination));
+		} else {
+			throw new NullPointerException("Key not found.");
+		}
 	}
 
 	@Override
-	public double getValue(double maturity, double termination) {
-		DoubleKey key = new DoubleKey(maturity, termination);
-		if(entries.containsKey(key)) return entries.get(new DoubleKey(maturity,termination));
-		else throw new NullPointerException("Key not found.");
+	public double getValue(final double maturity, final double termination) {
+		final DoubleKey key = new DoubleKey(maturity, termination);
+		if(entries.containsKey(key)) {
+			return entries.get(new DoubleKey(maturity,termination));
+		} else {
+			throw new NullPointerException("Key not found.");
+		}
 	}
 
 	@Override
@@ -160,47 +166,53 @@ public class DataTableBasic implements DataTable, Cloneable {
 	}
 
 	@Override
-	public boolean containsEntryFor(int maturity, int termination) {
+	public boolean containsEntryFor(final int maturity, final int termination) {
 		return entries.containsKey(new DoubleKey(maturity, termination));
 	}
 
 	@Override
-	public boolean containsEntryFor(double maturity, double termination) {
+	public boolean containsEntryFor(final double maturity, final double termination) {
 		return entries.containsKey(new DoubleKey(maturity, termination));
 	}
 
 	@Override
 	public TreeSet<Integer> getMaturities(){
-		return new TreeSet<Integer>(maturitySet);
+		return new TreeSet<>(maturitySet);
 	}
 
 	@Override
 	public TreeSet<Integer> getTerminations(){
-		return new TreeSet<Integer>(terminationSet);
+		return new TreeSet<>(terminationSet);
 	}
 
 	@Override
-	public TreeSet<Integer> getTerminationsForMaturity(int maturity){
+	public TreeSet<Integer> getTerminationsForMaturity(final int maturity){
 		if(maturitySet.contains(maturity)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
-			for(int termination:terminationSet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
-				returnSet.add(termination);
+			final TreeSet<Integer> returnSet = new TreeSet<>();
+			for(final int termination:terminationSet) {
+				if(entries.containsKey(new DoubleKey(maturity,termination))) {
+					returnSet.add(termination);
+				}
 			}
 			return returnSet;
+		} else {
+			throw new NullPointerException("This data table does not contain entries for maturity "+maturity);
 		}
-		else throw new NullPointerException("This data table does not contain entries for maturity "+maturity);
 	}
 
 	@Override
-	public TreeSet<Integer> getMaturitiesForTermination(int termination) {
+	public TreeSet<Integer> getMaturitiesForTermination(final int termination) {
 		if(terminationSet.contains(termination)) {
-			TreeSet<Integer> returnSet = new TreeSet<Integer>();
-			for(int maturity: maturitySet) if(entries.containsKey(new DoubleKey(maturity,termination))) {
-				returnSet.add(maturity);
+			final TreeSet<Integer> returnSet = new TreeSet<>();
+			for(final int maturity: maturitySet) {
+				if(entries.containsKey(new DoubleKey(maturity,termination))) {
+					returnSet.add(maturity);
+				}
 			}
 			return returnSet;
+		} else {
+			throw new NullPointerException("This data table does not contain entries for termination " +termination);
 		}
-		else throw new NullPointerException("This data table does not contain entries for termination " +termination);
 	}
 
 	@Override
@@ -225,7 +237,7 @@ public class DataTableBasic implements DataTable, Cloneable {
 
 	@Override
 	public DataTableBasic clone() {
-		DataTableBasic newTable = new DataTableBasic(name, convention, referenceDate, metaSchedule);
+		final DataTableBasic newTable = new DataTableBasic(name, convention, referenceDate, metaSchedule);
 		newTable.entries.putAll(entries);
 		newTable.maturitySet.addAll(maturitySet);
 		newTable.terminationSet.addAll(terminationSet);
@@ -237,16 +249,16 @@ public class DataTableBasic implements DataTable, Cloneable {
 		return toString(1.0);
 	}
 
-	public String toString(double unit) {
-		StringBuilder builder = new StringBuilder();
+	public String toString(final double unit) {
+		final StringBuilder builder = new StringBuilder();
 		builder.append("DataTableBasic [name="+name+", referenceDate="+referenceDate+", tableConvention=" +convention+", scheduleMetaData="+ metaSchedule+"values:\n");
-		for(int termination : terminationSet) {
+		for(final int termination : terminationSet) {
 			builder.append("\t"+termination);
 		}
-		for(int maturity: maturitySet) {
+		for(final int maturity: maturitySet) {
 			builder.append("\n"+maturity);
-			for(int termination:terminationSet) {
-				DoubleKey key = new DoubleKey(maturity, termination);
+			for(final int termination:terminationSet) {
+				final DoubleKey key = new DoubleKey(maturity, termination);
 				builder.append('\t');
 				if(entries.containsKey(key)) {
 					builder.append(entries.get(key) * unit);
@@ -257,7 +269,7 @@ public class DataTableBasic implements DataTable, Cloneable {
 		return builder.toString();
 	}
 
-	protected double getValue(DoubleKey key) {
+	protected double getValue(final DoubleKey key) {
 		return entries.get(key);
 	}
 
@@ -280,10 +292,10 @@ public class DataTableBasic implements DataTable, Cloneable {
 		 * @param maturity The maturity.
 		 * @param termination The termination.
 		 */
-		protected DoubleKey(int maturity, int termination){
-			LocalDate startDate = dateFromOffset(referenceDate, maturity);
-			LocalDate endDate = dateFromOffset(startDate, termination);
-			Schedule schedule = metaSchedule.generateSchedule(referenceDate, startDate, endDate);
+		protected DoubleKey(final int maturity, final int termination){
+			final LocalDate startDate = dateFromOffset(referenceDate, maturity);
+			final LocalDate endDate = dateFromOffset(startDate, termination);
+			final Schedule schedule = metaSchedule.generateSchedule(referenceDate, startDate, endDate);
 			this.maturity = schedule.getFixing(0);
 			this.termination = schedule.getPayment(schedule.getNumberOfPeriods()-1);
 		}
@@ -294,30 +306,48 @@ public class DataTableBasic implements DataTable, Cloneable {
 		 * @param maturity The maturtiy.
 		 * @param termination The termination.
 		 */
-		protected DoubleKey(double maturity, double termination){
+		protected DoubleKey(final double maturity, final double termination){
 			this.maturity = maturity;
 			this.termination = termination;
 		}
 
-		private LocalDate dateFromOffset(LocalDate startDate, int offset) {
+		private LocalDate dateFromOffset(final LocalDate startDate, final int offset) {
 			LocalDate date = null;
 			switch(convention) {
-			case YEARS: date = startDate.plusYears(offset); break;
-			case MONTHS: date = startDate.plusMonths(offset); break;
-			case DAYS: date = startDate.plusDays(offset); break;
-			case WEEKS: date = startDate.plusWeeks(offset); break;
+			case YEARS:
+				date = startDate.plusYears(offset);
+				break;
+			case MONTHS:
+				date = startDate.plusMonths(offset);
+				break;
+			case DAYS:
+				date = startDate.plusDays(offset);
+				break;
+			case WEEKS:
+				date = startDate.plusWeeks(offset);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown convention " + convention + ".");
 			}
 			return date;
 		}
 
 		@Override
-		public boolean equals(Object other) {
-			if(this == other) return true;
+		public boolean equals(final Object other) {
+			if(this == other) {
+				return true;
+			}
 
-			if(other == null) return false;
-			if(other.getClass() != getClass()) return false;
+			if(other == null) {
+				return false;
+			}
+			if(other.getClass() != getClass()) {
+				return false;
+			}
 
-			if(maturity 	!= ((DoubleKey) other).maturity )		return false;
+			if(maturity 	!= ((DoubleKey) other).maturity ) {
+				return false;
+			}
 			return (termination == ((DoubleKey) other).termination);
 		}
 

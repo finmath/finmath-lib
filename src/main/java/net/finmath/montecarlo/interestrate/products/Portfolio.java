@@ -30,8 +30,8 @@ public class Portfolio extends AbstractProductComponent {
 
 	private static final long serialVersionUID = -1360506093081238482L;
 
-	private AbstractLIBORMonteCarloProduct[]	products;
-	private double[]							weights;
+	private final AbstractLIBORMonteCarloProduct[]	products;
+	private final double[]							weights;
 
 	/**
 	 * Creates a portfolio consisting of a single product and a weight.
@@ -41,7 +41,7 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param product A product.
 	 * @param weight A weight.
 	 */
-	public Portfolio(AbstractLIBORMonteCarloProduct product, double weight) {
+	public Portfolio(final AbstractLIBORMonteCarloProduct product, final double weight) {
 		super(product.getCurrency());
 		products = new AbstractLIBORMonteCarloProduct[] { product };
 		weights = new double[] { weight };
@@ -55,10 +55,10 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
 	 */
-	public Portfolio(AbstractLIBORMonteCarloProduct[] products, double[] weights) {
+	public Portfolio(final AbstractLIBORMonteCarloProduct[] products, final double[] weights) {
 		super();
-		String currency = products[0].getCurrency();
-		for(AbstractLIBORMonteCarloProduct product : products) {
+		final String currency = products[0].getCurrency();
+		for(final AbstractLIBORMonteCarloProduct product : products) {
 			if(currency != null && !currency.equals(product.getCurrency())) {
 				throw new IllegalArgumentException("Product currencies do not match. Please use a constructor providing the currency of the result.");
 			}
@@ -77,10 +77,10 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
 	 */
-	public Portfolio(String currency, AbstractLIBORMonteCarloProduct[] products, double[] weights) {
+	public Portfolio(final String currency, final AbstractLIBORMonteCarloProduct[] products, final double[] weights) {
 		super(currency);
 
-		for(AbstractLIBORMonteCarloProduct product : products) {
+		for(final AbstractLIBORMonteCarloProduct product : products) {
 			if(!currency.equals(product.getCurrency())) {
 				throw new IllegalArgumentException("Product currencies do not match. Currency conversion (via model FX) is not supported yet.");
 			}
@@ -92,14 +92,14 @@ public class Portfolio extends AbstractProductComponent {
 
 	@Override
 	public String getCurrency() {
-		// @TODO: We report only the currency of the first item, because mixed currency portfolios are currently not allowed.
+		// @TODO We report only the currency of the first item, because mixed currency portfolios are currently not allowed.
 		return (products != null && products.length > 0) ? products[0].getCurrency() : null;
 	}
 
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames = null;
-		for(TermStructureMonteCarloProduct product : products) {
+		for(final TermStructureMonteCarloProduct product : products) {
 			Set<String> productUnderlyingNames;
 			if(product instanceof AbstractProductComponent) {
 				productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
@@ -130,12 +130,12 @@ public class Portfolio extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values = new RandomVariableFromDoubleArray(0.0);
 
 		for(int productIndex = 0; productIndex < products.length; productIndex++) {
-			RandomVariable    valueOfProduct = products[productIndex].getValue(evaluationTime, model);
-			double   				   weightOfProduct = weights[productIndex];
+			final RandomVariable    valueOfProduct = products[productIndex].getValue(evaluationTime, model);
+			final double   				   weightOfProduct = weights[productIndex];
 
 			values = values.addProduct(valueOfProduct, weightOfProduct);
 		}

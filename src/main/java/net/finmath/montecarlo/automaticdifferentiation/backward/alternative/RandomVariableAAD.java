@@ -54,8 +54,8 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @param parentOperator
 	 * @param isConstant
 	 */
-	private RandomVariableAAD(int ownIndexInList, RandomVariable ownRandomVariable,
-			int[] parentIndices, OperatorType parentOperator, ArrayList<Integer> childrenIndices ,boolean isConstant) {
+	private RandomVariableAAD(final int ownIndexInList, final RandomVariable ownRandomVariable,
+			final int[] parentIndices, final OperatorType parentOperator, final ArrayList<Integer> childrenIndices ,final boolean isConstant) {
 		super();
 		this.ownIndexInList = ownIndexInList;
 		this.ownRandomVariable = ownRandomVariable;
@@ -65,10 +65,10 @@ public class RandomVariableAAD implements RandomVariable {
 		this.isConstant = isConstant;
 	}
 
-	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariable randomVariable, int[] parentIndices,
-			OperatorType parentOperator, ArrayList<Integer> childrenIndices, boolean isConstant){
+	public static RandomVariableAAD constructNewAADRandomVariable(final RandomVariable randomVariable, final int[] parentIndices,
+			final OperatorType parentOperator, final ArrayList<Integer> childrenIndices, final boolean isConstant){
 
-		/* TODO: how to handle cases with different realization lengths? */
+		/* TODO how to handle cases with different realization lengths? */
 		if(!arrayListOfAllAADRandomVariables.isEmpty()){
 			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() && !randomVariable.isDeterministic()) {
 				throw new IllegalArgumentException("RandomVariables with different sizes are not supported at the moment!");
@@ -76,9 +76,9 @@ public class RandomVariableAAD implements RandomVariable {
 		}
 
 		/* get index of this random variable */
-		int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
+		final int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();
 
-		RandomVariableAAD newAADRandomVariable = new RandomVariableAAD(indexOfThisAADRandomVariable, randomVariable,
+		final RandomVariableAAD newAADRandomVariable = new RandomVariableAAD(indexOfThisAADRandomVariable, randomVariable,
 				parentIndices, parentOperator, childrenIndices, isConstant);
 
 		/* add random variable to static list for book keeping */
@@ -88,17 +88,17 @@ public class RandomVariableAAD implements RandomVariable {
 		return newAADRandomVariable;
 	}
 
-	public static RandomVariableAAD constructNewAADRandomVariable(double value){
+	public static RandomVariableAAD constructNewAADRandomVariable(final double value){
 		return constructNewAADRandomVariable(new RandomVariableFromDoubleArray(value), /*parentRandomVariables*/ null, /*parentOperator*/ null, /*childrenIndices*/ null ,/*isConstant*/ true);
 	}
 
 
-	public static RandomVariableAAD constructNewAADRandomVariable(RandomVariable randomVariable) {
+	public static RandomVariableAAD constructNewAADRandomVariable(final RandomVariable randomVariable) {
 		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,
 				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
 	}
 
-	public static RandomVariableAAD constructNewAADRandomVariable(double time, double[] realisations) {
+	public static RandomVariableAAD constructNewAADRandomVariable(final double time, final double[] realisations) {
 		return constructNewAADRandomVariable(new RandomVariableFromDoubleArray(time, realisations), /* no parents*/ null,
 				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
 	}
@@ -109,8 +109,8 @@ public class RandomVariableAAD implements RandomVariable {
 			return null;
 		}
 
-		int[] parentIndices = getParentIDs();
-		RandomVariableAAD[] parentAADRandomVariables = new RandomVariableAAD[getNumberOfParentVariables()];
+		final int[] parentIndices = getParentIDs();
+		final RandomVariableAAD[] parentAADRandomVariables = new RandomVariableAAD[getNumberOfParentVariables()];
 
 		for(int i=0; i < parentAADRandomVariables.length; i++){
 			parentAADRandomVariables[i] = getAADRandomVariableFromList(parentIndices[i]);
@@ -124,8 +124,8 @@ public class RandomVariableAAD implements RandomVariable {
 	 */
 	private RandomVariable[] getParentRandomVariableInderfaces(){
 
-		RandomVariableAAD[] parentAADRandomVariables = getParentAADRandomVariables();
-		RandomVariable[] parentRandomVariableInderfaces = new RandomVariable[parentAADRandomVariables.length];
+		final RandomVariableAAD[] parentAADRandomVariables = getParentAADRandomVariables();
+		final RandomVariable[] parentRandomVariableInderfaces = new RandomVariable[parentAADRandomVariables.length];
 
 		for(int i=0;i<parentAADRandomVariables.length;i++){
 			parentRandomVariableInderfaces[i] = parentAADRandomVariables[i].getRandomVariableInterface();
@@ -134,10 +134,10 @@ public class RandomVariableAAD implements RandomVariable {
 		return parentRandomVariableInderfaces;
 	}
 
-	private RandomVariable apply(OperatorType operator, RandomVariable[] randomVariableInterfaces){
+	private RandomVariable apply(final OperatorType operator, final RandomVariable[] randomVariableInterfaces){
 
-		RandomVariableAAD[] aadRandomVariables = new RandomVariableAAD[randomVariableInterfaces.length];
-		int[] futureParentIndices = new int[aadRandomVariables.length];
+		final RandomVariableAAD[] aadRandomVariables = new RandomVariableAAD[randomVariableInterfaces.length];
+		final int[] futureParentIndices = new int[aadRandomVariables.length];
 
 		for(int randomVariableIndex = 0; randomVariableIndex < randomVariableInterfaces.length; randomVariableIndex++){
 
@@ -270,10 +270,10 @@ public class RandomVariableAAD implements RandomVariable {
 		}
 
 		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
-		RandomVariableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, futureParentIndices, operator, /*no children*/ null ,/*not constant*/ false);
+		final RandomVariableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, futureParentIndices, operator, /*no children*/ null ,/*not constant*/ false);
 
 		/* add new variable (or at least its index) as child to its parents */
-		for(RandomVariableAAD parentRandomVariable:aadRandomVariables) {
+		for(final RandomVariableAAD parentRandomVariable:aadRandomVariables) {
 			parentRandomVariable.addToChildrenIndices(newRandomVariableAAD.getFunctionIndex());
 		}
 
@@ -291,14 +291,14 @@ public class RandomVariableAAD implements RandomVariable {
 				"isTrueVariable: " + isVariable() + "\n";
 	}
 
-	private RandomVariable getPartialDerivative(int functionIndex, int variableIndex){
+	private RandomVariable getPartialDerivative(final int functionIndex, final int variableIndex){
 		return getFunctionList().get(functionIndex).partialDerivativeWithRespectTo(variableIndex);
 	}
 
-	private RandomVariable partialDerivativeWithRespectTo(int variableIndex){
+	private RandomVariable partialDerivativeWithRespectTo(final int variableIndex){
 
 		/* parentIDsSorted needs to be sorted for binarySearch! */
-		int[] parentIDsSorted = (getParentIDs() == null) ? new int[]{} : getParentIDs().clone();
+		final int[] parentIDsSorted = (getParentIDs() == null) ? new int[]{} : getParentIDs().clone();
 		Arrays.sort(parentIDsSorted);
 
 		/* if random variable not dependent on variable or it is constant anyway return 0.0 */
@@ -308,7 +308,7 @@ public class RandomVariableAAD implements RandomVariable {
 
 		RandomVariable resultrandomvariable = null;
 		RandomVariable X,Y,Z;
-		double[] resultRandomVariableRealizations;
+		final double[] resultRandomVariableRealizations;
 
 		if(getParentIDs().length == 1){
 
@@ -346,7 +346,7 @@ public class RandomVariableAAD implements RandomVariable {
 			case MIN:
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == X.getMin()) ? 1.0 : 0.0;
 					}
 				});
@@ -357,7 +357,7 @@ public class RandomVariableAAD implements RandomVariable {
 			case MAX:
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == X.getMax()) ? 1.0 : 0.0;
 					}
 				});
@@ -368,7 +368,7 @@ public class RandomVariableAAD implements RandomVariable {
 			case ABS:
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x > 0.0) ? 1.0 : (x < 0) ? -1.0 : 0.0;
 					}
 				});
@@ -406,7 +406,7 @@ public class RandomVariableAAD implements RandomVariable {
 			case CAP:
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x > Y.getAverage()) ? 0.0 : 1.0;
 					}
 				});
@@ -417,7 +417,7 @@ public class RandomVariableAAD implements RandomVariable {
 			case FLOOR:
 				resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x > Y.getAverage()) ? 1.0 : 0.0;
 					}
 				});
@@ -502,7 +502,7 @@ public class RandomVariableAAD implements RandomVariable {
 				if(variableIndex == getParentIDs()[0]){
 					resultrandomvariable = X.apply(new DoubleUnaryOperator() {
 						@Override
-						public double applyAsDouble(double x) {
+						public double applyAsDouble(final double x) {
 							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;
 						}
 					});
@@ -528,9 +528,9 @@ public class RandomVariableAAD implements RandomVariable {
 	 * */
 	public Map<Integer, RandomVariable> getGradient(){
 
-		int numberOfCalculationSteps = getFunctionList().size();
+		final int numberOfCalculationSteps = getFunctionList().size();
 
-		RandomVariable[] omegaHat = new RandomVariable[numberOfCalculationSteps];
+		final RandomVariable[] omegaHat = new RandomVariable[numberOfCalculationSteps];
 
 		omegaHat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);
 
@@ -538,19 +538,19 @@ public class RandomVariableAAD implements RandomVariable {
 
 			omegaHat[variableIndex] = new RandomVariableFromDoubleArray(0.0);
 
-			ArrayList<Integer> childrenList = getAADRandomVariableFromList(variableIndex).getChildrenIndices();
+			final ArrayList<Integer> childrenList = getAADRandomVariableFromList(variableIndex).getChildrenIndices();
 
-			for(int functionIndex:childrenList){
-				RandomVariable D_i_j = getPartialDerivative(functionIndex, variableIndex);
+			for(final int functionIndex:childrenList){
+				final RandomVariable D_i_j = getPartialDerivative(functionIndex, variableIndex);
 				omegaHat[variableIndex] = omegaHat[variableIndex].addProduct(D_i_j, omegaHat[functionIndex]);
 			}
 		}
 
-		ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = getArrayListOfAllIndicesOfDependentRandomVariables();
+		final ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = getArrayListOfAllIndicesOfDependentRandomVariables();
 
-		Map<Integer, RandomVariable> gradient = new HashMap<Integer, RandomVariable>();
+		final Map<Integer, RandomVariable> gradient = new HashMap<>();
 
-		for(Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){
+		for(final Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){
 			gradient.put(indexOfDependentRandomVariable, omegaHat[arrayListOfAllIndicesOfDependentRandomVariables.get(indexOfDependentRandomVariable)]);
 		}
 
@@ -559,11 +559,11 @@ public class RandomVariableAAD implements RandomVariable {
 
 	private ArrayList<Integer> getArrayListOfAllIndicesOfDependentRandomVariables(){
 
-		ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = new ArrayList<>();
+		final ArrayList<Integer> arrayListOfAllIndicesOfDependentRandomVariables = new ArrayList<>();
 
 		for(int index = 0; index < getNumberOfParentVariables(); index++){
 
-			int currentParentIndex = getParentIDs()[index];
+			final int currentParentIndex = getParentIDs()[index];
 
 			/* if current index belongs to a true variable and is not yet in the list: add it*/
 			if(getAADRandomVariableFromList(currentParentIndex).isVariable() &&
@@ -581,22 +581,22 @@ public class RandomVariableAAD implements RandomVariable {
 	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD
 	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
 
-	public RandomVariable getAverageAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable getAverageAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return apply(OperatorType.AVERAGE, new RandomVariable[]{this, probabilities});
 	}
 
-	public RandomVariable getVarianceAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable getVarianceAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return apply(OperatorType.VARIANCE, new RandomVariable[]{this, probabilities});
 	}
 
-	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return apply(OperatorType.STDEV, new RandomVariable[]{this, probabilities});
 	}
 
-	public RandomVariable 	getStandardErrorAsRandomVariableAAD(RandomVariable probabilities){
+	public RandomVariable 	getStandardErrorAsRandomVariableAAD(final RandomVariable probabilities){
 		/*returns deterministic AAD random variable */
 		return apply(OperatorType.STDERROR, new RandomVariable[]{this, probabilities});
 	}
@@ -661,7 +661,7 @@ public class RandomVariableAAD implements RandomVariable {
 		}
 	}
 
-	public void setIsConstantTo(boolean isConstant){
+	public void setIsConstantTo(final boolean isConstant){
 		this.isConstant = isConstant;
 	}
 
@@ -669,7 +669,7 @@ public class RandomVariableAAD implements RandomVariable {
 		return ownRandomVariable;
 	}
 
-	private RandomVariable getRandomVariableInterfaceOfIndex(int index){
+	private RandomVariable getRandomVariableInterfaceOfIndex(final int index){
 		return getFunctionList().get(index).getRandomVariableInterface();
 	}
 
@@ -695,11 +695,11 @@ public class RandomVariableAAD implements RandomVariable {
 		return getParentIDs().length;
 	}
 
-	private RandomVariableAAD getAADRandomVariableFromList(int index){
+	private RandomVariableAAD getAADRandomVariableFromList(final int index){
 		return getFunctionList().get(index);
 	}
 
-	private void addToChildrenIndices(int index){
+	private void addToChildrenIndices(final int index){
 		getChildrenIndices().add(index);
 	}
 
@@ -711,7 +711,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		return getRandomVariableInterface().equals(randomVariable);
 	}
 
@@ -732,7 +732,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#get(int)
 	 */
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		return getRandomVariableInterface().get(pathOrState);
 	}
 
@@ -793,7 +793,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
@@ -809,7 +809,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
@@ -833,7 +833,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		return ((RandomVariableAAD) getStandardDeviationAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
@@ -849,7 +849,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		return ((RandomVariableAAD) getStandardErrorAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();
 	}
 
@@ -857,7 +857,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
 	 */
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile);
 	}
 
@@ -865,7 +865,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile, probabilities);
 	}
 
@@ -873,7 +873,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
 	 */
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
@@ -881,7 +881,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
 	 */
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		return getRandomVariableInterface().getHistogram(intervalPoints);
 	}
 
@@ -889,7 +889,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
 	 */
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		return getRandomVariableInterface().getHistogram(numberOfPoints, standardDeviations);
 	}
 
@@ -902,7 +902,7 @@ public class RandomVariableAAD implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return apply(OperatorType.CAP, new RandomVariable[]{this, constructNewAADRandomVariable(cap)});
 	}
 
@@ -910,7 +910,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#floor(double)
 	 */
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return apply(OperatorType.FLOOR, new RandomVariable[]{this, constructNewAADRandomVariable(floor)});
 	}
 
@@ -918,7 +918,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#add(double)
 	 */
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return apply(OperatorType.ADD, new RandomVariable[]{this, constructNewAADRandomVariable(value)});
 	}
 
@@ -926,7 +926,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(double)
 	 */
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return apply(OperatorType.SUB, new RandomVariable[]{this, constructNewAADRandomVariable(value)});
 	}
 
@@ -934,7 +934,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(double)
 	 */
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return apply(OperatorType.MULT, new RandomVariable[]{this, constructNewAADRandomVariable(value)});
 	}
 
@@ -942,7 +942,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#div(double)
 	 */
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return apply(OperatorType.DIV, new RandomVariable[]{this, constructNewAADRandomVariable(value)});
 	}
 
@@ -950,7 +950,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#pow(double)
 	 */
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return apply(OperatorType.POW, new RandomVariable[]{this, constructNewAADRandomVariable(exponent)});
 	}
 
@@ -1011,7 +1011,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return apply(OperatorType.ADD, new RandomVariable[]{this, randomVariable});
 	}
 
@@ -1019,12 +1019,12 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return apply(OperatorType.SUB, new RandomVariable[]{this, randomVariable});
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return apply(OperatorType.SUB, new RandomVariable[]{randomVariable,this});	// SUB with swapped arguments
 	}
 
@@ -1032,7 +1032,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		return apply(OperatorType.MULT, new RandomVariable[]{this, randomVariable});
 	}
 
@@ -1040,12 +1040,12 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#div(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariable[]{this, randomVariable});
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		return apply(OperatorType.DIV, new RandomVariable[]{randomVariable, this}); // DIV with swapped arguments
 	}
 
@@ -1053,7 +1053,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#cap(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
+	public RandomVariable cap(final RandomVariable cap) {
 		return apply(OperatorType.CAP, new RandomVariable[]{this, cap});
 	}
 
@@ -1061,7 +1061,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#floor(net.finmath.stochastic.RandomVariable)
 	 */
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		return apply(OperatorType.FLOOR, new RandomVariable[]{this, floor});
 	}
 
@@ -1069,7 +1069,7 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		return apply(OperatorType.ACCRUE, new RandomVariable[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
@@ -1077,12 +1077,12 @@ public class RandomVariableAAD implements RandomVariable {
 	 * @see net.finmath.stochastic.RandomVariable#discount(net.finmath.stochastic.RandomVariable, double)
 	 */
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		return apply(OperatorType.DISCOUNT, new RandomVariable[]{this, rate, constructNewAADRandomVariable(periodLength)});
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return apply(OperatorType.BARRIER, new RandomVariable[]{this, valueIfTriggerNonNegative, valueIfTriggerNegative});
 	}
 
@@ -1097,22 +1097,22 @@ public class RandomVariableAAD implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return apply(OperatorType.ADDPRODUCT, new RandomVariable[]{this, factor1, constructNewAADRandomVariable(factor2)});
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		return apply(OperatorType.ADDPRODUCT, new RandomVariable[]{this, factor1, factor2});
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return apply(OperatorType.ADDRATIO, new RandomVariable[]{this, numerator, denominator});
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return apply(OperatorType.SUBRATIO, new RandomVariable[]{this, numerator, denominator});
 	}
 
@@ -1132,17 +1132,17 @@ public class RandomVariableAAD implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 }

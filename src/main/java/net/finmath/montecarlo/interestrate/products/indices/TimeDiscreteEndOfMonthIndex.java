@@ -33,18 +33,18 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 	 * @param baseIndex The base index (will be referenced at end of month points).
 	 * @param fixingOffsetMonths A given fixing offset in month.
 	 */
-	public TimeDiscreteEndOfMonthIndex(String name, AbstractIndex baseIndex, int fixingOffsetMonths) {
+	public TimeDiscreteEndOfMonthIndex(final String name, final AbstractIndex baseIndex, final int fixingOffsetMonths) {
 		super(name);
 		this.baseIndex = baseIndex;
 		this.fixingOffsetMonths = fixingOffsetMonths;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
+		final LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate();
 
-		LocalDate evaluationDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, evaluationTime);
+		final LocalDate evaluationDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, evaluationTime);
 
 		// Roll to start of month (to prevent "overflow)
 		LocalDate endDate = evaluationDate.withDayOfMonth(1).plusMonths(fixingOffsetMonths);
@@ -52,7 +52,7 @@ public class TimeDiscreteEndOfMonthIndex extends AbstractIndex {
 		// Roll to end of month.
 		endDate = endDate.withDayOfMonth(endDate.lengthOfMonth());
 
-		double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, endDate);
+		final double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, endDate);
 		return baseIndex.getValue(time, model);
 	}
 

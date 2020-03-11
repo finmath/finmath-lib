@@ -25,7 +25,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	 * @param upperBound Upper bound of the integral.
 	 * @param evaluationPoints An ordered array of the inner evaluation points to use.
 	 */
-	public TrapezoidalRealIntegrator(double lowerBound, double upperBound, double[] evaluationPoints) {
+	public TrapezoidalRealIntegrator(final double lowerBound, final double upperBound, final double[] evaluationPoints) {
 		super(lowerBound, upperBound);
 		this.evaluationPoints = evaluationPoints;
 	}
@@ -40,7 +40,7 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Number of evaluation points (that is calls to the applyAsDouble of integrand). Has to be &gt; 2;
 	 */
-	public TrapezoidalRealIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public TrapezoidalRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		super(lowerBound, upperBound);
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 		if(numberOfEvaluationPoints < 2) {
@@ -49,9 +49,9 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	}
 
 	@Override
-	public double integrate(DoubleUnaryOperator integrand) {
-		double	lowerBound			= getLowerBound();
-		double	upperBound			= getUpperBound();
+	public double integrate(final DoubleUnaryOperator integrand) {
+		final double	lowerBound			= getLowerBound();
+		final double	upperBound			= getUpperBound();
 
 		double sum = 0.0;
 		if(evaluationPoints != null) {
@@ -67,16 +67,16 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 			double valueLeft = integrand.applyAsDouble(lowerBound);
 
 			for(;i<evaluationPoints.length && evaluationPoints[i]<upperBound; i++) {
-				double pointRight = evaluationPoints[i];
-				double valueRight = integrand.applyAsDouble(pointRight);
+				final double pointRight = evaluationPoints[i];
+				final double valueRight = integrand.applyAsDouble(pointRight);
 
 				sum += (valueRight + valueLeft) * (pointRight - pointLeft);
 
 				pointLeft = pointRight;
 				valueLeft = valueRight;
 			}
-			double pointRight = upperBound;
-			double valueRight = integrand.applyAsDouble(pointRight);
+			final double pointRight = upperBound;
+			final double valueRight = integrand.applyAsDouble(pointRight);
 
 			sum += (valueRight + valueLeft) * (pointRight - pointLeft);
 
@@ -87,10 +87,10 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 			 * Trapezoidal integration on an equi-distant grid.
 			 */
 
-			double intervall = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);
+			final double intervall = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);
 			// Sum of inner points
 			for(int i=1; i<numberOfEvaluationPoints-1; i++) {
-				double point = lowerBound + i * intervall;
+				final double point = lowerBound + i * intervall;
 				sum += integrand.applyAsDouble(point) * intervall;
 			}
 			// Sum of boundary points

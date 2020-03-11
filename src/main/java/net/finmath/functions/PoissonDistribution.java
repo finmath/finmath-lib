@@ -13,7 +13,7 @@ package net.finmath.functions;
 public class PoissonDistribution {
 	private final double lambda;
 
-	public PoissonDistribution(double lambda) {
+	public PoissonDistribution(final double lambda) {
 		super();
 		this.lambda = lambda;
 	}
@@ -24,7 +24,7 @@ public class PoissonDistribution {
 	 * @param x Argument
 	 * @return Inverse cumulative distribution function at x.
 	 */
-	public double inverseCumulativeDistribution(double x) {
+	public double inverseCumulativeDistribution(final double x) {
 		double p = Math.exp(-lambda);
 		double dp = p;
 		int k = 0;

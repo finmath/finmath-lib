@@ -20,7 +20,7 @@ public class SolverException extends Exception {
 	 *
 	 * @param message The error message.
 	 */
-	public SolverException(String message) {
+	public SolverException(final String message) {
 		super(message);
 	}
 
@@ -29,7 +29,7 @@ public class SolverException extends Exception {
 	 *
 	 * @param cause The cause.
 	 */
-	public SolverException(Throwable cause) {
+	public SolverException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -39,7 +39,7 @@ public class SolverException extends Exception {
 	 * @param message The error message.
 	 * @param cause The cause.
 	 */
-	public SolverException(String message, Throwable cause) {
+	public SolverException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 

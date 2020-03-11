@@ -26,8 +26,8 @@ import net.finmath.time.TimeDiscretization;
  */
 public class BrownianMotionView implements BrownianMotion {
 
-	private BrownianMotion		brownianMotion;
-	private Integer[]					factors;
+	private final BrownianMotion		brownianMotion;
+	private final Integer[]					factors;
 
 	/**
 	 * Create a sub-view on a Brownian motion. The result is an object
@@ -39,14 +39,14 @@ public class BrownianMotionView implements BrownianMotion {
 	 * @param brownianMotion A given Brownian motion.
 	 * @param factors A map of indices i &rarr; j for i = 0,1,2,3,... given as an array of j's
 	 */
-	public BrownianMotionView(BrownianMotion brownianMotion, Integer[] factors) {
+	public BrownianMotionView(final BrownianMotion brownianMotion, final Integer[] factors) {
 		super();
 		this.brownianMotion = brownianMotion;
 		this.factors = factors;
 	}
 
 	@Override
-	public RandomVariable getBrownianIncrement(int timeIndex, int factor) {
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
 		return brownianMotion.getBrownianIncrement(timeIndex, factors[factor]);
 	}
 
@@ -66,22 +66,22 @@ public class BrownianMotionView implements BrownianMotion {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return brownianMotion.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public BrownianMotion getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
 		return new BrownianMotionView(brownianMotion.getCloneWithModifiedSeed(seed), factors);
 	}
 
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new BrownianMotionView(brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factors);
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }

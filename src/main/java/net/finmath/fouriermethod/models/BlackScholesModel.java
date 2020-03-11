@@ -44,8 +44,8 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 * @param volatility \( \sigma \) the volatility level
 	 */
-	public BlackScholesModel(LocalDate referenceDate, double initialValue,
-			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility) {
+	public BlackScholesModel(final LocalDate referenceDate, final double initialValue,
+			final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -64,7 +64,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 * @param discountRate \( r^{\text{d}} \) - the discount rate
 	 * @param volatility \( \sigma \) the volatility level
 	 */
-	public BlackScholesModel(double initialValue, double riskFreeRate, double discountRate, double volatility) {
+	public BlackScholesModel(final double initialValue, final double riskFreeRate, final double discountRate, final double volatility) {
 		super();
 		referenceDate = null;
 		this.initialValue = initialValue;
@@ -82,19 +82,19 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
 	 * @param volatility \( \sigma \) the volatility level
 	 */
-	public BlackScholesModel(double initialValue, double riskFreeRate, double volatility) {
+	public BlackScholesModel(final double initialValue, final double riskFreeRate, final double volatility) {
 		this(initialValue, riskFreeRate, riskFreeRate, volatility);
 	}
 
 	@Override
-	public CharacteristicFunction apply(double time) {
+	public CharacteristicFunction apply(final double time) {
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 
 		return new CharacteristicFunction() {
 			@Override
-			public Complex apply(Complex argument) {
-				Complex iargument = argument.multiply(Complex.I);
+			public Complex apply(final Complex argument) {
+				final Complex iargument = argument.multiply(Complex.I);
 				return	iargument
 						.multiply(
 								iargument
@@ -112,7 +112,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForForward(double time) {
+	private double getLogDiscountFactorForForward(final double time) {
 		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
 	}
 
@@ -122,7 +122,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForDiscounting(double time) {
+	private double getLogDiscountFactorForDiscounting(final double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 

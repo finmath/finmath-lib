@@ -58,7 +58,6 @@ import net.finmath.stochastic.RandomVariable;
  * </p>
  *
  * The following simple example finds a solution for the equation <br>
- * <center>
  * <table>
  * <caption>Sample linear system of equations.</caption>
  * <tr><td>
@@ -68,7 +67,6 @@ import net.finmath.stochastic.RandomVariable;
  * 2.0 * x<sub>1</sub> + 1.0 * x<sub>2</sub> = 10.0
  * </td></tr>
  * </table>
- * </center>
  *
  * <pre>
  * <code>
@@ -136,15 +134,15 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	private RandomVariable[] parameterSteps = null;
 	private RandomVariable[] targetValues = null;
 
-	private int		maxIteration;
+	private final int		maxIteration;
 
 	// Local state of the solver
 	private double		lambda;
-	private double		lambdaInitialValue = 0.001;
+	private final double		lambdaInitialValue = 0.001;
 	private double		lambdaDivisor = 3.0;
 	private double 		lambdaMultiplicator	= 2.0;
 
-	private double	errorTolerance;
+	private final double	errorTolerance;
 
 	private int iteration = 0;
 
@@ -173,20 +171,20 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	private final Logger logger = Logger.getLogger("net.finmath");
 
 	// A simple test
-	public static void main(String[] args) throws SolverException {
+	public static void main(final String[] args) throws SolverException {
 		// RandomVariableDifferentiableAAD is possible here!
 		// RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableDifferentiableAAD(2), new RandomVariableDifferentiableAAD(2) };
-		RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableFromDoubleArray(2), new RandomVariableFromDoubleArray(2) };
-		RandomVariable[] parameterSteps = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
-		int maxIteration = 100;
-		RandomVariable[] targetValues = new RandomVariable[] { new RandomVariableFromDoubleArray(25), new RandomVariableFromDoubleArray(100) };
+		final RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableFromDoubleArray(2), new RandomVariableFromDoubleArray(2) };
+		final RandomVariable[] parameterSteps = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };
+		final int maxIteration = 100;
+		final RandomVariable[] targetValues = new RandomVariable[] { new RandomVariableFromDoubleArray(25), new RandomVariableFromDoubleArray(100) };
 
-		StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, parameterSteps, maxIteration, 1E-12, null) {
+		final StochasticLevenbergMarquardt optimizer = new StochasticLevenbergMarquardt(initialParameters, targetValues, parameterSteps, maxIteration, 1E-12, null) {
 			private static final long serialVersionUID = -282626938650139518L;
 
 			// Override your objective function here
 			@Override
-			public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) {
 				values[0] = parameters[0].mult(0.0).add(parameters[1]).squared();
 				values[1] = parameters[0].mult(2.0).add(parameters[1]).squared();
 			}
@@ -196,7 +194,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 
 		optimizer.run();
 
-		RandomVariable[] bestParameters = optimizer.getBestFitParameters();
+		final RandomVariable[] bestParameters = optimizer.getBestFitParameters();
 		System.out.println("The solver for problem 1 required " + optimizer.getIterations() + " iterations. The best fit parameters are:");
 		for (int i = 0; i < bestParameters.length; i++) {
 			System.out.println("\tparameter[" + i + "]: " + bestParameters[i]);
@@ -226,7 +224,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param errorTolerance Error tolerance / accuracy.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
-	public StochasticLevenbergMarquardt(RegularizationMethod regularizationMethod, RandomVariable[] initialParameters, RandomVariable[] targetValues, RandomVariable[] parameterSteps, int maxIteration, double errorTolerance, ExecutorService executorService) {
+	public StochasticLevenbergMarquardt(final RegularizationMethod regularizationMethod, final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance, final ExecutorService executorService) {
 		super();
 		this.regularizationMethod = regularizationMethod;
 		this.initialParameters	= initialParameters;
@@ -248,7 +246,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param errorTolerance Error tolerance / accuracy.
 	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. <i>Warning</i>: The implementation of setValues has to be thread safe!
 	 */
-	public StochasticLevenbergMarquardt(RandomVariable[] initialParameters, RandomVariable[] targetValues, RandomVariable[] parameterSteps, int maxIteration, double errorTolerance, ExecutorService executorService) {
+	public StochasticLevenbergMarquardt(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance, final ExecutorService executorService) {
 		this(RegularizationMethod.LEVENBERG_MARQUARDT, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
 	}
 
@@ -263,7 +261,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param errorTolerance Error tolerance / accuracy.
 	 * @param numberOfThreads Maximum number of threads. <i>Warning</i>: If this number is larger than one, the implementation of setValues has to be thread safe!
 	 */
-	public StochasticLevenbergMarquardt(RegularizationMethod regularizationMethod, RandomVariable[] initialParameters, RandomVariable[] targetValues, RandomVariable[] parameterSteps, int maxIteration, double errorTolerance,  int numberOfThreads) {
+	public StochasticLevenbergMarquardt(final RegularizationMethod regularizationMethod, final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance,  final int numberOfThreads) {
 		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, null);
 
 		this.numberOfThreads = numberOfThreads;
@@ -285,7 +283,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 *
 	 * @param lambda the lambda to set
 	 */
-	public void setLambda(double lambda) {
+	public void setLambda(final double lambda) {
 		this.lambda = lambda;
 	}
 
@@ -307,7 +305,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 *
 	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &gt; 1.
 	 */
-	public void setLambdaMultiplicator(double lambdaMultiplicator) {
+	public void setLambdaMultiplicator(final double lambdaMultiplicator) {
 		if(lambdaMultiplicator <= 1.0) {
 			throw new IllegalArgumentException("Parameter lambdaMultiplicator is required to be > 1.");
 		}
@@ -332,7 +330,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 *
 	 * @param lambdaDivisor the lambdaDivisor to set. Should be &gt; 1.
 	 */
-	public void setLambdaDivisor(double lambdaDivisor) {
+	public void setLambdaDivisor(final double lambdaDivisor) {
 		if(lambdaDivisor <= 1.0) {
 			throw new IllegalArgumentException("Parameter lambdaDivisor is required to be > 1.");
 		}
@@ -352,7 +350,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	/**
 	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
 	 */
-	public void setErrorMeanSquaredCurrent(double errorMeanSquaredCurrent) {
+	public void setErrorMeanSquaredCurrent(final double errorMeanSquaredCurrent) {
 		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
 	}
 
@@ -361,11 +359,11 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		return iteration;
 	}
 
-	protected void prepareAndSetValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 		setValues(parameters, values);
 	}
 
-	protected void prepareAndSetDerivatives(RandomVariable[] parameters, RandomVariable[] values, RandomVariable[][] derivatives) throws SolverException {
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
 		setDerivatives(parameters, derivatives);
 	}
 
@@ -387,18 +385,18 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
 	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public void setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives) throws SolverException {
+	public void setDerivatives(RandomVariable[] parameters, final RandomVariable[][] derivatives) throws SolverException {
 		// Calculate new derivatives. Note that this method is called only with
 		// parameters = parameterTest, so we may use valueTest.
 
 		parameters = parameterCurrent;
-		Vector<Future<RandomVariable[]>> valueFutures = new Vector<>(parameterCurrent.length);
+		final Vector<Future<RandomVariable[]>> valueFutures = new Vector<>(parameterCurrent.length);
 		for (int parameterIndex = 0; parameterIndex < parameterCurrent.length; parameterIndex++) {
 			final RandomVariable[] parametersNew	= parameters.clone();
 			final RandomVariable[] derivative		= derivatives[parameterIndex];
 
 			final int workerParameterIndex = parameterIndex;
-			Callable<RandomVariable[]> worker = new  Callable<RandomVariable[]>() {
+			final Callable<RandomVariable[]> worker = new  Callable<RandomVariable[]>() {
 				@Override
 				public RandomVariable[] call() {
 					RandomVariable parameterFiniteDifference;
@@ -420,7 +418,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
 					try {
 						prepareAndSetValues(parametersNew, derivative);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						// We signal an exception to calculate the derivative as NaN
 						Arrays.fill(derivative, new RandomVariableFromDoubleArray(Double.NaN));
 					}
@@ -432,11 +430,11 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				}
 			};
 			if(executor != null) {
-				Future<RandomVariable[]> valueFuture = executor.submit(worker);
+				final Future<RandomVariable[]> valueFuture = executor.submit(worker);
 				valueFutures.add(parameterIndex, valueFuture);
 			}
 			else {
-				FutureTask<RandomVariable[]> valueFutureTask = new FutureTask<>(worker);
+				final FutureTask<RandomVariable[]> valueFutureTask = new FutureTask<>(worker);
 				valueFutureTask.run();
 				valueFutures.add(parameterIndex, valueFutureTask);
 			}
@@ -446,9 +444,9 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 			try {
 				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
 			}
-			catch (InterruptedException e) {
+			catch (final InterruptedException e) {
 				throw new SolverException(e);
-			} catch (ExecutionException e) {
+			} catch (final ExecutionException e) {
 				throw new SolverException(e);
 			}
 		}
@@ -482,8 +480,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		try {
 
 			// Allocate memory
-			int numberOfParameters	= initialParameters.length;
-			int numberOfValues		= targetValues.length;
+			final int numberOfParameters	= initialParameters.length;
+			final int numberOfValues		= targetValues.length;
 
 			parameterTest		= initialParameters.clone();
 			parameterCurrent	= initialParameters.clone();
@@ -505,13 +503,13 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				prepareAndSetValues(parameterTest, valueTest);
 
 				// Calculate error
-				double errorMeanSquaredTest = getMeanSquaredError(valueTest);
+				final double errorMeanSquaredTest = getMeanSquaredError(valueTest);
 
 				/*
 				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
 				 * That is: NaN is consider as a rejected point.
 				 */
-				boolean isPointAccepted = errorMeanSquaredCurrent > errorMeanSquaredTest;
+				final boolean isPointAccepted = errorMeanSquaredCurrent > errorMeanSquaredTest;
 
 				if(isPointAccepted) {
 					parameterCurrent = parameterTest.clone();
@@ -547,8 +545,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 				 */
 				double[]	parameterIncrement = new double[parameterCurrent.length];
 				// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
-				double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
-				double[]	beta = new double[parameterCurrent.length];
+				final double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];
+				final double[]	beta = new double[parameterCurrent.length];
 
 				boolean hessianInvalid = true;
 				while (hessianInvalid) {
@@ -585,7 +583,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 					// Build beta (Newton step)
 					for (int i = 0; i < parameterCurrent.length; i++) {
 						double betaElement = 0.0;
-						RandomVariable[] derivativeCurrentSingleParam = derivativeCurrent[i];
+						final RandomVariable[] derivativeCurrentSingleParam = derivativeCurrent[i];
 						for (int k = 0; k < valueCurrent.length; k++) {
 							if(derivativeCurrentSingleParam[k] != null) {
 								betaElement += targetValues[k].sub(valueCurrent[k]).mult(derivativeCurrentSingleParam[k]).getAverage();
@@ -598,7 +596,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 						// Calculate new increment
 						parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 						hessianInvalid = false;
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						hessianInvalid	= true;
 						lambda *= 16;
 					}
@@ -633,11 +631,11 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 		}
 	}
 
-	public double getMeanSquaredError(RandomVariable[] value) {
+	public double getMeanSquaredError(final RandomVariable[] value) {
 		double error = 0.0;
 
 		for (int valueIndex = 0; valueIndex < value.length; valueIndex++) {
-			double deviationSquared = value[valueIndex].sub(targetValues[valueIndex]).squared().getAverage();
+			final double deviationSquared = value[valueIndex].sub(targetValues[valueIndex]).squared().getAverage();
 			error = error + deviationSquared;
 		}
 
@@ -674,8 +672,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
-	public StochasticLevenbergMarquardt getCloneWithModifiedTargetValues(RandomVariable[] newTargetVaues, RandomVariable[] newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticLevenbergMarquardt clonedOptimizer = clone();
+	public StochasticLevenbergMarquardt getCloneWithModifiedTargetValues(final RandomVariable[] newTargetVaues, final RandomVariable[] newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		final StochasticLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy
 
 		if(isUseBestParametersAsInitialParameters && this.done()) {
@@ -703,8 +701,8 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
 	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
 	 */
-	public StochasticLevenbergMarquardt getCloneWithModifiedTargetValues(List<RandomVariable> newTargetVaues, List<RandomVariable> newWeights, boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
-		StochasticLevenbergMarquardt clonedOptimizer = clone();
+	public StochasticLevenbergMarquardt getCloneWithModifiedTargetValues(final List<RandomVariable> newTargetVaues, final List<RandomVariable> newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+		final StochasticLevenbergMarquardt clonedOptimizer = clone();
 		clonedOptimizer.targetValues = newTargetVaues.toArray(new RandomVariable[] {});
 
 		if(isUseBestParametersAsInitialParameters && this.done()) {

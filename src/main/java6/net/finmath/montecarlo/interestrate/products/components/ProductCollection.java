@@ -54,7 +54,7 @@ public class ProductCollection extends AbstractProductComponent {
 
 	@Override
 	public String getCurrency() {
-		// @TODO: We report only the currency of the first item.
+		// @TODO We report only the currency of the first item.
 		return products.iterator().next().getCurrency();
 	}
 

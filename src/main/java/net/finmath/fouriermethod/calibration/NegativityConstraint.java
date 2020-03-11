@@ -13,7 +13,7 @@ public class NegativityConstraint extends BoundConstraint {
 	}
 
 	@Override
-	public double apply(double parameterToTest) {
+	public double apply(final double parameterToTest) {
 		return -Math.abs(parameterToTest);
 	}
 

@@ -32,7 +32,7 @@ public abstract class AbstractIndex extends AbstractProductComponent {
 	 * @param name The name of an index. Used to map an index on a curve.
 	 * @param currency The natural currency of an index. This more for compatibility purposes, since the information sould be contained in the name.
 	 */
-	public AbstractIndex(String name, String currency) {
+	public AbstractIndex(final String name, final String currency) {
 		super(currency);
 		this.name = name;
 	}
@@ -42,7 +42,7 @@ public abstract class AbstractIndex extends AbstractProductComponent {
 	 *
 	 * @param name The name of an index. Used to map an index on a curve.
 	 */
-	public AbstractIndex(String name) {
+	public AbstractIndex(final String name) {
 		this(name, null);
 	}
 

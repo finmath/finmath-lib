@@ -42,7 +42,7 @@ public class LinearAlgebra {
 		 */
 		if(!isSolverUseApacheCommonsMath) {
 			try {
-				double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
+				final double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
 				// The following should not happen.
 				if(x[0] != 1.0 || x[1] != 0.0) {
 					isJBlasAvailable = false;
@@ -51,7 +51,7 @@ public class LinearAlgebra {
 					isJBlasAvailable = true;
 				}
 			}
-			catch(java.lang.UnsatisfiedLinkError e) {
+			catch(final java.lang.UnsatisfiedLinkError e) {
 				isJBlasAvailable = false;
 			}
 		}
@@ -78,7 +78,7 @@ public class LinearAlgebra {
 	 * @param lambda The parameter lambda of the Tikhonov regularization. Lambda effectively measures which small numbers are considered zero.
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda) {
+	public static double[] solveLinearEquationTikonov(final double[][] matrixA, final double[] b, final double lambda) {
 		if(lambda == 0) {
 			return solveLinearEquationLeastSquare(matrixA, b);
 		}
@@ -87,24 +87,24 @@ public class LinearAlgebra {
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
 		 * And SVD is an alternative to this method.
 		 */
-		int rows = matrixA.length;
-		int cols = matrixA[0].length;
-		double[][] matrixRegularized = new double[rows+cols][cols];
-		double[] bRegularized = new double[rows+cols];					// Note the JVM initializes arrays to zero.
+		final int rows = matrixA.length;
+		final int cols = matrixA[0].length;
+		final double[][] matrixRegularized = new double[rows+cols][cols];
+		final double[] bRegularized = new double[rows+cols];					// Note the JVM initializes arrays to zero.
 		for(int i=0; i<rows; i++) {
 			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);
 		}
 		System.arraycopy(b, 0, bRegularized, 0, rows);
 
 		for(int j=0; j<cols; j++) {
-			double[] matrixRow = matrixRegularized[rows+j];
+			final double[] matrixRow = matrixRegularized[rows+j];
 
 			matrixRow[j] = lambda;
 		}
 
 
 		//		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
-		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+		final DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
 		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
 	}
 
@@ -130,7 +130,7 @@ public class LinearAlgebra {
 	 * @param lambda2 The parameter lambda1 of the Tikhonov regularization. Reduces the curvature of the solution vector.
 	 * @return The solution x of the equation A* x = b*
 	 */
-	public static double[] solveLinearEquationTikonov(double[][] matrixA, double[] b, double lambda0, double lambda1, double lambda2) {
+	public static double[] solveLinearEquationTikonov(final double[][] matrixA, final double[] b, final double lambda0, final double lambda1, final double lambda2) {
 		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) {
 			return solveLinearEquationLeastSquare(matrixA, b);
 		}
@@ -139,23 +139,23 @@ public class LinearAlgebra {
 		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
 		 * And SVD is an alternative to this method.
 		 */
-		int rows = matrixA.length;
-		int cols = matrixA[0].length;
-		double[][] matrixRegularized = new double[rows+3*cols][cols];
-		double[] bRegularized = new double[rows+3*cols];					// Note the JVM initializes arrays to zero.
+		final int rows = matrixA.length;
+		final int cols = matrixA[0].length;
+		final double[][] matrixRegularized = new double[rows+3*cols][cols];
+		final double[] bRegularized = new double[rows+3*cols];					// Note the JVM initializes arrays to zero.
 		for(int i=0; i<rows; i++) {
 			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);
 		}
 		System.arraycopy(b, 0, bRegularized, 0, rows);
 
 		for(int j=0; j<cols; j++) {
-			double[] matrixRow = matrixRegularized[rows+0*cols+j];
+			final double[] matrixRow = matrixRegularized[rows+0*cols+j];
 
 			matrixRow[j] = lambda0;
 		}
 
 		for(int j=0; j<cols; j++) {
-			double[] matrixRow = matrixRegularized[rows+1*cols+j];
+			final double[] matrixRow = matrixRegularized[rows+1*cols+j];
 
 			matrixRow[j] = 0;
 			if(j>0) {
@@ -167,7 +167,7 @@ public class LinearAlgebra {
 		}
 
 		for(int j=0; j<cols; j++) {
-			double[] matrixRow = matrixRegularized[rows+2*cols+j];
+			final double[] matrixRow = matrixRegularized[rows+2*cols+j];
 
 			matrixRow[j] = lambda2;
 			if(j>0) {
@@ -179,7 +179,7 @@ public class LinearAlgebra {
 		}
 
 		//		return solveLinearEquationLeastSquare(matrixRegularized, bRegularized);
-		DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
+		final DecompositionSolver solver = new QRDecomposition(new Array2DRowRealMatrix(matrixRegularized, false)).getSolver();
 		return solver.solve(new ArrayRealVector(bRegularized, false)).toArray();
 	}
 
@@ -195,10 +195,10 @@ public class LinearAlgebra {
 	 * @param b The vector (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquation(double[][] matrixA, double[] b) {
+	public static double[] solveLinearEquation(final double[][] matrixA, final double[] b) {
 
 		if(isSolverUseApacheCommonsMath) {
-			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
+			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
 
 			DecompositionSolver solver;
 			if(matrix.getColumnDimension() == matrix.getRowDimension()) {
@@ -237,13 +237,13 @@ public class LinearAlgebra {
 	 * @param b The vector (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquationSVD(double[][] matrixA, double[] b) {
+	public static double[] solveLinearEquationSVD(final double[][] matrixA, final double[] b) {
 
 		if(isSolverUseApacheCommonsMath) {
-			Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
+			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
 
 			// Using SVD - very slow
-			DecompositionSolver solver = new SingularValueDecomposition(matrix).getSolver();
+			final DecompositionSolver solver = new SingularValueDecomposition(matrix).getSolver();
 
 			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
 		}
@@ -264,12 +264,12 @@ public class LinearAlgebra {
 	 * @param matrix A matrix given as double[n][n].
 	 * @return The inverse of the given matrix.
 	 */
-	public static double[][] invert(double[][] matrix) {
+	public static double[][] invert(final double[][] matrix) {
 
 		if(isSolverUseApacheCommonsMath) {
 			// Use LU from common math
-			LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));
-			double[][] matrixInverse = lu.getSolver().getInverse().getData();
+			final LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));
+			final double[][] matrixInverse = lu.getSolver().getInverse().getData();
 
 			return matrixInverse;
 		}
@@ -290,9 +290,9 @@ public class LinearAlgebra {
 	 * @param vector The vector b (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquationSymmetric(double[][] matrix, double[] vector) {
+	public static double[] solveLinearEquationSymmetric(final double[][] matrix, final double[] vector) {
 		if(isSolverUseApacheCommonsMath) {
-			DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();
+			final DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();
 			return solver.solve(new Array2DRowRealMatrix(vector)).getColumn(0);
 		}
 		else {
@@ -318,9 +318,9 @@ public class LinearAlgebra {
 	 * @param vector The vector b (right hand of the linear equation).
 	 * @return A solution x to A x = b.
 	 */
-	public static double[] solveLinearEquationLeastSquare(double[][] matrix, double[] vector) {
+	public static double[] solveLinearEquationLeastSquare(final double[][] matrix, final double[] vector) {
 		// We use the linear algebra package apache commons math
-		DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+		final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
 		return solver.solve(new ArrayRealVector(vector)).toArray();
 	}
 
@@ -336,9 +336,9 @@ public class LinearAlgebra {
 	 * @param rhs The matrix B (right hand of the linear equation).
 	 * @return A solution X to A X = B.
 	 */
-	public static double[][] solveLinearEquationLeastSquare(double[][] matrix, double[][] rhs) {
+	public static double[][] solveLinearEquationLeastSquare(final double[][] matrix, final double[][] rhs) {
 		// We use the linear algebra package apache commons math
-		DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+		final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
 		return solver.solve(new Array2DRowRealMatrix(rhs)).getData();
 	}
 
@@ -350,7 +350,7 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (eigenvectors).
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
-	public static double[][] getFactorMatrix(double[][] correlationMatrix, int numberOfFactors) {
+	public static double[][] getFactorMatrix(final double[][] correlationMatrix, final int numberOfFactors) {
 		return getFactorMatrixUsingCommonsMath(correlationMatrix, numberOfFactors);
 	}
 
@@ -361,7 +361,7 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
 	 */
-	public static double[][] factorReduction(double[][] correlationMatrix, int numberOfFactors) {
+	public static double[][] factorReduction(final double[][] correlationMatrix, final int numberOfFactors) {
 		return factorReductionUsingCommonsMath(correlationMatrix, numberOfFactors);
 	}
 
@@ -373,7 +373,7 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
 	 */
-	private static double[][] getFactorMatrixUsingCommonsMath(double[][] correlationMatrix, int numberOfFactors) {
+	private static double[][] getFactorMatrixUsingCommonsMath(final double[][] correlationMatrix, final int numberOfFactors) {
 		/*
 		 * Factor reduction
 		 */
@@ -382,39 +382,39 @@ public class LinearAlgebra {
 		double[][]	eigenVectorMatrix;
 
 		if(isEigenvalueDecompositionViaSVD) {
-			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));
+			final SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));
 			eigenValues = svd.getSingularValues();
 			eigenVectorMatrix = svd.getV().getData();
 		}
 		else {
-			EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
+			final EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));
 			eigenValues			= eigenDecomp.getRealEigenvalues();
 			eigenVectorMatrix	= eigenDecomp.getV().getData();
 		}
 
 		class EigenValueIndex implements Comparable<EigenValueIndex> {
-			private int	index;
-			private Double value;
+			private final int	index;
+			private final Double value;
 
-			EigenValueIndex(int index, double value) {
+			EigenValueIndex(final int index, final double value) {
 				this.index = index; this.value = value;
 			}
 
 			@Override
-			public int compareTo(EigenValueIndex o) { return o.value.compareTo(value); }
+			public int compareTo(final EigenValueIndex o) { return o.value.compareTo(value); }
 		}
-		List<EigenValueIndex> eigenValueIndices = new ArrayList<>();
+		final List<EigenValueIndex> eigenValueIndices = new ArrayList<>();
 		for(int i=0; i<eigenValues.length; i++) {
 			eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));
 		}
 		Collections.sort(eigenValueIndices);
 
 		// Extract factors corresponding to the largest eigenvalues
-		double[][] factorMatrix = new double[eigenValues.length][numberOfFactors];
+		final double[][] factorMatrix = new double[eigenValues.length][numberOfFactors];
 		for (int factor = 0; factor < numberOfFactors; factor++) {
-			int		eigenVectorIndex	= eigenValueIndices.get(factor).index;
+			final int		eigenVectorIndex	= eigenValueIndices.get(factor).index;
 			double	eigenValue			= eigenValues[eigenVectorIndex];
-			double	signChange			= eigenVectorMatrix[0][eigenVectorIndex] > 0.0 ? 1.0 : -1.0;		// Convention: Have first entry of eigenvector positive. This is to make results more consistent.
+			final double	signChange			= eigenVectorMatrix[0][eigenVectorIndex] > 0.0 ? 1.0 : -1.0;		// Convention: Have first entry of eigenvector positive. This is to make results more consistent.
 			double  eigenVectorNormSquared     = 0.0;
 			for (int row = 0; row < eigenValues.length; row++) {
 				eigenVectorNormSquared += eigenVectorMatrix[row][eigenVectorIndex] * eigenVectorMatrix[row][eigenVectorIndex];
@@ -435,10 +435,10 @@ public class LinearAlgebra {
 	 * @param numberOfFactors The requested number of factors (Eigenvectors).
 	 * @return Factor reduced correlation matrix.
 	 */
-	public static double[][] factorReductionUsingCommonsMath(double[][] correlationMatrix, int numberOfFactors) {
+	public static double[][] factorReductionUsingCommonsMath(final double[][] correlationMatrix, final int numberOfFactors) {
 
 		// Extract factors corresponding to the largest eigenvalues
-		double[][] factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);
+		final double[][] factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);
 
 		// Renormalize rows
 		for (int row = 0; row < correlationMatrix.length; row++) {
@@ -460,7 +460,7 @@ public class LinearAlgebra {
 		}
 
 		// Orthogonalized again
-		double[][] reducedCorrelationMatrix = (new Array2DRowRealMatrix(factorMatrix).multiply(new Array2DRowRealMatrix(factorMatrix).transpose())).getData();
+		final double[][] reducedCorrelationMatrix = (new Array2DRowRealMatrix(factorMatrix).multiply(new Array2DRowRealMatrix(factorMatrix).transpose())).getData();
 
 		return getFactorMatrix(reducedCorrelationMatrix, numberOfFactors);
 	}
@@ -474,7 +474,7 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public double[][] exp(double[][] matrix) {
+	public double[][] exp(final double[][] matrix) {
 		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
 	}
 
@@ -487,7 +487,7 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public RealMatrix exp(RealMatrix matrix) {
+	public RealMatrix exp(final RealMatrix matrix) {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 
@@ -497,14 +497,14 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The transposed matrix.
 	 */
-	public static double[][] transpose(double[][] matrix){
+	public static double[][] transpose(final double[][] matrix){
 
 		//Get number of rows and columns of matrix
-		int numberOfRows = matrix.length;
-		int numberOfCols = matrix[0].length;
+		final int numberOfRows = matrix.length;
+		final int numberOfCols = matrix[0].length;
 
 		//Instantiate a unitMatrix of dimension dim
-		double[][] transpose = new double[numberOfCols][numberOfRows];
+		final double[][] transpose = new double[numberOfCols][numberOfRows];
 
 		//Create unit matrix
 		for(int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
@@ -521,11 +521,11 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix A.
 	 * @return pseudoInverse The pseudo-inverse matrix P, such that A*P*A = A and P*A*P = P
 	 */
-	public static double[][] pseudoInverse(double[][] matrix){
+	public static double[][] pseudoInverse(final double[][] matrix){
 		if(isSolverUseApacheCommonsMath) {
 			// Use LU from common math
-			SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix));
-			double[][] matrixInverse = svd.getSolver().getInverse().getData();
+			final SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix));
+			final double[][] matrixInverse = svd.getSolver().getInverse().getData();
 
 			return matrixInverse;
 		}
@@ -540,10 +540,10 @@ public class LinearAlgebra {
 	 * @param vector The given matrix A.
 	 * @return diagonalMatrix The matrix with the vectors entries on its diagonal
 	 */
-	public static double[][] diag(double[] vector){
+	public static double[][] diag(final double[] vector){
 
 		// Note: According to the Java Language spec, an array is initialized with the default value, here 0.
-		double[][] diagonalMatrix = new double[vector.length][vector.length];
+		final double[][] diagonalMatrix = new double[vector.length][vector.length];
 
 		for(int index = 0; index < vector.length; index++) {
 			diagonalMatrix[index][index] = vector[index];
@@ -559,7 +559,7 @@ public class LinearAlgebra {
 	 * @param right The matrix B
 	 * @return product The matrix product of A*B (if suitable)
 	 */
-	public static double[][] multMatrices(double[][] left, double[][] right){
+	public static double[][] multMatrices(final double[][] left, final double[][] right){
 		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
 	}
 }

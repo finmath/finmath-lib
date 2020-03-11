@@ -26,7 +26,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	private LIBORVolatilityModelMaturityDependentFourParameterExponentialForm	volatilityModel;
 	private LIBORCorrelationModelThreeParameterExponentialDecay					correlationModel;
 
-	public LIBORCovarianceModelExponentialForm7Param(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors) {
+	public LIBORCovarianceModelExponentialForm7Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 
 		parameter[0] = 0.1;
@@ -43,7 +43,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 
 	@Override
 	public Object clone() {
-		LIBORCovarianceModelExponentialForm7Param model = new LIBORCovarianceModelExponentialForm7Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors());
+		final LIBORCovarianceModelExponentialForm7Param model = new LIBORCovarianceModelExponentialForm7Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors());
 		model.parameter = parameter;
 		model.volatilityModel = volatilityModel;
 		model.correlationModel = correlationModel;
@@ -51,8 +51,8 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
-		LIBORCovarianceModelExponentialForm7Param model = (LIBORCovarianceModelExponentialForm7Param)this.clone();
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+		final LIBORCovarianceModelExponentialForm7Param model = (LIBORCovarianceModelExponentialForm7Param)this.clone();
 
 		model.parameter = parameters;
 		if(parameters[0] != parameter[0] || parameters[1] != parameter[1] || parameters[2] != parameter[2] || parameters[3] != parameter[3]) {
@@ -71,10 +71,10 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
-		RandomVariable factorLoading[] = new RandomVariable[correlationModel.getNumberOfFactors()];
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];
 		for (int factorIndex = 0; factorIndex < factorLoading.length; factorIndex++) {
-			RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
+			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);
 			factorLoading[factorIndex] = volatility;
 			factorLoading[factorIndex] = factorLoading[factorIndex].mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));
 		}
@@ -83,12 +83,12 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 	}
 
 	@Override
-	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified)
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map<String, Object> dataModified)
 			throws CalculationException {
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
@@ -100,7 +100,7 @@ public class LIBORCovarianceModelExponentialForm7Param extends AbstractLIBORCova
 			numberOfFactors = (int)dataModified.getOrDefault("numberOfFactors", numberOfFactors);
 		}
 
-		AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
+		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm7Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors);
 		return newModel;
 	}
 

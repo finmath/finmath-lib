@@ -14,28 +14,33 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractRandomVariableFactory implements Serializable{
+public abstract class AbstractRandomVariableFactory implements Serializable, RandomVariableFactory {
 
 	private static final long serialVersionUID = -4412332958142580025L;
 
-	public RandomVariable createRandomVariable(double value) {
+	@Override
+	public RandomVariable createRandomVariable(final double value) {
 		return createRandomVariable(Double.NEGATIVE_INFINITY, value);
 	}
 
+	@Override
 	public abstract RandomVariable createRandomVariable(double time, double value);
 
+	@Override
 	public abstract RandomVariable createRandomVariable(double time, double[] values);
 
-	public RandomVariable[] createRandomVariableArray(double[] values) {
-		RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
+	@Override
+	public RandomVariable[] createRandomVariableArray(final double[] values) {
+		final RandomVariable[] valuesAsRandomVariables = new RandomVariable[values.length];
 		for(int i=0; i<values.length; i++) {
 			valuesAsRandomVariables[i] = this.createRandomVariable(Double.NEGATIVE_INFINITY, values[i]);
 		}
 		return valuesAsRandomVariables;
 	}
 
-	public RandomVariable[][] createRandomVariableMatrix(double[][] values) {
-		RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
+	@Override
+	public RandomVariable[][] createRandomVariableMatrix(final double[][] values) {
+		final RandomVariable[][] valuesAsRandomVariables = new RandomVariable[values.length][];
 		for(int i=0; i<values.length; i++) {
 			valuesAsRandomVariables[i] = new RandomVariable[values[i].length];
 			for(int j=0; j<values[i].length; j++) {

@@ -50,7 +50,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
-	public DiscountCurveFromForwardCurve(String forwardCurveName, double periodLengthTimeScaling) {
+	public DiscountCurveFromForwardCurve(final String forwardCurveName, final double periodLengthTimeScaling) {
 		super("DiscountCurveFromForwardCurve(" + forwardCurveName + ")", null);
 
 		this.forwardCurveName	= forwardCurveName;
@@ -68,7 +68,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
 	 */
-	public DiscountCurveFromForwardCurve(ForwardCurve forwardCurve, double periodLengthTimeScaling) {
+	public DiscountCurveFromForwardCurve(final ForwardCurve forwardCurve, final double periodLengthTimeScaling) {
 		super("DiscountCurveFromForwardCurve" + forwardCurve.getName() + ")", forwardCurve.getReferenceDate());
 
 		this.forwardCurve	= forwardCurve;
@@ -85,7 +85,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 *
 	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
 	 */
-	public DiscountCurveFromForwardCurve(String forwardCurveName) {
+	public DiscountCurveFromForwardCurve(final String forwardCurveName) {
 		this(forwardCurveName, 1.0);
 	}
 
@@ -99,12 +99,12 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 *
 	 * @param forwardCurve The forward curve used for calculation of the discount factors.
 	 */
-	public DiscountCurveFromForwardCurve(ForwardCurve forwardCurve) {
+	public DiscountCurveFromForwardCurve(final ForwardCurve forwardCurve) {
 		this(forwardCurve, 1.0);
 	}
 
 	@Override
-	public double getDiscountFactor(double maturity) {
+	public double getDiscountFactor(final double maturity) {
 		return getDiscountFactor(null, maturity);
 	}
 
@@ -112,7 +112,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
 	 */
 	@Override
-	public double getDiscountFactor(AnalyticModel model, double maturity) {
+	public double getDiscountFactor(final AnalyticModel model, final double maturity) {
 		ForwardCurve	forwardCurve;
 		if(this.forwardCurve != null) {
 			forwardCurve = this.forwardCurve;
@@ -146,7 +146,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
 	 */
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -156,7 +156,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 	}
 
 	@Override
@@ -183,7 +183,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -193,7 +193,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;
+		final DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;
 		if (forwardCurve == null) {
 			if (other.forwardCurve != null) {
 				return false;

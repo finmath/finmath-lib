@@ -12,9 +12,7 @@ import net.finmath.stochastic.RandomVariableInterface;
  * Displaced model build on top of a standard covariance model.
  *
  * The model constructed for the <i>i</i>-th factor loading is
- * <center>
  * <i>(L<sub>i</sub>(t) + d) F<sub>i</sub>(t)</i>
- * </center>
  * where <i>d</i> is the displacement and <i>L<sub>i</sub></i> is
  * the realization of the <i>i</i>-th component of the stochastic process and
  * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
@@ -45,9 +43,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	 * Displaced model build on top of a standard covariance model.
 	 *
 	 * The model constructed for the <i>i</i>-th factor loading is
-	 * <center>
 	 * <i>(L<sub>i</sub>(t) + d) F<sub>i</sub>(t)</i>
-	 * </center>
 	 * where <i>d</i> is the displacement and <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading from the given covariance model.
@@ -79,9 +75,7 @@ public class DisplacedLocalVolatilityModel extends AbstractLIBORCovarianceModelP
 	/**
 	 * Returns the base covariance model, i.e., the model providing the factor loading <i>F</i>
 	 * such that this model's <i>i</i>-th factor loading is
-	 * <center>
 	 * <i>(a L<sub>i,0</sub> + (1-a)L<sub>i</sub>(t)) F<sub>i</sub>(t)</i>
-	 * </center>
 	 * where <i>a</i> is the displacement and <i>L<sub>i</sub></i> is
 	 * the realization of the <i>i</i>-th component of the stochastic process and
 	 * <i>F<sub>i</sub></i> is the factor loading loading from the given covariance model.

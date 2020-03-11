@@ -369,7 +369,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 			double						periodEnd		= periodStart + periodLength;
 			double						tenorTime		= covarianceModel.getScaledTenorTime(periodStart, periodEnd);
 
-			// @todo Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
+			// @TODO Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
 			RandomVariableInterface[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 			double weight = getWeightForTenorRefinement(periodStart,periodStart,periodStart,periodEnd);
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
@@ -637,7 +637,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractModel implement
 
 	public RandomVariableInterface getStateVariable(int timeIndex, double periodStart, double periodEnd)
 	{
-		// @TODO: Make getLiborPeriodDiscretization to use timeIndex
+		// @TODO Make getLiborPeriodDiscretization to use timeIndex
 		double time = this.getTimeDiscretization().getTime(timeIndex);
 		TimeDiscretizationInterface liborPeriodDiscretization = this.getLiborPeriodDiscretization(time);
 		//		return getStateVariableForPeriod(liborPeriodDiscretization, stateVariables, periodStart, periodEnd);

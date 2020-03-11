@@ -31,12 +31,12 @@ public class DayCountConvention_NONE implements DayCountConvention, Serializable
 	}
 
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		return 0.0;
 	}
 
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		return 1.0;
 	}
 }

@@ -36,7 +36,7 @@ public interface RandomVariableArray extends RandomVariable {
 	 */
 	default int getLevel() {
 
-		RandomVariable element = getElement(0);
+		final RandomVariable element = getElement(0);
 		if(element instanceof RandomVariableArray) {
 			return ((RandomVariableArray)element).getLevel() + 1;
 		}
@@ -47,15 +47,15 @@ public interface RandomVariableArray extends RandomVariable {
 
 	default Object toDoubleArray() {
 		if(getLevel() == 1) {
-			double[] doubleArray = new double[getNumberOfElements()];
+			final double[] doubleArray = new double[getNumberOfElements()];
 			for(int i=0; i<getNumberOfElements(); i++) {
 				doubleArray[i] = getElement(i).doubleValue();
 			}
 			return doubleArray;
 		}
 		else {
-			// TODO: The following code requires a consistent level on all elements
-			Object[] doubleArray = new Object[getNumberOfElements()];
+			// TODO The following code requires a consistent level on all elements
+			final Object[] doubleArray = new Object[getNumberOfElements()];
 			for(int i=0; i<getNumberOfElements(); i++) {
 				doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();
 			}
@@ -82,11 +82,11 @@ public interface RandomVariableArray extends RandomVariable {
 	RandomVariable sumProduct(RandomVariableArray array);
 
 	@Override
-	default RandomVariableArray getConditionalExpectation(ConditionalExpectationEstimator conditionalExpectationOperator)
+	default RandomVariableArray getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
 		return map(new Function<RandomVariable, RandomVariable>() {
 			@Override
-			public RandomVariable apply(RandomVariable x) {
+			public RandomVariable apply(final RandomVariable x) {
 				return conditionalExpectationOperator.getConditionalExpectation(x);
 			}
 		});

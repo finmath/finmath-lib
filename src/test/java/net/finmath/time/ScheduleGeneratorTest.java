@@ -25,7 +25,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testScheduleGeneratorMetaData() {
-		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
+		final Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 10, 12) /* startDate */,
 				LocalDate.of(2013, 1, 12) /* maturity */,
@@ -39,7 +39,7 @@ public class ScheduleGeneratorTest {
 
 		System.out.println(schedule);
 
-		Schedule schedule2 = ScheduleGenerator.createScheduleFromConventions(
+		final Schedule schedule2 = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				"9M 2D" /* startOffset */,
 				"3M" /* maturity */,
@@ -51,7 +51,7 @@ public class ScheduleGeneratorTest {
 				0,
 				0);
 
-		for(Period period : schedule.getPeriods()) {
+		for(final Period period : schedule.getPeriods()) {
 			Assert.assertTrue(schedule2.getPeriods().contains(period));
 		}
 
@@ -66,7 +66,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testPeriodStartPeriodEnd() {
-		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
+		final Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 1, 12) /* startDate */,
 				LocalDate.of(2022, 1, 12) /* maturity */,
@@ -82,7 +82,7 @@ public class ScheduleGeneratorTest {
 		 * Period start should equal previous period start
 		 */
 		LocalDate start = null, end = null;
-		for(Period period : schedule) {
+		for(final Period period : schedule) {
 			start = period.getPeriodStart();
 			if(end != null) {
 				Assert.assertTrue("Period start should equal previous period end.", start.isEqual(end));
@@ -93,7 +93,7 @@ public class ScheduleGeneratorTest {
 
 	@Test
 	public void testPeriodLength() {
-		Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
+		final Schedule schedule = ScheduleGenerator.createScheduleFromConventions(
 				LocalDate.of(2012, 1, 10) /* referenceDate */,
 				LocalDate.of(2012, 1, 12) /* startDate */,
 				LocalDate.of(2022, 1, 12) /* maturity */,
@@ -111,10 +111,10 @@ public class ScheduleGeneratorTest {
 		 * Period start should equal previous period start
 		 */
 		for(int periodIndex=0; periodIndex < schedule.getNumberOfPeriods(); periodIndex++) {
-			LocalDate periodStart = schedule.getPeriod(periodIndex).getPeriodStart();
-			LocalDate periodEnd = schedule.getPeriod(periodIndex).getPeriodEnd();
-			double periodLengthDCF = schedule.getPeriodLength(periodIndex);
-			double periodLengthDCFExpected = (new DayCountConvention_ACT_360()).getDaycountFraction(periodStart, periodEnd);
+			final LocalDate periodStart = schedule.getPeriod(periodIndex).getPeriodStart();
+			final LocalDate periodEnd = schedule.getPeriod(periodIndex).getPeriodEnd();
+			final double periodLengthDCF = schedule.getPeriodLength(periodIndex);
+			final double periodLengthDCFExpected = (new DayCountConvention_ACT_360()).getDaycountFraction(periodStart, periodEnd);
 			Assert.assertEquals("Period length re-calculated.", periodLengthDCFExpected, periodLengthDCF, 1E-10);
 		}
 	}

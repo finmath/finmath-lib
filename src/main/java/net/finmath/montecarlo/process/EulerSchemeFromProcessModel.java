@@ -49,12 +49,15 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	}
 
 	public enum Scheme {
-		EULER, PREDICTOR_CORRECTOR, EULER_FUNCTIONAL
+		EULER,
+		PREDICTOR_CORRECTOR,
+		EULER_FUNCTIONAL,
+		PREDICTOR_CORRECTOR_FUNCTIONAL
 	}
 
-	private IndependentIncrements stochasticDriver;
+	private final IndependentIncrements stochasticDriver;
 
-	private Scheme		scheme = Scheme.EULER;
+	private Scheme		scheme = Scheme.EULER_FUNCTIONAL;
 
 	// Used locally for multi-threadded calculation.
 	private ExecutorService executor;
@@ -72,7 +75,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
-	public EulerSchemeFromProcessModel(IndependentIncrements stochasticDriver, Scheme scheme) {
+	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver, final Scheme scheme) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 		this.scheme = scheme;
@@ -83,7 +86,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
-	public EulerSchemeFromProcessModel(IndependentIncrements stochasticDriver) {
+	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
 	}
@@ -95,7 +98,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 * @return A vector of process realizations (on path)
 	 */
 	@Override
-	public RandomVariable getProcessValue(int timeIndex, int componentIndex) {
+	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcess == null || discreteProcess.length == 0) {
@@ -118,7 +121,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 * @return A vector of positive weights
 	 */
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) {
 		// Thread safe lazy initialization
 		synchronized(this) {
 			if (discreteProcessWeights == null || discreteProcessWeights.length == 0) {
@@ -150,7 +153,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		discreteProcessWeights[0] = stochasticDriver.getRandomVariableForConstant(1.0 / numberOfPaths);
 
 		// Set initial value
-		RandomVariable[] initialState = getInitialState();
+		final RandomVariable[] initialState = getInitialState();
 		final RandomVariable[] currentState = new RandomVariable[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 			currentState[componentIndex] = initialState[componentIndex];
@@ -175,7 +178,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			try {
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
-			catch(Exception e) {
+			catch(final Exception e) {
 				throw new RuntimeException("Drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
 			}
 
@@ -183,7 +186,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			final RandomVariable[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);
 
 			// Calculate new realization
-			ArrayList<Future<RandomVariable>> discreteProcessAtCurrentTimeIndex = new ArrayList<>(numberOfComponents);
+			final ArrayList<Future<RandomVariable>> discreteProcessAtCurrentTimeIndex = new ArrayList<>(numberOfComponents);
 			for (int componentIndex2 = 0; componentIndex2 < numberOfComponents; componentIndex2++) {
 				final int componentIndex = componentIndex2;
 
@@ -195,14 +198,14 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					continue;
 				}
 
-				Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
+				final Callable<RandomVariable> worker = new  Callable<RandomVariable>() {
 					@Override
 					public RandomVariable call() {
-						if(scheme == Scheme.EULER_FUNCTIONAL) {
+						if(scheme == Scheme.EULER_FUNCTIONAL || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {
 							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
 						}
 
-						RandomVariable[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
+						final RandomVariable[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
 
 						// Check if the component process has stopped to evolve
 						if (factorLoadings == null) {
@@ -218,7 +221,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement);
 
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]).cache();
+						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
 					}
 				};
 
@@ -233,7 +236,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					} else {
 						result = new FutureWrapper<>(worker.call());
 					}
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 
@@ -244,34 +247,34 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			// Fetch results and move to discreteProcess[timeIndex]
 			for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 				try {
-					Future<RandomVariable> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
+					final Future<RandomVariable> discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);
 					if(discreteProcessAtCurrentTimeIndexAndComponent != null) {
 						discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();
 					} else {
 						discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
 					}
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
-				} catch (ExecutionException e) {
+				} catch (final ExecutionException e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 			}
 
-			if (scheme == Scheme.PREDICTOR_CORRECTOR) {
+			if (scheme == Scheme.PREDICTOR_CORRECTOR || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {
 				// Apply corrector step to realizations at next time step
 
-				RandomVariable[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
+				final RandomVariable[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);
 
 				for (int componentIndex = 0; componentIndex < getNumberOfComponents(); componentIndex++) {
-					RandomVariable driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
-					RandomVariable driftWithoutPredictorOfComponent	= drift[componentIndex];
+					final RandomVariable driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];
+					final RandomVariable driftWithoutPredictorOfComponent	= drift[componentIndex];
 
 					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) {
 						continue;
 					}
 
 					// Calculated the predictor corrector drift adjustment
-					RandomVariable driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
+					final RandomVariable driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);
 
 					// Add drift adjustment
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
@@ -288,7 +291,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		try {
 			executor.shutdown();
 		}
-		catch(SecurityException e) {
+		catch(final SecurityException e) {
 			// @TODO Improve exception handling here
 		}
 	}
@@ -346,13 +349,13 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	}
 
 	@Override
-	public MonteCarloProcess getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public MonteCarloProcess getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		// @TODO Implement cloning with modified properties
 		throw new UnsupportedOperationException("Method not implemented");
 	}
 
 	@Override
-	public Object getCloneWithModifiedSeed(int seed) {
+	public Object getCloneWithModifiedSeed(final int seed) {
 		return new EulerSchemeFromProcessModel(getBrownianMotion().getCloneWithModifiedSeed(seed));
 	}
 

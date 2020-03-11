@@ -44,9 +44,9 @@ public class Period extends AbstractPeriod {
 	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
 	 * @param isExcludeAccruedInterest If the true, the valuation will exclude accrued interest, if any.
 	 */
-	public Period(LocalDateTime referenceDate, double periodStart, double periodEnd, double fixingDate,
-			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
-			boolean couponFlow, boolean notionalFlow, boolean payer, boolean isExcludeAccruedInterest) {
+	public Period(final LocalDateTime referenceDate, final double periodStart, final double periodEnd, final double fixingDate,
+			final double paymentDate, final Notional notional, final AbstractProductComponent index, final double daycountFraction,
+			final boolean couponFlow, final boolean notionalFlow, final boolean payer, final boolean isExcludeAccruedInterest) {
 		super(referenceDate, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);
 		this.couponFlow = couponFlow;
 		this.notionalFlow = notionalFlow;
@@ -69,9 +69,9 @@ public class Period extends AbstractPeriod {
 	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
 	 * @param isExcludeAccruedInterest If the true, the valuation will exclude accrued interest, if any.
 	 */
-	public Period(double periodStart, double periodEnd, double fixingDate,
-			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
-			boolean couponFlow, boolean notionalFlow, boolean payer, boolean isExcludeAccruedInterest) {
+	public Period(final double periodStart, final double periodEnd, final double fixingDate,
+			final double paymentDate, final Notional notional, final AbstractProductComponent index, final double daycountFraction,
+			final boolean couponFlow, final boolean notionalFlow, final boolean payer, final boolean isExcludeAccruedInterest) {
 		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction, couponFlow, notionalFlow, payer, isExcludeAccruedInterest);
 	}
 
@@ -91,9 +91,9 @@ public class Period extends AbstractPeriod {
 	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
 	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
 	 */
-	public Period(double periodStart, double periodEnd, double fixingDate,
-			double paymentDate, AbstractNotional notional, AbstractProductComponent index, double daycountFraction,
-			boolean couponFlow, boolean notionalFlow, boolean payer) {
+	public Period(final double periodStart, final double periodEnd, final double fixingDate,
+			final double paymentDate, final Notional notional, final AbstractProductComponent index, final double daycountFraction,
+			final boolean couponFlow, final boolean notionalFlow, final boolean payer) {
 		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction, couponFlow, notionalFlow, payer, false);
 	}
 
@@ -112,9 +112,9 @@ public class Period extends AbstractPeriod {
 	 * @param notionalFlow If true, there will be a positive notional flow at period start (but only if peirodStart &gt; evaluationTime) and a negative notional flow at period end (but only if periodEnd &gt; evaluationTime). Otherwise there will be no notional flows.
 	 * @param payer If true, the period will be a payer period, i.e. notional and coupon at period end are payed (negative). Otherwise it is a receiver period.
 	 */
-	public Period(double periodStart, double periodEnd, double fixingDate,
-			double paymentDate, AbstractNotional notional, AbstractProductComponent index,
-			boolean couponFlow, boolean notionalFlow, boolean payer) {
+	public Period(final double periodStart, final double periodEnd, final double fixingDate,
+			final double paymentDate, final Notional notional, final AbstractProductComponent index,
+			final boolean couponFlow, final boolean notionalFlow, final boolean payer) {
 		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, periodEnd-periodStart, couponFlow, notionalFlow, payer);
 	}
 
@@ -129,7 +129,7 @@ public class Period extends AbstractPeriod {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		double productToModelTimeOffset = 0;
 		try {
@@ -137,19 +137,19 @@ public class Period extends AbstractPeriod {
 				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), this.getReferenceDate());
 			}
 		}
-		catch(UnsupportedOperationException e) {
-			// @TODO: Models that do not provide a reference date will become disfunctional in future releases.
-		};
+		catch(final UnsupportedOperationException e) {
+			// @TODO Models that do not provide a reference date will become disfunctional in future releases.
+		}
 
 		if(evaluationTime >= productToModelTimeOffset + getPaymentDate()) {
 			return new RandomVariableFromDoubleArray(0.0);
 		}
 
 		// Get random variables
-		RandomVariable	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
-		RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
-		RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + getPaymentDate());
-		// @TODO: Add support for weighted Monte-Carlo.
+		final RandomVariable	notionalAtPeriodStart	= getNotional().getNotionalAtPeriodStart(this, model);
+		final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + getPaymentDate());
+		// @TODO Add support for weighted Monte-Carlo.
 		//        RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
 
 		RandomVariable values;
@@ -160,7 +160,7 @@ public class Period extends AbstractPeriod {
 			values = values.mult(notionalAtPeriodStart);
 			values = values.div(numeraire);
 			if(isExcludeAccruedInterest && evaluationTime >= productToModelTimeOffset + getPeriodStart() && evaluationTime < productToModelTimeOffset + getPeriodEnd()) {
-				double nonAccruedInterestRatio = (productToModelTimeOffset + getPeriodEnd() - evaluationTime) / (getPeriodEnd() - getPeriodStart());
+				final double nonAccruedInterestRatio = (productToModelTimeOffset + getPeriodEnd() - evaluationTime) / (getPeriodEnd() - getPeriodStart());
 				values = values.mult(nonAccruedInterestRatio);
 			}
 		}
@@ -170,15 +170,15 @@ public class Period extends AbstractPeriod {
 
 		// Apply notional exchange
 		if(notionalFlow) {
-			RandomVariable	nationalAtPeriodEnd		= getNotional().getNotionalAtPeriodEnd(this, model);
+			final RandomVariable	nationalAtPeriodEnd		= getNotional().getNotionalAtPeriodEnd(this, model);
 
 			if(getPeriodStart() > evaluationTime) {
-				RandomVariable	numeraireAtPeriodStart	= model.getNumeraire(getPeriodStart());
+				final RandomVariable	numeraireAtPeriodStart	= model.getNumeraire(getPeriodStart());
 				values = values.subRatio(notionalAtPeriodStart, numeraireAtPeriodStart);
 			}
 
 			if(getPeriodEnd() > evaluationTime) {
-				RandomVariable	numeraireAtPeriodEnd	= model.getNumeraire(getPeriodEnd());
+				final RandomVariable	numeraireAtPeriodEnd	= model.getNumeraire(getPeriodEnd());
 				values = values.addRatio(nationalAtPeriodEnd, numeraireAtPeriodEnd);
 			}
 		}
@@ -194,12 +194,12 @@ public class Period extends AbstractPeriod {
 	}
 
 	@Override
-	public RandomVariable getCoupon(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getCoupon(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		// Calculate percentage value of coupon (not multiplied with notional, not discounted)
 		RandomVariable values = getIndex().getValue(evaluationTime, model);
 
 		// Apply daycount fraction
-		double periodDaycountFraction = getDaycountFraction();
+		final double periodDaycountFraction = getDaycountFraction();
 		values = values.mult(periodDaycountFraction);
 
 		return values;

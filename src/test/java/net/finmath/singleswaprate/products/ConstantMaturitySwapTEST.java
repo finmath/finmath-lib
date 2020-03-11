@@ -12,8 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
@@ -22,17 +22,17 @@ import net.finmath.optimizer.SolverException;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
-import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.singleswaprate.model.volatilities.VolatilityCubeFactory;
+import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator.DaycountConvention;
 import net.finmath.time.ScheduleGenerator.Frequency;
 import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
-import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 
 public class ConstantMaturitySwapTEST {
 
@@ -77,7 +77,7 @@ public class ConstantMaturitySwapTEST {
 	@BeforeClass
 	public static void setup() {
 
-		SchedulePrototype floatMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype floatMetaSchedule = new SchedulePrototype(
 				Frequency.SEMIANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -87,7 +87,7 @@ public class ConstantMaturitySwapTEST {
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
 
-		SchedulePrototype fixMetaSchedule = new SchedulePrototype(
+		final SchedulePrototype fixMetaSchedule = new SchedulePrototype(
 				Frequency.ANNUAL,
 				DaycountConvention.ACT_360,
 				ShortPeriodConvention.LAST,
@@ -96,7 +96,7 @@ public class ConstantMaturitySwapTEST {
 				0, //fixingOffsetDays,
 				0, //paymentOffsetDays,
 				false); //isUseEndOfMonth);
-		
+
 		floatSchedule	= floatMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 		fixSchedule		= fixMetaSchedule.generateSchedule(referenceDate, startDate, endDate);
 
@@ -137,7 +137,7 @@ public class ConstantMaturitySwapTEST {
 			e.printStackTrace();
 		}
 
-		int numberOfSimulations = 50;
+		final int numberOfSimulations = 50;
 		lowerBounds = new double[numberOfSimulations];
 		upperBounds = new double[numberOfSimulations];
 		numbersOfEvaluationPoints = new int[numberOfSimulations];
@@ -154,19 +154,19 @@ public class ConstantMaturitySwapTEST {
 	public void testSimplifiedLinear() throws SolverException, IOException {
 
 		type = AnnuityMappingType.SIMPLIFIEDLINEAR;
-		VolatilityCubeModel model = buildCube(type);
+		final VolatilityCubeModel model = buildCube(type);
 
-		ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
+		final ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
 
 		valueCMS = cms.getValue(fixSchedule.getFixing(0), model);
 
 		//analytic
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveSingleName), model);
-		double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
-		double swapFixing	= fixSchedule.getFixing(0);
-		double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
-		double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
-		double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
+		final double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
+		final double swapFixing	= fixSchedule.getFixing(0);
+		final double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
+		final double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
+		final double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
 
 		analyticValue = ConstantMaturitySwap.analyticApproximation(baseSwapRate, volatility, swapAnnuity, swapFixing, swapMaturity, payoffUnit);
 
@@ -182,19 +182,19 @@ public class ConstantMaturitySwapTEST {
 	public void testBasicPiterbarg() throws SolverException, IOException {
 
 		type = AnnuityMappingType.BASICPITERBARG;
-		VolatilityCubeModel model = buildCube(type);
+		final VolatilityCubeModel model = buildCube(type);
 
-		ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
+		final ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveSingleName, volatilityCubeName, type);
 
 		valueCMS = cms.getValue(fixSchedule.getFixing(0), model);
 
 		//analytic
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveSingleName), model);
-		double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
-		double swapFixing	= fixSchedule.getFixing(0);
-		double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
-		double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
-		double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
+		final double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
+		final double swapFixing	= fixSchedule.getFixing(0);
+		final double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
+		final double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
+		final double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
 
 		analyticValue = ConstantMaturitySwap.analyticApproximation(baseSwapRate, volatility, swapAnnuity, swapFixing, swapMaturity, payoffUnit);
 
@@ -210,19 +210,19 @@ public class ConstantMaturitySwapTEST {
 	public void testMultiPiterbarg() throws SolverException, IOException {
 
 		type = AnnuityMappingType.MULTIPITERBARG;
-		VolatilityCubeModel model = buildCube(type);
+		final VolatilityCubeModel model = buildCube(type);
 
-		ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveMarketName, volatilityCubeName, type);
+		final ConstantMaturitySwap cms = new ConstantMaturitySwap(fixSchedule, floatSchedule, discountCurveName, forwardCurveMarketName, volatilityCubeName, type);
 
 		valueCMS = cms.getValue(fixSchedule.getFixing(0), model);
 
 		//analytic
 		baseSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveMarketName), model);
-		double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
-		double swapFixing	= fixSchedule.getFixing(0);
-		double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
-		double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
-		double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
+		final double swapAnnuity 	= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
+		final double swapFixing	= fixSchedule.getFixing(0);
+		final double swapMaturity = fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
+		final double volatility	= model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, swapFixing, baseSwapRate, QuotingConvention.VOLATILITYNORMAL);
+		final double payoffUnit	= model.getDiscountCurve(discountCurveName).getDiscountFactor(swapFixing);
 
 		analyticValue = ConstantMaturitySwap.analyticApproximation(baseSwapRate, volatility, swapAnnuity, swapFixing, swapMaturity, payoffUnit);
 
@@ -251,8 +251,8 @@ public class ConstantMaturitySwapTEST {
 	}
 
 	//creating a volatility cube for tests
-	private static VolatilityCubeModel buildCube(AnnuityMappingType type) throws SolverException, IOException {
-		VolatilityCubeFactory factory = new VolatilityCubeFactory(
+	private static VolatilityCubeModel buildCube(final AnnuityMappingType type) throws SolverException, IOException {
+		final VolatilityCubeFactory factory = new VolatilityCubeFactory(
 				referenceDate,
 				payerSwaptions,
 				receiverSwaptions,
@@ -264,7 +264,7 @@ public class ConstantMaturitySwapTEST {
 				type);
 
 		volatilityCubeName				= type.toString();
-		VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
+		final VolatilityCube cube	= factory.buildShiftedSmileSABRCube(volatilityCubeName, model);
 
 		return model.addVolatilityCube(cube);
 	}

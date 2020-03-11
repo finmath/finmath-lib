@@ -16,23 +16,23 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 	private final double maturity;
 	private final double strike;
 
-	public FDMEuropeanCallOption(double optionMaturity, double optionStrike) {
+	public FDMEuropeanCallOption(final double optionMaturity, final double optionStrike) {
 		maturity = optionMaturity;
 		strike = optionStrike;
 	}
 
 	@Override
-	public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
+	public double[][] getValue(final double evaluationTime, final FiniteDifference1DModel model) {
 
 		/*
 		 * The FDM algorithm requires the boundary conditions of the product.
 		 * This product implements the boundary interface
 		 */
-		FiniteDifference1DBoundary boundary = this;
+		final FiniteDifference1DBoundary boundary = this;
 
 		return model.getValue(evaluationTime, maturity, new DoubleUnaryOperator() {
 			@Override
-			public double applyAsDouble(double assetValue) {
+			public double applyAsDouble(final double assetValue) {
 				return Math.max(assetValue - strike, 0);
 			}
 		}, boundary);
@@ -44,12 +44,12 @@ public class FDMEuropeanCallOption implements FiniteDifference1DProduct, FiniteD
 	 */
 
 	@Override
-	public double getValueAtLowerBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
+	public double getValueAtLowerBoundary(final FiniteDifference1DModel model, final double currentTime, final double stockPrice) {
 		return 0;
 	}
 
 	@Override
-	public double getValueAtUpperBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
+	public double getValueAtUpperBoundary(final FiniteDifference1DModel model, final double currentTime, final double stockPrice) {
 		return stockPrice - strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
 	}
 }

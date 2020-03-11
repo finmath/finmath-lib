@@ -38,7 +38,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	private static final double timeTickSizeDefault = Double.parseDouble(System.getProperty("net.finmath.functions.TimeDiscretization.timeTickSize", Double.toString(1.0 / (365.0 * 24.0))));
 
 	private final double[]	timeDiscretization;
-	private double timeTickSize;
+	private final double timeTickSize;
 
 	public enum ShortPeriodLocation {
 		SHORT_PERIOD_AT_START,
@@ -53,7 +53,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(DoubleStream times, double tickSize, boolean allowDuplicates) {
+	public TimeDiscretizationFromArray(DoubleStream times, final double tickSize, final boolean allowDuplicates) {
 		timeTickSize = tickSize;
 		times = times.map(this::roundToTimeTickSize);
 		if(!allowDuplicates) {
@@ -68,7 +68,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times    A non closed and not necessarily sorted stream containing the time points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
-	public TimeDiscretizationFromArray(DoubleStream times, double tickSize) {
+	public TimeDiscretizationFromArray(final DoubleStream times, final double tickSize) {
 		this(times, tickSize, false);
 	}
 
@@ -79,7 +79,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times A double stream of time points for the time discretization.
 	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(DoubleStream times, boolean allowDuplicates) {
+	public TimeDiscretizationFromArray(final DoubleStream times, final boolean allowDuplicates) {
 		this(times, timeTickSizeDefault, allowDuplicates);
 	}
 
@@ -88,7 +88,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 *
 	 * @param times A double stream of time points for the time discretization.
 	 */
-	public TimeDiscretizationFromArray(DoubleStream times) {
+	public TimeDiscretizationFromArray(final DoubleStream times) {
 		this(times, timeTickSizeDefault, false);
 	}
 
@@ -99,7 +99,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(Stream<Double> times, double tickSize, boolean allowDuplicates) {
+	public TimeDiscretizationFromArray(final Stream<Double> times, final double tickSize, final boolean allowDuplicates) {
 		this(times.mapToDouble(Double::doubleValue), tickSize, allowDuplicates);
 	}
 
@@ -110,7 +110,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times    A non closed and not necessarily sorted stream containing the time points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
-	public TimeDiscretizationFromArray(Stream<Double> times, double tickSize) {
+	public TimeDiscretizationFromArray(final Stream<Double> times, final double tickSize) {
 		this(times.mapToDouble(Double::doubleValue), tickSize, false);
 	}
 
@@ -119,7 +119,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 *
 	 * @param times A double stream of time points for the time discretization.
 	 */
-	public TimeDiscretizationFromArray(Stream<Double> times) {
+	public TimeDiscretizationFromArray(final Stream<Double> times) {
 		this(times.mapToDouble(Double::doubleValue), timeTickSizeDefault, false);
 	}
 
@@ -131,7 +131,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(Iterable<Double> times, double tickSize, boolean allowDuplicates) {
+	public TimeDiscretizationFromArray(final Iterable<Double> times, final double tickSize, final boolean allowDuplicates) {
 		this(StreamSupport.stream(times.spliterator(), false), tickSize, allowDuplicates);
 	}
 
@@ -142,7 +142,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times The time to constitute the time discretization.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
-	public TimeDiscretizationFromArray(Iterable<Double> times, double tickSize) {
+	public TimeDiscretizationFromArray(final Iterable<Double> times, final double tickSize) {
 		this(times, tickSize, false);
 	}
 
@@ -153,7 +153,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times The time to constitute the time discretization.
 	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
 	 */
-	public TimeDiscretizationFromArray(Iterable<Double> times, boolean allowDuplicates) {
+	public TimeDiscretizationFromArray(final Iterable<Double> times, final boolean allowDuplicates) {
 		this(times,timeTickSizeDefault, allowDuplicates);
 	}
 
@@ -163,7 +163,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 *
 	 * @param times The time to constitute the time discretization.
 	 */
-	public TimeDiscretizationFromArray(Iterable<Double> times) {
+	public TimeDiscretizationFromArray(final Iterable<Double> times) {
 		this(times, false);
 	}
 
@@ -173,7 +173,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 *
 	 * @param times Given array or arguments list of discretization points.
 	 */
-	public TimeDiscretizationFromArray(double... times) {
+	public TimeDiscretizationFromArray(final double... times) {
 		this(Arrays.stream(times));
 	}
 
@@ -183,7 +183,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 *
 	 * @param times Given boxed array of discretization points.
 	 */
-	public TimeDiscretizationFromArray(Double[] times) {
+	public TimeDiscretizationFromArray(final Double[] times) {
 		this(Arrays.stream(times));
 	}
 
@@ -194,7 +194,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param times Given boxed array of discretization points.
 	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
 	 */
-	public TimeDiscretizationFromArray(Double[] times, double tickSize) {
+	public TimeDiscretizationFromArray(final Double[] times, final double tickSize) {
 		this(Arrays.stream(times), tickSize);
 	}
 
@@ -206,10 +206,10 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param numberOfTimeSteps Number of time steps.
 	 * @param deltaT Time step size.
 	 */
-	public TimeDiscretizationFromArray(double initial, int numberOfTimeSteps, double deltaT) {
+	public TimeDiscretizationFromArray(final double initial, final int numberOfTimeSteps, final double deltaT) {
 		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int n) {
+			public double applyAsDouble(final int n) {
 				return initial + n * deltaT;
 			}
 		}));
@@ -223,17 +223,17 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @param deltaT Time step size.
 	 * @param shortPeriodLocation Placement of the stub period.
 	 */
-	public TimeDiscretizationFromArray(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
+	public TimeDiscretizationFromArray(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
 		this(getEquidistantStreamWithStub(initial, last, deltaT, shortPeriodLocation));
 	}
 
-	private static DoubleStream getEquidistantStreamWithStub(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
-		int numberOfTimeStepsPlusOne = (int) Math.ceil((last - initial) / deltaT) + 1;
+	private static DoubleStream getEquidistantStreamWithStub(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
+		final int numberOfTimeStepsPlusOne = (int) Math.ceil((last - initial) / deltaT) + 1;
 
 		if (shortPeriodLocation == ShortPeriodLocation.SHORT_PERIOD_AT_END) {
 			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
 				@Override
-				public double applyAsDouble(int n) {
+				public double applyAsDouble(final int n) {
 					return Math.min(last, initial + n * deltaT);
 				}
 			});
@@ -241,7 +241,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 
 		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {
 			@Override
-			public double applyAsDouble(int n) {
+			public double applyAsDouble(final int n) {
 				return Math.max(initial, last - n * deltaT);
 			}
 		});
@@ -258,22 +258,22 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return timeDiscretization[timeIndex];
 	}
 
 	@Override
-	public double getTimeStep(int timeIndex) {
+	public double getTimeStep(final int timeIndex) {
 		return timeDiscretization[timeIndex + 1] - timeDiscretization[timeIndex];
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return Arrays.binarySearch(timeDiscretization, roundToTimeTickSize(time));
 	}
 
 	@Override
-	public int getTimeIndexNearestLessOrEqual(double time) {
+	public int getTimeIndexNearestLessOrEqual(final double time) {
 		int index = java.util.Arrays.binarySearch(timeDiscretization,roundToTimeTickSize(time));
 		if(index < 0) {
 			index = -index-2;
@@ -282,7 +282,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	}
 
 	@Override
-	public int getTimeIndexNearestGreaterOrEqual(double time) {
+	public int getTimeIndexNearestGreaterOrEqual(final double time) {
 		int index = java.util.Arrays.binarySearch(timeDiscretization,time);
 		if(index < 0) {
 			index = -index-1;
@@ -298,16 +298,16 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 
 	@Override
 	public ArrayList<Double> getAsArrayList() {
-		ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
-		for (double aTimeDiscretization : timeDiscretization) {
+		final ArrayList<Double>	times = new ArrayList<>(timeDiscretization.length);
+		for (final double aTimeDiscretization : timeDiscretization) {
 			times.add(aTimeDiscretization);
 		}
 		return times;
 	}
 
 	@Override
-	public TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift) {
-		double[] newTimeDiscretization = new double[timeDiscretization.length];
+	public TimeDiscretization getTimeShiftedTimeDiscretization(final double timeShift) {
+		final double[] newTimeDiscretization = new double[timeDiscretization.length];
 
 		for (int timeIndex = 0; timeIndex < timeDiscretization.length; timeIndex++) {
 			newTimeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization[timeIndex] + timeShift);
@@ -321,15 +321,15 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	 * @return A new time discretization containing both the time points of this and the other discretization.
 	 */
 	@Override
-	public TimeDiscretization union(TimeDiscretization that) {
+	public TimeDiscretization union(final TimeDiscretization that) {
 		return new TimeDiscretizationFromArray(
 				Stream.concat(Arrays.stream(timeDiscretization).boxed(), Arrays.stream(that.getAsDoubleArray()).boxed()),
 				Math.min(timeTickSize, that.getTickSize()));
 	}
 
 	@Override
-	public TimeDiscretization intersect(TimeDiscretization that) {
-		Set<Double> intersectionSet = Arrays.stream(timeDiscretization).boxed().collect(Collectors.toSet());
+	public TimeDiscretization intersect(final TimeDiscretization that) {
+		final Set<Double> intersectionSet = Arrays.stream(timeDiscretization).boxed().collect(Collectors.toSet());
 		intersectionSet.retainAll(that.getAsArrayList());
 
 		return new TimeDiscretizationFromArray(intersectionSet, Math.max(timeTickSize, that.getTickSize()));
@@ -364,7 +364,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -374,14 +374,14 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		TimeDiscretizationFromArray other = (TimeDiscretizationFromArray) obj;
+		final TimeDiscretizationFromArray other = (TimeDiscretizationFromArray) obj;
 		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) {
 			return false;
 		}
 		return Double.doubleToLongBits(timeTickSize) == Double.doubleToLongBits(other.timeTickSize);
 	}
 
-	private double roundToTimeTickSize(double time) {
+	private double roundToTimeTickSize(final double time) {
 		return Math.rint(time/timeTickSize)*timeTickSize;
 	}
 }

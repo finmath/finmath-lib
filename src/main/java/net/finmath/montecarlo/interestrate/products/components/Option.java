@@ -68,7 +68,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param underlying The underlying.
 	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
-	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractLIBORMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		this.strikePrice	= strikePrice;
@@ -87,7 +87,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param underlying The underlying.
 	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
-	public Option(double exerciseDate, boolean isCall,  TermStructureMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying, RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractLIBORMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		strikePrice	= Double.NaN;
@@ -105,7 +105,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, boolean isCall,  TermStructureMonteCarloProduct strikeProduct, AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractLIBORMonteCarloProduct underlying) {
 		this(exerciseDate, isCall, strikeProduct, underlying, null);
 	}
 
@@ -117,7 +117,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, double strikePrice, boolean isCall, AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractLIBORMonteCarloProduct underlying) {
 		this(exerciseDate, strikePrice, isCall, underlying, null);
 	}
 
@@ -128,7 +128,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikePrice The strike price.
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, double strikePrice, AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final double strikePrice, final AbstractLIBORMonteCarloProduct underlying) {
 		this(exerciseDate, strikePrice, true, underlying);
 	}
 
@@ -138,7 +138,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param underlying The underlying.
 	 */
-	public Option(double exerciseDate, AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final AbstractLIBORMonteCarloProduct underlying) {
 		this(exerciseDate, 0.0, underlying);
 	}
 
@@ -150,9 +150,9 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames = null;
-		for(TermStructureMonteCarloProduct product : new TermStructureMonteCarloProduct[] {underlying, strikeProduct}) {
+		for(final TermStructureMonteCarloProduct product : new TermStructureMonteCarloProduct[] {underlying, strikeProduct}) {
 			if(product instanceof AbstractProductComponent) {
-				Set<String> productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
+				final Set<String> productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();
 				if(productUnderlyingNames != null) {
 					if(underlyingNames == null) {
 						underlyingNames = productUnderlyingNames;
@@ -179,7 +179,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		final RandomVariable one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);
@@ -200,30 +200,30 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 		RandomVariable exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);
 
 		if(exerciseTrigger.getFiltrationTime() > exerciseDate) {
-			RandomVariable filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
-			RandomVariable exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);
+			final RandomVariable filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);
+			final RandomVariable exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);
 
 			/*
 			 * Cut off two standard deviations from regression
 			 */
-			double exerciseTriggerMean		= exerciseTriggerFiltered.getAverage();
-			double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();
-			double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;
-			double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;
+			final double exerciseTriggerMean		= exerciseTriggerFiltered.getAverage();
+			final double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();
+			final double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;
+			final double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;
 			RandomVariable filter = exerciseTrigger.sub(exerciseTriggerFloor).choose(one, zero)
 					.mult(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0).choose(one, zero));
 			filter = filter.mult(filterNaN);
 			// Filter exerciseTrigger and regressionBasisFunctions
 			exerciseTrigger = exerciseTrigger.mult(filter);
 
-			RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);
-			RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
+			final RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);
+			final RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
 			for(int i=0; i<regressionBasisFunctions.length; i++) {
 				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
 			}
 
 			// Remove foresight through conditional expectation
-			ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
+			final ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);
 
 			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 			exerciseTrigger         = exerciseTrigger.getConditionalExpectation(conditionalExpectationOperator);
@@ -238,8 +238,8 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 
 		// Discount to evaluation time
 		if(evaluationTime != exerciseDate) {
-			RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
-			RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
+			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);
+			final RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
 			values = values.div(numeraire).mult(numeraireAtEval);
 		}
 
@@ -248,7 +248,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	}
 
 	@Override
-	public RandomVariable[] getBasisFunctions(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
 		if(model instanceof LIBORModelMonteCarloSimulationModel) {
 			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationModel)model);
 		}
@@ -265,9 +265,9 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @return Array of random variables.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable[] getBasisFunctions(double exerciseDate, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable[] getBasisFunctions(final double exerciseDate, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 
 		RandomVariable basisFunction;
 
@@ -286,7 +286,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 			liborPeriodIndex = -liborPeriodIndex-1;
 		}
 		liborPeriodIndexEnd = liborPeriodIndex+1;
-		double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 		basisFunction = basisFunction.discount(rate, periodLength1);
@@ -303,7 +303,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 		}
 		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;
 
-		double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength2 != periodLength1) {
 			rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
@@ -325,7 +325,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 			liborPeriodIndex = -liborPeriodIndex-1;
 		}
 		liborPeriodIndexEnd = model.getNumberOfLibors();
-		double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
+		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength3 != periodLength1 && periodLength3 != periodLength2) {
 			rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));

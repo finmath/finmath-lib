@@ -1,61 +1,60 @@
-/*
- * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- *
- * Created on 09.02.2004
- */
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.stochastic.Scalar;
 
 /**
- * A factory (helper class) to create random variables.
+ * A factory for creating objects implementing <code>net.finmath.stochastic.RandomVariable</code>.
  *
- * By changing the factory implementation used, you can (more or less globally)
- * change which implementation of random variable is used.
+ * Use this interface in your implementations to allow <i>dependency injection</i>, i.e. to allow the use
+ * of different implementations of <code>net.finmath.stochastic.RandomVariable</code> whenever random variables
+ * need to be constructed.
+ *
+ * @see net.finmath.stochastic.RandomVariable
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class RandomVariableFactory extends AbstractRandomVariableFactory {
+public interface RandomVariableFactory {
 
-	private static final long serialVersionUID = 9124600813005863273L;
+	/**
+	 * Create a (deterministic) random variable from a constant.
+	 *
+	 * @param value A constant value.
+	 * @return The <code>RandomVariable</code>.
+	 */
+	RandomVariable createRandomVariable(double value);
 
-	private final boolean isUseDoublePrecisionFloatingPointImplementation;
+	/**
+	 * Create a (deterministic) random variable from a constant using a specific filtration time.
+	 *
+	 * @param time The filtration time of the random variable.
+	 * @param value A constant value.
+	 * @return The <code>RandomVariable</code>.
+	 */
+	RandomVariable createRandomVariable(double time, double value);
 
-	public RandomVariableFactory() {
-		super();
-		isUseDoublePrecisionFloatingPointImplementation = true;
-	}
+	/**
+	 * Create a random variable from an array using a specific filtration time.
+	 *
+	 * @param time The filtration time of the random variable.
+	 * @param values Array representing values of the random variable at the sample paths.
+	 * @return The <code>RandomVariable</code>.
+	 */
+	RandomVariable createRandomVariable(double time, double[] values);
 
-	public RandomVariableFactory(boolean isUseDoublePrecisionFloatingPointImplementation) {
-		super();
-		this.isUseDoublePrecisionFloatingPointImplementation = isUseDoublePrecisionFloatingPointImplementation;
-	}
+	/**
+	 * Create an array of (deterministic) random variables from an array of constants.
+	 *
+	 * @param values Array representing constants.
+	 * @return The <code>RandomVariable</code>.
+	 */
+	RandomVariable[] createRandomVariableArray(double[] values);
 
-	@Override
-	public RandomVariable createRandomVariable(double value) {
-		return new Scalar(value);
-	}
-
-	@Override
-	public RandomVariable createRandomVariable(double time, double value) {
-		return new Scalar(value);
-		/*
-		if(isUseDoublePrecisionFloatingPointImplementation) {
-			return new RandomVariableFromDoubleArray(time, value);
-		} else {
-			return new RandomVariableFromFloatArray(time, value);
-		}
-		 */
-	}
-
-	@Override
-	public RandomVariable createRandomVariable(double time, double[] values) {
-		if(isUseDoublePrecisionFloatingPointImplementation) {
-			return new RandomVariableFromDoubleArray(time, values);
-		} else {
-			return new RandomVariableFromFloatArray(time, values);
-		}
-	}
+	/**
+	 * Create a matrix of (deterministic) random variables from an matrix of constants.
+	 *
+	 * @param values Matrix representing constants.
+	 * @return The <code>RandomVariable</code>.
+	 */
+	RandomVariable[][] createRandomVariableMatrix(double[][] values);
 }

@@ -58,20 +58,20 @@ public class MertonModelTest {
 	@Test
 	public void test() throws CalculationException {
 
-		long start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{
 			// Create a model
-			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+			final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -80,10 +80,10 @@ public class MertonModelTest {
 		AssetModelMonteCarloSimulationModel monteCarloHestonModel;
 		{
 			// Create a model
-			AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
+			final AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
 
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
@@ -92,12 +92,12 @@ public class MertonModelTest {
 
 		AssetModelMonteCarloSimulationModel monteCarloMertonModel;
 		{
-			double m = 1.0;
-			double nu = 0.15;
+			final double m = 1.0;
+			final double nu = 0.15;
 
-			double lambda = 0.4;
-			double jumpSizeStdDev = nu;
-			double jumpSizeMean = Math.log(m);
+			final double lambda = 0.4;
+			final double jumpSizeStdDev = nu;
+			final double jumpSizeMean = Math.log(m);
 
 			monteCarloMertonModel = new MonteCarloMertonModel(
 					timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, volatility,
@@ -109,24 +109,24 @@ public class MertonModelTest {
 		 * Value a call option (using the product implementation)
 		 */
 		for(double moneyness = 0.0; moneyness <= 2.0; moneyness += 0.1) {
-			EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
-			double value = europeanOption.getValue(monteCarloBlackScholesModel);
-			double value2 = europeanOption.getValue(monteCarloHestonModel);
-			double value3 = europeanOption.getValue(monteCarloMertonModel);
-			double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
+			final double value = europeanOption.getValue(monteCarloBlackScholesModel);
+			final double value2 = europeanOption.getValue(monteCarloHestonModel);
+			final double value3 = europeanOption.getValue(monteCarloMertonModel);
+			final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
-			double impliedVol1 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value);
-			double impliedVol2 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value2);
-			double impliedVol3 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value3);
+			final double impliedVol1 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value);
+			final double impliedVol2 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value2);
+			final double impliedVol3 = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), value3);
 
-			DecimalFormat formatter2 = new DecimalFormat("0.00");
-			DecimalFormat formatter4 = new DecimalFormat("0.00%");
+			final DecimalFormat formatter2 = new DecimalFormat("0.00");
+			final DecimalFormat formatter4 = new DecimalFormat("0.00%");
 			System.out.print(formatter2.format(optionStrike * moneyness) + "\t" + formatter4.format(impliedVol1));
 			//			System.out.println("\t " + value2 + "\t " + impliedVol2);
 			System.out.println("\t " + formatter4.format(value3) + "\t " + formatter4.format(impliedVol3));
 		}
 
-		long end = System.currentTimeMillis();
+		final long end = System.currentTimeMillis();
 
 		System.out.print("Test took " + (end-start) / 1000.0 + " sec.");
 

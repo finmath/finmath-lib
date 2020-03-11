@@ -19,8 +19,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
 import net.finmath.marketdata.products.Swap;
@@ -32,8 +32,8 @@ import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
@@ -128,29 +128,29 @@ public class SABRVolatilityCubeSharedParametersTEST {
 	@Test
 	public void a_cubeATM() {
 
-		ArrayList<Integer> maturities			= new ArrayList<>();
-		ArrayList<Integer> terminations			= new ArrayList<>();
-		ArrayList<Double> volatilitiesModel		= new ArrayList<>();
-		ArrayList<Double> volatilitiesMarket	= new ArrayList<>();
+		final ArrayList<Integer> maturities			= new ArrayList<>();
+		final ArrayList<Integer> terminations			= new ArrayList<>();
+		final ArrayList<Double> volatilitiesModel		= new ArrayList<>();
+		final ArrayList<Double> volatilitiesMarket	= new ArrayList<>();
 
-		for(int maturity : physicalVolatilities.getMaturities(0)) {
-			for(int termination : physicalVolatilities.getTenors(0, maturity)) {
+		for(final int maturity : physicalVolatilities.getMaturities(0)) {
+			for(final int termination : physicalVolatilities.getTenors(0, maturity)) {
 
-				LocalDate maturityDate = referenceDate.plusMonths(maturity);
-				LocalDate terminationDate = maturityDate.plusMonths(termination);
+				final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+				final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
 				try {
-					double volatility = cube.getValue(model, fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1), fixSchedule.getFixing(0), swapRate,
+					final double volatility = cube.getValue(model, fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1), fixSchedule.getFixing(0), swapRate,
 							QuotingConvention.VOLATILITYNORMAL);
 					maturities.add(maturity);
 					terminations.add(termination);
 					volatilitiesModel.add(volatility);
 					volatilitiesMarket.add(physicalVolatilities.getValue(maturity, termination, 0));
-				} catch (Exception e) {
+				} catch (final Exception e) {
 					maturities.add(maturity);
 					terminations.add(termination);
 					volatilitiesModel.add(0.0);
@@ -159,8 +159,8 @@ public class SABRVolatilityCubeSharedParametersTEST {
 			}
 		}
 
-		DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.MONTHS, maturities, terminations, volatilitiesModel);
-		DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.MONTHS, maturities, terminations, volatilitiesMarket);
+		final DataTableLight modelTable	= new DataTableLight("Volatilites-Model", TableConvention.MONTHS, maturities, terminations, volatilitiesModel);
+		final DataTableLight marketTable	= new DataTableLight("Volatilites-Market", TableConvention.MONTHS, maturities, terminations, volatilitiesMarket);
 		output.append(marketTable.toString()+"\n");
 		output.append("\n"+modelTable.toString()+"\n\n\n\n");
 
@@ -169,27 +169,27 @@ public class SABRVolatilityCubeSharedParametersTEST {
 	@Test
 	public void b_strikeSlices() {
 
-		for(int moneyness : physicalVolatilities.getMoneyness()) {
+		for(final int moneyness : physicalVolatilities.getMoneyness()) {
 
-			ArrayList<Integer> marketMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> marketTerminations = new ArrayList<Integer>();
-			ArrayList<Double> marketVolatilities = new ArrayList<Double>();
+			final ArrayList<Integer> marketMaturities = new ArrayList<>();
+			final ArrayList<Integer> marketTerminations = new ArrayList<>();
+			final ArrayList<Double> marketVolatilities = new ArrayList<>();
 
-			ArrayList<Integer> modelMaturities = new ArrayList<Integer>();
-			ArrayList<Integer> modelTerminations = new ArrayList<Integer>();
-			ArrayList<Double> modelVolatilities = new ArrayList<Double>();
+			final ArrayList<Integer> modelMaturities = new ArrayList<>();
+			final ArrayList<Integer> modelTerminations = new ArrayList<>();
+			final ArrayList<Double> modelVolatilities = new ArrayList<>();
 
-			ArrayList<Double> differenceList = new ArrayList<>();
+			final ArrayList<Double> differenceList = new ArrayList<>();
 
-			for(int maturity : physicalVolatilities.getMaturities(moneyness)) {
-				for(int termination : physicalVolatilities.getTenors(moneyness, maturity)) {
+			for(final int maturity : physicalVolatilities.getMaturities(moneyness)) {
+				for(final int termination : physicalVolatilities.getTenors(moneyness, maturity)) {
 
-					LocalDate maturityDate = referenceDate.plusMonths(maturity);
-					LocalDate terminationDate = maturityDate.plusMonths(termination);
+					final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+					final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-					Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-					Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-					double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+					final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+					final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+					final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
 					double volatilityModel	= 0;
 					double volatilityMarket	= 0;
@@ -199,7 +199,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 						modelMaturities.add(maturity);
 						modelTerminations.add(termination);
 						modelVolatilities.add(volatilityModel);
-					} catch (Exception e) {
+					} catch (final Exception e) {
 						modelMaturities.add(maturity);
 						modelTerminations.add(termination);
 						modelVolatilities.add(0.0);
@@ -210,7 +210,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 						marketMaturities.add(maturity);
 						marketTerminations.add(termination);
 						marketVolatilities.add(volatilityMarket);
-					} catch (Exception e) {}
+					} catch (final Exception e) {}
 
 					if(volatilityModel != 0 && volatilityMarket != 0) {
 						differenceList.add(volatilityModel - volatilityMarket);
@@ -218,13 +218,13 @@ public class SABRVolatilityCubeSharedParametersTEST {
 				}
 			}
 
-			DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.MONTHS, marketMaturities, marketTerminations, marketVolatilities);
-			DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.MONTHS, modelMaturities, modelTerminations, modelVolatilities);
+			final DataTable marketTable = new DataTableLight("Volatilities-Market-atMoneyness"+moneyness, TableConvention.MONTHS, marketMaturities, marketTerminations, marketVolatilities);
+			final DataTable modelTable = new DataTableLight("Volatilites-Model-atMoneyness"+moneyness, TableConvention.MONTHS, modelMaturities, modelTerminations, modelVolatilities);
 			output.append(marketTable.toString()+"\n\n");
 			output.append(modelTable.toString()+"\n\n");
 
-			double maxDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).max().getAsDouble();
-			double avrgDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).average().getAsDouble();
+			final double maxDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).max().getAsDouble();
+			final double avrgDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).average().getAsDouble();
 			output.append("Maximal difference: " + maxDiff + ", Average difference: " + avrgDiff +"\n\n\n\n");
 			SABRVolatilityCubeSharedParametersTEST.differenceList.addAll(differenceList);
 		}
@@ -233,7 +233,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 
 	@After
 	public void checkDifferences() {
-		for(double difference : differenceList) {
+		for(final double difference : differenceList) {
 			Assert.assertEquals(0, difference, testAccuracy);
 		}
 	}
@@ -246,7 +246,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 	}
 
 	private static VolatilityCube makeVolatilityCube() {
-		
+
 		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(cubeName, referenceDate, fixMetaSchedule, floatMetaSchedule,
 				sabrDisplacement, sabrBeta, sabrRho, sabrVolvol, correlationDecay, iborOisDecorrelation, physicalSwaptions, model, forwardCurveName);
 	}

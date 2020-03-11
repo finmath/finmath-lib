@@ -15,7 +15,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	private static final long serialVersionUID = -4799340450248196350L;
 
-	private final int base[];
+	private final int[] base;
 
 	private int currentIndex = 0;
 
@@ -26,7 +26,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 	 *
 	 * @param base The array of base integers. The length of the array defines the dimension of the sequence.
 	 */
-	public HaltonSequence(int[] base) {
+	public HaltonSequence(final int[] base) {
 		for(int i=0; i<base.length; i++) {
 			if(base[i] <= 1) {
 				throw new IllegalArgumentException("base needs to be larger than 1");
@@ -46,15 +46,15 @@ public class HaltonSequence implements RandomNumberGenerator {
 		return base.length;
 	}
 
-	public double[] getHaltonNumber(long index) {
-		double[] x = new double[base.length];
+	public double[] getHaltonNumber(final long index) {
+		final double[] x = new double[base.length];
 		for(int dimension = 0; dimension<base.length; dimension++) {
 			x[dimension] = getHaltonNumberForGivenBase(index, base[dimension]);
 		}
 		return x;
 	}
 
-	public double getHaltonNumber(long index, int dimension) {
+	public double getHaltonNumber(final long index, final int dimension) {
 		return getHaltonNumberForGivenBase(index, base[dimension]);
 	}
 
@@ -65,7 +65,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 	 * @param base The base of the sequence. Has to be greater than one (this is not checked).
 	 * @return The Halton number.
 	 */
-	public static double getHaltonNumberForGivenBase(long index, int base) {
+	public static double getHaltonNumberForGivenBase(long index, final int base) {
 		index += 1;
 
 		double x = 0.0;

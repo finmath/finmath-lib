@@ -11,13 +11,13 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>4.0.13-SNAPSHOT</version>
+	<version>4.1.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
 	<description>
 		finmath lib is a Mathematical Finance Library in Java.
-		It provides algorithms and methodologies related to mathematical finance.						
+		It provides algorithms and methodologies related to mathematical finance.
 	</description>
 	<url>http://www.finmath.net/finmath-lib</url>
 
@@ -28,7 +28,17 @@
 		<src.main.kotlin.dir>src/main/kotlin</src.main.kotlin.dir>
 		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
 		<kotlin.version>1.2.0</kotlin.version>
+		<commons-math.version>3.6.1</commons-math.version>
+		<commons-lang.version>3.9</commons-lang.version>
 		<junit.version>4.12</junit.version>
+		<!-- maven plugins -->
+		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
+		<surefire-report-plugin.version>3.0.0-M4</surefire-report-plugin.version>
+		<javadoc-plugin.version>3.1.1</javadoc-plugin.version>
+		<source-plugin.version>3.2.1</source-plugin.version>
+		<site-plugin.version>3.8.2</site-plugin.version>
+		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
+		<clover-plugin.version>4.4.1</clover-plugin.version>
 	</properties>
 
 	<licenses>
@@ -39,7 +49,12 @@
 		</license>
 	</licenses>
 
-	<developers>
+	<organization>
+		<name>finmath.net</name>
+		<url>http://finmath.net</url>
+	</organization>
+  
+  	<developers>
 		<developer>
 			<id>fries</id>
 			<name>Christian Fries</name>
@@ -47,9 +62,19 @@
 			<url>http://www.christian-fries.de</url>
 			<timezone>1</timezone>
 		</developer>
+		<developer>
+			<name>Alessandro Gnoatto</name>
+			<email>alessandro@alessandrognoatto.com</email>
+			<url>http://www.alessandrognoatto.com</url>
+			<timezone>1</timezone>
+		</developer>
 	</developers>
 
 	<contributors>
+		<contributor>
+			<name>Roland Bachl</name>
+			<timezone>1</timezone>
+		</contributor>
 		<contributor>
 			<name>Boris Breidenbach</name>
 			<email>bo@chrbo.net</email>
@@ -75,12 +100,6 @@
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
-			<name>Alessandro Gnoatto</name>
-			<email>alessandro@alessandrognoatto.com</email>
-			<url>www.alessandrognoatto.com</url>
-			<timezone>1</timezone>
-		</contributor>
-		<contributor>
 			<name>Niklas Rodi</name>
 			<email>nrodi@web.de</email>
 			<timezone>1</timezone>
@@ -95,8 +114,16 @@
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
+			<name>Lorenzo Torricelli</name>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
 			<name>Mario Viehmann</name>
 			<email>marioviehmann@gmail.com</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
+			<name>Daniel Willhalm</name>
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
@@ -115,17 +142,12 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
+			<version>${commons-math.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.threeten</groupId>
-			<artifactId>threetenbp</artifactId>
-			<version>1.3.6</version>
+			<version>${commons-lang.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jblas</groupId>
@@ -136,7 +158,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -149,7 +170,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.6.1</version>
+				<version>3.8.1</version>
 				<executions>
 					<!-- Replacing default-compile as it is treated specially by maven -->
 					<execution>
@@ -177,35 +198,11 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.1.0</version>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<archive>
-								<manifest>
-									<mainClass>${main.class}</mainClass>
-								</manifest>
-							</archive>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${source-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -219,8 +216,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${javadoc-plugin.version}</version>
 				<configuration>
+					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
@@ -233,7 +231,7 @@
 					</header>
 					<footer>
 			   			<![CDATA[
-						<i>Copyright &copy; 2019 Christian&nbsp;P.&nbsp;Fries.</i>
+						<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
 			   			]]>
 					</footer>
 					<tags>
@@ -249,13 +247,42 @@
 						</tag>
 					</tags>
 					<links>
-						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-release</link>
-						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.3</link>
+						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link>
 					</links>
 					<detectLinks>true</detectLinks>
 					<additionalOptions>
 						<additionalOption>--allow-script-in-comments</additionalOption>
 					</additionalOptions>
+					<groups>
+						<group>
+							<title>Market Data (Curves and Volatilities)</title>
+							<packages>net.finmath.marketdata</packages>
+							<packages>net.finmath.marketdata.*</packages>
+						</group>
+						<group>
+							<title>Analytic Functions</title>
+							<packages>net.finmath.functions</packages>
+							<packages>net.finmath.functions.*</packages>
+						</group>
+						<group>
+							<title>Algorithmic Differentiation</title>
+							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+						</group>
+						<group>
+							<title>Monte-Carlo Methods</title>
+							<packages>net.finmath.montecarlo*</packages>
+						</group>
+						<group>
+							<title>Fourier Methods</title>
+							<packages>net.finmath.fouriermethod*</packages>
+						</group>
+						<group>
+							<title>Finite Difference Methods (PDEs)</title>
+							<packages>net.finmath.finitedifference</packages>
+							<packages>net.finmath.finitedifference.*</packages>
+						</group>
+					</groups>
 				</configuration>
 				<executions>
 					<execution>
@@ -269,7 +296,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.21.0</version>
+				<version>${surefire-plugin.version}</version>
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
@@ -280,7 +307,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${checkstyle-plugin.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
@@ -308,24 +335,64 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- Publish the site to GitHub gh-pages: use mvn site site:deploy site-deploy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.7.1</version>
+				<version>${site-plugin.version}</version>
+				<configuration>
+					<skipDeploy>true</skipDeploy>
+				</configuration>
 				<dependencies>
 					<dependency>
 						<!-- add support for ssh/scp -->
 						<groupId>org.apache.maven.wagon</groupId>
 						<artifactId>wagon-ssh</artifactId>
-						<version>1.0</version>
+						<version>3.3.4</version>
 					</dependency>
 					<dependency>
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.7</version>
+						<version>1.9</version>
 					</dependency>
 				</dependencies>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>stage-for-scm-publish</id>
+						<phase>post-site</phase>
+						<goals>
+							<goal>stage</goal>
+						</goals>
+						<configuration>
+							<skipDeploy>false</skipDeploy><!-- MSITE-652: configuration won't 
+								be necessary with m-site-p 3.2 -->
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-publish-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<scmBranch>gh-pages</scmBranch>
+				</configuration>
+				<executions>
+					<execution>
+						<id>scm-publish</id>
+						<phase>site-deploy</phase>
+						<goals>
+							<goal>publish-scm</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -348,7 +415,7 @@
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.2.0</version>
+				<version>${clover-plugin.version}</version>
 				<configuration>
 				</configuration>
 				<executions>
@@ -566,13 +633,20 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>3.0.0</version>
+						<version>${checkstyle-plugin.version}</version>
 						<configuration>
 							<configLocation>finmath-checkstyle-java-6.xml</configLocation>
 						</configuration>
 					</plugin>
 				</plugins>
 			</build>
+			<dependencies>
+				<dependency>
+					<groupId>org.threeten</groupId>
+					<artifactId>threetenbp</artifactId>
+					<version>1.3.6</version>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 
@@ -586,8 +660,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>${javadoc-plugin.version}</version>
 				<configuration>
+					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
@@ -600,7 +675,7 @@
 					</header>
 					<footer>
 			   			<![CDATA[
-						<i>Copyright &copy; 2018 Christian&nbsp;P.&nbsp;Fries.</i>
+						<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
 			   			]]>
 					</footer>
 					<tags>
@@ -616,12 +691,42 @@
 						</tag>
 					</tags>
 					<links>
-						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.2/</link>
+						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link>
+						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link>
 					</links>
 					<detectLinks>true</detectLinks>
 					<additionalOptions>
 						<additionalOption>--allow-script-in-comments</additionalOption>
 					</additionalOptions>
+					<groups>
+						<group>
+							<title>Market Data (Curves and Volatilities)</title>
+							<packages>net.finmath.marketdata</packages>
+							<packages>net.finmath.marketdata.*</packages>
+						</group>
+						<group>
+							<title>Analytic Functions</title>
+							<packages>net.finmath.functions</packages>
+							<packages>net.finmath.functions.*</packages>
+						</group>
+						<group>
+							<title>Algorithmic Differentiation</title>
+							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+						</group>
+						<group>
+							<title>Monte-Carlo Methods</title>
+							<packages>net.finmath.montecarlo*</packages>
+						</group>
+						<group>
+							<title>Fourier Methods</title>
+							<packages>net.finmath.fouriermethod*</packages>
+						</group>
+						<group>
+							<title>Finite Difference Methods (PDEs)</title>
+							<packages>net.finmath.finitedifference</packages>
+							<packages>net.finmath.finitedifference.*</packages>
+						</group>
+					</groups>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -647,19 +752,19 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.20.1</version>
+				<version>${surefire-report-plugin.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.openclover</groupId>
 				<artifactId>clover-maven-plugin</artifactId>
-				<version>4.2.0</version>
+				<version>${clover-plugin.version}</version>
 				<configuration>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${checkstyle-plugin.version}</version>
 				<configuration>
 					<configLocation>finmath-checkstyle.xml</configLocation>
 				</configuration>
@@ -675,13 +780,16 @@
 	</reporting>
 
 	<distributionManagement>
-
-		<!-- maven repositories inherited from parent pom -->
-
+		<site>
+			<id>github</id>
+			<url>scm:git:https://github.com/finmath/finmath-lib.git</url>
+		</site>
+		<!--
 		<site>
 			<id>finmath-site</id>
 			<url>scp://www.finmath.net/var/www/vhosts/finmath.net/httpdocs/finmath-lib/</url>
 		</site>
+		-->
 	</distributionManagement>
 
 	<scm>
@@ -692,7 +800,7 @@
 	</scm>
 
 	<ciManagement>
-		<system>jenkins</system>
-		<url>http://ci.finmath.net</url>
+		<system>travis-ci</system>
+		<url>https://travis-ci.org/finmath/finmath-lib</url>
 	</ciManagement>
 </project>

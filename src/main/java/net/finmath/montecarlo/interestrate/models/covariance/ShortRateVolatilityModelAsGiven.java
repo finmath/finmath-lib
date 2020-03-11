@@ -22,11 +22,11 @@ public class ShortRateVolatilityModelAsGiven implements ShortRateVolatilityModel
 
 	private static final long serialVersionUID = 2471249188261414930L;
 
-	private TimeDiscretization timeDiscretization;
-	private double[] volatility;
-	private double[] meanReversion;
+	private final TimeDiscretization timeDiscretization;
+	private final double[] volatility;
+	private final double[] meanReversion;
 
-	public ShortRateVolatilityModelAsGiven(TimeDiscretization timeDiscretization, double[] volatility, double[] meanReversion) {
+	public ShortRateVolatilityModelAsGiven(final TimeDiscretization timeDiscretization, final double[] volatility, final double[] meanReversion) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.volatility = volatility;
@@ -39,12 +39,12 @@ public class ShortRateVolatilityModelAsGiven implements ShortRateVolatilityModel
 	}
 
 	@Override
-	public RandomVariable getVolatility(int timeIndex) {
+	public RandomVariable getVolatility(final int timeIndex) {
 		return new Scalar(volatility[timeIndex]);
 	}
 
 	@Override
-	public RandomVariable getMeanReversion(int timeIndex) {
+	public RandomVariable getMeanReversion(final int timeIndex) {
 		return new Scalar(meanReversion[timeIndex]);
 	}
 }

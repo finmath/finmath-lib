@@ -50,11 +50,11 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesGeneralizedOptionValue(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return 0;
@@ -71,10 +71,10 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate analytic value
-			double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double valueAnalytic = (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
+			final double valueAnalytic = (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
 
 			return valueAnalytic;
 		}
@@ -94,21 +94,21 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
 	public static RandomVariable blackScholesGeneralizedOptionValue(
-			RandomVariable forward,
-			RandomVariable volatility,
-			double optionMaturity,
-			double optionStrike,
-			RandomVariable payoffUnit)
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			RandomVariable dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
-			RandomVariable dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
+			final RandomVariable dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			final RandomVariable dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));
 
-			RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
+			final RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);
 
 			return valueAnalytic;
 		}
@@ -125,11 +125,11 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesOptionValue(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		return blackScholesGeneralizedOptionValue(
 				initialStockValue * Math.exp(riskFreeRate * optionMaturity),	// forward
@@ -152,19 +152,19 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call/put option under the Black-Scholes model.
 	 */
 	public static double blackScholesOptionValue(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			boolean isCall)	{
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall)	{
 
-		double callValue = blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		final double callValue = blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 		if(isCall) {
 			return callValue;
 		}
 		else {
-			double putValue = callValue - (initialStockValue-optionStrike *  Math.exp(-riskFreeRate * optionMaturity));
+			final double putValue = callValue - (initialStockValue-optionStrike *  Math.exp(-riskFreeRate * optionMaturity));
 			return putValue;
 		}
 	}
@@ -179,20 +179,20 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European at-the-money call option under the Black-Scholes model
 	 */
 	public static double blackScholesATMOptionValue(
-			double volatility,
-			double optionMaturity,
-			double forward,
-			double payoffUnit)
+			final double volatility,
+			final double optionMaturity,
+			final double forward,
+			final double payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return 0.0;
 		}
 
 		// Calculate analytic value
-		double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
-		double dMinus = -dPlus;
+		final double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);
+		final double dMinus = -dPlus;
 
-		double valueAnalytic = (NormalDistribution.cumulativeDistribution(dPlus) - NormalDistribution.cumulativeDistribution(dMinus)) * forward * payoffUnit;
+		final double valueAnalytic = (NormalDistribution.cumulativeDistribution(dPlus) - NormalDistribution.cumulativeDistribution(dMinus)) * forward * payoffUnit;
 
 		return valueAnalytic;
 	}
@@ -212,11 +212,11 @@ public class AnalyticFormulas {
 	 * @return The delta of the option
 	 */
 	public static double blackScholesOptionDelta(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionMaturity < 0) {
 			return 0;
@@ -245,44 +245,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate delta
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double delta = NormalDistribution.cumulativeDistribution(dPlus);
-
-			return delta;
-		}
-	}
-
-	/**
-	 * Calculates the delta of a call option under a Black-Scholes model
-	 *
-	 * The method also handles cases where the forward and/or option strike is negative
-	 * and some limit cases where the forward or the option strike is zero.
-	 * In the case forward = option strike = 0 the method returns 1.0.
-	 *
-	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
-	 * @param riskFreeRate The risk free rate of the bank account numerarie.
-	 * @param volatility The Black-Scholes volatility.
-	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @return The delta of the option
-	 */
-	public static RandomVariable blackScholesOptionDelta(
-			RandomVariable initialStockValue,
-			RandomVariable riskFreeRate,
-			RandomVariable volatility,
-			double optionMaturity,
-			double optionStrike)
-	{
-		if(optionMaturity < 0) {
-			return initialStockValue.mult(0.0);
-		}
-		else
-		{
-			// Calculate delta
-			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
-
-			RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+			final double delta = NormalDistribution.cumulativeDistribution(dPlus);
 
 			return delta;
 		}
@@ -303,11 +268,11 @@ public class AnalyticFormulas {
 	 * @return The delta of the option
 	 */
 	public static RandomVariable blackScholesOptionDelta(
-			RandomVariable initialStockValue,
-			RandomVariable riskFreeRate,
-			RandomVariable volatility,
-			double optionMaturity,
-			RandomVariable optionStrike)
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionMaturity < 0) {
 			return initialStockValue.mult(0.0);
@@ -315,9 +280,44 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate delta
-			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
-			RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+			final RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
+
+			return delta;
+		}
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariable blackScholesOptionDelta(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final RandomVariable optionStrike)
+	{
+		if(optionMaturity < 0) {
+			return initialStockValue.mult(0.0);
+		}
+		else
+		{
+			// Calculate delta
+			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+
+			final RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);
 
 			return delta;
 		}
@@ -334,11 +334,11 @@ public class AnalyticFormulas {
 	 * @return The gamma of the option
 	 */
 	public static double blackScholesOptionGamma(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -348,9 +348,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate gamma
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double gamma = Math.exp(-0.5*dPlus*dPlus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
+			final double gamma = Math.exp(-0.5*dPlus*dPlus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
 
 			return gamma;
 		}
@@ -367,11 +367,11 @@ public class AnalyticFormulas {
 	 * @return The gamma of the option
 	 */
 	public static RandomVariable blackScholesOptionGamma(
-			RandomVariable initialStockValue,
-			RandomVariable riskFreeRate,
-			RandomVariable volatility,
-			double optionMaturity,
-			double optionStrike)
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -381,9 +381,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate gamma
-			RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
 
-			RandomVariable gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
+			final RandomVariable gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));
 
 			return gamma;
 		}
@@ -404,11 +404,11 @@ public class AnalyticFormulas {
 	 * @return The vega of the option
 	 */
 	public static double blackScholesOptionVega(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -418,9 +418,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate vega
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double vega = Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) * initialStockValue * Math.sqrt(optionMaturity);
+			final double vega = Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) * initialStockValue * Math.sqrt(optionMaturity);
 
 			return vega;
 		}
@@ -437,11 +437,11 @@ public class AnalyticFormulas {
 	 * @return The vega of the option
 	 */
 	public static double blackScholesOptionTheta(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -451,10 +451,10 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate theta
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double theta = volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue + riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			final double theta = volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue + riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
 
 			return theta;
 		}
@@ -471,11 +471,11 @@ public class AnalyticFormulas {
 	 * @return The rho of the option
 	 */
 	public static double blackScholesOptionRho(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -485,9 +485,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate rho
-			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			final double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
 
 			return rho;
 		}
@@ -506,16 +506,16 @@ public class AnalyticFormulas {
 	 * @return Returns the implied volatility of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesOptionImpliedVolatility(
-			double forward,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit,
-			double optionValue)
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit,
+			final double optionValue)
 	{
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
-		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
-		int		maxIterations	= 500;
-		double	maxAccuracy		= 1E-15;
+		// TODO An exception should be thrown, when there is no implied volatility for the given value.
+		final int		maxIterations	= 500;
+		final double	maxAccuracy		= 1E-15;
 
 		if(optionStrike <= 0.0)
 		{
@@ -525,11 +525,11 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate an lower and upper bound for the volatility
-			double p = NormalDistribution.inverseCumulativeDistribution((optionValue/payoffUnit+optionStrike)/(forward+optionStrike)) / Math.sqrt(optionMaturity);
-			double q = 2.0 * Math.abs(Math.log(forward/optionStrike)) / optionMaturity;
+			final double p = NormalDistribution.inverseCumulativeDistribution((optionValue/payoffUnit+optionStrike)/(forward+optionStrike)) / Math.sqrt(optionMaturity);
+			final double q = 2.0 * Math.abs(Math.log(forward/optionStrike)) / optionMaturity;
 
-			double volatilityLowerBound = p + Math.sqrt(Math.max(p * p - q, 0.0));
-			double volatilityUpperBound = p + Math.sqrt(         p * p + q      );
+			final double volatilityLowerBound = p + Math.sqrt(Math.max(p * p - q, 0.0));
+			final double volatilityUpperBound = p + Math.sqrt(         p * p + q      );
 
 			// If strike is close to forward the two bounds are close to the analytic solution
 			if(Math.abs(volatilityLowerBound - volatilityUpperBound) < maxAccuracy) {
@@ -537,17 +537,17 @@ public class AnalyticFormulas {
 			}
 
 			// Solve for implied volatility
-			NewtonsMethod solver = new NewtonsMethod(0.5*(volatilityLowerBound+volatilityUpperBound) /* guess */);
+			final NewtonsMethod solver = new NewtonsMethod(0.5*(volatilityLowerBound+volatilityUpperBound) /* guess */);
 			while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
-				double volatility = solver.getNextPoint();
+				final double volatility = solver.getNextPoint();
 
 				// Calculate analytic value
-				double dPlus                = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-				double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);
-				double valueAnalytic		= (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
-				double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0*Math.PI) * payoffUnit;
+				final double dPlus                = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+				final double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);
+				final double valueAnalytic		= (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;
+				final double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0*Math.PI) * payoffUnit;
 
-				double error = valueAnalytic - optionValue;
+				final double error = valueAnalytic - optionValue;
 
 				solver.setValueAndDerivative(error,derivativeAnalytic);
 			}
@@ -567,11 +567,11 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Black-Scholes model
 	 */
 	public static double blackScholesDigitalOptionValue(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0)
 		{
@@ -581,10 +581,10 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate analytic value
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			final double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
 
 			return valueAnalytic;
 		}
@@ -601,11 +601,11 @@ public class AnalyticFormulas {
 	 * @return The delta of the digital option
 	 */
 	public static double blackScholesDigitalOptionDelta(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -615,10 +615,10 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate delta
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double delta = Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
+			final double delta = Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);
 
 			return delta;
 		}
@@ -635,11 +635,11 @@ public class AnalyticFormulas {
 	 * @return The vega of the digital option
 	 */
 	public static double blackScholesDigitalOptionVega(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -649,10 +649,10 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate vega
-			double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
-			double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
+			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;
+			final double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;
 
 			return vega;
 		}
@@ -669,11 +669,11 @@ public class AnalyticFormulas {
 	 * @return The rho of the digital option
 	 */
 	public static double blackScholesDigitalOptionRho(
-			double initialStockValue,
-			double riskFreeRate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike)
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		if(optionMaturity <= 0.0)
 		{
@@ -681,16 +681,16 @@ public class AnalyticFormulas {
 			return 0.0;
 		}
 		else if(optionStrike <= 0.0) {
-			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity);
+			final double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity);
 
 			return rho;
 		}
 		else
 		{
 			// Calculate rho
-			double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)
+			final double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)
 					+ Math.sqrt(optionMaturity)/volatility * Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI);
 
 			return rho;
@@ -709,12 +709,12 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a caplet under the Black'76 model
 	 */
 	public static double blackModelCapletValue(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double periodLength,
-			double discountFactor)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double periodLength,
+			final double discountFactor)
 	{
 		// May be interpreted as a special version of the Black-Scholes Formula
 		return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, optionMaturity, optionStrike, periodLength * discountFactor);
@@ -732,12 +732,12 @@ public class AnalyticFormulas {
 	 * @return Returns the price of a digital caplet under the Black'76 model
 	 */
 	public static double blackModelDgitialCapletValue(
-			double forward,
-			double volatility,
-			double periodLength,
-			double discountFactor,
-			double optionMaturity,
-			double optionStrike)
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
 	{
 		// May be interpreted as a special version of the Black-Scholes Formula
 		return AnalyticFormulas.blackScholesDigitalOptionValue(forward, 0.0, volatility, optionMaturity, optionStrike) * periodLength * discountFactor;
@@ -754,11 +754,11 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a Swaption under the Black'76 model
 	 */
 	public static double blackModelSwaptionValue(
-			double forwardSwaprate,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double swapAnnuity)
+			final double forwardSwaprate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double swapAnnuity)
 	{
 		// May be interpreted as a special version of the Black-Scholes Formula
 		return AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);
@@ -780,14 +780,14 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European exchange option under the Black-Scholes model.
 	 */
 	public static double margrabeExchangeOptionValue(
-			double spot1,
-			double spot2,
-			double volatility1,
-			double volatility2,
-			double correlation,
-			double optionMaturity)
+			final double spot1,
+			final double spot2,
+			final double volatility1,
+			final double volatility2,
+			final double correlation,
+			final double optionMaturity)
 	{
-		double volatility = Math.sqrt(volatility1*volatility1 + volatility2*volatility2 - 2.0 * volatility1*volatility2*correlation);
+		final double volatility = Math.sqrt(volatility1*volatility1 + volatility2*volatility2 - 2.0 * volatility1*volatility2*correlation);
 		return blackScholesGeneralizedOptionValue(spot1, volatility, optionMaturity, spot2, 1.0);
 	}
 
@@ -798,7 +798,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
@@ -806,11 +806,11 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
 	public static double bachelierOptionValue(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return 0;
@@ -821,9 +821,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate analytic value
-			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
-			double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
+			final double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
 					+ volatility * Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus)) * payoffUnit;
 
 			return valueAnalytic;
@@ -837,7 +837,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
@@ -845,21 +845,21 @@ public class AnalyticFormulas {
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
 	public static RandomVariable bachelierOptionValue(
-			RandomVariable forward,
-			RandomVariable volatility,
-			double optionMaturity,
-			double optionStrike,
-			RandomVariable payoffUnit)
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
-			RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
+			final RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
+			final RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
-			RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
+			final RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
 					.add(dPlus.apply(NormalDistribution::density).mult(integratedVolatility)).mult(payoffUnit);
 
 			return valueAnalytic;
@@ -878,33 +878,33 @@ public class AnalyticFormulas {
 	 * @return Returns the implied volatility of a European call option under the Bachelier model.
 	 */
 	public static double bachelierOptionImpliedVolatility(
-			double forward,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit,
-			double optionValue)
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit,
+			final double optionValue)
 	{
 		if(forward == optionStrike) {
 			return optionValue / Math.sqrt(optionMaturity / Math.PI / 2.0) / payoffUnit;
 		}
 
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
-		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
-		int		maxIterations	= 100;
-		double	maxAccuracy		= 0.0;
+		// TODO An exception should be thrown, when there is no implied volatility for the given value.
+		final int		maxIterations	= 100;
+		final double	maxAccuracy		= 0.0;
 
 		// Calculate an lower and upper bound for the volatility
-		double volatilityLowerBound = 0.0;
-		double volatilityUpperBound = Math.sqrt(2 * Math.PI * Math.E) * (optionValue / payoffUnit + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity);
+		final double volatilityLowerBound = 0.0;
+		final double volatilityUpperBound = Math.sqrt(2 * Math.PI * Math.E) * (optionValue / payoffUnit + Math.abs(forward-optionStrike)) / Math.sqrt(optionMaturity);
 
 		// Solve for implied volatility
-		GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
+		final GoldenSectionSearch solver = new GoldenSectionSearch(volatilityLowerBound, volatilityUpperBound);
 		while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
-			double volatility = solver.getNextPoint();
+			final double volatility = solver.getNextPoint();
 
-			double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
-			double error = valueAnalytic - optionValue;
+			final double error = valueAnalytic - optionValue;
 
 			solver.setValue(error*error);
 		}
@@ -913,38 +913,38 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option delta of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
 	 * normal process with constant volatility, i.e., a Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
 	 * @param payoffUnit The payoff unit (e.g., the discount factor)
-	 * @return Returns the value of a European call option under the Bachelier model.
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
 	public static double bachelierOptionDelta(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return 0;
 		}
 		else if(forward == optionStrike) {
-			return payoffUnit / 2;
+			return 1.0 / 2.0;
 		}
 		else
 		{
 			// Calculate analytic value
-			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
-			double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus) * payoffUnit;
+			final double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus);
 
 			return deltaAnalytic;
 		}
@@ -964,20 +964,20 @@ public class AnalyticFormulas {
 	 * @return Value of the CMS option
 	 */
 	public static double huntKennedyCMSOptionValue(
-			double forwardSwaprate,
-			double volatility,
-			double swapAnnuity,
-			double optionMaturity,
-			double swapMaturity,
-			double payoffUnit,
-			double optionStrike)
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit,
+			final double optionStrike)
 	{
-		double a = 1.0/swapMaturity;
-		double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;
-		double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
+		final double a = 1.0/swapMaturity;
+		final double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;
+		final double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
 
-		double valueUnadjusted	= blackModelSwaptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);
-		double valueAdjusted	= blackModelSwaptionValue(forwardSwaprate * convexityAdjustment, volatility, optionMaturity, optionStrike, swapAnnuity);
+		final double valueUnadjusted	= blackModelSwaptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);
+		final double valueAdjusted	= blackModelSwaptionValue(forwardSwaprate * convexityAdjustment, volatility, optionMaturity, optionStrike, swapAnnuity);
 
 		return a * valueUnadjusted + b * forwardSwaprate * valueAdjusted;
 	}
@@ -996,15 +996,15 @@ public class AnalyticFormulas {
 	 * @return Value of the CMS strike
 	 */
 	public static double huntKennedyCMSFloorValue(
-			double forwardSwaprate,
-			double volatility,
-			double swapAnnuity,
-			double optionMaturity,
-			double swapMaturity,
-			double payoffUnit,
-			double optionStrike)
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit,
+			final double optionStrike)
 	{
-		double huntKennedyCMSOptionValue = huntKennedyCMSOptionValue(forwardSwaprate, volatility, swapAnnuity, optionMaturity, swapMaturity, payoffUnit, optionStrike);
+		final double huntKennedyCMSOptionValue = huntKennedyCMSOptionValue(forwardSwaprate, volatility, swapAnnuity, optionMaturity, swapMaturity, payoffUnit, optionStrike);
 
 		// A floor is an option plus the strike (max(X,K) = max(X-K,0) + K)
 		return huntKennedyCMSOptionValue + optionStrike * payoffUnit;
@@ -1023,19 +1023,19 @@ public class AnalyticFormulas {
 	 * @return Convexity adjusted forward rate
 	 */
 	public static double huntKennedyCMSAdjustedRate(
-			double forwardSwaprate,
-			double volatility,
-			double swapAnnuity,
-			double optionMaturity,
-			double swapMaturity,
-			double payoffUnit)
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit)
 	{
-		double a = 1.0/swapMaturity;
-		double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;
-		double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
+		final double a = 1.0/swapMaturity;
+		final double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;
+		final double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);
 
-		double rateUnadjusted	= forwardSwaprate;
-		double rateAdjusted		= forwardSwaprate * convexityAdjustment;
+		final double rateUnadjusted	= forwardSwaprate;
+		final double rateAdjusted		= forwardSwaprate * convexityAdjustment;
 
 		return (a * rateUnadjusted + b * forwardSwaprate * rateAdjusted) * swapAnnuity / payoffUnit;
 	}
@@ -1053,7 +1053,7 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return Implied lognormal Black volatility.
 	 */
-	public static double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double underlying, double strike, double maturity)
+	public static double sabrHaganLognormalBlackVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double underlying, final double strike, final double maturity)
 	{
 		return sabrHaganLognormalBlackVolatilityApproximation(alpha, beta, rho, nu, 0.0, underlying, strike, maturity);
 	}
@@ -1072,7 +1072,7 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return Implied lognormal Black volatility.
 	 */
-	public static double sabrHaganLognormalBlackVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
+	public static double sabrHaganLognormalBlackVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
 	{
 
 		if(alpha <= 0) {
@@ -1100,9 +1100,9 @@ public class AnalyticFormulas {
 			 * ATM case - we assume underlying = strike
 			 */
 
-			double term1 = alpha / (Math.pow(underlying,1-beta));
+			final double term1 = alpha / (Math.pow(underlying,1-beta));
 
-			double term2 = Math.pow(1-beta,2)/24 * Math.pow(alpha,2)/Math.pow(underlying,2*(1-beta))
+			final double term2 = Math.pow(1-beta,2)/24 * Math.pow(alpha,2)/Math.pow(underlying,2*(1-beta))
 					+ rho*beta*alpha*nu/(4*Math.pow(underlying,1-beta))
 					+ (2-3*rho*rho)*nu*nu/24;
 			return term1 * (1+ term2 * maturity);
@@ -1111,19 +1111,19 @@ public class AnalyticFormulas {
 			/*
 			 * General non-ATM case no prob with log(F/K)
 			 */
-			double forwardTimesStrike = underlying * strike;
+			final double forwardTimesStrike = underlying * strike;
 
-			double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike);
+			final double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike);
 
-			double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
+			final double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));
 
-			double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2)
+			final double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2)
 					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)
 							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));
 
-			double term2 = (Math.abs(x-z) < 1E-10) ? 1 : z / x;
+			final double term2 = (Math.abs(x-z) < 1E-10) ? 1 : z / x;
 
-			double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(forwardTimesStrike, 1-beta)
+			final double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(forwardTimesStrike, 1-beta)
 					+ rho*beta*nu*alpha / 4 / Math.pow(forwardTimesStrike, (1-beta)/2)
 					+ (2-3*rho*rho)/24 * nu*nu) *maturity;
 
@@ -1147,13 +1147,13 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrBerestyckiNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
+	public static double sabrBerestyckiNormalVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
 	{
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 		strike += displacement;
 
-		double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
+		final double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here
 
 		double z;
 		if(beta < 1.0) {
@@ -1162,7 +1162,7 @@ public class AnalyticFormulas {
 			z = nu / alpha * Math.log(underlying/strike);
 		}
 
-		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
+		final double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 
 		double term1;
 		if(Math.abs(underlying - strike) < 1E-10 * (1+Math.abs(underlying))) {
@@ -1172,7 +1172,7 @@ public class AnalyticFormulas {
 		else {
 			term1 = nu * (underlying-strike) / x;
 		}
-		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+		final double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
 		return Math.max(sigma, 0.0);
 	}
@@ -1191,16 +1191,16 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrNormalVolatilityApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double strike, double maturity)
+	public static double sabrNormalVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
 	{
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 		strike += displacement;
 
-		double forwardStrikeAverage = (underlying+strike) / 2.0;
+		final double forwardStrikeAverage = (underlying+strike) / 2.0;
 
-		double z = nu / alpha * (underlying-strike) / Math.pow(forwardStrikeAverage, beta);
-		double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
+		final double z = nu / alpha * (underlying-strike) / Math.pow(forwardStrikeAverage, beta);
+		final double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));
 
 		double term1;
 		if(Math.abs(underlying - strike) < 1E-8 * (1+Math.abs(underlying))) {
@@ -1208,11 +1208,11 @@ public class AnalyticFormulas {
 			term1 = alpha * Math.pow(underlying, beta);
 		}
 		else {
-			double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));
+			final double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));
 			term1 = alpha * z2 * z * (underlying-strike) / x;
 		}
 
-		double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+		final double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
 		return Math.max(sigma, 0.0);
 	}
@@ -1230,27 +1230,27 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return The implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrAlphaApproximation(double normalVolatility, double beta, double rho, double nu, double displacement, double underlying, double maturity)
+	public static double sabrAlphaApproximation(final double normalVolatility, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
 	{
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 
 		// ATM case.
-		double forwardStrikeAverage = underlying;
+		final double forwardStrikeAverage = underlying;
 
-		double guess = normalVolatility/Math.pow(underlying, beta);
-		NewtonsMethod search = new NewtonsMethod(guess);
+		final double guess = normalVolatility/Math.pow(underlying, beta);
+		final NewtonsMethod search = new NewtonsMethod(guess);
 		while(!search.isDone() && search.getAccuracy() > 1E-16 && search.getNumberOfIterations() < 100) {
-			double alpha = search.getNextPoint();
+			final double alpha = search.getNextPoint();
 
-			double term1 = alpha * Math.pow(underlying, beta);
-			double term2 = (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
+			final double term1 = alpha * Math.pow(underlying, beta);
+			final double term2 = (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));
 
-			double derivativeTerm1 = Math.pow(underlying, beta);
-			double derivativeTerm2 = maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));
+			final double derivativeTerm1 = Math.pow(underlying, beta);
+			final double derivativeTerm2 = maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));
 
-			double sigma = term1 * term2;
-			double derivative = derivativeTerm1 * term2 + term1 * derivativeTerm2;
+			final double sigma = term1 * term2;
+			final double derivative = derivativeTerm1 * term2 + term1 * derivativeTerm2;
 
 			search.setValueAndDerivative(sigma-normalVolatility, derivative);
 		}
@@ -1271,17 +1271,17 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return The skew of the implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrNormalVolatilitySkewApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double maturity)
+	public static double sabrNormalVolatilitySkewApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
 	{
-		double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
+		final double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
 
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
 
-		double a = alpha/Math.pow(underlying, 1-beta);
-		double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);
+		final double a = alpha/Math.pow(underlying, 1-beta);
+		final double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);
 
-		double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
+		final double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);
 
 		// Some alternative representations
 		//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
@@ -1311,9 +1311,9 @@ public class AnalyticFormulas {
 	 * @param maturity Maturity.
 	 * @return The curvature of the implied normal volatility (Bachelier volatility)
 	 */
-	public static double sabrNormalVolatilityCurvatureApproximation(double alpha, double beta, double rho, double nu, double displacement, double underlying, double maturity)
+	public static double sabrNormalVolatilityCurvatureApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
 	{
-		double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
+		final double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
 
 		// Apply displacement. Displaced model is just a shift on underlying and strike.
 		underlying += displacement;
@@ -1334,14 +1334,14 @@ public class AnalyticFormulas {
 		double term1 = alpha * Math.pow(underlying, beta) / nu;
 		 */
 
-		double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));
-		double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);
-		double d1BdK1 = (-1.0/48.0 *beta*(2-beta)*(2*beta-2)*alpha*alpha*Math.pow(underlying, 2*beta-3) + 1.0/8.0 * beta*(beta-1.0)*alpha*rho*nu*Math.pow(underlying, beta-2));
-		double d2BdK2 = (-1.0/96.0 *beta*(2-beta)*(2*beta-2)*(2*beta-3)*alpha*alpha*Math.pow(underlying, 2*beta-4) + 1.0/16.0 * beta*(beta-1)*(beta-2)*alpha*rho*nu*Math.pow(underlying, beta-3));
+		final double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));
+		final double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);
+		final double d1BdK1 = (-1.0/48.0 *beta*(2-beta)*(2*beta-2)*alpha*alpha*Math.pow(underlying, 2*beta-3) + 1.0/8.0 * beta*(beta-1.0)*alpha*rho*nu*Math.pow(underlying, beta-2));
+		final double d2BdK2 = (-1.0/96.0 *beta*(2-beta)*(2*beta-2)*(2*beta-3)*alpha*alpha*Math.pow(underlying, 2*beta-4) + 1.0/16.0 * beta*(beta-1)*(beta-2)*alpha*rho*nu*Math.pow(underlying, beta-3));
 
-		double curvatureApproximation	= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta));
-		double curvaturePart1			= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * sigma*alpha/nu*Math.pow(underlying, -2));
-		double curvatureMaturityPart	= (rho*nu + alpha*beta*Math.pow(underlying, beta-1))*d1BdK1 + alpha*Math.pow(underlying, beta)*d2BdK2;
+		final double curvatureApproximation	= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta));
+		final double curvaturePart1			= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * sigma*alpha/nu*Math.pow(underlying, -2));
+		final double curvatureMaturityPart	= (rho*nu + alpha*beta*Math.pow(underlying, beta-1))*d1BdK1 + alpha*Math.pow(underlying, beta)*d2BdK2;
 
 		return  (curvaturePart1 + maturity * curvatureMaturityPart);
 	}
@@ -1356,10 +1356,10 @@ public class AnalyticFormulas {
 	 * @return The (implied) normal volatility.
 	 * @see <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2687742">Dimitroff, Fries, Lichtner and Rodi: Lognormal vs Normal Volatilities and Sensitivities in Practice</a>
 	 */
-	public static double volatilityConversionLognormalATMtoNormalATM(double forward, double displacement, double maturity, double lognormalVolatiltiy) {
-		double x = lognormalVolatiltiy * Math.sqrt(maturity / 8);
-		double y = org.apache.commons.math3.special.Erf.erf(x);
-		double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
+	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double maturity, final double lognormalVolatiltiy) {
+		final double x = lognormalVolatiltiy * Math.sqrt(maturity / 8);
+		final double y = org.apache.commons.math3.special.Erf.erf(x);
+		final double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
 
 		return normalVol;
 	}
@@ -1377,12 +1377,12 @@ public class AnalyticFormulas {
 	 * @return price Clean price.
 	 */
 	public static double price(
-			java.util.Date settlementDate,
-			java.util.Date maturityDate,
-			double coupon,
-			double yield,
-			double redemption,
-			int frequency)
+			final java.util.Date settlementDate,
+			final java.util.Date maturityDate,
+			final double coupon,
+			final double yield,
+			final double redemption,
+			final int frequency)
 	{
 		double price = 0.0;
 
@@ -1390,7 +1390,7 @@ public class AnalyticFormulas {
 			price += redemption;
 		}
 
-		Calendar paymentDate = Calendar.getInstance();
+		final Calendar paymentDate = Calendar.getInstance();
 		paymentDate.setTime(maturityDate);
 		while(paymentDate.after(settlementDate)) {
 			price += coupon;
@@ -1400,11 +1400,11 @@ public class AnalyticFormulas {
 			paymentDate.add(Calendar.MONTH, -12/frequency);
 		}
 
-		Calendar periodEndDate = (Calendar)paymentDate.clone();
+		final Calendar periodEndDate = (Calendar)paymentDate.clone();
 		periodEndDate.add(Calendar.MONTH, +12/frequency);
 
 		// Accrue running period
-		double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());
+		final double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());
 		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);
 		price -= coupon * accrualPeriod;
 
@@ -1425,11 +1425,11 @@ public class AnalyticFormulas {
 	 * @return price Clean price.
 	 */
 	public static double price(
-			double timeToMaturity,
-			double coupon,
-			double yield,
-			double redemption,
-			int frequency)
+			final double timeToMaturity,
+			final double coupon,
+			final double yield,
+			final double redemption,
+			final int frequency)
 	{
 		double price = 0.0;
 
@@ -1447,7 +1447,7 @@ public class AnalyticFormulas {
 		}
 
 		// Accrue running period
-		double accrualPeriod = 0.0- paymentTime;
+		final double accrualPeriod = 0.0- paymentTime;
 		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);
 		price -= coupon * accrualPeriod;
 
@@ -1461,7 +1461,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
@@ -1469,11 +1469,11 @@ public class AnalyticFormulas {
 	 * @return Returns the vega of a European call option under the Bachelier model.
 	 */
 	public static double bachelierGeneralizedOptionVega(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
 	{
 		if(optionMaturity < 0) {
 			return 0;
@@ -1485,9 +1485,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate analytic value
-			double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
-			double vegaAnalytic = Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus) * payoffUnit;
+			final double vegaAnalytic = Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus) * payoffUnit;
 
 			return vegaAnalytic;
 		}
@@ -1500,7 +1500,7 @@ public class AnalyticFormulas {
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(T) \exp(r T) \).
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Black-Scholes volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike.
@@ -1508,11 +1508,11 @@ public class AnalyticFormulas {
 	 * @return Returns the vega of a European call option under the Black-Scholes model.
 	 */
 	public static double blackScholesGeneralizedOptionVega(
-			double forward,
-			double volatility,
-			double optionMaturity,
-			double optionStrike,
-			double payoffUnit)
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
 	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
@@ -1522,9 +1522,9 @@ public class AnalyticFormulas {
 		else
 		{
 			// Calculate vega
-			double dPlus = (Math.log(forward / optionStrike) + (0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
+			final double dPlus = (Math.log(forward / optionStrike) + (0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 
-			double vega = payoffUnit * NormalDistribution.density(dPlus) * forward * Math.sqrt(optionMaturity);
+			final double vega = payoffUnit * NormalDistribution.density(dPlus) * forward * Math.sqrt(optionMaturity);
 
 			return vega;
 		}

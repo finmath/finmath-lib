@@ -31,19 +31,19 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param productNumerator A product implementing AbstractAnalyticProduct for the numerator.
 	 * @param productDenominator A product implementing AbstractAnalyticProduct for the denominator.
 	 */
-	public Performance(AbstractAnalyticProduct productNumerator, AbstractAnalyticProduct productDenominator) {
+	public Performance(final AbstractAnalyticProduct productNumerator, final AbstractAnalyticProduct productDenominator) {
 		super();
 		this.productNumerator = productNumerator;
 		this.productDenominator = productDenominator;
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 
-		double valueNumerator	= productNumerator.getValue(evaluationTime, model);
-		double valueDenominator	= productDenominator.getValue(evaluationTime, model);
+		final double valueNumerator	= productNumerator.getValue(evaluationTime, model);
+		final double valueDenominator	= productDenominator.getValue(evaluationTime, model);
 
-		double value = valueNumerator / valueDenominator;
+		final double value = valueNumerator / valueDenominator;
 		return value;
 	}
 

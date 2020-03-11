@@ -34,7 +34,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 * @param process The process.
 	 */
-	public LIBORMonteCarloSimulationFromLIBORModel(LIBORModel model, MonteCarloProcess process) {
+	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model, final MonteCarloProcess process) {
 		super();
 		this.model		= model;
 
@@ -47,18 +47,18 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	 *
 	 * @param model The LIBORModel.
 	 */
-	public LIBORMonteCarloSimulationFromLIBORModel(LIBORModel model) {
+	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model) {
 		super();
 		this.model		= model;
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return model.getProcess().getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
-	public RandomVariable getMonteCarloWeights(double time) throws CalculationException {
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			timeIndex = (-timeIndex-1)-1;
@@ -82,7 +82,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public double getTime(int timeIndex) {
+	public double getTime(final int timeIndex) {
 		return model.getProcess().getTime(timeIndex);
 	}
 
@@ -92,12 +92,12 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public int getTimeIndex(double time) {
+	public int getTimeIndex(final double time) {
 		return model.getProcess().getTimeIndex(time);
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return model.getRandomVariableForConstant(value);
 	}
 
@@ -107,14 +107,14 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException {
+	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
 		return model.getLIBOR(timeIndex, liborIndex);
 	}
 
 	@Override
-	public RandomVariable[] getLIBORs(int timeIndex) throws CalculationException
+	public RandomVariable[] getLIBORs(final int timeIndex) throws CalculationException
 	{
-		RandomVariable[] randomVariableVector = new RandomVariable[getNumberOfComponents()];
+		final RandomVariable[] randomVariableVector = new RandomVariable[getNumberOfComponents()];
 		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
 			randomVariableVector[componentIndex] = getLIBOR(timeIndex, componentIndex);
 		}
@@ -123,13 +123,13 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException
+	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return model.getLIBOR(time, periodStart, periodEnd);
 	}
 
 	@Override
-	public double getLiborPeriod(int timeIndex) {
+	public double getLiborPeriod(final int timeIndex) {
 		return model.getLiborPeriod(timeIndex);
 	}
 
@@ -139,7 +139,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public int getLiborPeriodIndex(double time) {
+	public int getLiborPeriodIndex(final double time) {
 		return model.getLiborPeriodIndex(time);
 	}
 
@@ -153,7 +153,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
 		return model.getNumeraire(time);
 	}
 
@@ -171,17 +171,17 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	}
 
 	@Override
-	public Object getCloneWithModifiedSeed(int seed) {
-		MonteCarloProcessFromProcessModel process = (MonteCarloProcessFromProcessModel) ((MonteCarloProcessFromProcessModel)getProcess()).getCloneWithModifiedSeed(seed);
+	public Object getCloneWithModifiedSeed(final int seed) {
+		final MonteCarloProcessFromProcessModel process = (MonteCarloProcessFromProcessModel) ((MonteCarloProcessFromProcessModel)getProcess()).getCloneWithModifiedSeed(seed);
 		return new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 	}
 
 	@Override
-	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException {
-		LIBORModel modelClone = model.getCloneWithModifiedData(dataModified);
+	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
+		final LIBORModel modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {
 			// In this case we may re-use the underlying process
-			LIBORMonteCarloSimulationFromLIBORModel lmmSimClone = new LIBORMonteCarloSimulationFromLIBORModel(modelClone);
+			final LIBORMonteCarloSimulationFromLIBORModel lmmSimClone = new LIBORMonteCarloSimulationFromLIBORModel(modelClone);
 			modelClone.setProcess(getProcess());		// Reuse process associated with other model
 			return lmmSimClone;
 		}
@@ -198,9 +198,9 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(String entityKey, Object dataModified) throws CalculationException
+	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(final String entityKey, final Object dataModified) throws CalculationException
 	{
-		Map<String, Object> dataModifiedMap = new HashMap<>();
+		final Map<String, Object> dataModifiedMap = new HashMap<>();
 		dataModifiedMap.put(entityKey, dataModified);
 		return getCloneWithModifiedData(dataModifiedMap);
 	}

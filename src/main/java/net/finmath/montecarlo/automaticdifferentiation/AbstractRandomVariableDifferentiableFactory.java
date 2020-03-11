@@ -8,6 +8,7 @@ package net.finmath.montecarlo.automaticdifferentiation;
 
 import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -17,13 +18,13 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory {
+public abstract class AbstractRandomVariableDifferentiableFactory extends AbstractRandomVariableFactory implements RandomVariableDifferentiableFactory {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 8262731847824139905L;
-	private final AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable;
+	private final RandomVariableFactory randomVariableFactoryForNonDifferentiable;
 
 	/**
 	 * Construct an object extending <code>AbstractRandomVariableDifferentiableFactory</code>
@@ -31,17 +32,17 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	 *
 	 * @param randomVariableFactoryForNonDifferentiable Random variable factory to be used for the storage of values.
 	 */
-	public AbstractRandomVariableDifferentiableFactory(AbstractRandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+	public AbstractRandomVariableDifferentiableFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
 		super();
 		this.randomVariableFactoryForNonDifferentiable = randomVariableFactoryForNonDifferentiable;
 	}
 
 	public AbstractRandomVariableDifferentiableFactory() {
-		this(new RandomVariableFactory());
+		this(new RandomVariableFromArrayFactory());
 	}
 
 	@Override
-	public RandomVariableDifferentiable createRandomVariable(double value) {
+	public RandomVariableDifferentiable createRandomVariable(final double value) {
 		return createRandomVariable(0.0, value);
 	}
 
@@ -51,11 +52,13 @@ public abstract class AbstractRandomVariableDifferentiableFactory extends Abstra
 	@Override
 	public abstract RandomVariableDifferentiable createRandomVariable(double time, double[] values);
 
-	public RandomVariable createRandomVariableNonDifferentiable(double time, double value) {
+	@Override
+	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double value) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, value);
 	}
 
-	public RandomVariable createRandomVariableNonDifferentiable(double time, double[] values) {
+	@Override
+	public RandomVariable createRandomVariableNonDifferentiable(final double time, final double[] values) {
 		return randomVariableFactoryForNonDifferentiable.createRandomVariable(time, values);
 	}
 

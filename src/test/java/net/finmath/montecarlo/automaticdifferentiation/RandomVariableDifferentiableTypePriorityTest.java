@@ -9,8 +9,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -27,17 +27,17 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Parameters
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */), new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
 		});
 	}
 
-	private final AbstractRandomVariableFactory randomVariableFactoryValue;
-	private final AbstractRandomVariableFactory randomVariableFactoryDifferentiable;
+	private final RandomVariableFactory randomVariableFactoryValue;
+	private final RandomVariableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableTypePriorityTest(AbstractRandomVariableFactory randomVariableFactoryValue, AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableTypePriorityTest(final RandomVariableFactory randomVariableFactoryValue, final AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryValue = randomVariableFactoryValue;
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}
@@ -45,8 +45,8 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Test
 	public void testTypePriorityAdd() {
 
-		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
+		final RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -54,11 +54,11 @@ public class RandomVariableDifferentiableTypePriorityTest {
 		 * add
 		 */
 
-		RandomVariable z1 = x.add(y);
+		final RandomVariable z1 = x.add(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariable z2 = y.add(x);
+		final RandomVariable z2 = y.add(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -70,8 +70,8 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Test
 	public void testTypePriorityMult() {
 
-		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
+		final RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -79,11 +79,11 @@ public class RandomVariableDifferentiableTypePriorityTest {
 		 * mult
 		 */
 
-		RandomVariable z1 = x.mult(y);
+		final RandomVariable z1 = x.mult(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariable z2 = y.mult(x);
+		final RandomVariable z2 = y.mult(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -93,8 +93,8 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Test
 	public void testTypePriorityCap() {
 
-		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
+		final RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -102,11 +102,11 @@ public class RandomVariableDifferentiableTypePriorityTest {
 		 * cap
 		 */
 
-		RandomVariable z1 = x.cap(y);
+		final RandomVariable z1 = x.cap(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariable z2 = y.cap(x);
+		final RandomVariable z2 = y.cap(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 
@@ -116,8 +116,8 @@ public class RandomVariableDifferentiableTypePriorityTest {
 	@Test
 	public void testTypePriorityFloor() {
 
-		RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
-		RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
+		final RandomVariable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariable y = randomVariableFactoryValue.createRandomVariable(3.0);
 
 		System.out.println("Checking the return type of operators upon commutation:");
 
@@ -125,11 +125,11 @@ public class RandomVariableDifferentiableTypePriorityTest {
 		 * floor
 		 */
 
-		RandomVariable z1 = x.floor(y);
+		final RandomVariable z1 = x.floor(y);
 		System.out.println("Value:" + z1.getAverage() + "\t Class" + z1.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z1.getClass());
 
-		RandomVariable z2 = y.floor(x);
+		final RandomVariable z2 = y.floor(x);
 		System.out.println("Value:" + z2.getAverage() + "\t Class" + z2.getClass());
 		Assert.assertSame("Return type class", x.getClass(), z2.getClass());	// Applying to y we expect the class of x
 

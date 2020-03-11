@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationInterface;
  */
 public class SwaptionMarketData implements AbstractSwaptionMarketData {
 
-	// @TODO: Curve data currently not used.
+	// @TODO Curve data currently not used.
 	private final ForwardCurveInterface				forwardCurve;
 	private final DiscountCurveInterface			discountCurve;
 

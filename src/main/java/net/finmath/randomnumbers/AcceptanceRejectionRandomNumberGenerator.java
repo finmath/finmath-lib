@@ -25,11 +25,11 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 	private final DoubleUnaryOperator referenceDistributionICDF;
 	private final double acceptanceLevel;
 
-	public AcceptanceRejectionRandomNumberGenerator(RandomNumberGenerator uniformRandomNumberGenerator,
-			DoubleUnaryOperator targetDensity,
-			DoubleUnaryOperator referenceDensity,
-			DoubleUnaryOperator referenceDistributionICDF,
-			double acceptanceLevel) {
+	public AcceptanceRejectionRandomNumberGenerator(final RandomNumberGenerator uniformRandomNumberGenerator,
+			final DoubleUnaryOperator targetDensity,
+			final DoubleUnaryOperator referenceDensity,
+			final DoubleUnaryOperator referenceDistributionICDF,
+			final double acceptanceLevel) {
 
 		if(uniformRandomNumberGenerator.getDimension() < 2) {
 			throw new IllegalArgumentException("The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
@@ -47,8 +47,8 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 		boolean rejected = true;
 		double y = Double.NaN;
 		while(rejected) {
-			double[] uniform = uniformRandomNumberGenerator.getNext();
-			double u = uniform[0];
+			final double[] uniform = uniformRandomNumberGenerator.getNext();
+			final double u = uniform[0];
 			y = referenceDistributionICDF.applyAsDouble(uniform[1]);
 			rejected = targetDensity.applyAsDouble(y) < u * acceptanceLevel * referenceDensity.applyAsDouble(y);
 		}

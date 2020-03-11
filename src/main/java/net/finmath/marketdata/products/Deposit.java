@@ -26,16 +26,16 @@ import net.finmath.time.Schedule;
  */
 public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 
-	private Schedule	schedule;
-	private double				rate;
-	private String				discountCurveName;
+	private final Schedule	schedule;
+	private final double				rate;
+	private final String				discountCurveName;
 
 	/**
 	 * @param schedule The schedule of the deposit consisting of one period, providing start, payment and periodLength.
 	 * @param rate The deposit rate.
 	 * @param discountCurveName The discount curve name.
 	 */
-	public Deposit(Schedule schedule, double rate, String discountCurveName) {
+	public Deposit(final Schedule schedule, final double rate, final String discountCurveName) {
 		super();
 		this.schedule =  schedule;
 		this.rate = rate;
@@ -48,26 +48,26 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double maturity = schedule.getPayment(0);
+		final double maturity = schedule.getPayment(0);
 
 		if (evaluationTime > maturity) {
 			return 0; // after maturity the contract is worth nothing
 		}
 
-		double payoutDate	= schedule.getPeriodStart(0);
-		double periodLength = schedule.getPeriodLength(0);
-		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		final double payoutDate	= schedule.getPeriodStart(0);
+		final double periodLength = schedule.getPeriodLength(0);
+		final double discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		final double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
 		if (evaluationTime > payoutDate) {
 			return discountFactor * (1.0 + rate * periodLength);
@@ -83,22 +83,22 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @param model The given model containing the curve of name <code>discountCurveName</code>.
 	 * @return The value of the deposit rate implied by the given model's curve.
 	 */
-	public double getRate(AnalyticModel model) {
+	public double getRate(final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double payoutDate = schedule.getPeriodStart(0);
-		double maturity = schedule.getPayment(0);
-		double periodLength = schedule.getPeriodLength(0);
+		final double payoutDate = schedule.getPeriodStart(0);
+		final double maturity = schedule.getPayment(0);
+		final double periodLength = schedule.getPeriodLength(0);
 
-		double discountFactor = discountCurve.getDiscountFactor(model, maturity);
-		double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
+		final double discountFactor = discountCurve.getDiscountFactor(model, maturity);
+		final double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
 		return (discountFactorPayout/discountFactor - 1.)/periodLength;
 	}
@@ -116,12 +116,12 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 	}
 
 	public double getPeriodEndTime() {
-		double tenorEnd = schedule.getPeriodEnd(0);
+		final double tenorEnd = schedule.getPeriodEnd(0);
 		return tenorEnd;
 	}
 
 	public double getFixingTime() {
-		double fixingDate = schedule.getFixing(0);
+		final double fixingDate = schedule.getFixing(0);
 		return fixingDate;
 	}
 

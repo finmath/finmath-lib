@@ -31,14 +31,14 @@ public class PowIndex extends AbstractIndex {
 	 * @param index An index.
 	 * @param exponent The exponent.
 	 */
-	public PowIndex(AbstractProductComponent index, double exponent) {
+	public PowIndex(final AbstractProductComponent index, final double exponent) {
 		super();
 		this.index = index;
 		this.exponent = exponent;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return index.getValue(evaluationTime, model).pow(exponent);
 	}
 

@@ -18,7 +18,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
@@ -58,66 +58,66 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 
 		memoryUsageReset();
 
-		RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFactory());
+		final RandomVariableDifferentiableAADFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 
 		// Generate independent variables (quantities w.r.t. to which we like to differentiate)
-		RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
-		RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
-		RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
+		final RandomVariableDifferentiable initialValue	= randomVariableFactory.createRandomVariable(modelInitialValue);
+		final RandomVariableDifferentiable riskFreeRate	= randomVariableFactory.createRandomVariable(modelRiskFreeRate);
+		final RandomVariableDifferentiable volatility	= randomVariableFactory.createRandomVariable(modelVolatility);
 
 		// Create a model
-		AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
+		final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility, randomVariableFactory);
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
+		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
 
 		/*
 		 * Value a call option (using the product implementation)
 		 */
-		EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
-		RandomVariable value = europeanOption.getValue(0.0, monteCarloBlackScholesModel);
+		final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
+		final RandomVariable value = europeanOption.getValue(0.0, monteCarloBlackScholesModel);
 
 		/*
 		 * Calculate sensitivities using AAD
 		 */
-		Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
+		final Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
 
-		double valueMonteCarlo = value.getAverage();
-		double deltaAAD = derivative.get(initialValue.getID()).getAverage();
-		double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
-		double vegaAAD = derivative.get(volatility.getID()).getAverage();
+		final double valueMonteCarlo = value.getAverage();
+		final double deltaAAD = derivative.get(initialValue.getID()).getAverage();
+		final double rhoAAD = derivative.get(riskFreeRate.getID()).getAverage();
+		final double vegaAAD = derivative.get(volatility.getID()).getAverage();
 
 		/*
 		 * Calculate sensitivities using finite differences
 		 */
 
-		double eps = 1E-6;
+		final double eps = 1E-6;
 
-		Map<String, Object> dataModifiedInitialValue = new HashMap<String, Object>();
+		final Map<String, Object> dataModifiedInitialValue = new HashMap<>();
 		dataModifiedInitialValue.put("initialValue", modelInitialValue+eps);
-		double deltaFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
+		final double deltaFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedInitialValue)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedRiskFreeRate = new HashMap<String, Object>();
+		final Map<String, Object> dataModifiedRiskFreeRate = new HashMap<>();
 		dataModifiedRiskFreeRate.put("riskFreeRate", modelRiskFreeRate+eps);
-		double rhoFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
+		final double rhoFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedRiskFreeRate)) - valueMonteCarlo)/eps ;
 
-		Map<String, Object> dataModifiedVolatility = new HashMap<String, Object>();
+		final Map<String, Object> dataModifiedVolatility = new HashMap<>();
 		dataModifiedVolatility.put("volatility", modelVolatility+eps);
-		double vegaFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
+		final double vegaFiniteDifference = (europeanOption.getValue(monteCarloBlackScholesModel.getCloneWithModifiedData(dataModifiedVolatility)) - valueMonteCarlo)/eps ;
 
 		/*
 		 * Calculate sensitivities using analytic formulas
 		 */
-		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double deltaAnalytic = AnalyticFormulas.blackScholesOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double rhoAnalytic = AnalyticFormulas.blackScholesOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
-		double vegaAnalytic = AnalyticFormulas.blackScholesOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		final double deltaAnalytic = AnalyticFormulas.blackScholesOptionDelta(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		final double rhoAnalytic = AnalyticFormulas.blackScholesOptionRho(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
+		final double vegaAnalytic = AnalyticFormulas.blackScholesOptionVega(modelInitialValue, modelRiskFreeRate, modelVolatility, optionMaturity, optionStrike);
 
 		System.out.println("value using Monte-Carlo.......: " + valueMonteCarlo);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
@@ -143,15 +143,15 @@ public class MonteCarloBlackScholesModelEuropeanOptionSensitivitiesTest {
 	}
 
 	private void memoryUsageReset() {
-		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
 			pool.resetPeakUsage();
 		}
 	}
 
 	private long memoryUsagePeak() {
 		long sumOfPeak = 0;
-		for (MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
-			MemoryUsage peak = pool.getPeakUsage();
+		for (final MemoryPoolMXBean pool : ManagementFactory.getMemoryPoolMXBeans()) {
+			final MemoryUsage peak = pool.getPeakUsage();
 			sumOfPeak += peak.getUsed();
 		}
 		return sumOfPeak;

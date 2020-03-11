@@ -34,7 +34,7 @@ public class BisectionSearch implements RootFinder {
 	 * @param leftPoint left point of search interval
 	 * @param rightPoint right point of search interval
 	 */
-	public BisectionSearch(double leftPoint, double rightPoint) {
+	public BisectionSearch(final double leftPoint, final double rightPoint) {
 		super();
 		points[0]	= leftPoint;
 		points[1]	= rightPoint;
@@ -64,7 +64,7 @@ public class BisectionSearch implements RootFinder {
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
 	 */
 	@Override
-	public void setValue(double value) {
+	public void setValue(final double value) {
 		if (numberOfIterations < 2) {
 			/**
 			 * Initially fill values
@@ -76,7 +76,7 @@ public class BisectionSearch implements RootFinder {
 			} else {
 				nextPoint = (points[1] + points[0]) / 2.0;
 				/**
-				 * @todo Check if values[0]*values[1] < 0 here
+				 * @TODO Check if values[0]*values[1] < 0 here
 				 */
 			}
 		}

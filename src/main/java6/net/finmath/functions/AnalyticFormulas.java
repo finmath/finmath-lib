@@ -487,7 +487,7 @@ public class AnalyticFormulas {
 			double optionValue)
 	{
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
-		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
+		// TODO An exception should be thrown, when there is no implied volatility for the given value.
 		int		maxIterations	= 500;
 		double	maxAccuracy		= 1E-15;
 
@@ -869,7 +869,7 @@ public class AnalyticFormulas {
 		}
 
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
-		// TODO: An exception should be thrown, when there is no implied volatility for the given value.
+		// TODO An exception should be thrown, when there is no implied volatility for the given value.
 		int		maxIterations	= 100;
 		double	maxAccuracy		= 0.0;
 

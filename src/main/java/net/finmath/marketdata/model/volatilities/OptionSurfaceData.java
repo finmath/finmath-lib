@@ -42,23 +42,23 @@ public class OptionSurfaceData {
 	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
 	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
-	public OptionSurfaceData(String underlying, LocalDate referenceDate, double[] strikes,
-			double[] maturities, double[][] values, QuotingConvention convention, DiscountCurve discountCurve,
-			DiscountCurve equityForwardCurve) {
+	public OptionSurfaceData(final String underlying, final LocalDate referenceDate, final double[] strikes,
+			final double[] maturities, final double[][] values, final QuotingConvention convention, final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
 		if(strikes.length != values.length || maturities.length != values[0].length ) {
 			throw new IllegalArgumentException("Inconsistent number of strikes, maturities or values");
 		}else {
-			surface = new HashMap<Double,OptionSmileData>();
+			surface = new HashMap<>();
 
 			for(int j = 0; j< maturities.length; j++) {
 
-				double[] valuesOfInterest = new double[strikes.length];
+				final double[] valuesOfInterest = new double[strikes.length];
 
 				for(int i= 0; i< strikes.length; i++) {
 					valuesOfInterest[i] = values[i][j];
 				}
 
-				OptionSmileData jthSmile = new OptionSmileData(underlying, referenceDate, strikes, maturities[j], valuesOfInterest, convention);
+				final OptionSmileData jthSmile = new OptionSmileData(underlying, referenceDate, strikes, maturities[j], valuesOfInterest, convention);
 				surface.put(maturities[j],jthSmile);
 			}
 
@@ -80,19 +80,19 @@ public class OptionSurfaceData {
 	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
 	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
 	 */
-	public OptionSurfaceData(OptionSmileData[] smiles, DiscountCurve discountCurve,
-			DiscountCurve equityForwardCurve) {
+	public OptionSurfaceData(final OptionSmileData[] smiles, final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
 
-		OptionSmileData firstSmile = smiles[0];
-		String myUnderlying = firstSmile.getUnderlying();
-		LocalDate myReferenceDate = firstSmile.getReferenceDate();
-		QuotingConvention myConvention = firstSmile.getSmile().get(firstSmile.getStrikes()[0]).getConvention();
+		final OptionSmileData firstSmile = smiles[0];
+		final String myUnderlying = firstSmile.getUnderlying();
+		final LocalDate myReferenceDate = firstSmile.getReferenceDate();
+		final QuotingConvention myConvention = firstSmile.getSmile().get(firstSmile.getStrikes()[0]).getConvention();
 
-		HashMap<Double, OptionSmileData> mySurface = new HashMap<Double, OptionSmileData>();
-		double[] mats = new double[smiles.length];
+		final HashMap<Double, OptionSmileData> mySurface = new HashMap<>();
+		final double[] mats = new double[smiles.length];
 
 		for(int t = 0; t<smiles.length;t++) {
-			double maturity = smiles[t].getMaturity();
+			final double maturity = smiles[t].getMaturity();
 			mats[t] = maturity;
 
 			if(!(smiles[t].getReferenceDate().equals(myReferenceDate))) {
@@ -103,7 +103,7 @@ public class OptionSurfaceData {
 				throw new IllegalArgumentException("Option must be written on the same underlying");
 			}
 
-			QuotingConvention testConvention = smiles[t].getSmile().get(smiles[t].getStrikes()[0]).getConvention();
+			final QuotingConvention testConvention = smiles[t].getSmile().get(smiles[t].getStrikes()[0]).getConvention();
 			if(!(testConvention.equals(myConvention))) {
 				throw new IllegalArgumentException("Convention must be the same for all points in the surface");
 			}
@@ -149,37 +149,37 @@ public class OptionSurfaceData {
 		return maturities;
 	}
 
-	public double getValue(double maturity, double strike){
+	public double getValue(final double maturity, final double strike){
 		return getValue(maturity, strike, convention);
 	}
 
 
-	public double getValue(double maturity, double strike, QuotingConvention quotingConvention)  {
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention)  {
 
 		return getValue(null,maturity,strike,quotingConvention);
 	}
 
 
-	public double getValue(AnalyticModel model, double maturity, double strike,
-			QuotingConvention quotingConvention) {
+	public double getValue(final AnalyticModel model, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
 		if(quotingConvention.equals(convention)) {
-			OptionSmileData relevantSmile = surface.get(maturity);
+			final OptionSmileData relevantSmile = surface.get(maturity);
 
 			return relevantSmile.getSmile().get(strike).getValue();
 		} else {
 			if(quotingConvention == QuotingConvention.PRICE && convention == QuotingConvention.VOLATILITYLOGNORMAL) {
 
-				double forwardPrice = equityForwardCurve.getValue(maturity);
-				double discountBond = discountCurve.getValue(maturity);
-				OptionSmileData relevantSmile = surface.get(maturity);
-				double volatility = relevantSmile.getSmile().get(strike).getValue();
+				final double forwardPrice = equityForwardCurve.getValue(maturity);
+				final double discountBond = discountCurve.getValue(maturity);
+				final OptionSmileData relevantSmile = surface.get(maturity);
+				final double volatility = relevantSmile.getSmile().get(strike).getValue();
 				return net.finmath.functions.AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardPrice, volatility, maturity, strike, discountBond);
 
 			} else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL && convention == QuotingConvention.PRICE) {
-				double forwardPrice = equityForwardCurve.getValue(maturity);
-				double discountBond = discountCurve.getValue(maturity);
-				OptionSmileData relevantSmile = surface.get(maturity);
-				double price = relevantSmile.getSmile().get(strike).getValue();
+				final double forwardPrice = equityForwardCurve.getValue(maturity);
+				final double discountBond = discountCurve.getValue(maturity);
+				final OptionSmileData relevantSmile = surface.get(maturity);
+				final double price = relevantSmile.getSmile().get(strike).getValue();
 				return net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forwardPrice,maturity,strike,discountBond,price);
 
 			}
@@ -187,7 +187,7 @@ public class OptionSurfaceData {
 		}
 	}
 
-	public OptionSmileData getSmile(double maturity) {
+	public OptionSmileData getSmile(final double maturity) {
 		return surface.get(maturity);
 	}
 }

@@ -32,15 +32,15 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	 * @param baseTable The table to receive interpolation.
 	 * @return The table with interpolation.
 	 */
-	public static DataTableInterpolated interpolateDataTable(DataTableBasic baseTable) {
+	public static DataTableInterpolated interpolateDataTable(final DataTableBasic baseTable) {
 
-		int[] maturities = new int[baseTable.size()];
-		int[] terminations = new int[baseTable.size()];
-		double[] values = new double[baseTable.size()];
+		final int[] maturities = new int[baseTable.size()];
+		final int[] terminations = new int[baseTable.size()];
+		final double[] values = new double[baseTable.size()];
 
 		int i = 0;
-		for(int maturity : baseTable.getMaturities()) {
-			for(int termination : baseTable.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : baseTable.getMaturities()) {
+			for(final int termination : baseTable.getTerminationsForMaturity(maturity)) {
 				maturities[i] = maturity;
 				terminations[i] = termination;
 				values[i++] = baseTable.getValue(maturity, termination);
@@ -63,8 +63,8 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	 * @param referenceDate The referenceDate of the table.
 	 * @param scheduleMetaData The schedule meta data of the table.
 	 */
-	public DataTableInterpolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData) {
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData) {
 		super(name, convention, referenceDate, scheduleMetaData);
 	}
 
@@ -79,8 +79,8 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableInterpolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData, int[] maturities, int[] terminations, double[] values) {
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final int[] maturities, final int[] terminations, final double[] values) {
 		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);
 	}
 
@@ -95,13 +95,13 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	 * @param terminations The terminations of the points as offset with respect to the maturity date.
 	 * @param values The values at the points.
 	 */
-	public DataTableInterpolated(String name, TableConvention convention, LocalDate referenceDate,
-			SchedulePrototype scheduleMetaData, List<Integer> maturities, List<Integer> terminations, List<Double> values) {
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final List<Integer> maturities, final List<Integer> terminations, final List<Double> values) {
 		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);
 	}
 
 	@Override
-	public double getValue(int maturity, int termination) {
+	public double getValue(final int maturity, final int termination) {
 		if(containsEntryFor(maturity, termination)) {
 			return super.getValue(maturity, termination);
 		}
@@ -109,26 +109,26 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 		// check if either of the table dimensions is one and fits the input, otherwise default to bivariate interpolation.
 		if(getMaturities().contains(maturity)) {
 
-			int[] terminations = ArrayUtils.toPrimitive(getTerminationsForMaturity(maturity).toArray(new Integer[0]));
-			double[] values = new double[terminations.length];
+			final int[] terminations = ArrayUtils.toPrimitive(getTerminationsForMaturity(maturity).toArray(new Integer[0]));
+			final double[] values = new double[terminations.length];
 
 			for(int i = 0; i < values.length; i++) {
 				values[i] = super.getValue(maturity, terminations[i]);
 			}
 
-			UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(terminations).asDoubleStream().toArray(), values);
+			final UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(terminations).asDoubleStream().toArray(), values);
 			return curve.value(termination);
 
 		} else if(getTerminations().contains(termination)){
 
-			int[] maturities = ArrayUtils.toPrimitive(getMaturitiesForTermination(termination).toArray(new Integer[0]));
-			double[] values = new double[maturities.length];
+			final int[] maturities = ArrayUtils.toPrimitive(getMaturitiesForTermination(termination).toArray(new Integer[0]));
+			final double[] values = new double[maturities.length];
 
 			for(int i = 0; i< maturities.length; i++) {
 				values[i] = super.getValue(maturities[i], termination);
 			}
 
-			UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(), values);
+			final UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(), values);
 			return curve.value(maturity);
 		} else {
 
@@ -136,9 +136,9 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 				throw new RuntimeException("For interpolation " +getName()+ " requires a regular grid of values.");
 			}
 
-			int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
-			int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
-			double[][] values = new double[maturities.length][terminations.length];
+			final int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
+			final int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
+			final double[][] values = new double[maturities.length][terminations.length];
 
 			for(int i = 0; i< maturities.length; i++) {
 				for(int j = 0; j < terminations.length; j++) {
@@ -146,7 +146,7 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 				}
 			}
 
-			BivariateFunction surface = interpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(),
+			final BivariateFunction surface = interpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(),
 					Arrays.stream(terminations).asDoubleStream().toArray(), values);
 			return surface.value(maturity, termination);
 		}
@@ -154,7 +154,7 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	}
 
 	@Override
-	public double getValue(double maturity, double termination) {
+	public double getValue(final double maturity, final double termination) {
 		if(containsEntryFor(maturity, termination)) {
 			return super.getValue(maturity, termination);
 		}
@@ -170,8 +170,8 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 		}
 
 
-		int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));
-		int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;
+		final int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));
+		final int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;
 
 		return getValue(roundedMaturity, roundedTermination);
 	}
@@ -179,13 +179,13 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	@Override
 	public DataTableInterpolated clone() {
 
-		int[] maturities = new int[size()];
-		int[] terminations = new int[size()];
-		double[] values = new double[size()];
+		final int[] maturities = new int[size()];
+		final int[] terminations = new int[size()];
+		final double[] values = new double[size()];
 
 		int i = 0;
-		for(int maturity : getMaturities()) {
-			for(int termination : getTerminationsForMaturity(maturity)) {
+		for(final int maturity : getMaturities()) {
+			for(final int termination : getTerminationsForMaturity(maturity)) {
 				maturities[i] = maturity;
 				terminations[i] = termination;
 				values[i++] = getValue(maturity, termination);
@@ -201,8 +201,8 @@ public class DataTableInterpolated extends DataTableBasic implements DataTable, 
 	}
 
 	@Override
-	public String toString(double unit) {
-		StringBuilder builder = new StringBuilder();
+	public String toString(final double unit) {
+		final StringBuilder builder = new StringBuilder();
 		builder.append("DataTableInterpolated with interpolator "+ interpolator.getClass()+ " and base table: ");
 		builder.append(super.toString(unit));
 

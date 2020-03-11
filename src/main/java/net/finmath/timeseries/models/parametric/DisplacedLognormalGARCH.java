@@ -39,14 +39,14 @@ import net.finmath.timeseries.HistoricalSimulationModel;
  */
 public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
-	private double[] values;
-	private double lowerBoundDisplacement;
-	private double upperBoundDisplacement = 10000000;
-	private int windowIndexStart;
-	private int windowIndexEnd;
-	private int maxIterations = 1000000;
+	private final double[] values;
+	private final double lowerBoundDisplacement;
+	private final double upperBoundDisplacement = 10000000;
+	private final int windowIndexStart;
+	private final int windowIndexEnd;
+	private final int maxIterations = 1000000;
 
-	public DisplacedLognormalGARCH(double[] values) {
+	public DisplacedLognormalGARCH(final double[] values) {
 		this.values = values;
 		windowIndexStart	= 0;
 		windowIndexEnd		= values.length-1;
@@ -59,7 +59,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 	}
 
-	public DisplacedLognormalGARCH(double[] values, double lowerBoundDisplacement) {
+	public DisplacedLognormalGARCH(final double[] values, final double lowerBoundDisplacement) {
 		this.values = values;
 		windowIndexStart	= 0;
 		windowIndexEnd		= values.length-1;
@@ -72,7 +72,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 
 	}
 
-	public DisplacedLognormalGARCH(double[] values, int windowIndexStart, int windowIndexEnd) {
+	public DisplacedLognormalGARCH(final double[] values, final int windowIndexStart, final int windowIndexEnd) {
 		this.values = values;
 		this.windowIndexStart	= windowIndexStart;
 		this.windowIndexEnd		= windowIndexEnd;
@@ -84,7 +84,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		lowerBoundDisplacement = -valuesMin+1;
 	}
 
-	public DisplacedLognormalGARCH(double[] values, double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
+	public DisplacedLognormalGARCH(final double[] values, final double lowerBoundDisplacement, final int windowIndexStart, final int windowIndexEnd) {
 		this.values = values;
 		this.windowIndexStart	= windowIndexStart;
 		this.windowIndexEnd		= windowIndexEnd;
@@ -97,25 +97,25 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 	}
 
 	@Override
-	public HistoricalSimulationModel getCloneWithWindow(int windowIndexStart, int windowIndexEnd) {
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
 		return new DisplacedLognormalGARCH(values, windowIndexStart, windowIndexEnd);
 	}
 
-	public HistoricalSimulationModel getCloneWithWindow(double lowerBoundDisplacement, int windowIndexStart, int windowIndexEnd) {
+	public HistoricalSimulationModel getCloneWithWindow(final double lowerBoundDisplacement, final int windowIndexStart, final int windowIndexEnd) {
 		return new DisplacedLognormalGARCH(values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);
 	}
 
-	public double getLogLikelihoodForParameters(double omega, double alpha, double beta, double displacement)
+	public double getLogLikelihoodForParameters(final double omega, final double alpha, final double beta, final double displacement)
 	{
 		double logLikelihood = 0.0;
 
-		double volScaling	= (1+Math.abs(displacement));
+		final double volScaling	= (1+Math.abs(displacement));
 		double h			= omega / (1.0 - alpha - beta);
 		double eval			= volScaling * (Math.log((values[windowIndexStart+1]+displacement)/(values[windowIndexStart+1-1]+displacement)));
 		for (int i = windowIndexStart+1; i <= windowIndexEnd-1; i++) {
 			h = (omega + alpha * eval * eval) + beta * h;
 
-			double evalNext	= volScaling * (Math.log((values[i+1]+displacement)/(values[i]+displacement)));
+			final double evalNext	= volScaling * (Math.log((values[i+1]+displacement)/(values[i]+displacement)));
 
 			logLikelihood += - Math.log(h) - 2 * Math.log((values[i+1]+displacement)/volScaling) - evalNext*evalNext / h;
 
@@ -127,11 +127,11 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return logLikelihood;
 	}
 
-	public double getLastResidualForParameters(double omega, double alpha, double beta, double displacement) {
-		double volScaling = (1+Math.abs(displacement));
+	public double getLastResidualForParameters(final double omega, final double alpha, final double beta, final double displacement) {
+		final double volScaling = (1+Math.abs(displacement));
 		double h = omega / (1.0 - alpha - beta);
 		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
+			final double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));
 			//			double eval	= volScaling * (values[i]-values[i-1])/(values[i-1]+displacement);
 			h = omega + alpha * eval * eval + beta * h;
 		}
@@ -139,18 +139,18 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return h;
 	}
 
-	public double[] getSzenarios(double omega, double alpha, double beta, double displacement) {
-		double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
+	public double[] getSzenarios(final double omega, final double alpha, final double beta, final double displacement) {
+		final double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];
 
-		double volScaling = (1+Math.abs(displacement));
+		final double volScaling = (1+Math.abs(displacement));
 		double h = omega / (1.0 - alpha - beta);
 		double vol = Math.sqrt(h) / volScaling;
 		for (int i = windowIndexStart+1; i <= windowIndexEnd; i++) {
-			double y = Math.log((values[i]+displacement)/(values[i-1]+displacement));
+			final double y = Math.log((values[i]+displacement)/(values[i-1]+displacement));
 			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
 			szenarios[i-windowIndexStart-1]	= y / vol;
 
-			double eval		= volScaling * y;
+			final double eval		= volScaling * y;
 			h = omega + alpha * eval * eval + beta * h;
 			vol = Math.sqrt(h) / volScaling;
 		}
@@ -159,21 +159,21 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return szenarios;
 	}
 
-	public double[] getQuantilPredictionsForParameters(double omega, double alpha, double beta, double displacement, double[] quantiles) {
-		double[] szenarios = getSzenarios(omega, alpha, beta, displacement);
+	public double[] getQuantilPredictionsForParameters(final double omega, final double alpha, final double beta, final double displacement, final double[] quantiles) {
+		final double[] szenarios = getSzenarios(omega, alpha, beta, displacement);
 
-		double volScaling = (1+Math.abs(displacement));
-		double h = omega / (1.0 - alpha - beta);
-		double vol = Math.sqrt(h) / volScaling;
+		final double volScaling = (1+Math.abs(displacement));
+		final double h = omega / (1.0 - alpha - beta);
+		final double vol = Math.sqrt(h) / volScaling;
 
-		double[] quantileValues = new double[quantiles.length];
+		final double[] quantileValues = new double[quantiles.length];
 		for(int i=0; i<quantiles.length; i++) {
-			double quantile = quantiles[i];
-			double quantileIndex = szenarios.length * quantile  - 1;
-			int quantileIndexLo = (int)quantileIndex;
-			int quantileIndexHi = quantileIndexLo+1;
+			final double quantile = quantiles[i];
+			final double quantileIndex = szenarios.length * quantile  - 1;
+			final int quantileIndexLo = (int)quantileIndex;
+			final int quantileIndexHi = quantileIndexLo+1;
 
-			double szenarioRelativeChange =
+			final double szenarioRelativeChange =
 					(quantileIndexHi-quantileIndex) * Math.exp(szenarios[Math.max(quantileIndexLo,0               )] * vol)
 					+ (quantileIndex-quantileIndexLo) * Math.exp(szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
 			/*
@@ -182,7 +182,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 					+ (quantileIndex-quantileIndexLo) * (1 + szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
 			 */
 
-			double quantileValue = (values[windowIndexEnd]+displacement) * szenarioRelativeChange - displacement;
+			final double quantileValue = (values[windowIndexEnd]+displacement) * szenarioRelativeChange - displacement;
 			quantileValues[i] = quantileValue;
 		}
 
@@ -201,7 +201,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
 	 */
 	@Override
-	public Map<String, Object> getBestParameters(Map<String, Object> guess) {
+	public Map<String, Object> getBestParameters(final Map<String, Object> guess) {
 
 		// Create the objective function for the solver
 		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {
@@ -209,22 +209,22 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 			private static final long serialVersionUID = 7072187082052755854L;
 
 			@Override
-			public double value(double[] variables) {
+			public double value(final double[] variables) {
 				/*
 				 * Transform variables: The solver variables are in (-\infty, \infty).
 				 * We transform the variable to the admissible domain for GARCH, that is
 				 * omega > 0, 0 < alpha < 1, 0 < beta < (1-alpha), displacement > lowerBoundDisplacement  ??????
 				 * ???? usually for GARCH the restrictions are written like omega > 0, alpha > 0, beta > 0, and alpha + beta < 1
 				 */
-				double omega	= Math.exp(variables[0]);
-				double mucorr	= Math.exp(-Math.exp(-variables[1]));
-				double muema	= Math.exp(-Math.exp(-variables[2]));
-				double beta		= mucorr * muema;
-				double alpha	= mucorr - beta;
+				final double omega	= Math.exp(variables[0]);
+				final double mucorr	= Math.exp(-Math.exp(-variables[1]));
+				final double muema	= Math.exp(-Math.exp(-variables[2]));
+				final double beta		= mucorr * muema;
+				final double alpha	= mucorr - beta;
 				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
 				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
-				double displacementNormed = 1.0/(1.0+Math.exp(-variables[3]));
-				double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
+				final double displacementNormed = 1.0/(1.0+Math.exp(-variables[3]));
+				final double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
 
 				double logLikelihood = getLogLikelihoodForParameters(omega,alpha,beta,displacement);
 
@@ -262,69 +262,69 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		guessBeta			= restrictToOpenSet(guessBeta, 0.0, 1.0-guessAlpha);
 		guessDisplacement	= restrictToOpenSet(guessDisplacement, lowerBoundDisplacement, upperBoundDisplacement);
 
-		double guessMucorr	= guessAlpha + guessBeta;
-		double guessMuema	= guessBeta / (guessAlpha+guessBeta);
+		final double guessMucorr	= guessAlpha + guessBeta;
+		final double guessMuema	= guessBeta / (guessAlpha+guessBeta);
 
 		// Transform guess to solver coordinates
-		double[] guessParameters = new double[4];
+		final double[] guessParameters = new double[4];
 		guessParameters[0] = Math.log(guessOmega);
 		guessParameters[1] = -Math.log(-Math.log(guessMucorr));
 		guessParameters[2] = -Math.log(-Math.log(guessMuema));
 		guessParameters[3] = -Math.log(1.0/((guessDisplacement-lowerBoundDisplacement)/(upperBoundDisplacement-lowerBoundDisplacement))-1.0);
 
 		// Seek optimal parameter configuration
-		Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {
+		final Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {
 			private static final long serialVersionUID = 8030873619034187741L;
 
 			@Override
-			public void setValues(double[] arg0, double[] arg1) {
+			public void setValues(final double[] arg0, final double[] arg1) {
 				arg1[0] = objectiveFunction.value(arg0);
 			}
 		};
 
 		double[] bestParameters = null;
 
-		boolean isUseLM = false;
+		final boolean isUseLM = false;
 
 		if(isUseLM) {
 			try {
 				lm.run();
-			} catch (SolverException e1) {
+			} catch (final SolverException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			bestParameters = lm.getBestFitParameters();
 		}
 		else {
-			org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
+			final org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();
 
 			try {
-				PointValuePair result = optimizer2.optimize(
+				final PointValuePair result = optimizer2.optimize(
 						maxIterations,
 						objectiveFunction,
 						GoalType.MAXIMIZE,
 						guessParameters
 						);
 				bestParameters = result.getPoint();
-			} catch(org.apache.commons.math3.exception.MathIllegalStateException e) {
+			} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {
 				System.out.println("Solver failed");
 				bestParameters = guessParameters;
 			}
 		}
 
 		// Transform parameters to GARCH parameters
-		double omega	= Math.exp(bestParameters[0]);
-		double mucorr	= Math.exp(-Math.exp(-bestParameters[1]));
-		double muema	= Math.exp(-Math.exp(-bestParameters[2]));
-		double beta		= mucorr * muema;
-		double alpha	= mucorr - beta;
-		double displacementNormed = 1.0/(1.0+Math.exp(-bestParameters[3]));
-		double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
+		final double omega	= Math.exp(bestParameters[0]);
+		final double mucorr	= Math.exp(-Math.exp(-bestParameters[1]));
+		final double muema	= Math.exp(-Math.exp(-bestParameters[2]));
+		final double beta		= mucorr * muema;
+		final double alpha	= mucorr - beta;
+		final double displacementNormed = 1.0/(1.0+Math.exp(-bestParameters[3]));
+		final double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;
 
-		double[] quantiles		= {0.01, 0.05, 0.5};
-		double[] quantileValues	= getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);
+		final double[] quantiles		= {0.01, 0.05, 0.5};
+		final double[] quantileValues	= getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);
 
-		Map<String, Object> results = new HashMap<>();
+		final Map<String, Object> results = new HashMap<>();
 		results.put("Omega", omega);
 		results.put("Alpha", alpha);
 		results.put("Beta", beta);
@@ -339,7 +339,7 @@ public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
 		return results;
 	}
 
-	private static double restrictToOpenSet(double value, double lowerBond, double upperBound) {
+	private static double restrictToOpenSet(double value, final double lowerBond, final double upperBound) {
 		value = Math.max(value, lowerBond  * (1.0+Math.signum(lowerBond)*1E-15) + 1E-15);
 		value = Math.min(value, upperBound * (1.0-Math.signum(upperBound)*1E-15) - 1E-15);
 		return value;

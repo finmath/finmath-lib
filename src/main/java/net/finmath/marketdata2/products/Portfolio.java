@@ -24,8 +24,8 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduct {
 
-	private ArrayList<AnalyticProduct>	products;
-	private ArrayList<Double>					weights;
+	private final ArrayList<AnalyticProduct>	products;
+	private final ArrayList<Double>					weights;
 
 	/**
 	 * Create a portfolio of products implementing
@@ -42,7 +42,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
-	public Portfolio(List<AnalyticProduct> products, List<Double> weights) {
+	public Portfolio(final List<AnalyticProduct> products, final List<Double> weights) {
 		super();
 		this.products = new ArrayList<>();
 		this.weights = new ArrayList<>();
@@ -66,7 +66,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 * @param weights Array of weights used in the valuation as a multiplicator.
 	 */
-	public Portfolio(Portfolio portfolio, List<AnalyticProduct> products, List<Double> weights) {
+	public Portfolio(final Portfolio portfolio, final List<AnalyticProduct> products, final List<Double> weights) {
 		super();
 		this.products = new ArrayList<>();
 		this.weights = new ArrayList<>();
@@ -82,7 +82,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 * @param product A product, implementing  implementing <code>AnalyticProductInterface</code>.
 	 * @param weight A weight used in the valuation as a multiplicator.
 	 */
-	public Portfolio(AnalyticProduct product, double weight) {
+	public Portfolio(final AnalyticProduct product, final double weight) {
 		super();
 		products = new ArrayList<>();
 		weights = new ArrayList<>();
@@ -104,7 +104,7 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	 *
 	 * @param products Array of products implementing <code>AnalyticProductInterface</code>.
 	 */
-	public Portfolio(List<AnalyticProduct> products) {
+	public Portfolio(final List<AnalyticProduct> products) {
 		this(products, Collections.nCopies(products.size(), Double.valueOf(1.0)));
 	}
 
@@ -112,15 +112,15 @@ public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduc
 	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		RandomVariable value = model.getRandomVariableForConstant(0.0);
 
-		List<RandomVariable> productValues	= products.parallelStream().map(new Function<AnalyticProduct, RandomVariable>() {
+		final List<RandomVariable> productValues	= products.parallelStream().map(new Function<AnalyticProduct, RandomVariable>() {
 			@Override
-			public RandomVariable apply(AnalyticProduct product) {
+			public RandomVariable apply(final AnalyticProduct product) {
 				return product.getValue(evaluationTime, model);
 			}
 		}).collect(Collectors.toList());
-		List<RandomVariable> weightsRandomVariables = weights.parallelStream().map(new Function<Double, RandomVariable>() {
+		final List<RandomVariable> weightsRandomVariables = weights.parallelStream().map(new Function<Double, RandomVariable>() {
 			@Override
-			public RandomVariable apply(Double weight) {
+			public RandomVariable apply(final Double weight) {
 				return model.getRandomVariableForConstant(weight);
 			}
 		}).collect(Collectors.toList());

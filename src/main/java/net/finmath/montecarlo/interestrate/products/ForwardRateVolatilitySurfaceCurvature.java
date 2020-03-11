@@ -19,13 +19,9 @@ import net.finmath.stochastic.RandomVariable;
  *
  * The value returned by the <code>{@link #getValue(double, LIBORModelMonteCarloSimulationModel)}</code> method is calculated as follows:
  * For each forward rate's instantaneous volatility <i>&sigma;(t)</i> we calculate
- * <center>
  * \[	\sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \]
- * </center>
  * (this is the root mean square / L2 norm of <i>f</i>) where
- * <center>
  * \[	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i}) } \]
- * </center>
  * and where
  * <i>
  * 	x<sub>i</sub> = &sigma;<sup>2</sup>(t<sub>i</sub>)
@@ -91,15 +87,15 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	 *
 	 * @param tolerance The tolerance level.
 	 */
-	public ForwardRateVolatilitySurfaceCurvature(double tolerance) {
+	public ForwardRateVolatilitySurfaceCurvature(final double tolerance) {
 		super();
 
 		this.tolerance = tolerance;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
-		ProcessModel modelBase = model.getModel();
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) {
+		final ProcessModel modelBase = model.getModel();
 		if(modelBase instanceof LIBORMarketModel) {
 			return getValues(evaluationTime, (LIBORMarketModel)modelBase);
 		} else {
@@ -114,23 +110,23 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
 	 * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &ge; 0.
 	 */
-	public RandomVariable getValues(double evaluationTime, LIBORMarketModel model) {
+	public RandomVariable getValues(final double evaluationTime, final LIBORMarketModel model) {
 		if(evaluationTime > 0) {
 			throw new RuntimeException("Forward start evaluation currently not supported.");
 		}
 
 		// Fetch the covariance model of the model
-		LIBORCovarianceModel covarianceModel = model.getCovarianceModel();
+		final LIBORCovarianceModel covarianceModel = model.getCovarianceModel();
 
 		// We sum over all forward rates
-		int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();
+		final int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();
 
 		// Accumulator
 		RandomVariable	integratedLIBORCurvature	= new RandomVariableFromDoubleArray(0.0);
 		for(int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 
 			// Integrate from 0 up to the fixing of the rate
-			double timeEnd		= covarianceModel.getLiborPeriodDiscretization().getTime(componentIndex);
+			final double timeEnd		= covarianceModel.getLiborPeriodDiscretization().getTime(componentIndex);
 			int timeEndIndex	= covarianceModel.getTimeDiscretization().getTimeIndex(timeEnd);
 
 			// If timeEnd is not in the time discretization we get timeEndIndex = -insertionPoint-1. In that case, we use the index prior to the insertionPoint
@@ -141,12 +137,12 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 			// Sum squared second derivative of the variance for all components at this time step
 			RandomVariable integratedLIBORCurvatureCurrentRate = new RandomVariableFromDoubleArray(0.0);
 			for(int timeIndex = 0; timeIndex < timeEndIndex-2; timeIndex++) {
-				double timeStep1	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex);
-				double timeStep2	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex+1);
+				final double timeStep1	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex);
+				final double timeStep2	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex+1);
 
-				RandomVariable covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);
-				RandomVariable covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);
-				RandomVariable covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);
+				final RandomVariable covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);
+				final RandomVariable covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);
+				final RandomVariable covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);
 
 				// Calculate second derivative
 				RandomVariable curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft);

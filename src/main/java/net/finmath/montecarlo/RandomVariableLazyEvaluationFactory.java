@@ -20,12 +20,12 @@ public class RandomVariableLazyEvaluationFactory extends AbstractRandomVariableF
 	private static final long serialVersionUID = 5474699190536441150L;
 
 	@Override
-	public RandomVariable createRandomVariable(double time, double value) {
+	public RandomVariable createRandomVariable(final double time, final double value) {
 		return new RandomVariableLazyEvaluation(time, value);
 	}
 
 	@Override
-	public RandomVariable createRandomVariable(double time, double[] values) {
+	public RandomVariable createRandomVariable(final double time, final double[] values) {
 		return new RandomVariableLazyEvaluation(time, values);
 	}
 }

@@ -81,7 +81,7 @@ public interface ProcessModel {
 	 */
 	RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable);
 
-	default RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	default RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		throw new UnsupportedOperationException("Inverse of statespace transform not set");
 	}
 
@@ -150,7 +150,7 @@ public interface ProcessModel {
 	 * @param value The constant value.
 	 * @return A new random variable initialized with a constant value.
 	 */
-	default RandomVariable getRandomVariableForConstant(double value) {
+	default RandomVariable getRandomVariableForConstant(final double value) {
 		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
 	}
 

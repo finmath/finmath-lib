@@ -44,7 +44,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	private final double[]		jumpIntensities;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	private transient	RandomVariable[][]	increments;
 	private	transient	Object						incrementsLazyInitLock = new Object();
@@ -61,21 +61,21 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	 * @param jumpIntensities The jump intensities, one for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
-	 * @param randomVariableFactory Factory to be used to create random variable.
+	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
 	 */
 	public JumpProcessIncrements(
-			TimeDiscretization timeDiscretization,
-			double[] jumpIntensities,
-			int numberOfPaths,
-			int seed,
-			AbstractRandomVariableFactory randomVariableFactory) {
+			final TimeDiscretization timeDiscretization,
+			final double[] jumpIntensities,
+			final int numberOfPaths,
+			final int seed,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.jumpIntensities	= jumpIntensities;
 		this.numberOfPaths		= numberOfPaths;
 		this.seed				= seed;
 
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		increments	= null; 	// Lazy initialization
 	}
@@ -89,26 +89,26 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	 * @param seed The seed of the random number generator.
 	 */
 	public JumpProcessIncrements(
-			TimeDiscretization timeDiscretization,
-			double[] jumpIntensities,
-			int numberOfPaths,
-			int seed) {
-		this(timeDiscretization, jumpIntensities, numberOfPaths, seed, new RandomVariableFactory());
+			final TimeDiscretization timeDiscretization,
+			final double[] jumpIntensities,
+			final int numberOfPaths,
+			final int seed) {
+		this(timeDiscretization, jumpIntensities, numberOfPaths, seed, new RandomVariableFromArrayFactory());
 	}
 
 	@Override
-	public JumpProcessIncrements getCloneWithModifiedSeed(int seed) {
+	public JumpProcessIncrements getCloneWithModifiedSeed(final int seed) {
 		return new JumpProcessIncrements(getTimeDiscretization(), jumpIntensities, getNumberOfPaths(), seed);
 	}
 
 	@Override
-	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
 		return new JumpProcessIncrements(newTimeDiscretization, jumpIntensities, getNumberOfPaths(), getSeed());
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 
 		// Thread safe lazy initialization
 		synchronized(incrementsLazyInitLock) {
@@ -132,13 +132,13 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 		}
 
 		// Create random number sequence generator
-		MersenneTwister mersenneTwister = new MersenneTwister(seed);
+		final MersenneTwister mersenneTwister = new MersenneTwister(seed);
 
 		// Allocate memory
-		double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length][numberOfPaths];
+		final double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length][numberOfPaths];
 
 		// Pre-calculate Poisson distributions
-		PoissonDistribution[][] poissonDistribution = new PoissonDistribution[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];
+		final PoissonDistribution[][] poissonDistribution = new PoissonDistribution[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			for(int factorIndex=0; factorIndex<jumpIntensities.length; factorIndex++) {
 				poissonDistribution[timeIndex][factorIndex] = new PoissonDistribution(timeDiscretization.getTimeStep(timeIndex)*jumpIntensities[factorIndex]);
@@ -156,8 +156,8 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 		for(int pathIndex=0; pathIndex<numberOfPaths; pathIndex++) {
 			for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 				for(int factorIndex=0; factorIndex<jumpIntensities.length; factorIndex++) {
-					double uniformIncrement = mersenneTwister.nextDouble();
-					double numberOfJumps = poissonDistribution[timeIndex][factorIndex].inverseCumulativeDistribution(uniformIncrement);
+					final double uniformIncrement = mersenneTwister.nextDouble();
+					final double numberOfJumps = poissonDistribution[timeIndex][factorIndex].inverseCumulativeDistribution(uniformIncrement);
 
 					incrementsArray[timeIndex][factorIndex][pathIndex] = numberOfJumps;
 				}
@@ -169,10 +169,10 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 		// Wrap the values in RandomVariableFromDoubleArray objects
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double time = timeDiscretization.getTime(timeIndex+1);
+			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<jumpIntensities.length; factor++) {
 				increments[timeIndex][factor] =
-						randomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
+						abstractRandomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -193,8 +193,8 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+	public RandomVariable getRandomVariableForConstant(final double value) {
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -208,10 +208,10 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	public String toString() {
 		return "JumpProcessIncrements [timeDiscretizationFromArray=" + timeDiscretization + ", numberOfPaths=" + numberOfPaths
 				+ ", seed=" + seed + ", jumpIntensities=" + Arrays.toString(jumpIntensities)
-				+ ", randomVariableFactory=" + randomVariableFactory + "]";
+				+ ", randomVariableFactory=" + abstractRandomVariableFactory + "]";
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		incrementsLazyInitLock = new Object();

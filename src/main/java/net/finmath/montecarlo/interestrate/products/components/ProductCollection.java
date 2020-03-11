@@ -31,14 +31,14 @@ public class ProductCollection extends AbstractProductComponent {
 	 *
 	 */
 	private static final long serialVersionUID = -3058874897795789705L;
-	private Collection<AbstractProductComponent> products;
+	private final Collection<AbstractProductComponent> products;
 
 	/**
 	 * Creates a collection of product components paying the sum of their payouts.
 	 *
 	 * @param products Array of AbstractProductComponent objects
 	 */
-	public ProductCollection(AbstractProductComponent... products) {
+	public ProductCollection(final AbstractProductComponent... products) {
 		this(Arrays.asList(products));
 	}
 
@@ -47,14 +47,14 @@ public class ProductCollection extends AbstractProductComponent {
 	 *
 	 * @param products Collection of AbstractProductComponent objects
 	 */
-	public ProductCollection(Collection<AbstractProductComponent> products) {
+	public ProductCollection(final Collection<AbstractProductComponent> products) {
 		super();
 		this.products = products;
 	}
 
 	@Override
 	public String getCurrency() {
-		// @TODO: We report only the currency of the first item.
+		// @TODO We report only the currency of the first item.
 		return products.iterator().next().getCurrency();
 	}
 
@@ -70,8 +70,8 @@ public class ProductCollection extends AbstractProductComponent {
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames = null;
-		for(AbstractProductComponent product : products) {
-			Set<String> productUnderlyingNames = product.queryUnderlyings();
+		for(final AbstractProductComponent product : products) {
+			final Set<String> productUnderlyingNames = product.queryUnderlyings();
 			if(productUnderlyingNames != null) {
 				if(underlyingNames == null) {
 					underlyingNames = productUnderlyingNames;
@@ -98,7 +98,7 @@ public class ProductCollection extends AbstractProductComponent {
 	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ignite asynchronous calculation if possible
-		ArrayList< Future<RandomVariable> > results = new ArrayList< >();
+		final ArrayList< Future<RandomVariable> > results = new ArrayList< >();
 		for(final MonteCarloProduct product : products) {
 			Future<RandomVariable> valueFuture;
 			try {
@@ -111,7 +111,7 @@ public class ProductCollection extends AbstractProductComponent {
 						}
 						);
 			}
-			catch(RejectedExecutionException e) {
+			catch(final RejectedExecutionException e) {
 				valueFuture = new FutureWrapper<>(product.getValue(evaluationTime, model));
 			}
 
@@ -121,12 +121,12 @@ public class ProductCollection extends AbstractProductComponent {
 		// Collect results
 		RandomVariable values = model.getRandomVariableForConstant(0.0);
 		try {
-			for(Future<RandomVariable> valueFuture : results) {
+			for(final Future<RandomVariable> valueFuture : results) {
 				values = values.add(valueFuture.get());
 			}
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());
-		} catch (ExecutionException e) {
+		} catch (final ExecutionException e) {
 			if(CalculationException.class.isInstance(e.getCause())) {
 				throw (CalculationException)(e.getCause());
 			}

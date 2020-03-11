@@ -39,7 +39,7 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 	 * @param strike The strike K in the option payoff \( max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \).
 	 * @param weights The weights \( \alpha_{i} \) in the option payof \( max\left( \sum_{i} \alpha_{i} S_{i}(T) - K , 0 \right) \).
 	 */
-	public BasketOption(double maturity, double strike, double[] weights) {
+	public BasketOption(final double maturity, final double strike, final double[] weights) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
@@ -58,13 +58,13 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Get underlying and numeraire
 
 		RandomVariable values = model.getRandomVariableForConstant(0.0);
 		for(int underlyingIndex = 0; underlyingIndex<weights.length; underlyingIndex++) {
 			// Get S_{i}(T)
-			RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
+			final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 			values = values.addProduct(underlyingAtMaturity, weights[underlyingIndex]);
 		}
 
@@ -72,13 +72,13 @@ public class BasketOption extends AbstractAssetMonteCarloProduct {
 		values = values.sub(strike).floor(0.0);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

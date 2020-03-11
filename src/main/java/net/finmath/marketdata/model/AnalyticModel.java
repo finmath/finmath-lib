@@ -64,9 +64,6 @@ public interface AnalyticModel extends Model, Cloneable {
 	 */
 	AnalyticModel addCurves(Set<Curve> curves);
 
-	@Deprecated
-	void setCurve(Curve curve);
-
 	/**
 	 * Returns a discount curve for a given name.
 	 *
@@ -98,6 +95,12 @@ public interface AnalyticModel extends Model, Cloneable {
 	 */
 	Map<String, VolatilitySurface> getVolatilitySurfaces();
 
+	/**
+	 * Create a new analytic model consisting of a clone of this one together with the given volatility surfaces added.
+	 *
+	 * @param volatilitySurfaces The list of volatility surfaces to add.
+	 * @return A new analytic model.
+	 */
 	AnalyticModel addVolatilitySurfaces(VolatilitySurface... volatilitySurfaces);
 
 	/**
@@ -108,11 +111,7 @@ public interface AnalyticModel extends Model, Cloneable {
 	 */
 	AnalyticModel addVolatilitySurfaces(Set<VolatilitySurface> volatilitySurfaces);
 
-	@Deprecated
-	void setVolatilitySurface(VolatilitySurface volatilitySurface);
-
 	AnalyticModel clone();
 
 	AnalyticModel getCloneForParameter(Map<ParameterObject, double[]> curvesParameterPairs) throws CloneNotSupportedException;
-
 }

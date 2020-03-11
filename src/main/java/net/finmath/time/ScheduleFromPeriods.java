@@ -31,22 +31,22 @@ public class ScheduleFromPeriods implements Schedule, Serializable {
 
 	private static final long serialVersionUID = 4460864939790714361L;
 
-	private			LocalDate					referenceDate;
+	private final			LocalDate					referenceDate;
 
-	private List<Period>			periods;
-	private DayCountConvention	daycountconvention;
+	private final List<Period>			periods;
+	private final DayCountConvention	daycountconvention;
 
-	private double[] fixingTimes;
-	private double[] paymentTimes;
-	private double[] periodStartTimes;
-	private double[] periodEndTimes;
-	private double[] periodLength;
+	private final double[] fixingTimes;
+	private final double[] paymentTimes;
+	private final double[] periodStartTimes;
+	private final double[] periodEndTimes;
+	private final double[] periodLength;
 
-	public ScheduleFromPeriods(LocalDate referenceDate, DayCountConvention daycountconvention, Period... periods) {
+	public ScheduleFromPeriods(final LocalDate referenceDate, final DayCountConvention daycountconvention, final Period... periods) {
 		this(referenceDate, Arrays.asList(periods), daycountconvention);
 	}
 
-	public ScheduleFromPeriods(LocalDate referenceDate, List<Period> periods, DayCountConvention daycountconvention) {
+	public ScheduleFromPeriods(final LocalDate referenceDate, final List<Period> periods, final DayCountConvention daycountconvention) {
 		super();
 		if(referenceDate == null) {
 			throw new IllegalArgumentException("referenceDate must not be null.");
@@ -92,32 +92,32 @@ public class ScheduleFromPeriods implements Schedule, Serializable {
 	}
 
 	@Override
-	public Period getPeriod(int periodIndex) {
+	public Period getPeriod(final int periodIndex) {
 		return periods.get(periodIndex);
 	}
 
 	@Override
-	public double getFixing(int periodIndex) {
+	public double getFixing(final int periodIndex) {
 		return fixingTimes[periodIndex];
 	}
 
 	@Override
-	public double getPayment(int periodIndex) {
+	public double getPayment(final int periodIndex) {
 		return paymentTimes[periodIndex];
 	}
 
 	@Override
-	public double getPeriodStart(int periodIndex) {
+	public double getPeriodStart(final int periodIndex) {
 		return periodStartTimes[periodIndex];
 	}
 
 	@Override
-	public double getPeriodEnd(int periodIndex) {
+	public double getPeriodEnd(final int periodIndex) {
 		return periodEndTimes[periodIndex];
 	}
 
 	@Override
-	public double getPeriodLength(int periodIndex) {
+	public double getPeriodLength(final int periodIndex) {
 		return periodLength[periodIndex];
 	}
 
@@ -127,7 +127,7 @@ public class ScheduleFromPeriods implements Schedule, Serializable {
 	}
 
 	@Override
-	public int getPeriodIndex(double time) {
+	public int getPeriodIndex(final double time) {
 		if(time< getPeriodStart(0)|| time>= getPeriodEnd(getNumberOfPeriods()-1)) {
 			throw new IllegalArgumentException("Time point not included");
 		}
@@ -140,8 +140,8 @@ public class ScheduleFromPeriods implements Schedule, Serializable {
 	}
 
 	@Override
-	public int getPeriodIndex(LocalDate date) {
-		double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
+	public int getPeriodIndex(final LocalDate date) {
+		final double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);
 		return getPeriodIndex(floatingDate);
 	}
 

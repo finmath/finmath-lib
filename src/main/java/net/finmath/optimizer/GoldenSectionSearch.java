@@ -32,7 +32,7 @@ package net.finmath.optimizer;
 public class GoldenSectionSearch {
 
 	// This is the golden section ratio
-	static final double GOLDEN_SECTION_RATIO = (3.0 - Math.sqrt(5.0)) / 2.0;
+	public static final double GOLDEN_SECTION_RATIO = (3.0 - Math.sqrt(5.0)) / 2.0;
 
 	// We store the left and right end point of the interval and a middle point (placed at golden section ratio) together with their values
 	private final double[] points = new double[3]; // left, middle, right
@@ -49,17 +49,17 @@ public class GoldenSectionSearch {
 	private double	accuracy;						// Current accuracy of solution
 	private boolean	isDone				= false;	// Will be true if machine accuracy has been reached
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		System.out.println("Test of GoldenSectionSearch Class.\n");
 
 		// Test 1
 		System.out.println("1. Find minimum of f(x) = (x - 0.656) * (x - 0.656):");
 
-		GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);
+		final GoldenSectionSearch search = new GoldenSectionSearch(-1.0, 5.0);
 		while(search.getAccuracy() > 1E-11 && !search.isDone()) {
-			double x = search.getNextPoint();
+			final double x = search.getNextPoint();
 
-			double y = (x - 0.656) * (x - 0.656);
+			final double y = (x - 0.656) * (x - 0.656);
 
 			search.setValue(y);
 		}
@@ -71,11 +71,11 @@ public class GoldenSectionSearch {
 		// Test 2
 		System.out.println("2. Find minimum of f(x) = cos(x) on [0.0,6.0]:");
 
-		GoldenSectionSearch search2 = new GoldenSectionSearch(0.0, 6.0);
+		final GoldenSectionSearch search2 = new GoldenSectionSearch(0.0, 6.0);
 		while(search2.getAccuracy() > 1E-11 && !search2.isDone()) {
-			double x = search2.getNextPoint();
+			final double x = search2.getNextPoint();
 
-			double y = Math.cos(x);
+			final double y = Math.cos(x);
 
 			search2.setValue(y);
 		}
@@ -89,7 +89,7 @@ public class GoldenSectionSearch {
 	 * @param leftPoint left point of search interval
 	 * @param rightPoint right point of search interval
 	 */
-	public GoldenSectionSearch(double leftPoint, double rightPoint) {
+	public GoldenSectionSearch(final double leftPoint, final double rightPoint) {
 		super();
 		points[0]	= leftPoint;
 		points[1]	= getGoldenSection(leftPoint, rightPoint);
@@ -124,7 +124,7 @@ public class GoldenSectionSearch {
 	 *
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint()</code> call.
 	 */
-	public void setValue(double value) {
+	public void setValue(final double value) {
 		if(!expectingValue) {
 			throw new RuntimeException("Call to setValue() perfomed without prior getNextPoint() call (e.g. call performed twice).");
 		}
@@ -212,22 +212,27 @@ public class GoldenSectionSearch {
 
 	public GoldenSectionSearch optimize() {
 		while(!isDone()) {
-			double parameter	= getNextPoint();
-			double value		= value(parameter);
+			final double parameter	= getNextPoint();
+			final double value		= value(parameter);
 			this.setValue(value);
 		}
 		return this;
 	}
 
-	public double value(double parameter) {
+	public double value(final double parameter) {
 		// You need to overwrite this mehtod with you own objective function
 		throw new RuntimeException("Objective function not overwritten.");
 	}
 
 	/**
+	 * Get the golden section of an interval as gs * left + (1-gs) * right, where
+	 * gs is GOLDEN_SECTION_RATIO.
+	 *
+	 * @param left Left point of the interval.
+	 * @param right Right point of the interval.
 	 * @return Returns the golden section of an interval.
 	 */
-	static double getGoldenSection(double left, double right) {
+	public static double getGoldenSection(final double left, final double right) {
 		return GOLDEN_SECTION_RATIO * left + (1.0 - GOLDEN_SECTION_RATIO) * right;
 	}
 

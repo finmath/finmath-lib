@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretization;
  */
 public class BrownianMotionWithControlVariate implements BrownianMotion {
 
-	private BrownianMotion	brownianMotion;
+	private final BrownianMotion	brownianMotion;
 
 	private transient Map<Integer, Double> averages = new HashMap<>();
 	private transient Map<Integer, Double> scalings = new HashMap<>();
@@ -36,18 +36,18 @@ public class BrownianMotionWithControlVariate implements BrownianMotion {
 	 *
 	 * @param brownianMotion The Brownian motion providing the (un-controlled) factors <i>dU<sub>j</sub></i>.
 	 */
-	public BrownianMotionWithControlVariate(BrownianMotion brownianMotion) {
+	public BrownianMotionWithControlVariate(final BrownianMotion brownianMotion) {
 		super();
 		this.brownianMotion	= brownianMotion;
 	}
 
 	@Override
-	public RandomVariable getBrownianIncrement(int timeIndex, int factorIndex) {
-		RandomVariable brownianIncrement = brownianMotion.getBrownianIncrement(timeIndex, factorIndex);
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factorIndex) {
+		final RandomVariable brownianIncrement = brownianMotion.getBrownianIncrement(timeIndex, factorIndex);
 
-		int mapIndex = timeIndex * brownianMotion.getNumberOfFactors() + factorIndex;
-		double average = averages.computeIfAbsent(mapIndex, index -> { return brownianIncrement.getAverage();});
-		double scaling = scalings.computeIfAbsent(mapIndex, index -> { return Math.sqrt(brownianMotion.getTimeDiscretization().getTimeStep(timeIndex)) / brownianIncrement.getStandardDeviation();});
+		final int mapIndex = timeIndex * brownianMotion.getNumberOfFactors() + factorIndex;
+		final double average = averages.computeIfAbsent(mapIndex, index -> { return brownianIncrement.getAverage();});
+		final double scaling = scalings.computeIfAbsent(mapIndex, index -> { return Math.sqrt(brownianMotion.getTimeDiscretization().getTimeStep(timeIndex)) / brownianIncrement.getStandardDeviation();});
 
 		RandomVariable brownianIncrementControlled = brownianIncrement;
 
@@ -78,22 +78,22 @@ public class BrownianMotionWithControlVariate implements BrownianMotion {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
+	public RandomVariable getRandomVariableForConstant(final double value) {
 		return brownianMotion.getRandomVariableForConstant(value);
 	}
 
 	@Override
-	public BrownianMotion getCloneWithModifiedSeed(int seed) {
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
 		return new BrownianMotionWithControlVariate(brownianMotion.getCloneWithModifiedSeed(seed));
 	}
 
 	@Override
-	public BrownianMotion getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization) {
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
 		return new BrownianMotionWithControlVariate(brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization));
 	}
 
 	@Override
-	public RandomVariable getIncrement(int timeIndex, int factor) {
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
 		return getBrownianIncrement(timeIndex, factor);
 	}
 }

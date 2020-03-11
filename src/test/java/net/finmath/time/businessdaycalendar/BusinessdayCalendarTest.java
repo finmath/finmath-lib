@@ -18,58 +18,58 @@ public class BusinessdayCalendarTest {
 	 */
 	@Test
 	public void testCreateDateFromDateAndOffsetCode() {
-		BusinessdayCalendar bdCalendarAny = new BusinessdayCalendarAny();
+		final BusinessdayCalendar bdCalendarAny = new BusinessdayCalendarAny();
 
-		LocalDate baseDate = LocalDate.of(2016, 4, 27);
+		final LocalDate baseDate = LocalDate.of(2016, 4, 27);
 
 		// Test ACT/365 offsets
-		for(float offset : new float[] { 1/365.0f, 2/365.0f, 0.25f, 0.5f, 1.0f }) {
-			String offsetCode = Double.toString(offset);
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final float offset : new float[] { 1/365.0f, 2/365.0f, 0.25f, 0.5f, 1.0f }) {
+			final String offsetCode = Double.toString(offset);
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays(Math.round(offset*365)).isEqual(targetDate));
 		}
 
 		// Test days
-		for(int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(days) + "D";
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(days) + "D";
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays(days).isEqual(targetDate));
 		}
 
 		// Test weeks
-		for(int weeks : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(weeks) + "W";
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final int weeks : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(weeks) + "W";
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusWeeks(weeks).isEqual(targetDate));
 		}
 
 
 		// Test month
-		for(int months : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(months) + "M";
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final int months : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(months) + "M";
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusMonths(months).isEqual(targetDate));
 		}
 
 		// Test years
-		for(int years : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(years) + "Y";
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final int years : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(years) + "Y";
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusYears(years).isEqual(targetDate));
 		}
 
 		// Test business days for BusinessdayCalendarAny
-		for(int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(days) + "BD";
-			LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		for(final int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(days) + "BD";
+			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays(days).isEqual(targetDate));
 		}
 
 		// Test business days for BusinessdayCalendarExcludingWeekends
-		BusinessdayCalendar bdCalendarWeekends = new BusinessdayCalendarExcludingWeekends();
-		for(int days : new int[] { 1, 5, 10, 20, 100 }) {
-			String offsetCode = Integer.toString(days) + "BD";
-			LocalDate targetDate = bdCalendarWeekends.getDateFromDateAndOffsetCode(baseDate, offsetCode);
+		final BusinessdayCalendar bdCalendarWeekends = new BusinessdayCalendarExcludingWeekends();
+		for(final int days : new int[] { 1, 5, 10, 20, 100 }) {
+			final String offsetCode = Integer.toString(days) + "BD";
+			final LocalDate targetDate = bdCalendarWeekends.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays((int) Math.round(days / 5.0 * 7.0)).isEqual(targetDate));
 		}
 	}
@@ -79,9 +79,9 @@ public class BusinessdayCalendarTest {
 	 */
 	@Test
 	public void testCombinedCalendar() {
-		BusinessdayCalendar targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-		BusinessdayCalendar targetNewYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays(targetCalendar);
-		BusinessdayCalendar combinedCalendar = new BusinessdayCalendarExcludingLONHolidays(targetNewYorkCalendar);
+		final BusinessdayCalendar targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		final BusinessdayCalendar targetNewYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays(targetCalendar);
+		final BusinessdayCalendar combinedCalendar = new BusinessdayCalendarExcludingLONHolidays(targetNewYorkCalendar);
 
 		// busDay
 		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
@@ -108,7 +108,7 @@ public class BusinessdayCalendarTest {
 	 */
 	@Test
 	public void testTargetCalendar() {
-		BusinessdayCalendar targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		final BusinessdayCalendar targetCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 		// busDay
 		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
 		Assert.assertTrue(targetCalendar.isBusinessday(dateToTest));
@@ -143,7 +143,7 @@ public class BusinessdayCalendarTest {
 	 */
 	@Test
 	public void testNycCalendar() {
-		BusinessdayCalendar newYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays();
+		final BusinessdayCalendar newYorkCalendar = new BusinessdayCalendarExcludingNYCHolidays();
 		// busDay
 		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
 		Assert.assertTrue(newYorkCalendar.isBusinessday(dateToTest));
@@ -160,7 +160,7 @@ public class BusinessdayCalendarTest {
 	 */
 	@Test
 	public void testLondonCalendar() {
-		BusinessdayCalendar londonCalendar = new BusinessdayCalendarExcludingLONHolidays();
+		final BusinessdayCalendar londonCalendar = new BusinessdayCalendarExcludingLONHolidays();
 		// busDay
 		LocalDate dateToTest = LocalDate.of(2017, 6, 12);
 		Assert.assertTrue(londonCalendar.isBusinessday(dateToTest));

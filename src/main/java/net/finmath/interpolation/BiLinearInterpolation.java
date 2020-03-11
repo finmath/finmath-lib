@@ -26,11 +26,11 @@ import java.util.function.BiFunction;
  */
 public class BiLinearInterpolation implements BiFunction<Double, Double, Double> {
 
-	private final double x[];
-	private final double y[];
-	private final double z[][];
+	private final double[] x;
+	private final double[] y;
+	private final double[][] z;
 
-	public BiLinearInterpolation(double[] x, double[] y, double[][] z) {
+	public BiLinearInterpolation(final double[] x, final double[] y, final double[][] z) {
 		super();
 		this.x = x;
 		this.y = y;
@@ -38,24 +38,24 @@ public class BiLinearInterpolation implements BiFunction<Double, Double, Double>
 	}
 
 	@Override
-	public Double apply(Double x, Double y) {
+	public Double apply(final Double x, final Double y) {
 		return getValue(x, y);
 	}
 
-	double getValue(double x, double y) {
+	double getValue(final double x, final double y) {
 		int indexGreaterOrEqualX = Arrays.binarySearch(this.x, x);
 		if(indexGreaterOrEqualX < 0) {
 			indexGreaterOrEqualX = -indexGreaterOrEqualX-1;
 		}
 		int upperIndexX = Math.min(Math.max(indexGreaterOrEqualX, 0), this.x.length-1);
-		int lowerIndexX = Math.min(Math.max(upperIndexX-1, 0), this.x.length-1);
+		final int lowerIndexX = Math.min(Math.max(upperIndexX-1, 0), this.x.length-1);
 
 		int indexGreaterOrEqualY = Arrays.binarySearch(this.y, y);
 		if(indexGreaterOrEqualY < 0) {
 			indexGreaterOrEqualY = -indexGreaterOrEqualY-1;
 		}
 		int upperIndexY = Math.min(Math.max(indexGreaterOrEqualY, 0), this.y.length-1);
-		int lowerIndexY = Math.min(Math.max(upperIndexY-1, 0), this.y.length-1);
+		final int lowerIndexY = Math.min(Math.max(upperIndexY-1, 0), this.y.length-1);
 
 		if(upperIndexX == lowerIndexX) {
 			upperIndexX++;
@@ -64,10 +64,10 @@ public class BiLinearInterpolation implements BiFunction<Double, Double, Double>
 			upperIndexY++;
 		}
 
-		double alphaX = (this.x[upperIndexX]-x)/(this.x[upperIndexX]-this.x[lowerIndexX]);
-		double alphaY = (this.y[upperIndexY]-y)/(this.y[upperIndexY]-this.y[lowerIndexY]);
+		final double alphaX = (this.x[upperIndexX]-x)/(this.x[upperIndexX]-this.x[lowerIndexX]);
+		final double alphaY = (this.y[upperIndexY]-y)/(this.y[upperIndexY]-this.y[lowerIndexY]);
 
-		double interpolatedValue =
+		final double interpolatedValue =
 				alphaX * alphaY * z[lowerIndexX][lowerIndexY] +
 				alphaX * (1.0-alphaY) * z[lowerIndexX][upperIndexY] +
 				(1-alphaX) * alphaY * z[upperIndexX][lowerIndexY] +

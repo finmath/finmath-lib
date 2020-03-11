@@ -120,11 +120,11 @@ public class DayCountConvention_30E_360_ISDATest {
 
 	@Test
 	public void testAssumingEndDateIsNotATerminationDate() {
-		DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(false);
+		final DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(false);
 		for(int i=0; i<startDates.length; i++) {
-			String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
+			final String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 
-			double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractionsIfEndDateIsNotTerminationDate[i];
+			final double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractionsIfEndDateIsNotTerminationDate[i];
 
 			Assert.assertEquals(message, 0.0, error, 1E-10);
 		}
@@ -132,11 +132,11 @@ public class DayCountConvention_30E_360_ISDATest {
 
 	@Test
 	public void testAssumingEndDateIsATerminationDate() {
-		DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(true);
+		final DayCountConvention daycount = new DayCountConvention_30E_360_ISDA(true);
 		for(int i=0; i<startDates.length; i++) {
-			String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
+			final String message = "Test " + i + " of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 
-			double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractionsIfEndDateIsTerminationDate[i];
+			final double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractionsIfEndDateIsTerminationDate[i];
 
 			Assert.assertEquals(message, 0.0, error, 1E-10);
 		}

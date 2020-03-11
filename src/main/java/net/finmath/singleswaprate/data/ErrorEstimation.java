@@ -73,9 +73,9 @@ public class ErrorEstimation {
 	 *
 	 * @throws IOException Thrown when there is a problem fetching data from the MarketDataHandler.
 	 */
-	public ErrorEstimation(LocalDate referenceDate, SchedulePrototype fixMetaSchedule, SchedulePrototype floatMetaSchedule, AnnuityMappingType annuityMappingType,
-			SwaptionDataLattice physicalPremiumsATM, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName, double replicationLowerBound, double replicationUpperBound, int replicationNumberOfEvaluationPoints) throws IOException {
+	public ErrorEstimation(final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule, final AnnuityMappingType annuityMappingType,
+			final SwaptionDataLattice physicalPremiumsATM, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final double replicationLowerBound, final double replicationUpperBound, final int replicationNumberOfEvaluationPoints) throws IOException {
 		super();
 		this.referenceDate = referenceDate;
 		this.fixMetaSchedule = fixMetaSchedule;
@@ -102,42 +102,42 @@ public class ErrorEstimation {
 	 * @param nodes A lattice indicating on which points errors should be evaluated. Optional.
 	 * @param model The model against which to evaluate.
 	 */
-	public void evaluate(SwaptionDataLattice nodes, VolatilityCubeModel model) {
+	public void evaluate(SwaptionDataLattice nodes, final VolatilityCubeModel model) {
 
 		if(nodes == null) {
 			nodes = physicalPremiumsATM.append(cashPayerPremiums, model).append(cashReceiverPremiums, model);
 		}
 
-		ArrayList<Double> marketPhysicalList = new ArrayList<Double>();
-		ArrayList<Double> modelPhysicalList = new ArrayList<Double>();
+		final ArrayList<Double> marketPhysicalList = new ArrayList<>();
+		final ArrayList<Double> modelPhysicalList = new ArrayList<>();
 
-		ArrayList<Double> marketCashPayer = new ArrayList<Double>();
-		ArrayList<Double> marketCashReceiver = new ArrayList<Double>();
-		ArrayList<Double> modelCashPayer = new ArrayList<Double>();
-		ArrayList<Double> modelCashReceiver = new ArrayList<Double>();
+		final ArrayList<Double> marketCashPayer = new ArrayList<>();
+		final ArrayList<Double> marketCashReceiver = new ArrayList<>();
+		final ArrayList<Double> modelCashPayer = new ArrayList<>();
+		final ArrayList<Double> modelCashReceiver = new ArrayList<>();
 
 
-		for(int maturity : nodes.getMaturities()) {
-			for(int termination : nodes.getTenors()) {
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		for(final int maturity : nodes.getMaturities()) {
+			for(final int termination : nodes.getTenors()) {
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
 
-				double optionMaturity 	= fixSchedule.getFixing(0);
-				double swapMaturity		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
-				double annuity = SwapAnnuity.getSwapAnnuity(optionMaturity, fixSchedule, model.getDiscountCurve(discountCurveName), model);
-				double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
-				double volatility = model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, optionMaturity, swapRate,
+				final double optionMaturity 	= fixSchedule.getFixing(0);
+				final double swapMaturity		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);
+				final double annuity = SwapAnnuity.getSwapAnnuity(optionMaturity, fixSchedule, model.getDiscountCurve(discountCurveName), model);
+				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+				final double volatility = model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, optionMaturity, swapRate,
 						QuotingConvention.VOLATILITYNORMAL);
 
 				marketPhysicalList.add(physicalPremiumsATM.getValue(0, maturity, termination));
 				modelPhysicalList.add(AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, swapRate, annuity));
 
-				for(int moneyness : cashPayerPremiums.getMoneyness()) {
+				for(final int moneyness : cashPayerPremiums.getMoneyness()) {
 
 					if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)) {
-						double payerStrike = swapRate + moneyness / 10000.0;
+						final double payerStrike = swapRate + moneyness / 10000.0;
 
-						CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,
+						final CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,
 								forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 								replicationNumberOfEvaluationPoints);
 
@@ -146,9 +146,9 @@ public class ErrorEstimation {
 					}
 
 					if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)) {
-						double receiverStrike = swapRate - moneyness / 10000.0;
+						final double receiverStrike = swapRate - moneyness / 10000.0;
 
-						CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,
+						final CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,
 								forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 								replicationNumberOfEvaluationPoints);
 
@@ -177,24 +177,24 @@ public class ErrorEstimation {
 	 * @param termination The termination at which to evaluate.
 	 * @param model The model against which to evaluate.
 	 */
-	private void evaluateTenor(int maturity, int termination, VolatilityCubeModel model) {
+	private void evaluateTenor(final int maturity, final int termination, final VolatilityCubeModel model) {
 
-		ArrayList<Double> marketCashPayer = new ArrayList<Double>();
-		ArrayList<Double> marketCashReceiver = new ArrayList<Double>();
-		ArrayList<Double> modelCashPayer = new ArrayList<Double>();
-		ArrayList<Double> modelCashReceiver = new ArrayList<Double>();
+		final ArrayList<Double> marketCashPayer = new ArrayList<>();
+		final ArrayList<Double> marketCashReceiver = new ArrayList<>();
+		final ArrayList<Double> modelCashPayer = new ArrayList<>();
+		final ArrayList<Double> modelCashReceiver = new ArrayList<>();
 
-		Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
-		Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);
+		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);
 
-		double optionMaturity 	= fixSchedule.getFixing(0);
-		double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+		final double optionMaturity 	= fixSchedule.getFixing(0);
+		final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
-		for(int moneyness : cashPayerPremiums.getMoneyness()) {
+		for(final int moneyness : cashPayerPremiums.getMoneyness()) {
 			if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)) {
-				double payerStrike = swapRate + moneyness / 10000.0;
+				final double payerStrike = swapRate + moneyness / 10000.0;
 
-				CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,
+				final CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,
 						forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 						replicationNumberOfEvaluationPoints);
 
@@ -203,11 +203,11 @@ public class ErrorEstimation {
 			}
 		}
 
-		for(int moneyness : cashReceiverPremiums.getMoneyness()) {
+		for(final int moneyness : cashReceiverPremiums.getMoneyness()) {
 			if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)) {
-				double receiverStrike = swapRate - moneyness / 10000.0;
+				final double receiverStrike = swapRate - moneyness / 10000.0;
 
-				CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,
+				final CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,
 						forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
 						replicationNumberOfEvaluationPoints);
 
@@ -235,8 +235,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketCash.length; i++) {
-			double y = Math.abs(marketCash[i] - modelCash[i]) - c;
-			double t = sum + y;
+			final double y = Math.abs(marketCash[i] - modelCash[i]) - c;
+			final double t = sum + y;
 			c = (t - sum) -y;
 			sum = t;
 		}
@@ -265,8 +265,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketCash.length; i++) {
-			double y = Math.abs(modelCash[i] / marketCash[i] - 1) - c;
-			double t = sum + y;
+			final double y = Math.abs(modelCash[i] / marketCash[i] - 1) - c;
+			final double t = sum + y;
 			c = (t - sum) - y;
 			sum = t;
 		}
@@ -295,8 +295,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketPhysical.length; i++) {
-			double y = Math.abs(marketPhysical[i] - modelPhysical[i]) - c;
-			double t = sum + y;
+			final double y = Math.abs(marketPhysical[i] - modelPhysical[i]) - c;
+			final double t = sum + y;
 			c = (t - sum) -y;
 			sum = t;
 		}
@@ -325,8 +325,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketPhysical.length; i++) {
-			double y = Math.abs(modelPhysical[i] / marketPhysical[i] - 1) - c;
-			double t = sum + y;
+			final double y = Math.abs(modelPhysical[i] / marketPhysical[i] - 1) - c;
+			final double t = sum + y;
 			c = (t - sum) - y;
 			sum = t;
 		}
@@ -354,7 +354,7 @@ public class ErrorEstimation {
 	 * @param model The model against which to evaluate.
 	 * @return The average error in cash settled swaption premiums.
 	 */
-	public double getCashAverageError(int maturity, int termination, VolatilityCubeModel model) {
+	public double getCashAverageError(final int maturity, final int termination, final VolatilityCubeModel model) {
 
 		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {
 			evaluateTenor(maturity, termination, model);
@@ -363,8 +363,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketCashTenor.length; i++) {
-			double y = Math.abs(marketCashTenor[i] - modelCashTenor[i]) - c;
-			double t = sum + y;
+			final double y = Math.abs(marketCashTenor[i] - modelCashTenor[i]) - c;
+			final double t = sum + y;
 			c = (t - sum) -y;
 			sum = t;
 		}
@@ -379,7 +379,7 @@ public class ErrorEstimation {
 	 * @param model The model against which to evaluate.
 	 * @return The maximal error in cash settled swaption premiums.
 	 */
-	public double getCashMaxError(int maturity, int termination, VolatilityCubeModel model) {
+	public double getCashMaxError(final int maturity, final int termination, final VolatilityCubeModel model) {
 
 		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {
 			evaluateTenor(maturity, termination, model);
@@ -400,7 +400,7 @@ public class ErrorEstimation {
 	 * @param model The model against which to evaluate.
 	 * @return The average error in cash settled swaption premiums, in percent difference from the market data.
 	 */
-	public double getCashAverageErrorPercent(int maturity, int termination, VolatilityCubeModel model) {
+	public double getCashAverageErrorPercent(final int maturity, final int termination, final VolatilityCubeModel model) {
 
 		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {
 			evaluateTenor(maturity, termination, model);
@@ -409,8 +409,8 @@ public class ErrorEstimation {
 		double sum = 0;
 		double c = 0;
 		for(int i = 0; i < marketCashTenor.length; i++) {
-			double y = Math.abs(modelCashTenor[i] / marketCashTenor[i] - 1) - c;
-			double t = sum + y;
+			final double y = Math.abs(modelCashTenor[i] / marketCashTenor[i] - 1) - c;
+			final double t = sum + y;
 			c = (t - sum) - y;
 			sum = t;
 		}
@@ -425,7 +425,7 @@ public class ErrorEstimation {
 	 * @param model The model against which to evaluate.
 	 * @return The maximal error in cash settled swaption premiums, in percent difference from the market data.
 	 */
-	public double getCashMaxErrorPercent(int maturity, int termination, VolatilityCubeModel model) {
+	public double getCashMaxErrorPercent(final int maturity, final int termination, final VolatilityCubeModel model) {
 
 		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {
 			evaluateTenor(maturity, termination, model);

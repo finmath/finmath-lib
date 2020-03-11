@@ -44,7 +44,7 @@ public interface TermStructureModel extends ProcessModel {
 	 * @return The forward bond P(T;t).
 	 * @throws CalculationException Thrown if model fails to calculate the random variable.
 	 */
-	default RandomVariable getForwardDiscountBond(double time, double maturity) throws CalculationException {
+	default RandomVariable getForwardDiscountBond(final double time, final double maturity) throws CalculationException {
 		throw new UnsupportedOperationException("The model does not support this method. Note: implemenation will become mandatory is future releases.");
 	}
 

@@ -35,7 +35,7 @@ public class StaticVolatilityCube implements VolatilityCube {
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
 	 * @param value The value this cube is to return.
 	 */
-	public StaticVolatilityCube(String name, LocalDate referenceDate, double correlationDecay, double iborOisDecorrelation, double value) {
+	public StaticVolatilityCube(final String name, final LocalDate referenceDate, final double correlationDecay, final double iborOisDecorrelation, final double value) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -52,7 +52,7 @@ public class StaticVolatilityCube implements VolatilityCube {
 	 * @param correlationDecay The correlation decay parameter of the cube.
 	 * @param value The value this cube is to return.
 	 */
-	public StaticVolatilityCube(String name, LocalDate referenceDate, double correlationDecay, double value) {
+	public StaticVolatilityCube(final String name, final LocalDate referenceDate, final double correlationDecay, final double value) {
 		this(name, referenceDate, correlationDecay, 1.0, value);
 	}
 
@@ -63,18 +63,18 @@ public class StaticVolatilityCube implements VolatilityCube {
 	 * @param referenceDate The reference date of the cube.
 	 * @param value The value this cube is to return.
 	 */
-	public StaticVolatilityCube(String name, LocalDate referenceDate, double value) {
+	public StaticVolatilityCube(final String name, final LocalDate referenceDate, final double value) {
 		this(name, referenceDate, 0.0, 1.0, value);
 	}
 
 	@Override
-	public double getValue(VolatilityCubeModel model, double termination, double maturity, double strike,
-			QuotingConvention quotingConvention) {
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
 		return value;
 	}
 
 	@Override
-	public double getValue(double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return value;
 	}
 
@@ -100,7 +100,7 @@ public class StaticVolatilityCube implements VolatilityCube {
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String, Object> map = new HashMap<String, Object>();
+		final Map<String, Object> map = new HashMap<>();
 		map.put("value", value);
 		map.put("Inherent correlationDecay", correlationDecay);
 		map.put("iborOisDecorrelation", iborOisDecorrelation);
@@ -108,7 +108,7 @@ public class StaticVolatilityCube implements VolatilityCube {
 	}
 
 	@Override
-	public double getLowestStrike(VolatilityCubeModel model) {
+	public double getLowestStrike(final VolatilityCubeModel model) {
 		return Double.NEGATIVE_INFINITY;
 	}
 

@@ -32,19 +32,19 @@ public class Performance extends AbstractAnalyticProduct implements AnalyticProd
 	 * @param productNumerator A product implementing AbstractAnalyticProduct for the numerator.
 	 * @param productDenominator A product implementing AbstractAnalyticProduct for the denominator.
 	 */
-	public Performance(AbstractAnalyticProduct productNumerator, AbstractAnalyticProduct productDenominator) {
+	public Performance(final AbstractAnalyticProduct productNumerator, final AbstractAnalyticProduct productDenominator) {
 		super();
 		this.productNumerator = productNumerator;
 		this.productDenominator = productDenominator;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 
-		RandomVariable valueNumerator	= productNumerator.getValue(evaluationTime, model);
-		RandomVariable valueDenominator	= productDenominator.getValue(evaluationTime, model);
+		final RandomVariable valueNumerator	= productNumerator.getValue(evaluationTime, model);
+		final RandomVariable valueDenominator	= productDenominator.getValue(evaluationTime, model);
 
-		RandomVariable value = valueNumerator.div(valueDenominator);
+		final RandomVariable value = valueNumerator.div(valueDenominator);
 		return value;
 	}
 

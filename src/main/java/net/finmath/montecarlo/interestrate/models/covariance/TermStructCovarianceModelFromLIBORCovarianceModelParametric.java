@@ -24,13 +24,13 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	 * @param tenorTimeScalingModel The model used for the tenor time re-scaling (providing the scaling coefficients).
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
-	public TermStructCovarianceModelFromLIBORCovarianceModelParametric(TermStructureTenorTimeScalingInterface tenorTimeScalingModel, AbstractLIBORCovarianceModelParametric covarianceModel) {
+	public TermStructCovarianceModelFromLIBORCovarianceModelParametric(final TermStructureTenorTimeScalingInterface tenorTimeScalingModel, final AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.tenorTimeScalingModel = tenorTimeScalingModel;
 		this.covarianceModel = covarianceModel;
 	}
 
 	@Override
-	public double getScaledTenorTime(double periodStart, double periodEnd) {
+	public double getScaledTenorTime(final double periodStart, final double periodEnd) {
 		if(tenorTimeScalingModel == null) {
 			return periodEnd-periodStart;
 		}
@@ -38,12 +38,12 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(double time, double periodStart, double periodEnd, TimeDiscretization periodDiscretization, RandomVariable[] realizationAtTimeIndex, TermStructureModel model) {
-		TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
+	public RandomVariable[] getFactorLoading(final double time, final double periodStart, final double periodEnd, final TimeDiscretization periodDiscretization, final RandomVariable[] realizationAtTimeIndex, final TermStructureModel model) {
+		final TimeDiscretization liborPeriodDiscretization = covarianceModel.getLiborPeriodDiscretization();
 
-		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
-		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
-		RandomVariable[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, null);
+		final int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);
+		final int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);
+		final RandomVariable[] factorLoadings = covarianceModel.getFactorLoading(time, periodStartIndex, null);
 		if(periodEndIndex > periodStartIndex+1) {
 			// Need to sum factor loadings
 			for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
@@ -51,8 +51,8 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 			}
 
 			for(int periodIndex = periodStartIndex+1; periodIndex<periodEndIndex; periodIndex++) {
-				RandomVariable[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, null);
-				double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
+				final RandomVariable[] factorLoadingsForPeriod = covarianceModel.getFactorLoading(time, periodStartIndex, null);
+				final double periodLength = liborPeriodDiscretization.getTimeStep(periodIndex);
 				for(int factorIndex = 0; factorIndex<factorLoadings.length; factorIndex++) {
 					factorLoadings[factorIndex] = factorLoadings[factorIndex].addProduct(factorLoadingsForPeriod[factorIndex], periodLength);
 				}
@@ -95,22 +95,22 @@ public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends
 			return covarianceModel.getParameterAsDouble();
 		}
 
-		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
-		double[] covarianceParameter = covarianceModel.getParameterAsDouble();
-		double[] parameter = new double[tenorTimeScalingParameter.length + covarianceParameter.length];
+		final double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
+		final double[] covarianceParameter = covarianceModel.getParameterAsDouble();
+		final double[] parameter = new double[tenorTimeScalingParameter.length + covarianceParameter.length];
 		System.arraycopy(tenorTimeScalingParameter, 0, parameter, 0, tenorTimeScalingParameter.length);
 		System.arraycopy(covarianceParameter, 0, parameter, tenorTimeScalingParameter.length, covarianceParameter.length);
 		return parameter;
 	}
 
 	@Override
-	public TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters) {
+	public TermStructureCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
 		if(tenorTimeScalingModel == null) {
 			return new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModel.getCloneWithModifiedParameters(parameters));
 		}
 
-		double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
-		double[] covarianceParameter = covarianceModel.getParameterAsDouble();
+		final double[] tenorTimeScalingParameter = tenorTimeScalingModel.getParameter();
+		final double[] covarianceParameter = covarianceModel.getParameterAsDouble();
 		System.arraycopy(parameters, 0, tenorTimeScalingParameter, 0, tenorTimeScalingParameter.length);
 		System.arraycopy(parameters, tenorTimeScalingParameter.length, covarianceParameter, 0, covarianceParameter.length);
 

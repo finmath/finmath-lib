@@ -25,7 +25,7 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 	 *
 	 */
 	private static final long serialVersionUID = 5548526355763266102L;
-	private final Map<String, VolatilityCube> volatilityCubeMap = new HashMap<String,VolatilityCube>();
+	private final Map<String, VolatilityCube> volatilityCubeMap = new HashMap<>();
 
 	/**
 	 * Create an empty analytic model.
@@ -39,7 +39,7 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 	 *
 	 * @param referenceDate The reference date the curves of this model should match.
 	 */
-	public AnalyticModelWithVolatilityCubes(LocalDate referenceDate) {
+	public AnalyticModelWithVolatilityCubes(final LocalDate referenceDate) {
 		super(referenceDate);
 	}
 
@@ -51,42 +51,42 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 	 * @param volatilitySurfaceMap A map containing all volatility surfaces, together with their names they should have in the model.
 	 * @param volatilityCubeMap A map containing all volatility cubes, together with their names they should have in the model.
 	 */
-	public AnalyticModelWithVolatilityCubes(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap,
-			Map<String, VolatilityCube> volatilityCubeMap) {
+	public AnalyticModelWithVolatilityCubes(final LocalDate referenceDate, final Map<String, Curve> curvesMap, final Map<String, VolatilitySurface> volatilitySurfaceMap,
+			final Map<String, VolatilityCube> volatilityCubeMap) {
 		super(referenceDate, curvesMap, volatilitySurfaceMap);
 		this.volatilityCubeMap.putAll(volatilityCubeMap);
 	}
 
 	@Override
-	public VolatilityCube getVolatilityCube(String name){
+	public VolatilityCube getVolatilityCube(final String name){
 		return volatilityCubeMap.get(name);
 	}
 
 	@Override
-	public VolatilityCubeModel  addVolatilityCube(VolatilityCube volatilityCube){
+	public VolatilityCubeModel  addVolatilityCube(final VolatilityCube volatilityCube){
 
-		LocalDate cubeDate = volatilityCube.getReferenceDate();
+		final LocalDate cubeDate = volatilityCube.getReferenceDate();
 
 		if(getReferenceDate() != null && cubeDate != null && ! getReferenceDate().equals(cubeDate)) {
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelWithVolatilityCubes newModel = clone();
+		final AnalyticModelWithVolatilityCubes newModel = clone();
 		newModel.volatilityCubeMap.put(volatilityCube.getName(), volatilityCube);
 
 		return newModel;
 	}
 
 	@Override
-	public VolatilityCubeModel  addVolatilityCube(String volatilityCubeName, VolatilityCube volatilityCube){
+	public VolatilityCubeModel  addVolatilityCube(final String volatilityCubeName, final VolatilityCube volatilityCube){
 
-		LocalDate cubeDate = volatilityCube.getReferenceDate();
+		final LocalDate cubeDate = volatilityCube.getReferenceDate();
 
 		if(getReferenceDate() != null && cubeDate != null && ! getReferenceDate().equals(cubeDate)) {
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelWithVolatilityCubes newModel = clone();
+		final AnalyticModelWithVolatilityCubes newModel = clone();
 		newModel.volatilityCubeMap.put(volatilityCubeName, volatilityCube);
 
 		return newModel;
@@ -105,7 +105,7 @@ public class AnalyticModelWithVolatilityCubes extends AnalyticModelFromCurvesAnd
 
 	@Override
 	public Set<String> getVolatilityCubeNames() {
-		return new HashSet<String>(volatilityCubeMap.keySet());
+		return new HashSet<>(volatilityCubeMap.keySet());
 	}
 
 	@Override

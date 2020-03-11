@@ -30,7 +30,7 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 
 	private transient double spotOffset;
 
-	public DiscountCurveRenormalized(String name, LocalDate referenceDate, LocalDate spotDate, String baseCurveName) {
+	public DiscountCurveRenormalized(final String name, final LocalDate referenceDate, final LocalDate spotDate, final String baseCurveName) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -50,12 +50,12 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 	}
 
 	@Override
-	public double getValue(double time) {
+	public double getValue(final double time) {
 		return getDiscountFactor(time);
 	}
 
 	@Override
-	public double getValue(AnalyticModel model, double time) {
+	public double getValue(final AnalyticModel model, final double time) {
 		return getDiscountFactor(model, time);
 	}
 
@@ -65,7 +65,7 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 	}
 
 	@Override
-	public Curve getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		throw new UnsupportedOperationException("Method not supported.");
 	}
 
@@ -75,17 +75,17 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException("Method not supported.");
 	}
 
 	@Override
-	public double getDiscountFactor(double maturity) {
+	public double getDiscountFactor(final double maturity) {
 		return getDiscountFactor(null, maturity);
 	}
 
 	@Override
-	public double getDiscountFactor(AnalyticModel model, double maturity) {
+	public double getDiscountFactor(final AnalyticModel model, final double maturity) {
 		return model.getDiscountCurve(baseCurveName).getDiscountFactor(model, maturity)
 				/ model.getDiscountCurve(baseCurveName).getDiscountFactor(model, spotOffset);
 	}
@@ -95,7 +95,7 @@ public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
 		return new DiscountCurveRenormalized(getName(), getReferenceDate(), spotDate, baseCurveName);
 	}
 
-	private void readObject(java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
 		in.defaultReadObject();
 		// initialization of transients
 		spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);

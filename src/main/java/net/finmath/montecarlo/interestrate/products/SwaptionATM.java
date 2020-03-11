@@ -23,29 +23,29 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct implements net.f
 	private final TimeDiscretization	tenor;
 	private final ValueUnit						valueUnit;
 
-	public SwaptionATM(double[] swapTenor, ValueUnit valueUnit) {
+	public SwaptionATM(final double[] swapTenor, final ValueUnit valueUnit) {
 		super();
 		tenor = new TimeDiscretizationFromArray(swapTenor);
 		this.valueUnit = valueUnit;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		ForwardCurve forwardCurve	 = model.getModel().getForwardRateCurve();
-		DiscountCurve discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
+		final ForwardCurve forwardCurve	 = model.getModel().getForwardRateCurve();
+		final DiscountCurve discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;
 
-		double optionMaturity = tenor.getTime(0);
-		double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
+		final double optionMaturity = tenor.getTime(0);
+		final double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);
 
 		// Swaption is per definition at the money in this class
-		double parSwapRate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
+		final double parSwapRate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());
 
 		// define an atm swaption
-		TermStructureMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
+		final TermStructureMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);
 
 		// get swaption value
-		RandomVariable optionValue = swaption.getValue(evaluationTime, model);
+		final RandomVariable optionValue = swaption.getValue(evaluationTime, model);
 
 		switch (valueUnit) {
 		case VALUE:
@@ -70,7 +70,7 @@ public class SwaptionATM extends AbstractLIBORMonteCarloProduct implements net.f
 	 * @param swapAnnuity The swap annuity as seen on valuation time.
 	 * @return The Bachelier implied volatility.
 	 */
-	public RandomVariable getImpliedBachelierATMOptionVolatility(RandomVariable optionValue, double optionMaturity, double swapAnnuity){
+	public RandomVariable getImpliedBachelierATMOptionVolatility(final RandomVariable optionValue, final double optionMaturity, final double swapAnnuity){
 		return optionValue.average().mult(Math.sqrt(2.0 * Math.PI / optionMaturity) / swapAnnuity);
 	}
 }

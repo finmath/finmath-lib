@@ -22,8 +22,8 @@ public class ProductIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = -8181742829635380940L;
 
-	private AbstractProductComponent index1;
-	private AbstractProductComponent index2;
+	private final AbstractProductComponent index1;
+	private final AbstractProductComponent index2;
 
 	/**
 	 * Create a performance index being numeratorIndex(t) / denominatorIndex(t)
@@ -31,21 +31,21 @@ public class ProductIndex extends AbstractIndex {
 	 * @param index1 First index.
 	 * @param index2 Second index.
 	 */
-	public ProductIndex(AbstractIndex index1, AbstractIndex index2) {
+	public ProductIndex(final AbstractIndex index1, final AbstractIndex index2) {
 		super();
 		this.index1	= index1;
 		this.index2	= index2;
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		return index1.getValue(evaluationTime, model).mult(index2.getValue(evaluationTime, model));
 	}
 
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames			= index1.queryUnderlyings();
-		Set<String>	underlyingNames2		= index2.queryUnderlyings();
+		final Set<String>	underlyingNames2		= index2.queryUnderlyings();
 		if(underlyingNames2 != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNames2);

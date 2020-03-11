@@ -28,18 +28,18 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 
 	private static final long serialVersionUID = 5063076041285957177L;
 
-	private int		numberOfFactors;
-	private double	a;
-	private double	b;
-	private double	c;
+	private final int		numberOfFactors;
+	private final double	a;
+	private final double	b;
+	private final double	c;
 	private final boolean isCalibrateable;
 
-	private Object lazyInitLock = new Object();	// lock used for lazy init of correlationMatrix and factorMatrix
+	private final Object lazyInitLock = new Object();	// lock used for lazy init of correlationMatrix and factorMatrix
 
 	private transient double[][]	correlationMatrix;
 	private transient double[][]	factorMatrix;
 
-	public LIBORCorrelationModelThreeParameterExponentialDecay(TimeDiscretization timeDiscretization, TimeDiscretization liborPeriodDiscretization, int numberOfFactors, double a, double b, double c, boolean isCalibrateable) {
+	public LIBORCorrelationModelThreeParameterExponentialDecay(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double a, final double b, final double c, final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		this.numberOfFactors = numberOfFactors;
@@ -55,7 +55,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 			return null;
 		}
 
-		RandomVariable[] parameter = new RandomVariable[3];
+		final RandomVariable[] parameter = new RandomVariable[3];
 
 		parameter[0] = new Scalar(a);
 		parameter[1] = new Scalar(b);
@@ -65,7 +65,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	}
 
 	@Override
-	public LIBORCorrelationModelThreeParameterExponentialDecay getCloneWithModifiedParameter(RandomVariable[] parameter) {
+	public LIBORCorrelationModelThreeParameterExponentialDecay getCloneWithModifiedParameter(final RandomVariable[] parameter) {
 		if(!isCalibrateable) {
 			return this;
 		}
@@ -78,7 +78,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	}
 
 	@Override
-	public double	getFactorLoading(int timeIndex, int factor, int component) {
+	public double	getFactorLoading(final int timeIndex, final int factor, final int component) {
 		synchronized (lazyInitLock) {
 			if(factorMatrix == null) {
 				initialize(numberOfFactors, a, b, c);
@@ -88,7 +88,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		return factorMatrix[component][factor];
 	}
 	@Override
-	public double	getCorrelation(int timeIndex, int component1, int component2) {
+	public double	getCorrelation(final int timeIndex, final int component1, final int component2) {
 		synchronized (lazyInitLock) {
 			if(correlationMatrix == null) {
 				initialize(numberOfFactors, a, b, c);
@@ -103,7 +103,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		return numberOfFactors;
 	}
 
-	private void initialize(int numberOfFactors, double a, double b, double c) {
+	private void initialize(final int numberOfFactors, double a, double b, double c) {
 		/*
 		 * Create instantaneous correlation matrix
 		 */
@@ -116,9 +116,9 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 		for(int row=0; row<correlationMatrix.length; row++) {
 			for(int col=row+1; col<correlationMatrix[row].length; col++) {
 				// Exponentially decreasing instantaneous correlation
-				double T1 = getLiborPeriodDiscretization().getTime(row);
-				double T2 = getLiborPeriodDiscretization().getTime(col);
-				double correlation = b + (1-b) * Math.exp(-a * Math.abs(T1 - T2) - c * Math.max(T1, T2));
+				final double T1 = getLiborPeriodDiscretization().getTime(row);
+				final double T2 = getLiborPeriodDiscretization().getTime(col);
+				final double correlation = b + (1-b) * Math.exp(-a * Math.abs(T1 - T2) - c * Math.max(T1, T2));
 				correlationMatrix[row][col] = correlation;
 				correlationMatrix[col][row] = correlation;
 			}
@@ -147,7 +147,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	public Object clone() {
 		initialize(numberOfFactors, a, b, c);
 
-		LIBORCorrelationModelThreeParameterExponentialDecay newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(
+		final LIBORCorrelationModelThreeParameterExponentialDecay newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
 				numberOfFactors,
@@ -160,7 +160,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 	}
 
 	@Override
-	public LIBORCorrelationModel getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public LIBORCorrelationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		int numberOfFactors = this.getNumberOfFactors();
@@ -179,7 +179,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 		}
 
-		LIBORCorrelationModel newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, b, c, isCalibrateable);
+		final LIBORCorrelationModel newModel = new LIBORCorrelationModelThreeParameterExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, b, c, isCalibrateable);
 		return newModel;
 	}
 }

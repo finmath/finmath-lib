@@ -25,28 +25,28 @@ import net.finmath.time.SchedulePrototype;
 public class SABRVolatilityCubeParallelFactory {
 
 	//input
-	private String cubeName;
-	private LocalDate referenceDate;
-	private SchedulePrototype floatMetaSchedule;
-	private SchedulePrototype   fixMetaSchedule;
+	private final String cubeName;
+	private final LocalDate referenceDate;
+	private final SchedulePrototype floatMetaSchedule;
+	private final SchedulePrototype   fixMetaSchedule;
 
 
-	private double sabrBeta;
-	private double sabrDisplacement;
+	private final double sabrBeta;
+	private final double sabrDisplacement;
 
-	private double sabrRho;
-	private double sabrVolvol;
-	private double correlationDecay;
-	private double iborOisDecorrelation;
+	private final double sabrRho;
+	private final double sabrVolvol;
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
 
-	private VolatilityCubeModel model;
-	private String forwardCurveName;
+	private final VolatilityCubeModel model;
+	private final String forwardCurveName;
 
 	// calculations
 	private DataTable baseVolTable;
 	private DataTable swapRateTable;
 
-	private SwaptionDataLattice physicalATMSwaptionsVolatilities;
+	private final SwaptionDataLattice physicalATMSwaptionsVolatilities;
 
 
 	/**
@@ -69,11 +69,11 @@ public class SABRVolatilityCubeParallelFactory {
 	 * @param forwardCurveName The name of the forward curve to use, when fitting the atm level.
 	 * @return The cube.
 	 */
-	public static SABRVolatilityCubeParallel createSABRVolatilityCubeParallel(String cubeName, LocalDate referenceDate, SchedulePrototype fixMetaSchedule,
-			SchedulePrototype floatMetaSchedule, double sabrDisplacement, double sabrBeta, double sabrRho, double sabrVolvol, double correlationDecay, double iborOisDecorrelation,
-			SwaptionDataLattice physicalATMSwaptions, VolatilityCubeModel model, String forwardCurveName) {
+	public static SABRVolatilityCubeParallel createSABRVolatilityCubeParallel(final String cubeName, final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule,
+			final SchedulePrototype floatMetaSchedule, final double sabrDisplacement, final double sabrBeta, final double sabrRho, final double sabrVolvol, final double correlationDecay, final double iborOisDecorrelation,
+			final SwaptionDataLattice physicalATMSwaptions, final VolatilityCubeModel model, final String forwardCurveName) {
 
-		SABRVolatilityCubeParallelFactory factory = new SABRVolatilityCubeParallelFactory(cubeName, referenceDate, fixMetaSchedule, floatMetaSchedule, sabrDisplacement, sabrBeta,
+		final SABRVolatilityCubeParallelFactory factory = new SABRVolatilityCubeParallelFactory(cubeName, referenceDate, fixMetaSchedule, floatMetaSchedule, sabrDisplacement, sabrBeta,
 				sabrRho, sabrVolvol, correlationDecay, iborOisDecorrelation, physicalATMSwaptions.convertLattice(QuotingConvention.PAYERVOLATILITYNORMAL, model), model,
 				forwardCurveName);
 
@@ -98,9 +98,9 @@ public class SABRVolatilityCubeParallelFactory {
 	 * @param discountCurveName The name of the discount curve to use, when fitting the atm level.
 	 * @param forwardCurveName The name of the forward curve to use, when fitting the atm level.
 	 */
-	private SABRVolatilityCubeParallelFactory(String cubeName, LocalDate referenceDate, SchedulePrototype fixMetaSchedule, SchedulePrototype floatMetaSchedule,
-			double sabrDisplacement, double sabrBeta, double sabrRho, double sabrVolvol, double correlationDecay, double iborOisDecorrelation,
-			SwaptionDataLattice physicalATMSwaptionVolatilities, VolatilityCubeModel model, String forwardCurveName) {
+	private SABRVolatilityCubeParallelFactory(final String cubeName, final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule,
+			final double sabrDisplacement, final double sabrBeta, final double sabrRho, final double sabrVolvol, final double correlationDecay, final double iborOisDecorrelation,
+			final SwaptionDataLattice physicalATMSwaptionVolatilities, final VolatilityCubeModel model, final String forwardCurveName) {
 		super();
 		this.cubeName = cubeName;
 		this.referenceDate = referenceDate;
@@ -136,21 +136,21 @@ public class SABRVolatilityCubeParallelFactory {
 	 */
 	private DataTable makeSwapRateTable() {
 
-		ArrayList<Integer> maturitiesList	= new ArrayList<>();
-		ArrayList<Integer> terminationsList	= new ArrayList<>();
-		ArrayList<Double> swapRateList		= new ArrayList<>();
+		final ArrayList<Integer> maturitiesList	= new ArrayList<>();
+		final ArrayList<Integer> terminationsList	= new ArrayList<>();
+		final ArrayList<Double> swapRateList		= new ArrayList<>();
 
-		for(int maturity : physicalATMSwaptionsVolatilities.getMaturities(0)) {
-			for(int termination : physicalATMSwaptionsVolatilities.getTenors(0, maturity)) {
+		for(final int maturity : physicalATMSwaptionsVolatilities.getMaturities(0)) {
+			for(final int termination : physicalATMSwaptionsVolatilities.getTenors(0, maturity)) {
 				maturitiesList.add(maturity);
 				terminationsList.add(termination);
 
-				LocalDate maturityDate = referenceDate.plusMonths(maturity);
-				LocalDate terminationDate = maturityDate.plusMonths(termination);
+				final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+				final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
 				swapRateList.add(swapRate);
 			}
@@ -167,13 +167,13 @@ public class SABRVolatilityCubeParallelFactory {
 	 */
 	private DataTable makeBaseVolTable() {
 
-		int[] maturitiesArray = new int[swapRateTable.size()];
-		int[] terminationsArray = new int[swapRateTable.size()];
-		double[] valuesArray = new double[swapRateTable.size()];
+		final int[] maturitiesArray = new int[swapRateTable.size()];
+		final int[] terminationsArray = new int[swapRateTable.size()];
+		final double[] valuesArray = new double[swapRateTable.size()];
 
 		int index = 0;
-		for(int maturity : swapRateTable.getMaturities()) {
-			for(int termination : swapRateTable.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : swapRateTable.getMaturities()) {
+			for(final int termination : swapRateTable.getTerminationsForMaturity(maturity)) {
 				maturitiesArray[index] = maturity;
 				terminationsArray[index] = termination;
 
@@ -181,25 +181,25 @@ public class SABRVolatilityCubeParallelFactory {
 			}
 		}
 
-		DataTableInterpolated tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule,
+		final DataTableInterpolated tempTable = new DataTableInterpolated("Temp Volatilities", TableConvention.MONTHS, referenceDate, floatMetaSchedule,
 				maturitiesArray, terminationsArray, valuesArray);
 
-		VolatilityCube tempCube = new SABRVolatilityCubeParallel("tempCube", referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho,
+		final VolatilityCube tempCube = new SABRVolatilityCubeParallel("tempCube", referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho,
 				sabrVolvol, tempTable, correlationDecay, iborOisDecorrelation);
 
 		index = 0;
-		for(int maturity : swapRateTable.getMaturities()) {
-			for(int termination : swapRateTable.getTerminationsForMaturity(maturity)) {
+		for(final int maturity : swapRateTable.getMaturities()) {
+			for(final int termination : swapRateTable.getTerminationsForMaturity(maturity)) {
 
-				LocalDate maturityDate = referenceDate.plusMonths(maturity);
-				LocalDate terminationDate = maturityDate.plusMonths(termination);
+				final LocalDate maturityDate = referenceDate.plusMonths(maturity);
+				final LocalDate terminationDate = maturityDate.plusMonths(termination);
 
-				Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
-				double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
+				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);
+				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);
 
-				double matFraction = floatSchedule.getPeriodStart(0);
-				double termFraction = floatSchedule.getPeriodEnd(floatSchedule.getNumberOfPeriods()-1);
+				final double matFraction = floatSchedule.getPeriodStart(0);
+				final double termFraction = floatSchedule.getPeriodEnd(floatSchedule.getNumberOfPeriods()-1);
 				valuesArray[index++] = 0.01 * physicalATMSwaptionsVolatilities.getValue(maturity, termination, 0)
 						/ tempCube.getValue(termFraction, matFraction, swapRate, net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention.VOLATILITYNORMAL);
 			}

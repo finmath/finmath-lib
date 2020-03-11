@@ -35,14 +35,14 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends AbstractBusiness
 	 *
 	 * @param baseCalendar Calendar of business days.
 	 */
-	public BusinessdayCalendarExcludingTARGETHolidays(BusinessdayCalendar baseCalendar) {
+	public BusinessdayCalendarExcludingTARGETHolidays(final BusinessdayCalendar baseCalendar) {
 		this.baseCalendar = baseCalendar;
 	}
 
 	@Override
-	public boolean isBusinessday(LocalDate date) {
-		int day = date.getDayOfMonth();
-		int month = date.getMonthValue();
+	public boolean isBusinessday(final LocalDate date) {
+		final int day = date.getDayOfMonth();
+		final int month = date.getMonthValue();
 
 		return	weekdayCalendar.isBusinessday(date)
 				&& (baseCalendar == null || baseCalendar.isBusinessday(date))
@@ -64,25 +64,25 @@ public class BusinessdayCalendarExcludingTARGETHolidays extends AbstractBusiness
 	 * @param date The date to check.
 	 * @return True, if date is easter sunday.
 	 */
-	public static boolean isEasterSunday(LocalDate date) {
-		int y = date.getYear();
-		int a = y % 19;
-		int b = y / 100;
-		int c = y % 100;
-		int d = b / 4;
-		int e = b % 4;
-		int f = (b + 8) / 25;
-		int g = (b - f + 1) / 3;
-		int h = (19 * a + b - d - g + 15) % 30;
-		int i = c / 4;
-		int k = c % 4;
-		int l = (32 + 2 * e + 2 * i - h - k) % 7;
-		int m = (a + 11 * h + 22 * l) / 451;
-		int easterSundayMonth	= (h + l - 7 * m + 114) / 31;
-		int easterSundayDay		= ((h + l - 7 * m + 114) % 31) + 1;
+	public static boolean isEasterSunday(final LocalDate date) {
+		final int y = date.getYear();
+		final int a = y % 19;
+		final int b = y / 100;
+		final int c = y % 100;
+		final int d = b / 4;
+		final int e = b % 4;
+		final int f = (b + 8) / 25;
+		final int g = (b - f + 1) / 3;
+		final int h = (19 * a + b - d - g + 15) % 30;
+		final int i = c / 4;
+		final int k = c % 4;
+		final int l = (32 + 2 * e + 2 * i - h - k) % 7;
+		final int m = (a + 11 * h + 22 * l) / 451;
+		final int easterSundayMonth	= (h + l - 7 * m + 114) / 31;
+		final int easterSundayDay		= ((h + l - 7 * m + 114) % 31) + 1;
 
-		int month = date.getMonthValue();
-		int day = date.getDayOfMonth();
+		final int month = date.getMonthValue();
+		final int day = date.getDayOfMonth();
 
 		return (easterSundayMonth == month) && (easterSundayDay == day);
 	}

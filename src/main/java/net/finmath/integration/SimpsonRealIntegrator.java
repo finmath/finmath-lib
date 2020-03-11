@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
  */
 public class SimpsonRealIntegrator extends AbstractRealIntegral{
 
-	private int		numberOfEvaluationPoints;
+	private final int		numberOfEvaluationPoints;
 	private boolean	useParallelEvaluation = false;
 
 
@@ -29,7 +29,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
 	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
 	 */
-	public SimpsonRealIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints, boolean useParallelEvaluation) {
+	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
 		if(numberOfEvaluationPoints < 3) {
 			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
@@ -45,7 +45,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 * @param upperBound Upper bound of the integral.
 	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
 	 */
-	public SimpsonRealIntegrator(double lowerBound, double upperBound, int numberOfEvaluationPoints) {
+	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		this(lowerBound, upperBound, numberOfEvaluationPoints, false);
 	}
 
@@ -53,14 +53,14 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
 	 */
 	@Override
-	public double integrate(DoubleUnaryOperator integrand) {
-		double	lowerBound			= getLowerBound();
-		double	upperBound			= getUpperBound();
-		double	range				= upperBound-lowerBound;
-		int		numberOfIntervalls	= (int) ((numberOfEvaluationPoints-1) / 2.0);
+	public double integrate(final DoubleUnaryOperator integrand) {
+		final double	lowerBound			= getLowerBound();
+		final double	upperBound			= getUpperBound();
+		final double	range				= upperBound-lowerBound;
+		final int		numberOfIntervalls	= (int) ((numberOfEvaluationPoints-1) / 2.0);
 
-		double fullIntervall = range / numberOfIntervalls;
-		double halfIntervall = 0.5 * fullIntervall;
+		final double fullIntervall = range / numberOfIntervalls;
+		final double halfIntervall = 0.5 * fullIntervall;
 
 		IntStream intervals = IntStream.range(1, numberOfIntervalls);
 		if(useParallelEvaluation) {
@@ -70,7 +70,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		double sum = intervals.mapToDouble(
 				new IntToDoubleFunction() {
 					@Override
-					public double applyAsDouble(int i) {
+					public double applyAsDouble(final int i) {
 						return 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall);
 					}
 				}

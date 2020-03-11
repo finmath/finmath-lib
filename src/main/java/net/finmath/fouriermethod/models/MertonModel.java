@@ -56,10 +56,10 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param jumpSizeStdDev Jump size variance.
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
 	 */
-	public MertonModel(LocalDate referenceDate, double initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			DiscountCurve discountCurveForDiscountRate, double volatility, double jumpIntensity,
-			double jumpSizeMean, double jumpSizeStdDev) {
+	public MertonModel(final LocalDate referenceDate, final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double volatility, final double jumpIntensity,
+			final double jumpSizeMean, final double jumpSizeStdDev) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -84,10 +84,10 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param jumpSizeStdDev Jump size variance.
 	 * @param discountRate The constant rate used for discounting.
 	 */
-	public MertonModel(double initialValue, double riskFreeRate,
-			double discountRate,
-			double volatility, double jumpIntensity, double jumpSizeMean,
-			double jumpSizeStdDev) {
+	public MertonModel(final double initialValue, final double riskFreeRate,
+			final double discountRate,
+			final double volatility, final double jumpIntensity, final double jumpSizeMean,
+			final double jumpSizeStdDev) {
 		super();
 		referenceDate = null;
 		this.initialValue = initialValue;
@@ -111,27 +111,27 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param jumpSizeMean Jump size mean
 	 * @param jumpSizeStdDev Jump size variance.
 	 */
-	public MertonModel(double initialValue, double riskFreeRate, double volatility,
-			double jumpIntensity, double jumpSizeMean, double jumpSizeStdDev) {
+	public MertonModel(final double initialValue, final double riskFreeRate, final double volatility,
+			final double jumpIntensity, final double jumpSizeMean, final double jumpSizeStdDev) {
 		this(initialValue,riskFreeRate,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 	}
 
 	@Override
-	public CharacteristicFunction apply(double time) {
+	public CharacteristicFunction apply(final double time) {
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 		final double transformedMean =  jumpSizeMean - 0.5 * jumpSizeStdDev*jumpSizeStdDev;
 		return new CharacteristicFunction() {
 			@Override
-			public Complex apply(Complex argument) {
-				Complex iargument = argument.multiply(Complex.I);
+			public Complex apply(final Complex argument) {
+				final Complex iargument = argument.multiply(Complex.I);
 
-				Complex exponent = (iargument.multiply(transformedMean))
+				final Complex exponent = (iargument.multiply(transformedMean))
 						.add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));
 
-				Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);
+				final Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);
 
-				double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
+				final double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);
 
 				return	iargument
 						.multiply(
@@ -151,7 +151,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForForward(double time) {
+	private double getLogDiscountFactorForForward(final double time) {
 		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
 	}
 
@@ -161,7 +161,7 @@ public class MertonModel implements CharacteristicFunctionModel{
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForDiscounting(double time) {
+	private double getLogDiscountFactorForDiscounting(final double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 

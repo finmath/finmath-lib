@@ -33,7 +33,7 @@ public class CappedFlooredIndex extends AbstractIndex {
 	 * @param cap An index.
 	 * @param floor An index.
 	 */
-	public CappedFlooredIndex(AbstractIndex index, AbstractIndex cap, AbstractIndex floor) {
+	public CappedFlooredIndex(final AbstractIndex index, final AbstractIndex cap, final AbstractIndex floor) {
 		super();
 		this.index	= index;
 		this.cap	= cap;
@@ -41,7 +41,7 @@ public class CappedFlooredIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable indexValues = index.getValue(evaluationTime, model);
 
 		if(floor != null) {
@@ -57,7 +57,7 @@ public class CappedFlooredIndex extends AbstractIndex {
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames			= index != null ? index.queryUnderlyings() : null;
-		Set<String>	underlyingNamesCap		= cap != null ? cap.queryUnderlyings() : null;
+		final Set<String>	underlyingNamesCap		= cap != null ? cap.queryUnderlyings() : null;
 		if(underlyingNamesCap != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNamesCap);
@@ -65,7 +65,7 @@ public class CappedFlooredIndex extends AbstractIndex {
 				underlyingNames = underlyingNamesCap;
 			}
 		}
-		Set<String>	underlyingNamesFloor	= floor != null ? floor.queryUnderlyings() : null;
+		final Set<String>	underlyingNamesFloor	= floor != null ? floor.queryUnderlyings() : null;
 		if(underlyingNamesFloor != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNamesFloor);

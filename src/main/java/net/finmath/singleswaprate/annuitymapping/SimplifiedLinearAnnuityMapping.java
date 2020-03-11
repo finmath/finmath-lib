@@ -1,8 +1,8 @@
 package net.finmath.singleswaprate.annuitymapping;
 
 import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.time.Schedule;
@@ -20,8 +20,8 @@ public class SimplifiedLinearAnnuityMapping implements AnnuityMapping {
 	private final double intercept;
 	private final double initialAnnuity;
 
-	public SimplifiedLinearAnnuityMapping(Schedule schedule, double initialAnnuity,
-			double initialSwapRate, double discountFactor) {
+	public SimplifiedLinearAnnuityMapping(final Schedule schedule, final double initialAnnuity,
+			final double initialSwapRate, final double discountFactor) {
 		super();
 
 		double intercept = 0.0;
@@ -45,7 +45,7 @@ public class SimplifiedLinearAnnuityMapping implements AnnuityMapping {
 	 * @param model The model containing the curves.
 	 * @param discountCurveName The discount curve.
 	 */
-	public SimplifiedLinearAnnuityMapping(Schedule fixSchedule, Schedule floatSchedule, AnalyticModel model, String discountCurveName) {
+	public SimplifiedLinearAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final AnalyticModel model, final String discountCurveName) {
 		super();
 
 		double intercept = 0.0;
@@ -54,13 +54,13 @@ public class SimplifiedLinearAnnuityMapping implements AnnuityMapping {
 		}
 		intercept = 1.0/intercept;
 
-		ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(discountCurveName,
+		final ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(discountCurveName,
 				model.getDiscountCurve(discountCurveName).getReferenceDate() == null ?  fixSchedule.getReferenceDate() :
 					model.getDiscountCurve(discountCurveName).getReferenceDate(), "6M");
 
-		double initialAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
+		final double initialAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);
 		//		double initialSwapRate		= Swap.getForwardSwapRate(schedule, schedule, model.getForwardCurve(forwardCurveName), model);
-		double initialSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);
+		final double initialSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);
 
 		double slope = 1 /initialAnnuity -intercept; //model.getDiscountCurve(discountCurveName).getValue(schedule.getPeriodStart(0)) /model.getDiscountCurve(discountCurveName).getValue(schedule.getFixing(0))
 		slope /=initialSwapRate;
@@ -71,17 +71,17 @@ public class SimplifiedLinearAnnuityMapping implements AnnuityMapping {
 	}
 
 	@Override
-	public double getValue(double swapRate) {
+	public double getValue(final double swapRate) {
 		return (swapRate *slope +intercept) *initialAnnuity;
 	}
 
 	@Override
-	public double getFirstDerivative(double swapRate) {
+	public double getFirstDerivative(final double swapRate) {
 		return slope *initialAnnuity;
 	}
 
 	@Override
-	public double getSecondDerivative(double swapRate) {
+	public double getSecondDerivative(final double swapRate) {
 		return 0;
 	}
 

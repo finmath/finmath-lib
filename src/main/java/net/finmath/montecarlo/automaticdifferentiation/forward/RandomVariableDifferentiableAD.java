@@ -73,17 +73,17 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 		private static final RandomVariable one = new Scalar(1.0);
 		private static final RandomVariable minusOne = new Scalar(-1.0);
 
-		OperatorTreeNode(OperatorType operatorType, List<RandomVariable> arguments, Object operator) {
+		OperatorTreeNode(final OperatorType operatorType, final List<RandomVariable> arguments, final Object operator) {
 			this(operatorType,
 					arguments != null ? arguments.stream().map(new Function<RandomVariable, OperatorTreeNode>() {
 						@Override
-						public OperatorTreeNode apply(RandomVariable x) {
+						public OperatorTreeNode apply(final RandomVariable x) {
 							return (x != null && x instanceof RandomVariableDifferentiableAD) ? ((RandomVariableDifferentiableAD)x).getOperatorTreeNode(): null;
 						}
 					}).collect(Collectors.toList()) : null,
 							arguments != null ? arguments.stream().map(new Function<RandomVariable, RandomVariable>() {
 								@Override
-								public RandomVariable apply(RandomVariable x) {
+								public RandomVariable apply(final RandomVariable x) {
 									return (x != null && x instanceof RandomVariableDifferentiableAD) ? ((RandomVariableDifferentiableAD)x).getValues() : x;
 								}
 							}).collect(Collectors.toList()) : null,
@@ -91,7 +91,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					);
 
 		}
-		OperatorTreeNode(OperatorType operatorType, List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, Object operator) {
+		OperatorTreeNode(final OperatorType operatorType, final List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, final Object operator) {
 			super();
 			id = indexOfNextRandomVariable.getAndIncrement();
 			this.operatorType = operatorType;
@@ -154,16 +154,16 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			this.argumentValues = argumentValues;
 		}
 
-		private void propagateDerivativesFromResultToArgument(Map<Long, RandomVariable> derivatives) {
+		private void propagateDerivativesFromResultToArgument(final Map<Long, RandomVariable> derivatives) {
 			if(arguments == null) {
 				return;
 			}
 			for(int argumentIndex = 0; argumentIndex < arguments.size(); argumentIndex++) {
-				OperatorTreeNode argument = arguments.get(argumentIndex);
+				final OperatorTreeNode argument = arguments.get(argumentIndex);
 				if(argument != null) {
-					Long argumentID = argument.id;
+					final Long argumentID = argument.id;
 
-					RandomVariable partialDerivative	= getPartialDerivative(argument, argumentIndex);
+					final RandomVariable partialDerivative	= getPartialDerivative(argument, argumentIndex);
 					RandomVariable derivative			= derivatives.get(id);
 					RandomVariable argumentDerivative	= derivatives.get(argumentID);
 
@@ -173,7 +173,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					}
 					// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
 					if(operatorType == OperatorType.CONDITIONAL_EXPECTATION) {
-						ConditionalExpectationEstimator estimator = (ConditionalExpectationEstimator)operator;
+						final ConditionalExpectationEstimator estimator = (ConditionalExpectationEstimator)operator;
 						derivative = estimator.getConditionalExpectation(derivative);
 					}
 
@@ -189,15 +189,15 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 			}
 		}
 
-		private RandomVariable getPartialDerivative(OperatorTreeNode differential, int differentialIndex) {
+		private RandomVariable getPartialDerivative(final OperatorTreeNode differential, final int differentialIndex) {
 
 			if(!arguments.contains(differential)) {
 				return zero;
 			}
 
-			RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
-			RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
-			RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
+			final RandomVariable X = arguments.size() > 0 && argumentValues != null ? argumentValues.get(0) : null;
+			final RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
+			final RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
 
 			RandomVariable derivative = null;
 
@@ -237,19 +237,19 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));
 				break;
 			case MIN:
-				double min = X.getMin();
+				final double min = X.getMin();
 				derivative = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == min) ? 1.0 : 0.0;
 					}
 				});
 				break;
 			case MAX:
-				double max = X.getMax();
+				final double max = X.getMax();
 				derivative = X.apply(new DoubleUnaryOperator() {
 					@Override
-					public double applyAsDouble(double x) {
+					public double applyAsDouble(final double x) {
 						return (x == max) ? 1.0 : 0.0;
 					}
 				});
@@ -308,7 +308,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 				break;
 			case POW:
 				// second argument will always be deterministic and constant.
-				// @TODO: Optimize this part by making use of Y being scalar.
+				// @TODO Optimize this part by making use of Y being scalar.
 				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
@@ -363,7 +363,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 					 * (see https://ssrn.com/abstract=2995695 for details).
 					 */
 					derivative = Y.sub(Z);
-					double epsilon = 0.2*X.getStandardDeviation();
+					final double epsilon = 0.2*X.getStandardDeviation();
 					derivative = derivative.mult(X.add(epsilon/2).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)));
 					derivative = derivative.mult(X.sub(epsilon/2).choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0)));
 					derivative = derivative.div(epsilon);
@@ -387,35 +387,35 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	private RandomVariable values;
 	private final OperatorTreeNode operatorTreeNode;
 
-	public static RandomVariableDifferentiableAD of(double value) {
+	public static RandomVariableDifferentiableAD of(final double value) {
 		return new RandomVariableDifferentiableAD(value);
 	}
 
-	public static RandomVariableDifferentiableAD of(RandomVariable randomVariable) {
+	public static RandomVariableDifferentiableAD of(final RandomVariable randomVariable) {
 		return new RandomVariableDifferentiableAD(randomVariable);
 	}
 
-	public RandomVariableDifferentiableAD(double value) {
+	public RandomVariableDifferentiableAD(final double value) {
 		this(new RandomVariableFromDoubleArray(value), null, null);
 	}
 
-	public RandomVariableDifferentiableAD(double time, double[] realisations) {
+	public RandomVariableDifferentiableAD(final double time, final double[] realisations) {
 		this(new RandomVariableFromDoubleArray(time, realisations), null, null);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariable randomVariable) {
+	public RandomVariableDifferentiableAD(final RandomVariable randomVariable) {
 		this(randomVariable, null, null);
 	}
 
-	private RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, OperatorType operator) {
+	private RandomVariableDifferentiableAD(final RandomVariable values, final List<RandomVariable> arguments, final OperatorType operator) {
 		this(values, arguments, null, operator);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator) {
+	public RandomVariableDifferentiableAD(final RandomVariable values, final List<RandomVariable> arguments, final ConditionalExpectationEstimator estimator, final OperatorType operator) {
 		this(values, arguments, estimator, operator, typePriorityDefault);
 	}
 
-	public RandomVariableDifferentiableAD(RandomVariable values, List<RandomVariable> arguments, ConditionalExpectationEstimator estimator, OperatorType operator, int methodArgumentTypePriority) {
+	public RandomVariableDifferentiableAD(final RandomVariable values, final List<RandomVariable> arguments, final ConditionalExpectationEstimator estimator, final OperatorType operator, final int methodArgumentTypePriority) {
 		super();
 		this.values = values;
 		operatorTreeNode = new OperatorTreeNode(operator, arguments, estimator);
@@ -451,33 +451,33 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 * @return The gradient map.
 	 */
 	@Override
-	public Map<Long, RandomVariable> getGradient(Set<Long> independentIDs) {
+	public Map<Long, RandomVariable> getGradient(final Set<Long> independentIDs) {
 
 		// The map maintaining the derivatives id -> derivative
-		Map<Long, RandomVariable> derivatives = new HashMap<Long, RandomVariable>();
+		final Map<Long, RandomVariable> derivatives = new HashMap<>();
 
 		// Put derivative of this node w.r.t. itself
 		derivatives.put(getID(), new RandomVariableFromDoubleArray(1.0));
 
 		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
-		TreeMap<Long, OperatorTreeNode> independents = new TreeMap<Long, OperatorTreeNode>();
+		final TreeMap<Long, OperatorTreeNode> independents = new TreeMap<>();
 		independents.put(getID(), getOperatorTreeNode());
 
 		while(independents.size() > 0) {
 			// Process node with the highest id in independents
-			Map.Entry<Long, OperatorTreeNode> independentEntry = independents.lastEntry();
-			Long id = independentEntry.getKey();
-			OperatorTreeNode independent = independentEntry.getValue();
+			final Map.Entry<Long, OperatorTreeNode> independentEntry = independents.lastEntry();
+			final Long id = independentEntry.getKey();
+			final OperatorTreeNode independent = independentEntry.getValue();
 
 			// Get arguments of this node and propagate derivative to arguments
-			List<OperatorTreeNode> arguments = independent.arguments;
+			final List<OperatorTreeNode> arguments = independent.arguments;
 			if(arguments != null && arguments.size() > 0) {
 				independent.propagateDerivativesFromResultToArgument(derivatives);
 
 				// Add all non constant arguments to the list of independents
-				for(OperatorTreeNode argument : arguments) {
+				for(final OperatorTreeNode argument : arguments) {
 					if(argument != null) {
-						Long argumentId = argument.id;
+						final Long argumentId = argument.id;
 						independents.put(argumentId, argument);
 					}
 				}
@@ -494,7 +494,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public Map<Long, RandomVariable> getTangents(Set<Long> dependentIDs) {
+	public Map<Long, RandomVariable> getTangents(final Set<Long> dependentIDs) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -504,7 +504,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		return getValues().equals(randomVariable);
 	}
 
@@ -519,7 +519,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		return getValues().get(pathOrState);
 	}
 
@@ -559,7 +559,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		return getValues().getAverage(probabilities);
 	}
 
@@ -569,7 +569,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		return getValues().getVariance(probabilities);
 	}
 
@@ -584,7 +584,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		return getValues().getStandardDeviation(probabilities);
 	}
 
@@ -594,32 +594,32 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		return getValues().getStandardError(probabilities);
 	}
 
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		return getValues().getQuantile(quantile);
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		return getValues().getQuantile(quantile, probabilities);
 	}
 
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		return getValues().getQuantileExpectation(quantileStart, quantileEnd);
 	}
 
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		return getValues().getHistogram(intervalPoints);
 	}
 
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		return getValues().getHistogram(numberOfPoints, standardDeviations);
 	}
 
@@ -634,7 +634,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return new RandomVariableDifferentiableAD(
 				getValues().cap(cap),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(cap)),
@@ -642,7 +642,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return new RandomVariableDifferentiableAD(
 				getValues().floor(floor),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(floor)),
@@ -650,7 +650,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().add(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -658,7 +658,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().sub(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -666,7 +666,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().mult(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -674,7 +674,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return new RandomVariableDifferentiableAD(
 				getValues().div(value),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),
@@ -682,7 +682,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return new RandomVariableDifferentiableAD(
 				getValues().pow(exponent),
 				Arrays.asList(this, new RandomVariableFromDoubleArray(exponent)),
@@ -698,7 +698,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable getConditionalExpectation(ConditionalExpectationEstimator estimator) {
+	public RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator estimator) {
 		return new RandomVariableDifferentiableAD(
 				getValues().average(),
 				Arrays.asList(new RandomVariable[]{ this }),
@@ -760,7 +760,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.add(this);
@@ -773,7 +773,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.bus(this);
@@ -786,7 +786,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.sub(this);
@@ -799,7 +799,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.mult(this);
@@ -812,7 +812,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.vid(this);
@@ -825,7 +825,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.div(this);
@@ -838,7 +838,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable randomVariable) {
+	public RandomVariable cap(final RandomVariable randomVariable) {
 		if(randomVariable.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return randomVariable.cap(this);
@@ -851,7 +851,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		if(floor.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return floor.floor(this);
@@ -864,7 +864,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).mult(this);
@@ -877,7 +877,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		if(rate.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return rate.mult(periodLength).add(1.0).invert().mult(this);
@@ -895,7 +895,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	 */
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		return new RandomVariableDifferentiableAD(
 				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),
 				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),
@@ -919,7 +919,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -932,7 +932,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		if(factor1.getTypePriority() > this.getTypePriority() || factor2.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return factor1.mult(factor2).add(this);
@@ -945,7 +945,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).add(this);
@@ -958,7 +958,7 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		if(numerator.getTypePriority() > this.getTypePriority() || denominator.getTypePriority() > this.getTypePriority()) {
 			// Check type priority
 			return numerator.div(denominator).mult(-1).add(this);
@@ -990,17 +990,17 @@ public class RandomVariableDifferentiableAD implements RandomVariableDifferentia
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1, RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
 		throw new UnsupportedOperationException("Applying functions is not supported.");
 	}
 

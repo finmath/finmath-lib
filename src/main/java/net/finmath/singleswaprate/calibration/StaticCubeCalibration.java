@@ -19,7 +19,7 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 
 	private double initialValue = 0.005;
 	private double initialCorrelationDecay = 0;
-	private double initialIborOisDecorrelation = 1;
+	private final double initialIborOisDecorrelation = 1;
 
 	/**
 	 * Create the calibrator.
@@ -30,8 +30,8 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 	 * @param model The model providing context.
 	 * @param annuityMappingType The type of annuity mapping to be used for calibration.
 	 */
-	public StaticCubeCalibration(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums,
-			VolatilityCubeModel model, AnnuityMappingType annuityMappingType) {
+	public StaticCubeCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType) {
 		super(referenceDate, cashPayerPremiums, cashReceiverPremiums, model, annuityMappingType);
 	}
 
@@ -46,8 +46,8 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 	 * @param initialValue The value to start the calibration at.
 	 * @param initialCorrelationDecay The correlation decay to start the calibration at.
 	 */
-	public StaticCubeCalibration(LocalDate referenceDate, SwaptionDataLattice cashPayerPremiums, SwaptionDataLattice cashReceiverPremiums,
-			VolatilityCubeModel model, AnnuityMappingType annuityMappingType, double initialValue, double initialCorrelationDecay) {
+	public StaticCubeCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType, final double initialValue, final double initialCorrelationDecay) {
 		super(referenceDate, cashPayerPremiums, cashReceiverPremiums, model, annuityMappingType);
 
 		this.initialValue = initialValue;
@@ -55,7 +55,7 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 	}
 
 	@Override
-	protected VolatilityCube buildCube(String cubeName, double[] parameters) {
+	protected VolatilityCube buildCube(final String cubeName, final double[] parameters) {
 		return new StaticVolatilityCube(cubeName, getReferenceDate(), parameters[1], parameters[0]);
 	}
 
@@ -67,8 +67,8 @@ public class StaticCubeCalibration extends AbstractCubeCalibration {
 	}
 
 	@Override
-	protected double[] applyParameterBounds(double[] parameters) {
-		double[] boundedParameters = new double[parameters.length];
+	protected double[] applyParameterBounds(final double[] parameters) {
+		final double[] boundedParameters = new double[parameters.length];
 		boundedParameters[0] = Math.max(parameters[0], 0);
 		boundedParameters[1] = Math.max(parameters[1], 0);
 		boundedParameters[2] = parameters[2];

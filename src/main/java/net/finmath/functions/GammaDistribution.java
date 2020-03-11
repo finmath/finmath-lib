@@ -14,7 +14,7 @@ public class GammaDistribution {
 
 	private final org.apache.commons.math3.distribution.GammaDistribution gammaDistribution;
 
-	public GammaDistribution(double shape, double scale) {
+	public GammaDistribution(final double shape, final double scale) {
 		super();
 		gammaDistribution = new org.apache.commons.math3.distribution.GammaDistribution(shape, scale);
 	}
@@ -25,7 +25,7 @@ public class GammaDistribution {
 	 * @param x Argument
 	 * @return Inverse cumulative distribution function at x.
 	 */
-	public double inverseCumulativeDistribution(double x) {
+	public double inverseCumulativeDistribution(final double x) {
 		return gammaDistribution.inverseCumulativeProbability(x);
 	}
 }

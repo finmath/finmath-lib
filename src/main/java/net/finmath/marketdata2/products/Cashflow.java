@@ -12,7 +12,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * Implements the valuation of a single cashflow by a discount curve.
  *
- * @TODO: Currency is neither checked nor used.
+ * @TODO Currency is neither checked nor used.
  *
  * @author Christian Fries
  * @version 1.0
@@ -33,7 +33,7 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
 	 * @param discountCurveName Name of the discount curve for the cashflow.
 	 */
-	public Cashflow(String currency, double flowAmount, double flowDate, boolean isPayer, String discountCurveName) {
+	public Cashflow(final String currency, final double flowAmount, final double flowDate, final boolean isPayer, final String discountCurveName) {
 		super();
 		this.flowAmount = flowAmount;
 		this.flowDate = flowDate;
@@ -43,18 +43,18 @@ public class Cashflow extends AbstractAnalyticProduct implements AnalyticProduct
 
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, AnalyticModel model) {
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
+		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		RandomVariable discountFactor = flowDate > evaluationTime ? discountCurve.getDiscountFactor(model, flowDate) : model.getRandomVariableForConstant(0.0);
-		RandomVariable value = discountFactor.mult(flowAmount * (isPayer ? -1.0 : 1.0));
+		final RandomVariable discountFactor = flowDate > evaluationTime ? discountCurve.getDiscountFactor(model, flowDate) : model.getRandomVariableForConstant(0.0);
+		final RandomVariable value = discountFactor.mult(flowAmount * (isPayer ? -1.0 : 1.0));
 
 		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));
 	}

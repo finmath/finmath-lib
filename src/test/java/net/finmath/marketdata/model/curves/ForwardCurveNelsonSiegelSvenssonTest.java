@@ -30,15 +30,15 @@ public class ForwardCurveNelsonSiegelSvenssonTest {
 
 		final double[] nssParameters = new double[] { 0.02, -0.010, 0.16, -0.17, 4.50, 3.5 };
 
-		LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 16);
-		String paymentOffsetCode = "3M";
-		BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
-		BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
-		DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
+		final LocalDate referenceDate = LocalDate.of(2014, Month.AUGUST, 16);
+		final String paymentOffsetCode = "3M";
+		final BusinessdayCalendar paymentBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
+		final BusinessdayCalendar.DateRollConvention paymentDateRollConvention = DateRollConvention.MODIFIED_FOLLOWING;
+		final DayCountConvention daycountConvention = new DayCountConvention_ACT_360();
 
-		ForwardCurve forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
+		final ForwardCurve forwardCurve = new ForwardCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, nssParameters, 365.0/360.0, 0.0);
 
-		AnalyticModel model = null;		// No model context needed
+		final AnalyticModel model = null;		// No model context needed
 
 		Assert.assertEquals("Forward", 0.0037364893, forwardCurve.getForward(model,  1.0), 1E-9);
 		Assert.assertEquals("Forward", 0.0179295573, forwardCurve.getForward(model,  5.0), 1E-9);

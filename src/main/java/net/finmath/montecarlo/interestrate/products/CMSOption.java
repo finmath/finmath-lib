@@ -25,9 +25,9 @@ import net.finmath.time.TimeDiscretizationFromArray;
 public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	private final double		exerciseDate;	// Exercise date
 	private final double[]	fixingDates;    // Vector of fixing dates (must be sorted)
-	private double[]	paymentDates;	// Vector of payment dates (same length as fixing dates)
-	private double[]	periodLengths;	// Vector of payment dates (same length as fixing dates)
-	private double		strike;			// Vector of strikes
+	private final double[]	paymentDates;	// Vector of payment dates (same length as fixing dates)
+	private final double[]	periodLengths;	// Vector of payment dates (same length as fixing dates)
+	private final double		strike;			// Vector of strikes
 
 	/**
 	 * Create the option on a CMS rate.
@@ -39,11 +39,11 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @param strike Strike swap rate.
 	 */
 	public CMSOption(
-			double		exerciseDate,
-			double[]	fixingDates,
-			double[]	paymentDates,
-			double[]	periodLengths,
-			double		strike) {
+			final double		exerciseDate,
+			final double[]	fixingDates,
+			final double[]	paymentDates,
+			final double[]	periodLengths,
+			final double		strike) {
 		super();
 		this.exerciseDate = exerciseDate;
 		this.fixingDates = fixingDates;
@@ -63,7 +63,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect forsight - all rates are simulationTime=exerciseDate)
 		 */
@@ -73,16 +73,16 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		// Calculate the value of the swap by working backward through all periods
 		for(int period=fixingDates.length-1; period>=0; period--)
 		{
-			double fixingDate	= fixingDates[period];
-			double paymentDate	= paymentDates[period];
+			final double fixingDate	= fixingDates[period];
+			final double paymentDate	= paymentDates[period];
 
-			double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
+			final double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
+			final RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
 
 			// Add payment received at end of period
-			RandomVariable payoff = new RandomVariableFromDoubleArray(paymentDate, 1.0 * periodLength);
+			final RandomVariable payoff = new RandomVariableFromDoubleArray(paymentDate, 1.0 * periodLength);
 			valueFixLeg = valueFixLeg.add(payoff);
 
 			// Discount back to beginning of period
@@ -91,7 +91,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		}
 		valueFloatLeg = valueFloatLeg.add(1.0);
 
-		RandomVariable parSwapRate = valueFloatLeg.div(valueFixLeg);
+		final RandomVariable parSwapRate = valueFloatLeg.div(valueFixLeg);
 
 		RandomVariable payoffUnit	= new RandomVariableFromDoubleArray(paymentDates[0], periodLengths[0]);
 		payoffUnit = payoffUnit.discount(model.getLIBOR(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
@@ -100,8 +100,8 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 
 		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
 		if(fixingDates[0] != exerciseDate) {
-			RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
-			double periodLength	= fixingDates[0] - exerciseDate;
+			final RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			final double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
 			value = value.discount(libor, periodLength);
@@ -110,12 +110,12 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		/*
 		 * Calculate value
 		 */
-		RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
-		RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
+		final RandomVariable	numeraire				= model.getNumeraire(exerciseDate);
+		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(exerciseDate));
 		value = value.div(numeraire).mult(monteCarloProbabilities);
 
-		RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
 		value = value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
 
 		return value;
@@ -129,16 +129,16 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @param swaprateVolatility The volatility of the log-swaprate.
 	 * @return Value of this product
 	 */
-	public double getValue(ForwardCurve forwardCurve, double swaprateVolatility) {
-		double[] swapTenor = new double[fixingDates.length+1];
+	public double getValue(final ForwardCurve forwardCurve, final double swaprateVolatility) {
+		final double[] swapTenor = new double[fixingDates.length+1];
 		System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
 		swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
-		TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
-		TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
-		double forwardSwapRate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
-		double swapAnnuity = SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
-		double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1] - swapTenor[0]);
+		final TimeDiscretization fixTenor	= new TimeDiscretizationFromArray(swapTenor);
+		final TimeDiscretization floatTenor	= new TimeDiscretizationFromArray(swapTenor);
+		final double forwardSwapRate = Swap.getForwardSwapRate(fixTenor, floatTenor, forwardCurve);
+		final double swapAnnuity = SwapAnnuity.getSwapAnnuity(fixTenor, forwardCurve);
+		final double payoffUnit = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor[0], swapTenor[1]), forwardCurve) / (swapTenor[1] - swapTenor[0]);
 		return AnalyticFormulas.huntKennedyCMSOptionValue(forwardSwapRate, swaprateVolatility, swapAnnuity, exerciseDate, swapTenor[swapTenor.length-1]-swapTenor[0], payoffUnit, strike) * (swapTenor[1] - swapTenor[0]);
 	}
 }

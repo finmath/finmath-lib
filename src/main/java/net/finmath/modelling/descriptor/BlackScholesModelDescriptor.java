@@ -26,9 +26,9 @@ public class BlackScholesModelDescriptor implements AssetModelDescriptor {
 
 	private final Double volatility;
 
-	public BlackScholesModelDescriptor(LocalDate referenceDate, Double initialValue,
-			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate,
-			Double volatility) {
+	public BlackScholesModelDescriptor(final LocalDate referenceDate, final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate,
+			final Double volatility) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;

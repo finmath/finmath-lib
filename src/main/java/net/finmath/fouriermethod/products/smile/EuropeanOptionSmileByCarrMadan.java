@@ -48,7 +48,7 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 	private final ExtrapolationMethod extMethod;
 
 	//Constructors
-	public EuropeanOptionSmileByCarrMadan(double maturity, double[] strikes) {
+	public EuropeanOptionSmileByCarrMadan(final double maturity, final double[] strikes) {
 		super(maturity, strikes);
 		numberOfPoints = 4096;
 		gridSpacing = 0.1;
@@ -56,7 +56,7 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 		extMethod = ExtrapolationMethod.CONSTANT;
 	}
 
-	public EuropeanOptionSmileByCarrMadan(String underlyingName, double maturity, double[] strikes) {
+	public EuropeanOptionSmileByCarrMadan(final String underlyingName, final double maturity, final double[] strikes) {
 		super(underlyingName, maturity, strikes);
 		numberOfPoints = 4096;
 		gridSpacing = 0.1;
@@ -65,8 +65,8 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 	}
 
 
-	public EuropeanOptionSmileByCarrMadan(String underlyingName, double maturity, double[] strikes, int numberOfPoints,
-			double gridSpacing, InterpolationMethod intMethod, ExtrapolationMethod extMethod) {
+	public EuropeanOptionSmileByCarrMadan(final String underlyingName, final double maturity, final double[] strikes, final int numberOfPoints,
+			final double gridSpacing, final InterpolationMethod intMethod, final ExtrapolationMethod extMethod) {
 		super(underlyingName, maturity, strikes);
 		this.numberOfPoints = numberOfPoints;
 		this.gridSpacing = gridSpacing;
@@ -75,28 +75,28 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 	}
 
 	@Override
-	public Map<String, Function<Double, Double>> getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException {
+	public Map<String, Function<Double, Double>> getValue(final double evaluationTime, final CharacteristicFunctionModel model) throws CalculationException {
 
-		CharacteristicFunction modelCF = model.apply(getMaturity());
+		final CharacteristicFunction modelCF = model.apply(getMaturity());
 
 		final double lineOfIntegration = 0.5 * (getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound());
 
-		double lambda = 2*Math.PI/(numberOfPoints*gridSpacing); //Equation 23 Carr and Madan
-		double upperBound = (numberOfPoints * lambda)/2.0; //Equation 20 Carr and Madan
+		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing); //Equation 23 Carr and Madan
+		final double upperBound = (numberOfPoints * lambda)/2.0; //Equation 20 Carr and Madan
 
-		Complex[] integrandEvaluations = new Complex[numberOfPoints];
+		final Complex[] integrandEvaluations = new Complex[numberOfPoints];
 
 		for(int i = 0; i<numberOfPoints; i++) {
 
-			double u = gridSpacing * i;
+			final double u = gridSpacing * i;
 
 			//Integration over a line parallel to the real axis
-			Complex z = new Complex(u,-lineOfIntegration);
+			final Complex z = new Complex(u,-lineOfIntegration);
 
 			//The characteristic function is already discounted
-			Complex numerator = modelCF.apply(z.subtract(Complex.I));
+			final Complex numerator = modelCF.apply(z.subtract(Complex.I));
 
-			Complex denominator = apply(z);
+			final Complex denominator = apply(z);
 			Complex ratio = numerator.divide(denominator);
 			ratio = (ratio.multiply(((Complex.I).multiply(upperBound*u)).exp())).multiply(gridSpacing);
 
@@ -106,20 +106,20 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 			}else{
 				delta = 0.0;
 			}
-			double simpsonWeight = (3+Math.pow(-1,i+1)-delta)/3;
+			final double simpsonWeight = (3+Math.pow(-1,i+1)-delta)/3;
 
 			integrandEvaluations[i] = ratio.multiply(simpsonWeight);
 		}
 
 		//Compute the FFT
 		Complex[] transformedVector = new Complex[numberOfPoints];
-		FastFourierTransformer fft=new FastFourierTransformer(DftNormalization.STANDARD);
+		final FastFourierTransformer fft=new FastFourierTransformer(DftNormalization.STANDARD);
 		transformedVector=	fft.transform(integrandEvaluations,TransformType.FORWARD);
 
 		//Find relevant prices via interpolation
-		double[] logStrikeVector = new double[numberOfPoints];
-		double[] strikeVector = new double[numberOfPoints];
-		double[] optionPriceVector = new double[numberOfPoints];
+		final double[] logStrikeVector = new double[numberOfPoints];
+		final double[] strikeVector = new double[numberOfPoints];
+		final double[] optionPriceVector = new double[numberOfPoints];
 
 		for(int j = 0; j<numberOfPoints; j++) {
 			logStrikeVector[j] = -upperBound+lambda*j;
@@ -127,27 +127,27 @@ public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
 			optionPriceVector[j] = (transformedVector[j].multiply(Math.exp(-lineOfIntegration * logStrikeVector[j]))).getReal()/Math.PI;
 		}
 
-		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(strikeVector, optionPriceVector,intMethod, extMethod);
+		final RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(strikeVector, optionPriceVector,intMethod, extMethod);
 
-		Complex minusI = new Complex(0,-1);
-		double residueTerm = (modelCF.apply(minusI)).getReal();
+		final Complex minusI = new Complex(0,-1);
+		final double residueTerm = (modelCF.apply(minusI)).getReal();
 
-		Function<Double, Double> strikeToPrice = new Function<Double, Double>(){
+		final Function<Double, Double> strikeToPrice = new Function<Double, Double>(){
 
 			@Override
-			public Double apply(Double t) {
+			public Double apply(final Double t) {
 				return residueTerm + interpolation.getValue(t);
 			}
 
 		};
 
-		HashMap<String, Function<Double, Double>> results = new HashMap<String, Function<Double, Double>>();
+		final HashMap<String, Function<Double, Double>> results = new HashMap<>();
 		results.put("valuePerStrike", strikeToPrice);
 		return results;
 	}
 
 	@Override
-	public EuropeanOptionSmile getCloneWithModifiedParameters(double maturity, double[] strikes) {
+	public EuropeanOptionSmile getCloneWithModifiedParameters(final double maturity, final double[] strikes) {
 		return new EuropeanOptionSmileByCarrMadan(maturity, strikes);
 	}
 

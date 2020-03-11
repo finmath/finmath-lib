@@ -33,8 +33,8 @@ public class ScheduleDescriptor {
 	 * @param periods A list of <code>Period</code> objects.
 	 * @param daycountConvention The common daycount convention.
 	 */
-	public ScheduleDescriptor(List<Period> periods,
-			DayCountConvention daycountConvention) {
+	public ScheduleDescriptor(final List<Period> periods,
+			final DayCountConvention daycountConvention) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);
 	}
@@ -44,7 +44,7 @@ public class ScheduleDescriptor {
 	 *
 	 * @param schedule The schedule.
 	 */
-	public ScheduleDescriptor(Schedule schedule) {
+	public ScheduleDescriptor(final Schedule schedule) {
 		super();
 		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());
 	}
@@ -63,10 +63,10 @@ public class ScheduleDescriptor {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 */
-	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
-			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-			DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar,
-			int fixingOffsetDays, int paymentOffsetDays, boolean isUseEndOfMonth) {
+	public ScheduleDescriptor(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+			final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+			final DateRollConvention dateRollConvention, final BusinessdayCalendar businessdayCalendar,
+			final int fixingOffsetDays, final int paymentOffsetDays, final boolean isUseEndOfMonth) {
 		super();
 		descriptor = new ScheduleDescriptorFromGenerator(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays,
 				paymentOffsetDays, isUseEndOfMonth);
@@ -85,10 +85,10 @@ public class ScheduleDescriptor {
 	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 */
-	public ScheduleDescriptor(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
-			DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-			DateRollConvention dateRollConvention, AbstractBusinessdayCalendar abstractBusinessdayCalendar, int fixingOffsetDays,
-			int paymentOffsetDays) {
+	public ScheduleDescriptor(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+			final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+			final DateRollConvention dateRollConvention, final AbstractBusinessdayCalendar abstractBusinessdayCalendar, final int fixingOffsetDays,
+			final int paymentOffsetDays) {
 		this(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,
 				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
 	}
@@ -99,7 +99,7 @@ public class ScheduleDescriptor {
 	 * @param referenceDate The desired reference date.
 	 * @return The schedule relative to the reference date.
 	 */
-	public Schedule getSchedule(LocalDate referenceDate) {
+	public Schedule getSchedule(final LocalDate referenceDate) {
 		return descriptor.getSchedule(referenceDate);
 	}
 
@@ -153,15 +153,15 @@ public class ScheduleDescriptor {
 		private final List<Period> periods;
 		private final DayCountConvention daycountConvention;
 
-		private ScheduleDescriptorFromPeriods(List<Period> periods,
-				DayCountConvention daycountConvention) {
+		private ScheduleDescriptorFromPeriods(final List<Period> periods,
+				final DayCountConvention daycountConvention) {
 			super();
 			this.periods = periods;
 			this.daycountConvention = daycountConvention;
 		}
 
 		@Override
-		public Schedule getSchedule(LocalDate referenceDate) {
+		public Schedule getSchedule(final LocalDate referenceDate) {
 			return new ScheduleFromPeriods(referenceDate, periods, daycountConvention);
 		}
 
@@ -195,10 +195,10 @@ public class ScheduleDescriptor {
 		private final boolean isUseEndOfMonth;
 
 
-		private ScheduleDescriptorFromGenerator(LocalDate startDate, LocalDate maturityDate, Frequency frequency,
-				DaycountConvention daycountConvention, ShortPeriodConvention shortPeriodConvention,
-				DateRollConvention dateRollConvention, BusinessdayCalendar businessdayCalendar,
-				int fixingOffsetDays, int paymentOffsetDays, boolean isUseEndOfMonth) {
+		private ScheduleDescriptorFromGenerator(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+				final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+				final DateRollConvention dateRollConvention, final BusinessdayCalendar businessdayCalendar,
+				final int fixingOffsetDays, final int paymentOffsetDays, final boolean isUseEndOfMonth) {
 			super();
 			this.startDate = startDate;
 			this.maturityDate = maturityDate;
@@ -214,7 +214,7 @@ public class ScheduleDescriptor {
 
 
 		@Override
-		public Schedule getSchedule(LocalDate referenceDate) {
+		public Schedule getSchedule(final LocalDate referenceDate) {
 			return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention,
 					businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
 		}

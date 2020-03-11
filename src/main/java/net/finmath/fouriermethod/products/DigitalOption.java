@@ -33,7 +33,7 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public DigitalOption(double maturity, double strike) {
+	public DigitalOption(final double maturity, final double strike) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
@@ -44,11 +44,11 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 	 * @see net.finmath.fouriermethod.CharacteristicFunctionInterface#apply(org.apache.commons.math3.complex.Complex)
 	 */
 	@Override
-	public Complex apply(Complex argument) {
-		Complex iargument = argument.multiply(Complex.I);
-		Complex exponent = iargument.add(1.0);
-		Complex numerator = (new Complex(strike)).pow(exponent.subtract(1.0)).multiply(exponent);
-		Complex denominator = (argument.multiply(argument)).subtract(iargument);
+	public Complex apply(final Complex argument) {
+		final Complex iargument = argument.multiply(Complex.I);
+		final Complex exponent = iargument.add(1.0);
+		final Complex numerator = (new Complex(strike)).pow(exponent.subtract(1.0)).multiply(exponent);
+		final Complex denominator = (argument.multiply(argument)).subtract(iargument);
 
 		return numerator.divide(denominator);
 	}

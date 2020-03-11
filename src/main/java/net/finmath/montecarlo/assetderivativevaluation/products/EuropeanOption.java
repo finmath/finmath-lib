@@ -43,7 +43,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public EuropeanOption(String underlyingName, double maturity, double strike) {
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
 		super();
 		nameOfUnderliyng	= underlyingName;
 		this.maturity			= maturity;
@@ -57,7 +57,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param underlyingIndex The index of the underlying to be fetched from the model.
 	 */
-	public EuropeanOption(double maturity, double strike, int underlyingIndex) {
+	public EuropeanOption(final double maturity, final double strike, final int underlyingIndex) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
@@ -70,7 +70,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public EuropeanOption(double maturity, double strike) {
+	public EuropeanOption(final double maturity, final double strike) {
 		this(maturity, strike, 0);
 	}
 
@@ -85,39 +85,45 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Get underlying and numeraire
 
 		// Get S(T)
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
 		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
 		RandomVariable values = underlyingAtMaturity.sub(strike).floor(0.0);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;
 	}
 
 	@Override
-	public Map<String, Object> getValues(double evaluationTime, Model model) {
-		Map<String, Object>  result = new HashMap<>();
+	public Map<String, Object> getValues(final double evaluationTime, final Model model) {
+		final Map<String, Object>  result = new HashMap<>();
 
 		try {
-			double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationModel) model).getAverage();
+			final double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationModel) model).getAverage();
 			result.put("value", value);
-		} catch (CalculationException e) {
+		} catch (final CalculationException e) {
 			result.put("exception", e);
 		}
 
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "EuropeanOption [maturity=" + maturity + ", strike=" + strike + ", underlyingIndex=" + underlyingIndex
+				+ ", nameOfUnderliyng=" + nameOfUnderliyng + "]";
 	}
 }

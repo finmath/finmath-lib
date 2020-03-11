@@ -16,9 +16,9 @@ import net.finmath.stochastic.RandomVariable;
  * @since finmath-lib 3.6.0
  * @version 1.0
  */
-public class NotionalFromComponent implements AbstractNotional {
+public class NotionalFromComponent implements Notional {
 
-	private AbstractProductComponent notional;
+	private final AbstractProductComponent notional;
 
 	/**
 	 * Creates a notional which is derived by calling the getValue method on the period start of a given component.
@@ -28,7 +28,7 @@ public class NotionalFromComponent implements AbstractNotional {
 	 *
 	 * @param notional The component providing the notation.
 	 */
-	public NotionalFromComponent(AbstractProductComponent notional) {
+	public NotionalFromComponent(final AbstractProductComponent notional) {
 		super();
 		this.notional = notional;
 	}
@@ -39,16 +39,16 @@ public class NotionalFromComponent implements AbstractNotional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodEnd(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) {
 		return this.getNotionalAtPeriodStart(period, model);
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodStart(AbstractPeriod period, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) {
 		RandomVariable notionalValue = null;
 		try {
 			notionalValue = notional.getValue(period.getPeriodStart(), model);
-		} catch (CalculationException e) {
+		} catch (final CalculationException e) {
 			throw new IllegalArgumentException(e);
 		}
 

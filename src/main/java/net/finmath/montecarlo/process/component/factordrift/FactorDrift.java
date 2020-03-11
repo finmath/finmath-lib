@@ -5,10 +5,9 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * @author Christian Fries
- *
  * @version 1.0
  */
-public interface FactorDriftInterface {
+public interface FactorDrift {
 
 	/**
 	 * The interface describes how an additional factor scaling may be specified for the generation of a process (see e.g. LogNormalProcess).

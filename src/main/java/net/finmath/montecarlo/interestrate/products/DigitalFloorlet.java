@@ -17,14 +17,14 @@ import net.finmath.stochastic.RandomVariable;
  * @version 1.2
  */
 public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
-	private double	maturity;
-	private double	strike;
+	private final double	maturity;
+	private final double	strike;
 
 	/**
 	 * @param maturity The maturity given as double.
 	 * @param strike The strike given as double.
 	 */
-	public DigitalFloorlet(double maturity, double strike) {
+	public DigitalFloorlet(final double maturity, final double strike) {
 		super();
 		this.maturity = maturity;
 		this.strike   = strike;
@@ -41,21 +41,21 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
 		// This is on the Libor discretization
-		int		liborIndex		= model.getLiborPeriodIndex(maturity);
-		double	paymentDate		= model.getLiborPeriod(liborIndex+1);
-		double	periodLength	= paymentDate - maturity;
+		final int		liborIndex		= model.getLiborPeriodIndex(maturity);
+		final double	paymentDate		= model.getLiborPeriod(liborIndex+1);
+		final double	periodLength	= paymentDate - maturity;
 
 		// Get random variables
-		RandomVariable	libor						= model.getLIBOR(maturity, maturity, paymentDate);
+		final RandomVariable	libor						= model.getLIBOR(maturity, maturity, paymentDate);
 
 		// Set up payoff on path
-		double[] payoff = new double[model.getNumberOfPaths()];
+		final double[] payoff = new double[model.getNumberOfPaths()];
 		for(int path=0; path<model.getNumberOfPaths(); path++)
 		{
-			double liborOnPath = libor.get(path);
+			final double liborOnPath = libor.get(path);
 
 			if(liborOnPath < strike) {
 				payoff[path] = periodLength;
@@ -66,13 +66,13 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 		}
 
 		// Get random variables
-		RandomVariable	numeraire					= model.getNumeraire(paymentDate);
-		RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
+		final RandomVariable	numeraire					= model.getNumeraire(paymentDate);
+		final RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);
 
-		RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);
 
-		RandomVariable values = new RandomVariableFromDoubleArray(paymentDate, payoff);
+		final RandomVariable values = new RandomVariableFromDoubleArray(paymentDate, payoff);
 		values.div(numeraire).mult(monteCarloProbabilities);
 		values.div(numeraireAtEvaluationTime).mult(monteCarloProbabilitiesAtEvaluationTime);
 

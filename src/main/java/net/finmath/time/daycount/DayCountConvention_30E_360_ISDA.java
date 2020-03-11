@@ -36,7 +36,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConvention, Seri
 	 *
 	 * @param isTreatEndDateAsTerminationDate If true, the end date is treated as a termination date and that case the last day of february is <i>not</i> treated as 30.
 	 */
-	public DayCountConvention_30E_360_ISDA(boolean isTreatEndDateAsTerminationDate) {
+	public DayCountConvention_30E_360_ISDA(final boolean isTreatEndDateAsTerminationDate) {
 		this.isTreatEndDateAsTerminationDate = isTreatEndDateAsTerminationDate;
 	}
 
@@ -51,23 +51,23 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConvention, Seri
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycount(endDate,startDate);
 		}
 
 		int startDateDay 	= startDate.getDayOfMonth();
-		int startDateMonth 	= startDate.getMonthValue();
-		int startDateYear 	= startDate.getYear();
+		final int startDateMonth 	= startDate.getMonthValue();
+		final int startDateYear 	= startDate.getYear();
 
 		int endDateDay 		= endDate.getDayOfMonth();
-		int endDateMonth 	= endDate.getMonthValue();
-		int endDateYear 	= endDate.getYear();
+		final int endDateMonth 	= endDate.getMonthValue();
+		final int endDateYear 	= endDate.getYear();
 
 
 		// Check if we have last day of February
-		boolean isStartDateLastDayOfFebruary = (startDateMonth == Month.FEBRUARY.getValue() && startDateDay == startDate.lengthOfMonth());
-		boolean isEndDateLastDayOfFebruary = (endDateMonth == Month.FEBRUARY.getValue() && endDateDay == endDate.lengthOfMonth());
+		final boolean isStartDateLastDayOfFebruary = (startDateMonth == Month.FEBRUARY.getValue() && startDateDay == startDate.lengthOfMonth());
+		final boolean isEndDateLastDayOfFebruary = (endDateMonth == Month.FEBRUARY.getValue() && endDateDay == endDate.lengthOfMonth());
 
 		// Last day of February and 31st of a month are both treated as "30".
 		if(isStartDateLastDayOfFebruary || startDateDay == 31) {
@@ -84,7 +84,7 @@ public class DayCountConvention_30E_360_ISDA implements DayCountConvention, Seri
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycountFraction(LocalDate startDate, LocalDate endDate) {
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
 		return getDaycount(startDate, endDate) / 360.0;
 	}
 }

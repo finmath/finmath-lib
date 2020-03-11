@@ -19,35 +19,35 @@ public class StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD implements S
 	private final RandomVariable		errorTolerance;
 	private final int		maxThreads;
 
-	public StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD(int maxIterations, RandomVariable errorTolerance, int maxThreads) {
+	public StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD(final int maxIterations, final RandomVariable errorTolerance, final int maxThreads) {
 		super();
 		this.maxIterations = maxIterations;
 		this.errorTolerance = errorTolerance;
 		this.maxThreads = maxThreads;
 	}
 
-	public StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD(int maxIterations, int maxThreads) {
+	public StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD(final int maxIterations, final int maxThreads) {
 		this(maxIterations, null, maxThreads);
 	}
 
 	@Override
-	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, final RandomVariable[] targetValues) {
 		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);
 	}
 
 	@Override
-	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, RandomVariable[] initialParameters, RandomVariable[] lowerBound, RandomVariable[]  upperBound, RandomVariable[] parameterSteps, RandomVariable[] targetValues) {
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, final RandomVariable[] parameterSteps, final RandomVariable[] targetValues) {
 		return new StochasticPathwiseLevenbergMarquardtAD(initialParameters, targetValues, null, null, maxIterations, errorTolerance, null)
 		{
 			private static final long serialVersionUID = -4802903981061716810L;
 
 			@Override
-			public void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 				objectiveFunction.setValues(parameters, values);
 			}
 		};

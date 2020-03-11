@@ -49,7 +49,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	 * @param spread Additional fixed payment (if any).
 	 * @param discountCurveName Name of the discount curve for the forward.
 	 */
-	public MarketForwardRateAgreement(double maturity, double paymentOffset, String forwardCurveName, double spread, String discountCurveName) {
+	public MarketForwardRateAgreement(final double maturity, final double paymentOffset, final String forwardCurveName, final double spread, final String discountCurveName) {
 		super();
 		this.maturity = maturity;
 		this.paymentOffset = paymentOffset;
@@ -59,9 +59,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 	}
 
 	@Override
-	public double getValue(double evaluationTime, AnalyticModel model) {
-		ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
-		DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+		final ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);
+		final DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
 
 		DiscountCurve	discountCurveForForward = null;
 		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
@@ -82,9 +82,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 			forward			+= (discountCurveForForward.getDiscountFactor(maturity) / discountCurveForForward.getDiscountFactor(maturity+paymentOffset) - 1.0) / paymentOffset;
 		}
 
-		double payoff = forward / (1 + forward * paymentOffset);
+		final double payoff = forward / (1 + forward * paymentOffset);
 
-		double discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : 0.0;
+		final double discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : 0.0;
 
 		return payoff * discountFactor / discountCurve.getDiscountFactor(model, evaluationTime);
 	}

@@ -52,7 +52,6 @@ import net.finmath.stochastic.RandomVariable;
  * </p>
  *
  * The following simple example finds a solution for the equation <br>
- * <center>
  * <table>
  * <caption>Sample linear system of equations.</caption>
  * <tr><td>
@@ -62,7 +61,6 @@ import net.finmath.stochastic.RandomVariable;
  * 2.0 * x<sub>1</sub> + 1.0 * x<sub>2</sub> = 10.0
  * </td></tr>
  * </table>
- * </center>
  *
  * <pre>
  * <code>
@@ -107,27 +105,27 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 
 	private final boolean isGradientValuationParallel;
 
-	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
-			RandomVariable[] initialParameters,
-			RandomVariable[] targetValues,
-			RandomVariable[] parameterSteps, int maxIteration, double errorTolerance,
-			ExecutorService executorService,
-			boolean isGradientValuationParallel) {
+	public StochasticLevenbergMarquardtAD(final RegularizationMethod regularizationMethod,
+			final RandomVariable[] initialParameters,
+			final RandomVariable[] targetValues,
+			final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance,
+			final ExecutorService executorService,
+			final boolean isGradientValuationParallel) {
 		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);
 		this.isGradientValuationParallel = isGradientValuationParallel;
 	}
 
-	public StochasticLevenbergMarquardtAD(RegularizationMethod regularizationMethod,
-			RandomVariable[] initialParameters,
-			RandomVariable[] targetValues,
-			RandomVariable[] parameterSteps, int maxIteration, double errorTolerance,
-			ExecutorService executorService) {
+	public StochasticLevenbergMarquardtAD(final RegularizationMethod regularizationMethod,
+			final RandomVariable[] initialParameters,
+			final RandomVariable[] targetValues,
+			final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance,
+			final ExecutorService executorService) {
 		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService, false /* isGradientValuationParallel */);
 	}
 
 
 	@Override
-	protected void prepareAndSetValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException {
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
 		/**
 		 * Small modification to avoid growing operator trees.
 		 */
@@ -141,7 +139,7 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 	}
 
 	@Override
-	protected void prepareAndSetDerivatives(RandomVariable[] parameters, RandomVariable[] values, RandomVariable[][] derivatives) throws SolverException {
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
 		/*
 		 * Check if random variable is differentiable
 		 */
@@ -167,7 +165,7 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 				// Parallel pre-calculation of gradients for each value function
 				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), new Function<Integer, Map<Long, RandomVariable>>() {
 					@Override
-					public Map<Long, RandomVariable> apply(Integer valueIndex) {
+					public Map<Long, RandomVariable> apply(final Integer valueIndex) {
 						return ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
 					}
 				}));
@@ -175,7 +173,7 @@ public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenberg
 
 			for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
 				if(values[valueIndex] instanceof RandomVariableDifferentiable) {
-					Map<Long, RandomVariable> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
+					final Map<Long, RandomVariable> gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiable)values[valueIndex]).getGradient();
 					for (int parameterIndex = 0; parameterIndex < parameters.length; parameterIndex++) {
 						derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiable)parameters[parameterIndex]).getID());
 						if(derivatives[parameterIndex][valueIndex] != null) {

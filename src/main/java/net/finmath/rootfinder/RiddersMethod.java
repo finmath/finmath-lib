@@ -30,14 +30,14 @@ public class RiddersMethod implements RootFinder {
 	private double  accuracy            = Double.MAX_VALUE;     // Current accuracy of solution
 	private boolean	isDone				= false;	// Will be true if machine accuracy has been reached
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		// Test
-		RiddersMethod search = new RiddersMethod(-1.0, 5.0);
+		final RiddersMethod search = new RiddersMethod(-1.0, 5.0);
 
 		while(search.getAccuracy() > 1E-13 && !search.isDone()) {
-			double x = search.getNextPoint();
+			final double x = search.getNextPoint();
 
-			double y = x - 0.656;
+			final double y = x - 0.656;
 
 			search.setValue(y);
 			System.out.println(search.getAccuracy());
@@ -50,7 +50,7 @@ public class RiddersMethod implements RootFinder {
 	 * @param leftPoint left point of search interval
 	 * @param rightPoint right point of search interval
 	 */
-	public RiddersMethod(double leftPoint, double rightPoint) {
+	public RiddersMethod(final double leftPoint, final double rightPoint) {
 		super();
 		points[0]	= leftPoint;
 		points[2]	= rightPoint;
@@ -81,7 +81,7 @@ public class RiddersMethod implements RootFinder {
 	 * @param value Value corresponding to point returned by previous <code>getNextPoint</code> call.
 	 */
 	@Override
-	public void setValue(double value) {
+	public void setValue(final double value) {
 		switch(solverState)
 		{
 		case 0:
@@ -108,7 +108,7 @@ public class RiddersMethod implements RootFinder {
 			// State 2: We have asked for middle point
 			values[1] = value;
 
-			double s = Math.sqrt(values[1]*values[1]-values[0]*values[2]);
+			final double s = Math.sqrt(values[1]*values[1]-values[0]*values[2]);
 			if (s == 0.0) {
 				accuracy = 0.0;
 				bestPoint = nextPoint;
@@ -201,7 +201,7 @@ public class RiddersMethod implements RootFinder {
 		return isDone;
 	}
 
-	private static double sign(double a, double b)
+	private static double sign(final double a, final double b)
 	{
 		return b>= 0.0 ? (a>=0 ? a : -a) : (a>0 ? -a : a);
 	}

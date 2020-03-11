@@ -106,17 +106,17 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param delta Jump size variance.
 	 */
 	public BatesModel(
-			LocalDate referenceDate,
-			double initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			DiscountCurve discountCurveForDiscountRate,
-			double[] volatility,
-			double[] alpha,
-			double[] beta,
-			double[] sigma,
-			double[] rho,
-			double[] lambda,
-			double k, double delta
+			final LocalDate referenceDate,
+			final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k, final double delta
 			) {
 		super();
 		this.referenceDate =  referenceDate;
@@ -153,16 +153,16 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param delta Jump size variance.
 	 */
 	public BatesModel(
-			double initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			DiscountCurve discountCurveForDiscountRate,
-			double[] volatility,
-			double[] alpha,
-			double[] beta,
-			double[] sigma,
-			double[] rho,
-			double[] lambda,
-			double k, double delta
+			final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k, final double delta
 			) {
 		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate,
 				volatility,alpha,beta,sigma,rho,lambda,k,delta);
@@ -184,17 +184,17 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param delta Jump size variance.
 	 */
 	public BatesModel(
-			double initialValue,
-			double riskFreeRate,
-			double discountRate,
-			double[] volatility,
-			double[] alpha,
-			double[] beta,
-			double[] sigma,
-			double[] rho,
-			double[] lambda,
-			double k,
-			double delta
+			final double initialValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k,
+			final double delta
 			) {
 		referenceDate = null;
 		this.initialValue = initialValue;
@@ -230,17 +230,17 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param delta Jump size variance.
 	 */
 	public BatesModel(
-			double initialValue,
-			double riskFreeRate,
-			double volatility,
-			double alpha,
-			double beta,
-			double sigma,
-			double rho,
-			double lambdaZero,
-			double lambdaOne,
-			double k,
-			double delta
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double alpha,
+			final double beta,
+			final double sigma,
+			final double rho,
+			final double lambdaZero,
+			final double lambdaOne,
+			final double k,
+			final double delta
 			) {
 		this(initialValue, riskFreeRate,riskFreeRate,
 				new double[]{ volatility },
@@ -265,11 +265,11 @@ public class BatesModel implements CharacteristicFunctionModel {
 
 		return new CharacteristicFunction() {
 			@Override
-			public Complex apply(Complex argument) {
+			public Complex apply(final Complex argument) {
 
-				Complex iargument = argument.multiply(Complex.I);
+				final Complex iargument = argument.multiply(Complex.I);
 
-				Complex c = iargument
+				final Complex c = iargument
 						.multiply(iargument)
 						.add(iargument.multiply(-1))
 						.multiply(0.5*delta*delta)
@@ -278,9 +278,9 @@ public class BatesModel implements CharacteristicFunctionModel {
 						.add(-1)
 						.add(iargument.multiply(-k));
 
-				Complex[] gamma = new Complex[numberOfFactors];
-				Complex[] a = new Complex[numberOfFactors];
-				Complex[] b = new Complex[numberOfFactors];
+				final Complex[] gamma = new Complex[numberOfFactors];
+				final Complex[] a = new Complex[numberOfFactors];
+				final Complex[] b = new Complex[numberOfFactors];
 				for(int i = 0; i < numberOfFactors; i++) {
 					gamma[i] = iargument
 							.multiply(rho[i]*sigma[i])
@@ -367,7 +367,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForForward(double time) {
+	private double getLogDiscountFactorForForward(final double time) {
 		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
 	}
 
@@ -377,7 +377,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForDiscounting(double time) {
+	private double getLogDiscountFactorForDiscounting(final double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 

@@ -30,8 +30,8 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 	private QuotingConvention quotingConvention;
 	private DayCountConvention daycountConvention;
 
-	public AbstractVolatilitySurface(String name, LocalDate referenceDate, ForwardCurve forwardCurve,
-			DiscountCurve discountCurve, QuotingConvention quotingConvention, DayCountConvention daycountConvention) {
+	public AbstractVolatilitySurface(final String name, final LocalDate referenceDate, final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve, final QuotingConvention quotingConvention, final DayCountConvention daycountConvention) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -41,7 +41,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 		this.daycountConvention = daycountConvention;
 	}
 
-	public AbstractVolatilitySurface(String name, LocalDate referenceDate) {
+	public AbstractVolatilitySurface(final String name, final LocalDate referenceDate) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -83,7 +83,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 	 * @param toQuotingConvention The quoting convention requested.
 	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>.
 	 */
-	public double convertFromTo(AnalyticModel model, double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
+	public double convertFromTo(final AnalyticModel model, final double optionMaturity, final double optionStrike, final double value, final QuotingConvention fromQuotingConvention, final QuotingConvention toQuotingConvention) {
 
 		if(fromQuotingConvention.equals(toQuotingConvention)) {
 			return value;
@@ -96,22 +96,22 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 			throw new IllegalArgumentException("Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.");
 		}
 
-		double periodStart = optionMaturity;
-		double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
+		final double periodStart = optionMaturity;
+		final double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);
 
-		double forward = getForwardCurve().getForward(model, periodStart);
+		final double forward = getForwardCurve().getForward(model, periodStart);
 
 		double daycountFraction;
 		if(getDaycountConvention() != null) {
-			LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));
-			LocalDate endDate   = referenceDate.plusDays((int)Math.round(periodEnd*365));
+			final LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));
+			final LocalDate endDate   = referenceDate.plusDays((int)Math.round(periodEnd*365));
 			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);
 		}
 		else {
 			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);
 		}
 
-		double payoffUnit = getDiscountCurve().getDiscountFactor(optionMaturity+getForwardCurve().getPaymentOffset(optionMaturity)) * daycountFraction;
+		final double payoffUnit = getDiscountCurve().getDiscountFactor(optionMaturity+getForwardCurve().getPaymentOffset(optionMaturity)) * daycountFraction;
 
 		if(toQuotingConvention.equals(QuotingConvention.PRICE) && fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {
 			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);
@@ -140,7 +140,7 @@ public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cl
 	 * @param toQuotingConvention The quoting convention requested.
 	 * @return Value of the caplet given in the form of <code>toQuotingConvention</code>.
 	 */
-	public double convertFromTo(double optionMaturity, double optionStrike, double value, QuotingConvention fromQuotingConvention, QuotingConvention toQuotingConvention) {
+	public double convertFromTo(final double optionMaturity, final double optionStrike, final double value, final QuotingConvention fromQuotingConvention, final QuotingConvention toQuotingConvention) {
 		return convertFromTo(null, optionMaturity, optionStrike, value, fromQuotingConvention, toQuotingConvention);
 	}
 

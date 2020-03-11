@@ -40,7 +40,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @param d The parameter d
 	 * @param timeDiscretization The timeDiscretizationFromArray used in numerical integration.
 	 */
-	public CapletVolatilitiesParametricFourParameterPicewiseConstant(String name, LocalDate referenceDate, double a, double b, double c, double d, TimeDiscretization timeDiscretization) {
+	public CapletVolatilitiesParametricFourParameterPicewiseConstant(final String name, final LocalDate referenceDate, final double a, final double b, final double c, final double d, final TimeDiscretization timeDiscretization) {
 		super(name, referenceDate, null, null, QuotingConvention.VOLATILITYLOGNORMAL, null);
 		this.a = a;
 		this.b = b;
@@ -53,7 +53,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, maturity, strike, quotingConvention);
 	}
 
@@ -61,7 +61,7 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	 * @see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface#getValue(net.finmath.marketdata.model.AnalyticModelInterface, double, double, net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention)
 	 */
 	@Override
-	public double getValue(AnalyticModel model, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final AnalyticModel model, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		if(maturity == 0) {
 			return 0;
 		}
@@ -72,24 +72,24 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 		 */
 		double integratedVariance = 0.0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-			double time = timeDiscretization.getTime(timeIndex);
+			final double time = timeDiscretization.getTime(timeIndex);
 			if(time > maturity) {
 				break;
 			}
 
-			double timeStep = timeDiscretization.getTimeStep(timeIndex);
-			double instantaneousVolatility = (a + b * (maturity-time)) * Math.exp(-c * (maturity-time)) + d;
+			final double timeStep = timeDiscretization.getTimeStep(timeIndex);
+			final double instantaneousVolatility = (a + b * (maturity-time)) * Math.exp(-c * (maturity-time)) + d;
 
 			integratedVariance += instantaneousVolatility*instantaneousVolatility * Math.min(maturity-time, timeStep);
 		}
 
-		double value = Math.sqrt(integratedVariance/maturity);
+		final double value = Math.sqrt(integratedVariance/maturity);
 		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);
 	}
 
 	@Override
 	public double[] getParameter() {
-		double[] parameter = new double[4];
+		final double[] parameter = new double[4];
 		parameter[0] = a;
 		parameter[1] = b;
 		parameter[2] = c;
@@ -99,12 +99,12 @@ public class CapletVolatilitiesParametricFourParameterPicewiseConstant extends A
 	}
 
 	@Override
-	public void setParameter(double[] parameter) {
+	public void setParameter(final double[] parameter) {
 		throw new UnsupportedOperationException("This class is immutable.");
 	}
 
 	@Override
-	public AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException {
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(final double[] value) throws CloneNotSupportedException {
 		return new CapletVolatilitiesParametricFourParameterPicewiseConstant(getName(), getReferenceDate(), value[0], value[1], value[2], value[3], timeDiscretization);
 	}
 }

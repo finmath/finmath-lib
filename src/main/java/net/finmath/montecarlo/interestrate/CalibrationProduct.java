@@ -32,7 +32,7 @@ public class CalibrationProduct {
 	 * @param weight The calibration weight.
 	 * @param priority The priority (may be used when submitting the product for calculation)
 	 */
-	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight, int priority) {
+	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight, final int priority) {
 		super();
 		this.name			= name;
 		this.product		= product;
@@ -41,19 +41,19 @@ public class CalibrationProduct {
 		this.priority		= priority;
 	}
 
-	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
+	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
 		this(name, product, targetValue, weight, 0);
 	}
 
-	public CalibrationProduct(String name, AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
+	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final double targetValue, final double weight) {
 		this(name, product, new Scalar(targetValue), weight);
 	}
 
-	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, RandomVariable targetValue, double weight) {
+	public CalibrationProduct(final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
 		this(null, product, targetValue, weight);
 	}
 
-	public CalibrationProduct(AbstractLIBORMonteCarloProduct product, double targetValue, double weight) {
+	public CalibrationProduct(final AbstractLIBORMonteCarloProduct product, final double targetValue, final double weight) {
 		this(product, new Scalar(targetValue), weight);
 	}
 

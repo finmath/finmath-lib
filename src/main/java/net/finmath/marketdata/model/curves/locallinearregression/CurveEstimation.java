@@ -46,12 +46,12 @@ public class CurveEstimation{
 		CAUCHY
 	}
 
-	private LocalDate referenceDate;
-	private double bandwidth;
-	private double[] independentValues;
-	private double[] dependentValues;
-	private Partition partition;
-	private DiscountCurveInterpolation regressionCurve=null;
+	private final LocalDate referenceDate;
+	private final double bandwidth;
+	private final double[] independentValues;
+	private final double[] dependentValues;
+	private final Partition partition;
+	private final DiscountCurveInterpolation regressionCurve=null;
 	private AbstractRealDistribution kernel;
 
 	/**
@@ -66,13 +66,13 @@ public class CurveEstimation{
 	 * @param distribution The kernel type.
 	 */
 	public CurveEstimation(
-			LocalDate referenceDate,
-			double bandwidth,
-			double[] independentValues,
-			double[] dependentValues,
-			double[] partitionValues,
-			double weight,
-			Distribution distribution){
+			final LocalDate referenceDate,
+			final double bandwidth,
+			final double[] independentValues,
+			final double[] dependentValues,
+			final double[] partitionValues,
+			final double weight,
+			final Distribution distribution){
 		this.referenceDate = referenceDate;
 		this.bandwidth = bandwidth;
 		this.independentValues = independentValues;
@@ -106,12 +106,12 @@ public class CurveEstimation{
 	 * @param weight The weight needed to create a partition.
 	 */
 	public CurveEstimation(
-			LocalDate referenceDate,
-			double bandwidth,
-			double[] independentValues,
-			double[] dependentValues,
-			double[] partitionValues,
-			double weight) {
+			final LocalDate referenceDate,
+			final double bandwidth,
+			final double[] independentValues,
+			final double[] dependentValues,
+			final double[] partitionValues,
+			final double weight) {
 		this(referenceDate,bandwidth,independentValues,dependentValues,partitionValues,weight,Distribution.NORMAL);
 	}
 
@@ -125,8 +125,8 @@ public class CurveEstimation{
 		if(regressionCurve !=null) {
 			return regressionCurve;
 		}
-		DoubleMatrix a = solveEquationSystem();
-		double[] curvePoints=new double[partition.getLength()];
+		final DoubleMatrix a = solveEquationSystem();
+		final double[] curvePoints=new double[partition.getLength()];
 		curvePoints[0]=a.get(0);
 		for(int i=1;i<curvePoints.length;i++) {
 			curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));
@@ -149,14 +149,14 @@ public class CurveEstimation{
 	 */
 	private DoubleMatrix solveEquationSystem(){
 		DoubleMatrix R=new DoubleMatrix(partition.getLength());
-		DoubleMatrix M=new DoubleMatrix(partition.getLength(),partition.getLength());
-		DoubleMatrix partitionAsVector=new DoubleMatrix(partition.getPoints());
-		DoubleMatrix shiftedPartition=new DoubleMatrix(partition.getLength());
+		final DoubleMatrix M=new DoubleMatrix(partition.getLength(),partition.getLength());
+		final DoubleMatrix partitionAsVector=new DoubleMatrix(partition.getPoints());
+		final DoubleMatrix shiftedPartition=new DoubleMatrix(partition.getLength());
 		for(int j=1; j<shiftedPartition.length;j++) {
 			shiftedPartition.put(j, partition.getPoint(j-1));
 		}
-		DoubleMatrix partitionIncrements= partitionAsVector.sub(shiftedPartition).put(0,1);
-		DoubleMatrix kernelValues=new DoubleMatrix(partition.getLength()-1);
+		final DoubleMatrix partitionIncrements= partitionAsVector.sub(shiftedPartition).put(0,1);
+		final DoubleMatrix kernelValues=new DoubleMatrix(partition.getLength()-1);
 		DoubleMatrix M1_1= new DoubleMatrix(1);
 		DoubleMatrix MFirstCol= new DoubleMatrix(partition.getLength()-1);
 		DoubleMatrix MSubDiagonal= new DoubleMatrix(partition.getLength()-1);
@@ -165,9 +165,9 @@ public class CurveEstimation{
 
 		for(int i=0;i<independentValues.length;i++){
 
-			DoubleMatrix oneZeroVector= new DoubleMatrix(partition.getLength());
+			final DoubleMatrix oneZeroVector= new DoubleMatrix(partition.getLength());
 			DoubleMatrix kernelSum= new DoubleMatrix(partition.getLength());
-			DoubleMatrix shiftedKernelVector= new DoubleMatrix(partition.getLength());
+			final DoubleMatrix shiftedKernelVector= new DoubleMatrix(partition.getLength());
 
 
 			for(int r=0;r<partition.getLength()-1;r++){
@@ -203,8 +203,8 @@ public class CurveEstimation{
 							.mul(kernelSum.getRange(1, kernelSum.length))));
 		}
 
-		DoubleMatrix partitionIncrementMatrix= new DoubleMatrix(partition.getLength()-1,partition.getLength()-1);
-		DoubleMatrix matrixDefine= DoubleMatrix.ones(partition.getLength()-1);
+		final DoubleMatrix partitionIncrementMatrix= new DoubleMatrix(partition.getLength()-1,partition.getLength()-1);
+		final DoubleMatrix matrixDefine= DoubleMatrix.ones(partition.getLength()-1);
 		for(int m=0;m<matrixDefine.length-1;m++) {
 			matrixDefine.put(m, 0);
 			partitionIncrementMatrix.putColumn(m, matrixDefine.mul(partitionIncrements.get(m+1)));
@@ -213,7 +213,7 @@ public class CurveEstimation{
 		MSubMatrix=partitionIncrementMatrix.mulColumnVector(MSubMatrixSum);
 		MSubMatrix=MSubMatrix.add(MSubMatrix.transpose()).add(DoubleMatrix.diag(MSubDiagonal));
 
-		int[] rowColIndex =new int[partition.getLength()-1];
+		final int[] rowColIndex =new int[partition.getLength()-1];
 		for(int n=0;n<rowColIndex.length;n++) {
 			rowColIndex[n]=n+1;
 		}

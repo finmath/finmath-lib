@@ -32,18 +32,18 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 	}
 
 	@Override
-	public DescribedModel<? extends AssetModelDescriptor> getModelFromDescriptor(AssetModelDescriptor descriptor) {
+	public DescribedModel<? extends AssetModelDescriptor> getModelFromDescriptor(final AssetModelDescriptor descriptor) {
 
 		if(descriptor instanceof BlackScholesModelDescriptor) {
-			DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelFourier((BlackScholesModelDescriptor) descriptor);
+			final DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelFourier((BlackScholesModelDescriptor) descriptor);
 			return model;
 		}
 		else if(descriptor instanceof HestonModelDescriptor) {
-			DescribedModel<HestonModelDescriptor> model = new HestonModelFourier((HestonModelDescriptor) descriptor);
+			final DescribedModel<HestonModelDescriptor> model = new HestonModelFourier((HestonModelDescriptor) descriptor);
 			return model;
 		}
 		else if(descriptor instanceof MertonModelDescriptor) {
-			DescribedModel<MertonModelDescriptor> model = new MertonModelFourier((MertonModelDescriptor) descriptor);
+			final DescribedModel<MertonModelDescriptor> model = new MertonModelFourier((MertonModelDescriptor) descriptor);
 			return model;
 		}
 		else if(descriptor instanceof VarianceGammaModelDescriptor) {
@@ -51,7 +51,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 			return model;
 		}
 		else {
-			String name = descriptor.name();
+			final String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
 	}
@@ -78,7 +78,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 		 *
 		 * @param descriptor A Black Scholes model descriptor.
 		 */
-		private BlackScholesModelFourier(BlackScholesModelDescriptor descriptor) {
+		private BlackScholesModelFourier(final BlackScholesModelDescriptor descriptor) {
 			super(
 					null,
 					descriptor.getInitialValue(),
@@ -96,7 +96,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
-				ProductDescriptor productDescriptor) {
+				final ProductDescriptor productDescriptor) {
 			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}
@@ -118,7 +118,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 		 *
 		 * @param descriptor A Heston model descriptor.
 		 */
-		private HestonModelFourier(HestonModelDescriptor descriptor) {
+		private HestonModelFourier(final HestonModelDescriptor descriptor) {
 			super(
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
@@ -140,7 +140,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
-				ProductDescriptor productDescriptor) {
+				final ProductDescriptor productDescriptor) {
 			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}
@@ -156,7 +156,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 		private final MertonModelDescriptor descriptor;
 		private final SingleAssetFourierProductFactory productFactory;
 
-		private MertonModelFourier(MertonModelDescriptor descriptor) {
+		private MertonModelFourier(final MertonModelDescriptor descriptor) {
 			super(
 					null,
 					descriptor.getInitialValue(),
@@ -176,7 +176,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
-				ProductDescriptor productDescriptor) {
+				final ProductDescriptor productDescriptor) {
 			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 

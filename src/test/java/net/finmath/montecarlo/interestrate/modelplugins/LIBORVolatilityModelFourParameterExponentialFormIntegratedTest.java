@@ -7,10 +7,13 @@
 package net.finmath.montecarlo.interestrate.modelplugins;
 
 import java.util.Random;
+import java.util.function.DoubleUnaryOperator;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.integration.SimpsonRealIntegrator;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -19,8 +22,8 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * Unit test for <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>.
  *
  * This test shows that the analytic formula used in <code>LIBORVolatilityModelFourParameterExponentialFormIntegrated</code>
- * - in the limit - agrees with the result obtained from <code>LIBORVolatilityModelFourParameterExponentialForm</code>
- * given that its time discretization step size is going to zero.
+ * agrees with the result a numerical integration obtained from <code>LIBORVolatilityModelFourParameterExponentialForm</code>
+ * given that its time discretization step size is small enough.
  * @author Christian Fries
  */
 public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
@@ -30,40 +33,65 @@ public class LIBORVolatilityModelFourParameterExponentialFormIntegratedTest {
 		/*
 		 * Generate a set of test parameters within a given range
 		 */
-		Random random = new Random(3141);
+		final Random random = new Random(3141);
 
-		double aMin = 0.0;
-		double aMax = 1.0;
-		double bMin = 0.0;
-		double bMax = 2.0;
-		double cMin = 0.1;
-		double cMax = 1.0;
-		double dMin = 0.0;
-		double dMax = 0.2;
+		final double aMin = 0.0;
+		final double aMax = 1.0;
+		final double bMin = 0.0;
+		final double bMax = 2.0;
+		final double cMin = -0.001;
+		final double cMax = 0.05;
+		final double dMin = 0.0;
+		final double dMax = 0.2;
 
+		/*
+		 * Difficult values are small values for c, e.g.
+		 * c =  1.6442404690564238E-6;
+		 * c =  7.1699989962897840E-6;
+		 * c = -8.5350795667182840E-8;
+		 * c = -3.3771868628101887E-5;
+		 */
 		double error = 0.0;
-		for(int i=0; i<10000; i++) {
-			double a = aMin + random.nextDouble() * (aMax-aMin);
-			double b = bMin + random.nextDouble() * (bMax-bMin);
-			double c = cMin + random.nextDouble() * (cMax-cMin);
-			double d = dMin + random.nextDouble() * (dMax-dMin);
+		for(int i=0; i<1000; i++) {
+			final double a = aMin + random.nextDouble() * (aMax-aMin);
+			final double b = bMin + random.nextDouble() * (bMax-bMin);
+			final double c = cMin + random.nextDouble() * (cMax-cMin);
+			final double d = dMin + random.nextDouble() * (dMax-dMin);
 
-			int numberOfTimePoints = 20000;
-			TimeDiscretization td = new TimeDiscretizationFromArray(0.0, numberOfTimePoints, 10.0/numberOfTimePoints);
-			LIBORVolatilityModelFourParameterExponentialFormIntegrated vol1 = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(td, td, a, b, c, d, false);
+			final int numberOfTimePoints = 100;
+			final TimeDiscretization td = new TimeDiscretizationFromArray(0.0, numberOfTimePoints, 50.0/numberOfTimePoints);
+			final LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(td, td, a, b, c, d, false);
 
-			int timeIndex = random.nextInt(numberOfTimePoints-1);
-			int liborIndex = random.nextInt(numberOfTimePoints-timeIndex-1)+1;
+			final int timeIndex = random.nextInt(numberOfTimePoints-1);
+			final int liborIndex = random.nextInt(numberOfTimePoints-timeIndex-1)+1;
 
-			double timeToMaturity = td.getTime(timeIndex+liborIndex) - td.getTime(timeIndex);
-			double v1 = vol1.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
-			double v2 = (a + b * timeToMaturity) * Math.exp(-c * timeToMaturity) + d;
+			final double volatilityAnalytical = volatilityModel.getVolatility(timeIndex, timeIndex+liborIndex).getAverage();
 
-			error = Math.max(error, Math.abs(v1-v2));
+			/*
+			 * Numerical integration
+			 */
+			final int numberOfEvaluationPoints = 100000;
+			final double t1 = td.getTime(timeIndex);
+			final double t2 = td.getTime(timeIndex+1);
+			final double maturity = td.getTime(timeIndex+liborIndex);
+			final SimpsonRealIntegrator integrtor = new SimpsonRealIntegrator(t1, t2, numberOfEvaluationPoints, true);
+			final DoubleUnaryOperator integrand = t -> Math.pow((a + b * (maturity-t)) * Math.exp(-c * (maturity-t)) + d,2);
+			final double variance = integrtor.integrate(integrand);
+			final double volatilityNumerical = Math.sqrt(variance/(t2-t1));
+
+			/*
+			 * Measure a relative error if v1 > 1, otherwise an absolute error.
+			 */
+			error = Math.max(error, Math.abs(volatilityAnalytical-volatilityNumerical)/Math.max(volatilityAnalytical, 1));
+
+			//			System.out.println(error + "\t" + timeIndex + "\t" + liborIndex + "\t" + t1 + "\t" + t2 + "\t" + maturity + "\t" + volatilityAnalytical + "\t" + volatilityNumerical +"\t" + a + "\t" + b + "\t" + c + "\t" + d);
+
+			/*
+			 * Mostly the approximation accuracy is around 1E-11, sometimes 1E-10
+			 */
+			Assert.assertEquals(0.0, error, 2E-10);
 		}
 
-		System.out.println(error);
-		Assert.assertEquals(0.0, error, 1E-3);
 	}
 
 }

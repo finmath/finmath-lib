@@ -26,32 +26,32 @@ public class NormalizingDummyProduct extends AbstractSingleSwapRateProduct {
 	 * @param volatilityCubeName The name of the volatility cube.
 	 * @param normalizer The normalizer of this dummy.
 	 */
-	public NormalizingDummyProduct(Schedule fixSchedule, Schedule floatSchedule, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName, NormalizingFunction normalizer) {
+	public NormalizingDummyProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final NormalizingFunction normalizer) {
 		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
 		this.normalizer = normalizer;
 	}
 
 	@Override
-	protected double payoffFunction(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double payoffFunction(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return normalizer.getValue(swapRate);
 	}
 
 	@Override
-	protected double hedgeWeight(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double hedgeWeight(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return normalizer.getSecondDerivative(swapRate);
 	}
 
 	@Override
-	protected double singularAddon(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double singularAddon(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return 0;
 	}
 
 	@Override
-	protected AnnuityMapping buildAnnuityMapping(VolatilityCubeModel model) {
+	protected AnnuityMapping buildAnnuityMapping(final VolatilityCubeModel model) {
 		return null;
 	}
 

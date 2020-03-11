@@ -41,7 +41,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @param strike The strike K in the option payoff indicator(S(T)-K).
 	 * @param underlyingIndex The index of the underlying to be fetched from the model.
 	 */
-	public DigitalOption(double maturity, double strike, int underlyingIndex) {
+	public DigitalOption(final double maturity, final double strike, final int underlyingIndex) {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
@@ -54,11 +54,11 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @param maturity The maturity T in the option payoff indicator(S(T)-K)
 	 * @param strike The strike K in the option payoff indicator(S(T)-K).
 	 */
-	public DigitalOption(double maturity, double strike) {
+	public DigitalOption(final double maturity, final double strike) {
 		this(maturity, strike, 0);
 	}
 
-	public DigitalOption(String nameOfUnderlying, double maturity, double strike) {
+	public DigitalOption(final String nameOfUnderlying, final double maturity, final double strike) {
 		super();
 		this.nameOfUnderlying = nameOfUnderlying;
 		this.maturity = maturity;
@@ -77,23 +77,23 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Get underlying and numeraire
 
 		// Get S(T)
-		RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
+		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
 		// The payoff: values = indicator(underlying - strike, 0) = V(T) = max(S(T)-K,0)
 		RandomVariable values = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

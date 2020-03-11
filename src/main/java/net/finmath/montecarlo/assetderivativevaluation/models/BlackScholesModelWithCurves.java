@@ -8,7 +8,7 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 import java.util.Map;
 
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -45,7 +45,7 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	private final DiscountCurve discountCurveForForwardRate;
 	private final DiscountCurve discountCurveForDiscountRate;
 
-	private final AbstractRandomVariableFactory randomVariableFactory;
+	private final RandomVariableFactory abstractRandomVariableFactory;
 
 	// Cache for arrays provided though AbstractProcessModel
 	private final RandomVariable[]	initialState;
@@ -59,19 +59,19 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
 	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
-	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
-			RandomVariable initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			RandomVariable volatility,
-			DiscountCurve discountCurveForDiscountRate,
-			AbstractRandomVariableFactory randomVariableFactory) {
+			final RandomVariable initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final RandomVariable volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariableFactory abstractRandomVariableFactory) {
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.randomVariableFactory = randomVariableFactory;
+		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		initialState = new RandomVariable[] { initialValue.log() };
 		driftAdjustment = volatility.squared().div(-2.0);
@@ -85,15 +85,15 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
 	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
-	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
-			Double initialValue,
-			DiscountCurve discountCurveForForwardRate,
-			Double volatility,
-			DiscountCurve discountCurveForDiscountRate,
-			AbstractRandomVariableFactory randomVariableFactory) {
-		this(randomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, randomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, randomVariableFactory);
+			final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final Double volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariableFactory abstractRandomVariableFactory) {
+		this(abstractRandomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, abstractRandomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, abstractRandomVariableFactory);
 	}
 
 	@Override
@@ -102,35 +102,35 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
-		double time = getTime(timeIndex);
-		double timeNext = getTime(timeIndex+1);
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double time = getTime(timeIndex);
+		final double timeNext = getTime(timeIndex+1);
 
-		double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
+		final double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 
 		return new RandomVariable[] { driftAdjustment.add(rate) };
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadings;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(int componentIndex, RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
 	@Override
-	public RandomVariable getNumeraire(double time) {
-		double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
+	public RandomVariable getNumeraire(final double time) {
+		final double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
 
-		return randomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
+		return abstractRandomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
 	}
 
 	@Override
@@ -139,19 +139,19 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getRandomVariableForConstant(double value) {
-		return randomVariableFactory.createRandomVariable(value);
+	public RandomVariable getRandomVariableForConstant(final double value) {
+		return abstractRandomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
-	public BlackScholesModelWithCurves getCloneWithModifiedData(Map<String, Object> dataModified) {
+	public BlackScholesModelWithCurves getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		RandomVariable	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariable)dataModified.get("initialValue") : initialValue;
-		RandomVariable	newVolatility	= dataModified.get("volatility") != null	? (RandomVariable)dataModified.get("volatility") 	: volatility;
+		final RandomVariable	newInitialValue	= dataModified.get("initialValue") != null	? (RandomVariable)dataModified.get("initialValue") : initialValue;
+		final RandomVariable	newVolatility	= dataModified.get("volatility") != null	? (RandomVariable)dataModified.get("volatility") 	: volatility;
 
-		return new BlackScholesModelWithCurves(newInitialValue, discountCurveForForwardRate, newVolatility, discountCurveForDiscountRate, randomVariableFactory);
+		return new BlackScholesModelWithCurves(newInitialValue, discountCurveForForwardRate, newVolatility, discountCurveForDiscountRate, abstractRandomVariableFactory);
 	}
 
 	@Override

@@ -36,7 +36,7 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 	 * @param fixingOffset An offset added to the fixing to define the period start.
 	 * @param paymentOffset The payment offset passed to <code>getForward</code>.
 	 */
-	public AnalyticModelForwardCurveIndex(String name, String curveName, double fixingOffset, double paymentOffset) {
+	public AnalyticModelForwardCurveIndex(final String name, final String curveName, final double fixingOffset, final double paymentOffset) {
 		super(name);
 		this.curveName = curveName;
 		fixingOffet = fixingOffset;
@@ -44,19 +44,19 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 
-		AnalyticModel analyticModel = model.getModel().getAnalyticModel();
+		final AnalyticModel analyticModel = model.getModel().getAnalyticModel();
 		if(analyticModel == null) {
 			throw new IllegalArgumentException("Provided model does not carry an associated analytic model.");
 		}
 
-		ForwardCurve curve = analyticModel.getForwardCurve(curveName);
+		final ForwardCurve curve = analyticModel.getForwardCurve(curveName);
 		if(curve == null) {
 			throw new IllegalArgumentException("Associated analytic model does not carry a curve of the name " +  curveName + ".");
 		}
 
-		double index = curve.getForward(analyticModel, evaluationTime + fixingOffet, paymentOffset);
+		final double index = curve.getForward(analyticModel, evaluationTime + fixingOffet, paymentOffset);
 
 		return model.getRandomVariableForConstant(index);
 	}
@@ -73,7 +73,7 @@ public class AnalyticModelForwardCurveIndex extends AbstractIndex {
 
 	@Override
 	public Set<String> queryUnderlyings() {
-		Set<String> underlyingNames = new HashSet<>();
+		final Set<String> underlyingNames = new HashSet<>();
 		underlyingNames.add(getName());
 		return underlyingNames;
 	}

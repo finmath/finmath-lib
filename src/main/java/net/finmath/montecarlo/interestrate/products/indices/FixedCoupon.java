@@ -28,13 +28,13 @@ public class FixedCoupon extends AbstractIndex {
 	 *
 	 * @param coupon The coupon.
 	 */
-	public FixedCoupon(double coupon) {
+	public FixedCoupon(final double coupon) {
 		super();
 		this.coupon = new RandomVariableFromDoubleArray(coupon);
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) {
 		return coupon;
 	}
 

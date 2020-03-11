@@ -48,8 +48,8 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	 * @param sabrNu Volatility of the stochastic volatility (vol-of-vol).
 	 * @param sabrDisplacement The displacement parameter of the smile.
 	 */
-	public SABRVolatilityCubeSingleSmile(String name, LocalDate referenceDate, double underlying, double sabrAlpha,
-			double sabrBeta, double sabrRho, double sabrNu, double sabrDisplacement) {
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -76,8 +76,8 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	 * @param sabrDisplacement The displacement parameter of the smile.
 	 * @param correlationDecay The correlation decay inherent to this cube.
 	 */
-	public SABRVolatilityCubeSingleSmile(String name, LocalDate referenceDate, double underlying, double sabrAlpha,
-			double sabrBeta, double sabrRho, double sabrNu, double sabrDisplacement, double correlationDecay) {
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement, final double correlationDecay) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -105,8 +105,8 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	 * @param correlationDecay The correlation decay inherent to this cube.
 	 * @param iborOisDecorrelation The ibor ois decorrealtion parameter of this cube.
 	 */
-	public SABRVolatilityCubeSingleSmile(String name, LocalDate referenceDate, double underlying, double sabrAlpha,
-			double sabrBeta, double sabrRho, double sabrNu, double sabrDisplacement, double correlationDecay, double iborOisDecorrelation) {
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement, final double correlationDecay, final double iborOisDecorrelation) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -121,8 +121,8 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	}
 
 	@Override
-	public double getValue(VolatilityCubeModel model, double termination, double maturity, double strike,
-			QuotingConvention quotingConvention) {
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
 
 		if(quotingConvention == this.quotingConvention) {
 			return AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(sabrAlpha, sabrBeta, sabrRho, sabrNu, sabrDisplacement, underlying, strike, maturity);
@@ -133,7 +133,7 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	}
 
 	@Override
-	public double getValue(double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, termination, maturity, strike, quotingConvention);
 	}
 
@@ -164,7 +164,7 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		final Map<String,Object> map = new HashMap<>();
 		map.put("sabrAlpha", sabrAlpha);
 		map.put("sabrBeta", sabrBeta);
 		map.put("sabrRho", sabrRho);
@@ -178,7 +178,7 @@ public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializab
 	}
 
 	@Override
-	public double getLowestStrike(VolatilityCubeModel model) {
+	public double getLowestStrike(final VolatilityCubeModel model) {
 		return -sabrDisplacement;
 	}
 

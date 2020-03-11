@@ -59,8 +59,8 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 	 * @param baseVolTable Table containing initial volatilities.
 	 * @param correlationDecay The correlation decay parameters of this cube.
 	 */
-	public SABRVolatilityCubeParallel(String name, LocalDate referenceDate, DataTable swapRateTable, double sabrDisplacement,
-			double sabrBeta, double sabrRho, double sabrVolvol, DataTable baseVolTable, double correlationDecay) {
+	public SABRVolatilityCubeParallel(final String name, final LocalDate referenceDate, final DataTable swapRateTable, final double sabrDisplacement,
+			final double sabrBeta, final double sabrRho, final double sabrVolvol, final DataTable baseVolTable, final double correlationDecay) {
 		this(name, referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho, sabrVolvol, baseVolTable, correlationDecay, 1.0);
 	}
 
@@ -78,8 +78,8 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 	 * @param correlationDecay The correlation decay parameters of this cube.
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of this cube.
 	 */
-	public SABRVolatilityCubeParallel(String name, LocalDate referenceDate, DataTable swapRateTable, double sabrDisplacement,
-			double sabrBeta, double sabrRho, double sabrVolvol, DataTable baseVolTable, double correlationDecay, double iborOisDecorrelation) {
+	public SABRVolatilityCubeParallel(final String name, final LocalDate referenceDate, final DataTable swapRateTable, final double sabrDisplacement,
+			final double sabrBeta, final double sabrRho, final double sabrVolvol, final DataTable baseVolTable, final double correlationDecay, final double iborOisDecorrelation) {
 		super();
 		this.name = name;
 		this.referenceDate = referenceDate;
@@ -94,7 +94,7 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 	}
 
 	@Override
-	public double getValue(VolatilityCubeModel model, double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 
 		if(termination<maturity) {
 			throw new IllegalArgumentException("Termination has to be larger (or equal) maturity. Was termination="+termination+", maturity="+maturity);
@@ -104,8 +104,8 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 			throw new IllegalArgumentException("This cube supports only the Quoting Convention " +this.quotingConvention);
 		}
 
-		double underlying = underlyingTable.getValue(maturity, termination);
-		double baseVol = baseVolTable.getValue(maturity, termination);
+		final double underlying = underlyingTable.getValue(maturity, termination);
+		final double baseVol = baseVolTable.getValue(maturity, termination);
 
 		//		if(Double.isNaN(AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(baseVol, sabrBeta, sabrRho, sabrVolvol, sabrDisplacement, underlying, strike, maturity)))
 		//			System.out.println(underlying +"\t"+ baseVol +"\t"+ sabrBeta +"\t"+sabrRho+"\t"+sabrVolvol+"\t"+sabrDisplacement+"\t"+strike+"\t"+maturity);
@@ -115,7 +115,7 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 	}
 
 	@Override
-	public double getValue(double termination, double maturity, double strike, QuotingConvention quotingConvention) {
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
 		return getValue(null, termination, maturity, strike, quotingConvention);
 	}
 
@@ -136,7 +136,7 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 
 	@Override
 	public Map<String, Object> getParameters() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		final Map<String,Object> map = new HashMap<>();
 		map.put("sabrBeta", sabrBeta);
 		map.put("sabrRho", sabrRho);
 		map.put("sabrVolvol", sabrVolvol);
@@ -151,7 +151,7 @@ public class SABRVolatilityCubeParallel implements VolatilityCube, Serializable 
 
 
 	@Override
-	public double getLowestStrike(VolatilityCubeModel model) {
+	public double getLowestStrike(final VolatilityCubeModel model) {
 		return -sabrDisplacement;
 	}
 

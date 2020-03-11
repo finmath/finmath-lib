@@ -30,23 +30,23 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 	private final double theta;
 
-	public BlackScholesModelMonteCarloFiniteDifference1D(double theta) {
+	public BlackScholesModelMonteCarloFiniteDifference1D(final double theta) {
 		super();
 		this.theta = theta;
 	}
 
 	@Override
-	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(BlackScholesModelDescriptor modelDescriptor) {
+	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(final BlackScholesModelDescriptor modelDescriptor) {
 
-		double initialValue = modelDescriptor.getInitialValue();
+		final double initialValue = modelDescriptor.getInitialValue();
 		// @TODO The model does not support a curve for the forward
-		double riskFreeRate = -Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));
-		double volatility = modelDescriptor.getVolatility();
+		final double riskFreeRate = -Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));
+		final double volatility = modelDescriptor.getVolatility();
 
-		int numTimesteps = 35;
-		int numSpacesteps = 120;
-		int numStandardDeviations = 5;
-		double center = initialValue;
+		final int numTimesteps = 35;
+		final int numSpacesteps = 120;
+		final int numStandardDeviations = 5;
+		final double center = initialValue;
 
 		class BlackScholesFDModel extends FDMBlackScholesModel implements DescribedModel<BlackScholesModelDescriptor> {
 
@@ -62,7 +62,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
 				if(productDescriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 
 					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
@@ -75,22 +75,22 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 						}
 
 						@Override
-						public Object getValue(double evaluationTime, Model model) {
+						public Object getValue(final double evaluationTime, final Model model) {
 							return getValues(evaluationTime, model);
 						}
 
 						@Override
-						public Map<String, Object> getValues(double evaluationTime, Model model) {
-							double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
-							double[] initialStockPrice = valueFDM[0];
-							double[] optionValue = valueFDM[1];
+						public Map<String, Object> getValues(final double evaluationTime, final Model model) {
+							final double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
+							final double[] initialStockPrice = valueFDM[0];
+							final double[] optionValue = valueFDM[1];
 
 							int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
 							if(indexOfSpot < 0) {
 								indexOfSpot = -indexOfSpot-1;
 							}
 
-							Map<String, Object> results = new HashMap<String, Object>();
+							final Map<String, Object> results = new HashMap<>();
 							results.put("value", optionValue[indexOfSpot]);
 							return results;
 						}
@@ -103,7 +103,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 					return new FDCallOptionProduct();
 				}
 				else {
-					String name = modelDescriptor.name();
+					final String name = modelDescriptor.name();
 					throw new IllegalArgumentException("Unsupported product type " + name);
 				}
 			}

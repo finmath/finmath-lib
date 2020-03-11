@@ -24,7 +24,7 @@ public class Scalar implements RandomVariable {
 
 	private final double value;
 
-	public Scalar(double value) {
+	public Scalar(final double value) {
 		super();
 		this.value = value;
 		//		if(Double.isNaN(value)) {
@@ -32,8 +32,8 @@ public class Scalar implements RandomVariable {
 		//		}
 	}
 
-	public static Scalar[] arrayOf(double[] arrayOfDoubles) {
-		Scalar[] array = new Scalar[arrayOfDoubles.length];
+	public static Scalar[] arrayOf(final double[] arrayOfDoubles) {
+		final Scalar[] array = new Scalar[arrayOfDoubles.length];
 		for(int i=0; i<arrayOfDoubles.length; i++) {
 			array[i] = new Scalar(arrayOfDoubles[i]);
 		}
@@ -41,7 +41,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public boolean equals(RandomVariable randomVariable) {
+	public boolean equals(final RandomVariable randomVariable) {
 		return randomVariable.isDeterministic() && value == randomVariable.get(0);
 	}
 
@@ -56,7 +56,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public double get(int pathOrState) {
+	public double get(final int pathOrState) {
 		return value;
 	}
 
@@ -106,7 +106,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public double getAverage(RandomVariable probabilities) {
+	public double getAverage(final RandomVariable probabilities) {
 		return value * probabilities.getAverage();
 	}
 
@@ -116,7 +116,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public double getVariance(RandomVariable probabilities) {
+	public double getVariance(final RandomVariable probabilities) {
 		return 0;
 	}
 
@@ -131,7 +131,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public double getStandardDeviation(RandomVariable probabilities) {
+	public double getStandardDeviation(final RandomVariable probabilities) {
 		return 0;
 	}
 
@@ -141,32 +141,32 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public double getStandardError(RandomVariable probabilities) {
+	public double getStandardError(final RandomVariable probabilities) {
 		return 0;
 	}
 
 	@Override
-	public double getQuantile(double quantile) {
+	public double getQuantile(final double quantile) {
 		return value;
 	}
 
 	@Override
-	public double getQuantile(double quantile, RandomVariable probabilities) {
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
 		return value;
 	}
 
 	@Override
-	public double getQuantileExpectation(double quantileStart, double quantileEnd) {
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
 		return value;
 	}
 
 	@Override
-	public double[] getHistogram(double[] intervalPoints) {
+	public double[] getHistogram(final double[] intervalPoints) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public double[][] getHistogram(int numberOfPoints, double standardDeviations) {
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -176,55 +176,55 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable apply(DoubleUnaryOperator operator) {
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
 		return new Scalar(operator.applyAsDouble(value));
 	}
 
 	@Override
-	public RandomVariable apply(DoubleBinaryOperator operator, RandomVariable argument) {
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariable apply(DoubleTernaryOperator operator, RandomVariable argument1,
-			RandomVariable argument2) {
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1,
+			final RandomVariable argument2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public RandomVariable cap(double cap) {
+	public RandomVariable cap(final double cap) {
 		return new Scalar(Math.min(value, cap));
 	}
 
 	@Override
-	public RandomVariable floor(double floor) {
+	public RandomVariable floor(final double floor) {
 		return new Scalar(Math.max(value, floor));
 	}
 
 	@Override
-	public RandomVariable add(double value) {
+	public RandomVariable add(final double value) {
 		return new Scalar(this.value + value);
 	}
 
 	@Override
-	public RandomVariable sub(double value) {
+	public RandomVariable sub(final double value) {
 		return new Scalar(this.value - value);
 	}
 
 	@Override
-	public RandomVariable mult(double value) {
+	public RandomVariable mult(final double value) {
 		return new Scalar(this.value * value);
 	}
 
 	@Override
-	public RandomVariable div(double value) {
+	public RandomVariable div(final double value) {
 		return new Scalar(this.value / value);
 	}
 
 	@Override
-	public RandomVariable pow(double exponent) {
+	public RandomVariable pow(final double exponent) {
 		return new Scalar(Math.pow(value, exponent));
 	}
 
@@ -249,6 +249,11 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
+	public RandomVariable expm1() {
+		return new Scalar(Math.expm1(value));
+	}
+
+	@Override
 	public RandomVariable log() {
 		return new Scalar(Math.log(value));
 	}
@@ -264,32 +269,32 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable add(RandomVariable randomVariable) {
+	public RandomVariable add(final RandomVariable randomVariable) {
 		return randomVariable.add(value);
 	}
 
 	@Override
-	public RandomVariable sub(RandomVariable randomVariable) {
+	public RandomVariable sub(final RandomVariable randomVariable) {
 		return randomVariable.sub(value).mult(-1.0);
 	}
 
 	@Override
-	public RandomVariable bus(RandomVariable randomVariable) {
+	public RandomVariable bus(final RandomVariable randomVariable) {
 		return randomVariable.sub(value);
 	}
 
 	@Override
-	public RandomVariable mult(RandomVariable randomVariable) {
+	public RandomVariable mult(final RandomVariable randomVariable) {
 		return randomVariable.mult(value);
 	}
 
 	@Override
-	public RandomVariable div(RandomVariable randomVariable) {
+	public RandomVariable div(final RandomVariable randomVariable) {
 		return randomVariable.invert().mult(value);
 	}
 
 	@Override
-	public RandomVariable vid(RandomVariable randomVariable) {
+	public RandomVariable vid(final RandomVariable randomVariable) {
 		if(value == 0) {
 			return new Scalar(Double.NaN);
 		}
@@ -297,22 +302,22 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable cap(RandomVariable cap) {
+	public RandomVariable cap(final RandomVariable cap) {
 		return cap.cap(value);
 	}
 
 	@Override
-	public RandomVariable floor(RandomVariable floor) {
+	public RandomVariable floor(final RandomVariable floor) {
 		return floor.floor(value);
 	}
 
 	@Override
-	public RandomVariable accrue(RandomVariable rate, double periodLength) {
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
 		return rate.mult(periodLength*value).add(value);
 	}
 
 	@Override
-	public RandomVariable discount(RandomVariable rate, double periodLength) {
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
 		if(value == 0) {
 			return rate.mult(0.0);
 		}
@@ -322,7 +327,7 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable choose(RandomVariable valueIfTriggerNonNegative, RandomVariable valueIfTriggerNegative) {
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
 		if(value >= 0) {
 			return valueIfTriggerNonNegative;
 		} else {
@@ -341,22 +346,22 @@ public class Scalar implements RandomVariable {
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, double factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
 		return factor1.mult(factor2).add(value);
 	}
 
 	@Override
-	public RandomVariable addProduct(RandomVariable factor1, RandomVariable factor2) {
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
 		return factor1.mult(factor2).add(value);
 	}
 
 	@Override
-	public RandomVariable addRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return numerator.div(denominator).add(value);
 	}
 
 	@Override
-	public RandomVariable subRatio(RandomVariable numerator, RandomVariable denominator) {
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
 		return numerator.div(denominator).sub(value).mult(-1.0);
 	}
 

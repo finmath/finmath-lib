@@ -17,7 +17,7 @@ import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
-import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
 import net.finmath.montecarlo.interestrate.products.components.Option;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
@@ -43,34 +43,34 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 *
 	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
 	 */
-	public InterestRateMonteCarloProductFactory(LocalDate referenceDate) {
+	public InterestRateMonteCarloProductFactory(final LocalDate referenceDate) {
 		super();
 		this.referenceDate = referenceDate;
 	}
 
 	@Override
-	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(ProductDescriptor descriptor) {
+	public DescribedProduct<? extends InterestRateProductDescriptor> getProductFromDescriptor(final ProductDescriptor descriptor) {
 
 		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {
-			InterestRateSwapLegProductDescriptor swapLeg 					= (InterestRateSwapLegProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapLegProductDescriptor> product 	= new SwapLegMonteCarlo(swapLeg, referenceDate);
+			final InterestRateSwapLegProductDescriptor swapLeg 					= (InterestRateSwapLegProductDescriptor) descriptor;
+			final DescribedProduct<InterestRateSwapLegProductDescriptor> product 	= new SwapLegMonteCarlo(swapLeg, referenceDate);
 			return product;
 
 		}
 		else if(descriptor instanceof InterestRateSwapProductDescriptor){
-			InterestRateSwapProductDescriptor swap 							= (InterestRateSwapProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwapProductDescriptor> product		= new SwapMonteCarlo(swap, referenceDate);
+			final InterestRateSwapProductDescriptor swap 							= (InterestRateSwapProductDescriptor) descriptor;
+			final DescribedProduct<InterestRateSwapProductDescriptor> product		= new SwapMonteCarlo(swap, referenceDate);
 			return product;
 
 		}
 		else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {
-			InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;
-			DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysicalMonteCarlo(swaption, referenceDate);
+			final InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;
+			final DescribedProduct<InterestRateSwaptionProductDescriptor> product		= new SwaptionPhysicalMonteCarlo(swaption, referenceDate);
 			return product;
 
 		}
 		else {
-			String name = descriptor.name();
+			final String name = descriptor.name();
 			throw new IllegalArgumentException("Unsupported product type " + name);
 		}
 	}
@@ -85,7 +85,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 * @param schedule
 	 * @return The Libor index or null, if forwardCurveName is null.
 	 */
-	private static AbstractIndex constructLiborIndex(String forwardCurveName, Schedule schedule) {
+	private static AbstractIndex constructLiborIndex(final String forwardCurveName, final Schedule schedule) {
 
 		if(forwardCurveName != null) {
 
@@ -125,14 +125,14 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
-		public SwapLegMonteCarlo(InterestRateSwapLegProductDescriptor descriptor, LocalDate referenceDate) {
+		public SwapLegMonteCarlo(final InterestRateSwapLegProductDescriptor descriptor, final LocalDate referenceDate) {
 			super(descriptor.getLegScheduleDescriptor().getSchedule(referenceDate),
-					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction<Notional>() {
+					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction<NotionalFromConstant>() {
 						@Override
-						public Notional apply(double x) {
-							return new Notional(x);
+						public NotionalFromConstant apply(final double x) {
+							return new NotionalFromConstant(x);
 						}
-					}).toArray(Notional[]::new),
+					}).toArray(NotionalFromConstant[]::new),
 					constructLiborIndex(descriptor.getForwardCurveName(), descriptor.getLegScheduleDescriptor().getSchedule(referenceDate)),
 					descriptor.getSpreads(),
 					couponFlow,
@@ -164,8 +164,8 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
-		public SwapMonteCarlo(InterestRateSwapProductDescriptor descriptor, LocalDate referenceDate) {
-			InterestRateMonteCarloProductFactory factory	= new InterestRateMonteCarloProductFactory(referenceDate);
+		public SwapMonteCarlo(final InterestRateSwapProductDescriptor descriptor, final LocalDate referenceDate) {
+			final InterestRateMonteCarloProductFactory factory	= new InterestRateMonteCarloProductFactory(referenceDate);
 			InterestRateProductDescriptor legDescriptor 	= descriptor.getLegReceiver();
 			legReceiver 								= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);
 			legDescriptor 									= descriptor.getLegPayer();
@@ -173,7 +173,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
 			RandomVariable value = new RandomVariableFromDoubleArray(0);
 			if(legPayer != null) {
 				value = value.add(legReceiver.getValue(evaluationTime, model));
@@ -190,8 +190,8 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 			if(!(legReceiver instanceof DescribedProduct<?>) || !(legPayer instanceof DescribedProduct<?>)) {
 				throw new RuntimeException("One or both of the legs of this swap do not support extraction of a descriptor.");
 			}
-			InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
-			InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();
+			final InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legReceiver).getDescriptor();
+			final InterestRateProductDescriptor payerDescriptor = ((DescribedProduct<InterestRateProductDescriptor>) legPayer).getDescriptor();
 			return new  InterestRateSwapProductDescriptor(receiverDescriptor, payerDescriptor);
 		}
 	}
@@ -216,11 +216,11 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		 * @param descriptor The descriptor of the product.
 		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
 		 */
-		public SwaptionPhysicalMonteCarlo(InterestRateSwaptionProductDescriptor descriptor, LocalDate referenceDate) {
+		public SwaptionPhysicalMonteCarlo(final InterestRateSwaptionProductDescriptor descriptor, final LocalDate referenceDate) {
 			super();
 			this.descriptor = descriptor;
-			double excercise = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getExcerciseDate());
-			AbstractLIBORMonteCarloProduct swap = (AbstractLIBORMonteCarloProduct)
+			final double excercise = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getExcerciseDate());
+			final AbstractLIBORMonteCarloProduct swap = (AbstractLIBORMonteCarloProduct)
 					new InterestRateMonteCarloProductFactory(referenceDate).getProductFromDescriptor(descriptor.getUnderlyingSwap());
 			swaption = new Option(excercise, descriptor.getStrikeRate(), swap);
 		}
@@ -232,7 +232,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model)
+		public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model)
 				throws CalculationException {
 			return swaption.getValue(evaluationTime, model);
 		}

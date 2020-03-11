@@ -15,9 +15,9 @@ import java.util.Arrays;
  */
 public class Partition {
 
-	private double[] points;
-	private double weight;
-	private double[] referencePoints;
+	private final double[] points;
+	private final double weight;
+	private final double[] referencePoints;
 
 	/**
 	 * Creates a partition.
@@ -27,8 +27,8 @@ public class Partition {
 	 * @param weight The weight if the partition as double. It is needed to compute the reference points.
 	 */
 	public Partition(
-			double[] points,
-			double weight
+			final double[] points,
+			final double weight
 			){
 		this.points=points;
 		this.weight=weight;
@@ -46,7 +46,7 @@ public class Partition {
 	 *               There is no need to take care of the order of the points.
 	 */
 	public Partition(
-			double[] points
+			final double[] points
 			){
 		this(points,0.5);
 	}
@@ -60,7 +60,7 @@ public class Partition {
 	 * @param x The point of interest.
 	 * @return The number of the intervals which contains x.
 	 */
-	public int getIntervalNumber(double x) {
+	public int getIntervalNumber(final double x) {
 		if (x<points[0]) {
 			return 0;
 		} else if (x>=points[points.length-1]) {
@@ -81,8 +81,8 @@ public class Partition {
 	 * @param x The point of interest.
 	 * @return The discretized value.
 	 */
-	public double d(double x){
-		int intervalNumber =getIntervalNumber(x);
+	public double d(final double x){
+		final int intervalNumber =getIntervalNumber(x);
 		if (intervalNumber==0 || intervalNumber==points.length) {
 			return x;
 		}
@@ -94,7 +94,7 @@ public class Partition {
 		return referencePoints;
 	}
 
-	public double getIntervalReferencePoint(int intervalIndex) {
+	public double getIntervalReferencePoint(final int intervalIndex) {
 		return referencePoints[intervalIndex];
 	}
 
@@ -102,7 +102,7 @@ public class Partition {
 		return points;
 	}
 
-	public double getPoint(int pointIndex) {
+	public double getPoint(final int pointIndex) {
 		return points[pointIndex];
 	}
 
@@ -114,7 +114,7 @@ public class Partition {
 		return points.length-1;
 	}
 
-	public double getIntervalLength(int intervalIndex) {
+	public double getIntervalLength(final int intervalIndex) {
 		return points[intervalIndex+1]-points[intervalIndex];
 	}
 

@@ -23,7 +23,7 @@ import net.finmath.modelling.productfactory.InterestRateAnalyticProductFactory;
 public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescriptor> {
 
 	@Override
-	public DescribedModel<AnalyticModelDescriptor> getModelFromDescriptor(AnalyticModelDescriptor descriptor) {
+	public DescribedModel<AnalyticModelDescriptor> getModelFromDescriptor(final AnalyticModelDescriptor descriptor) {
 		return new DescribedAnalyticModel(descriptor.getReferenceDate(), descriptor.getCurvesMap(), descriptor.getVolatilitySurfaceMap());
 	}
 
@@ -38,7 +38,7 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 
 		private static final long serialVersionUID = -2884913997994052340L;
 
-		public DescribedAnalyticModel(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
+		public DescribedAnalyticModel(final LocalDate referenceDate, final Map<String, Curve> curvesMap, final Map<String, VolatilitySurface> volatilitySurfaceMap) {
 			super(referenceDate, curvesMap, volatilitySurfaceMap);
 		}
 
@@ -48,7 +48,7 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 		}
 
 		@Override
-		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(ProductDescriptor productDescriptor) {
+		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
 
 			return new InterestRateAnalyticProductFactory(getReferenceDate()).getProductFromDescriptor(productDescriptor);
 

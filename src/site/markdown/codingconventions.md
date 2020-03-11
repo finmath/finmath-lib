@@ -1,11 +1,63 @@
 # Coding Conventions
 
 
+Below you find some high level design principles. With respect to the low-level code style, see the checkstyle file.
+
+
 ## Design Principles
 
-### Implementation against interfaces
 
-The library is developed to allow users to focus on its interfaces. Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementation pick up the name of the main interface followed by a specifictation of an implementation aspect (like `RandomVariableFromDoubleArray`) 
+### Implementation against Interfaces
+
+The library is developed to allow users to focus on its interfaces. Code should implement against an interface (e.g., the left hand side of an assignment should be an interface).
+
+
+### Naming, Code is Documentation
+
+Class names, member names and variable names are as descriptive as possible (feasible).
+Names are formed using camel notation from the general to the special property. Implementation
+details are appended. Examples:
+
+  - `periodStart`
+  - `periodEnd`
+  - `RandomVariableFromDoubleArray`
+  - `DiscountCurveInterpolation`
+
+A reassignment of a reference that alters the meaning should be avoided. A temporary assignment with a different meaning should be avoided. Example:
+
+Wrong:
+
+```
+	var discountFactor = (1 + forwardRate * periodLength);
+	discountFactor = 1.0/discountFactor;
+```
+
+Correct:
+
+```
+	var forwardBond = (1 + forwardRate * periodLength);
+	var discountFactor = 1.0/forwardBond;
+```
+
+
+### Naming of Interfaces
+
+Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementations pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
+
+
+### Naming of Collections
+
+Collections are named as the plural of their items. Example:
+
+```
+	Period period = periods.get(periodIndex);
+```
+
+In cases where it adds clarity the collection type can be used as a suffix instead of the plural. Example:
+
+```
+	RandomVariable sensitivity = sensitivityMap.get(riskFactor);
+```
 
 
 ### Thread Safety
@@ -43,9 +95,11 @@ We deviate in some places:
 
 -   We usually do not make a space after statements like `íf`, `for`. We interpret `íf` and `for` as functions and for functions and methods we do not have a space between the name and the argument list either. That is, we write
 
+```
     if(condition) {
       // code
     }
+```
 
 The project is using a checkstyle profile, which currently only a very limited set 
 of style issues. See [finmath-checkstyle.xml](https://github.com/finmath/finmath-lib/blob/master/finmath-checkstyle.xml).

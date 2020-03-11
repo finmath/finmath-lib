@@ -10,7 +10,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloProduct;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.process.component.factordrift.FactorDriftInterface;
+import net.finmath.montecarlo.process.component.factordrift.FactorDrift;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -53,5 +53,5 @@ public interface TermStructureMonteCarloProduct extends MonteCarloProduct {
 	 * @param targetScheme The target scheme
 	 * @return The FactorDriftInterface
 	 */
-	FactorDriftInterface getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme);
+	FactorDrift getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme);
 }

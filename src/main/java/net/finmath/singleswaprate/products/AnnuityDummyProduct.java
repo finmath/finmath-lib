@@ -1,8 +1,8 @@
 package net.finmath.singleswaprate.products;
 
-import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.time.Schedule;
 
@@ -29,8 +29,8 @@ public class AnnuityDummyProduct extends AbstractSingleSwapRateProduct {
 	 * @param volatilityCubeName The name of the volatility cube.
 	 * @param annuityMappingType The type of the annuity mapping.
 	 */
-	public AnnuityDummyProduct(Schedule fixSchedule, Schedule floatSchedule, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName, AnnuityMappingType annuityMappingType) {
+	public AnnuityDummyProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final AnnuityMappingType annuityMappingType) {
 		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
 		this.annuityMappingType = annuityMappingType;
 		this.annuityMapping = null;
@@ -46,37 +46,39 @@ public class AnnuityDummyProduct extends AbstractSingleSwapRateProduct {
 	 * @param volatilityCubeName The name of the volatility cube.
 	 * @param annuityMapping The annuity mapping.
 	 */
-	public AnnuityDummyProduct(Schedule fixSchedule, Schedule floatSchedule, String discountCurveName, String forwardCurveName,
-			String volatilityCubeName, AnnuityMapping annuityMapping) {
+	public AnnuityDummyProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final AnnuityMapping annuityMapping) {
 		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);
 		this.annuityMapping = annuityMapping;
 		this.annuityMappingType = null;
 	}
 
 	@Override
-	protected double payoffFunction(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double payoffFunction(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return annuityMapping.getValue(swapRate);
 	}
 
 	@Override
-	protected double hedgeWeight(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double hedgeWeight(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return annuityMapping.getSecondDerivative(swapRate);
 	}
 
 	@Override
-	protected double singularAddon(double swapRate, AnnuityMapping annuityMapping,
-			VolatilityCubeModel model) {
+	protected double singularAddon(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
 		return 0;
 	}
 
 	@Override
-	protected AnnuityMapping buildAnnuityMapping(VolatilityCubeModel model) {
+	protected AnnuityMapping buildAnnuityMapping(final VolatilityCubeModel model) {
 
-		if(annuityMapping != null) return annuityMapping;
+		if(annuityMapping != null) {
+			return annuityMapping;
+		}
 
-		AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
+		final AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName());
 		return factory.build(annuityMappingType, model);
 	}
 

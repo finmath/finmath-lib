@@ -51,7 +51,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 *
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 */
-	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate) {
+	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate) {
 		this.referenceDate = referenceDate;
 	}
 
@@ -60,8 +60,8 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 *
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(Curve[] curves) {
-		for (Curve curve : curves) {
+	public AnalyticModelFromCurvesAndVols(final Curve[] curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
 		referenceDate = null;
@@ -72,8 +72,8 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 *
 	 * @param curves A collection of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(Collection<Curve> curves) {
-		for (Curve curve : curves) {
+	public AnalyticModelFromCurvesAndVols(final Collection<Curve> curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
 		referenceDate = null;
@@ -85,10 +85,10 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Curve[] curves) {
-		for (Curve curve : curves) {
+	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Curve[] curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
-			LocalDate curveDate = curve.getReferenceDate();
+			final LocalDate curveDate = curve.getReferenceDate();
 			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
 				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
@@ -102,10 +102,10 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
 	 * @param curves A collection of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Collection<Curve> curves) {
-		for (Curve curve : curves) {
+	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Collection<Curve> curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
-			LocalDate curveDate = curve.getReferenceDate();
+			final LocalDate curveDate = curve.getReferenceDate();
 			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
 				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
@@ -120,14 +120,14 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 * @param curvesMap A map containing all curves, together with their names they should have in the model.
 	 * @param volatilitySurfaceMap A map containing all volatility surfaces, together with their names they should have in the model.
 	 */
-	public AnalyticModelFromCurvesAndVols(LocalDate referenceDate, Map<String, Curve> curvesMap, Map<String, VolatilitySurface> volatilitySurfaceMap) {
+	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Map<String, Curve> curvesMap, final Map<String, VolatilitySurface> volatilitySurfaceMap) {
 		this(referenceDate);
 		this.curvesMap.putAll(curvesMap);
 		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 	}
 
 	@Override
-	public Curve getCurve(String name)
+	public Curve getCurve(final String name)
 	{
 		return curvesMap.get(name);
 	}
@@ -139,97 +139,74 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	}
 
 	@Override
-	public AnalyticModel addCurve(String name, Curve curve) {
-		LocalDate curveDate = curve.getReferenceDate();
+	public AnalyticModel addCurve(final String name, final Curve curve) {
+		final LocalDate curveDate = curve.getReferenceDate();
 
 		if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelFromCurvesAndVols newModel = clone();
+		final AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(name, curve);
 
 		return newModel;
 	}
 
-	public AnalyticModel addCurve(Curve curve) {
-		LocalDate curveDate = curve.getReferenceDate();
+	public AnalyticModel addCurve(final Curve curve) {
+		final LocalDate curveDate = curve.getReferenceDate();
 
 		if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate)) {
 			throw new IllegalArgumentException("Reference date of curve does not match reference date of model.");
 		}
 
-		AnalyticModelFromCurvesAndVols newModel = clone();
+		final AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.put(curve.getName(), curve);
 
 		return newModel;
 	}
 
 	@Override
-	public AnalyticModel addCurves(Curve... curves) {
-		Map<String, Curve>	curvesMap	= new HashMap<>();
+	public AnalyticModel addCurves(final Curve... curves) {
+		final Map<String, Curve>	curvesMap	= new HashMap<>();
 
-		for (Curve curve : curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 
-			LocalDate curveDate = curve.getReferenceDate();
+			final LocalDate curveDate = curve.getReferenceDate();
 			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate) ) {
 				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
 		}
 
-		AnalyticModelFromCurvesAndVols newModel = clone();
+		final AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
 	}
 
 	@Override
-	public AnalyticModel addCurves(Set<Curve> curves) {
-		Map<String, Curve>	curvesMap	= new HashMap<>();
+	public AnalyticModel addCurves(final Set<Curve> curves) {
+		final Map<String, Curve>	curvesMap	= new HashMap<>();
 
-		for (Curve curve : curves) {
+		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 
-			LocalDate curveDate = curve.getReferenceDate();
+			final LocalDate curveDate = curve.getReferenceDate();
 			if(referenceDate != null && curveDate != null && ! referenceDate.equals(curveDate) ) {
 				throw new IllegalArgumentException("Reference date of curve "+curve.getName()+" does not match the reference date of the model.");
 			}
 		}
 
-		AnalyticModelFromCurvesAndVols newModel = clone();
+		final AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.curvesMap.putAll(curvesMap);
 
 		return newModel;
 	}
 
-	/**
-	 * @deprecated This class will become immutable. Use addCurve instead.
-	 */
 	@Override
-	@Deprecated
-	public void setCurve(Curve curve)
-	{
-		curvesMap.put(curve.getName(), curve);
-	}
-
-	/**
-	 * Set some curves.
-	 *
-	 * @param curves Array of curves to set.
-	 * @deprecated This class will become immutable. Use addCurve instead.
-	 */
-	@Deprecated
-	public void setCurves(Curve[] curves) {
-		for(Curve curve : curves) {
-			setCurve(curve);
-		}
-	}
-
-	@Override
-	public DiscountCurve getDiscountCurve(String discountCurveName) {
+	public DiscountCurve getDiscountCurve(final String discountCurveName) {
 		DiscountCurve discountCurve = null;
-		Curve curve = getCurve(discountCurveName);
+		final Curve curve = getCurve(discountCurveName);
 		if(DiscountCurve.class.isInstance(curve)) {
 			discountCurve = (DiscountCurve)curve;
 		}
@@ -238,9 +215,9 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	}
 
 	@Override
-	public ForwardCurve getForwardCurve(String forwardCurveName) {
+	public ForwardCurve getForwardCurve(final String forwardCurveName) {
 		ForwardCurve forwardCurve = null;
-		Curve curve = getCurve(forwardCurveName);
+		final Curve curve = getCurve(forwardCurveName);
 		if(ForwardCurve.class.isInstance(curve)) {
 			forwardCurve = (ForwardCurve)curve;
 		}
@@ -249,7 +226,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	}
 
 	@Override
-	public VolatilitySurface getVolatilitySurface(String name) {
+	public VolatilitySurface getVolatilitySurface(final String name) {
 		return volatilitySurfaceMap.get(name);
 	}
 
@@ -258,28 +235,28 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		return Collections.unmodifiableMap(volatilitySurfaceMap);
 	}
 
-	public AnalyticModel addVolatilitySurface(VolatilitySurface volatilitySurface)
+	public AnalyticModel addVolatilitySurface(final VolatilitySurface volatilitySurface)
 	{
-		LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+		final LocalDate surfaceDate = volatilitySurface.getReferenceDate();
 
 		if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate)) {
 			throw new IllegalArgumentException("Reference date of surface does not match reference date of model.");
 		}
 
-		AnalyticModelFromCurvesAndVols newModel = clone();
+		final AnalyticModelFromCurvesAndVols newModel = clone();
 		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
 		return newModel;
 	}
 
 	@Override
-	public AnalyticModel addVolatilitySurfaces(VolatilitySurface... volatilitySurfaces)
+	public AnalyticModel addVolatilitySurfaces(final VolatilitySurface... volatilitySurfaces)
 	{
-		AnalyticModelFromCurvesAndVols newModel = clone();
-		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
+		final AnalyticModelFromCurvesAndVols newModel = clone();
+		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
-			LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+			final LocalDate surfaceDate = volatilitySurface.getReferenceDate();
 			if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate) ) {
 				throw new IllegalArgumentException("Reference date of surface "+volatilitySurface.getName()+" does not match the reference date of the model.");
 			}
@@ -288,12 +265,12 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	}
 
 	@Override
-	public AnalyticModel addVolatilitySurfaces(Set<VolatilitySurface> volatilitySurfaces) {
-		AnalyticModelFromCurvesAndVols newModel = clone();
-		for(VolatilitySurface volatilitySurface : volatilitySurfaces) {
+	public AnalyticModel addVolatilitySurfaces(final Set<VolatilitySurface> volatilitySurfaces) {
+		final AnalyticModelFromCurvesAndVols newModel = clone();
+		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {
 			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 
-			LocalDate surfaceDate = volatilitySurface.getReferenceDate();
+			final LocalDate surfaceDate = volatilitySurface.getReferenceDate();
 			if(referenceDate != null && surfaceDate != null && ! referenceDate.equals(surfaceDate) ) {
 				throw new IllegalArgumentException("Reference date of surface "+volatilitySurface.getName()+" does not match the reference date of the model.");
 			}
@@ -301,17 +278,17 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 		return newModel;
 	}
 
-	/**
-	 * @deprecated This class will become immutable. Use addVolatilitySurface instead.
-	 */
-	@Override
-	@Deprecated
-	public void setVolatilitySurface(VolatilitySurface volatilitySurface)
+	private void setCurve(final Curve curve)
+	{
+		curvesMap.put(curve.getName(), curve);
+	}
+
+	private void setVolatilitySurface(final VolatilitySurface volatilitySurface)
 	{
 		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);
 	}
 
-	private void set(Object marketDataObject) {
+	private void set(final Object marketDataObject) {
 		if(marketDataObject instanceof Curve) {
 			setCurve((Curve)marketDataObject);
 		} else if(marketDataObject instanceof VolatilitySurface) {
@@ -324,22 +301,22 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	@Override
 	public AnalyticModelFromCurvesAndVols clone()
 	{
-		AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols(referenceDate);
+		final AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols(referenceDate);
 		newModel.curvesMap.putAll(curvesMap);
 		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);
 		return newModel;
 	}
 
 	@Override
-	public AnalyticModel getCloneForParameter(Map<ParameterObject, double[]> curveParameterPairs) throws CloneNotSupportedException {
+	public AnalyticModel getCloneForParameter(final Map<ParameterObject, double[]> curveParameterPairs) throws CloneNotSupportedException {
 
 		// Build the modified clone of this model
-		AnalyticModelFromCurvesAndVols modelClone = clone();
+		final AnalyticModelFromCurvesAndVols modelClone = clone();
 
 		// Add modified clones of curves to model clone
 		if(curveParameterPairs != null) {
-			for(Entry<ParameterObject,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
-				ParameterObject newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
+			for(final Entry<ParameterObject,double[]> curveParameterPair : curveParameterPairs.entrySet()) {
+				final ParameterObject newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());
 				modelClone.set(newCurve);
 			}
 		}

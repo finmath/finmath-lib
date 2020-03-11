@@ -17,20 +17,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class FutureWrapper<V> implements Future<V> {
 
-	private V object;
+	private final V object;
 
 	/**
 	 * Create a wrapper to an object that looks like a Future on that object.
 	 *
 	 * @param object Object to wrap.
 	 */
-	public FutureWrapper(V object) {
+	public FutureWrapper(final V object) {
 		super();
 		this.object = object;
 	}
 
 	@Override
-	public boolean cancel(boolean mayInterruptIfRunning) {
+	public boolean cancel(final boolean mayInterruptIfRunning) {
 		return false;
 	}
 
@@ -40,7 +40,7 @@ public class FutureWrapper<V> implements Future<V> {
 	}
 
 	@Override
-	public V get(long arg0, TimeUnit arg1) {
+	public V get(final long arg0, final TimeUnit arg1) {
 		return object;
 	}
 

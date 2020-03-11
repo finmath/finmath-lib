@@ -43,7 +43,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
 	 * @param underlyingIndex The index of the asset S to be fetched from the model
 	 */
-	public AsianOption(double maturity, double strike, TimeDiscretization timesForAveraging, Integer underlyingIndex) {
+	public AsianOption(final double maturity, final double strike, final TimeDiscretization timesForAveraging, final Integer underlyingIndex) {
 		super();
 		this.maturity = maturity;
 		this.strike = strike;
@@ -59,7 +59,7 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
 	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
 	 */
-	public AsianOption(double maturity, double strike, TimeDiscretization timesForAveraging) {
+	public AsianOption(final double maturity, final double strike, final TimeDiscretization timesForAveraging) {
 		this(maturity, strike, timesForAveraging, 0);
 	}
 
@@ -74,11 +74,11 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Calculate average
 		RandomVariable average = model.getRandomVariableForConstant(0.0);
-		for(double time : timesForAveraging) {
-			RandomVariable underlying	= model.getAssetValue(time, underlyingIndex);
+		for(final double time : timesForAveraging) {
+			final RandomVariable underlying	= model.getAssetValue(time, underlyingIndex);
 			average = average.add(underlying);
 		}
 		average = average.div(timesForAveraging.getNumberOfTimes());
@@ -87,13 +87,13 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		RandomVariable values = average.sub(strike).floor(0.0);
 
 		// Discounting...
-		RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
-		RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
 
 		return values;

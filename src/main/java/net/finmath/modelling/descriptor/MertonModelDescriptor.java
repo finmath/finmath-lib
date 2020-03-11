@@ -25,9 +25,9 @@ public class MertonModelDescriptor implements AssetModelDescriptor{
 	private final Double jumpSizeMean;
 	private final Double jumpSizeStdDev;
 
-	public MertonModelDescriptor(LocalDate referenceDate, Double initialValue,
-			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, Double volatility,
-			Double jumpIntensity, Double jumpSizeMean, Double jumpSizeStdDev) {
+	public MertonModelDescriptor(final LocalDate referenceDate, final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final Double volatility,
+			final Double jumpIntensity, final Double jumpSizeMean, final Double jumpSizeStdDev) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;

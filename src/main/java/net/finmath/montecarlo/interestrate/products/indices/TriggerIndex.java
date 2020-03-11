@@ -22,9 +22,9 @@ public class TriggerIndex extends AbstractIndex {
 
 	private static final long serialVersionUID = 2329303879116802448L;
 
-	private AbstractProductComponent trigger;
-	private AbstractProductComponent indexIfTriggerIsPositive;
-	private AbstractProductComponent indexIfTriggerIsNegative;
+	private final AbstractProductComponent trigger;
+	private final AbstractProductComponent indexIfTriggerIsPositive;
+	private final AbstractProductComponent indexIfTriggerIsNegative;
 
 
 	/**
@@ -34,7 +34,7 @@ public class TriggerIndex extends AbstractIndex {
 	 * @param indexIfTriggerIsPositive An index representing the result if trigger is non-negative (&ge; 0).
 	 * @param indexIfTriggerIsNegative An index representing the result if trigger is negative (&lt; 0)
 	 */
-	public TriggerIndex(AbstractProductComponent trigger, AbstractProductComponent indexIfTriggerIsPositive, AbstractProductComponent indexIfTriggerIsNegative) {
+	public TriggerIndex(final AbstractProductComponent trigger, final AbstractProductComponent indexIfTriggerIsPositive, final AbstractProductComponent indexIfTriggerIsNegative) {
 		super();
 		this.trigger = trigger;
 		this.indexIfTriggerIsPositive = indexIfTriggerIsPositive;
@@ -42,17 +42,17 @@ public class TriggerIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
-		RandomVariable valueTrigger				= trigger.getValue(evaluationTime, model);
-		RandomVariable valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);
-		RandomVariable valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);
+	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		final RandomVariable valueTrigger				= trigger.getValue(evaluationTime, model);
+		final RandomVariable valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);
+		final RandomVariable valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);
 		return valueTrigger.choose(valueIfTriggerNonNegative, valueIfTriggerIsNegative);
 	}
 
 	@Override
 	public Set<String> queryUnderlyings() {
 		Set<String> underlyingNames			= trigger.queryUnderlyings();
-		Set<String>	underlyingNamesPositive	= indexIfTriggerIsPositive.queryUnderlyings();
+		final Set<String>	underlyingNamesPositive	= indexIfTriggerIsPositive.queryUnderlyings();
 		if(underlyingNamesPositive != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNamesPositive);
@@ -60,7 +60,7 @@ public class TriggerIndex extends AbstractIndex {
 				underlyingNames = underlyingNamesPositive;
 			}
 		}
-		Set<String>	underlyingNamesNegative	= indexIfTriggerIsNegative.queryUnderlyings();
+		final Set<String>	underlyingNamesNegative	= indexIfTriggerIsNegative.queryUnderlyings();
 		if(underlyingNamesNegative != null) {
 			if(underlyingNames != null) {
 				underlyingNames.addAll(underlyingNamesNegative);

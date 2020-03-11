@@ -141,7 +141,7 @@ public class Swaption extends AbstractLIBORMonteCarloProduct {
 			RandomVariableInterface payoff = libor.sub(swaprate).mult(periodLength);
 
 			// Calculated the adjustment for the discounting curve, assuming a deterministic basis
-			// @TODO: Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
+			// @TODO Need to check if the model fulfills the assumptions (all models implementing the interface currently do so).
 			double discountingDate = Math.max(fixingDate,exerciseDate);
 			double discountingAdjustment = 1.0;
 			if(model.getModel() != null && model.getModel().getDiscountCurve() != null) {

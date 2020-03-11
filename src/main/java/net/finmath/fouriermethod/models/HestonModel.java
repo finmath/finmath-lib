@@ -84,7 +84,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(LocalDate referenceDate, double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
+	public HestonModel(final LocalDate referenceDate, final double initialValue, final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility, final double theta, final double kappa, final double xi, final double rho) {
 		super();
 		this.referenceDate = referenceDate;
 		this.initialValue = initialValue;
@@ -111,7 +111,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(double initialValue, DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double volatility, double theta, double kappa, double xi, double rho) {
+	public HestonModel(final double initialValue, final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility, final double theta, final double kappa, final double xi, final double rho) {
 		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);
 	}
 
@@ -127,8 +127,8 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 */
-	public HestonModel(double initialValue, double riskFreeRate, double volatility, double discountRate, double theta, double kappa,
-			double xi, double rho) {
+	public HestonModel(final double initialValue, final double riskFreeRate, final double volatility, final double discountRate, final double theta, final double kappa,
+			final double xi, final double rho) {
 		super();
 		referenceDate = null;
 		this.initialValue = initialValue;
@@ -143,8 +143,8 @@ public class HestonModel implements CharacteristicFunctionModel {
 		this.rho = rho;
 	}
 
-	public HestonModel(double initialValue, double riskFreeRate, double volatility, double theta, double kappa,
-			double xi, double rho) {
+	public HestonModel(final double initialValue, final double riskFreeRate, final double volatility, final double theta, final double kappa,
+			final double xi, final double rho) {
 		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho);
 	}
 
@@ -156,18 +156,18 @@ public class HestonModel implements CharacteristicFunctionModel {
 
 		return new CharacteristicFunction() {
 			@Override
-			public Complex apply(Complex argument) {
+			public Complex apply(final Complex argument) {
 
-				Complex iargument = argument.multiply(Complex.I);
+				final Complex iargument = argument.multiply(Complex.I);
 
-				Complex gamma = iargument.multiply(rho * xi).subtract(kappa).pow(2)
+				final Complex gamma = iargument.multiply(rho * xi).subtract(kappa).pow(2)
 						.subtract(
 								iargument.multiply(iargument)
 								.add(iargument.multiply(-1)).multiply(0.5)
 								.multiply(2 * xi * xi))
 						.sqrt();
 
-				Complex a = iargument
+				final Complex a = iargument
 						.multiply(rho * xi)
 						.subtract(kappa)
 						.subtract(gamma).multiply((-theta*kappa * time) / (xi * xi))
@@ -176,7 +176,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()
 								.add(gamma.multiply(time)).multiply((2 * theta*kappa) / (xi * xi)));
 
-				Complex b = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
+				final Complex b = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)
 						.divide(iargument.multiply(rho * xi).subtract(kappa)
 								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)
 										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));
@@ -192,7 +192,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForForward(double time) {
+	private double getLogDiscountFactorForForward(final double time) {
 		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));
 	}
 
@@ -202,7 +202,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	 * @param time Maturity.
 	 * @return The log of the discount factor, i.e., - rate * time.
 	 */
-	private double getLogDiscountFactorForDiscounting(double time) {
+	private double getLogDiscountFactorForDiscounting(final double time) {
 		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));
 	}
 

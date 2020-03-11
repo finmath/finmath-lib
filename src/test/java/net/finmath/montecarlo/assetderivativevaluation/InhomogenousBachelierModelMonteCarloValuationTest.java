@@ -57,16 +57,16 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 * @throws InterruptedException Thrown if multi-threadded execution is interrupted.
 	 */
-	public static void main(String[] args) throws CalculationException, InterruptedException
+	public static void main(final String[] args) throws CalculationException, InterruptedException
 	{
-		InhomogenousBachelierModelMonteCarloValuationTest pricingTest = new InhomogenousBachelierModelMonteCarloValuationTest();
+		final InhomogenousBachelierModelMonteCarloValuationTest pricingTest = new InhomogenousBachelierModelMonteCarloValuationTest();
 
 		/*
 		 * Read input
 		 */
-		int testNumber = readTestNumber();
+		final int testNumber = readTestNumber();
 
-		long start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 
 		switch(testNumber) {
 		case 1:
@@ -95,7 +95,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			break;
 		}
 
-		long end = System.currentTimeMillis();
+		final long end = System.currentTimeMillis();
 
 		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
@@ -117,13 +117,13 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		System.out.print("Test to run: ");
 
 		//  open up standard input
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		int testNumber = 0;
 		try {
-			String test = br.readLine();
+			final String test = br.readLine();
 			testNumber = Integer.valueOf(test);
-		} catch (IOException ioe) {
+		} catch (final IOException ioe) {
 			System.out.println("IO error trying to read test number!");
 			System.exit(1);
 		}
@@ -139,9 +139,9 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		 */
 		if(model == null) {
 			// Create the time discretization
-			TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
+			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
-			int seed = 3141;
+			final int seed = 3141;
 			// Create an instance of a black scholes monte carlo model
 			model = new MonteCarloAssetModel(
 					new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility),
@@ -160,36 +160,36 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
-		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
-		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
-		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
+		final DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
+		final DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
+		final DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
 		// Test options with different strike
 		System.out.println("Valuation of European Options");
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
-		double initialValue	= this.getInitialValue();
-		double riskFreeRate	= this.getRiskFreeRate();
-		double volatility	= this.getVolatility();
+		final double initialValue	= this.getInitialValue();
+		final double riskFreeRate	= this.getRiskFreeRate();
+		final double volatility	= this.getVolatility();
 
-		double optionMaturity	= 5.0;
+		final double optionMaturity	= 5.0;
 
-		double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
-		double forward		= initialValue / payoffUnit;
-		double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
+		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
+		final double forward		= initialValue / payoffUnit;
+		final double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
 
 		for(double optionStrike = 0.75/payoffUnit; optionStrike < 1.25/payoffUnit; optionStrike += 0.05/payoffUnit) {
 
 			// Create a product
-			EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
+			final EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
 			// Value the product with Monte Carlo
-			double valueMonteCarlo	= callOption.getValue(model);
+			final double valueMonteCarlo	= callOption.getValue(model);
 
 			// Calculate the analytic value
-			double valueAnalytic	= net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelier, optionMaturity, optionStrike, payoffUnit);
+			final double valueAnalytic	= net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelier, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
@@ -211,20 +211,20 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
-		TimeDiscretization modelTimeDiscretization = model.getTimeDiscretization();
+		final TimeDiscretization modelTimeDiscretization = model.getTimeDiscretization();
 
 		System.out.println("Time \tAverage \t\tVariance");
-		for(double time : modelTimeDiscretization) {
-			RandomVariable assetValue = model.getAssetValue(time, 0);
+		for(final double time : modelTimeDiscretization) {
+			final RandomVariable assetValue = model.getAssetValue(time, 0);
 
-			double average	= assetValue.getAverage();
-			double variance	= assetValue.getVariance();
-			double error	= assetValue.getStandardError();
+			final double average	= assetValue.getAverage();
+			final double variance	= assetValue.getVariance();
+			final double error	= assetValue.getStandardError();
 
-			DecimalFormat formater2Digits = new DecimalFormat("0.00");
-			DecimalFormat formater4Digits = new DecimalFormat("0.0000");
+			final DecimalFormat formater2Digits = new DecimalFormat("0.00");
+			final DecimalFormat formater4Digits = new DecimalFormat("0.0000");
 			System.out.println(formater2Digits.format(time) + " \t" + formater4Digits.format(average) + "\t+/- " + formater4Digits.format(error) + "\t" + formater4Digits.format(variance));
 		}
 	}
@@ -237,9 +237,9 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
-		RandomVariable stockAtTimeOne = model.getAssetValue(1.0, 0);
+		final RandomVariable stockAtTimeOne = model.getAssetValue(1.0, 0);
 
 		System.out.println("The first 100 realizations of the " + stockAtTimeOne.size() + " realizations of S(1) are:");
 		System.out.println("Path\tValue");
@@ -247,7 +247,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			System.out.println(i + "\t" + stockAtTimeOne.get(i));
 		}
 
-		double spot = stockAtTimeOne.div(model.getNumeraire(1.0)).mult(model.getNumeraire(model.getTime(0))).getAverage();
+		final double spot = stockAtTimeOne.div(model.getNumeraire(1.0)).mult(model.getNumeraire(model.getTime(0))).getAverage();
 		System.out.println("Expectation of S(1)/N(1)*N(0) = " + spot + " (expected " + initialValue + ")");
 		Assert.assertEquals(initialValue, spot, 2E-3);
 	}
@@ -269,42 +269,42 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
 		/*
 		 * Common parameters
 		 */
-		double maturity = 3.0;
-		double strike = 1.07;
+		final double maturity = 3.0;
+		final double strike = 1.07;
 
 		/*
 		 * European Option
 		 */
-		EuropeanOption myEuropeanOption = new EuropeanOption(maturity,strike);
-		double valueOfEuropeanOption = myEuropeanOption.getValue(model);
+		final EuropeanOption myEuropeanOption = new EuropeanOption(maturity,strike);
+		final double valueOfEuropeanOption = myEuropeanOption.getValue(model);
 
 		/*
 		 * Asian Option
 		 */
-		double[] averagingPoints = { 1.0, 1.5, 2.0, 2.5 , 3.0 };
+		final double[] averagingPoints = { 1.0, 1.5, 2.0, 2.5 , 3.0 };
 
-		AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
-		double valueOfAsianOption = myAsianOption.getValue(model);
+		final AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
+		final double valueOfAsianOption = myAsianOption.getValue(model);
 
 		/*
 		 * Bermudan Option
 		 */
-		double[] exerciseDates	= { 1.0,  2.0,  3.0};
-		double[] notionals		= { 1.20, 1.10, 1.0};
-		double[] strikes		= { 1.03, 1.05, 1.07 };
+		final double[] exerciseDates	= { 1.0,  2.0,  3.0};
+		final double[] notionals		= { 1.20, 1.10, 1.0};
+		final double[] strikes		= { 1.03, 1.05, 1.07 };
 
 		// Lower bound method
-		BermudanOption myBermudanOptionLowerBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
-		double valueOfBermudanOptionLowerBound = myBermudanOptionLowerBound.getValue(model);
+		final BermudanOption myBermudanOptionLowerBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.ESTIMATE_COND_EXPECTATION);
+		final double valueOfBermudanOptionLowerBound = myBermudanOptionLowerBound.getValue(model);
 
 		// Upper bound method
-		BermudanOption myBermudanOptionUpperBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.UPPER_BOUND_METHOD);
-		double valueOfBermudanOptionUpperBound = myBermudanOptionUpperBound.getValue(model);
+		final BermudanOption myBermudanOptionUpperBound = new BermudanOption(exerciseDates, notionals, strikes, BermudanOption.ExerciseMethod.UPPER_BOUND_METHOD);
+		final double valueOfBermudanOptionUpperBound = myBermudanOptionUpperBound.getValue(model);
 
 		/*
 		 * Output
@@ -328,24 +328,24 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		final double maturity = 5.0;
 		final double strike = 1.07;
 
-		int			numberOfThreads	= 10;
-		Thread[]	myThreads		= new Thread[numberOfThreads];
+		final int			numberOfThreads	= 10;
+		final Thread[]	myThreads		= new Thread[numberOfThreads];
 
 		for(int k=0; k<myThreads.length; k++) {
 
 			final int threadNummer = k;
 
 			// Create a runnable - piece of code which can be run in parallel.
-			Runnable myRunnable = new Runnable() {
+			final Runnable myRunnable = new Runnable() {
 				@Override
 				public void run() {
 					try {
 						for(int i=0;i<10000; i++) {
-							AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
-							double valueOfAsianOption = myAsianOption.getValue(model);
+							final AsianOption myAsianOption = new AsianOption(maturity,strike, new TimeDiscretizationFromArray(averagingPoints));
+							final double valueOfAsianOption = myAsianOption.getValue(model);
 							System.out.println("Thread " + threadNummer + ": Value of Asian Option " + i + " is " + valueOfAsianOption);
 						}
-					} catch (CalculationException e) {
+					} catch (final CalculationException e) {
 					}
 				}
 			};
@@ -372,47 +372,47 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
-		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
-		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
-		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
+		final DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
+		final DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
+		final DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
-		double initialValue	= this.getInitialValue();
-		double riskFreeRate	= this.getRiskFreeRate();
-		double volatility	= this.getVolatility();
+		final double initialValue	= this.getInitialValue();
+		final double riskFreeRate	= this.getRiskFreeRate();
+		final double volatility	= this.getVolatility();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Delta (European options with maturity 1.0):");
 		System.out.println(" Strike \t MC Fin.Diff.\t MC Pathwise\t MC Likelihood\t Analytic \t Diff MC-FD \t Diff MC-PW \t Diff MC-LR");
 
-		double optionMaturity	= 1.0;
-		double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
-		double forward		= initialValue / payoffUnit;
-		double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
+		final double optionMaturity	= 1.0;
+		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
+		final double forward		= initialValue / payoffUnit;
+		final double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
 
 			// Create a product
-			EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
+			final EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
 
 			// Value the product with Monte Carlo
-			double shift = initialValue * 1E-6;
+			final double shift = initialValue * 1E-6;
 
-			Map<String,Object> dataUpShift = new HashMap<>();
+			final Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("initialValue", initialValue + shift);
 
-			double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
+			final double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
 
-			Map<String,Object> dataDownShift = new HashMap<>();
+			final Map<String,Object> dataDownShift = new HashMap<>();
 			dataDownShift.put("initialValue", initialValue - shift);
-			double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
+			final double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
 
 			// Calculate the finite difference of the monte-carlo value
-			double delta = (valueUpShift-valueDownShift) / ( 2 * shift );
+			final double delta = (valueUpShift-valueDownShift) / ( 2 * shift );
 
 			// Calculate the finite difference of the analytic value
-			double deltaFiniteDiffAnalytic	=
+			final double deltaFiniteDiffAnalytic	=
 					(
 							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward+shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
 							- net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward-shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
@@ -442,48 +442,48 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
 		 */
-		AssetModelMonteCarloSimulationModel model = getModel();
+		final AssetModelMonteCarloSimulationModel model = getModel();
 
 		// Java DecimalFormat for our output format
-		DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
-		DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
-		DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
+		final DecimalFormat numberFormatStrike	= new DecimalFormat("     0.00 ");
+		final DecimalFormat numberFormatValue		= new DecimalFormat(" 0.00E00");
+		final DecimalFormat numberFormatDeviation	= new DecimalFormat("  0.00E00; -0.00E00");
 
-		double initialValue	= this.getInitialValue();
-		double riskFreeRate	= this.getRiskFreeRate();
-		double volatility	= this.getVolatility();
+		final double initialValue	= this.getInitialValue();
+		final double riskFreeRate	= this.getRiskFreeRate();
+		final double volatility	= this.getVolatility();
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");
 		System.out.println(" Strike \t MC Fin.Diff.\t Analytic \t Diff MC-FD");
 
-		double optionMaturity	= 5.0;
-		double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
-		double forward		= initialValue / payoffUnit;
+		final double optionMaturity	= 5.0;
+		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
+		final double forward		= initialValue / payoffUnit;
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
 
 			// Create a product
-			EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
+			final EuropeanOption		callOption	= new EuropeanOption(optionMaturity, optionStrike);
 
 			// Value the product with Monte Carlo
-			double shift = volatility * 1E-5;
+			final double shift = volatility * 1E-5;
 
-			Map<String,Object> dataUpShift = new HashMap<>();
+			final Map<String,Object> dataUpShift = new HashMap<>();
 			dataUpShift.put("volatility", volatility + shift);
 
-			double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
+			final double valueUpShift	= (Double)(callOption.getValuesForModifiedData(model, dataUpShift).get("value"));
 
-			Map<String,Object> dataDownShift = new HashMap<>();
+			final Map<String,Object> dataDownShift = new HashMap<>();
 			dataDownShift.put("volatility", volatility - shift);
-			double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
+			final double valueDownShift	= (Double)(callOption.getValuesForModifiedData(model, dataDownShift).get("value"));
 
 			// Calculate the finite difference of the monte-carlo value
-			double vega = (valueUpShift-valueDownShift) / ( 2 * shift );
+			final double vega = (valueUpShift-valueDownShift) / ( 2 * shift );
 
-			double volBachelierUp = (volatility+shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
-			double volBachelierDown = (volatility-shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
+			final double volBachelierUp = (volatility+shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
+			final double volBachelierDown = (volatility-shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
 			// Calculate the finite difference of the analytic value
-			double vegaFiniteDiffAnalytic	=
+			final double vegaFiniteDiffAnalytic	=
 					(
 							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierUp, optionMaturity, optionStrike, payoffUnit)
 							-

@@ -28,7 +28,7 @@ public abstract class DayCountConvention_ACT implements DayCountConvention {
 	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
 	 */
 	@Override
-	public double getDaycount(LocalDate startDate, LocalDate endDate) {
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
 		if(startDate.isAfter(endDate)) {
 			return -getDaycount(endDate,startDate);
 		}
@@ -51,7 +51,7 @@ public abstract class DayCountConvention_ACT implements DayCountConvention {
 	 * @param endDate The end date of the interval.
 	 * @return Number of days between startDate and endDate.
 	 */
-	public static double daysBetween(LocalDate startDate, LocalDate endDate) {
+	public static double daysBetween(final LocalDate startDate, final LocalDate endDate) {
 		return (endDate.toEpochDay() - startDate.toEpochDay());
 	}
 }

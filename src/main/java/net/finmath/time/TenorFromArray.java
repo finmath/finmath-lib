@@ -28,7 +28,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @param dates A set of dates.
 	 * @param referenceDate The reference date, which defines t=0 with respect to the internal double representation.
 	 */
-	public TenorFromArray(LocalDate[] dates, LocalDate referenceDate) {
+	public TenorFromArray(final LocalDate[] dates, final LocalDate referenceDate) {
 		super(createTimeDiscretizationFromDates(dates, referenceDate));
 		this.dates				= dates;
 		this.referenceDate		= referenceDate;
@@ -39,9 +39,9 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @param referenceDate
 	 * @return A time discretization corresponding to the given dates, relative to the reference date, using the internal day count fraction.
 	 */
-	private static double[] createTimeDiscretizationFromDates(LocalDate[] dates, LocalDate referenceDate) {
+	private static double[] createTimeDiscretizationFromDates(final LocalDate[] dates, final LocalDate referenceDate) {
 
-		double[] timeDiscretization = new double[dates.length];
+		final double[] timeDiscretization = new double[dates.length];
 
 		for(int timeIndex=0; timeIndex<timeDiscretization.length; timeIndex++) {
 			timeDiscretization[timeIndex] =
@@ -56,7 +56,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 *
 	 * @param timeDiscretization A time discretization.
 	 */
-	public TenorFromArray(double[] timeDiscretization) {
+	public TenorFromArray(final double[] timeDiscretization) {
 		super(timeDiscretization);
 		// TODO Auto-generated constructor stub
 	}
@@ -66,7 +66,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 *
 	 * @param timeDiscretization A time discretization.
 	 */
-	public TenorFromArray(Double[] timeDiscretization) {
+	public TenorFromArray(final Double[] timeDiscretization) {
 		super(timeDiscretization);
 		// TODO Auto-generated constructor stub
 	}
@@ -78,7 +78,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @param numberOfTimeSteps Number of time steps.
 	 * @param deltaT Time step size.
 	 */
-	public TenorFromArray(double initial, int numberOfTimeSteps, double deltaT) {
+	public TenorFromArray(final double initial, final int numberOfTimeSteps, final double deltaT) {
 		super(initial, numberOfTimeSteps, deltaT);
 		// TODO Auto-generated constructor stub
 	}
@@ -91,7 +91,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @param deltaT Time step size.
 	 * @param shortPeriodLocation Placement of the stub period.
 	 */
-	public TenorFromArray(double initial, double last, double deltaT, ShortPeriodLocation shortPeriodLocation) {
+	public TenorFromArray(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
 		super(initial, last, deltaT, shortPeriodLocation);
 		// TODO Auto-generated constructor stub
 	}
@@ -108,7 +108,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @see net.finmath.time.Tenor#getDate(int)
 	 */
 	@Override
-	public LocalDate getDate(int timeIndex) {
+	public LocalDate getDate(final int timeIndex) {
 		return dates[timeIndex];
 	}
 
@@ -116,7 +116,7 @@ public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor
 	 * @see net.finmath.time.Tenor#getDaycountFraction(int)
 	 */
 	@Override
-	public double getDaycountFraction(int timeIndex) {
+	public double getDaycountFraction(final int timeIndex) {
 		return this.getTimeStep(timeIndex);
 	}
 
