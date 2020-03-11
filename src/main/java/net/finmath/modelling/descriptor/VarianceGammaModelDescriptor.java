@@ -23,13 +23,13 @@ public class VarianceGammaModelDescriptor implements AssetModelDescriptor {
 	private final double nu;
 
 	/**
-	 * @param referenceDate
-	 * @param initialValue
-	 * @param discountCurveForForwardRate
-	 * @param discountCurveForDiscountRate
-	 * @param sigma
-	 * @param theta
-	 * @param nu
+	 * @param referenceDate The date corresponding to the floating point date t=0.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
 	 */
 	public VarianceGammaModelDescriptor(LocalDate referenceDate, Double initialValue,
 			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double sigma,

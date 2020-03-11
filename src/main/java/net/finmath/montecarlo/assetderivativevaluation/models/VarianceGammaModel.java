@@ -62,9 +62,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
 	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
-	 * @param sigma The parameter \( \sigma \)
-	 * @param theta The parameter \( \theta \)
-	 * @param nu The parameter \( \nu \)
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
 	 */
 	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
 			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
@@ -85,9 +85,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
 	 * @param discountRate The constant rate used for discounting.
-	 * @param sigma The parameter \( \sigma \)
-	 * @param theta The parameter \( \theta \)
-	 * @param nu The parameter \( \nu \)
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
 	 */
 	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
 			final double nu) {
@@ -108,9 +108,9 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 *
 	 * @param initialValue \( S_{0} \) - spot - initial value of S
 	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
-	 * @param sigma The parameter \( \sigma \)
-	 * @param theta The parameter \( \theta \)
-	 * @param nu The parameter \( \nu \)
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
 	 */
 	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double sigma, final double theta, final double nu) {
 		this(initialValue,riskFreeRate,riskFreeRate,sigma,theta,nu);
