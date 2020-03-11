@@ -26,6 +26,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Heston model
     - Bates model
     - Two factor Bates model
+    - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 - **Finite difference methods**
     - Numerical schemes using finite differences
         - Theta-scheme
