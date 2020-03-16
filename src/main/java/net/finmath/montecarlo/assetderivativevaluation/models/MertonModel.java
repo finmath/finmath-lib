@@ -80,7 +80,7 @@ public class MertonModel extends AbstractProcessModel {
 	 */
 	public MertonModel(final MertonModelDescriptor descriptor) {
 		this(descriptor.getInitialValue(),
-				descriptor.getDiscountCurveForDiscountRate(),
+				descriptor.getDiscountCurveForForwardRate(),
 				descriptor.getVolatility(),
 				descriptor.getDiscountCurveForDiscountRate(),
 				descriptor.getJumpIntensity(),

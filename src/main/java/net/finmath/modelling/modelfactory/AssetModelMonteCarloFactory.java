@@ -8,9 +8,11 @@ import net.finmath.modelling.descriptor.AssetModelDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
 import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
@@ -27,40 +29,71 @@ import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescriptor> {
 
 	private final HestonModel.Scheme scheme;
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 	private final IndependentIncrements stochasticDriver;
 
 
 	/**
 	 * Create the factory.
 	 *
-	 * @param abstractRandomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
 	 * @param stochasticDriver The stochastic driver of the process.
 	 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients. (Optional parameter, only required by Heston Model).
 	 */
-	public AssetModelMonteCarloFactory(final RandomVariableFactory abstractRandomVariableFactory,
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
 			final IndependentIncrements stochasticDriver, final Scheme scheme) {
 		super();
 		this.scheme = scheme;
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.stochasticDriver = stochasticDriver;
 	}
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
+			IndependentIncrements stochasticDriver) {
+		super();
+		this.scheme = null;
+		this.randomVariableFactory = randomVariableFactory;
+		this.stochasticDriver = stochasticDriver;
+	}
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(IndependentIncrements stochasticDriver) {
+		super();
+		this.scheme = null;
+		this.randomVariableFactory =  new RandomVariableFromArrayFactory();
+		this.stochasticDriver = stochasticDriver;
+	}
+
 	@Override
 	public DescribedModel<? extends AssetModelDescriptor> getModelFromDescriptor(final AssetModelDescriptor descriptor) {
 
 		if(descriptor instanceof BlackScholesModelDescriptor) {
-			final DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelMonteCarlo((BlackScholesModelDescriptor) descriptor, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<BlackScholesModelDescriptor> model = new BlackScholesModelMonteCarlo((BlackScholesModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else if(descriptor instanceof HestonModelDescriptor) {
 			if(scheme == null) {
 				throw new RuntimeException("Need to provide truncation scheme to factory in order to be able to build a Heston Model");
 			}
-			final DescribedModel<HestonModelDescriptor> model = new HestonModelMonteCarlo((HestonModelDescriptor) descriptor, scheme, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<HestonModelDescriptor> model = new HestonModelMonteCarlo((HestonModelDescriptor) descriptor, scheme, randomVariableFactory, stochasticDriver);
 			return model;
 		}
 		else if(descriptor instanceof MertonModelDescriptor) {
-			final DescribedModel<MertonModelDescriptor> model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, abstractRandomVariableFactory, stochasticDriver);
+			final DescribedModel<MertonModelDescriptor> model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);
+			return model;
+		}
+		else if(descriptor instanceof VarianceGammaModelDescriptor) {
+			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, stochasticDriver);
 			return model;
 		}
 		else {
@@ -182,6 +215,37 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		@Override
 		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+			return productFactory.getProductFromDescriptor(productDescriptor);
+		}
+	}
+
+	/**
+	 * A described Variance Gamma model using Monte Carlo method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class VarianceGammaModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel<VarianceGammaModelDescriptor>{
+
+		private final VarianceGammaModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, IndependentIncrements stochasticDriver) {
+			super(new net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel(descriptor),
+					new EulerSchemeFromProcessModel(stochasticDriver));
+			this.descriptor = descriptor;
+			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
+		}
+
+		@Override
+		public VarianceGammaModelDescriptor getDescriptor() {
+			return descriptor;
+		}
+
+		@Override
+		public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
+				ProductDescriptor productDescriptor) {
 			return productFactory.getProductFromDescriptor(productDescriptor);
 		}
 	}

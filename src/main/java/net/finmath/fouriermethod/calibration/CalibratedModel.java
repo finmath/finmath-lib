@@ -37,7 +37,6 @@ import net.finmath.optimizer.SolverException;
  * The calibration entity (i.e. price/vol/normal vol) is directly detected from market data.
  *
  * @author Alessandro Gnoatto
- *
  */
 public class CalibratedModel {
 
@@ -52,6 +51,16 @@ public class CalibratedModel {
 	private final double[] upperBound;
 	private final double[] parameterStep;
 
+	/**
+	 * Create the calibration from data.
+	 * 
+	 * @param surface The target calibration instruments. They dictate the calibration entity: vol/price.
+	 * @param model The model to calibrate.
+	 * @param optimizerFactory Factory providing the optimizer to use.
+	 * @param pricer How do we compute prices: Carr Madan, Cos, Conv, Lewis...
+	 * @param initialParameters Initial parameters
+	 * @param parameterStep Parameter steps.
+	 */
 	public CalibratedModel(final OptionSurfaceData surface, final CalibratableProcess model,
 			final OptimizerFactory optimizerFactory, final EuropeanOptionSmile pricer, final double[] initialParameters,
 			final double[] parameterStep) {
@@ -68,6 +77,7 @@ public class CalibratedModel {
 
 	/**
 	 * Solves the calibration problem thus providing a calibrated model.
+	 * 
 	 * @return the calibrated model wrapped in an {@link OptimizationResult}.
 	 * @throws SolverException Thrown if the calibration problem cannot be solved.
 	 */

@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.1.3 (under development)
+
+### Fourier Methods
+
+    - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
+
+
 ## 4.1.2
 
 ### General
@@ -26,7 +33,6 @@ finmath lib Release Notes
  - Removed deprecated methods (setXxx) in AnalyticModel - the class is now immutable
 
  - Refactoring rename RandomVariableDifferentiableFactory: AbstractRandomVariableDifferentiableFactory extract interface RandomVariableDifferentiableFactory
-
 
 ## 4.1.0 (26.01.2020)
 
