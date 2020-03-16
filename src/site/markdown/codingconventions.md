@@ -84,6 +84,12 @@ The library is developed with object serialization in mind.
 -   Classes should implement the `Serializable` interface.
 
 
+## Documentation
+
+### JavaDoc with MathJax
+
+Every public interface, class, method, enum comes with a complete JavaDoc. If there are mathematical formulas, we use MathJax. (MathJax is available due to a configuration in the Maven pom.xml).
+
 
 ## Code Style
 
