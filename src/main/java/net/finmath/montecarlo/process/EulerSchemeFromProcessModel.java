@@ -179,7 +179,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);
 			}
 			catch(final Exception e) {
-				throw new RuntimeException("Drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
+				throw new RuntimeException(e + " - drift calculaton failed at time index " + timeIndex + " (time=" + getTime(timeIndex - 1) + ") . See cause of this exception for details.", e);
 			}
 
 			// Fetch brownianIncrement vector
