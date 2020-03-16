@@ -35,6 +35,7 @@ import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDif
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelCalibrateable;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelExponentialForm5Param;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
@@ -129,9 +130,8 @@ public class LIBORMarketModelValuationTest {
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
-				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
-						liborPeriodDiscretization, volatilityModel, correlationModel);
+		final LIBORCovarianceModelCalibrateable covarianceModel = new LIBORCovarianceModelFromVolatilityAndCorrelation(
+				timeDiscretizationFromArray, liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// BlendedLocalVolatlityModel (future extension)
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);

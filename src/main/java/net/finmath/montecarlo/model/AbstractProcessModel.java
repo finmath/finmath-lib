@@ -20,6 +20,7 @@ import net.finmath.time.TimeDiscretization;
  */
 public abstract class AbstractProcessModel implements ProcessModel {
 
+	@Deprecated
 	private transient MonteCarloProcess process;
 
 	/**
@@ -38,16 +39,24 @@ public abstract class AbstractProcessModel implements ProcessModel {
 		return value;
 	}
 
+	@Override
+	public LocalDateTime getReferenceDate() {
+		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
+	}
+
 	/*
 	 * Delegation to process (numerical scheme)
 	 */
 
 	@Override
+	@Deprecated
 	public void setProcess(final MonteCarloProcess process) {
+//		this.process = null;
 		this.process = process;
 	}
 
 	@Override
+	@Deprecated
 	public MonteCarloProcess getProcess() {
 		return process;
 	}
@@ -64,6 +73,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getProcessValue(int, int)
 	 */
+	@Deprecated
 	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex) throws CalculationException {
 		return process.getProcessValue(timeIndex, componentIndex);
 	}
@@ -74,13 +84,9 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getMonteCarloWeights(int)
 	 */
+	@Deprecated
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
 		return process.getMonteCarloWeights(timeIndex);
-	}
-
-	@Override
-	public LocalDateTime getReferenceDate() {
-		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
 	}
 
 	/**

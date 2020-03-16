@@ -98,11 +98,50 @@ public interface ProcessModel {
 	 * Return the numeraire at a given time index.
 	 * Note: The random variable returned is a defensive copy and may be modified.
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
 	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariable getNumeraire(double time) throws CalculationException;
+	default Numeraire getNumeraire(MonteCarloProcess process) throws CalculationException
+	{
+		return t -> getNumeraire(t);
+	}
+
+	/**
+	 * Return the numeraire at a given time index.
+	 * Note: The random variable returned is a defensive copy and may be modified.
+	 *
+	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
+	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 * @deprecated Will be removed. Please use getNumeraire(process).get(time).
+	 */
+	@Deprecated
+	default RandomVariable getNumeraire(double time) throws CalculationException {
+		return getNumeraire(getProcess()).at(time);
+	}
+
+	/**
+	 * This method has to be implemented to return the drift, i.e.
+	 * the coefficient vector <br>
+	 * <i>&mu; =  (&mu;<sub>1</sub>, ..., &mu;<sub>n</sub>)</i> such that <i>X = f(Y)</i> and <br>
+	 * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+	 * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
+	 * process.
+	 *
+	 * Since the model is provided only on a time discretization, the method may also (should try to) return the drift
+	 * as \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \).
+	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param timeIndex The time index (related to the model times discretization).
+	 * @param realizationAtTimeIndex The given realization at timeIndex
+	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null if no predictor is available.
+	 * @return The drift or average drift from timeIndex to timeIndex+1, i.e. \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \) (or a suitable approximation).
+	 */
+	default RandomVariable[] getDrift(MonteCarloProcess process, int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+		return getDrift(timeIndex, realizationAtTimeIndex, realizationPredictor);
+	}
 
 	/**
 	 * This method has to be implemented to return the drift, i.e.
@@ -119,8 +158,12 @@ public interface ProcessModel {
 	 * @param realizationAtTimeIndex The given realization at timeIndex
 	 * @param realizationPredictor The given realization at <code>timeIndex+1</code> or null if no predictor is available.
 	 * @return The drift or average drift from timeIndex to timeIndex+1, i.e. \( \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} \mu(\tau) \mathrm{d}\tau \) (or a suitable approximation).
+	 * @deprecated Will be removed. Please use getDrift(process, ...).
 	 */
-	RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor);
+	@Deprecated
+	default RandomVariable[] getDrift(int timeIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor) {
+		throw new UnsupportedOperationException("This methods is deprecated, however, legacy code needs to override it.");
+	}
 
 	/**
 	 * Returns the number of factors <i>m</i>, i.e., the number of independent Brownian drivers.
@@ -137,12 +180,34 @@ public interface ProcessModel {
 	 * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
 	 * process.
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @param timeIndex The time index (related to the model times discretization).
 	 * @param componentIndex The index <i>j</i> of the driven component.
 	 * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
 	 * @return The factor loading for given factor and component.
 	 */
-	RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex);
+	default RandomVariable[] getFactorLoading(MonteCarloProcess process, int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
+		return getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+	}
+
+	/**
+	 * This method has to be implemented to return the factor loadings, i.e.
+	 * the coefficient vector <br>
+	 * <i>&lambda;<sub>j</sub> =  (&lambda;<sub>1,j</sub>, ..., &lambda;<sub>m,j</sub>)</i> such that <i>X = f(Y)</i> and <br>
+	 * <i>dY<sub>j</sub> = &mu;<sub>j</sub> dt + &lambda;<sub>1,j</sub> dW<sub>1</sub> + ... + &lambda;<sub>m,j</sub> dW<sub>m</sub></i> <br>
+	 * in an <i>m</i>-factor model. Here <i>j</i> denotes index of the component of the resulting
+	 * process.
+	 *
+	 * @param timeIndex The time index (related to the model times discretization).
+	 * @param componentIndex The index <i>j</i> of the driven component.
+	 * @param realizationAtTimeIndex The realization of X at the time corresponding to timeIndex (in order to implement local and stochastic volatlity models).
+	 * @return The factor loading for given factor and component.
+	 * @deprecated Will be removed. Please use getFactorLoading(process, ...).
+	 */
+	@Deprecated
+	default RandomVariable[] getFactorLoading(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex) {
+		throw new UnsupportedOperationException("This methods is deprecated, however, legacy code needs to override it.");
+	}
 
 	/**
 	 * Return a random variable initialized with a constant using the models random variable factory.
@@ -150,9 +215,7 @@ public interface ProcessModel {
 	 * @param value The constant value.
 	 * @return A new random variable initialized with a constant value.
 	 */
-	default RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
-	}
+	RandomVariable getRandomVariableForConstant(double value);
 
 	/**
 	 * Set the numerical scheme used to generate the stochastic process.
@@ -160,7 +223,9 @@ public interface ProcessModel {
 	 * The model needs the numerical scheme to calculate, e.g., the numeraire.
 	 *
 	 * @param process The process.
+	 * @Deprecated Models will no longer hold references to processes.
 	 */
+	@Deprecated
 	void setProcess(MonteCarloProcess process);
 
 	/**
@@ -169,7 +234,9 @@ public interface ProcessModel {
 	 * The model needs the numerical scheme to calculate, e.g., the numeraire.
 	 *
 	 * @return the process
+	 * @Deprecated Models will no longer hold references to processes.
 	 */
+	@Deprecated
 	MonteCarloProcess getProcess();
 
 	/**

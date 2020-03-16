@@ -53,11 +53,12 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class BachelierModel extends AbstractProcessModel {
 
+	private final RandomVariableFactory randomVariableFactory;
+
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double volatility;
 
-	private final RandomVariableFactory randomVariableFactory;
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.

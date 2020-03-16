@@ -29,6 +29,7 @@ import net.finmath.time.TimeDiscretization;
 public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel {
 
 	private final ProcessModel model;
+	private final MonteCarloProcess process;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
@@ -42,6 +43,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		super();
 
 		this.model = model;
+		this.process = process;
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -55,19 +57,22 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return model.getProcess().getProcessValue(timeIndex, assetIndex);
+		return process.getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
 		final double time = getTime(timeIndex);
 
-		return model.getNumeraire(time);
+		// TODO Add caching of the numerare here!
+		return model.getNumeraire(process).at(time);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return model.getNumeraire(time);
+
+		// TODO Add caching of the numerare here!
+		return model.getNumeraire(process).at(time);
 	}
 
 	@Override
@@ -82,8 +87,6 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
-		final MonteCarloProcess process = model.getProcess();
-
 		final ProcessModel		newModel	= model.getCloneWithModifiedData(dataModified);
 
 		MonteCarloProcess	newProcess;
@@ -109,7 +112,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public int getNumberOfPaths() {
-		return model.getProcess().getNumberOfPaths();
+		return process.getNumberOfPaths();
 	}
 
 	@Override
@@ -119,23 +122,17 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
-		return model.getProcess().getTimeDiscretization();
+		return process.getTimeDiscretization();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTime(int)
-	 */
 	@Override
 	public double getTime(final int timeIndex) {
-		return model.getProcess().getTime(timeIndex);
+		return process.getTime(timeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getTimeIndex(double)
-	 */
 	@Override
 	public int getTimeIndex(final double time) {
-		return model.getProcess().getTimeIndex(time);
+		return process.getTimeIndex(time);
 	}
 
 	@Override
@@ -145,7 +142,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return model.getProcess().getMonteCarloWeights(timeIndex);
+		return process.getMonteCarloWeights(timeIndex);
 	}
 
 	/**

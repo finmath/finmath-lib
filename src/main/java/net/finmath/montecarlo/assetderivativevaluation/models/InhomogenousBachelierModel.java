@@ -7,6 +7,8 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -40,6 +42,8 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class InhomogenousBachelierModel extends AbstractProcessModel {
 
+	private final RandomVariableFactory randomVariableFactory;
+
 	private final double initialValue;
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double volatility;
@@ -63,6 +67,7 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 			final double volatility) {
 		super();
 
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
 		this.initialValue	= initialValue;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;

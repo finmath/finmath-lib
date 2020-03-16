@@ -11,6 +11,8 @@ import java.util.Map;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.Numeraire;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -44,7 +46,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 	private final RandomVariable riskFreeRate;
 	private final RandomVariable volatility;
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	// Cache for arrays provided though AbstractProcessModel
 	private final RandomVariable[]	initialState;
@@ -69,7 +71,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.riskFreeRate	= riskFreeRate;
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = abstractRandomVariableFactory;
 
 		// Cache
 		initialState = new RandomVariable[] { initialValue.log() };
@@ -133,8 +135,8 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
-		return riskFreeRate.mult(time).exp();
+	public Numeraire getNumeraire(MonteCarloProcess process) {
+		return time -> riskFreeRate.mult(time).exp();
 	}
 
 	@Override
@@ -144,7 +146,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
@@ -156,7 +158,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue()	: getRiskFreeRate().getAverage();
 		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: getVolatility().getAverage();
 
-		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, abstractRandomVariableFactory);
+		return new BlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, randomVariableFactory);
 	}
 
 	/**
@@ -190,7 +192,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 	@Override
 	public String toString() {
 		return "BlackScholesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
-				+ volatility + ", abstractRandomVariableFactory=" + abstractRandomVariableFactory + ", initialState="
+				+ volatility + ", abstractRandomVariableFactory=" + randomVariableFactory + ", initialState="
 				+ Arrays.toString(initialState) + ", drift=" + Arrays.toString(drift) + ", factorLoadings="
 				+ Arrays.toString(factorLoadings) + ", getProcess()=" + getProcess() + "]";
 	}
