@@ -40,12 +40,12 @@ Correct:
 ```
 
 
-### Naming of Interfaces
+#### Naming of Interfaces
 
 Interfaces should come with names describing the core concept (like `BrownianMotion`  or `RandomVariable` or `Curve`). Implementations pick up the name of the main interface followed by a specification of an implementation aspect (like `RandomVariableFromDoubleArray`).
 
 
-### Naming of Collections
+#### Naming of Collections
 
 Collections are named as the plural of their items. Example:
 
@@ -58,6 +58,19 @@ In cases where it adds clarity the collection type can be used as a suffix inste
 ```
 	RandomVariable sensitivity = sensitivityMap.get(riskFactor);
 ```
+
+#### Naming of Arguments
+
+If constructor arguments or setter (builder) arguments are used to set fields, the field and the argument have the same name, i.e., we use
+
+```
+	private final double value;
+	
+	Skalar(double value) {
+		this.value = value;
+	}
+```
+
 
 
 ### Thread Safety
