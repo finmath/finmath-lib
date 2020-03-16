@@ -26,7 +26,7 @@ import net.finmath.time.TimeDiscretization;
 public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProduct {
 
 	private final Schedule	schedule;
-	private final String			discountCurveName;
+	private final String	discountCurveName;
 
 	/**
 	 * Creates a swap annuity for a given schedule and discount curve.
