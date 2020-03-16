@@ -7,6 +7,8 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -55,6 +57,7 @@ public class BachelierModel extends AbstractProcessModel {
 	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double volatility;
 
+	private final RandomVariableFactory randomVariableFactory;
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
@@ -74,6 +77,7 @@ public class BachelierModel extends AbstractProcessModel {
 			final double volatility) {
 		super();
 
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
 		this.initialValue	= initialValue;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatility		= volatility;
@@ -130,7 +134,7 @@ public class BachelierModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
