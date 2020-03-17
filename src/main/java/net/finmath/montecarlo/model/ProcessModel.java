@@ -92,6 +92,18 @@ public interface ProcessModel {
 	 *
 	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
 	 */
+	default RandomVariable[] getInitialState(MonteCarloProcess process) {
+		return getInitialState();
+	}
+
+	/**
+	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be
+	 * confused with the initial value of the model <i>X</i> (which is the state space transform
+	 * applied to this state value.
+	 *
+	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
+	 */
+	@Deprecated
 	RandomVariable[] getInitialState();
 
 	/**
@@ -103,9 +115,9 @@ public interface ProcessModel {
 	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default Numeraire getNumeraire(MonteCarloProcess process) throws CalculationException
+	default RandomVariable getNumeraire(MonteCarloProcess process, double time) throws CalculationException
 	{
-		return t -> getNumeraire(t);
+		return getNumeraire(time);
 	}
 
 	/**
@@ -119,7 +131,7 @@ public interface ProcessModel {
 	 */
 	@Deprecated
 	default RandomVariable getNumeraire(double time) throws CalculationException {
-		return getNumeraire(getProcess()).at(time);
+		return getNumeraire(getProcess(), time);
 	}
 
 	/**
