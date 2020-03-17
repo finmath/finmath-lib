@@ -193,7 +193,6 @@ public class HullWhiteModelCalibrationTest {
 		final AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFromArrayFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
 
 		final BrownianMotionLazyInit brownianMotion = new BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 		//		//Create map (mainly use calibration defaults)
 		final Map<String, Object> properties = new HashMap<>();
@@ -217,6 +216,7 @@ public class HullWhiteModelCalibrationTest {
 			System.out.println(p);
 		}
 
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(hullWhiteModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 		final LIBORModelMonteCarloSimulationModel hullWhiteModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(hullWhiteModel, process);
 
 		System.out.println("\nValuation on calibrated model:");

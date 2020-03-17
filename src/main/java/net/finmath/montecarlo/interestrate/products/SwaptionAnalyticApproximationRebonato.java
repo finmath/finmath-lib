@@ -19,7 +19,6 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -98,7 +97,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) {
 		final ProcessModel modelBase = model.getModel();
 		if(modelBase instanceof LIBORMarketModel) {
-			return getValues(evaluationTime, (LIBORMarketModel)modelBase);
+			return getValues(evaluationTime, model.getTimeDiscretization(), (LIBORMarketModel)modelBase);
 		} else {
 			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModel.");
 		}
@@ -109,13 +108,14 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
 	 *
 	 * @param evaluationTime Time at which the product is evaluated.
+	 * @param timeDiscretization The time discretization used for integrating the covariance.
 	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
 	 * @return Depending on the value of value unit, the method returns either
 	 * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
 	 * or the value using the Black formula (ValueUnit.VALUE).
 	 * @TODO make initial values an arg and use evaluation time.
 	 */
-	public RandomVariable getValues(final double evaluationTime, final LIBORMarketModel model) {
+	public RandomVariable getValues(final double evaluationTime, final TimeDiscretization timeDiscretization, final LIBORMarketModel model) {
 		if(evaluationTime > 0) {
 			throw new RuntimeException("Forward start evaluation currently not supported.");
 		}
@@ -131,7 +131,7 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		final double[]    swapCovarianceWeights  = logSwaprateDerivative.get("values");
 
 		// Get the integrated libor covariance from the model
-		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
+		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance(timeDiscretization)[optionMaturityIndex];
 
 		// Calculate integrated swap rate covariance
 		double integratedSwapRateVariance = 0.0;
@@ -249,9 +249,5 @@ public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCar
 		results.put("swapAnnuities",	swapAnnuities);
 
 		return results;
-	}
-
-	public static double[][][] getIntegratedLIBORCovariance(final LIBORMarketModelFromCovarianceModel model) {
-		return model.getIntegratedLIBORCovariance();
 	}
 }

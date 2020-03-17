@@ -83,5 +83,4 @@ public interface Process {
 	 * @return Clone of the process
 	 */
 	Process clone();
-
 }

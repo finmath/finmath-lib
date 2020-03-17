@@ -7,7 +7,10 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -43,6 +46,8 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	private final double volatility;
 
 	private final boolean isUseMilsteinCorrection;
+
+	private final RandomVariableFactory randomVariableFactory =  new RandomVariableFromArrayFactory();
 
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
@@ -92,7 +97,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		if(initialValueVector[0] == null) {
 			initialValueVector[0] = getRandomVariableForConstant(initialValue);
 		}
@@ -101,21 +106,21 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate * dt)-1)/dt);
 			if(isUseMilsteinCorrection) {
-				drift[componentIndex] = drift[componentIndex].add(realizationAtTimeIndex[componentIndex].add(displacement).mult(0.5*volatility*volatility * Math.exp(riskFreeRate * dt)).mult(getProcess().getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
+				drift[componentIndex] = drift[componentIndex].add(realizationAtTimeIndex[componentIndex].add(displacement).mult(0.5*volatility*volatility * Math.exp(riskFreeRate * dt)).mult(process.getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
 			}
 		}
 		return drift;
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] volatilityOnPaths = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			volatilityOnPaths[componentIndex] = realizationAtTimeIndex[componentIndex].add(displacement).mult(volatility * Math.exp(riskFreeRate * dt));
@@ -134,10 +139,8 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
-		final double numeraireValue = Math.exp(riskFreeRate * time);
-
-		return getRandomVariableForConstant(numeraireValue);
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+		return getRandomVariableForConstant(Math.exp(riskFreeRate * time));
 	}
 
 	@Override
@@ -146,8 +149,13 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
+	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

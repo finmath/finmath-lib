@@ -13,8 +13,9 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
-import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -48,6 +49,8 @@ import net.finmath.time.TimeDiscretizationFromArray;
 public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulationModel {
 
 	private final BlackScholesModel model;
+	private final MonteCarloProcess process;
+
 	private final double initialValue;
 	private final int seed = 3141;
 
@@ -74,11 +77,29 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER_FUNCTIONAL);
+	}
 
-		// Link model and process for delegation
-		process.setModel(model);
-		model.setProcess(process);
+	/**
+	 * Create a Monte-Carlo simulation using given process discretization scheme.
+	 *
+	 * @param initialValue Spot value
+	 * @param riskFreeRate The risk free rate
+	 * @param volatility The log volatility
+	 * @param brownianMotion The brownian motion driving the model.
+	 */
+	public MonteCarloBlackScholesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final BrownianMotion brownianMotion) {
+		super();
+
+		this.initialValue = initialValue;
+
+		// Create the model
+		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		process = new EulerSchemeFromProcessModel(model, brownianMotion);
 	}
 
 	/**
@@ -101,10 +122,8 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 		// Create the model
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-
-		// Link model and process for delegation
 		process.setModel(model);
-		model.setProcess(process);
+		this.process = process;
 	}
 
 	/* (non-Javadoc)
@@ -120,38 +139,26 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 */
 	@Override
 	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return model.getProcess().getProcessValue(timeIndex, assetIndex);
+		return process.getProcessValue(timeIndex, assetIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumeraire(int)
-	 */
 	@Override
 	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
 		final double time = getTime(timeIndex);
 
-		return model.getNumeraire(time);
+		return model.getNumeraire(process, time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumeraire(double)
-	 */
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return model.getNumeraire(time);
+		return model.getNumeraire(process, time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(double)
-	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumberOfAssets()
-	 */
 	@Override
 	public int getNumberOfAssets() {
 		return 1;
@@ -183,14 +190,14 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		else
 		{
 			// The seed has not changed. We may reuse the random numbers (Brownian motion) of the original model
-			brownianMotion = (BrownianMotion)model.getProcess().getStochasticDriver();
+			brownianMotion = (BrownianMotion)process.getStochasticDriver();
 		}
 
 		final double timeShift = newInitialTime - getTime(0);
 		if(timeShift != 0) {
 			final ArrayList<Double> newTimes = new ArrayList<>();
 			newTimes.add(newInitialTime);
-			for(final Double time : model.getProcess().getStochasticDriver().getTimeDiscretization()) {
+			for(final Double time : process.getStochasticDriver().getTimeDiscretization()) {
 				if(time > newInitialTime) {
 					newTimes.add(time);
 				}
@@ -198,8 +205,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 			final TimeDiscretization newTimeDiscretization = new TimeDiscretizationFromArray(newTimes);
 			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
-		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, process);
+		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, brownianMotion);
 	}
 
 	/* (non-Javadoc)
@@ -208,13 +214,13 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionLazyInit(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
 		return new MonteCarloBlackScholesModel(initialValue, model.getRiskFreeRate().getAverage(), model.getVolatility().getAverage(), process);
 	}
 
 	@Override
 	public int getNumberOfPaths() {
-		return model.getProcess().getNumberOfPaths();
+		return process.getNumberOfPaths();
 	}
 
 	@Override
@@ -224,17 +230,17 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
-		return model.getProcess().getTimeDiscretization();
+		return process.getTimeDiscretization();
 	}
 
 	@Override
 	public double getTime(final int timeIndex) {
-		return model.getProcess().getTime(timeIndex);
+		return process.getTime(timeIndex);
 	}
 
 	@Override
 	public int getTimeIndex(final double time) {
-		return model.getProcess().getTimeIndex(time);
+		return process.getTimeIndex(time);
 	}
 
 	/* (non-Javadoc)
@@ -246,20 +252,26 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		return model.getRandomVariableForConstant(value);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getMonteCarloWeights(int)
-	 */
 	@Override
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return model.getProcess().getMonteCarloWeights(timeIndex);
+		return process.getMonteCarloWeights(timeIndex);
 	}
 
 	/**
-	 * Returns the {@link AbstractProcessModel} used for this Monte-Carlo simulation.
+	 * Returns the {@link BlackScholesModel} used for this Monte-Carlo simulation.
 	 *
 	 * @return the model
 	 */
 	public BlackScholesModel getModel() {
 		return model;
+	}
+
+	/**
+	 * Returns the {@link MonteCarloProcess} used for this Monte-Carlo simulation.
+	 *
+	 * @return the process
+	 */
+	public MonteCarloProcess getProcess() {
+		return process;
 	}
 }

@@ -12,6 +12,7 @@ import net.finmath.modelling.descriptor.HestonModelDescriptor;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -320,7 +321,7 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		// Since the underlying process is configured to simulate log(S), the initial value and the drift are transformed accordingly.
 		if(initialValueVector[0] == null) 	{
 			initialValueVector[0] = initialValue.log();
@@ -331,7 +332,7 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		RandomVariable stochasticVariance;
 		if(scheme == Scheme.FULL_TRUNCATION) {
 			stochasticVariance = realizationAtTimeIndex[1].floor(0.0);
@@ -345,8 +346,8 @@ public class HestonModel extends AbstractProcessModel {
 
 		RandomVariable riskFreeRateAtTimeStep = null;
 		if(discountCurveForForwardRate != null) {
-			final double time		= getTime(timeIndex);
-			final double timeNext	= getTime(timeIndex+1);
+			final double time		= process.getTime(timeIndex);
+			final double timeNext	= process.getTime(timeIndex+1);
 
 			final double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
 			riskFreeRateAtTimeStep = abstractRandomVariableFactory.createRandomVariable(rate);
@@ -362,7 +363,7 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		RandomVariable stochasticVolatility;
 		if(scheme == Scheme.FULL_TRUNCATION) {
 			stochasticVolatility = realizationAtTimeIndex[1].floor(0.0).sqrt();
@@ -417,13 +418,13 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
-		if(discountCurveForDiscountRate != null) {
-			return abstractRandomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
-		}
-		else {
-			return discountRate.mult(time).exp();
-		}
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+			if(discountCurveForDiscountRate != null) {
+				return abstractRandomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+			}
+			else {
+				return discountRate.mult(time).exp();
+			}
 	}
 
 	@Override
@@ -431,9 +432,11 @@ public class HestonModel extends AbstractProcessModel {
 		return 2;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
-	 */
+	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
 		return abstractRandomVariableFactory.createRandomVariable(value);

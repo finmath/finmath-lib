@@ -9,9 +9,11 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * This class implements an analytic approximation of the integrated instantaneous covariance
@@ -37,12 +39,18 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 		this.swapTenor2 = swapTenor2;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
-	 */
 	@Override
 	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
-		return getValue(evaluationTime, (LIBORMarketModelFromCovarianceModel)((LIBORModelMonteCarloSimulationModel) model).getModel());
+		if(!(model instanceof LIBORModelMonteCarloSimulationModel)) {
+			throw new IllegalArgumentException("This product requires a simulation of type LIBORModelMonteCarloSimulationModel where the underlying model is of type LIBORMarketModel.");
+		}
+
+		final ProcessModel modelBase = ((LIBORModelMonteCarloSimulationModel)model).getModel();
+		if(modelBase instanceof LIBORMarketModel) {
+			return getValues(evaluationTime, model.getTimeDiscretization(), (LIBORMarketModel)modelBase);
+		} else {
+			throw new IllegalArgumentException("This product requires a simulation where the underlying model is of type LIBORMarketModel.");
+		}
 	}
 
 	/**
@@ -50,11 +58,12 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
 	 *
 	 * @param evaluationTime The evaluation time.
+	 * @param timeDiscretization The time discretization used for integrating the covariance.
 	 * @param model A model implementing the LIBORMarketModelFromCovarianceModel
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public RandomVariable getValue(final double evaluationTime, final LIBORMarketModelFromCovarianceModel model) throws CalculationException {
+	public RandomVariable getValues(final double evaluationTime, final TimeDiscretization timeDiscretization, final LIBORMarketModel model) {
 
 		final int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);
 		final int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);
@@ -62,13 +71,13 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 		final int swapStartIndex2  = model.getLiborPeriodIndex(swapTenor2[0]);
 		final int swapEndIndex2    = model.getLiborPeriodIndex(swapTenor2[swapTenor2.length-1]);
 
-		final int optionMaturityIndex = model.getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));
+		final int optionMaturityIndex = model.getCovarianceModel().getTimeDiscretization().getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));
 
 		final double[]  swapCovarianceWeights1  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get("values");
 		final double[]  swapCovarianceWeights2  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get("values");
 
 		// Get the integrated libor covariance from the model
-		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance()[optionMaturityIndex];
+		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance(timeDiscretization)[optionMaturityIndex];
 
 		// Calculate integrated swap rate covariance
 		double integratedSwapRateCovariance = 0.0;

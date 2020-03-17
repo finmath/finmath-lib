@@ -5,8 +5,11 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -29,6 +32,8 @@ import net.finmath.stochastic.RandomVariable;
  * @version 1.0
  */
 public class VarianceGammaModel extends AbstractProcessModel {
+
+	private final RandomVariableFactory randomVariableFactory;
 
 	private final double initialValue;
 
@@ -69,6 +74,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
 			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
 		super();
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
 		this.initialValue = initialValue;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		riskFreeRate = Double.NaN;
@@ -92,6 +98,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
 			final double nu) {
 		super();
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
 		this.initialValue = initialValue;
 		discountCurveForForwardRate = null;
 		this.riskFreeRate = riskFreeRate;
@@ -117,11 +124,6 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public int getNumberOfComponents() {
-		return 1;
-	}
-
-	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
@@ -132,52 +134,58 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
-		return new RandomVariable[] {getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue))};
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+		return new RandomVariable[] { getRandomVariableForConstant(Math.log(initialValue)) };
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		if(discountCurveForDiscountRate != null) {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
-		}
-		else {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(Math.exp(discountRate * time));
-		}
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+			if(discountCurveForDiscountRate != null) {
+				return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+			}
+			else {
+				return getRandomVariableForConstant(Math.exp(discountRate * time));
+			}
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex,
-			final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		double riskFreeRateAtTimeStep = 0.0;
+
 		if(discountCurveForForwardRate != null) {
-			final double time		= getTime(timeIndex);
-			final double timeNext	= getTime(timeIndex+1);
+			final double time		= process.getTime(timeIndex);
+			final double timeNext	= process.getTime(timeIndex+1);
 
 			riskFreeRateAtTimeStep = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
-
-		}else {
+		}
+		else {
 			riskFreeRateAtTimeStep = riskFreeRate;
 		}
-		return new RandomVariable[] {getProcess().getStochasticDriver()
-				.getRandomVariableForConstant(riskFreeRateAtTimeStep-1/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu)))};
+
+		return new RandomVariable[] { getRandomVariableForConstant(riskFreeRateAtTimeStep-1/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu))) };
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex,
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex,
 			final RandomVariable[] realizationAtTimeIndex) {
 		final RandomVariable[] factors = new RandomVariable[1];
-		factors[0] = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+		factors[0] = getRandomVariableForConstant(1.0);
 		return factors;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
-	 */
+	@Override
+	public int getNumberOfComponents() {
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

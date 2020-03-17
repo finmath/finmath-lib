@@ -7,6 +7,7 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Interface for LIBOR Market Models which are determined by a covariance structure defined on discrete forward rates.
@@ -38,7 +39,8 @@ public interface LIBORMarketModel extends LIBORModel {
 	 * The array returned has the parametrization [i][j][k], i.e.,
 	 * <code>integratedLIBORCovariance[timeIndex][componentIndex1][componentIndex2]</code>.
 	 *
+	 * @param timeDiscretization The timeDiscretization used for the integration.
 	 * @return The integrated instantaneous log-LIBOR covariance.
 	 */
-	double[][][] getIntegratedLIBORCovariance();
+	double[][][] getIntegratedLIBORCovariance(TimeDiscretization timeDiscretization);
 }

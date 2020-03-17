@@ -2,10 +2,8 @@ package net.finmath.montecarlo.model;
 
 import java.time.LocalDateTime;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretization;
 
 /**
  * This class is an abstract base class to implement a model provided to an MonteCarloProcessFromProcessModel.
@@ -20,16 +18,14 @@ import net.finmath.time.TimeDiscretization;
  */
 public abstract class AbstractProcessModel implements ProcessModel {
 
-	@Deprecated
-	private transient MonteCarloProcess process;
-
 	/**
 	 * Returns the initial value of the model.
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @return The initial value of the model.
 	 */
-	public RandomVariable[] getInitialValue() {
-		final RandomVariable[] initialState = getInitialState();
+	public RandomVariable[] getInitialValue(MonteCarloProcess process) {
+		final RandomVariable[] initialState = getInitialState(process);
 
 		final RandomVariable[] value = new RandomVariable[initialState.length];
 		for(int i= 0; i<value.length; i++) {
@@ -42,80 +38,5 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	@Override
 	public LocalDateTime getReferenceDate() {
 		throw new UnsupportedOperationException("This model does not provide a reference date. Reference dates will be mandatory in a future version.");
-	}
-
-	/*
-	 * Delegation to process (numerical scheme)
-	 */
-
-	@Override
-	@Deprecated
-	public void setProcess(final MonteCarloProcess process) {
-//		this.process = null;
-		this.process = process;
-	}
-
-	@Override
-	@Deprecated
-	public MonteCarloProcess getProcess() {
-		return process;
-	}
-
-	@Override
-	public int getNumberOfFactors() {
-		return process.getNumberOfFactors();
-	}
-
-	/**
-	 * @param timeIndex The time index of evaluation time (using this models time discretization)
-	 * @param componentIndex The component of the process vector
-	 * @return Process realization as a random variable
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getProcessValue(int, int)
-	 */
-	@Deprecated
-	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex) throws CalculationException {
-		return process.getProcessValue(timeIndex, componentIndex);
-	}
-
-	/**
-	 * @param timeIndex The time index of evaluation time (using this models time discretization)
-	 * @return A random variable representing the Monte-Carlo probabilities.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getMonteCarloWeights(int)
-	 */
-	@Deprecated
-	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return process.getMonteCarloWeights(timeIndex);
-	}
-
-	/**
-	 * Get the time discretization of the model (simulation time).
-	 * @return The time discretization of the model (simulation time).
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getTimeDiscretization()
-	 */
-	@Override
-	public final TimeDiscretization getTimeDiscretization() {
-		return process.getTimeDiscretization();
-	}
-
-	/**
-	 * Return the simulation time for a given time index.
-	 * @param timeIndex Time index
-	 * @return Returns the time for a given time index.
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getTime(int)
-	 */
-	public final double getTime(final int timeIndex) {
-		return process.getTime(timeIndex);
-	}
-
-	/**
-	 * Return the time index associated for the given simulation time.
-	 * @param time A given time.
-	 * @return The time index corresponding to the given time.
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getTimeIndex(double)
-	 */
-	public final int getTimeIndex(final double time) {
-		return process.getTimeIndex(time);
 	}
 }

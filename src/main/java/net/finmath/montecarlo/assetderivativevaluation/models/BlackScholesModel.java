@@ -11,6 +11,7 @@ import java.util.Map;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -108,17 +109,17 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		return initialState;
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadings;
 	}
 
@@ -133,12 +134,17 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
 		return riskFreeRate.mult(time).exp();
 	}
 
 	@Override
 	public int getNumberOfComponents() {
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfFactors() {
 		return 1;
 	}
 
@@ -165,7 +171,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @return the initial value of this model.
 	 */
 	@Override
-	public RandomVariable[] getInitialValue() {
+	public RandomVariable[] getInitialValue(final MonteCarloProcess process) {
 		return new RandomVariable[] { initialValue };
 	}
 
@@ -192,6 +198,6 @@ public class BlackScholesModel extends AbstractProcessModel {
 		return "BlackScholesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
 				+ volatility + ", abstractRandomVariableFactory=" + randomVariableFactory + ", initialState="
 				+ Arrays.toString(initialState) + ", drift=" + Arrays.toString(drift) + ", factorLoadings="
-				+ Arrays.toString(factorLoadings) + ", getProcess()=" + getProcess() + "]";
+				+ Arrays.toString(factorLoadings) + "]";
 	}
 }

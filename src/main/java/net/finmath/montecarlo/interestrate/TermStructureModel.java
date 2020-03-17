@@ -13,6 +13,7 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -32,7 +33,7 @@ public interface TermStructureModel extends ProcessModel {
 	 * @return The forward rate.
 	 * @throws CalculationException Thrown if model fails to calculate the random variable.
 	 */
-	RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariable getLIBOR(MonteCarloProcess process, double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Returns the time \( t \) forward bond derived from the numeraire, i.e., \( P(T;t) = E( \frac{N(t)}{N(T)} \vert \mathcal{F}_{t} ) \).
@@ -44,7 +45,7 @@ public interface TermStructureModel extends ProcessModel {
 	 * @return The forward bond P(T;t).
 	 * @throws CalculationException Thrown if model fails to calculate the random variable.
 	 */
-	default RandomVariable getForwardDiscountBond(final double time, final double maturity) throws CalculationException {
+	default RandomVariable getForwardDiscountBond(MonteCarloProcess process, final double time, final double maturity) throws CalculationException {
 		throw new UnsupportedOperationException("The model does not support this method. Note: implemenation will become mandatory is future releases.");
 	}
 

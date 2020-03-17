@@ -10,6 +10,7 @@ import java.util.Map;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -74,7 +75,7 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		if(initialValueVector[0] == null) {
 			initialValueVector[0] = getRandomVariableForConstant(initialValue);
 		}
@@ -83,8 +84,8 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
@@ -93,8 +94,8 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility * Math.sqrt((Math.exp(2.0*riskFreeRate*dt)-1.0)/(2.0*riskFreeRate*dt))	);
 		return new RandomVariable[] { volatilityOnPaths };
 	}
@@ -110,10 +111,8 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
-		final double numeraireValue = Math.exp(riskFreeRate * time);
-
-		return getRandomVariableForConstant(numeraireValue);
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+		return getRandomVariableForConstant(Math.exp(riskFreeRate * time));
 	}
 
 	@Override
@@ -122,8 +121,13 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	}
 
 	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
+	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

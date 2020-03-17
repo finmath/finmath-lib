@@ -187,7 +187,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 
 		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
@@ -328,7 +328,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			final double discountFactor	= getSwapAnnuity(liborMarketModel, new double[] { periodStart , periodEnd}) / periodLength;
 			final int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			final int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
-			final double volatility = Math.sqrt(((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
+			final double volatility = Math.sqrt(((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization())[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			final double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, strike, periodLength, discountFactor);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
@@ -384,7 +384,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 			final double discountFactor	= getSwapAnnuity(liborMarketModel, new double[] { periodStart , periodEnd}) / periodLength;
 			final int optionMaturityIndex = liborMarketModel.getTimeIndex(optionMaturity);
 			final int liborIndex = liborMarketModel.getLiborPeriodIndex(periodStart);
-			final double volatility = Math.sqrt(((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
+			final double volatility = Math.sqrt(((LIBORMarketModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization())[optionMaturityIndex][liborIndex][liborIndex]/optionMaturity);
 			final double valueAnalytic = net.finmath.functions.AnalyticFormulas.blackModelDgitialCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, strike);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
@@ -637,7 +637,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		/*
 		 * Test our calibration
 		 */
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 

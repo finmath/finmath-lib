@@ -11,6 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -29,7 +30,7 @@ public interface LIBORModel extends TermStructureModel, IndependentModelParamete
 	 * @return The forward rate.
 	 * @throws CalculationException Thrown if calculation failed.
 	 */
-	RandomVariable getLIBOR(int timeIndex, int liborIndex) throws CalculationException;
+	RandomVariable getLIBOR(MonteCarloProcess process, int timeIndex, int liborIndex) throws CalculationException;
 
 	/**
 	 * The tenor time discretization of the forward rate curve.

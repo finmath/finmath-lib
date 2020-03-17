@@ -18,7 +18,6 @@ import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
-import net.finmath.time.TimeDiscretization;
 
 /**
  * Simple stochastic volatility model, using a process
@@ -176,12 +175,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 		synchronized (this) {
 			if(stochasticVolatilityScalings == null) {
-				stochasticVolatilityScalings = new EulerSchemeFromProcessModel(brownianMotion);
-				stochasticVolatilityScalings.setModel(new ProcessModel() {
-
-					@Override
-					public void setProcess(final MonteCarloProcess process) {
-					}
+				ProcessModel model = new ProcessModel() {
 
 					@Override
 					public LocalDateTime getReferenceDate() {
@@ -189,18 +183,8 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					}
 
 					@Override
-					public TimeDiscretization getTimeDiscretization() {
-						return brownianMotion.getTimeDiscretization();
-					}
-
-					@Override
-					public MonteCarloProcess getProcess() {
-						return stochasticVolatilityScalings;
-					}
-
-					@Override
-					public RandomVariable getNumeraire(final double time) {
-						return null;
+					public RandomVariable getNumeraire(final MonteCarloProcess process, double time) {
+						throw new UnsupportedOperationException();
 					}
 
 					@Override
@@ -214,20 +198,19 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					}
 
 					@Override
-					public RandomVariable[] getInitialState() {
+					public RandomVariable[] getInitialState(MonteCarloProcess process) {
 						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(0.0) };
 					}
 
 					@Override
-					public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
-						return new RandomVariable[] { rho.mult(nu) , rho.squared().sub(1).mult(-1).sqrt().mult(nu) };
-					}
-
-					@Override
-					public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+					public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 						return new RandomVariable[] { nu.squared().mult(-0.5) };
 					}
 
+					@Override
+					public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+						return new RandomVariable[] { rho.mult(nu) , rho.squared().sub(1).mult(-1).sqrt().mult(nu) };
+					}
 					@Override
 					public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 						return randomVariable.exp();
@@ -239,16 +222,16 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 					}
 
 					@Override
-					public RandomVariable getRandomVariableForConstant(final double value) {
-						return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+					public RandomVariable getRandomVariableForConstant(double value) {
+						throw new UnsupportedOperationException("Method not implemented");
 					}
 
 					@Override
 					public ProcessModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 						throw new UnsupportedOperationException("Method not implemented");
 					}
-				});
-
+				};
+				stochasticVolatilityScalings = new EulerSchemeFromProcessModel(model, brownianMotion);
 			}
 		}
 

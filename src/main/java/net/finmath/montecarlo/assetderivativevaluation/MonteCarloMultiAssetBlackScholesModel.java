@@ -6,15 +6,19 @@
 package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -48,6 +52,10 @@ import net.finmath.time.TimeDiscretization;
  */
 public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel implements AssetModelMonteCarloSimulationModel {
 
+	private final MonteCarloProcess process;
+
+	private final RandomVariableFactory randomVariableFactory;
+
 	private final double[]		initialValues;
 	private final double		riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double[]		volatilities;
@@ -77,14 +85,17 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			) {
 		super();
 
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
+
+		// TODO Creation of this should be completed before calling process constructor.
+
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		process = new EulerSchemeFromProcessModel(this, brownianMotion, Scheme.EULER_FUNCTIONAL);
 
 		this.initialValues	= initialValues;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatilities	= volatilities;
 		factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
-
 
 		/*
 		 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
@@ -98,17 +109,13 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		drift = new RandomVariable[getNumberOfComponents()];
 		factorLoadingOnPaths = new RandomVariable[getNumberOfComponents()][];
 		for(int underlyingIndex = 0; underlyingIndex<initialValues.length; underlyingIndex++) {
-			initialStates[underlyingIndex]				= process.getStochasticDriver().getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
-			drift[underlyingIndex]						= process.getStochasticDriver().getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
+			initialStates[underlyingIndex]				= getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
+			drift[underlyingIndex]						= getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
 			factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[process.getNumberOfFactors()];
 			for(int factorIndex = 0; factorIndex<process.getNumberOfFactors(); factorIndex++) {
-				factorLoadingOnPaths[underlyingIndex][factorIndex]	= process.getStochasticDriver().getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
+				factorLoadingOnPaths[underlyingIndex][factorIndex]	= getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
 			}
 		}
-
-		// Link model and process for delegation
-		process.setModel(this);
-		this.setProcess(process);
 	}
 
 	/**
@@ -133,17 +140,17 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		return initialStates;
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		return drift;
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		return factorLoadingOnPaths[component];
 	}
 
@@ -168,31 +175,36 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 	@Override
 	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return getProcessValue(timeIndex, assetIndex);
+		return process.getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
 	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
-		return getMonteCarloWeights(getTimeIndex(time));
+		return process.getMonteCarloWeights(getTimeIndex(time));
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final int timeIndex) {
-		final double time = getTime(timeIndex);
-
-		return getNumeraire(time);
-	}
-
-	@Override
-	public RandomVariable getNumeraire(final double time) {
+	public RandomVariable getNumeraire(final MonteCarloProcess process, double time) {
 		final double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
 	}
 
 	@Override
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+		final double time = process.getTime(timeIndex);
+
+		return getNumeraire(process, time);
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+		return getNumeraire(process, time);
+	}
+
+	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
@@ -238,7 +250,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 */
 	@Override
 	public int getNumberOfPaths() {
-		return getProcess().getNumberOfPaths();
+		return process.getNumberOfPaths();
 	}
 
 	@Override
@@ -267,7 +279,33 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
-		// TODO Auto-generated method stub
-		return null;
+		final Map<String, Object> dataModified = new HashMap<>();
+		dataModified.put("seed", new Integer(seed));
+		return getCloneWithModifiedData(dataModified);
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+		return process.getTimeDiscretization();
+	}
+
+	@Override
+	public double getTime(int timeIndex) {
+		return process.getTime(timeIndex);
+	}
+
+	@Override
+	public int getTimeIndex(double time) {
+		return process.getTimeIndex(time);
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
+		return process.getMonteCarloWeights(timeIndex);
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+		return process.getNumberOfFactors();
 	}
 }

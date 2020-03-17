@@ -1,8 +1,10 @@
 package net.finmath.functions;
 
 import java.text.DecimalFormat;
+
 import org.junit.Assert;
 import org.junit.Test;
+
 import net.finmath.functions.BarrierOptions.BarrierType;
 
 /**

@@ -75,7 +75,7 @@ public interface MonteCarloProcess extends Process {
 	 * @param model The model to be used.
 	 * @return A clone of this model (or this model if no parameter was modified).
 	 */
-	default MonteCarloProcess getCloneWithModifiedModel(ProcessModel model) { throw new UnsupportedOperationException("Method not implemented."); }
+	MonteCarloProcess getCloneWithModifiedModel(ProcessModel model);
 
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.

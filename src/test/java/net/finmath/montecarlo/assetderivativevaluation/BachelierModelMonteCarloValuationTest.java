@@ -72,7 +72,7 @@ public class BachelierModelMonteCarloValuationTest {
 	private final int		seed				= 3141;
 
 	private AssetModelMonteCarloSimulationModel model = null;
-	private RandomVariableFactory abstractRandomVariableFactory = null;
+	private RandomVariableFactory randomVariableFactory = null;
 
 	/**
 	 * This main method will test a Monte-Carlo simulation of a Black-Scholes model and some valuations
@@ -125,9 +125,9 @@ public class BachelierModelMonteCarloValuationTest {
 		System.out.println("\nCalculation time required: " + (end-start)/1000.0 + " seconds.");
 	}
 
-	public BachelierModelMonteCarloValuationTest(final RandomVariableFactory abstractRandomVariableFactory) {
+	public BachelierModelMonteCarloValuationTest(final RandomVariableFactory randomVariableFactory) {
 		super();
-		this.abstractRandomVariableFactory  = abstractRandomVariableFactory;
+		this.randomVariableFactory  = randomVariableFactory;
 	}
 
 	private static int readTestNumber() {
@@ -171,7 +171,7 @@ public class BachelierModelMonteCarloValuationTest {
 			final ProcessModel blackScholesModel = new BachelierModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, abstractRandomVariableFactory));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
 
 			model = new MonteCarloAssetModel(blackScholesModel, process);
 		}

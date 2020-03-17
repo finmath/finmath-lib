@@ -141,11 +141,12 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// Create the time discretization
 			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
+			InhomogenousBachelierModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility);
 			final int seed = 3141;
-			// Create an instance of a black scholes monte carlo model
+			
 			model = new MonteCarloAssetModel(
-					new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility),
-					new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
+					bachelierModel,
+					new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
 		}
 
 		return model;

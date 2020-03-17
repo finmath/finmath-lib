@@ -80,7 +80,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 			}
 		}
 
-		return new BlackScholesMonteCarloModel(model, new EulerSchemeFromProcessModel(brownianMotion));
+		return new BlackScholesMonteCarloModel(model, new EulerSchemeFromProcessModel(model, brownianMotion));
 	}
 
 }

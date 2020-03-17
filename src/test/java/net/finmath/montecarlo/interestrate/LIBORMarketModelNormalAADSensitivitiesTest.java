@@ -45,6 +45,7 @@ import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
@@ -395,7 +396,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, seed);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
@@ -859,7 +860,12 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				final double optionMaturity = 5.0;
 				final double optionStrike = forward;
 
-				final double integratedVariance = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				LIBORMarketModelFromCovarianceModel modelLMMFromCov = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel());
+				
+				double[][][] integratedLIBORCovariance = modelLMMFromCov.getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization());
+				TimeDiscretization timeDiscretizationCovariance = modelLMMFromCov.getCovarianceModel().getTimeDiscretization();
+				final double integratedVariance = integratedLIBORCovariance[modelLMMFromCov.getCovarianceModel().getTimeDiscretization().getTimeIndexNearestLessOrEqual(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+
 				final double volatility = Math.sqrt(integratedVariance/optionMaturity);
 				final double periodLength = 0.5;
 				final double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();
@@ -882,7 +888,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				final double optionMaturity = 10.0;
 				final double optionStrike = forward;
 
-				final double integratedVariance = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance()[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
+				final double integratedVariance = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel()).getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization())[liborMarketModel.getTimeDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
 				final double volatility = Math.sqrt(integratedVariance/optionMaturity);
 				final double periodLength = 0.5;
 				final double discountFactor = liborMarketModel.getNumeraire(optionMaturity+periodLength).invert().mult(liborMarketModel.getNumeraire(0.0)).getAverage();

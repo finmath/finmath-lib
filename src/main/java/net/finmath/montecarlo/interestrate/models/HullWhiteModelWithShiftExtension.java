@@ -15,6 +15,8 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
@@ -115,12 +117,14 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 
 	private final TimeDiscretization		liborPeriodDiscretization;
 
-	private String							forwardCurveName;
-	private final AnalyticModel			curveModel;
+	private String						forwardCurveName;
+	private final AnalyticModel			analyticModel;
 
 	private final ForwardCurve			forwardRateCurve;
 	private final DiscountCurve			discountCurve;
 	private final DiscountCurve			discountCurveFromForwardCurve;
+
+	private final RandomVariableFactory	randomVariableFactory = new RandomVariableFromArrayFactory();
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
@@ -148,7 +152,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 			) {
 
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		curveModel					= analyticModel;
+		this.analyticModel				= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
 		this.volatilityModel	= volatilityModel;
@@ -175,6 +179,12 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 	}
 
 	@Override
+	public int getNumberOfFactors()
+	{
+		return 1;
+	}
+
+	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
@@ -185,49 +195,53 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		// Initial value is zero - BrownianMotion serves as a factory here.
-		final RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+		final RandomVariable zero = getRandomVariableForConstant(0.0);
 		return new RandomVariable[] { zero };
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		if(time == getTime(0)) {
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) throws CalculationException {
+		if(time < 0) {
+			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));
+		}
+
+		if(time == process.getTime(0)) {
 			// Initial value of numeraire is one - BrownianMotion serves as a factory here.
-			final RandomVariable one = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+			final RandomVariable one = randomVariableFactory.createRandomVariable(1.0);
 			return one;
 		}
 
-		final int timeIndex = getProcess().getTimeIndex(time);
+		final int timeIndex = process.getTimeIndex(time);
 		if(timeIndex < 0) {
 			/*
 			 * time is not part of the time discretization.
 			 */
 
 			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
-			int previousTimeIndex = getProcess().getTimeIndex(time);
+			int previousTimeIndex = process.getTimeIndex(time);
 			if(previousTimeIndex < 0) {
 				previousTimeIndex = -previousTimeIndex-1;
 			}
 			previousTimeIndex--;
-			final double previousTime = getProcess().getTime(previousTimeIndex);
+			final double previousTime = process.getTime(previousTimeIndex);
 
 			// Get value of short rate for period from previousTime to time.
-			final RandomVariable rate = getShortRate(previousTimeIndex);
+			final RandomVariable rate = getShortRate(process, previousTimeIndex);
 
 			// Piecewise constant rate for the increment
 			final RandomVariable integratedRate = rate.mult(time-previousTime);
 
-			return getNumeraire(previousTime).mult(integratedRate.exp());
+			return getNumeraire(process, previousTime).mult(integratedRate.exp());
 		}
 
 		/*
 		 * Check if numeraire cache is values (i.e. process did not change)
 		 */
-		if(getProcess() != numerairesProcess) {
+		if(process != numerairesProcess) {
 			numeraires.clear();
-			numerairesProcess = getProcess();
+			numerairesProcess = process;
 		}
 
 		/*
@@ -238,13 +252,13 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 			/*
 			 * Calculate the numeraire for timeIndex
 			 */
-			final RandomVariable zero = getProcess().getStochasticDriver().getRandomVariableForConstant(0.0);
+			final RandomVariable zero = process.getStochasticDriver().getRandomVariableForConstant(0.0);
 			RandomVariable integratedRate = zero;
 			// Add r(t_{i}) (t_{i+1}-t_{i}) for i = 0 to previousTimeIndex-1
 			for(int i=0; i<timeIndex; i++) {
-				final RandomVariable rate = getShortRate(i);
-				final double dt = getProcess().getTimeDiscretization().getTimeStep(i);
-				//			double dt = getB(getProcess().getTimeDiscretization().getTime(i),getProcess().getTimeDiscretization().getTime(i+1));
+				final RandomVariable rate = getShortRate(process, i);
+				final double dt = process.getTimeDiscretization().getTimeStep(i);
+				//			double dt = getB(process.getTimeDiscretization().getTime(i),process.getTimeDiscretization().getTime(i+1));
 				integratedRate = integratedRate.addProduct(rate, dt);
 
 				numeraire = integratedRate.exp();
@@ -257,7 +271,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		 */
 		if(discountCurve != null) {
 			// This includes a control for zero bonds
-			final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);
+			final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(analyticModel, time);
 			numeraire = numeraire.mult(deterministicNumeraireAdjustment);
 		}
 
@@ -265,10 +279,10 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 
-		final double time = getProcess().getTime(timeIndex);
-		final double timeNext = getProcess().getTime(timeIndex+1);
+		final double time = process.getTime(timeIndex);
+		final double timeNext = process.getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexVolatility < 0) {
@@ -280,18 +294,10 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		return new RandomVariable[] { realizationAtTimeIndex[0].mult(-meanReversionEffective) };
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
-	 */
 	@Override
-	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
-	}
-
-	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
-		final double time = getProcess().getTime(timeIndex);
-		final double timeNext = getProcess().getTime(timeIndex+1);
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+		final double time = process.getTime(timeIndex);
+		final double timeNext = process.getTime(timeIndex+1);
 
 		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);
 		if(timeIndexVolatility < 0) {
@@ -303,19 +309,24 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		final double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
 		final double volatilityEffective = scaling * volatility;
 
-		final RandomVariable factorLoading = getProcess().getStochasticDriver().getRandomVariableForConstant(volatilityEffective);
+		final RandomVariable factorLoading = process.getStochasticDriver().getRandomVariableForConstant(volatilityEffective);
 		return new RandomVariable[] { factorLoading };
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException
-	{
-		return getZeroCouponBond(time, periodStart).div(getZeroCouponBond(time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
+	public RandomVariable getRandomVariableForConstant(final double value) {
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
-		return getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(getProcess().getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
+	public RandomVariable getLIBOR(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
+	{
+		return getZeroCouponBond(process, time, periodStart).div(getZeroCouponBond(process, time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
+	}
+
+	@Override
+	public RandomVariable getLIBOR(final MonteCarloProcess process, final int timeIndex, final int liborIndex) throws CalculationException {
+		return getZeroCouponBond(process, process.getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(process, process.getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));
 	}
 
 	@Override
@@ -340,7 +351,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 
 	@Override
 	public AnalyticModel getAnalyticModel() {
-		return curveModel;
+		return analyticModel;
 	}
 
 	@Override
@@ -358,11 +369,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		throw new UnsupportedOperationException();
 	}
 
-	private RandomVariable getShortRate(final int timeIndex) throws CalculationException {
-		final double time = getProcess().getTime(timeIndex);
+	private RandomVariable getShortRate(final MonteCarloProcess process, final int timeIndex) throws CalculationException {
+		final double time = process.getTime(timeIndex);
 
-		RandomVariable value = getProcess().getProcessValue(timeIndex, 0);
-		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+		RandomVariable value = process.getProcessValue(timeIndex, 0);
+		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(time+dt)/discountCurveFromForwardCurve.getDiscountFactor(time)) / dt;
 
 		double alpha = zeroRate;
@@ -375,7 +386,7 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		 * is the correct one given the discretized numeraire.
 		 */
 		if(driftFormula == DriftFormula.DISCRETE) {
-			alpha += getIntegratedDriftAdjustment(timeIndex);
+			alpha += getIntegratedDriftAdjustment(process, timeIndex);
 		} else if(driftFormula == DriftFormula.ANALYTIC) {
 			alpha += getDV(0,time);
 		}
@@ -385,15 +396,15 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 		return value;
 	}
 
-	private RandomVariable getZeroCouponBond(final double time, final double maturity) throws CalculationException {
-		final int timeIndex = getProcess().getTimeIndex(time);
+	private RandomVariable getZeroCouponBond(final MonteCarloProcess process, final double time, final double maturity) throws CalculationException {
+		final int timeIndex = process.getTimeIndex(time);
 		if(timeIndex < 0) {
 			final int timeIndexLo = -timeIndex-1-1;
-			final double timeLo = getProcess().getTime(timeIndexLo);
-			return getZeroCouponBond(timeLo, maturity).mult(getShortRate(timeIndexLo).mult(time-timeLo).exp());
+			final double timeLo = process.getTime(timeIndexLo);
+			return getZeroCouponBond(process, timeLo, maturity).mult(getShortRate(process, timeIndexLo).mult(time-timeLo).exp());
 		}
-		final RandomVariable shortRate = getShortRate(timeIndex);
-		final double A = getA(time, maturity);
+		final RandomVariable shortRate = getShortRate(process, timeIndex);
+		final double A = getA(process, time, maturity);
 		final double B = getB(time, maturity);
 		return shortRate.mult(-B).exp().mult(A);
 	}
@@ -405,11 +416,11 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 	 * @param timeIndex Time index associated with the time discretization obtained from <code>getProcess</code>
 	 * @return The integrated drift (integrating from 0 to getTime(timeIndex)).
 	 */
-	private double getIntegratedDriftAdjustment(final int timeIndex) {
+	private double getIntegratedDriftAdjustment(final MonteCarloProcess process, final int timeIndex) {
 		double integratedDriftAdjustment = 0;
 		for(int i=1; i<=timeIndex; i++) {
-			final double t = getProcess().getTime(i-1);
-			final double t2 = getProcess().getTime(i);
+			final double t = process.getTime(i-1);
+			final double t2 = process.getTime(i);
 
 			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);
 			if(timeIndexVolatilityModel < 0)
@@ -434,9 +445,9 @@ public class HullWhiteModelWithShiftExtension extends AbstractProcessModel imple
 	 * @param maturity The parameter T.
 	 * @return The value A(t,T).
 	 */
-	private double getA(final double time, final double maturity) {
-		final int timeIndex = getProcess().getTimeIndex(time);
-		final double timeStep = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
+	private double getA(final MonteCarloProcess process, final double time, final double maturity) {
+		final int timeIndex = process.getTimeIndex(time);
+		final double timeStep = process.getTimeDiscretization().getTimeStep(timeIndex);
 
 		final double dt = timeStep;
 		final double zeroRate = -Math.log(discountCurveFromForwardCurve.getDiscountFactor(time+dt)/discountCurveFromForwardCurve.getDiscountFactor(time)) / dt;

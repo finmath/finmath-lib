@@ -290,7 +290,7 @@ public class LIBORMarketModelCalibrationTest {
 			System.out.println(formatterParam.format(p));
 		}
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotionView1);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotionView1);
 		final net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel simulationCalibrated = new net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel(
 				liborMarketModelCalibrated, process);
 
@@ -536,7 +536,7 @@ public class LIBORMarketModelCalibrationTest {
 			System.out.println(p);
 		}
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
 		final LIBORModelMonteCarloSimulationModel simulationCalibrated = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated model:");
@@ -582,7 +582,7 @@ public class LIBORMarketModelCalibrationTest {
 		 * Check if the deserialized model and the original calibrated model give the same valuations
 		 */
 		if(liborMarketModelFromSerialization != null) {
-			final LIBORModelMonteCarloSimulationModel simulationFromSerialization = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModelFromSerialization, new EulerSchemeFromProcessModel(brownianMotion));
+			final LIBORModelMonteCarloSimulationModel simulationFromSerialization = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModelFromSerialization, new EulerSchemeFromProcessModel(liborMarketModelFromSerialization, brownianMotion));
 
 			System.out.println("\nValuation on calibrated model:");
 			for (int i = 0; i < calibrationProducts.size(); i++) {

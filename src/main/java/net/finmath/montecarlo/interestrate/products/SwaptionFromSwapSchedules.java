@@ -202,7 +202,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			/*
 			 * Note that it is important that getForwardDiscountBond and getLIBOR are called with evaluationTime = exerciseTime.
 			 */
-			final RandomVariable discountBond = model.getModel().getForwardDiscountBond(evaluationTime, paymentTime);
+			final RandomVariable discountBond = model.getModel().getForwardDiscountBond(model.getProcess(), evaluationTime, paymentTime);
 			if(paysFloatingRate) {
 				final RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
 				final RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);

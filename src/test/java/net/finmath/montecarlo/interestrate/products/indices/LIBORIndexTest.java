@@ -320,6 +320,7 @@ public class LIBORIndexTest {
 		//		LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, forwardRateCurve, null, covarianceModel, calibrationItems, properties);
 
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+				liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);

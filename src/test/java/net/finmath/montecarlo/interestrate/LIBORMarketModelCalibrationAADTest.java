@@ -697,7 +697,7 @@ public class LIBORMarketModelCalibrationAADTest {
 			System.out.println(formatterParam.format(p.doubleValue()));
 		}
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
 		final LIBORModelMonteCarloSimulationModel simulationCalibrated = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated prices:");

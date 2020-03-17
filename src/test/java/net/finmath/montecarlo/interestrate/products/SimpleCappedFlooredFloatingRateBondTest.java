@@ -201,7 +201,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, 
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 

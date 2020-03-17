@@ -124,7 +124,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -158,7 +158,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		final AssetModelMonteCarloSimulationModel monteCarloHestonModel = new MonteCarloAssetModel(model, process);

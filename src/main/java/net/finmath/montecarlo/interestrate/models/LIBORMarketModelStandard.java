@@ -17,6 +17,8 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.volatilities.SwaptionMarketData;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -26,6 +28,7 @@ import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProdu
 import net.finmath.montecarlo.interestrate.products.SwaptionAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.Schedule;
@@ -71,6 +74,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 	private final ForwardCurve			forwardRateCurve;
 	private DiscountCurve			discountCurve;
+
+	private final RandomVariableFactory	randomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private LIBORCovarianceModel	covarianceModel;
 
@@ -280,7 +285,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
+	public RandomVariable getNumeraire(final MonteCarloProcess process, double time) throws CalculationException {
 		final int timeIndex = getLiborPeriodIndex(time);
 
 		if(timeIndex < 0) {
@@ -288,7 +293,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			final int lowerIndex = -timeIndex -1;
 			final int upperIndex = -timeIndex;
 			final double alpha = (time-getLiborPeriod(lowerIndex)) / (getLiborPeriod(upperIndex) - getLiborPeriod(lowerIndex));
-			return getNumeraire(getLiborPeriod(upperIndex)).invert().mult(alpha).add(getNumeraire(getLiborPeriod(lowerIndex)).invert().mult(1.0-alpha)).invert();
+			return getNumeraire(process, getLiborPeriod(upperIndex)).invert().mult(alpha).add(getNumeraire(process, getLiborPeriod(lowerIndex)).invert().mult(1.0-alpha)).invert();
 		}
 
 		// Calculate the numeraire, when time is part of liborPeriodDiscretization
@@ -317,7 +322,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 		// The product
 		for(int liborIndex = firstLiborIndex; liborIndex<=lastLiborIndex; liborIndex++) {
-			final RandomVariable libor = getLIBOR(getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
+			final RandomVariable libor = getLIBOR(process, process.getTimeIndex(Math.min(time,liborPeriodDiscretization.getTime(liborIndex))), liborIndex);
 
 			final double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
 
@@ -340,8 +345,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		return numeraire;
 	}
 
-	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		final double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			final double rate = forwardRateCurve.getForward(null, liborPeriodDiscretization.getTime(timeIndex));
@@ -367,8 +371,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariableFromDoubleArray[]</code>
 	 */
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		final double	time				= getTime(timeIndex);
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		final double	time				= process.getTime(timeIndex);
 		int		firstLiborIndex		= this.getLiborPeriodIndex(time)+1;
 		if(firstLiborIndex<0) {
 			firstLiborIndex = -firstLiborIndex-1 + 1;
@@ -389,7 +393,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 			//oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 
-			final RandomVariable[]	factorLoading   	= getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
+			final RandomVariable[]	factorLoading   	= getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex);
 			final RandomVariable[]   covarianceFactors   = new RandomVariable[getNumberOfFactors()];
 			for(int factorIndex=0; factorIndex<getNumberOfFactors(); factorIndex++) {
 				covarianceFactors[factorIndex] = factorLoading[factorIndex].mult(oneStepMeasureTransform);
@@ -420,8 +424,9 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public	RandomVariable[]	getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex)
+	public	RandomVariable[]	getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex)
 	{
+		// TODO timeDiscretization may be different. Use time instead
 		return covarianceModel.getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex);
 	}
 
@@ -440,7 +445,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 */
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -451,7 +456,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public RandomVariable getLIBOR(double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getLIBOR(final MonteCarloProcess process, double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		final int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		final int periodEndIndex      = getLiborPeriodIndex(periodEnd);
@@ -463,8 +468,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			final int		previousEndIndex	= (-periodEndIndex-1)-1;
 			final double	previousEndTime		= getLiborPeriod(previousEndIndex);
 			final double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
-			final RandomVariable liborLongPeriod		= getLIBOR(time, periodStart, nextEndTime);
-			final RandomVariable	liborShortPeriod	= getLIBOR(time, previousEndTime, nextEndTime);
+			final RandomVariable liborLongPeriod		= getLIBOR(process, time, periodStart, nextEndTime);
+			final RandomVariable	liborShortPeriod	= getLIBOR(process, time, previousEndTime, nextEndTime);
 
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable libor = liborLongPeriod.mult(nextEndTime-periodStart).add(1.0)
@@ -489,8 +494,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			final int		previousStartIndex	= (-periodStartIndex-1)-1;
 			final double	previousStartTime	= getLiborPeriod(previousStartIndex);
 			final double	nextStartTime		= getLiborPeriod(previousStartIndex+1);
-			final RandomVariable liborLongPeriod		= getLIBOR(time, previousStartTime, periodEnd);
-			final RandomVariable	liborShortPeriod	= getLIBOR(time, previousStartTime, nextStartTime);
+			final RandomVariable liborLongPeriod		= getLIBOR(process, time, previousStartTime, periodEnd);
+			final RandomVariable	liborShortPeriod	= getLIBOR(process, time, previousStartTime, nextStartTime);
 
 			RandomVariable libor = liborLongPeriod.mult(periodEnd-previousStartTime).add(1.0)
 					.div(
@@ -515,7 +520,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 		// If time is beyond fixing, use the fixing time.
 		time = Math.min(time, periodStart);
-		int timeIndex           = getTimeIndex(time);
+		int timeIndex           = process.getTimeIndex(time);
 
 		// If time is not part of the discretization, use the latest available point.
 		if(timeIndex < 0) {
@@ -526,17 +531,17 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 
 		// If this is a model primitive then return it
 		if(periodStartIndex+1==periodEndIndex) {
-			return getLIBOR(timeIndex, periodStartIndex);
+			return getLIBOR(process, timeIndex, periodStartIndex);
 		}
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariable accrualAccount = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+		RandomVariable accrualAccount = getRandomVariableForConstant(1.0);
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)
 		{
 			final double subPeriodLength = getLiborPeriod(periodIndex+1) - getLiborPeriod(periodIndex);
-			final RandomVariable liborOverSubPeriod = getLIBOR(timeIndex, periodIndex);
+			final RandomVariable liborOverSubPeriod = getLIBOR(process, timeIndex, periodIndex);
 
 			accrualAccount = accrualAccount.accrue(liborOverSubPeriod, subPeriodLength);
 		}
@@ -547,10 +552,10 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException
+	public RandomVariable getLIBOR(final MonteCarloProcess process, final int timeIndex, final int liborIndex) throws CalculationException
 	{
-		// This method is just a synonym - call getProcessValue of super class
-		return getProcessValue(timeIndex, liborIndex);
+		// This method is delegating to getProcessValue of process
+		return process.getProcessValue(timeIndex, liborIndex);
 	}
 
 	/**
@@ -562,10 +567,12 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		return getNumberOfLibors();
 	}
 
+	@Override
+	public int getNumberOfFactors()
+	{
+		return covarianceModel.getNumberOfFactors();
+	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getNumberOfLibors()
-	 */
 	@Override
 	public int getNumberOfLibors()
 	{
@@ -609,10 +616,10 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 * @param realizationPredictor
 	 * @return
 	 */
-	private RandomVariable getDrift(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	private RandomVariable getDrift(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 
 		// Check if this LIBOR is already fixed
-		if(getTime(timeIndex) >= this.getLiborPeriod(componentIndex)) {
+		if(process.getTime(timeIndex) >= this.getLiborPeriod(componentIndex)) {
 			return null;
 		}
 
@@ -620,23 +627,23 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		 * We implemented several different methods to calculate the drift
 		 */
 		if(driftApproximationMethod == Driftapproximation.PREDICTOR_CORRECTOR && realizationPredictor != null) {
-			RandomVariable drift					= getDriftEuler(timeIndex, componentIndex, realizationAtTimeIndex);
-			final RandomVariable driftEulerWithPredictor	= getDriftEuler(timeIndex, componentIndex, realizationPredictor);
+			RandomVariable drift					= getDriftEuler(process, timeIndex, componentIndex, realizationAtTimeIndex);
+			final RandomVariable driftEulerWithPredictor	= getDriftEuler(process, timeIndex, componentIndex, realizationPredictor);
 			drift = drift.add(driftEulerWithPredictor).div(2.0);
 
 			return drift;
 		}
 		else if(driftApproximationMethod == Driftapproximation.LINE_INTEGRAL && realizationPredictor != null) {
-			return getDriftLineIntegral(timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);
+			return getDriftLineIntegral(process, timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);
 		}
 		else {
-			return getDriftEuler(timeIndex, componentIndex, realizationAtTimeIndex);
+			return getDriftEuler(process, timeIndex, componentIndex, realizationAtTimeIndex);
 		}
 	}
 
-	protected RandomVariable getDriftEuler(final int timeIndex, final int componentIndex, final RandomVariable[] liborVectorStart) {
+	protected RandomVariable getDriftEuler(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] liborVectorStart) {
 		// The following is the drift of the LIBOR component
-		final double	time					= getTime(timeIndex);
+		final double	time					= process.getTime(timeIndex);
 
 		// Initialize to 0.0
 		RandomVariable drift = new RandomVariableFromDoubleArray(time, 0.0);
@@ -678,13 +685,13 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		return drift;
 	}
 
-	private RandomVariable getDriftLineIntegral(final int timeIndex, final int componentIndex, final RandomVariable[] liborVectorStart, final RandomVariable[] liborVectorEnd) {
+	private RandomVariable getDriftLineIntegral(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] liborVectorStart, final RandomVariable[] liborVectorEnd) {
 		// The following is the dirft of the LIBOR component
 
-		final double	time				= getTime(timeIndex);
+		final double	time				= process.getTime(timeIndex);
 
 		// Check if this LIBOR is already fixed
-		if(getTime(timeIndex) >= this.getLiborPeriod(componentIndex)) {
+		if(process.getTime(timeIndex) >= this.getLiborPeriod(componentIndex)) {
 			return null;
 		}
 
@@ -745,13 +752,12 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 * @see net.finmath.montecarlo.interestrate.LIBORMarketModel#getIntegratedLIBORCovariance()
 	 */
 	@Override
-	public synchronized double[][][] getIntegratedLIBORCovariance() {
+	public double[][][] getIntegratedLIBORCovariance(TimeDiscretization simulationTimeDiscretization) {
 		if(integratedLIBORCovariance != null) {
 			return integratedLIBORCovariance;
 		}
 
 		final TimeDiscretization liborPeriodDiscretization = getLiborPeriodDiscretization();
-		final TimeDiscretization simulationTimeDiscretization = getTimeDiscretization();
 
 		integratedLIBORCovariance = new double[simulationTimeDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int componentIndex1 = 0; componentIndex1 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex1++) {
@@ -759,9 +765,9 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			for(int componentIndex2 = componentIndex1; componentIndex2 < liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex2++) {
 				double integratedLIBORCovarianceValue = 0.0;
 				for(int timeIndex = 0; timeIndex < simulationTimeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-					final double dt = getTime(timeIndex+1) - getTime(timeIndex);
-					final RandomVariable[] factorLoadingOfComponent1 = getCovarianceModel().getFactorLoading(timeIndex, componentIndex1, null);
-					final RandomVariable[] factorLoadingOfComponent2 = getCovarianceModel().getFactorLoading(timeIndex, componentIndex2, null);
+					final double dt = simulationTimeDiscretization.getTimeStep(timeIndex);
+					final RandomVariable[] factorLoadingOfComponent1 = getCovarianceModel().getFactorLoading(simulationTimeDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTime(componentIndex1), null);
+					final RandomVariable[] factorLoadingOfComponent2 = getCovarianceModel().getFactorLoading(simulationTimeDiscretization.getTime(timeIndex), liborPeriodDiscretization.getTime(componentIndex2), null);
 					for(int factorIndex = 0; factorIndex < getNumberOfFactors(); factorIndex++) {
 						integratedLIBORCovarianceValue += factorLoadingOfComponent1[factorIndex].get(0) * factorLoadingOfComponent2[factorIndex].get(0) * dt;
 					}

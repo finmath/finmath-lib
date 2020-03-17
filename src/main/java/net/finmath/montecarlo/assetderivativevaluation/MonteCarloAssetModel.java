@@ -6,11 +6,11 @@
 package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.IndependentIncrements;
-import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
@@ -46,10 +46,6 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		this.model = model;
 		this.process = process;
-
-		// Link model and process for delegation
-		process.setModel(model);
-		model.setProcess(process);
 	}
 
 	public MonteCarloAssetModel(ProcessModel model, IndependentIncrements stochasticDriver) {
@@ -57,10 +53,6 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		this.model = model;
 		this.process = new EulerSchemeFromProcessModel(model, stochasticDriver);
-
-		// Link model and process for delegation
-		process.setModel(model);
-		model.setProcess(process);
 	}
 
 	@Override
@@ -104,7 +96,12 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		MonteCarloProcess	newProcess;
 		try {
-			newProcess = process.getCloneWithModifiedData(dataModified);
+			Map<String, Object> dataModifiedForProcess = new HashMap<String, Object>();
+			dataModifiedForProcess.putAll(dataModified);
+			if(!dataModifiedForProcess.containsKey("model")) {
+				dataModifiedForProcess.put("model", newModel);
+			}
+			newProcess = process.getCloneWithModifiedData(dataModifiedForProcess);
 		}
 		catch(final UnsupportedOperationException e) {
 			newProcess = process;
@@ -112,7 +109,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		// In the case where the model has changed we need a new process anyway
 		if(newModel != model && newProcess == process) {
-			newProcess = process.clone();
+			newProcess = process.getCloneWithModifiedModel(newModel);
 		}
 
 		return new MonteCarloAssetModel(newModel, newProcess);
@@ -159,12 +156,21 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	/**
-	 * Returns the {@link AbstractProcessModel} used for this Monte-Carlo simulation.
+	 * Returns the {@link ProcessModel} used for this Monte-Carlo simulation.
 	 *
 	 * @return the model
 	 */
 	public ProcessModel getModel() {
 		return model;
+	}
+
+	/**
+	 * Returns the {@link MonteCarloProcess} used for this Monte-Carlo simulation.
+	 *
+	 * @return the process
+	 */
+	public MonteCarloProcess getProcess() {
+		return process;
 	}
 
 	@Override

@@ -154,7 +154,7 @@ public class CapValuationTest {
 		final LIBORMarketModel liborMarketModel = LIBORMarketModelFromCovarianceModel.of(
 				liborPeriodDiscretization, null, forwardCurve, discountCurve, new RandomVariableFromArrayFactory(), covarianceModel, calibrationItems, properties);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 

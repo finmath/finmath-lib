@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromTermStructureModel;
 import net.finmath.montecarlo.interestrate.TermStructureModel;
@@ -84,6 +83,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		final Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		final BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
+		if(brownianMotionParameter == null) throw new IllegalArgumentException("Calibration requires a Brownian motion to be specified under the key 'brownianMotion'.");
 
 		final double[] initialParameters = this.getParameter();
 		final double[] lowerBound = new double[initialParameters.length];
@@ -108,7 +108,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		final int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(calibrationModel.getProcess().getStochasticDriver().getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter;
 		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());
@@ -130,7 +130,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 				} catch (final CalculationException e) {
 					throw new SolverException(e);
 				}
-				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 				final LIBORMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
 
 				final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);

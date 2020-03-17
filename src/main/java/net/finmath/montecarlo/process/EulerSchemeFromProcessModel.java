@@ -372,7 +372,12 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	@Override
 	public EulerSchemeFromProcessModel clone() {
-		return new EulerSchemeFromProcessModel(getStochasticDriver(), scheme);
+		return new EulerSchemeFromProcessModel(getModel(), getStochasticDriver(), scheme);
+	}
+
+	@Override
+	public MonteCarloProcess getCloneWithModifiedModel(ProcessModel model) {
+		return new EulerSchemeFromProcessModel(model, getStochasticDriver(), scheme);
 	}
 
 	@Override
@@ -383,7 +388,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	@Override
 	public Object getCloneWithModifiedSeed(final int seed) {
-		return new EulerSchemeFromProcessModel(getBrownianMotion().getCloneWithModifiedSeed(seed));
+		return new EulerSchemeFromProcessModel(getModel(), getBrownianMotion().getCloneWithModifiedSeed(seed));
 	}
 
 	@Override

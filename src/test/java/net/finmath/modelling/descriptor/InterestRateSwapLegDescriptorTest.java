@@ -291,6 +291,7 @@ public class InterestRateSwapLegDescriptorTest {
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+				liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);

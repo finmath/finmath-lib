@@ -265,7 +265,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -336,7 +336,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -402,7 +402,7 @@ public class RandomVariableDifferentiableAADPerformanceTest {
 			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);

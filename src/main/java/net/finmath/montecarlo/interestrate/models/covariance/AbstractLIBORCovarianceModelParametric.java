@@ -187,7 +187,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 				// Create a LIBOR market model with the new covariance structure.
 				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
-				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 				final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 				final ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
@@ -386,7 +386,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 
 				// Create a LIBOR market model with the new covariance structure.
 				final LIBORMarketModel model = calibrationModel.getCloneWithModifiedCovarianceModel(calibrationCovarianceModel);
-				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 				final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 				final ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);

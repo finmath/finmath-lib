@@ -7,7 +7,10 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -42,6 +45,8 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	private final double displacement;
 	private final double volatility;
 
+	private final RandomVariableFactory randomVariableFactory =  new RandomVariableFromArrayFactory();
+
 	/*
 	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
 	 * We construct the corresponding random variables here and will return (immutable) references to them.
@@ -70,7 +75,7 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getInitialState() {
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		if(initialValueVector[0] == null) {
 			initialValueVector[0] = getRandomVariableForConstant(Math.log(initialValue+displacement));
 		}
@@ -79,7 +84,7 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = getRandomVariableForConstant(riskFreeRate - 0.5 * volatility * volatility - riskFreeRate * displacement);
@@ -88,7 +93,7 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility);
 		return new RandomVariable[] { volatilityOnPaths };
 	}
@@ -104,10 +109,10 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) {
-		final double numeraireValue = Math.exp(riskFreeRate * time);
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+			final double numeraireValue = Math.exp(riskFreeRate * time);
 
-		return getRandomVariableForConstant(numeraireValue);
+			return getRandomVariableForConstant(numeraireValue);
 	}
 
 	@Override
@@ -116,8 +121,13 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
+	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

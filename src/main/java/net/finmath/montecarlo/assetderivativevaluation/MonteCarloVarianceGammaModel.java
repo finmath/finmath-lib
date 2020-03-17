@@ -8,7 +8,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.VarianceGammaProcess;
 import net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -22,6 +22,8 @@ import net.finmath.time.TimeDiscretization;
 public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulationModel {
 
 	private final VarianceGammaModel model;
+	private final MonteCarloProcess process;
+
 	private final double initialValue;
 	private final int seed;
 
@@ -51,16 +53,12 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 		this.initialValue = initialValue;
 		this.seed = seed;
 
-		//Create the model
+		// Create the model
 		model = new VarianceGammaModel(initialValue,riskFreeRate,sigma,theta,nu);
 
-		//Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new VarianceGammaProcess(sigma, nu, theta,
+		// Create a corresponding MC process
+		process = new EulerSchemeFromProcessModel(model, new VarianceGammaProcess(sigma, nu, theta,
 				timeDiscretization, 1, numberOfPaths,seed));
-
-		//Link model and process for delegation
-		process.setModel(model);
-		model.setProcess(process);
 	}
 
 	@Override
@@ -75,19 +73,19 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 
 	@Override
 	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return model.getProcess().getProcessValue(timeIndex, assetIndex);
+		return process.getProcessValue(timeIndex, assetIndex);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
 		final double time = getTime(timeIndex);
 
-		return model.getNumeraire(time);
+		return model.getNumeraire(process, time);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return model.getNumeraire(time);
+		return model.getNumeraire(process, time);
 	}
 
 	@Override
@@ -116,7 +114,7 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 		final double	newNu	= dataModified.get("nu") != null	? ((Number)dataModified.get("nu")).doubleValue()	: model.getNu();
 		final int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
-		return new MonteCarloVarianceGammaModel(model.getProcess().getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), model.getProcess().getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newSigma, newTheta, newNu);
+		return new MonteCarloVarianceGammaModel(process.getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), process.getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newSigma, newTheta, newNu);
 	}
 
 	@Override
@@ -128,22 +126,22 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 
 	@Override
 	public int getNumberOfPaths() {
-		return model.getProcess().getNumberOfPaths();
+		return process.getNumberOfPaths();
 	}
 
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
-		return model.getProcess().getTimeDiscretization();
+		return process.getTimeDiscretization();
 	}
 
 	@Override
 	public double getTime(final int timeIndex) {
-		return model.getProcess().getTime(timeIndex);
+		return process.getTime(timeIndex);
 	}
 
 	@Override
 	public int getTimeIndex(final double time) {
-		return model.getProcess().getTimeIndex(time);
+		return process.getTimeIndex(time);
 	}
 
 	@Override
@@ -153,6 +151,6 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 
 	@Override
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return model.getProcess().getMonteCarloWeights(timeIndex);
+		return process.getMonteCarloWeights(timeIndex);
 	}
 }
