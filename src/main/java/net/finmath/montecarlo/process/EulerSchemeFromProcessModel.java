@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -72,9 +73,34 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	/**
 	 * Create an Euler discretization scheme.
 	 *
+	 * @param model The model (the SDE specifcation) used to generate the (sampling of the) stochastic process.
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
 	 */
+	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver, final Scheme scheme) {
+		super(stochasticDriver.getTimeDiscretization(), model);
+		this.stochasticDriver = stochasticDriver;
+		this.scheme = scheme;
+	}
+
+	/**
+	 * Create an Euler discretization scheme.
+	 *
+	 * @param model The model (the SDE specifcation) used to generate the (sampling of the) stochastic process.
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
+	 */
+	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
+		super(stochasticDriver.getTimeDiscretization(), model);
+		this.stochasticDriver = stochasticDriver;
+	}
+
+	/**
+	 * Create an Euler discretization scheme.
+	 *
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
+	 * @param scheme The scheme to use. See {@link Scheme}.
+	 */
+	@Deprecated
 	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver, final Scheme scheme) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
@@ -86,6 +112,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
+	@Deprecated
 	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization());
 		this.stochasticDriver = stochasticDriver;
@@ -364,5 +391,4 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		return "EulerSchemeFromProcessModel [stochasticDriver=" + stochasticDriver + ", scheme=" + scheme + ", executor="
 				+ executor + "]";
 	}
-
 }

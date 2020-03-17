@@ -9,8 +9,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -50,6 +52,17 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		model.setProcess(process);
 	}
 
+	public MonteCarloAssetModel(ProcessModel model, IndependentIncrements stochasticDriver) {
+		super();
+
+		this.model = model;
+		this.process = new EulerSchemeFromProcessModel(model, stochasticDriver);
+
+		// Link model and process for delegation
+		process.setModel(model);
+		model.setProcess(process);
+	}
+
 	@Override
 	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
 		return getAssetValue(getTimeIndex(time), assetIndex);
@@ -65,14 +78,14 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		final double time = getTime(timeIndex);
 
 		// TODO Add caching of the numerare here!
-		return model.getNumeraire(process).at(time);
+		return model.getNumeraire(process, time);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
 
 		// TODO Add caching of the numerare here!
-		return model.getNumeraire(process).at(time);
+		return model.getNumeraire(process, time);
 	}
 
 	@Override

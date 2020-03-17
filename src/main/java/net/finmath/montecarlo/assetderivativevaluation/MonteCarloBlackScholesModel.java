@@ -89,6 +89,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 * @param volatility The log volatility
 	 * @param process The process discretization scheme which should be used for the simulation.
 	 */
+	@Deprecated
 	public MonteCarloBlackScholesModel(
 			final double initialValue,
 			final double riskFreeRate,

@@ -11,8 +11,6 @@ import java.util.Map;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.model.Numeraire;
-import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -42,11 +40,11 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class BlackScholesModel extends AbstractProcessModel {
 
+	private final RandomVariableFactory randomVariableFactory;
+
 	private final RandomVariable initialValue;
 	private final RandomVariable riskFreeRate;
 	private final RandomVariable volatility;
-
-	private final RandomVariableFactory randomVariableFactory;
 
 	// Cache for arrays provided though AbstractProcessModel
 	private final RandomVariable[]	initialState;
@@ -135,8 +133,8 @@ public class BlackScholesModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public Numeraire getNumeraire(MonteCarloProcess process) {
-		return time -> riskFreeRate.mult(time).exp();
+	public RandomVariable getNumeraire(final double time) {
+		return riskFreeRate.mult(time).exp();
 	}
 
 	@Override

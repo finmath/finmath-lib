@@ -42,6 +42,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 *
 	 * @param timeDiscretization The time discretization used for the discretization scheme.
 	 */
+	@Deprecated
 	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization) {
 		super();
 		this.timeDiscretization	= timeDiscretization;
@@ -58,6 +59,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
 	 */
 	@Override
+	@Deprecated
 	public void setModel(final ProcessModel model) {
 		if(this.model != null && this.model != model) {
 			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
@@ -72,7 +74,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	}
 
 	public RandomVariable[]	getInitialState() {
-		return model.getInitialState();
+		return model.getInitialState(this);
 	}
 
 	public RandomVariable[]	getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {

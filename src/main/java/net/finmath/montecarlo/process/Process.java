@@ -6,6 +6,7 @@
 package net.finmath.montecarlo.process;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -16,6 +17,13 @@ import net.finmath.time.TimeDiscretization;
  * @version 1.0
  */
 public interface Process {
+
+	/**
+	 * Returns the model that is used to generate this process, null if no model was used.
+	 * 
+	 * @return The model that is used to generate this process, null if no model was used.
+	 */
+	default ProcessModel getModel() { return null; }
 
 	/**
 	 * This method returns the realization of the process for a given time index.

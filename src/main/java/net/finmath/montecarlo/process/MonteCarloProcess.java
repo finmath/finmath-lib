@@ -60,8 +60,22 @@ public interface MonteCarloProcess extends Process {
 	 * Sets the model to be used. Should be called only once (at construction).
 	 *
 	 * @param model The model to be used.
+	 * @deprecated Model should be passed upon construction.
 	 */
+	@Deprecated
 	void setModel(ProcessModel model);
+
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 *
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map <code>dataModified</code>. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 *
+	 * @param model The model to be used.
+	 * @return A clone of this model (or this model if no parameter was modified).
+	 */
+	default MonteCarloProcess getCloneWithModifiedModel(ProcessModel model) { throw new UnsupportedOperationException("Method not implemented."); }
 
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.
