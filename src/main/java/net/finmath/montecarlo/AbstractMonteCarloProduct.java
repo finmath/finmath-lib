@@ -75,24 +75,14 @@ public abstract class AbstractMonteCarloProduct implements MonteCarloProduct {
 		return results;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
-	 */
 	@Override
 	public abstract RandomVariable getValue(double evaluationTime, MonteCarloSimulationModel model) throws CalculationException;
 
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloProduct#getValue(net.finmath.montecarlo.MonteCarloSimulationModel)
-	 */
 	@Override
 	public double getValue(final MonteCarloSimulationModel model) throws CalculationException {
 		return getValue(0.0, model).getAverage();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloProduct#getValues(double, net.finmath.montecarlo.MonteCarloSimulationModel)
-	 */
 	@Override
 	public Map<String, Object> getValues(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException
 	{
