@@ -97,6 +97,18 @@ The library is developed with object serialization in mind.
 -   Classes should implement the `Serializable` interface.
 
 
+## Language
+
+### Language Extensions
+ 
+The code is written in Java. That is, it avoids language extensions like *Lombok*.
+
+
+### Java Modules
+
+Starting with version 5.x the library will export Java 9 modules.
+
+
 ## Documentation
 
 ### JavaDoc with MathJax
