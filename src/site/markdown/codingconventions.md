@@ -102,14 +102,21 @@ The library is developed with object serialization in mind.
 -   Classes should implement the `Serializable` interface.
 
 
-### Other Principles
-
-- Code in `src/main` should conform to DRY (don't repeat yourself). Unit tests in `src/test` should be self-contained and code duplication (e.g. create a model for a specific purpose) is fine.
-
-
 ## Other Principles
 
 - Code in `src/main` should conform to DRY (don't repeat yourself). Unit tests in `src/test` should be self-contained and code duplication (e.g. create a model for a specific purpose) is fine.
+
+
+## Language
+
+### Language Extensions
+ 
+The code is written in Java. That is, it avoids language extensions like *Lombok*.
+
+
+### Java Modules
+
+Starting with version 5.x the library will export Java 9 modules.
 
 
 ## Documentation
