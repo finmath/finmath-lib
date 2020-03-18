@@ -89,7 +89,8 @@ public interface ProcessModel {
 	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be
 	 * confused with the initial value of the model <i>X</i> (which is the state space transform
 	 * applied to this state value.
-	 *
+	 * 
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
 	 */
 	default RandomVariable[] getInitialState(MonteCarloProcess process) {
@@ -112,7 +113,7 @@ public interface ProcessModel {
 	 *
 	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @param time The time <i>t</i> for which the numeraire <i>N(t)</i> should be returned.
-	 * @return The numeraire at the specified time as <code>RandomVariableFromDoubleArray</code>
+	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	default RandomVariable getNumeraire(MonteCarloProcess process, double time) throws CalculationException
@@ -235,7 +236,7 @@ public interface ProcessModel {
 	 * The model needs the numerical scheme to calculate, e.g., the numeraire.
 	 *
 	 * @param process The process.
-	 * @Deprecated Models will no longer hold references to processes.
+	 * @deprecated Models will no longer hold references to processes.
 	 */
 	@Deprecated
 	void setProcess(MonteCarloProcess process);
@@ -246,7 +247,7 @@ public interface ProcessModel {
 	 * The model needs the numerical scheme to calculate, e.g., the numeraire.
 	 *
 	 * @return the process
-	 * @Deprecated Models will no longer hold references to processes.
+	 * @deprecated Models will no longer hold references to processes.
 	 */
 	@Deprecated
 	MonteCarloProcess getProcess();
