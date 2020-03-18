@@ -17,12 +17,12 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * Implements convenient methods for a LIBOR market model,
- * based on a given <code>LIBORMarketModelFromCovarianceModel</code> model
- * and <code>AbstractLogNormalProcess</code> process.
+ * Implements convenient methods for a LIBOR market model, based on a given <code>LIBORModel</code> model
+ * (e.g. implemented by <code>LIBORMarketModelFromCovarianceModel</code>) and <code>MonteCarloProcess</code>
+ * process (e.g. implemented by <code>EulerSchemeFromProcessModel</code>
  *
  * @author Christian Fries
- * @version 0.9
+ * @version 1.0
  */
 public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteCarloSimulationModel {
 
@@ -151,9 +151,6 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		return model;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel#getProcess()
-	 */
 	@Override
 	public MonteCarloProcess getProcess() {
 		return process;
