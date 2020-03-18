@@ -365,8 +365,9 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	 * Note: The random variable returned is a defensive copy and may be modified.
 	 * The drift will be zero for rates being already fixed.
 	 *
-	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelStandard#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
+	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelStandard#getNumeraire(MonteCarloProcess, double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariableFromDoubleArray[]</code>

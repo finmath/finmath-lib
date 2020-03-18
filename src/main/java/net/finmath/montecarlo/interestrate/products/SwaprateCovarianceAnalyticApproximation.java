@@ -61,7 +61,6 @@ public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloP
 	 * @param timeDiscretization The time discretization used for integrating the covariance.
 	 * @param model A model implementing the LIBORMarketModelFromCovarianceModel
 	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	public RandomVariable getValues(final double evaluationTime, final TimeDiscretization timeDiscretization, final LIBORMarketModel model) {
 

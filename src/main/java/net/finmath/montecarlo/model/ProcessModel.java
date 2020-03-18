@@ -80,8 +80,8 @@ public interface ProcessModel {
 	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be
 	 * confused with the initial value of the model <i>X</i> (which is the state space transform
 	 * applied to this state value.
+	 * 
 	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
-	 *
 	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
 	 */
 	RandomVariable[] getInitialState(MonteCarloProcess process);

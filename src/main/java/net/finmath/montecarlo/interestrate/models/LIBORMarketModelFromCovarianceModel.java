@@ -1108,9 +1108,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * If the model is written without a state space transformation (in its orignial coordinates) then \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = L_{j} L_{l} \sigma_{j} \sigma_{l} \rho_{j,l} \).
 	 *
 	 *
-	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel#getNumeraire(double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
-	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel#getFactorLoading(int, int, RandomVariable[]) The factor loading \( \lambda_{j,k} \).
+	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel#getNumeraire(MonteCarloProcess, double) The calculation of the drift is consistent with the calculation of the numeraire in <code>getNumeraire</code>.
+	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel#getFactorLoading(MonteCarloProcess, int, int, RandomVariable[]) The factor loading \( \lambda_{j,k} \).
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @param timeIndex Time index <i>i</i> for which the drift should be returned <i>&mu;(t<sub>i</sub>)</i>.
 	 * @param realizationAtTimeIndex Time current forward rate vector at time index <i>i</i> which should be used in the calculation.
 	 * @return The drift vector &mu;(t<sub>i</sub>) as <code>RandomVariableFromDoubleArray[]</code>

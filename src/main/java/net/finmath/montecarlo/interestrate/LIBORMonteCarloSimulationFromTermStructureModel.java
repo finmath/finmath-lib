@@ -44,24 +44,10 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcessFromProcessModel.
 	 *
-	 * @param model The LIBORMarketModelFromCovarianceModel.
-	 * @param process The process.
+	 * @param process The process creating the model.
 	 */
 	public LIBORMonteCarloSimulationFromTermStructureModel(final MonteCarloProcess process) {
 		this((TermStructureModel)process.getModel(), process);
-	}
-
-
-	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel.
-	 *
-	 * @param model The LIBORMarketModelFromCovarianceModel.
-	 */
-	@Deprecated
-	public LIBORMonteCarloSimulationFromTermStructureModel(final TermStructureModel model) {
-		super();
-		this.model		= model;
-		this.process	= null;
 	}
 
 	@Override

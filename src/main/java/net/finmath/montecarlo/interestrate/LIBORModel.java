@@ -25,7 +25,8 @@ public interface LIBORModel extends TermStructureModel, IndependentModelParamete
 	/**
 	 * Return the forward rate at a given timeIndex and for a given liborIndex.
 	 *
-	 * @param timeIndex The time index (associated with {@link ProcessModel#getTimeDiscretization()}.
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param timeIndex The time index (associated with {@link MonteCarloProcess#getTimeDiscretization()}.
 	 * @param liborIndex The forward rate index (associated with {@link LIBORModel#getLiborPeriodDiscretization()}.
 	 * @return The forward rate.
 	 * @throws CalculationException Thrown if calculation failed.
