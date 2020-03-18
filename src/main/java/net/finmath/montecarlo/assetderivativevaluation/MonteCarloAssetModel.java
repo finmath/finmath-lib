@@ -96,7 +96,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		MonteCarloProcess	newProcess;
 		try {
-			Map<String, Object> dataModifiedForProcess = new HashMap<String, Object>();
+			final Map<String, Object> dataModifiedForProcess = new HashMap<String, Object>();
 			dataModifiedForProcess.putAll(dataModified);
 			if(!dataModifiedForProcess.containsKey("model")) {
 				dataModifiedForProcess.put("model", newModel);

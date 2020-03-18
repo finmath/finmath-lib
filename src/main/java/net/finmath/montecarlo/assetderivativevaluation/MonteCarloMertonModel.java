@@ -85,7 +85,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);
 
 		// Create the Compound Poisson process
-		IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);
+		final IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		process = new EulerSchemeFromProcessModel(model, icrements, Scheme.EULER_FUNCTIONAL);

@@ -22,7 +22,7 @@ import net.finmath.time.TimeDiscretization;
  */
 public abstract class MonteCarloProcessFromProcessModel implements MonteCarloProcess, Cloneable {
 
-	private ProcessModel			model;
+	private final ProcessModel			model;
 	private final TimeDiscretization		timeDiscretization;
 
 	/**
@@ -37,17 +37,6 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 		this.model = model;
 	}
 
-	/**
-	 * Create a discretization scheme / a time discrete process.
-	 *
-	 * @param timeDiscretization The time discretization used for the discretization scheme.
-	 */
-	@Deprecated
-	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization) {
-		super();
-		this.timeDiscretization	= timeDiscretization;
-	}
-
 	public abstract Object getCloneWithModifiedSeed(int seed);
 
 	/*
@@ -57,20 +46,6 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	@Override
 	public ProcessModel getModel() {
 		return model;
-	}
-
-	/**
-	 * Set the model used to generate the stochastic process.
-	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
-	 */
-	@Override
-	@Deprecated
-	public void setModel(final ProcessModel model) {
-		if(this.model != null && this.model != model) {
-			throw new RuntimeException("Attempt to reuse process with a different model. This process is already associated with a model.");
-		}
-
-		this.model = model;
 	}
 
 	@Override

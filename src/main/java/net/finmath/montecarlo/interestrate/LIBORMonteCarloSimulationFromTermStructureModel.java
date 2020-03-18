@@ -188,7 +188,7 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 			return lmmSimClone;
 		}
 		else {
-			return new LIBORMonteCarloSimulationFromTermStructureModel(modelClone, (MonteCarloProcessFromProcessModel)getProcess().clone());
+			return new LIBORMonteCarloSimulationFromTermStructureModel(modelClone, getProcess().clone());
 		}
 	}
 

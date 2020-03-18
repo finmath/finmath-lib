@@ -241,8 +241,8 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			final MonteCarloAssetModel monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
 			final MonteCarloAssetModel monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);
 
-			final RandomVariableDifferentiable initialValueZeroWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelZeroWidth).getModel()).getInitialValue(monteCarloBlackScholesModelZeroWidth.getProcess())[0];
-			final RandomVariableDifferentiable initialValueInftyWidth = (RandomVariableDifferentiable)((BlackScholesModel)((MonteCarloAssetModel)monteCarloBlackScholesModelInftyWidth).getModel()).getInitialValue(monteCarloBlackScholesModelInftyWidth.getProcess())[0];
+			final RandomVariableDifferentiable initialValueZeroWidth = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModelZeroWidth.getModel()).getInitialValue(monteCarloBlackScholesModelZeroWidth.getProcess())[0];
+			final RandomVariableDifferentiable initialValueInftyWidth = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModelInftyWidth.getModel()).getInitialValue(monteCarloBlackScholesModelInftyWidth.getProcess())[0];
 
 			final RandomVariable A0 = ((RandomVariableDifferentiable)option.getValue(0.0, monteCarloBlackScholesModelZeroWidth)).getGradient().get(initialValueZeroWidth.getID());
 			final RandomVariable A1 = ((RandomVariableDifferentiable)option.getValue(0.0, monteCarloBlackScholesModelInftyWidth)).getGradient().get(initialValueInftyWidth.getID());

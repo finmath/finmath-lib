@@ -345,6 +345,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 		return numeraire;
 	}
 
+	@Override
 	public RandomVariable[] getInitialState(MonteCarloProcess process) {
 		final double[] liborInitialStates = new double[liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<liborPeriodDiscretization.getNumberOfTimeSteps(); timeIndex++) {

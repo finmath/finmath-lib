@@ -851,23 +851,23 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 */
 	@Override
 	public RandomVariable getNumeraire(final MonteCarloProcess process, double time) throws CalculationException {
-			if(time < 0) {
-				return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
-			}
+		if(time < 0) {
+			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(curveModel, time));
+		}
 
-			RandomVariable numeraire = getNumerairetUnAdjusted(process, time);
-			/*
-			 * Adjust for discounting, i.e. funding or collateralization
-			 */
-			if (discountCurve != null) {
-				final RandomVariable defaultableZeroBondAsOfTimeZero = getNumeraireDefaultableZeroBondAsOfTimeZero(process, time);
+		RandomVariable numeraire = getNumerairetUnAdjusted(process, time);
+		/*
+		 * Adjust for discounting, i.e. funding or collateralization
+		 */
+		if (discountCurve != null) {
+			final RandomVariable defaultableZeroBondAsOfTimeZero = getNumeraireDefaultableZeroBondAsOfTimeZero(process, time);
 
-				final double nonDefaultableZeroBond = numeraire.invert()
-						.mult(getNumerairetUnAdjusted(process, 0.0))
-						.getAverage();
-				numeraire = numeraire.mult(nonDefaultableZeroBond).div(defaultableZeroBondAsOfTimeZero);
-			}
-			return numeraire;
+			final double nonDefaultableZeroBond = numeraire.invert()
+					.mult(getNumerairetUnAdjusted(process, 0.0))
+					.getAverage();
+			numeraire = numeraire.mult(nonDefaultableZeroBond).div(defaultableZeroBondAsOfTimeZero);
+		}
+		return numeraire;
 	}
 
 	/*
@@ -1685,7 +1685,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	@Override
 	public Map<String, RandomVariable> getModelParameters() {
 		// Using process from cache
-		MonteCarloProcess process = numerairesProcess;
+		final MonteCarloProcess process = numerairesProcess;
 
 		final Map<String, RandomVariable> modelParameters = new TreeMap<>();
 

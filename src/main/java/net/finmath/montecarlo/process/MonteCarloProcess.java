@@ -7,7 +7,6 @@ package net.finmath.montecarlo.process;
 
 import java.util.Map;
 
-import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.model.ProcessModel;
 
@@ -48,22 +47,6 @@ public interface MonteCarloProcess extends Process {
 	 * @return Returns the stochastic driver used to generate this process
 	 */
 	IndependentIncrements getStochasticDriver();
-
-	/**
-	 * @deprecated Please use getStochasticDriver() instead.
-	 * @return Returns the Brownian motion used to generate this process
-	 */
-	@Deprecated
-	BrownianMotion getBrownianMotion();
-
-	/**
-	 * Sets the model to be used. Should be called only once (at construction).
-	 *
-	 * @param model The model to be used.
-	 * @deprecated Model should be passed upon construction.
-	 */
-	@Deprecated
-	void setModel(ProcessModel model);
 
 	/**
 	 * Returns a clone of this model where the specified properties have been modified.

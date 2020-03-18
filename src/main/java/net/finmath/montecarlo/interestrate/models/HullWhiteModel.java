@@ -335,7 +335,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 					.div(nextTime-previousTime).exp();
 		}
 
-		RandomVariable logNum = process.getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
+		final RandomVariable logNum = process.getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));
 
 		RandomVariable numeraireNormalized = logNum.exp();
 
@@ -811,7 +811,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	@Override
 	public Map<String, RandomVariable> getModelParameters() {
 		// TODO Will remember last used process as a chache.
-		MonteCarloProcess process = null;
+		final MonteCarloProcess process = null;
 
 		final Map<String, RandomVariable> modelParameters = new TreeMap<>();
 

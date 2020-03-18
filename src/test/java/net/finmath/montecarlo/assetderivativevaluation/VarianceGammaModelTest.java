@@ -38,20 +38,20 @@ public class VarianceGammaModelTest {
 	private final double	optionStrike = 1.10;
 
 	private static DecimalFormat formatReal3 = new DecimalFormat("####0.000", new DecimalFormatSymbols(Locale.ENGLISH));
-	
+
 	@Test
 	public void test() throws CalculationException {
 
 		// Create the time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
 		AssetModelMonteCarloSimulationModel monteCarloVarianceGammaModel;
 		{
 			monteCarloVarianceGammaModel = new MonteCarloVarianceGammaModel(timeDiscretization, numberOfPaths, seed,
 					initialValue, riskFreeRate, sigma, theta, nu);
-		};
-		
-		CharacteristicFunctionModel characteristFunctionVarianceGamma = new net.finmath.fouriermethod.models.VarianceGammaModel(initialValue,
+		}
+
+		final CharacteristicFunctionModel characteristFunctionVarianceGamma = new net.finmath.fouriermethod.models.VarianceGammaModel(initialValue,
 				riskFreeRate, riskFreeRate, sigma, theta, nu);
 
 		/*
@@ -62,16 +62,16 @@ public class VarianceGammaModelTest {
 			/*
 			 * Valuation using Monte-Carlo models
 			 */
-			EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
+			final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
 
 			// Heston
-			double valueVarianceGammaMonteCarlo = europeanOption.getValue(monteCarloVarianceGammaModel);
-			
+			final double valueVarianceGammaMonteCarlo = europeanOption.getValue(monteCarloVarianceGammaModel);
+
 			/*
 			 * Valuation using Fourier transform models
 			 */
-			FourierTransformProduct europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
-			double valueVarianceGammaFourier = europeanFourier.getValue(characteristFunctionVarianceGamma);
+			final FourierTransformProduct europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
+			final double valueVarianceGammaFourier = europeanFourier.getValue(characteristFunctionVarianceGamma);
 
 
 			System.out.println(formatReal3.format(optionStrike * moneyness) + "    \t" + formatReal3.format(valueVarianceGammaMonteCarlo) +

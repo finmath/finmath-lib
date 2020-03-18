@@ -175,7 +175,7 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 		synchronized (this) {
 			if(stochasticVolatilityScalings == null) {
-				ProcessModel model = new ProcessModel() {
+				final ProcessModel model = new ProcessModel() {
 
 					@Override
 					public LocalDateTime getReferenceDate() {

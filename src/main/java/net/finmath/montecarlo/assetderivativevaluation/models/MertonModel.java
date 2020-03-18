@@ -198,12 +198,12 @@ public class MertonModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
-			if(discountCurveForDiscountRate != null) {
-				return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
-			}
-			else {
-				return getRandomVariableForConstant(Math.exp(discountRate * time));
-			}
+		if(discountCurveForDiscountRate != null) {
+			return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+		}
+		else {
+			return getRandomVariableForConstant(Math.exp(discountRate * time));
+		}
 	}
 
 	@Override

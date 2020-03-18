@@ -129,9 +129,9 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
-			final double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
+		final double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);
 
-			return randomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
+		return randomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);
 	}
 
 	@Override

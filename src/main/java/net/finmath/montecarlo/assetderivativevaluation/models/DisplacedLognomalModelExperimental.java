@@ -110,9 +110,9 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
-			final double numeraireValue = Math.exp(riskFreeRate * time);
+		final double numeraireValue = Math.exp(riskFreeRate * time);
 
-			return getRandomVariableForConstant(numeraireValue);
+		return getRandomVariableForConstant(numeraireValue);
 	}
 
 	@Override

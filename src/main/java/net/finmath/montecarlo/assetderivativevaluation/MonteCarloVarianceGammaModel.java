@@ -93,9 +93,6 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 		return getMonteCarloWeights(getTimeIndex(time));
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumberOfAssets()
-	 */
 	@Override
 	public int getNumberOfAssets() {
 		return 1;

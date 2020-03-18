@@ -860,10 +860,10 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				final double optionMaturity = 5.0;
 				final double optionStrike = forward;
 
-				LIBORMarketModelFromCovarianceModel modelLMMFromCov = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel());
-				
-				double[][][] integratedLIBORCovariance = modelLMMFromCov.getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization());
-				TimeDiscretization timeDiscretizationCovariance = modelLMMFromCov.getCovarianceModel().getTimeDiscretization();
+				final LIBORMarketModelFromCovarianceModel modelLMMFromCov = ((LIBORMarketModelFromCovarianceModel)liborMarketModel.getModel());
+
+				final double[][][] integratedLIBORCovariance = modelLMMFromCov.getIntegratedLIBORCovariance(liborMarketModel.getTimeDiscretization());
+				final TimeDiscretization timeDiscretizationCovariance = modelLMMFromCov.getCovarianceModel().getTimeDiscretization();
 				final double integratedVariance = integratedLIBORCovariance[modelLMMFromCov.getCovarianceModel().getTimeDiscretization().getTimeIndexNearestLessOrEqual(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)][liborMarketModel.getLiborPeriodDiscretization().getTimeIndex(5.0)];
 
 				final double volatility = Math.sqrt(integratedVariance/optionMaturity);

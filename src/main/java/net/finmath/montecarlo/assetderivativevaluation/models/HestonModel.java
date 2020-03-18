@@ -419,12 +419,12 @@ public class HestonModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
-			if(discountCurveForDiscountRate != null) {
-				return abstractRandomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
-			}
-			else {
-				return discountRate.mult(time).exp();
-			}
+		if(discountCurveForDiscountRate != null) {
+			return abstractRandomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+		}
+		else {
+			return discountRate.mult(time).exp();
+		}
 	}
 
 	@Override

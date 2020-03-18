@@ -83,7 +83,9 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 		final Double	parameterStepParameter	= (Double)calibrationParameters.get("parameterStep");
 		final Double	accuracyParameter		= (Double)calibrationParameters.get("accuracy");
 		final BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get("brownianMotion");
-		if(brownianMotionParameter == null) throw new IllegalArgumentException("Calibration requires a Brownian motion to be specified under the key 'brownianMotion'.");
+		if(brownianMotionParameter == null) {
+			throw new IllegalArgumentException("Calibration requires a Brownian motion to be specified under the key 'brownianMotion'.");
+		}
 
 		final double[] initialParameters = this.getParameter();
 		final double[] lowerBound = new double[initialParameters.length];

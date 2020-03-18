@@ -110,7 +110,7 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 			values.add(remainingBoundaryAdjustment);
 		}
 
-		MonteCarloBlackScholesModel modelBlackScholes = (MonteCarloBlackScholesModel)model;
+		final MonteCarloBlackScholesModel modelBlackScholes = (MonteCarloBlackScholesModel)model;
 		final double spot = modelBlackScholes.getModel().getInitialState(modelBlackScholes.getProcess())[0].doubleValue();
 		final double riskFreeRate = modelBlackScholes.getModel().getRiskFreeRate().doubleValue();
 		final double volatility = modelBlackScholes.getModel().getVolatility().doubleValue();

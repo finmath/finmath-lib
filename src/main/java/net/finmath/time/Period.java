@@ -28,10 +28,10 @@ public class Period implements Comparable<Period>, Serializable {
 
 	private static final long serialVersionUID = 4622662040390651119L;
 
-	private LocalDate fixing;
-	private LocalDate payment;
-	private LocalDate periodStart;
-	private LocalDate periodEnd;
+	private final LocalDate fixing;
+	private final LocalDate payment;
+	private final LocalDate periodStart;
+	private final LocalDate periodEnd;
 
 	public Period(final LocalDate fixing,  final LocalDate payment,
 			final LocalDate periodStart, final LocalDate periodEnd) {

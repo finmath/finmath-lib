@@ -73,7 +73,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 		}
 
-		HestonModel model = new HestonModel(modelDescriptor, scheme, abstractRandomVariableFactory);
+		final HestonModel model = new HestonModel(modelDescriptor, scheme, abstractRandomVariableFactory);
 
 		return new HestonMonteCarloModel(
 				model,
