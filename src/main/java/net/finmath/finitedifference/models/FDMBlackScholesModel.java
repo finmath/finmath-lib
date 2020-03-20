@@ -1,6 +1,7 @@
 package net.finmath.finitedifference.models;
 
 import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.finitedifference.solvers.FDMThetaMethod;
 
 /**
@@ -79,8 +80,10 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return volatility;
 	}
 
+	@Override
 	public double getLocalVolatility(double assetValue, double time) { return volatility; }
 
+	@Override
 	public int getNumTimesteps() {
 		return numTimesteps;
 	}
@@ -100,7 +103,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	 */
 	@Override
 	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
-		FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
+		final FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
 		return solver.getValue(evaluationTime, time, values);
 	}
 

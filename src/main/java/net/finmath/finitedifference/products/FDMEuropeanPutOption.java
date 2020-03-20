@@ -10,37 +10,38 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
  * @author Ralph Rudd
  */
 public class FDMEuropeanPutOption implements FiniteDifference1DProduct, FiniteDifference1DBoundary {
-    private final double maturity;
-    private final double strike;
+	private final double maturity;
+	private final double strike;
 
-    public FDMEuropeanPutOption(double optionMaturity, double optionStrike) {
-        this.maturity = optionMaturity;
-        this.strike = optionStrike;
-    }
+	public FDMEuropeanPutOption(double optionMaturity, double optionStrike) {
+		this.maturity = optionMaturity;
+		this.strike = optionStrike;
+	}
 
-    public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
+	@Override
+	public double[][] getValue(double evaluationTime, FiniteDifference1DModel model) {
 
-        /*
-         * The FDM algorithm requires the boundary conditions of the product.
-         * This product implements the boundary interface
-         */
-        FiniteDifference1DBoundary boundary = this;
+		/*
+		 * The FDM algorithm requires the boundary conditions of the product.
+		 * This product implements the boundary interface
+		 */
+		final FiniteDifference1DBoundary boundary = this;
 
-        return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(strike - assetValue, 0), boundary);
-    }
+		return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(strike - assetValue, 0), boundary);
+	}
 
-    /*
-     * Implementation of the interface:
-     * @see net.finmath.finitedifference.products.FiniteDifference1DBoundary#getValueAtLowerBoundary(net.finmath.finitedifference.models.FDMBlackScholesModel, double, double)
-     */
+	/*
+	 * Implementation of the interface:
+	 * @see net.finmath.finitedifference.products.FiniteDifference1DBoundary#getValueAtLowerBoundary(net.finmath.finitedifference.models.FDMBlackScholesModel, double, double)
+	 */
 
-    @Override
-    public double getValueAtLowerBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
-        return  strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
-    }
+	@Override
+	public double getValueAtLowerBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
+		return  strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
+	}
 
-    @Override
-    public double getValueAtUpperBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
-        return 0;
-    }
+	@Override
+	public double getValueAtUpperBoundary(FiniteDifference1DModel model, double currentTime, double stockPrice) {
+		return 0;
+	}
 }
