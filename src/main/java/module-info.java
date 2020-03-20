@@ -55,10 +55,10 @@ module net.finmath.lib {
 	exports net.finmath.montecarlo.hybridassetinterestrate.products;
 	exports net.finmath.montecarlo.interestrate;
 	exports net.finmath.montecarlo.interestrate.models;
-	exports net.finmath.montecarlo.interestrate.models.barriers;
+//	exports net.finmath.montecarlo.interestrate.models.barriers;
 	exports net.finmath.montecarlo.interestrate.models.covariance;
-	exports net.finmath.montecarlo.interestrate.models.factordrift;
-	exports net.finmath.montecarlo.interestrate.models.factordrift.localizer;
+//	exports net.finmath.montecarlo.interestrate.models.factordrift;
+//	exports net.finmath.montecarlo.interestrate.models.factordrift.localizer;
 	exports net.finmath.montecarlo.interestrate.products;
 	exports net.finmath.montecarlo.interestrate.products.components;
 	exports net.finmath.montecarlo.interestrate.products.indices;
