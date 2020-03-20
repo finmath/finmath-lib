@@ -72,6 +72,11 @@ If constructor arguments or setter (builder) arguments are used to set fields, t
 ```
 
 
+### Naming of Unit Tests
+
+Unit test names are end with the word `Test` and formed as XxxYyyTest where Xxx is the name of the primary class being under test (it may be that a tests is testing a broader aspect of the class) and Yyy optionally specifies an aspect. Example: `LIBORMarketModelCalibrationTest`. The methods of the unit test start with the word `test`.
+
+
 
 ### Thread Safety
 
@@ -97,6 +102,11 @@ The library is developed with object serialization in mind.
 -   Classes should implement the `Serializable` interface.
 
 
+### Other Principles
+
+- Code in `src/main` should conform to DRY (don't repeat yourself). Unit tests in `src/test` should be self-contained and code duplication (e.g. create a model for a specific purpose) is fine.
+
+
 ## Documentation
 
 ### JavaDoc with MathJax
@@ -107,6 +117,18 @@ Every public interface, class, method, enum comes with a complete JavaDoc. If th
 ## Code Style
 
 We follow loosely the Eclipse coding conventions, which are a minimal modification of the original Java coding conventions. See https://wiki.eclipse.org/Coding_Conventions
+
+See also the Spring coding conventions, see https://github.com/spring-projects/spring-framework/wiki/Code-Style
+
+We repeat some of the aspects:
+
+-   Indentation uses a single TAB character (as for the Spring coding convention and the Eclipse coding convention).
+
+-   Files are UTF-8 encoded with Unit line endings.
+
+-	Lines do not have trailing whiltespaces.
+
+
 
 We deviate in some places:
 
