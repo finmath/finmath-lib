@@ -16,8 +16,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
@@ -282,7 +280,6 @@ public class CalibratedCurves {
 					+ calibrationTime + "]";
 		}
 
-		@NotNull
 		public String getSymbol() {
 			return symbol;
 		}
