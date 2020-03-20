@@ -62,7 +62,7 @@ module net.finmath.lib {
 	exports net.finmath.montecarlo.interestrate.products;
 	exports net.finmath.montecarlo.interestrate.products.components;
 	exports net.finmath.montecarlo.interestrate.products.indices;
-	exports net.finmath.montecarlo.interestrate.simple;
+//	exports net.finmath.montecarlo.interestrate.simple;
 	exports net.finmath.montecarlo.model;
 	exports net.finmath.montecarlo.process;
 	exports net.finmath.montecarlo.process.component.barrier;
