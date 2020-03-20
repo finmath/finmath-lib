@@ -3,8 +3,6 @@ package net.finmath.singleswaprate.data;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import net.finmath.time.SchedulePrototype;
 
 /**
@@ -67,8 +65,8 @@ public class DataTableExtrapolated extends DataTableInterpolated implements Data
 	@Override
 	public double getValue(final int maturity, final int termination) {
 
-		final int[] maturities = ArrayUtils.toPrimitive(getMaturities().toArray(new Integer[0]));
-		final int[] terminations = ArrayUtils.toPrimitive(getTerminations().toArray(new Integer[0]));
+		final int[] maturities = getMaturities().stream().mapToInt(Integer::intValue).toArray();
+		final int[] terminations = getTerminations().stream().mapToInt(Integer::intValue).toArray();
 
 		// constant extrapolation (assuming arrays are provided via TreeSet, i.e. sorted)
 		final int extraMat = Math.min(Math.max(maturity, maturities[0]), maturities[maturities.length-1]);
