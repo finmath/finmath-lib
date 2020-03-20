@@ -33,14 +33,24 @@ public class SimpsonRealIntegratorTest {
 	@Test
 	public void testCos() {
 
-		DoubleUnaryOperator integrand			= x -> Math.cos(x);
-		DoubleUnaryOperator integralAnalytic	= x -> Math.sin(x);
+		final DoubleUnaryOperator integrand			= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(final double x) {
+				return Math.cos(x);
+			}
+		};
+		final DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(final double x) {
+				return Math.sin(x);
+			}
+		};
 
-		double value = integral.integrate(integrand);
+		final double value = integral.integrate(integrand);
 
-		double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
+		final double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
 
-		double error = value-valueAnalytic;
+		final double error = value-valueAnalytic;
 
 		System.out.println("Result: " + value + ". \tError: " + error);
 
@@ -50,14 +60,24 @@ public class SimpsonRealIntegratorTest {
 	@Test
 	public void testCubic() {
 
-		DoubleUnaryOperator integrand			= x -> 2 * x * x - x;
-		DoubleUnaryOperator integralAnalytic	= x -> 2 * x * x * x / 3 - x * x / 2;
+		final DoubleUnaryOperator integrand			= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(final double x) {
+				return 2 * x * x - x;
+			}
+		};
+		final DoubleUnaryOperator integralAnalytic	= new DoubleUnaryOperator() {
+			@Override
+			public double applyAsDouble(final double x) {
+				return 2 * x * x * x / 3 - x * x / 2;
+			}
+		};
 
-		double value = integral.integrate(integrand);
+		final double value = integral.integrate(integrand);
 
-		double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
+		final double valueAnalytic = integralAnalytic.applyAsDouble(integral.getUpperBound())-integralAnalytic.applyAsDouble(integral.getLowerBound());
 
-		double error = value-valueAnalytic;
+		final double error = value-valueAnalytic;
 
 		System.out.println("Result: " + value + ". \tError: " + error);
 

@@ -12,9 +12,7 @@ For a random variable X we define a map T : X &rarr; [-&infin; , &infin;) such t
 
 Originally the concept was introduces as a safe-guard in least-square-estimates of the conditional expectation (American Monte-Carlo), to ensure that the regression basis functions are F<sub>t</sub>-measurable if used in an F<sub>t</sub>-conditional expectation.
 However, the concept allows for important optimizations in the context of _stochastic automatic differentiation_: it may be used to detect cases where the computationally expensive conditional expectation operator can be avoided. It is:
-<center> 
-E(X | F<sub>t</sub>) = X if t &ge; T(X).
-</center>
+<center>E(X | F<sub>t</sub>) = X if t &ge; T(X).</center>
 See [ssrn.com/abstract=3000822](https://ssrn.com/abstract=3000822) for the interaction with an AD/AAD algorithm.
 
 ## Implementation

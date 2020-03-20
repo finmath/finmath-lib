@@ -34,7 +34,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 	 * @return The best fitting NSS parameters.
 	 * @throws SolverException Thrown is the solver encountered a problem.
 	 */
-	public double[] calibrateNSSCurve(Map<String, Object> parameters) throws SolverException {
+	public double[] calibrateNSSCurve(final Map<String, Object> parameters) throws SolverException {
 
 		final LocalDate	referenceDate		= (LocalDate) parameters.get("referenceDate");
 		final String	currency			= (String) parameters.get("currency");
@@ -53,10 +53,10 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		Assert.assertEquals(frequency.length, frequencyFloat.length);
 		Assert.assertEquals(daycountConventions.length, daycountConventionsFloat.length);
 
-		int		spotOffsetDays = 2;
-		String	forwardStartPeriod = "0D";
+		final int		spotOffsetDays = 2;
+		final String	forwardStartPeriod = "0D";
 
-		double[] initialParameters	= new double[] { 0.025, -0.015, -0.025, 0.03, 1.5, 10 };
+		final double[] initialParameters	= new double[] { 0.025, -0.015, -0.025, 0.03, 1.5, 10 };
 
 		DiscountCurve discountCurve	= new DiscountCurveNelsonSiegelSvensson("discountCurve-" + currency, referenceDate, initialParameters, 1.0);
 
@@ -76,11 +76,11 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		// Create a collection of objective functions (calibration products)
-		Vector<AnalyticProduct> calibrationProducts = new Vector<>();
+		final Vector<AnalyticProduct> calibrationProducts = new Vector<>();
 		for(int i=0; i<rates.length; i++) {
 
-			Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
+			final Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
 
 			calibrationProducts.add(new Swap(schedulePay, null, rates[i], discountCurve.getName(), scheduleRec, forwardCurve.getName(), 0.0, discountCurve.getName()));
 		}
@@ -88,20 +88,20 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		/*
 		 * Create a collection of curves to calibrate
 		 */
-		Set<ParameterObject> curvesToCalibrate = new HashSet<>();
+		final Set<ParameterObject> curvesToCalibrate = new HashSet<>();
 		curvesToCalibrate.add(discountCurve);
 
 		/*
 		 * Calibrate the curve
 		 */
-		Solver solver = new Solver(model, calibrationProducts);
-		AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
+		final Solver solver = new Solver(model, calibrationProducts);
+		final AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
 
 		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
 
 		// Get best parameters
-		double[] parametersBest = calibratedModel.getDiscountCurve(discountCurve.getName()).getParameter();
+		final double[] parametersBest = calibratedModel.getDiscountCurve(discountCurve.getName()).getParameter();
 
 		// Test calibration
 		discountCurve	= new DiscountCurveNelsonSiegelSvensson(discountCurve.getName(), referenceDate, parametersBest, 1.0);
@@ -109,13 +109,13 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		model			= new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve, forwardCurve });
 
 		double squaredErrorSum = 0.0;
-		for(AnalyticProduct c : calibrationProducts) {
-			double value = c.getValue(0.0, model);
-			double valueTaget = 0.0;
-			double error = value - valueTaget;
+		for(final AnalyticProduct c : calibrationProducts) {
+			final double value = c.getValue(0.0, model);
+			final double valueTaget = 0.0;
+			final double error = value - valueTaget;
 			squaredErrorSum += error*error;
 		}
-		double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
+		final double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
 
 		System.out.println("Independent checked acccurary: " + rms);
 
@@ -137,7 +137,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		final String[] daycountConventions		= { "ACT/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360" };
 		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
 		final double[] rates					= {0.0042, 0.0032, 0.0038, 0.0052, 0.0069, 0.00855, 0.0102, 0.0119, 0.0134, 0.0150, 0.0165, 0.0178, 0.0189, 0.0200, 0.0224, 0.0250, 0.0264, 0.0271, 0.0275, 0.0276, 0.0276 };
-		HashMap<String, Object> parameters = new HashMap<>();
+		final HashMap<String, Object> parameters = new HashMap<>();
 
 		parameters.put("referenceDate", LocalDate.of(2014, Month.AUGUST, 12));
 		parameters.put("currency", "EUR");
@@ -149,7 +149,7 @@ public class NelsonSiegelSvenssonCalibrationTest {
 		parameters.put("floatLegDaycountConventions", daycountConventionsFloat);
 		parameters.put("rates", rates);
 
-		double[] nssParameters = calibrateNSSCurve(parameters);
+		final double[] nssParameters = calibrateNSSCurve(parameters);
 
 		System.out.println(Arrays.toString(nssParameters));
 		System.out.println();

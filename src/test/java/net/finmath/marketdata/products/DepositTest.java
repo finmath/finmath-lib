@@ -20,8 +20,8 @@ public class DepositTest {
 	private final double[] times = { 0., 1. };
 	private final double[] dcFactors = { 1., 1. / 1.05 };
 	private final DiscountCurveInterpolation dc;
-	private AnalyticModelFromCurvesAndVols model;
-	private Schedule sched;
+	private final AnalyticModelFromCurvesAndVols model;
+	private final Schedule sched;
 	private final double accuracy = 1e-10;
 
 	public DepositTest() {
@@ -31,9 +31,9 @@ public class DepositTest {
 		model = new AnalyticModelFromCurvesAndVols(new Curve[] { dc });
 
 		// set up deposit
-		LocalDate refDate = LocalDate.of(2017, 1, 1);
-		LocalDate startDate = refDate.plusDays(2);
-		LocalDate maturity = startDate.plusDays(180);
+		final LocalDate refDate = LocalDate.of(2017, 1, 1);
+		final LocalDate startDate = refDate.plusDays(2);
+		final LocalDate maturity = startDate.plusDays(180);
 		sched = ScheduleGenerator.createScheduleFromConventions(refDate, startDate, maturity,
 				ScheduleGenerator.Frequency.ANNUAL, ScheduleGenerator.DaycountConvention.ACT_360,
 				ShortPeriodConvention.FIRST, DateRollConvention.UNADJUSTED,
@@ -51,7 +51,7 @@ public class DepositTest {
 		Deposit depo = new Deposit(sched, 0.01, dcName);
 
 		// determine market rate for this deposit
-		double rate = depo.getRate(model);
+		final double rate = depo.getRate(model);
 
 		// setup depo as market deposit
 		depo = new Deposit(sched, rate, dcName);
@@ -67,14 +67,14 @@ public class DepositTest {
 	@Test
 	public void testDepositValue() {
 
-		double rate = 0.1; // deliberately large interest rate
+		final double rate = 0.1; // deliberately large interest rate
 
 		// set up deposit
-		Deposit depo = new Deposit(sched, rate, dcName);
+		final Deposit depo = new Deposit(sched, rate, dcName);
 
 		// set up corresponding cashflows
-		Cashflow payout = new Cashflow("EUR", 1, sched.getPeriodStart(0), true, dcName);
-		Cashflow payback = new Cashflow("EUR", 1 + rate * sched.getPeriodLength(0),
+		final Cashflow payout = new Cashflow("EUR", 1, sched.getPeriodStart(0), true, dcName);
+		final Cashflow payback = new Cashflow("EUR", 1 + rate * sched.getPeriodLength(0),
 				sched.getPeriodEnd(0), false, dcName);
 
 		Assert.assertEquals("Value deviation between depo and its cashflows", 0.,
@@ -89,7 +89,7 @@ public class DepositTest {
 
 		// set up deposit
 		Deposit depo = new Deposit(sched, 0.1, dcName);
-		double rate = depo.getRate(model);
+		final double rate = depo.getRate(model);
 		depo =  new Deposit(sched, rate, dcName);
 
 		// deposit has been fixed at market conditions => value 0

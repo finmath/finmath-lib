@@ -28,30 +28,30 @@ public class DiscountCurveSerializationTest {
 
 	@Test
 	public void test() {
-		int		numberOfPeriods		= 16;
-		double	periodLength		= 0.5;
+		final int		numberOfPeriods		= 16;
+		final double	periodLength		= 0.5;
 
 		// Create the tenor discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfPeriods, periodLength);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfPeriods, periodLength);
 
 		/*
 		 * Create a discount curve.
 		 */
-		double[] liborInitialValues = new double[numberOfPeriods];
+		final double[] liborInitialValues = new double[numberOfPeriods];
 		java.util.Arrays.fill(liborInitialValues, 0.10);
 
-		DiscountCurve discountFactors = DiscountCurveInterpolation.createDiscountFactorsFromForwardRates("DiscountCurve", timeDiscretization, liborInitialValues);
+		final DiscountCurve discountFactors = DiscountCurveInterpolation.createDiscountFactorsFromForwardRates("DiscountCurve", timeDiscretization, liborInitialValues);
 
 		/*
 		 * Serialize to a byte stream (replace the ByteArrayOutputStream by an FileOutputStream to serialize to a file)
 		 */
 		byte[] serializedObject = null;
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ObjectOutputStream oos = new ObjectOutputStream( baos );
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			final ObjectOutputStream oos = new ObjectOutputStream( baos );
 			oos.writeObject(discountFactors);
 			serializedObject = baos.toByteArray();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			fail("Serialization failed with exception " + e.getMessage());
 		}
 
@@ -60,7 +60,7 @@ public class DiscountCurveSerializationTest {
 		 */
 		DiscountCurve discountFactorsClone = null;
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedObject) );
+			final ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(serializedObject) );
 			discountFactorsClone = (DiscountCurve)ois.readObject();
 		} catch (IOException | ClassNotFoundException e) {
 			fail("Deserialization failed with exception " + e.getMessage());
@@ -73,7 +73,7 @@ public class DiscountCurveSerializationTest {
 
 		// Check equality
 		for(double time=0; time < 10; time += 0.1) {
-			Assert.assertEquals("Discount factor for maturity " + time, discountFactors.getDiscountFactor(time), discountFactorsClone.getDiscountFactor(time), 0.0);;
+			Assert.assertEquals("Discount factor for maturity " + time, discountFactors.getDiscountFactor(time), discountFactorsClone.getDiscountFactor(time), 0.0);
 		}
 	}
 

@@ -21,22 +21,22 @@ public class TrapezoidalRealIntegratorTest {
 
 	@Test
 	public void test() {
-		double[] points = { 0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0 };
-		double[] values = { 1.0, 2.1, 3.5, 1.0, 4.0, 1.0, 7.0 };
+		final double[] points = { 0.0, 0.1, 0.5, 1.0, 2.0, 5.0, 10.0 };
+		final double[] values = { 1.0, 2.1, 3.5, 1.0, 4.0, 1.0, 7.0 };
 
-		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(points, values, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT);
+		final RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(points, values, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT);
 
-		double[] evaluationPoints = points;
+		final double[] evaluationPoints = points;
 
-		AbstractRealIntegral trapezoidalRealIntegrator = new TrapezoidalRealIntegrator(0.75, 3.5, evaluationPoints);
-		AbstractRealIntegral simpsonRealIntegrator = new SimpsonRealIntegrator(0.75, 3.5, 2000);
+		final AbstractRealIntegral trapezoidalRealIntegrator = new TrapezoidalRealIntegrator(0.75, 3.5, evaluationPoints);
+		final AbstractRealIntegral simpsonRealIntegrator = new SimpsonRealIntegrator(0.75, 3.5, 2000);
 
 		/*
 		 * Trapezoidal integration of the piece-wise linear function is exact, if we use points as integration points.
 		 * Simpson's rule is using an equi-distant discretization and is not exact.
 		 */
-		double valueTrapezoidal = trapezoidalRealIntegrator.integrate(interpolation);
-		double valueSimpsons = simpsonRealIntegrator.integrate(interpolation);
+		final double valueTrapezoidal = trapezoidalRealIntegrator.integrate(interpolation);
+		final double valueSimpsons = simpsonRealIntegrator.integrate(interpolation);
 
 		Assert.assertEquals("Difference of trapezoidal and Simpson's rule", 0.0, valueSimpsons-valueTrapezoidal, 0.000001);
 	}

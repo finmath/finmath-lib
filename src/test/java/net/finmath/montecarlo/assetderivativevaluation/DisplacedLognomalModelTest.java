@@ -50,19 +50,19 @@ public class DisplacedLognomalModelTest {
 	@Test
 	public void testProductImplementation() throws CalculationException {
 		// Create a time discretizeion
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a brownianMotion
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationModel monteCarloDisplacedModel;
 		{
+			final ProcessModel displacedModel2 = new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility);
+
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(displacedModel2, brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			ProcessModel displacedModel2 = new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility);
-
 			monteCarloDisplacedModel = new MonteCarloAssetModel(displacedModel2, process);
 		}
 
@@ -78,37 +78,37 @@ public class DisplacedLognomalModelTest {
 		 * 	d = (1-a)/a
 		 * 	a = 1/(1+d)
 		 */
-		double alpha = 1/(1+displacement);
+		final double alpha = 1/(1+displacement);
 		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{
+			final ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(blackScholesModel, process);
 		}
 
 		AssetModelMonteCarloSimulationModel monteCarloBachelierModel;
 		{
+			final ProcessModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
+
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a displaced model
-			ProcessModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
-
 			monteCarloBachelierModel = new MonteCarloAssetModel(bachelierModel, process);
 		}
 
 		/*
 		 * Value a call option (using the product implementation)
 		 */
-		EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
-		double valueDisplaced = europeanOption.getValue(monteCarloDisplacedModel);
-		double valueBlack = europeanOption.getValue(monteCarloBlackScholesModel);
-		double valueBachelier = europeanOption.getValue(monteCarloBachelierModel);
-		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
+		final double valueDisplaced = europeanOption.getValue(monteCarloDisplacedModel);
+		final double valueBlack = europeanOption.getValue(monteCarloBlackScholesModel);
+		final double valueBachelier = europeanOption.getValue(monteCarloBachelierModel);
+		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 		System.out.println("value using Monte-Carlo Displaced Model.......: " + valueDisplaced);
 		System.out.println("value using Monte-Carlo Black Scholes Model...: " + valueBlack);

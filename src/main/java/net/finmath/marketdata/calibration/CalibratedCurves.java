@@ -16,8 +16,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
@@ -46,7 +44,8 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * The calibration products have to be provided via a vector of <code>CalibrationSpec</code>s.
  *
  * The products provides are
- * <table summary="List of calibration products types">
+ * <table>
+ * <caption>List of calibration products types</caption>
  * 	<tr>
  * 		<td>Value of Type String</td>
  * 		<td>Classes</td>
@@ -109,20 +108,20 @@ public class CalibratedCurves {
 
 		private String				symbol;
 
-		private String				type;
+		private final String				type;
 
-		private	Schedule	swapTenorDefinitionReceiver;
-		private String				forwardCurveReceiverName;
-		private double				spreadReceiver;
-		private String				discountCurveReceiverName;
+		private final	Schedule	swapTenorDefinitionReceiver;
+		private final String				forwardCurveReceiverName;
+		private final double				spreadReceiver;
+		private final String				discountCurveReceiverName;
 
 		private Schedule	swapTenorDefinitionPayer;
 		private String				forwardCurvePayerName;
 		private double				spreadPayer;
 		private String				discountCurvePayerName;
 
-		private String				calibrationCurveName;
-		private double				calibrationTime;
+		private final String				calibrationCurveName;
+		private final double				calibrationTime;
 
 		/**
 		 * Calibration specification.
@@ -141,16 +140,16 @@ public class CalibratedCurves {
 		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
 		 */
 		public CalibrationSpec(
-				String symbol,
-				String type,
-				Schedule swapTenorDefinitionReceiver,
-				String forwardCurveReceiverName, double spreadReceiver,
-				String discountCurveReceiverName,
-				Schedule swapTenorDefinitionPayer,
-				String forwardCurvePayerName, double spreadPayer,
-				String discountCurvePayerName,
-				String calibrationCurveName,
-				double calibrationTime) {
+				final String symbol,
+				final String type,
+				final Schedule swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final Schedule swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
 			super();
 			this.symbol = symbol;
 			this.type = type;
@@ -182,15 +181,15 @@ public class CalibratedCurves {
 		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
 		 */
 		public CalibrationSpec(
-				String type,
-				Schedule swapTenorDefinitionReceiver,
-				String forwardCurveReceiverName, double spreadReceiver,
-				String discountCurveReceiverName,
-				Schedule swapTenorDefinitionPayer,
-				String forwardCurvePayerName, double spreadPayer,
-				String discountCurvePayerName,
-				String calibrationCurveName,
-				double calibrationTime) {
+				final String type,
+				final Schedule swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final Schedule swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
 			this(null, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);
 		}
 
@@ -210,15 +209,15 @@ public class CalibratedCurves {
 		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
 		 */
 		public CalibrationSpec(
-				String type,
-				double[] swapTenorDefinitionReceiver,
-				String forwardCurveReceiverName, double spreadReceiver,
-				String discountCurveReceiverName,
-				double[] swapTenorDefinitionPayer,
-				String forwardCurvePayerName, double spreadPayer,
-				String discountCurvePayerName,
-				String calibrationCurveName,
-				double calibrationTime) {
+				final String type,
+				final double[] swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final double[] swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
 			super();
 			this.type = type;
 			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));
@@ -245,12 +244,12 @@ public class CalibratedCurves {
 		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
 		 */
 		public CalibrationSpec(
-				String type,
-				double[] swapTenorDefinitionReceiver,
-				String forwardCurveReceiverName, double spreadReceiver,
-				String discountCurveReceiverName,
-				String calibrationCurveName,
-				double calibrationTime) {
+				final String type,
+				final double[] swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
 			super();
 			this.type = type;
 			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));
@@ -261,7 +260,7 @@ public class CalibratedCurves {
 			this.calibrationTime = calibrationTime;
 		}
 
-		public CalibrationSpec getCloneShifted(double shift) {
+		public CalibrationSpec getCloneShifted(final double shift) {
 			if(discountCurvePayerName == null || type.toLowerCase().equals("swapleg")  || type.toLowerCase().equals("deposit")  || type.toLowerCase().equals("fra")) {
 				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver+shift, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);
 			}
@@ -281,23 +280,22 @@ public class CalibratedCurves {
 					+ calibrationTime + "]";
 		}
 
-		@NotNull
 		public String getSymbol() {
 			return symbol;
 		}
 	}
 
 	private AnalyticModel				model				= new AnalyticModelFromCurvesAndVols();
-	private Set<ParameterObject>		objectsToCalibrate	= new LinkedHashSet<>();
-	private Vector<AnalyticProduct>	calibrationProducts			= new Vector<>();
-	private Vector<String>						calibrationProductsSymbols	= new Vector<>();
+	private final Set<ParameterObject>		objectsToCalibrate	= new LinkedHashSet<>();
+	private final Vector<AnalyticProduct>	calibrationProducts			= new Vector<>();
+	private final Vector<String>						calibrationProductsSymbols	= new Vector<>();
 
-	private List<CalibrationSpec>				calibrationSpecs	= new ArrayList<>();
+	private final List<CalibrationSpec>				calibrationSpecs	= new ArrayList<>();
 
 	private final double evaluationTime;
 	private final double calibrationAccuracy;
 
-	private int lastNumberOfInterations;
+	private final int lastNumberOfInterations;
 	private double lastAccuracy;
 
 	/**
@@ -321,14 +319,14 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(List<CalibrationSpec> calibrationSpecs, AnalyticModel calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final List<CalibrationSpec> calibrationSpecs, final AnalyticModel calibrationModel, final double evaluationTime, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null) {
 			model	= calibrationModel.getCloneForParameter(null);
 		}
 		this.evaluationTime = evaluationTime;
 		this.calibrationAccuracy = calibrationAccuracy;
 
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {
 			add(calibrationSpec);
 		}
 
@@ -356,14 +354,14 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel, double evaluationTime, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel, final double evaluationTime, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		if(calibrationModel != null) {
 			model	= calibrationModel.getCloneForParameter(null);
 		}
 		this.evaluationTime = evaluationTime;
 		this.calibrationAccuracy = calibrationAccuracy;
 
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {
 			add(calibrationSpec);
 		}
 
@@ -390,7 +388,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel, double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);
 	}
 
@@ -413,7 +411,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs, AnalyticModelFromCurvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, calibrationModel, 0.0);
 	}
 
@@ -425,7 +423,7 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(Collection<CalibrationSpec> calibrationSpecs) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final Collection<CalibrationSpec> calibrationSpecs) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), null);
 	}
 
@@ -437,11 +435,11 @@ public class CalibratedCurves {
 	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
 	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
 	 */
-	public CalibratedCurves(CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {
 		this(calibrationSpecs, null, 0.0);
 	}
 
-	public AnalyticProduct getCalibrationProductForSpec(CalibrationSpec calibrationSpec) {
+	public AnalyticProduct getCalibrationProductForSpec(final CalibrationSpec calibrationSpec) {
 		String forwardCurveReceiverName = calibrationSpec.forwardCurveReceiverName;
 		String forwardCurvePayerName	= calibrationSpec.forwardCurvePayerName;
 
@@ -456,8 +454,18 @@ public class CalibratedCurves {
 			forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);
 		}
 		else {
-			Predicate<String> discountCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
-			Predicate<String> forwardCurveMissing = (String curveName) -> curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
+			final Predicate<String> discountCurveMissing = new Predicate<String>() {
+				@Override
+				public boolean test(final String curveName) {
+					return curveName != null && curveName.length() > 0 && model.getDiscountCurve(curveName) == null;
+				}
+			};
+			final Predicate<String> forwardCurveMissing = new Predicate<String>() {
+				@Override
+				public boolean test(final String curveName) {
+					return curveName != null && curveName.length() > 0 && model.getForwardCurve(curveName) == null;
+				}
+			};
 			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) {
 				throw new IllegalArgumentException("Discount curve " + calibrationSpec.discountCurveReceiverName + " missing. Needs to be part of model " + model + ".");
 			}
@@ -472,8 +480,8 @@ public class CalibratedCurves {
 			}
 		}
 
-		Schedule tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
-		Schedule tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
+		final Schedule tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;
+		final Schedule tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;
 
 		AnalyticProduct product = null;
 		if(calibrationSpec.type.toLowerCase().equals("deposit")){
@@ -491,20 +499,20 @@ public class CalibratedCurves {
 			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swap")) {
-			SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
-			SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
+			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
 			product = new Swap(legReceiver, legPayer);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonreceiver")) {
-			String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;
-			SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, discountCurveForNotionalResetName, true);
-			SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
+			final String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;
+			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, discountCurveForNotionalResetName, true);
+			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);
 			product = new Swap(legReceiver, legPayer);
 		}
 		else if(calibrationSpec.type.toLowerCase().equals("swapwithresetonpayer")) {
-			String discountCurveForNotionalResetName = calibrationSpec.discountCurveReceiverName;
-			SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
-			SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, discountCurveForNotionalResetName, true);
+			final String discountCurveForNotionalResetName = calibrationSpec.discountCurveReceiverName;
+			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);
+			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, discountCurveForNotionalResetName, true);
 			product = new Swap(legReceiver, legPayer);
 		}
 
@@ -531,7 +539,7 @@ public class CalibratedCurves {
 	 * @param name Name of the curve
 	 * @return The curve model.
 	 */
-	public Curve getCurve(String name) {
+	public Curve getCurve(final String name) {
 		return model.getCurve(name);
 	}
 
@@ -555,10 +563,10 @@ public class CalibratedCurves {
 	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
 	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
 	 */
-	public CalibratedCurves getCloneShifted(String symbol, double shift) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves getCloneShifted(final String symbol, final double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+		final List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
+		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {
 			if(calibrationSpec.symbol.equals(symbol)) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
 			}
@@ -580,10 +588,10 @@ public class CalibratedCurves {
 	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
 	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
 	 */
-	public CalibratedCurves getCloneShifted(Map<String,Double> shifts) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves getCloneShifted(final Map<String,Double> shifts) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
+		final List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
+		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {
 			if(shifts.containsKey(calibrationSpec)) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shifts.get(calibrationSpec)));
 			}
@@ -610,12 +618,12 @@ public class CalibratedCurves {
 	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
 	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
 	 */
-	public CalibratedCurves getCloneShifted(Pattern symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves getCloneShifted(final Pattern symbolRegExp, final double shift) throws SolverException, CloneNotSupportedException {
 		// Clone calibration specs, shifting the desired symbol
-		List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
+		final List<CalibrationSpec> calibrationSpecsShifted = new ArrayList<>();
 
-		for(CalibrationSpec calibrationSpec : calibrationSpecs) {
-			Matcher matcher = symbolRegExp.matcher(calibrationSpec.symbol);
+		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {
+			final Matcher matcher = symbolRegExp.matcher(calibrationSpec.symbol);
 			if(matcher.matches()) {
 				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));
 			}
@@ -642,7 +650,7 @@ public class CalibratedCurves {
 	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
 	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
 	 */
-	public CalibratedCurves getCloneShiftedForRegExp(String symbolRegExp, double shift) throws SolverException, CloneNotSupportedException {
+	public CalibratedCurves getCloneShiftedForRegExp(final String symbolRegExp, final double shift) throws SolverException, CloneNotSupportedException {
 		return getCloneShifted(Pattern.compile(symbolRegExp), shift);
 	}
 
@@ -663,7 +671,7 @@ public class CalibratedCurves {
 	 * @param symbol A given symbol string.
 	 * @return The product associated with that symbol.
 	 */
-	public AnalyticProduct getCalibrationProductForSymbol(String symbol) {
+	public AnalyticProduct getCalibrationProductForSymbol(final String symbol) {
 
 		/*
 		 * The internal data structure is not optimal here (a map would make more sense here),
@@ -671,7 +679,7 @@ public class CalibratedCurves {
 		 * Hence we store both in two side by side vectors.
 		 */
 		for(int i=0; i<calibrationProductsSymbols.size(); i++) {
-			String calibrationProductSymbol = calibrationProductsSymbols.get(i);
+			final String calibrationProductSymbol = calibrationProductsSymbols.get(i);
 			if(calibrationProductSymbol.equals(symbol)) {
 				return calibrationProducts.get(i);
 			}
@@ -680,8 +688,8 @@ public class CalibratedCurves {
 		return null;
 	}
 
-	private int calibrate(double accuracy) throws SolverException {
-		Solver solver = new Solver(model, calibrationProducts, evaluationTime, accuracy);
+	private int calibrate(final double accuracy) throws SolverException {
+		final Solver solver = new Solver(model, calibrationProducts, evaluationTime, accuracy);
 		model = solver.getCalibratedModel(objectsToCalibrate);
 
 		lastAccuracy = solver.getAccuracy();
@@ -695,7 +703,7 @@ public class CalibratedCurves {
 	 * @param calibrationSpec The spec of the calibration product.
 	 * @throws CloneNotSupportedException Thrown if a curve could not be cloned / created.
 	 */
-	private String add(CalibrationSpec calibrationSpec) throws CloneNotSupportedException
+	private String add(final CalibrationSpec calibrationSpec) throws CloneNotSupportedException
 	{
 		calibrationSpecs.add(calibrationSpec);
 
@@ -710,7 +718,7 @@ public class CalibratedCurves {
 		// Create parameter to calibrate
 
 		// Fetch old curve
-		Curve calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
+		final Curve calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);
 		if(calibrationCurveOld == null) {
 			throw new IllegalArgumentException("Calibration curve " + calibrationSpec.calibrationCurveName + " does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.");
 		}
@@ -731,7 +739,7 @@ public class CalibratedCurves {
 		}
 
 		// Build new curve with one additional point
-		Curve calibrationCurve = calibrationCurveOld
+		final Curve calibrationCurve = calibrationCurveOld
 				.getCloneBuilder()
 				.addPoint(calibrationSpec.calibrationTime, valueGuess, true)
 				.build();
@@ -747,7 +755,7 @@ public class CalibratedCurves {
 	 * @param discountCurveName The name of the discount curve to create.
 	 * @return The discount factor curve associated with the given name.
 	 */
-	private DiscountCurve createDiscountCurve(String discountCurveName) {
+	private DiscountCurve createDiscountCurve(final String discountCurveName) {
 		DiscountCurve discountCurve	= model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
@@ -764,7 +772,7 @@ public class CalibratedCurves {
 	 * @param forwardCurveName The name of the forward curve to create.
 	 * @return The forward curve associated with the given name.
 	 */
-	private String createForwardCurve(Schedule swapTenorDefinition, String forwardCurveName) {
+	private String createForwardCurve(final Schedule swapTenorDefinition, final String forwardCurveName) {
 
 		/*
 		 * Temporary "hack" - we try to infer index maturity codes from curve name.

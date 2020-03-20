@@ -32,7 +32,7 @@ public class CurveTest {
 	 * @throws SolverException Thrown if optimizer fails.
 	 * @throws CloneNotSupportedException Thrown if curve cannot be cloned for optimization.
 	 */
-	public static void main(String[] args) throws SolverException, CloneNotSupportedException {
+	public static void main(final String[] args) throws SolverException, CloneNotSupportedException {
 		(new CurveTest()).testCurveFitting();
 	}
 
@@ -48,7 +48,7 @@ public class CurveTest {
 		/*
 		 * Build a curve (initial guess for our fitting problem, defines the times).
 		 */
-		CurveInterpolation.Builder builder = new CurveInterpolation.Builder();
+		final CurveInterpolation.Builder builder = new CurveInterpolation.Builder();
 
 		builder.setInterpolationMethod(CurveInterpolation.InterpolationMethod.LINEAR);
 		builder.setExtrapolationMethod(CurveInterpolation.ExtrapolationMethod.LINEAR);
@@ -78,7 +78,7 @@ public class CurveTest {
 		 */
 
 		// Define the objective function
-		Optimizer optimizer = new LevenbergMarquardt(
+		final Optimizer optimizer = new LevenbergMarquardt(
 				curve.getParameter()	/* initial parameters */,
 				givenValues				/* target values */,
 				100,					/* max iterations */
@@ -88,12 +88,12 @@ public class CurveTest {
 			private static final long serialVersionUID = -5128114286941153154L;
 
 			@Override
-			public void setValues(double[] parameters, double[] values) throws SolverException {
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
 
 				Curve curveGuess = null;
 				try {
 					curveGuess = curve.getCloneForParameter(parameters);
-				} catch (CloneNotSupportedException e) {
+				} catch (final CloneNotSupportedException e) {
 					throw new SolverException(e);
 				}
 

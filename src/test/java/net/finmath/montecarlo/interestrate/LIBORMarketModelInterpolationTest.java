@@ -17,9 +17,9 @@ import org.junit.runners.Parameterized.Parameters;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
-import net.finmath.montecarlo.AbstractRandomVariableFactory;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
@@ -48,7 +48,7 @@ public class LIBORMarketModelInterpolationTest {
 	private final int numberOfPaths		= 500000;
 	private final int numberOfFactors	= 1;
 
-	private LIBORModelMonteCarloSimulationModel liborMarketModel;
+	private final LIBORModelMonteCarloSimulationModel liborMarketModel;
 
 	private static DecimalFormat formatterMaturity	= new DecimalFormat("00.00", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterValue		= new DecimalFormat(" ##0.000%;-##0.000%", new DecimalFormatSymbols(Locale.ENGLISH));
@@ -57,27 +57,27 @@ public class LIBORMarketModelInterpolationTest {
 
 
 
-	public LIBORMarketModelInterpolationTest(LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod) throws CalculationException {
+	public LIBORMarketModelInterpolationTest(final LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod) throws CalculationException {
 
 		// Create a libor market model
 		System.out.println("Test for interpolationMethod " + interpolationMethod.name() + ":");
-		RandomVariableFactory randomVariableFactory =  new RandomVariableFactory();
-		liborMarketModel = createLIBORMarketModel(interpolationMethod, randomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		final RandomVariableFromArrayFactory randomVariableFromArrayFactory =  new RandomVariableFromArrayFactory();
+		liborMarketModel = createLIBORMarketModel(interpolationMethod, randomVariableFromArrayFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod,
-			AbstractRandomVariableFactory randomVariableFactory, int numberOfPaths, int numberOfFactors, double correlationDecayParam) throws CalculationException {
+			final LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod,
+			final RandomVariableFactory abstractRandomVariableFactory, final int numberOfPaths, final int numberOfFactors, final double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
 		 */
-		double liborPeriodLength	= 2.0;
-		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final double liborPeriodLength	= 2.0;
+		final double liborRateTimeHorzion	= 20.0;
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
+		final ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				new double[] {0.5 , 1.0 , 2.0 , 5.0 , 40.0}	/* fixings of the forward */,
 				new double[] {0.05, 0.05, 0.05, 0.05, 0.05}	/* forwards */,
@@ -87,21 +87,21 @@ public class LIBORMarketModelInterpolationTest {
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 20.0;
-		double dt		= 0.5;
+		final double lastTime	= 20.0;
+		final double dt		= 0.5;
 
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double a = 0.2, b = 0.0, c = 0.25, d = 0.3;
-		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false);
+		final double a = 0.2, b = 0.0, c = 0.25, d = 0.3;
+		final LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
-		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
+		final LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
 				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
@@ -109,7 +109,7 @@ public class LIBORMarketModelInterpolationTest {
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
+		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
@@ -117,7 +117,7 @@ public class LIBORMarketModelInterpolationTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<>();
+		final Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.TERMINAL.name());
@@ -128,16 +128,16 @@ public class LIBORMarketModelInterpolationTest {
 		properties.put("interpolationMethod" , interpolationMethod.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
+		final CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), randomVariableFactory, covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), abstractRandomVariableFactory, covarianceModel, calibrationItems, properties);
 
-		BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
 		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
@@ -145,14 +145,14 @@ public class LIBORMarketModelInterpolationTest {
 	@Test
 	public void testInterpolatedLastLIBOR() throws CalculationException
 	{
-		RandomVariable longLastLIBOR       = liborMarketModel.getLIBOR(18.0, 18.0, 20.0);
+		final RandomVariable longLastLIBOR       = liborMarketModel.getLIBOR(18.0, 18.0, 20.0);
 		//RandomVariable longLastLIBORAtZero = liborMarketModel.getLIBOR(0.0, 18.0, 20.0);
-		double longLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
+		final double longLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
 				liborMarketModel.getModel().getAnalyticModel(), 18.0, 2.0);
 
-		RandomVariable interpolatedLastLIBOR = liborMarketModel.getLIBOR(18.0, 19.0, 20.0);
+		final RandomVariable interpolatedLastLIBOR = liborMarketModel.getLIBOR(18.0, 19.0, 20.0);
 		//RandomVariable interpolatedLastLIBORAtZero = liborMarketModel.getLIBOR(0.0, 19.0, 20.0);
-		double interpolatedLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
+		final double interpolatedLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
 				liborMarketModel.getModel().getAnalyticModel(), 19.0, 1.0);
 
 		System.out.println("1+L(18,20;0)Dt    \t" + longLastForwardAtZero);

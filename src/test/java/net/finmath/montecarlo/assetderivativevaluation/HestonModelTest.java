@@ -50,7 +50,7 @@ public class HestonModelTest {
 	@Parameters(name="xi={0}}")
 	public static Collection<Object[]> generateData()
 	{
-		ArrayList<Object[]> parameters = new ArrayList<>();
+		final ArrayList<Object[]> parameters = new ArrayList<>();
 		parameters.add(new Object[] { 0.0 });
 		parameters.add(new Object[] { 0.5 });
 		return parameters;
@@ -82,7 +82,7 @@ public class HestonModelTest {
 
 	private static DecimalFormat formatReal3 = new DecimalFormat("####0.000", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	public HestonModelTest(double xi) {
+	public HestonModelTest(final double xi) {
 		super();
 		this.xi = xi;
 	}
@@ -91,17 +91,17 @@ public class HestonModelTest {
 	public void test() throws CalculationException {
 
 		// Create a time discretization
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{
 			// Create a model
-			AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+			final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -110,16 +110,16 @@ public class HestonModelTest {
 		AssetModelMonteCarloSimulationModel monteCarloHestonModel;
 		{
 			// Create a model
-			AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
+			final AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
 
 			// Create a corresponding MC process
-			MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 		}
 
-		CharacteristicFunctionModel characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
+		final CharacteristicFunctionModel characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
 
 		System.out.println("Implied volatilties using:\n"
 				+ "  (mc/bs) = Monte-Carlo/Black-Scholes\n"
@@ -135,23 +135,23 @@ public class HestonModelTest {
 			/*
 			 * Valuation using Monte-Carlo models
 			 */
-			EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
+			final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike * moneyness);
 
 			// Black Scholes
-			double valueBlackScholesMonteCarlo = europeanOption.getValue(monteCarloBlackScholesModel);
-			double impliedVolBlackScholesMonteCarlo = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueBlackScholesMonteCarlo);
-			double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final double valueBlackScholesMonteCarlo = europeanOption.getValue(monteCarloBlackScholesModel);
+			final double impliedVolBlackScholesMonteCarlo = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueBlackScholesMonteCarlo);
+			final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 			// Heston
-			double valueHestonMonteCarlo = europeanOption.getValue(monteCarloHestonModel);
-			double impliedVolHestonMonteCarlo = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonMonteCarlo);
+			final double valueHestonMonteCarlo = europeanOption.getValue(monteCarloHestonModel);
+			final double impliedVolHestonMonteCarlo = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonMonteCarlo);
 
 			/*
 			 * Valuation using Fourier transform models
 			 */
-			FourierTransformProduct europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
-			double valueHestonFourier = europeanFourier.getValue(characteristFunctionHeston);
-			double impliedVolHestonFourier = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonFourier);
+			final FourierTransformProduct europeanFourier = new net.finmath.fouriermethod.products.EuropeanOption(optionMaturity, optionStrike * moneyness);
+			final double valueHestonFourier = europeanFourier.getValue(characteristFunctionHeston);
+			final double impliedVolHestonFourier = AnalyticFormulas.blackScholesOptionImpliedVolatility(initialValue*Math.exp(riskFreeRate*optionMaturity), optionMaturity, optionStrike*moneyness, Math.exp(-riskFreeRate*optionMaturity), valueHestonFourier);
 
 			System.out.println(formatReal3.format(optionStrike * moneyness) + "    \t" + formatReal3.format(impliedVolBlackScholesMonteCarlo) +
 					"    \t" + formatReal3.format(impliedVolHestonMonteCarlo) + "    \t" + formatReal3.format(impliedVolHestonFourier));

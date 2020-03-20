@@ -6,6 +6,137 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.1.3 (under development)
+
+### Fourier Methods
+
+    - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
+
+
+## 4.1.2
+
+### General
+
+ - Moved site to GitHub pages.
+ - Improved JavaDoc.
+ - Improved Documentation.
+
+
+## 4.1.1
+
+### General
+
+ - Improved toString() for nicer output in jshell
+
+### Refactorings
+
+ - Removed deprecated methods (setXxx) in AnalyticModel - the class is now immutable
+
+ - Refactoring rename RandomVariableDifferentiableFactory: AbstractRandomVariableDifferentiableFactory extract interface RandomVariableDifferentiableFactory
+
+## 4.1.0 (26.01.2020)
+
+### General
+
+ - Clean up. Arguments of methods are final (when possible).
+
+### Refactorings
+
+ - Refactoring rename RandomVariableFactory: RandomVariableFactory to RandomVariableFromArrayFactory
+ - Refactoring rename RandomVariableFactory: AbstractRandomVariableFactory extract interface RandomVariableFactory
+
+ - Refactoring rename Notional: Notional to NotionalFromConstant
+ - Refactoring rename Notional: AbstractNotional to Notional
+
+ - Refactoring rename SwaptionMarketData: SwaptionMarketData to SwaptionATMMarketDataFromArray
+ - Refactoring rename SwaptionMarketData: AbstractSwaptionMarketData to SwaptionMarketData
+ 
+### Documentation
+
+ - Added documentation of Model and Product interfaces.
+ - Added script (Eclipse) for refactorings 4.0.x to 4.1.0
+ - Added documentation for refactorings 4.0.x to 4.1.0
+ 
+### Interest Rate Models (Analytic)
+
+ - Added code for caplet bootstrapping and caplet volatility tenor conversion.
+
+
+## 4.0.15 (26.01.2020)
+
+### General
+
+ - Minor clean up.
+ 
+### Market Data
+
+ - Discount Curves carry a reference date.
+ 
+### Monte-Carlo Simulation / AAD
+
+ - Added PREDICTOR_CORRECTOR_FUNCTIONAL scheme, being compatible with AAD.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Changed scaling of numeraire if default curve is given for measures where N(0) is not equal to 1.
+
+
+## 4.0.13 (05.10.2019)
+
+### General
+
+ - Added some constructors for convenience.
+ 
+### Monte-Carlo Simulation / AAD
+
+ - Improved compatibility with AAD valuations - EULER_FUNCTIONAL is default in Euler scheme.
+
+
+## 4.0.12 (02.06.2019)
+
+### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
+
+ -  Variance Gamma Model:  Fourier and Monte-Carlo implementations for the Variance Gamma Model.
+
+### Interest Rate Models - Analytic and Semi-Analytic (this part is still under development / refactoring) - see `net.finmath.singleswaprate`
+
+ - SABR Volatility Cube Calibration (contributed by Roland Bachl)
+ - Cash-Settled Swaption and CMS Valuation via Replication using different Annuity Mappings (contributed by Roland Bachl)
+ 
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Improved implementation of the Bermudan Swaption. See `BermudanSwaptionFromSwapSchedules`.
+
+
+## 4.0.11 (22.04.2019)
+
+### General
+
+ - The `net.finmath.time.TimeDiscretizationFromArray` comes with an additional (optional) argument to allow duplicate simulation time discretization points (i.e., time step sizes of 0) (this is useful to ensure path-consistent Monte-Carlo simulations).
+
+### Market Data / Curves
+
+ - Allowing access to interpolation points for interpolated curve.
+
+### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
+
+ - Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.
+ 
+### Monte-Carlo Simulation
+
+ - The LIBOR Market Model () and the Hull White Model () may be used with simulation time discretizations having duplicate entries (this is useful to ensure path-consistent Monte-Carlo simulations).
+ 
+ - Introduced `MonteCarloConditionalExpectationRegressionFactory`.
+
+### Single Asset (Equity/FX) Models - Monte-Carlo Simulation
+
+ - Implementation of the Variance Gamma Process (contributed and maintained by Prof. A. Gnoatto). See `net.finmath.montecarlo.VarianceGammaProcess`.
+
+### Interest Rate Models - Monte-Carlo Simulation
+
+ - Improved implementation of the Bermudan Swaption allowing arbitrary swap schedules (consistent with AnalyticModel) and injection of custom method for estimation of conditional expectation. See `BermudanSwaptionFromSwapSchedules`.
+
+
 ## 4.0.9 (07.04.2019)
 
 ### General
@@ -74,7 +205,7 @@ finmath lib Release Notes
 
  - *Refactoring of names*. Interfaces come with plain names like `RandomVariable` 
    while implementation come with implementation details as in `RandomVariableFromDoubleArray`.
-   Details can be found in doc/refactoring-3.6.x-to-4.0.0.
+   Details can be found in docs/refactoring-3.6.x-to-4.0.0.
 
  - *Refactoring of `RandomVariable`*. Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
    Use `choose` instead.

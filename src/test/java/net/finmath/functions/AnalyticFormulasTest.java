@@ -23,25 +23,25 @@ import net.finmath.optimizer.SolverException;
 public class AnalyticFormulasTest {
 
 	static final DecimalFormat formatterReal2 = new DecimalFormat("#0.00");
-	private boolean isPrintOutVerbose = false;
+	private final boolean isPrintOutVerbose = false;
 
 	@Test
 	public void testBachelierOptionImpliedVolatility() {
-		double spot = 100;
-		double riskFreeRate = 0.05;
+		final double spot = 100;
+		final double riskFreeRate = 0.05;
 		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
 			for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
 				for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
 
-					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
+					final double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
 
-					double volatility = volatilityNormal;
-					double forward = spot * Math.exp(riskFreeRate * optionMaturity);
-					double optionStrike = forward + moneyness;
-					double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
+					final double volatility = volatilityNormal;
+					final double forward = spot * Math.exp(riskFreeRate * optionMaturity);
+					final double optionStrike = forward + moneyness;
+					final double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
 
-					double optionValue = AnalyticFormulas.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-					double impliedVolatility = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+					final double optionValue = AnalyticFormulas.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+					final double impliedVolatility = AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
 					if(isPrintOutVerbose) {
 						System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionValue) + " \t" + formatterReal2.format(volatility) + " \t" + formatterReal2.format(impliedVolatility));
@@ -54,23 +54,25 @@ public class AnalyticFormulasTest {
 
 	@Test
 	public void testBachelierOptionDelta() {
-		double spot = 100;
-		double riskFreeRate = 0.05;
+		final double spot = 100;
+		final double riskFreeRate = 0.05;
 		for(double volatilityNormal = 5.0 / 100.0 * spot; volatilityNormal < 1.0 * spot; volatilityNormal += 5.0 / 100.0 * spot) {
 			for(double optionMaturity = 0.5; optionMaturity < 10; optionMaturity += 0.25) {
 				for(double moneynessInStdDev = -6.0; moneynessInStdDev <= 6.0; moneynessInStdDev += 0.5) {
 
-					double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
+					final double moneyness = moneynessInStdDev * volatilityNormal * Math.sqrt(optionMaturity);
 
-					double volatility = volatilityNormal;
-					double forward = spot * Math.exp(riskFreeRate * optionMaturity);
-					double optionStrike = forward + moneyness;
-					double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
+					final double volatility = volatilityNormal;
+					final double forward = spot * Math.exp(riskFreeRate * optionMaturity);
+					final double optionStrike = forward + moneyness;
+					final double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);
 
-					double optionDelta = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+					final double optionDelta = AnalyticFormulas.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
-					double epsilon = 1E-5*forward;
-					double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forward+epsilon, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forward-epsilon, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
+					final double epsilon = 1E-5*spot;
+					final double forwardUp = (spot+epsilon) * Math.exp(riskFreeRate * optionMaturity);
+					final double forwardDn = (spot-epsilon) * Math.exp(riskFreeRate * optionMaturity);
+					final double optionDeltaFiniteDifference = (AnalyticFormulas.bachelierOptionValue(forwardUp, volatility, optionMaturity, optionStrike, payoffUnit)-AnalyticFormulas.bachelierOptionValue(forwardDn, volatility, optionMaturity, optionStrike, payoffUnit))/(2*epsilon);
 
 					if(isPrintOutVerbose) {
 						System.out.println(formatterReal2.format(optionMaturity) + " \t" + formatterReal2.format(moneyness) + " \t" + formatterReal2.format(optionDelta) + " \t" + formatterReal2.format(optionDeltaFiniteDifference));
@@ -93,28 +95,28 @@ public class AnalyticFormulasTest {
 		final double underlying = 0.0076;
 		final double maturity = 20;
 
-		double alpha = 0.006;
-		double beta = 0.05;
-		double rho = 0.95;
-		double nu = 0.075;
-		double displacement = 0.02;
+		final double alpha = 0.006;
+		final double beta = 0.05;
+		final double rho = 0.95;
+		final double nu = 0.075;
+		final double displacement = 0.02;
 
 
-		double[] initialParameters = { alpha, beta, rho, nu, displacement };
-		double[] targetValues = givenVolatilities;
-		int maxIteration = 500;
-		int numberOfThreads = 8;
+		final double[] initialParameters = { alpha, beta, rho, nu, displacement };
+		final double[] targetValues = givenVolatilities;
+		final int maxIteration = 500;
+		final int numberOfThreads = 8;
 
 		for(double displacement2 = 0.5; displacement2>0; displacement2 -= 0.001) {
 			givenVolatilities[0] = givenVolatilities[0] + 0.00001;
 			final double displacement3 = displacement2;
-			LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {
+			final LevenbergMarquardt lm = new LevenbergMarquardt(initialParameters, targetValues, maxIteration, numberOfThreads) {
 				private static final long serialVersionUID = -4799790311777696204L;
 
 				@Override
-				public void setValues(double[] parameters, double[] values) {
+				public void setValues(final double[] parameters, final double[] values) {
 					for(int strikeIndex = 0; strikeIndex < givenStrikes.length; strikeIndex++) {
-						double strike = givenStrikes[strikeIndex];
+						final double strike = givenStrikes[strikeIndex];
 						values[strikeIndex] = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(parameters[0] /* alpha */, parameters[1] /* beta */, parameters[2] /* rho */, parameters[3] /* nu */, parameters[4] /* displacement */, underlying, strike, maturity);
 					}
 				}
@@ -123,7 +125,7 @@ public class AnalyticFormulasTest {
 
 			lm.run();
 
-			double[] bestParameters = lm.getBestFitParameters();
+			final double[] bestParameters = lm.getBestFitParameters();
 
 			if(isPrintOutVerbose) {
 				System.out.println(givenVolatilities[0] + "\t" + lm.getRootMeanSquaredError() + "\t" + Arrays.toString(bestParameters));
@@ -168,12 +170,12 @@ public class AnalyticFormulasTest {
 
 				break;
 			}
-			double riskReversal = AnalyticFormulas.sabrNormalVolatilitySkewApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
+			final double riskReversal = AnalyticFormulas.sabrNormalVolatilitySkewApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
 
-			double epsilon = 1E-4;
-			double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
-			double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
-			double riskReversalNumerical = (valueUp-valueDn) / 2 / epsilon;
+			final double epsilon = 1E-4;
+			final double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
+			final double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
+			final double riskReversalNumerical = (valueUp-valueDn) / 2 / epsilon;
 
 			System.out.println(riskReversal);
 			System.out.println(riskReversalNumerical);
@@ -221,16 +223,16 @@ public class AnalyticFormulasTest {
 				break;
 			}
 
-			double curvature = AnalyticFormulas.sabrNormalVolatilityCurvatureApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
+			final double curvature = AnalyticFormulas.sabrNormalVolatilityCurvatureApproximation(alpha, beta, rho, nu, displacement, underlying, maturity);
 
 			/*
 			 * Finite difference approximation of the curvature.
 			 */
-			double epsilon = 1E-4;
-			double value = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
-			double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
-			double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
-			double curvatureNumerical = (valueUp - 2.0*value + valueDn) / epsilon / epsilon;
+			final double epsilon = 1E-4;
+			final double value = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);
+			final double valueUp = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying+epsilon, maturity);
+			final double valueDn = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying-epsilon, maturity);
+			final double curvatureNumerical = (valueUp - 2.0*value + valueDn) / epsilon / epsilon;
 
 			System.out.println(curvature);
 			System.out.println(curvatureNumerical);
@@ -241,28 +243,28 @@ public class AnalyticFormulasTest {
 
 	@Test
 	public void testBlackScholesPutCallParityATM() {
-		double initialStockValue = 100.0;
-		Double riskFreeRate = 0.02;
-		Double volatility = 0.20;
-		double optionMaturity = 8.0;
-		double optionStrike = initialStockValue * Math.exp(riskFreeRate * optionMaturity);
+		final double initialStockValue = 100.0;
+		final Double riskFreeRate = 0.02;
+		final Double volatility = 0.20;
+		final double optionMaturity = 8.0;
+		final double optionStrike = initialStockValue * Math.exp(riskFreeRate * optionMaturity);
 
-		double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
-		double valuePut = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike, false);
+		final double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		final double valuePut = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike, false);
 
 		Assert.assertEquals(valueCall, valuePut, 1E-15);
 	}
 
 	@Test
 	public void testBlackScholesNegativeForward() {
-		double initialStockValue = 100.0;
-		double riskFreeRate = 0.02;
-		double volatility = 0.20;
-		double optionMaturity = 8.0;
-		double optionStrike = -10;
+		final double initialStockValue = 100.0;
+		final double riskFreeRate = 0.02;
+		final double volatility = 0.20;
+		final double optionMaturity = 8.0;
+		final double optionStrike = -10;
 
-		double valueExpected = initialStockValue -optionStrike * Math.exp(- riskFreeRate * optionMaturity);
-		double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+		final double valueExpected = initialStockValue -optionStrike * Math.exp(- riskFreeRate * optionMaturity);
+		final double valueCall = AnalyticFormulas.blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
 		Assert.assertEquals(valueExpected, valueCall, 1E-12);
 	}
@@ -279,17 +281,17 @@ public class AnalyticFormulasTest {
 	 */
 	@Test
 	public void testBachelierRiskNeutralProbabilities() {
-		DecimalFormat numberFormatStrike		= new DecimalFormat(" 0.00% ");
-		DecimalFormat numberFormatValue			= new DecimalFormat(" 0.000%");
-		DecimalFormat numberFormatProbability	= new DecimalFormat("  0.00%; -0.00%");
+		final DecimalFormat numberFormatStrike		= new DecimalFormat(" 0.00% ");
+		final DecimalFormat numberFormatValue			= new DecimalFormat(" 0.000%");
+		final DecimalFormat numberFormatProbability	= new DecimalFormat("  0.00%; -0.00%");
 
-		Double riskFreeRate = 0.01;
-		Double volatilityN = 0.0065;
-		Double volatilityLN = 0.849;
-		Double optionMaturity = 10.0;
+		final Double riskFreeRate = 0.01;
+		final Double volatilityN = 0.0065;
+		final Double volatilityLN = 0.849;
+		final Double optionMaturity = 10.0;
 
 		// We calculate risk neutral probs using a finite difference approx. of Breden-Litzenberger
-		double eps = 1E-8;
+		final double eps = 1E-8;
 
 		System.out.println("Strike K" + "          \t" +
 				"Bachelier Value " + "     \t" +
@@ -298,16 +300,16 @@ public class AnalyticFormulasTest {
 				"Black-Scholes P(S<K) " + "\t");
 		for(double optionStrike = 0.02; optionStrike > -0.10; optionStrike -= 0.005) {
 
-			double payoffUnit	= Math.exp(-riskFreeRate * optionMaturity);
-			double forward		= 0.01;
+			final double payoffUnit	= Math.exp(-riskFreeRate * optionMaturity);
+			final double forward		= 0.01;
 
-			double valuePutBa1 = -(forward-optionStrike)*payoffUnit + AnalyticFormulas.bachelierOptionValue(forward, volatilityN, optionMaturity, optionStrike, payoffUnit);
-			double valuePutBa2 = -(forward-optionStrike-eps)*payoffUnit + AnalyticFormulas.bachelierOptionValue(forward, volatilityN, optionMaturity, optionStrike+eps, payoffUnit);
-			double probabilityBachelier = Math.max((valuePutBa2 - valuePutBa1) / eps / payoffUnit,0);
+			final double valuePutBa1 = -(forward-optionStrike)*payoffUnit + AnalyticFormulas.bachelierOptionValue(forward, volatilityN, optionMaturity, optionStrike, payoffUnit);
+			final double valuePutBa2 = -(forward-optionStrike-eps)*payoffUnit + AnalyticFormulas.bachelierOptionValue(forward, volatilityN, optionMaturity, optionStrike+eps, payoffUnit);
+			final double probabilityBachelier = Math.max((valuePutBa2 - valuePutBa1) / eps / payoffUnit,0);
 
-			double valuePutBS1 = -(forward-optionStrike)*payoffUnit + AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatilityLN, optionMaturity, optionStrike, payoffUnit);
-			double valuePutBS2 = -(forward-optionStrike-eps)*payoffUnit + AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatilityLN, optionMaturity, optionStrike+eps, payoffUnit);
-			double probabilityBlackScholes = Math.max((valuePutBS2 - valuePutBS1) / eps / payoffUnit,0);
+			final double valuePutBS1 = -(forward-optionStrike)*payoffUnit + AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatilityLN, optionMaturity, optionStrike, payoffUnit);
+			final double valuePutBS2 = -(forward-optionStrike-eps)*payoffUnit + AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatilityLN, optionMaturity, optionStrike+eps, payoffUnit);
+			final double probabilityBlackScholes = Math.max((valuePutBS2 - valuePutBS1) / eps / payoffUnit,0);
 
 			System.out.println(
 					numberFormatStrike.format(optionStrike) + "         \t" +

@@ -1,7 +1,6 @@
 About finmath lib
 ==========
 
-
 ****************************************
 
 **Mathematical Finance Library: Algorithms and methodologies related to mathematical finance.**
@@ -18,6 +17,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 	- Heston model
 	- Bates model
 	- Two factor Bates model
+    - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 - **Finite difference methods**
 	- Numerical schemes using finite differences
 		- Theta-scheme
@@ -37,11 +37,16 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
 - **Calibration** of market data objects like curves (discount and forward curve) or volatility surfaces
-	- **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
-	- **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
-    - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
-    - Various interpolation entities (value, log-value, rate, etc.).
-    - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
+    - Rate Curves:
+        - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
+        - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
+        - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
+        - Various interpolation entities (value, log-value, rate, etc.).
+        - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
+    - Volatility Curves and Cubes:
+        - **SABR smile** parameterization.
+        - Swaption volatility cubes with SABR parameterization.
+        - **CMS replication** with various annuity mappings.
 - Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
 - Calibration of the **LIBOR market model**
 - Valuation of complex derivatives
@@ -58,6 +63,15 @@ The library is available for Java 8 and Java 6. We are starting to provide examp
 The Maven build file is provide. Import the project as Maven project.
 
 The default Maven profile is Java 8 without Kotlin. To enable Java 6 version select the Maven profile 'java-6'. To enable Kotlin select the Maven profile 'kotlin'.
+
+
+Releases
+--------------------------------------
+
+Binary releases can be found at http://finmath.net/finmath-lib .
+The version numbering of finmath-lib follows a the *[semantic versioning](https://semver.org)* 
+(at least we try to).
+
 
 Distribution
 --------------------------------------
@@ -101,8 +115,9 @@ For that reason, the source code is duplicated:
 Although the two folder share some/many identical source files, we prefer this two folder layout
 over one with a third folder like java-common.
 
-
-### Building finmath lib
+#[[
+### Building finmath lib ###
+]]#
 
 -    To build finmath lib for Java 8 use src/main/java
 -    To build finmath lib for java 6 use src/main/java-6
@@ -110,10 +125,11 @@ over one with a third folder like java-common.
 These builds may be performed via Maven the profiles "java-8" and "java-6".
 The eclipse project file is pre-configured to Java 8.
 
+#[[
 #### Maven build
+]]#
 
 The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use the maven profile "java-6".
-
 
 
 Repositories
@@ -170,7 +186,7 @@ The code of "finmath lib" and "finmath experiments" (packages
 Extensions
 -------------------------------------
 
-The finmath-lib-cuda-extensions implement the RandomVariableInterface via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
+The [finmath-lib-cuda-extensions](http://finmath.net/finmath-lib-cuda-extensions/) implement the interface `RandomVariable` via Cuda GPU code. This allows to perform Monte-Carlo simulations on the GPUs with a minimal change: a replacement of the random variable factory.
 
 The finmath-lib-automaticdifferentiation-extensions implement the RandomVariableInterface via an AAD enabled version. This allows to access automatic differentiations with a minimal change: a replacement of the random variable factory.
 Starting with version 3.3.1 the finmath-lib-automaticdifferentiation-extensions is part of finmath-lib.

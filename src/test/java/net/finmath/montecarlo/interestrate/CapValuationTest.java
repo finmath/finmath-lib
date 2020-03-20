@@ -27,9 +27,11 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.volatilities.AbstractVolatilitySurface;
 import net.finmath.marketdata.model.volatilities.CapletVolatilitiesParametric;
 import net.finmath.marketdata.products.Cap;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialFormIntegrated;
 import net.finmath.montecarlo.interestrate.products.FlexiCap;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -70,14 +72,14 @@ public class CapValuationTest {
 	 * @param numberOfPaths Numer of paths of the LIBOR market model.
 	 * @throws CalculationException Thrown if a numerical algorithm fails.
 	 */
-	private void init(int numberOfPaths) throws CalculationException {
+	private void init(final int numberOfPaths) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
 		 */
-		double liborPeriodLength	= 0.25;
-		double liborRateTimeHorzion	= 20.0;
-		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final double liborPeriodLength	= 0.25;
+		final double liborRateTimeHorzion	= 20.0;
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
@@ -95,10 +97,10 @@ public class CapValuationTest {
 				);
 
 		// Create the capletVolatilitySurface
-		double a = 0.25;
-		double b = 3.00;
-		double c = 1.50;
-		double d = 0.10;
+		final double a = 0.25;
+		final double b = 3.00;
+		final double c = 1.50;
+		final double d = 0.10;
 		capletVol = new CapletVolatilitiesParametric("EUR", referenceDate, a, b, c, d);
 		//		capletVol = new CapletVolatilitiesParametricFourParameterPicewiseConstant("EUR", referenceDate, a, b, c, d, liborPeriodDiscretization);
 
@@ -106,28 +108,28 @@ public class CapValuationTest {
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 20.0;
-		double dt		= 0.25;
+		final double lastTime	= 20.0;
+		final double dt		= 0.25;
 
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		// LIBOR volatility model
-		LIBORVolatilityModelFourParameterExponentialFormIntegrated volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
-		//		LIBORVolatilityModelFourParameterExponentialForm volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		final LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
+		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false /* isCalibrateable */);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
-		int		numberOfFactors = 1;
-		double	correlationDecayParam = 0.0;
-		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
+		final int		numberOfFactors = 1;
+		final double	correlationDecayParam = 0.0;
+		final LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
 				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
+		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
@@ -135,7 +137,7 @@ public class CapValuationTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<>();
+		final Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", LIBORMarketModelFromCovarianceModel.Measure.SPOT.name());
@@ -144,18 +146,17 @@ public class CapValuationTest {
 		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
+		final CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
-				liborPeriodDiscretization, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = LIBORMarketModelFromCovarianceModel.of(
+				liborPeriodDiscretization, null, forwardCurve, discountCurve, new RandomVariableFromArrayFactory(), covarianceModel, calibrationItems, properties);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
+						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
 		this.liborMarketModel = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}
@@ -171,20 +172,20 @@ public class CapValuationTest {
 		double maxAbsDeviation = 0.0;
 		for (int maturityIndex = 2; maturityIndex <= liborMarketModel.getNumberOfLibors() - 1; maturityIndex++) {
 
-			double maturity = liborMarketModel.getLiborPeriod(maturityIndex);
+			final double maturity = liborMarketModel.getLiborPeriod(maturityIndex);
 			System.out.print(formatterMaturity.format(maturity) + "          ");
 
-			double strike = 0.05;
-			double[] fixingDates	= (new TimeDiscretizationFromArray(0.25, maturityIndex-2, 0.25)).getAsDoubleArray();
-			double[] paymentDates	= (new TimeDiscretizationFromArray(0.50, maturityIndex-2, 0.25)).getAsDoubleArray();
-			double[] strikes		= new double[maturityIndex-1];
+			final double strike = 0.05;
+			final double[] fixingDates	= (new TimeDiscretizationFromArray(0.25, maturityIndex-2, 0.25)).getAsDoubleArray();
+			final double[] paymentDates	= (new TimeDiscretizationFromArray(0.50, maturityIndex-2, 0.25)).getAsDoubleArray();
+			final double[] strikes		= new double[maturityIndex-1];
 			Arrays.fill(strikes, strike);
 
 			// Create a digital caplet
-			FlexiCap cap = new FlexiCap(fixingDates, paymentDates, strikes, Integer.MAX_VALUE);
+			final FlexiCap cap = new FlexiCap(fixingDates, paymentDates, strikes, Integer.MAX_VALUE);
 
 			// Value with Monte Carlo
-			double valueSimulation = cap.getValue(liborMarketModel);
+			final double valueSimulation = cap.getValue(liborMarketModel);
 			System.out.print(formatterValue.format(valueSimulation) + "          ");
 
 			// Value analytic
@@ -193,17 +194,17 @@ public class CapValuationTest {
 			model = model.addCurves(discountCurve);
 			model = model.addVolatilitySurfaces(capletVol);
 
-			LocalDate startDate = referenceDate.plusMonths(3);
+			final LocalDate startDate = referenceDate.plusMonths(3);
 
-			Schedule schedule = new RegularSchedule(new TimeDiscretizationFromArray(0.25, maturityIndex-1, 0.25));
+			final Schedule schedule = new RegularSchedule(new TimeDiscretizationFromArray(0.25, maturityIndex-1, 0.25));
 			//			Schedule schedule = ScheduleGenerator.createScheduleFromConventions(referenceDate.getTime(), startDate.getTime(), "quarterly", (maturityIndex-1)*0.25, "act/365", "first");
 
-			Cap capAnalytic = new Cap(schedule, forwardCurve.getName() /* forwardCurveName */, strike, false /* isStrikeMoneyness */, discountCurve.getName() /* discountCurveName */, "EUR" /* volatiltiySufaceName */);
-			double valueAnalytic = capAnalytic.getValue(model);
+			final Cap capAnalytic = new Cap(schedule, forwardCurve.getName() /* forwardCurveName */, strike, false /* isStrikeMoneyness */, discountCurve.getName() /* discountCurveName */, "EUR" /* volatiltiySufaceName */);
+			final double valueAnalytic = capAnalytic.getValue(model);
 			System.out.print(formatterValue.format(valueAnalytic) + "          ");
 
 			// Absolute deviation
-			double deviation = (valueSimulation - valueAnalytic);
+			final double deviation = (valueSimulation - valueAnalytic);
 			System.out.println(formatterDeviation.format(deviation) + "          ");
 
 			maxAbsDeviation = Math.max(maxAbsDeviation, Math.abs(deviation));
@@ -215,6 +216,6 @@ public class CapValuationTest {
 		/*
 		 * jUnit assertion: condition under which we consider this test successful
 		 */
-		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 3E-3);
+		Assert.assertEquals("Deviation", 0.0, maxAbsDeviation, 2E-3);
 	}
 }

@@ -40,22 +40,22 @@ public class HestonDaxCalibrationTest {
 	 *
 	 * @return the discount curve using the riskFreeRate.
 	 */
-	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+	private static DiscountCurve getDiscountCurve(final String name, final LocalDate referenceDate, final double riskFreeRate) {
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 
 	@Test
 	public void test() throws CalculationException, SolverException {
 
-		LocalDate referenceDate = LocalDate.of(2010, 8, 1);
+		final LocalDate referenceDate = LocalDate.of(2010, 8, 1);
 
-		double[] strike1 = {5500,
+		final double[] strike1 = {5500,
 				5600,
 				5700,
 				5800,
@@ -67,7 +67,7 @@ public class HestonDaxCalibrationTest {
 				6400};
 
 
-		double[] firstSmile = {0.277475758170766,
+		final double[] firstSmile = {0.277475758170766,
 				0.269515340374296,
 				0.261571882863362,
 				0.253276716037966,
@@ -78,7 +78,7 @@ public class HestonDaxCalibrationTest {
 				0.216448858389314,
 				0.209586497365038};
 
-		double[] secondSmile = {0.278915422959662,
+		final double[] secondSmile = {0.278915422959662,
 				0.271901489924065,
 				0.265156150952273,
 				0.258805052234575,
@@ -89,82 +89,82 @@ public class HestonDaxCalibrationTest {
 				0.228093463234625,
 				0.222039563314172};
 
-		QuotingConvention convention = QuotingConvention.VOLATILITYLOGNORMAL;
+		final QuotingConvention convention = QuotingConvention.VOLATILITYLOGNORMAL;
 
-		double riskFreeRate = 0.05;
+		final double riskFreeRate = 0.05;
 
-		ExtrapolationMethod exMethod = ExtrapolationMethod.CONSTANT;
-		InterpolationMethod intMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity intEntity = InterpolationEntity.LOG_OF_VALUE;
+		final ExtrapolationMethod exMethod = ExtrapolationMethod.CONSTANT;
+		final InterpolationMethod intMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity intEntity = InterpolationEntity.LOG_OF_VALUE;
 
-		DiscountCurve discountCurve = getDiscountCurve("discountCurve", referenceDate, riskFreeRate);
+		final DiscountCurve discountCurve = getDiscountCurve("discountCurve", referenceDate, riskFreeRate);
 
-		double initialValue = 6149.62;
+		final double initialValue = 6149.62;
 
-		DiscountCurve equityForwardCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		final DiscountCurve equityForwardCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"daxForwardCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
 				new double[] {initialValue, initialValue*Math.exp(riskFreeRate*1.0), initialValue*Math.exp(riskFreeRate*2.0), initialValue*Math.exp(riskFreeRate*3.0), initialValue*Math.exp(riskFreeRate*4.0)}	/* discount factors */,
 				intMethod, exMethod,intEntity);
 
 
-		double maturity = 105.0/252;
-		double secondMaturity = 170.0/252;
+		final double maturity = 105.0/252;
+		final double secondMaturity = 170.0/252;
 
-		OptionSmileData smileContainer = new OptionSmileData("DAX", referenceDate, strike1, maturity, firstSmile, convention);
-		OptionSmileData secondSmileContainer = new OptionSmileData("DAX", referenceDate, strike1, secondMaturity, secondSmile, convention);
+		final OptionSmileData smileContainer = new OptionSmileData("DAX", referenceDate, strike1, maturity, firstSmile, convention);
+		final OptionSmileData secondSmileContainer = new OptionSmileData("DAX", referenceDate, strike1, secondMaturity, secondSmile, convention);
 
-		OptionSmileData[] mySmiles = {smileContainer,secondSmileContainer};
+		final OptionSmileData[] mySmiles = {smileContainer,secondSmileContainer};
 
-		OptionSurfaceData surface = new OptionSurfaceData(mySmiles, discountCurve, equityForwardCurve);
+		final OptionSurfaceData surface = new OptionSurfaceData(mySmiles, discountCurve, equityForwardCurve);
 
 		/*
 		 * The parameters we specify here do not have an impact on the starting point of the calibration.
 		 * The true initial condition is fixed by optimizer factory.
 		 *
 		 */
-		double volatility = 0.0423;
-		double theta = 0.0818;
-		double kappa = 0.8455;
-		double xi = 0.4639;
-		double rho = -0.4;
+		final double volatility = 0.0423;
+		final double theta = 0.0818;
+		final double kappa = 0.8455;
+		final double xi = 0.4639;
+		final double rho = -0.4;
 
-		HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
+		final HestonModelDescriptor hestonModelDescriptor = new HestonModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), volatility, theta, kappa, xi, rho);
 
-		ScalarParameterInformationImplementation volatilityInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
-		ScalarParameterInformationImplementation thetaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,0.2));
-		ScalarParameterInformationImplementation kappaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
-		ScalarParameterInformationImplementation xiInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
-		ScalarParameterInformationImplementation rhoInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(-1.0,1.0));
+		final ScalarParameterInformationImplementation volatilityInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
+		final ScalarParameterInformationImplementation thetaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,0.2));
+		final ScalarParameterInformationImplementation kappaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
+		final ScalarParameterInformationImplementation xiInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.01,1.0));
+		final ScalarParameterInformationImplementation rhoInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(-1.0,1.0));
 
-		CalibratableHestonModel model = new CalibratableHestonModel(hestonModelDescriptor,volatilityInformation,thetaInformation,kappaInformation,xiInformation,rhoInformation,false);
+		final CalibratableHestonModel model = new CalibratableHestonModel(hestonModelDescriptor,volatilityInformation,thetaInformation,kappaInformation,xiInformation,rhoInformation,false);
 
-		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
+		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
 
-		double[] initialParameters = new double[] { 0.0423,0.0818,0.8455,0.4639,-0.7} /* initialParameters */;
-		double[] parameterStep = new double[] { 0.01,0.01,0.01,0.01,0.01} /* parameterStep */;
+		final double[] initialParameters = new double[] { 0.0423,0.0818,0.8455,0.4639,-0.7} /* initialParameters */;
+		final double[] parameterStep = new double[] { 0.01,0.01,0.01,0.01,0.01} /* parameterStep */;
 
 		/*
 		 * Maturity and strikes are here immaterial and only meant to generate the first instance of the class.
 		 */
-		EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
+		final EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
 
-		CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,parameterStep);
+		final CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,parameterStep);
 
 		System.out.println("Calibration started");
 
-		long startMillis	= System.currentTimeMillis();
-		OptimizationResult result = problem.getCalibration();
-		long endMillis		= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
+		final OptimizationResult result = problem.getCalibration();
+		final long endMillis		= System.currentTimeMillis();
 
-		double calculationTime = ((endMillis-startMillis)/1000.0);
+		final double calculationTime = ((endMillis-startMillis)/1000.0);
 
 		System.out.println("Calibration completed in: " +calculationTime + " seconds");
 
 		System.out.println("The solver required " + result.getIterations() + " iterations.");
 		System.out.println("RMSQE " +result.getRootMeanSquaredError());
 
-		HestonModelDescriptor hestonDescriptor = (HestonModelDescriptor) result.getModel().getModelDescriptor();
+		final HestonModelDescriptor hestonDescriptor = (HestonModelDescriptor) result.getModel().getModelDescriptor();
 
 		System.out.println(hestonDescriptor.getVolatility());
 		System.out.println(hestonDescriptor.getTheta());
@@ -172,9 +172,9 @@ public class HestonDaxCalibrationTest {
 		System.out.println(hestonDescriptor.getXi());
 		System.out.println(hestonDescriptor.getRho());
 
-		ArrayList<String> errorsOverview = result.getCalibrationOutput();
+		final ArrayList<String> errorsOverview = result.getCalibrationOutput();
 
-		for(String myString : errorsOverview) {
+		for(final String myString : errorsOverview) {
 			System.out.println(myString);
 		}
 

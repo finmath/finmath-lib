@@ -43,8 +43,8 @@ public class AccruedInterestTest {
 			paymentOffsetDays);
 	double coupon=5.125;
 
-	private int getPeriodIndex(LocalDate date) {
-		double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(referenceDate,date);
+	private int getPeriodIndex(final LocalDate date) {
+		final double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(referenceDate,date);
 		if(floatingDate< testSchedule.getPeriodStart(0)|| floatingDate>= testSchedule.getPeriodEnd(testSchedule.getNumberOfPeriods()-1)) {
 			return -1;
 		}
@@ -56,26 +56,26 @@ public class AccruedInterestTest {
 		return testSchedule.getNumberOfPeriods()-1;
 	}
 
-	private double getAccruedInterest(LocalDate date) {
-		int periodIndex=getPeriodIndex(date);
-		Period period=testSchedule.getPeriod(periodIndex);
-		DayCountConvention dcc= testSchedule.getDaycountconvention();
-		double accruedInterest=coupon*dcc.getDaycount(period.getPeriodStart(), date)/dcc.getDaycount(period.getPeriodStart(), period.getPeriodEnd());
+	private double getAccruedInterest(final LocalDate date) {
+		final int periodIndex=getPeriodIndex(date);
+		final Period period=testSchedule.getPeriod(periodIndex);
+		final DayCountConvention dcc= testSchedule.getDaycountconvention();
+		final double accruedInterest=coupon*dcc.getDaycount(period.getPeriodStart(), date)/dcc.getDaycount(period.getPeriodStart(), period.getPeriodEnd());
 		return accruedInterest;
 	}
 
-	public static void main(String[] args) {
-		AccruedInterestTest test=new AccruedInterestTest();
-		LocalDate testDate= LocalDate.of(2017, 7, 17);
+	public static void main(final String[] args) {
+		final AccruedInterestTest test=new AccruedInterestTest();
+		final LocalDate testDate= LocalDate.of(2017, 7, 17);
 		System.out.println(test.getAccruedInterest(testDate));
 		System.out.println(test.getAccruedInterest(testDate)-4.48843195598473);
 
-		LocalDate startDate = test.testSchedule.getPeriod(test.getPeriodIndex(testDate)).getPeriodStart();
-		LocalDate endDate = test.testSchedule.getPeriod(test.getPeriodIndex(testDate)).getPeriodEnd();
-		double daysInPeriod = DayCountConventionFactory.getDaycount(startDate, endDate, "act/act isda");
-		double daysAccrual = DayCountConventionFactory.getDaycount(startDate, testDate, "act/act isda");
+		final LocalDate startDate = test.testSchedule.getPeriod(test.getPeriodIndex(testDate)).getPeriodStart();
+		final LocalDate endDate = test.testSchedule.getPeriod(test.getPeriodIndex(testDate)).getPeriodEnd();
+		final double daysInPeriod = DayCountConventionFactory.getDaycount(startDate, endDate, "act/act isda");
+		final double daysAccrual = DayCountConventionFactory.getDaycount(startDate, testDate, "act/act isda");
 
-		double accruedInterest = test.coupon * 320.0/365.0;
+		final double accruedInterest = test.coupon * 320.0/365.0;
 
 		Assert.assertEquals("accrued interest", accruedInterest, test.getAccruedInterest(testDate), 1E-12);
 	}

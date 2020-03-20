@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
 import net.finmath.montecarlo.automaticdifferentiation.forward.RandomVariableDifferentiableADFactory;
 import net.finmath.stochastic.RandomVariable;
@@ -27,23 +27,23 @@ public class RandomVariableDifferentiableArithmeticTest {
 	@Parameters
 	public static Collection<Object[]> data(){
 		return Arrays.asList(new Object[][] {
-			{ new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableDifferentiableAADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableDifferentiableADFactory(new RandomVariableFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
-			{ new RandomVariableDifferentiableADFactory(new RandomVariableFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(true  /* isUseDoublePrecisionFloatingPointImplementation */)) },
+			{ new RandomVariableDifferentiableADFactory(new RandomVariableFromArrayFactory(false /* isUseDoublePrecisionFloatingPointImplementation */)) },
 		});
 	}
 
-	private final AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable;
+	private final RandomVariableDifferentiableFactory randomVariableFactoryDifferentiable;
 
-	public RandomVariableDifferentiableArithmeticTest(AbstractRandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
+	public RandomVariableDifferentiableArithmeticTest(final RandomVariableDifferentiableFactory randomVariableFactoryDifferentiable) {
 		this.randomVariableFactoryDifferentiable = randomVariableFactoryDifferentiable;
 	}
 
 	@Test
 	public void testArithmeticSubSelf() {
 
-		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sub(x):");
 
@@ -51,11 +51,11 @@ public class RandomVariableDifferentiableArithmeticTest {
 		 * x.sub(x)
 		 */
 
-		RandomVariable z = x.sub(x);
+		final RandomVariable z = x.sub(x);
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
-		RandomVariable dx = gradient.get(x.getID());
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		final RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + z.getAverage());
 
@@ -67,7 +67,7 @@ public class RandomVariableDifferentiableArithmeticTest {
 	@Test
 	public void testArithmeticDivSelf() {
 
-		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.div(x):");
 
@@ -75,11 +75,11 @@ public class RandomVariableDifferentiableArithmeticTest {
 		 * x.div(x)
 		 */
 
-		RandomVariable z = x.div(x);
+		final RandomVariable z = x.div(x);
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
-		RandomVariable dx = gradient.get(x.getID());
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		final RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + z.getAverage());
 
@@ -91,7 +91,7 @@ public class RandomVariableDifferentiableArithmeticTest {
 	@Test
 	public void testArithmeticExpLog() {
 
-		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.log().exp():");
 
@@ -99,11 +99,11 @@ public class RandomVariableDifferentiableArithmeticTest {
 		 * x.log.exp()
 		 */
 
-		RandomVariable z = x.log().exp();
+		final RandomVariable z = x.log().exp();
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
-		RandomVariable dx = gradient.get(x.getID());
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		final RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 
@@ -115,7 +115,7 @@ public class RandomVariableDifferentiableArithmeticTest {
 	@Test
 	public void testArithmeticSqrtSquared() {
 
-		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sqrt().squared():");
 
@@ -123,11 +123,11 @@ public class RandomVariableDifferentiableArithmeticTest {
 		 * x.sqrt.squared()
 		 */
 
-		RandomVariable z = x.sqrt().squared();
+		final RandomVariable z = x.sqrt().squared();
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
-		RandomVariable dx = gradient.get(x.getID());
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		final RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 
@@ -139,7 +139,7 @@ public class RandomVariableDifferentiableArithmeticTest {
 	@Test
 	public void testArithmeticSqrtMultSqrt() {
 
-		RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
+		final RandomVariableDifferentiable x = randomVariableFactoryDifferentiable.createRandomVariable(2.0);
 
 		System.out.println("Checking x.sqrt().mult(x.sqrt()):");
 
@@ -147,11 +147,11 @@ public class RandomVariableDifferentiableArithmeticTest {
 		 * x.sqrt.mult(x.sqrt())
 		 */
 
-		RandomVariable z = x.sqrt().mult(x.sqrt());
+		final RandomVariable z = x.sqrt().mult(x.sqrt());
 		System.out.println("Value:" + z.getAverage());
 
-		Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
-		RandomVariable dx = gradient.get(x.getID());
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)z).getGradient();
+		final RandomVariable dx = gradient.get(x.getID());
 
 		System.out.println("Derivative:" + dx.getAverage());
 

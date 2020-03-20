@@ -45,12 +45,12 @@ public class FPMLParserTest {
 	public static Collection<Object[]> generateData()
 	{
 		/// @TODO Provide a list of test files here
-		ArrayList<Object[]> parameters = new ArrayList<>();
+		final ArrayList<Object[]> parameters = new ArrayList<>();
 
-		ClassLoader classLoader = FPMLParserTest.class.getClassLoader();
+		final ClassLoader classLoader = FPMLParserTest.class.getClassLoader();
 		try {
 			parameters.add(new Object[] { new File(classLoader.getResource("fpml/ird-ex01-vanilla-swap.xml").toURI()) });
-		} catch (URISyntaxException e) {
+		} catch (final URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return parameters;
@@ -62,13 +62,13 @@ public class FPMLParserTest {
 	 * This main method will prompt the user for a test file an run the test with the given file.
 	 *
 	 * @param args Arguments - not used.
-	 * @throws ParserConfigurationException
-	 * @throws IOException
-	 * @throws SAXException
+	 * @throws ParserConfigurationException Thrown by the parser.
+	 * @throws IOException Thrown, e.g., if the file could not be opened.
+	 * @throws SAXException Thrown by the XML parser.
 	 */
-	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
+	public static void main(final String[] args) throws SAXException, IOException, ParserConfigurationException
 	{
-		JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
+		final JFileChooser jfc = new JFileChooser(System.getProperty("user.home"));
 		jfc.setDialogTitle("Choose XML");
 		jfc.setFileFilter(new FileNameExtensionFilter("FIPXML (.xml)", "xml"));
 		if(jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
@@ -78,7 +78,7 @@ public class FPMLParserTest {
 		(new FPMLParserTest(jfc.getSelectedFile())).testGetSwapProductDescriptor();
 	}
 
-	public FPMLParserTest(File file) {
+	public FPMLParserTest(final File file) {
 		super();
 		this.file = file;
 	}
@@ -88,19 +88,19 @@ public class FPMLParserTest {
 
 		InterestRateSwapProductDescriptor descriptor;
 		try {
-			FPMLParser parser = new FPMLParser("party1", "discount");
+			final FPMLParser parser = new FPMLParser("party1", "discount");
 			descriptor = (InterestRateSwapProductDescriptor) parser.getProductDescriptor(file);
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			System.out.println("There was a problem with the file: "+e.getMessage());
 			//			e.printStackTrace();
 			return;
-		} catch (FileNotFoundException e) {
+		} catch (final FileNotFoundException e) {
 			System.out.println("File not found. We will exit gracefully.");
 			return;
 		}
 
-		InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
-		InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
+		final InterestRateSwapLegProductDescriptor legReceiver	= (InterestRateSwapLegProductDescriptor) descriptor.getLegReceiver();
+		final InterestRateSwapLegProductDescriptor legPayer		= (InterestRateSwapLegProductDescriptor) descriptor.getLegPayer();
 
 		System.out.println("Receiver leg:");
 		System.out.println(legReceiver.name());
@@ -119,19 +119,19 @@ public class FPMLParserTest {
 		System.out.println(legPayer.getLegScheduleDescriptor());
 
 
-		LocalDate referenceDate = LocalDate.of(1995,1,10);
-		DiscountCurve discountCurve = ModelWithProductFactoryTest.getDiscountCurve("discount", referenceDate, 0.05);
-		ForwardCurve forwardCurve = getForwardCurve("EUR-LIBOR-BBA", referenceDate);
-		AnalyticModel model = new AnalyticModelFromCurvesAndVols(referenceDate, new Curve[] { discountCurve, forwardCurve });
+		final LocalDate referenceDate = LocalDate.of(1995,1,10);
+		final DiscountCurve discountCurve = ModelWithProductFactoryTest.getDiscountCurve("discount", referenceDate, 0.05);
+		final ForwardCurve forwardCurve = getForwardCurve("EUR-LIBOR-BBA", referenceDate);
+		final AnalyticModel model = new AnalyticModelFromCurvesAndVols(referenceDate, new Curve[] { discountCurve, forwardCurve });
 
-		InterestRateAnalyticProductFactory productFactory = new InterestRateAnalyticProductFactory(referenceDate);
-		DescribedProduct<? extends ProductDescriptor> legReceiverProduct = productFactory.getProductFromDescriptor(legReceiver);
-		DescribedProduct<? extends ProductDescriptor> legPayerProduct = productFactory.getProductFromDescriptor(legPayer);
+		final InterestRateAnalyticProductFactory productFactory = new InterestRateAnalyticProductFactory(referenceDate);
+		final DescribedProduct<? extends ProductDescriptor> legReceiverProduct = productFactory.getProductFromDescriptor(legReceiver);
+		final DescribedProduct<? extends ProductDescriptor> legPayerProduct = productFactory.getProductFromDescriptor(legPayer);
 
-		Swap swap = new Swap((SwapLeg)legReceiverProduct, (SwapLeg)legPayerProduct);
+		final Swap swap = new Swap((SwapLeg)legReceiverProduct, (SwapLeg)legPayerProduct);
 
-		double value = swap.getValue(0.0, model);
-		double valueBenchmark = 1876630.58;
+		final double value = swap.getValue(0.0, model);
+		final double valueBenchmark = 1876630.58;
 
 		System.out.println();
 		System.out.println("Swap value (on idealized curve): " + value);
@@ -139,7 +139,7 @@ public class FPMLParserTest {
 		Assert.assertEquals("Benchmark value", valueBenchmark, value,1E-2);
 	}
 
-	public static ForwardCurveInterpolation getForwardCurve(String name, LocalDate referenceDate) {
+	public static ForwardCurveInterpolation getForwardCurve(final String name, final LocalDate referenceDate) {
 		return ForwardCurveInterpolation.createForwardCurveFromForwards(
 				name,
 				referenceDate,

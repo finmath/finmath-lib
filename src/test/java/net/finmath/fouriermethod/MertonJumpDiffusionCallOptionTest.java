@@ -20,9 +20,9 @@ import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * Unit test for the Merton Jump diffusion model.
- * 
+ *
  * We test the standard Fourier pricer, the Carr Madan Fast Fourier Transform and the Monte Carlo approach.
- * 
+ *
  * @author Alessandro Gnoatto
  *
  */
@@ -30,7 +30,7 @@ public class MertonJumpDiffusionCallOptionTest {
 
 	private static final double initialValue	= 100.0;
 	private static final double volatility		= 0.25;
-	private static final double riskFreeRate	= 0.05;
+	private static final double riskFreeRate	= 0.0;
 
 	private static double jumpIntensity = 0.2;
 	private static double jumpSizeStdDev = 0.15;
@@ -50,30 +50,30 @@ public class MertonJumpDiffusionCallOptionTest {
 	@Test
 	public void testMartingaleProperty() throws CalculationException{
 		//Characteristic function for Fourier pricing
-		CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);		
+		final CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 
-		Complex minusI = new Complex(0.0,-1.0);
+		final Complex minusI = new Complex(0.0,-1.0);
 		System.out.println("Testing the martingale property of the characteristic function over multiple time horizons.");
 
 		for(int i = 0; i<10; i++) {
-			double time = 0.5 * i;
+			final double time = 0.5 * i;
 			System.out.println(model.apply(time).apply(minusI));
 		}
 	}
-	
+
 	@Test
 	public void testMartingalePropertyMonteCarlo() throws CalculationException{
 		//Time discretization for Monte Carlo
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		AssetModelMonteCarloSimulationModel monteCarloMertonModel = new MonteCarloMertonModel(
+		final AssetModelMonteCarloSimulationModel monteCarloMertonModel = new MonteCarloMertonModel(
 				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, volatility,
 				jumpIntensity, jumpSizeMean, jumpSizeStdDev);
 
 		System.out.println("Testing the martingale property of the Monte Carlo discretization over multiple time horizons.");
 
 		for(int i = 0; i<10; i++) {
-			double time = 0.2 * i;
+			final double time = 0.2 * i;
 			System.out.println(monteCarloMertonModel.getAssetValue(time, 0).div(monteCarloMertonModel.getNumeraire(time)).getAverage());
 		}
 	}
@@ -82,21 +82,21 @@ public class MertonJumpDiffusionCallOptionTest {
 	public void test() throws CalculationException {
 
 		//Characteristic function for Fourier pricing
-		CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
+		final CharacteristicFunctionModel model = new MertonModel(initialValue, riskFreeRate, volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);
 
 		//Time discretization for Monte Carlo
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		
-		AssetModelMonteCarloSimulationModel monteCarloMertonModel = new MonteCarloMertonModel(
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		final AssetModelMonteCarloSimulationModel monteCarloMertonModel = new MonteCarloMertonModel(
 				timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, volatility,
 				jumpIntensity, jumpSizeMean, jumpSizeStdDev);
-		
+
 		/*
 		 * FFT inversion of the whole smile at once.
 		 */
-		EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
+		final EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
 
-		Map<String, Function<Double, Double>> fftPrices = mySmile.getValue(0.0,model);
+		final Map<String, Function<Double, Double>> fftPrices = mySmile.getValue(0.0,model);
 
 		System.out.println("Comparison of standard Fourier pricer, FFT pricer and Monte Carlo.");
 		System.out.println("Strike" + "\t" + "Fourier Price" + "\t" + "FFT Price" + "\t" + "Monte Carlo");
@@ -105,14 +105,14 @@ public class MertonJumpDiffusionCallOptionTest {
 			 * Fourier transform of each call option separately.
 			 * In contrasto to the FFT this operation is O(M^2)
 			 */
-			FourierTransformProduct product = new EuropeanOption(maturity, strikes[i]);
+			final FourierTransformProduct product = new EuropeanOption(maturity, strikes[i]);
 
 			//Monte Carlo Product
-			net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption mcProduct = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(maturity,strikes[i]);
+			final net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption mcProduct = new net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption(maturity,strikes[i]);
 
-			double value			= product.getValue(model);
-			double mcValue          = mcProduct.getValue(monteCarloMertonModel);
-			double fftPrice			= fftPrices.get("valuePerStrike").apply(strikes[i]);
+			final double value			= product.getValue(model);
+			final double mcValue          = mcProduct.getValue(monteCarloMertonModel);
+			final double fftPrice			= fftPrices.get("valuePerStrike").apply(strikes[i]);
 			System.out.println(strikes[i] + "\t" + value + "\t" + fftPrice + "\t" + mcValue);
 
 		}

@@ -95,11 +95,11 @@ public class DayCountConvention_30E_360Test {
 
 	@Test
 	public void test() {
-		DayCountConvention daycount = new DayCountConvention_30E_360();
+		final DayCountConvention daycount = new DayCountConvention_30E_360();
 		for(int i=0; i<startDates.length; i++) {
-			String message = "Test of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
+			final String message = "Test of daycountFraction("+startDates[i]+","+endDates[i]+",30E360)";
 
-			double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractions[i];
+			final double error = daycount.getDaycountFraction(startDates[i], endDates[i]) - daycountFractions[i];
 
 			Assert.assertEquals(message, 0.0, error, 1E-10);
 		}

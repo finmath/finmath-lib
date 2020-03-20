@@ -59,7 +59,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 
 	private final Measure measure;
 
-	public SimpleCappedFlooredFloatingRateBondTest(Measure measure) {
+	public SimpleCappedFlooredFloatingRateBondTest(final Measure measure) {
 		// Store measure
 		this.measure = measure;
 	}
@@ -70,22 +70,22 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		/*
 		 * Create Monte-Carlo model
 		 */
-		LIBORModelMonteCarloSimulationModel model = createLIBORMarketModel(numberOfPaths, measure);
+		final LIBORModelMonteCarloSimulationModel model = createLIBORMarketModel(numberOfPaths, measure);
 
 		/*
 		 * Create Product
 		 */
-		double[] fixingDates  = (new TimeDiscretizationFromArray(0.0, 9, 0.5)).getAsDoubleArray();
-		double[] paymentDates = (new TimeDiscretizationFromArray(0.5, 9, 0.5)).getAsDoubleArray();
-		double maturity = 0.5 + 9 * 0.5;
+		final double[] fixingDates  = (new TimeDiscretizationFromArray(0.0, 9, 0.5)).getAsDoubleArray();
+		final double[] paymentDates = (new TimeDiscretizationFromArray(0.5, 9, 0.5)).getAsDoubleArray();
+		final double maturity = 0.5 + 9 * 0.5;
 
-		double[] floors = null;
-		double[] caps = null;
-		double[] spreads = null;
+		final double[] floors = null;
+		final double[] caps = null;
+		final double[] spreads = null;
 
-		AbstractLIBORMonteCarloProduct product = new SimpleCappedFlooredFloatingRateBond("", fixingDates, paymentDates, spreads, floors, caps, maturity);
+		final AbstractLIBORMonteCarloProduct product = new SimpleCappedFlooredFloatingRateBond("", fixingDates, paymentDates, spreads, floors, caps, maturity);
 
-		double value = product.getValue(model);
+		final double value = product.getValue(model);
 
 		System.out.println("Value of floating rate bond (measure = " + measure + "): " + value);
 
@@ -97,12 +97,12 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		}
 	}
 
-	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(int numberOfPaths, Measure measure) throws CalculationException {
+	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(final int numberOfPaths, final Measure measure) throws CalculationException {
 
-		LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
+		final LocalDate	referenceDate = LocalDate.of(2014, Month.AUGUST, 12);
 
 		// Create the forward curve (initial value of the LIBOR market model)
-		ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
+		final ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"								/* name of the curve */,
 				referenceDate,
 				"6M",
@@ -119,36 +119,36 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				);
 
 		// No discount curve - single curve model
-		DiscountCurve discountCurve = null;
+		final DiscountCurve discountCurve = null;
 
 		//		AnalyticModel model = new AnalyticModelFromCuvesAndVols(new CurveInterface[] { forwardCurve , discountCurve });
-		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve });
+		final AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve });
 
 		/*
 		 * Create the libor tenor structure and the initial values
 		 */
-		double liborPeriodLength	= 0.5;
-		double liborRateTimeHorzion	= 40.0;
-		TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final double liborPeriodLength	= 0.5;
+		final double liborRateTimeHorzion	= 40.0;
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
 
 		/*
 		 * Create a simulation time discretization
 		 */
-		double lastTime	= 40.0;
-		double dt		= 0.5;
+		final double lastTime	= 40.0;
+		final double dt		= 0.5;
 
-		TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 
 		/*
 		 * Create a volatility structure v[i][j] = sigma_j(t_i)
 		 */
-		double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
+		final double[][] volatility = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for (int timeIndex = 0; timeIndex < volatility.length; timeIndex++) {
 			for (int liborIndex = 0; liborIndex < volatility[timeIndex].length; liborIndex++) {
 				// Create a very simple volatility model here
-				double time = timeDiscretizationFromArray.getTime(timeIndex);
-				double maturity = liborPeriodDiscretization.getTime(liborIndex);
-				double timeToMaturity = maturity - time;
+				final double time = timeDiscretizationFromArray.getTime(timeIndex);
+				final double maturity = liborPeriodDiscretization.getTime(liborIndex);
+				final double timeToMaturity = maturity - time;
 
 				double instVolatility;
 				if(timeToMaturity <= 0) {
@@ -161,14 +161,14 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 				volatility[timeIndex][liborIndex] = instVolatility;
 			}
 		}
-		LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
+		final LIBORVolatilityModelFromGivenMatrix volatilityModel = new LIBORVolatilityModelFromGivenMatrix(timeDiscretizationFromArray, liborPeriodDiscretization, volatility);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
 		 */
-		int numberOfFactors = 5;
-		double correlationDecayParam = 0.2;
-		LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
+		final int numberOfFactors = 5;
+		final double correlationDecayParam = 0.2;
+		final LIBORCorrelationModelExponentialDecay correlationModel = new LIBORCorrelationModelExponentialDecay(
 				timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors,
 				correlationDecayParam);
 
@@ -176,7 +176,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		/*
 		 * Combine volatility model and correlation model to a covariance model
 		 */
-		LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
+		final LIBORCovarianceModelFromVolatilityAndCorrelation covarianceModel =
 				new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray,
 						liborPeriodDiscretization, volatilityModel, correlationModel);
 
@@ -184,7 +184,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		//		AbstractLIBORCovarianceModel covarianceModel2 = new BlendedLocalVolatlityModel(covarianceModel, 0.00, false);
 
 		// Set model properties
-		Map<String, String> properties = new HashMap<>();
+		final Map<String, String> properties = new HashMap<>();
 
 		// Choose the simulation measure
 		properties.put("measure", measure.name());
@@ -193,15 +193,15 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		properties.put("stateSpace", LIBORMarketModelFromCovarianceModel.StateSpace.LOGNORMAL.name());
 
 		// Empty array of calibration items - hence, model will use given covariance
-		CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
+		final CalibrationProduct[] calibrationItems = new CalibrationProduct[0];
 
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 

@@ -31,30 +31,30 @@ public class TestCarrMadan {
 	@Test
 	public void test() throws CalculationException {
 
-		double[] strikes = new double[20];
+		final double[] strikes = new double[20];
 
 		for(int i = 0; i<20;i++) {
 			strikes[i] = 10 + i*10;
 		}
 
-		CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		final CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
-		EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
+		final EuropeanOptionSmile mySmile = new EuropeanOptionSmileByCarrMadan(maturity,strikes);
 
-		long startMillis	= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
 
-		Map<String, Function<Double, Double>> results = mySmile.getValue(0.0,model);
+		final Map<String, Function<Double, Double>> results = mySmile.getValue(0.0,model);
 
-		long endMillis		= System.currentTimeMillis();
+		final long endMillis		= System.currentTimeMillis();
 
-		double calculationTime = ((endMillis-startMillis)/1000.0);
+		final double calculationTime = ((endMillis-startMillis)/1000.0);
 
 		System.out.println("FFT prices computed in " +calculationTime + " seconds");
 
 		for(int i = 0; i<strikes.length; i++) {
-			double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strikes[i]);
-			double value = results.get("valuePerStrike").apply(strikes[i]);
-			double relativeError			= (value-valueAnalytic)/valueAnalytic;
+			final double valueAnalytic	= AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, maturity, strikes[i]);
+			final double value = results.get("valuePerStrike").apply(strikes[i]);
+			final double relativeError			= (value-valueAnalytic)/valueAnalytic;
 			System.out.println("FFT Value: " + value + "\tAnalytic Value: " + valueAnalytic + ". \t Relative Error: " + relativeError + ".");
 			Assert.assertEquals("Value", valueAnalytic, value, 1E-2);
 		}

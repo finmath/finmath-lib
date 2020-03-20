@@ -17,7 +17,7 @@ public class TimeDiscretizationTest {
 
 	private static final double DEFAULT_TICK_SIZE = 1.0 / (365.0 * 24.0);
 
-	private static double getHalfTickMore(double a) {
+	private static double getHalfTickMore(final double a) {
 		return a + 0.5 / (365.0 * 24.0);
 	}
 
@@ -29,10 +29,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithUnboxedArrayAtDefaultTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(a, closeToA);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(a, closeToA);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a})));
 	}
@@ -40,10 +40,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithBoxedArrayAtDefaultTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA});
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA});
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a})));
 	}
@@ -51,10 +51,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithBoxedArrayAtBigTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA}, 1.0);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA}, 1.0);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{4.0})));
 	}
@@ -62,10 +62,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithBoxedArrayAtSmallTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA}, ONE_TENTH_OF_DEFAULT_TICK_SIZE);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new Double[]{a, closeToA}, ONE_TENTH_OF_DEFAULT_TICK_SIZE);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a, closeToA})));
 	}
@@ -73,10 +73,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithSetAtDefaultTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()));
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()));
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a})));
 	}
@@ -84,10 +84,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithSetAtBigTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()), 1.0);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()), 1.0);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{4.0})));
 	}
@@ -95,10 +95,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithSetAtSmallTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()), ONE_TENTH_OF_DEFAULT_TICK_SIZE);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toSet()), ONE_TENTH_OF_DEFAULT_TICK_SIZE);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a, closeToA})));
 	}
@@ -106,10 +106,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithArrayListAtDefaultTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())));
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())));
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a})));
 	}
@@ -117,10 +117,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithArrayListAtBigTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())), 1.0);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())), 1.0);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{4.0})));
 	}
@@ -128,38 +128,38 @@ public class TimeDiscretizationTest {
 	@Test
 	public void constructWithArrayListAtSmallTickSize() {
 
-		double a = 4.2;
-		double closeToA = getHalfTickMore(a);
+		final double a = 4.2;
+		final double closeToA = getHalfTickMore(a);
 
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())), ONE_TENTH_OF_DEFAULT_TICK_SIZE);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(new ArrayList<>(Arrays.stream(new double[]{a, closeToA}).boxed().collect(Collectors.toList())), ONE_TENTH_OF_DEFAULT_TICK_SIZE);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{a, closeToA})));
 	}
 
 	@Test
 	public void constructWithNumberOfSteps() {
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 5, 0.5);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 5, 0.5);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{0.0, 0.5, 1.0, 1.5, 2.0, 2.5})));
 	}
 
 	@Test
 	public void constructWithNumberOfStepsSmallerThanTickSize() {
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 10, ONE_TENTH_OF_DEFAULT_TICK_SIZE);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 10, ONE_TENTH_OF_DEFAULT_TICK_SIZE);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{0.0, DEFAULT_TICK_SIZE})));
 	}
 
 	@Test
 	public void constructWithIntervalShortStubAtEnd() {
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 2.75, 0.5, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_END);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 2.75, 0.5, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_END);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 2.75})));
 	}
 
 	@Test
 	public void constructWithIntervalShortStubAtFront() {
-		TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 2.75, 0.5, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START);
+		final TimeDiscretizationFromArray discretization = new TimeDiscretizationFromArray(0.0, 2.75, 0.5, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START);
 
 		assertThat(discretization.getAsDoubleArray(), is(equalTo(new double[]{0.0, 0.25, 0.75, 1.25, 1.75, 2.25, 2.75})));
 	}
@@ -167,10 +167,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testUnionWithNoDuplicates() {
 
-		double[] leftTimes = {1.0, 2.0, 3.0};
-		double[] rightTimes = {0.5, 1.5};
+		final double[] leftTimes = {1.0, 2.0, 3.0};
+		final double[] rightTimes = {0.5, 1.5};
 
-		TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes).union(new TimeDiscretizationFromArray(rightTimes));
+		final TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes).union(new TimeDiscretizationFromArray(rightTimes));
 
 		assertThat(union.getAsDoubleArray(), is(equalTo(new double[]{0.5, 1.0, 1.5, 2.0, 3.0})));
 	}
@@ -178,10 +178,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testUnionWithSubTickDuplicates() {
 
-		Double[] leftTimes = {1.0, 2.0, 3.0};
-		Double[] rightTimes = {0.5, 1.5, 1.53};
+		final Double[] leftTimes = {1.0, 2.0, 3.0};
+		final Double[] rightTimes = {0.5, 1.5, 1.53};
 
-		TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes, 0.1).union(new TimeDiscretizationFromArray(rightTimes, 0.1));
+		final TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes, 0.1).union(new TimeDiscretizationFromArray(rightTimes, 0.1));
 
 		assertThat(union.getAsDoubleArray(), is(equalTo(new double[]{0.5, 1.0, 1.5, 2.0, 3.0})));
 	}
@@ -189,10 +189,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testUnionWithDifferentTickSizes() {
 
-		Double[] leftTimes = {7.0, 3.0, 5.0, 3.0};
-		Double[] rightTimes = {5.0, 3.0, 1.0, 8.0, 0.0, 0.0, 8.0};
+		final Double[] leftTimes = {7.0, 3.0, 5.0, 3.0};
+		final Double[] rightTimes = {5.0, 3.0, 1.0, 8.0, 0.0, 0.0, 8.0};
 
-		TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes, 0.1).union(new TimeDiscretizationFromArray(rightTimes, 1.0));
+		final TimeDiscretization union = new TimeDiscretizationFromArray(leftTimes, 0.1).union(new TimeDiscretizationFromArray(rightTimes, 1.0));
 
 		assertThat(union.getTickSize(), is(equalTo(0.1)));
 	}
@@ -200,10 +200,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testIntersectionWithNoDuplicates() {
 
-		double[] leftTimes = {1.0, 2.0, 3.0};
-		double[] rightTimes = {0.5, 1.5};
+		final double[] leftTimes = {1.0, 2.0, 3.0};
+		final double[] rightTimes = {0.5, 1.5};
 
-		TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes).intersect(new TimeDiscretizationFromArray(rightTimes));
+		final TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes).intersect(new TimeDiscretizationFromArray(rightTimes));
 
 		assertThat(intersection.getAsDoubleArray().length, is(equalTo(0)));
 	}
@@ -211,10 +211,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testIntersectionWithSubTickDuplicates() {
 
-		Double[] leftTimes = {1.0, 1.53, 3.0};
-		Double[] rightTimes = {0.5, 1.5};
+		final Double[] leftTimes = {1.0, 1.53, 3.0};
+		final Double[] rightTimes = {0.5, 1.5};
 
-		TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes, 0.1).intersect(new TimeDiscretizationFromArray(rightTimes, 0.1));
+		final TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes, 0.1).intersect(new TimeDiscretizationFromArray(rightTimes, 0.1));
 
 		assertThat(intersection.getAsDoubleArray(), is(equalTo(new double[]{1.5})));
 	}
@@ -222,10 +222,10 @@ public class TimeDiscretizationTest {
 	@Test
 	public void testIntersectionWithDifferentTickSizes() {
 
-		Double[] leftTimes = {7.0, 3.0, 5.0, 3.0};
-		Double[] rightTimes = {5.0, 3.0, 1.0, 8.0, 0.0, 0.0, 8.0};
+		final Double[] leftTimes = {7.0, 3.0, 5.0, 3.0};
+		final Double[] rightTimes = {5.0, 3.0, 1.0, 8.0, 0.0, 0.0, 8.0};
 
-		TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes, 0.1).intersect(new TimeDiscretizationFromArray(rightTimes, 1.0));
+		final TimeDiscretization intersection = new TimeDiscretizationFromArray(leftTimes, 0.1).intersect(new TimeDiscretizationFromArray(rightTimes, 1.0));
 
 		assertThat(intersection.getTickSize(), is(equalTo(1.0)));
 	}
