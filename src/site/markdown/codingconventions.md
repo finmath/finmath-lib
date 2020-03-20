@@ -107,6 +107,11 @@ The library is developed with object serialization in mind.
 - Code in `src/main` should conform to DRY (don't repeat yourself). Unit tests in `src/test` should be self-contained and code duplication (e.g. create a model for a specific purpose) is fine.
 
 
+## Other Principles
+
+- Code in `src/main` should conform to DRY (don't repeat yourself). Unit tests in `src/test` should be self-contained and code duplication (e.g. create a model for a specific purpose) is fine.
+
+
 ## Documentation
 
 ### JavaDoc with MathJax
