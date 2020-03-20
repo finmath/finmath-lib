@@ -35,7 +35,7 @@
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
 		<surefire-report-plugin.version>3.0.0-M4</surefire-report-plugin.version>
-		<javadoc-plugin.version>3.1.1</javadoc-plugin.version>
+		<javadoc-plugin.version>3.0.1</javadoc-plugin.version>
 		<source-plugin.version>3.2.1</source-plugin.version>
 		<site-plugin.version>3.8.2</site-plugin.version>
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
@@ -219,7 +219,6 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc-plugin.version}</version>
 				<configuration>
-					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
@@ -649,7 +648,6 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc-plugin.version}</version>
 				<configuration>
-					<source>8</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
