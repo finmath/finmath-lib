@@ -25,7 +25,7 @@ public class BarrierOptions {
 	 * Preventing instantiation of this class.
 	 */
 	private BarrierOptions() {};
-	
+
 	/**
 	 * Value a barrier option.
 	 * 
