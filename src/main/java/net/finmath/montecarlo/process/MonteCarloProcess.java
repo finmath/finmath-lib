@@ -54,7 +54,7 @@ public interface MonteCarloProcess extends Process {
 	 * @return Returns the Brownian motion used to generate this process
 	 */
 	@Deprecated
-	BrownianMotion getBrownianMotion();
+	default BrownianMotion getBrownianMotion() { return (BrownianMotion)getStochasticDriver(); };
 
 	/**
 	 * Sets the model to be used. Should be called only once (at construction).

@@ -99,6 +99,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 * @param scheme The scheme to use. See {@link Scheme}.
+	 * @deprecated Will be removed. Instead use EulerSchemeFromProcessModel(ProcessModel, IndependentIncrements, Scheme).
 	 */
 	@Deprecated
 	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver, final Scheme scheme) {
@@ -111,6 +112,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	 * Create an Euler discretization scheme.
 	 *
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
+	 * @deprecated Will be removed. Instead use EulerSchemeFromProcessModel(ProcessModel, IndependentIncrements).
 	 */
 	@Deprecated
 	public EulerSchemeFromProcessModel(final IndependentIncrements stochasticDriver) {

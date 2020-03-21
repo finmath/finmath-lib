@@ -74,7 +74,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Link model and process for delegation
 		process.setModel(model);
@@ -88,6 +88,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 * @param riskFreeRate The risk free rate
 	 * @param volatility The log volatility
 	 * @param process The process discretization scheme which should be used for the simulation.
+	 * @deprecated Either use MonteCarloBlackScholesModel(TimeDiscretization, int, double, double, double) or use MonteCarloAssetModel
 	 */
 	@Deprecated
 	public MonteCarloBlackScholesModel(

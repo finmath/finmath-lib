@@ -228,7 +228,9 @@ public interface ProcessModel {
 	 * @param value The constant value.
 	 * @return A new random variable initialized with a constant value.
 	 */
-	RandomVariable getRandomVariableForConstant(double value);
+	default RandomVariable getRandomVariableForConstant(final double value) {
+		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+	}
 
 	/**
 	 * Set the numerical scheme used to generate the stochastic process.

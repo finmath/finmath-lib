@@ -41,6 +41,7 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 * Create a discretization scheme / a time discrete process.
 	 *
 	 * @param timeDiscretization The time discretization used for the discretization scheme.
+	 * @deprecated Will be removed in version 5.0. Please use MonteCarloProcessFromProcessModel(TimeDiscretization, ProcessModel)
 	 */
 	@Deprecated
 	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization) {
