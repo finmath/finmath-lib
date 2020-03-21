@@ -11,7 +11,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of the compound Poisson process for the Merton jump diffusion model.
- * 
+ *
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */
@@ -27,13 +27,13 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 
 	/**
 	 * Constructs a Merton Jump Process for Monte Carlo simulation.
-	 * 
-	 * @param jumpIntensity
-	 * @param jumpSizeMean
-	 * @param jumpSizeStDev
-	 * @param timeDiscretization
-	 * @param numberOfPaths
-	 * @param seed
+	 *
+	 * @param jumpIntensity The jump intensity.
+	 * @param jumpSizeMean The mean of the jump size distribution.
+	 * @param jumpSizeStDev The std dev of the jump size distribution.
+	 * @param timeDiscretization The time discretization of the process.
+	 * @param numberOfPaths The number of path.
+	 * @param seed The seed for the random number generator.
 	 */
 	public MertonJumpProcess(double jumpIntensity, double jumpSizeMean, double jumpSizeStDev,
 			TimeDiscretization timeDiscretization,
@@ -45,7 +45,7 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 		this.jumpSizeMean = jumpSizeMean;
 		this.jumpSizeStDev = jumpSizeStDev;
 
-		IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
+		final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions = new IntFunction<IntFunction<DoubleUnaryOperator>>() {
 			@Override
 			public IntFunction<DoubleUnaryOperator> apply(int i) {
 				return new IntFunction<DoubleUnaryOperator>() {
@@ -53,7 +53,7 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 					public DoubleUnaryOperator apply(int j) {
 						if(j==0) {
 							// The Brownian increment
-							double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
+							final double sqrtOfTimeStep = Math.sqrt(timeDiscretization.getTimeStep(i));
 							return new DoubleUnaryOperator() {
 								@Override
 								public double applyAsDouble(double x) {
@@ -72,8 +72,8 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 						}
 						else if(j==2) {
 							// The jump increment
-							double timeStep = timeDiscretization.getTimeStep(i);
-							PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
+							final double timeStep = timeDiscretization.getTimeStep(i);
+							final PoissonDistribution poissonDistribution = new PoissonDistribution(jumpIntensity*timeStep);
 							return new DoubleUnaryOperator() {
 								@Override
 								public double applyAsDouble(double x) {
@@ -89,14 +89,14 @@ public class MertonJumpProcess implements IndependentIncrements, Serializable {
 			}
 		};
 
-		IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
+		final IndependentIncrements icrements = new IndependentIncrementsFromICDF(timeDiscretization, 3, numberOfPaths, seed, inverseCumulativeDistributionFunctions ) {
 			private static final long serialVersionUID = -7858107751226404629L;
 
 			@Override
 			public RandomVariable getIncrement(int timeIndex, int factor) {
 				if(factor == 1) {
-					RandomVariable Z = super.getIncrement(timeIndex, 1);
-					RandomVariable N = super.getIncrement(timeIndex, 2);
+					final RandomVariable Z = super.getIncrement(timeIndex, 1);
+					final RandomVariable N = super.getIncrement(timeIndex, 2);
 					return Z.mult(N.sqrt());
 				}
 				else {
