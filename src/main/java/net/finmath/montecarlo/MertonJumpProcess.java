@@ -11,7 +11,7 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Implementation of the compound Poisson process for the Merton jump diffusion model.
- * 
+ *
  * @author Christian Fries
  * @author Alessandro Gnoatto
  */
