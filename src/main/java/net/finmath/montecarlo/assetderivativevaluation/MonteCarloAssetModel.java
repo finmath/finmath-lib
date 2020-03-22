@@ -44,6 +44,10 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		this.model = process.getModel();
 		this.process = process;
+
+		// Link model and process for delegation (this code will no longer be necessary in version 5.0)
+		process.setModel(model);
+		model.setProcess(process);
 	}
 
 	/**
@@ -60,7 +64,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		this.model = model;
 		this.process = process;
 
-		// Link model and process for delegation
+		// Link model and process for delegation (this code will no longer be necessary in version 5.0)
 		process.setModel(model);
 		model.setProcess(process);
 	}
@@ -71,7 +75,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		this.model = model;
 		this.process = new EulerSchemeFromProcessModel(model, stochasticDriver);
 
-		// Link model and process for delegation
+		// Link model and process for delegation (this code will no longer be necessary in version 5.0)
 		process.setModel(model);
 		model.setProcess(process);
 	}
