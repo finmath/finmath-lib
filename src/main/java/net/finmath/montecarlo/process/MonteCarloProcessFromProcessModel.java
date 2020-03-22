@@ -56,6 +56,15 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 	 */
 
 	/**
+	 * Get the model used to generate the stochastic process.
+	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
+	@Override
+	public ProcessModel getModel() {
+		return model;
+	}
+
+	/**
 	 * Set the model used to generate the stochastic process.
 	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
 	 */
