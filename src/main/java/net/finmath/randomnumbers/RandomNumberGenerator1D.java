@@ -15,12 +15,12 @@ import java.io.Serializable;
 public interface RandomNumberGenerator1D extends RandomNumberGenerator, Serializable {
 
 	double nextDouble();
-	
+
 	default double[] getNext() {
 		return new double[] { nextDouble() };
 	}
 
-	default public int getDimension() {
+	default int getDimension() {
 		return 1;
 	}
 }

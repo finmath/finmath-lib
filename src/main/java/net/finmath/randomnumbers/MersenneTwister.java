@@ -8,8 +8,6 @@ package net.finmath.randomnumbers;
 
 import java.io.Serializable;
 
-import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
-
 /**
  * Mersenne Twister random number generator. This class is just a wrapper of
  * <code>org.apache.commons.math3.random.MersenneTwister</code>.
