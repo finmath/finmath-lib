@@ -36,6 +36,19 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
 	 *
+	 * @param process The numerical scheme to be used.
+	 */
+	public MonteCarloAssetModel(
+			final MonteCarloProcess process) {
+		super();
+
+		this.model = process.getModel();
+		this.process = process;
+	}
+
+	/**
+	 * Create a Monte-Carlo simulation using given process discretization scheme.
+	 *
 	 * @param model The model to be used.
 	 * @param process The numerical scheme to be used.
 	 */
