@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":254,"id":22340,"methods":[{"el":71,"sc":2,"sl":65},{"el":100,"sc":2,"sl":94},{"el":124,"sc":2,"sl":122},{"el":129,"sc":2,"sl":126},{"el":142,"sc":2,"sl":140},{"el":161,"sc":2,"sl":144},{"el":171,"sc":2,"sl":163},{"el":190,"sc":2,"sl":173},{"el":195,"sc":2,"sl":192},{"el":209,"sc":2,"sl":197},{"el":214,"sc":2,"sl":211},{"el":218,"sc":2,"sl":216},{"el":253,"sc":2,"sl":220}],"name":"ExponentialDecayLocalVolatilityModel","sl":35}]}
+clover.pageData = {"classes":[{"el":254,"id":22609,"methods":[{"el":71,"sc":2,"sl":65},{"el":100,"sc":2,"sl":94},{"el":124,"sc":2,"sl":122},{"el":129,"sc":2,"sl":126},{"el":142,"sc":2,"sl":140},{"el":161,"sc":2,"sl":144},{"el":171,"sc":2,"sl":163},{"el":190,"sc":2,"sl":173},{"el":195,"sc":2,"sl":192},{"el":209,"sc":2,"sl":197},{"el":214,"sc":2,"sl":211},{"el":218,"sc":2,"sl":216},{"el":253,"sc":2,"sl":220}],"name":"ExponentialDecayLocalVolatilityModel","sl":35}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}
