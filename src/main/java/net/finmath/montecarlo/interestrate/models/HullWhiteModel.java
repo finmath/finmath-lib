@@ -286,12 +286,12 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable;
 	}
 

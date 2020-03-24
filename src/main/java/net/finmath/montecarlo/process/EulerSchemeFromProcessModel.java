@@ -159,7 +159,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		final RandomVariable[] currentState = new RandomVariable[numberOfComponents];
 		for (int componentIndex = 0; componentIndex < numberOfComponents; componentIndex++) {
 			currentState[componentIndex] = initialState[componentIndex];
-			discreteProcess[0][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+			discreteProcess[0][componentIndex] = applyStateSpaceTransform(0, componentIndex, currentState[componentIndex]);
 		}
 
 		/*
@@ -204,7 +204,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					@Override
 					public RandomVariable call() {
 						if(scheme == Scheme.EULER_FUNCTIONAL || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {
-							currentState[componentIndex] = applyStateSpaceTransformInverse(componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
+							currentState[componentIndex] = applyStateSpaceTransformInverse(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1][componentIndex]);
 						}
 
 						final RandomVariable[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);
@@ -223,7 +223,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement);
 
 						// Transform the state space to the value space and return it.
-						return applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+						return applyStateSpaceTransform(timeIndex, componentIndex, currentState[componentIndex]);
 					}
 				};
 
@@ -282,7 +282,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);
 
 					// Re-apply state space transform
-					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(componentIndex, currentState[componentIndex]);
+					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(timeIndex, componentIndex, currentState[componentIndex]);
 				} // End for(componentIndex)
 			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
 

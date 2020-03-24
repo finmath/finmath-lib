@@ -155,12 +155,12 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.log();
 	}
 
