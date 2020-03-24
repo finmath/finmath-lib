@@ -51,7 +51,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 	@Override
 	@Deprecated
 	public void setProcess(final MonteCarloProcess process) {
-//		this.process = null;
+		//		this.process = null;
 		this.process = process;
 	}
 

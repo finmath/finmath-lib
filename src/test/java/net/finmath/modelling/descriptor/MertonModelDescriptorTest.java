@@ -6,11 +6,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.Product;
 import net.finmath.modelling.ProductDescriptor;
@@ -57,50 +57,50 @@ public class MertonModelDescriptorTest {
 
 	@Test
 	public void test() {
-		MertonModelDescriptor mertonModelDescriptor = new MertonModelDescriptor(referenceDate, initialValue,
+		final MertonModelDescriptor mertonModelDescriptor = new MertonModelDescriptor(referenceDate, initialValue,
 				getDiscountCurve("forward curve", referenceDate, riskFreeRate),
 				getDiscountCurve("discount curve", referenceDate, riskFreeRate),
 				volatility, lambda, jumpSizeMean, jumpSizeStdDev);
 		/*
 		 * Create European option descriptor
 		 */
-		String underlyingName = "eurostoxx";
-		ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
+		final String underlyingName = "eurostoxx";
+		final ProductDescriptor europeanOptionDescriptor = (new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strike));
 
 		/*
 		 * Create Fourier implementation of model and product
 		 */
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> mertonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(mertonModelDescriptor);
+		final DescribedModel<?> mertonModelFourier = (new AssetModelFourierMethodFactory()).getModelFromDescriptor(mertonModelDescriptor);
 
 		// Create product implementation compatible with Heston model
-		Product europeanOptionFourier = mertonModelFourier.getProductFromDescriptor(europeanOptionDescriptor)
+		final Product europeanOptionFourier = mertonModelFourier.getProductFromDescriptor(europeanOptionDescriptor)
 				;
 		// Evaluate product
-		double evaluationTime = 0.0;
-		Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, mertonModelFourier);
+		final double evaluationTime = 0.0;
+		final Map<String, Object> valueFourier = europeanOptionFourier.getValues(evaluationTime, mertonModelFourier);
 
 		System.out.println(valueFourier);
 
 		/*
 		 * Create Monte Carlo implementation of model and product
 		 */
-		TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		
-		MertonJumpProcess mertonProcess = new MertonJumpProcess(lambda, jumpSizeMean, jumpSizeStdDev, timeDiscretization, numberOfPaths, seed);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		final MertonJumpProcess mertonProcess = new MertonJumpProcess(lambda, jumpSizeMean, jumpSizeStdDev, timeDiscretization, numberOfPaths, seed);
 
 		// Create Fourier implementation of Heston model
-		DescribedModel<?> mertonModelMonteCarlo = (new AssetModelMonteCarloFactory(mertonProcess)).getModelFromDescriptor(mertonModelDescriptor);
-		
+		final DescribedModel<?> mertonModelMonteCarlo = (new AssetModelMonteCarloFactory(mertonProcess)).getModelFromDescriptor(mertonModelDescriptor);
+
 		// Create product implementation compatible with Variance Gamma model
-		Product europeanOptionMonteCarlo = mertonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
-		
-		Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, mertonModelMonteCarlo);
+		final Product europeanOptionMonteCarlo = mertonModelMonteCarlo.getProductFromDescriptor(europeanOptionDescriptor);
+
+		final Map<String, Object> valueMonteCarlo = europeanOptionMonteCarlo.getValues(evaluationTime, mertonModelMonteCarlo);
 
 		System.out.println(valueMonteCarlo);
 
-		double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
+		final double deviation = (Double)valueMonteCarlo.get("value") - (Double)valueFourier.get("value");
 		Assert.assertEquals("Difference of Fourier and Monte-Carlo valuation", 0.0, deviation, 1E-2);
 	}
 
@@ -114,12 +114,12 @@ public class MertonModelDescriptorTest {
 	 * @return the discount curve using the riskFreeRate.
 	 */
 	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 }

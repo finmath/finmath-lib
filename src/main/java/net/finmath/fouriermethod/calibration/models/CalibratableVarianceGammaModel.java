@@ -49,7 +49,7 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param descriptor The model descriptor for the Variance Gamma model.
 	 * @param sigmaInfo A constraint for the parameter sigma.
 	 * @param thetaInfo A constraint for the parameter theta.
@@ -69,11 +69,11 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	public CalibratableProcess getCloneForModifiedParameters(double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		double sigma = sigmaInfo.getIsParameterToCalibrate() == true ? sigmaInfo.getConstraint().apply(parameters[0]) : descriptor.getSigma();
-		double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
-		double nu = nuInfo.getIsParameterToCalibrate() == true ? nuInfo.getConstraint().apply(parameters[2]) : descriptor.getNu();
+		final double sigma = sigmaInfo.getIsParameterToCalibrate() == true ? sigmaInfo.getConstraint().apply(parameters[0]) : descriptor.getSigma();
+		final double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
+		final double nu = nuInfo.getIsParameterToCalibrate() == true ? nuInfo.getConstraint().apply(parameters[2]) : descriptor.getNu();
 
-		VarianceGammaModelDescriptor newDescriptor = new VarianceGammaModelDescriptor(descriptor.getReferenceDate(),
+		final VarianceGammaModelDescriptor newDescriptor = new VarianceGammaModelDescriptor(descriptor.getReferenceDate(),
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForDiscountRate(),
 				sigma, theta, nu);
 
@@ -102,8 +102,8 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	}
 
 	private double[] extractUpperBounds() {
-		double[] upperBounds = new double[3];
-		double threshold = 1E6;
+		final double[] upperBounds = new double[3];
+		final double threshold = 1E6;
 		upperBounds[0] = sigmaInfo.getConstraint().getUpperBound() > threshold ? threshold : sigmaInfo.getConstraint().getUpperBound();
 		upperBounds[1] = thetaInfo.getConstraint().getUpperBound() > threshold ? threshold : thetaInfo.getConstraint().getUpperBound();
 		upperBounds[2] = nuInfo.getConstraint().getUpperBound() > threshold ? threshold : nuInfo.getConstraint().getUpperBound();
@@ -112,8 +112,8 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	}
 
 	private double[] extractLowerBounds() {
-		double[] upperBounds = new double[3];
-		double threshold = -1E6;
+		final double[] upperBounds = new double[3];
+		final double threshold = -1E6;
 		upperBounds[0] = sigmaInfo.getConstraint().getLowerBound() < threshold ? threshold : sigmaInfo.getConstraint().getLowerBound();
 		upperBounds[1] = thetaInfo.getConstraint().getLowerBound() < threshold ? threshold : thetaInfo.getConstraint().getLowerBound();
 		upperBounds[2] = nuInfo.getConstraint().getLowerBound() < threshold ? threshold : nuInfo.getConstraint().getLowerBound();

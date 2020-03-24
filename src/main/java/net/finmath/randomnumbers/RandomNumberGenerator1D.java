@@ -16,10 +16,12 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, Serializ
 
 	double nextDouble();
 
+	@Override
 	default double[] getNext() {
 		return new double[] { nextDouble() };
 	}
 
+	@Override
 	default int getDimension() {
 		return 1;
 	}

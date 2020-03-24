@@ -10,11 +10,11 @@ import net.finmath.exception.CalculationException;
 import net.finmath.fouriermethod.calibration.CalibratedModel.OptimizationResult;
 import net.finmath.fouriermethod.calibration.models.CalibratableVarianceGammaModel;
 import net.finmath.fouriermethod.products.smile.EuropeanOptionSmileByCarrMadan;
-import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.volatilities.OptionSmileData;
 import net.finmath.marketdata.model.volatilities.OptionSurfaceData;
 import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
@@ -41,20 +41,20 @@ public class VarianceGammaDaxCalibrationTest {
 	 * @return the discount curve using the riskFreeRate.
 	 */
 	private static DiscountCurve getDiscountCurve(String name, LocalDate referenceDate, double riskFreeRate) {
-		double[] times = new double[] { 1.0 };
-		double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
-		InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
-		ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
-		DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
+		final double[] times = new double[] { 1.0 };
+		final double[] givenAnnualizedZeroRates = new double[] { riskFreeRate };
+		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;
+		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;
+		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(name, referenceDate, times, givenAnnualizedZeroRates, interpolationMethod, extrapolationMethod, interpolationEntity);
 		return discountCurve;
 	}
 
 	@Test
 	public void test() throws CalculationException, SolverException {
-		LocalDate referenceDate = LocalDate.of(2010, 8, 1);
+		final LocalDate referenceDate = LocalDate.of(2010, 8, 1);
 
-		double[] strike1 = {5500,
+		final double[] strike1 = {5500,
 				5600,
 				5700,
 				5800,
@@ -66,7 +66,7 @@ public class VarianceGammaDaxCalibrationTest {
 				6400};
 
 
-		double[] firstSmile = {0.277475758170766,
+		final double[] firstSmile = {0.277475758170766,
 				0.269515340374296,
 				0.261571882863362,
 				0.253276716037966,
@@ -77,7 +77,7 @@ public class VarianceGammaDaxCalibrationTest {
 				0.216448858389314,
 				0.209586497365038};
 
-		double[] secondSmile = {0.278915422959662,
+		final double[] secondSmile = {0.278915422959662,
 				0.271901489924065,
 				0.265156150952273,
 				0.258805052234575,
@@ -88,86 +88,86 @@ public class VarianceGammaDaxCalibrationTest {
 				0.228093463234625,
 				0.222039563314172};
 
-		QuotingConvention convention = QuotingConvention.VOLATILITYLOGNORMAL;
+		final QuotingConvention convention = QuotingConvention.VOLATILITYLOGNORMAL;
 
-		double riskFreeRate = 0.05;
+		final double riskFreeRate = 0.05;
 
-		ExtrapolationMethod exMethod = ExtrapolationMethod.CONSTANT;
-		InterpolationMethod intMethod = InterpolationMethod.LINEAR;
-		InterpolationEntity intEntity = InterpolationEntity.LOG_OF_VALUE;
+		final ExtrapolationMethod exMethod = ExtrapolationMethod.CONSTANT;
+		final InterpolationMethod intMethod = InterpolationMethod.LINEAR;
+		final InterpolationEntity intEntity = InterpolationEntity.LOG_OF_VALUE;
 
-		DiscountCurve discountCurve = getDiscountCurve("discountCurve", referenceDate, riskFreeRate);
+		final DiscountCurve discountCurve = getDiscountCurve("discountCurve", referenceDate, riskFreeRate);
 
-		double initialValue = 6149.62;
+		final double initialValue = 6149.62;
 
-		DiscountCurve equityForwardCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
+		final DiscountCurve equityForwardCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
 				"daxForwardCurve"								/* name */,
 				new double[] {0.0,  1.0,  2.0,  4.0,  5.0}	/* maturities */,
 				new double[] {initialValue, initialValue*Math.exp(riskFreeRate*1.0), initialValue*Math.exp(riskFreeRate*2.0), initialValue*Math.exp(riskFreeRate*3.0), initialValue*Math.exp(riskFreeRate*4.0)}	/* discount factors */,
 				intMethod, exMethod,intEntity);
 
 
-		double maturity = 105.0/252;
-		double secondMaturity = 170.0/252;
+		final double maturity = 105.0/252;
+		final double secondMaturity = 170.0/252;
 
-		OptionSmileData smileContainer = new OptionSmileData("DAX", referenceDate, strike1, maturity, firstSmile, convention);
-		OptionSmileData secondSmileContainer = new OptionSmileData("DAX", referenceDate, strike1, secondMaturity, secondSmile, convention);
+		final OptionSmileData smileContainer = new OptionSmileData("DAX", referenceDate, strike1, maturity, firstSmile, convention);
+		final OptionSmileData secondSmileContainer = new OptionSmileData("DAX", referenceDate, strike1, secondMaturity, secondSmile, convention);
 
-		OptionSmileData[] mySmiles = {smileContainer,secondSmileContainer};
+		final OptionSmileData[] mySmiles = {smileContainer,secondSmileContainer};
 
-		OptionSurfaceData surface = new OptionSurfaceData(mySmiles, discountCurve, equityForwardCurve);
+		final OptionSurfaceData surface = new OptionSurfaceData(mySmiles, discountCurve, equityForwardCurve);
 
 		/*
 		 * The parameters we specify here do not have an impact on the starting point of the calibration.
 		 * The true initial condition is fixed by optimizer factory.
 		 *
 		 */
-		double sigma = 0.25;
-		double theta = 0.05;
-		double nu = -0.3;
-		
-		VarianceGammaModelDescriptor varianceGammaModelDescriptor = new VarianceGammaModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), sigma, theta, nu);
+		final double sigma = 0.25;
+		final double theta = 0.05;
+		final double nu = -0.3;
 
-		ScalarParameterInformationImplementation sigmaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.001,1.0));
-		ScalarParameterInformationImplementation thetaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(-1.0,1.0));
-		ScalarParameterInformationImplementation nuInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.0,1.0));
+		final VarianceGammaModelDescriptor varianceGammaModelDescriptor = new VarianceGammaModelDescriptor(referenceDate, initialValue, getDiscountCurve("forward curve", referenceDate, riskFreeRate), getDiscountCurve("discount curve", referenceDate, riskFreeRate), sigma, theta, nu);
 
-		CalibratableVarianceGammaModel model = new CalibratableVarianceGammaModel(varianceGammaModelDescriptor, sigmaInformation, thetaInformation, nuInformation);
-		
-		OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
+		final ScalarParameterInformationImplementation sigmaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.001,1.0));
+		final ScalarParameterInformationImplementation thetaInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(-1.0,1.0));
+		final ScalarParameterInformationImplementation nuInformation = new ScalarParameterInformationImplementation(true, new BoundConstraint(0.0,1.0));
 
-		double[] initialParameters = new double[] { 0.25,0.05,-0.3} /* initialParameters */;
-		double[] parameterStep = new double[] { 0.01,0.01,0.01} /* parameterStep */;
+		final CalibratableVarianceGammaModel model = new CalibratableVarianceGammaModel(varianceGammaModelDescriptor, sigmaInformation, thetaInformation, nuInformation);
+
+		final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(300 /* maxIterations */, 2 /* maxThreads */);
+
+		final double[] initialParameters = new double[] { 0.25,0.05,-0.3} /* initialParameters */;
+		final double[] parameterStep = new double[] { 0.01,0.01,0.01} /* parameterStep */;
 
 		/*
 		 * Maturity and strikes are here immaterial and only meant to generate the first instance of the class.
 		 */
-		EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
+		final EuropeanOptionSmileByCarrMadan pricer = new EuropeanOptionSmileByCarrMadan(maturity, strike1);
 
-		CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,parameterStep);
+		final CalibratedModel problem = new CalibratedModel(surface, model, optimizerFactory, pricer,initialParameters,parameterStep);
 
 		System.out.println("Calibration started");
 
-		long startMillis	= System.currentTimeMillis();
-		OptimizationResult result = problem.getCalibration();
-		long endMillis		= System.currentTimeMillis();
+		final long startMillis	= System.currentTimeMillis();
+		final OptimizationResult result = problem.getCalibration();
+		final long endMillis		= System.currentTimeMillis();
 
-		double calculationTime = ((endMillis-startMillis)/1000.0);
+		final double calculationTime = ((endMillis-startMillis)/1000.0);
 
 		System.out.println("Calibration completed in: " +calculationTime + " seconds");
 
 		System.out.println("The solver required " + result.getIterations() + " iterations.");
 		System.out.println("RMSQE " +result.getRootMeanSquaredError());
 
-		VarianceGammaModelDescriptor varianceGammaDescriptor = (VarianceGammaModelDescriptor) result.getModel().getModelDescriptor();
+		final VarianceGammaModelDescriptor varianceGammaDescriptor = (VarianceGammaModelDescriptor) result.getModel().getModelDescriptor();
 
 		System.out.println(varianceGammaDescriptor.getSigma());
 		System.out.println(varianceGammaDescriptor.getTheta());
 		System.out.println(varianceGammaDescriptor.getNu());
 
-		ArrayList<String> errorsOverview = result.getCalibrationOutput();
+		final ArrayList<String> errorsOverview = result.getCalibrationOutput();
 
-		for(String myString : errorsOverview) {
+		for(final String myString : errorsOverview) {
 			System.out.println(myString);
 		}
 

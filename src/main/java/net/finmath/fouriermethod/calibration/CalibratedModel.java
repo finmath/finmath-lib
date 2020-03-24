@@ -53,7 +53,7 @@ public class CalibratedModel {
 
 	/**
 	 * Create the calibration from data.
-	 * 
+	 *
 	 * @param surface The target calibration instruments. They dictate the calibration entity: vol/price.
 	 * @param model The model to calibrate.
 	 * @param optimizerFactory Factory providing the optimizer to use.
@@ -77,7 +77,7 @@ public class CalibratedModel {
 
 	/**
 	 * Solves the calibration problem thus providing a calibrated model.
-	 * 
+	 *
 	 * @return the calibrated model wrapped in an {@link OptimizationResult}.
 	 * @throws SolverException Thrown if the calibration problem cannot be solved.
 	 */

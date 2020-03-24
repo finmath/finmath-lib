@@ -20,7 +20,7 @@ public interface Process {
 
 	/**
 	 * Returns the model that is used to generate this process, null if no model was used.
-	 * 
+	 *
 	 * @return The model that is used to generate this process, null if no model was used.
 	 */
 	default ProcessModel getModel() { return null; }

@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
-import net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
@@ -431,7 +430,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
@@ -504,7 +503,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +

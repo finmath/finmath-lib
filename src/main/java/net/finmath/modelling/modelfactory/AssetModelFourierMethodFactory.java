@@ -47,7 +47,7 @@ public class AssetModelFourierMethodFactory implements ModelFactory<AssetModelDe
 			return model;
 		}
 		else if(descriptor instanceof VarianceGammaModelDescriptor) {
-			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelFourier((VarianceGammaModelDescriptor) descriptor);
+			final DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelFourier((VarianceGammaModelDescriptor) descriptor);
 			return model;
 		}
 		else {

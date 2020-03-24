@@ -93,7 +93,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 			return model;
 		}
 		else if(descriptor instanceof VarianceGammaModelDescriptor) {
-			DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, stochasticDriver);
+			final DescribedModel<VarianceGammaModelDescriptor> model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, stochasticDriver);
 			return model;
 		}
 		else {

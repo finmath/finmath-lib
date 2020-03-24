@@ -5,7 +5,6 @@
  */
 package net.finmath.functions;
 
-import java.net.NetPermission;
 import java.util.Calendar;
 
 import net.finmath.optimizer.GoldenSectionSearch;
@@ -800,7 +799,7 @@ public class AnalyticFormulas {
 	 * \]
 	 *
 	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
-	 * 
+	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -841,7 +840,7 @@ public class AnalyticFormulas {
 	 * \]
 	 *
 	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
-	 * 
+	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -879,7 +878,7 @@ public class AnalyticFormulas {
 	 * \]
 	 *
 	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
-	 * 
+	 *
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
@@ -928,7 +927,7 @@ public class AnalyticFormulas {
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t)
 	 * \]
-	 * 
+	 *
 	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
