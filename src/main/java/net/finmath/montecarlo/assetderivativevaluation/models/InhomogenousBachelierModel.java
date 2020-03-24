@@ -24,19 +24,19 @@ import net.finmath.stochastic.RandomVariable;
  * \[
  * 	dN = r N \mathrm{d}t, \quad N(0) = N_{0},
  * \]
- * 
+ *
  * <p/>
- * 
+ *
  * Note, the model corresponds to the following dynamic for the numeraire relative stock value \( F(t) = S(t)/N(t) \):
  * \[
  * 	\mathrm{d}F = exp(-r t) \sigma \mathrm{d}W, \quad F(0) = F_{0} = S_{0}/N_{0},
  * \]
- * 
+ *
  * <p/>
- * 
+ *
  * Note that the variance of \( \int_{t}^{t+\Delta t} \mathrm{d}F \) is
  * \[ \int_{t}^{t+\Delta t} ( exp(-r s) \sigma )^{2} \mathrm{d}s = \frac{\exp(-2 r t)}{2 r} \left( 1 - \exp(-2 r \Delta t) \right) \]
- * 
+ *
  *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = \text{identity} \), \( \mu = \frac{exp(r \Delta t_{i}) - 1}{\Delta t_{i}} S(t_{i}) \), \( \lambda_{1,1} = \sigma \frac{exp(-2 r t_{i}) - exp(-2 r t_{i+1})}{2 r \Delta t_{i}} \), i.e.,

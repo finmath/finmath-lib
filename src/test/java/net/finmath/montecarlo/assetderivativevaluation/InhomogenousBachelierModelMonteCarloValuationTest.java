@@ -430,7 +430,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
@@ -503,7 +503,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +

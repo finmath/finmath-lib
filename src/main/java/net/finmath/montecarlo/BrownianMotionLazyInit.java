@@ -31,6 +31,7 @@ import net.finmath.time.TimeDiscretization;
  * @version 1.6
  * @deprecated Refactor rename. Please use BrownianMotionFromMersenneRandomNumbers instead.
  */
+@Deprecated
 public class BrownianMotionLazyInit extends BrownianMotionFromMersenneRandomNumbers {
 
 	private static final long serialVersionUID = -5430067621669213475L;

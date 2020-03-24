@@ -2,9 +2,9 @@ package net.finmath.functions;
 
 /**
  * This class implements the valuation of barrier options.
- * 
+ *
  * Currently only supports a a lognormal model.
- * 
+ *
  * We use the notation from the book by Espeen Gaarder Haugh.
  * "The complete Guide to Option Pricing Formulas".
  *
@@ -24,11 +24,11 @@ public class BarrierOptions {
 	/**
 	 * Preventing instantiation of this class.
 	 */
-	private BarrierOptions() {};
+	private BarrierOptions() {}
 
 	/**
 	 * Value a barrier option.
-	 * 
+	 *
 	 * @param initialStockValue The model's initial value of the stock.
 	 * @param riskFreeRate The model's risk free rate of the stock.
 	 * @param dividendYield The model's dividend yield of the stock.
@@ -39,7 +39,7 @@ public class BarrierOptions {
 	 * @param rebate The product's rebate.
 	 * @param barrierValue The location of the barrier.
 	 * @param barrierType The type of the barrier.
-	 * 
+	 *
 	 * @return The value of the option.
 	 */
 	public static double blackScholesBarrierOptionValue(double initialStockValue,

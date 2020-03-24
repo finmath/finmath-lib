@@ -16,14 +16,14 @@ public interface RandomNumberGenerator extends Serializable {
 
 	/**
 	 * Get the next sample vector of dimension n, where n is <code>getDimension</code>.
-	 * 
+	 *
 	 * @return The next sample vector of dimension n, where n is <code>getDimension</code>.
 	 */
 	double[] getNext();
 
 	/**
 	 * Get the sample vector dimension.
-	 * 
+	 *
 	 * @return The sample vector dimension n.
 	 */
 	int getDimension();

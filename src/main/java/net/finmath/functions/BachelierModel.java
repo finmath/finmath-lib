@@ -10,10 +10,10 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * This class implements some functions as static class methods related to the Bachelier model.
- * 
+ *
  * There are different variants of the Bachelier model, depending on if the volatility of the stock
  * or the volatility of the forward are assumed to be constant.
- * 
+ *
  * @see net.finmath.m
  *
  * @author Christian Fries
@@ -52,8 +52,8 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit;
-		
+		final double volatilityBachelier = volatility / payoffUnit;
+
 		if(optionMaturity < 0) {
 			return 0;
 		}
@@ -184,7 +184,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit;
+		final double volatilityBachelier = volatility / payoffUnit;
 
 		if(optionMaturity < 0) {
 			return 0;
@@ -228,7 +228,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit;
+		final double volatilityBachelier = volatility / payoffUnit;
 
 		if(optionMaturity < 0) {
 			return 0;
@@ -273,8 +273,8 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
-		
+		final double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
+
 		if(optionMaturity < 0) {
 			return 0;
 		}
@@ -323,7 +323,7 @@ public class BachelierModel {
 		}
 		else
 		{
-//			double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(2*Math.log(payoffUnit)));
+			//			double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(2*Math.log(payoffUnit)));
 			final RandomVariable volatilityBachelier = volatility.div(payoffUnit);
 			final RandomVariable integratedVolatility = volatilityBachelier.mult(Math.sqrt(optionMaturity));
 			final RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
@@ -406,7 +406,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
+		final double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
 
 		if(optionMaturity < 0) {
 			return 0;
@@ -450,7 +450,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
+		final double volatilityBachelier = volatility / payoffUnit * Math.sqrt((1 - payoffUnit*payoffUnit)/(-2.0*Math.log(payoffUnit)));
 
 		if(optionMaturity < 0) {
 			return 0;

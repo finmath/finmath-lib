@@ -453,7 +453,7 @@ public class BachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
@@ -526,7 +526,7 @@ public class BachelierModelMonteCarloValuationTest {
 							)/(2*shift);
 
 			// Calculate the analytic value
-			double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
