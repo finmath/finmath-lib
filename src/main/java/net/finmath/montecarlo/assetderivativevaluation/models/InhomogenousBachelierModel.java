@@ -18,11 +18,24 @@ import net.finmath.stochastic.RandomVariable;
  *
  * The model is
  * \[
- * 	dS = r S dt + \sigma dW, \quad S(0) = S_{0},
+ * 	dS = r S \mathrm{d}t + \sigma \mathrm{d}W, \quad S(0) = S_{0},
  * \]
  * \[
- * 	dN = r N dt, \quad N(0) = N_{0},
+ * 	dN = r N \mathrm{d}t, \quad N(0) = N_{0},
  * \]
+ * 
+ * <p/>
+ * 
+ * Note, the model corresponds to the following dynamic for the numeraire relative stock value \( F(t) = S(t)/N(t) \):
+ * \[
+ * 	\mathrm{d}F = exp(-r t) \sigma \mathrm{d}W, \quad F(0) = F_{0} = S_{0}/N_{0},
+ * \]
+ * 
+ * <p/>
+ * 
+ * Note that the variance of \( \int_{t}^{t+\Delta t} \mathrm{d}F \) is
+ * \[ \int_{t}^{t+\Delta t} ( exp(-r s) \sigma )^{2} \mathrm{d}s = \frac{\exp(-2 r t)}{2 r} \left( 1 - \exp(-2 r \Delta t) \right) \]
+ * 
  *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = \text{identity} \), \( \mu = \frac{exp(r \Delta t_{i}) - 1}{\Delta t_{i}} S(t_{i}) \), \( \lambda_{1,1} = \sigma \frac{exp(-2 r t_{i}) - exp(-2 r t_{i+1})}{2 r \Delta t_{i}} \), i.e.,
@@ -87,26 +100,28 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
+			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);//.mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
 		}
 		return drift;
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		final double t	= getProcess().getTime(timeIndex);
 		final double dt = getProcess().getTimeDiscretization().getTimeStep(timeIndex);
-		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility * Math.sqrt((Math.exp(2.0*riskFreeRate*dt)-1.0)/(2.0*riskFreeRate*dt))	);
+		final double volatilityEffectiveOverTimeStep = volatility * Math.sqrt(Math.exp(-2.0*riskFreeRate*t)*(1.0 - Math.exp(-2.0*riskFreeRate*dt))/(2.0*riskFreeRate*dt));
+		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatilityEffectiveOverTimeStep);
 		return new RandomVariable[] { volatilityOnPaths };
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable;
+		return randomVariable.mult(Math.exp(riskFreeRate*Math.max(randomVariable.getFiltrationTime(),0)));
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable;
+		return randomVariable.div(Math.exp(riskFreeRate*Math.max(randomVariable.getFiltrationTime(),0)));
 	}
 
 	@Override
@@ -141,7 +156,7 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 	@Override
 	public String toString() {
 		return super.toString() + "\n" +
-				"BachelierModel:\n" +
+				"InhomogenousBachelierModel:\n" +
 				"  initial value...:" + initialValue + "\n" +
 				"  risk free rate..:" + riskFreeRate + "\n" +
 				"  volatiliy.......:" + volatility;
