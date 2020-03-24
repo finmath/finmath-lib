@@ -5,6 +5,7 @@
  */
 package net.finmath.functions;
 
+import java.net.NetPermission;
 import java.util.Calendar;
 
 import net.finmath.optimizer.GoldenSectionSearch;
@@ -792,12 +793,14 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Bachelier model
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where F = S / exp(r (t-T)) follows a
+	 * normal process
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t)
 	 * \]
 	 *
+	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
+	 * 
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -831,12 +834,14 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
-	 * normal process with constant volatility, i.e., a Bachelier model
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where F = S / exp(r (t-T)) follows a
+	 * normal process
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t)
 	 * \]
 	 *
+	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
+	 * 
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -867,9 +872,14 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff
-	 * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a normal process with constant volatility.
+	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff max(S(T)-K,0), where F = S / exp(r (t-T)) follows a
+	 * normal process
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t)
+	 * \]
 	 *
+	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
+	 * 
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
@@ -913,11 +923,13 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Bachelier model
+	 * Calculates the option vega of a call, i.e., the payoff max(S(T)-K,0), where F = S / exp(r (t-T)) follows a
+	 * normal process
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t)
 	 * \]
+	 * 
+	 * Note: For alternative formulas see {@link net.finmath.functions.BachelierModel}
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
