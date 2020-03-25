@@ -463,7 +463,7 @@ public class BachelierModelMonteCarloValuationTest {
 					"\t" + numberFormatDeviation.format((delta-deltaAnalytic)) +
 					"\t" + numberFormatDeviation.format((deltaFiniteDiffAnalytic-deltaAnalytic)));
 
-			Assert.assertTrue(Math.abs(delta-deltaFiniteDiffAnalytic) < 1E-02);
+			Assert.assertTrue(Math.abs(delta-deltaFiniteDiffAnalytic) < 2E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}
