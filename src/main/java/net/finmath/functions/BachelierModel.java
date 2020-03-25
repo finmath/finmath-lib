@@ -14,7 +14,8 @@ import net.finmath.stochastic.RandomVariable;
  * There are different variants of the Bachelier model, depending on if the volatility of the stock
  * or the volatility of the forward are assumed to be constant.
  *
- * @see net.finmath.m
+ * @see net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel
+ * @see net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel
  *
  * @author Christian Fries
  * @version 1.10
