@@ -11,7 +11,7 @@ import java.io.Serializable;
 /**
  * Mersenne Twister random number generator. This class is just a wrapper of
  * <code>org.apache.commons.math3.random.MersenneTwister</code>.
- * 
+ *
  * @author Christian Fries
  *
  * @version 1.0

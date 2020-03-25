@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
@@ -21,7 +22,9 @@ import net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachel
 import net.finmath.montecarlo.assetderivativevaluation.products.AsianOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.BermudanOption;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -42,10 +45,11 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 	private final double	volatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 20000;
+	private final int		numberOfPaths		= 100000;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
+	private final int		seed				= 3141;
 
 	private AssetModelMonteCarloSimulationModel model = null;
 
@@ -141,12 +145,13 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// Create the time discretization
 			final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, deltaT);
 
-			final InhomogenousBachelierModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility);
-			final int seed = 3141;
+			// Create the model
+			final ProcessModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility);
 
-			model = new MonteCarloAssetModel(
-					bachelierModel,
-					new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed)));
+			// Create a corresponding MC process
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+
+			model = new MonteCarloAssetModel(bachelierModel, process);
 		}
 
 		return model;
@@ -180,7 +185,6 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 
 		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
 		final double forward		= initialValue / payoffUnit;
-		final double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
 
 		for(double optionStrike = 0.75/payoffUnit; optionStrike < 1.25/payoffUnit; optionStrike += 0.05/payoffUnit) {
 
@@ -190,7 +194,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			final double valueMonteCarlo	= callOption.getValue(model);
 
 			// Calculate the analytic value
-			final double valueAnalytic	= net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelier, optionMaturity, optionStrike, payoffUnit);
+			final double valueAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
@@ -200,6 +204,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 
 			Assert.assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-02);
 		}
+		System.out.println("__________________________________________________________________________________________\n");
 	}
 
 	/**
@@ -219,6 +224,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 		System.out.println("Time \tAverage \t\tVariance");
 		for(final double time : modelTimeDiscretization) {
 			final RandomVariable assetValue = model.getAssetValue(time, 0);
+			final RandomVariable numeraire = model.getNumeraire(time);
 
 			final double average	= assetValue.getAverage();
 			final double variance	= assetValue.getVariance();
@@ -228,6 +234,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			final DecimalFormat formater4Digits = new DecimalFormat("0.0000");
 			System.out.println(formater2Digits.format(time) + " \t" + formater4Digits.format(average) + "\t+/- " + formater4Digits.format(error) + "\t" + formater4Digits.format(variance));
 		}
+		System.out.println("__________________________________________________________________________________________\n");
 	}
 
 	/**
@@ -250,6 +257,9 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 
 		final double spot = stockAtTimeOne.div(model.getNumeraire(1.0)).mult(model.getNumeraire(model.getTime(0))).getAverage();
 		System.out.println("Expectation of S(1)/N(1)*N(0) = " + spot + " (expected " + initialValue + ")");
+
+		System.out.println("__________________________________________________________________________________________\n");
+
 		Assert.assertEquals(initialValue, spot, 2E-3);
 	}
 
@@ -266,6 +276,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 	 * @throws CalculationException Thrown if s.th. went wrong during calculation (check getCause for details).
 	 */
 	@Test
+	@Ignore
 	public void testEuropeanAsianBermudanOption() throws CalculationException {
 		/*
 		 * Create the valuation model (see <code>getModel</code>)
@@ -386,12 +397,11 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Delta (European options with maturity 1.0):");
-		System.out.println(" Strike \t MC Fin.Diff.\t MC Pathwise\t MC Likelihood\t Analytic \t Diff MC-FD \t Diff MC-PW \t Diff MC-LR");
+		System.out.println(" Strike \t MC Fin.Diff.\t Analytic FD\t Analytic\t Diff MC-AN\t Diff FD-AN");
 
 		final double optionMaturity	= 1.0;
 		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
 		final double forward		= initialValue / payoffUnit;
-		final double volBachelier = volatility * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
 
 			// Create a product
@@ -415,19 +425,20 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// Calculate the finite difference of the analytic value
 			final double deltaFiniteDiffAnalytic	=
 					(
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward+shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
-							- net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward-shift/payoffUnit, volBachelier, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward+shift/payoffUnit, volatility, optionMaturity, optionStrike, payoffUnit)
+							- net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward-shift/payoffUnit, volatility, optionMaturity, optionStrike, payoffUnit)
 							)/(2*shift);
 
 			// Calculate the analytic value
-			//			double deltaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionDelta(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
-
+			final double deltaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(delta) +
 					"\t" + numberFormatValue.format(deltaFiniteDiffAnalytic) +
-					"\t" + numberFormatDeviation.format((delta-deltaFiniteDiffAnalytic)));
+					"\t" + numberFormatValue.format(deltaAnalytic) +
+					"\t" + numberFormatDeviation.format((delta-deltaAnalytic)) +
+					"\t" + numberFormatDeviation.format((deltaFiniteDiffAnalytic-deltaAnalytic)));
 
 			Assert.assertTrue(Math.abs(delta-deltaFiniteDiffAnalytic) < 1E-02);
 		}
@@ -456,7 +467,7 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 
 		// Test options with different strike
 		System.out.println("Calculation of Option Vega (European options with maturity 1.0):");
-		System.out.println(" Strike \t MC Fin.Diff.\t Analytic \t Diff MC-FD");
+		System.out.println(" Strike \t MC Fin.Diff.\t Analytic FD\t Analytic\t Diff MC-AN\t Diff FD-AN");
 
 		final double optionMaturity	= 5.0;
 		final double payoffUnit	= Math.exp(- riskFreeRate * optionMaturity);
@@ -481,26 +492,28 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// Calculate the finite difference of the monte-carlo value
 			final double vega = (valueUpShift-valueDownShift) / ( 2 * shift );
 
-			final double volBachelierUp = (volatility+shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
-			final double volBachelierDown = (volatility-shift) * Math.sqrt((Math.exp(2 * riskFreeRate * optionMaturity) - 1)/(2*riskFreeRate*optionMaturity));
+			final double volatilityUp = (volatility+shift);
+			final double volatilityDown = (volatility-shift);
 			// Calculate the finite difference of the analytic value
 			final double vegaFiniteDiffAnalytic	=
 					(
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierUp, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatilityUp, optionMaturity, optionStrike, payoffUnit)
 							-
-							net.finmath.functions.AnalyticFormulas.bachelierOptionValue(forward, volBachelierDown, optionMaturity, optionStrike, payoffUnit)
+							net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatilityDown, optionMaturity, optionStrike, payoffUnit)
 							)/(2*shift);
 
 			// Calculate the analytic value
-			//			double vegaAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionVega(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final double vegaAnalytic	= net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			// Print result
 			System.out.println(numberFormatStrike.format(optionStrike) +
 					"\t" + numberFormatValue.format(vega) +
 					"\t" + numberFormatValue.format(vegaFiniteDiffAnalytic) +
-					"\t" + numberFormatDeviation.format(vega-vegaFiniteDiffAnalytic));
+					"\t" + numberFormatValue.format(vegaAnalytic) +
+					"\t" + numberFormatDeviation.format((vega-vegaAnalytic)) +
+					"\t" + numberFormatDeviation.format((vegaFiniteDiffAnalytic-vegaAnalytic)));
 
-			Assert.assertTrue(Math.abs(vega-vegaFiniteDiffAnalytic) < 1E-01);
+			Assert.assertTrue(Math.abs(vega-vegaFiniteDiffAnalytic) < 1E-02);
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}

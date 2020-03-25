@@ -70,14 +70,14 @@ public abstract class MonteCarloProcessFromProcessModel implements MonteCarloPro
 		return model.getFactorLoading(this, timeIndex, component, realizationAtTimeIndex);
 	}
 
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		// Delegate to model
-		return model.applyStateSpaceTransform(componentIndex, randomVariable);
+		return model.applyStateSpaceTransform(this, timeIndex, componentIndex, randomVariable);
 	}
 
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		// Delegate to model
-		return model.applyStateSpaceTransformInverse(componentIndex, randomVariable);
+		return model.applyStateSpaceTransformInverse(this, timeIndex, componentIndex, randomVariable);
 	}
 
 	/*

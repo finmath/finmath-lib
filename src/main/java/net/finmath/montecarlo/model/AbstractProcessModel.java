@@ -29,7 +29,7 @@ public abstract class AbstractProcessModel implements ProcessModel {
 
 		final RandomVariable[] value = new RandomVariable[initialState.length];
 		for(int i= 0; i<value.length; i++) {
-			value[i] = applyStateSpaceTransform(i,initialState[i]);
+			value[i] = applyStateSpaceTransform(process, 0, i, initialState[i]);
 		}
 
 		return value;
