@@ -96,30 +96,29 @@ public class BachelierModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
+			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);
 		}
 		return drift;
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final double t	= process.getTime(timeIndex);
-		final double dt	= process.getTimeDiscretization().getTimeStep(timeIndex);
-		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility * Math.exp(riskFreeRate*(t+dt)));// * Math.sqrt((1-Math.exp(-2 * riskFreeRate*dt))/(2*riskFreeRate*dt)));
+		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility);
 		return new RandomVariable[] { volatilityOnPaths };
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable;
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+		final double time = process.getTime(timeIndex);
+		return randomVariable.mult(Math.exp(riskFreeRate * time));
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable;
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+		final double time = process.getTime(timeIndex);
+		return randomVariable.div(Math.exp(riskFreeRate * time));
 	}
 
 	@Override

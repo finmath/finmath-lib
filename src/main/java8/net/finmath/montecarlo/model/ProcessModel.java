@@ -14,7 +14,7 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * The interface for a model of a stochastic process <i>X</i> where
- * <i>X = f(Y)</i> and <br>
+ * <i>X(t) = f(t,Y(t))</i> and <br>
  * \[
  * dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
  * \]
@@ -42,7 +42,7 @@ import net.finmath.stochastic.RandomVariable;
  * </ul>
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 2.0
  */
 public interface ProcessModel {
 
@@ -66,13 +66,25 @@ public interface ProcessModel {
 	 * Applies the state space transform <i>f<sub>i</sub></i> to the given state random variable
 	 * such that <i>Y<sub>i</sub> &rarr; f<sub>i</sub>(Y<sub>i</sub>) =: X<sub>i</sub></i>.
 	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param timeIndex The time index (related to the model times discretization).
 	 * @param componentIndex The component index <i>i</i>.
 	 * @param randomVariable The state random variable <i>Y<sub>i</sub></i>.
 	 * @return New random variable holding the result of the state space transformation.
 	 */
-	RandomVariable applyStateSpaceTransform(int componentIndex, RandomVariable randomVariable);
+	RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, int componentIndex, RandomVariable randomVariable);
 
-	default RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	/**
+	 * Applies the inverse state space transform <i>f<sup>-1</sup><sub>i</sub></i> to the given random variable
+	 * such that <i>X<sub>i</sub> &rarr; f<sup>-1</sup><sub>i</sub>(X<sub>i</sub>) =: Y<sub>i</sub></i>.
+	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param timeIndex The time index (related to the model times discretization).
+	 * @param componentIndex The component index <i>i</i>.
+	 * @param randomVariable The state random variable <i>X<sub>i</sub></i>.
+	 * @return New random variable holding the result of the state space transformation.
+	 */
+	default RandomVariable applyStateSpaceTransformInverse(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		throw new UnsupportedOperationException("Inverse of statespace transform not set");
 	}
 
@@ -80,7 +92,7 @@ public interface ProcessModel {
 	 * Returns the initial value of the state variable of the process <i>Y</i>, not to be
 	 * confused with the initial value of the model <i>X</i> (which is the state space transform
 	 * applied to this state value.
-	 * 
+	 *
 	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
 	 * @return The initial value of the state variable of the process <i>Y(t=0)</i>.
 	 */
@@ -95,7 +107,6 @@ public interface ProcessModel {
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-
 	RandomVariable getNumeraire(MonteCarloProcess process, double time) throws CalculationException;
 
 	/**
