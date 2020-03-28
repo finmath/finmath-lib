@@ -310,6 +310,17 @@ public interface RandomVariable extends Serializable {
 	 * Applies x &rarr; operator(x) to this random variable.
 	 * It returns a new random variable with the result.
 	 *
+	 * @param operator An unary operator/function, mapping RandomVariable to RandomVariable.
+	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable appy(RandomOperator operator) {
+		return operator.apply(this);
+	}
+
+	/**
+	 * Applies x &rarr; operator(x) to this random variable.
+	 * It returns a new random variable with the result.
+	 *
 	 * @param operator An unary operator/function, mapping double to double.
 	 * @return New random variable with the result of the function.
 	 */
