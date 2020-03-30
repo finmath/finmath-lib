@@ -50,11 +50,11 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		final RandomVariable fx = model.getValue(new RiskFactorFX("USD"), 1.0);
 		final RandomVariable numeraire = model.getNumeraire(1.0);
 
-		double foreignRateDiscountedExpected = rate.mult(fx).div(numeraire).getAverage();
-		double foreignBond = fx.div(numeraire).getAverage();
-		double foreignForward = foreignRateDiscountedExpected/foreignBond;
-		double foreignForwardAnalytic = model.getInterestRateModel("USD").getModel().getForwardRateCurve().getForward(null, 0.5);
-		
+		final double foreignRateDiscountedExpected = rate.mult(fx).div(numeraire).getAverage();
+		final double foreignBond = fx.div(numeraire).getAverage();
+		final double foreignForward = foreignRateDiscountedExpected/foreignBond;
+		final double foreignForwardAnalytic = model.getInterestRateModel("USD").getModel().getForwardRateCurve().getForward(null, 0.5);
+
 		System.out.println("(1) = E(ForeignRate * FX / N)....: " + foreignRateDiscountedExpected);
 		System.out.println("(2) = E(    1       * FX / N)....: " + foreignBond);
 		System.out.println("Foreign Forward Rate (1)/(2).....: " + foreignForward);
