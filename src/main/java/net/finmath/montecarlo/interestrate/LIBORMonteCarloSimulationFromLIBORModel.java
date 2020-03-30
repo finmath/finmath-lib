@@ -34,6 +34,9 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		// TODO Validate type
 		this.model		= (LIBORModel) process.getModel();
 		this.process	= process;
+
+		this.model.setProcess(process);
+		process.setModel(model);
 	}
 
 	/**
@@ -42,7 +45,6 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 * @param process The process.
 	 */
-	@Deprecated
 	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model, final MonteCarloProcess process) {
 		super();
 		this.model		= model;
