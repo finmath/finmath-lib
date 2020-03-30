@@ -621,7 +621,7 @@
 			</activation>
 			<properties>
 				<src.main.java.dir>src/main/java8</src.main.java.dir>
-				<src.test.java.dir>src/test/java</src.test.java.dir>
+				<src.test.java.dir>src/test/java8</src.test.java.dir>
 				<envClassifier />
 			</properties>
 			<build>
