@@ -17,16 +17,24 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * Implements convenient methods for a LIBOR market model,
- * based on a given <code>LIBORMarketModelFromCovarianceModel</code> model
- * and <code>AbstractLogNormalProcess</code> process.
+ * Implements convenient methods for a LIBOR market model, based on a given <code>LIBORModel</code> model
+ * (e.g. implemented by <code>LIBORMarketModelFromCovarianceModel</code>) and <code>MonteCarloProcess</code>
+ * process (e.g. implemented by <code>EulerSchemeFromProcessModel</code>
  *
  * @author Christian Fries
- * @version 0.7
+ * @version 1.0
  */
 public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteCarloSimulationModel {
 
 	private final LIBORModel model;
+	private final MonteCarloProcess process;
+
+	public LIBORMonteCarloSimulationFromLIBORModel(final MonteCarloProcess process) {
+		super();
+		// TODO Validate type
+		this.model		= (LIBORModel) process.getModel();
+		this.process	= process;
+	}
 
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcess.
@@ -34,27 +42,16 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 * @param process The process.
 	 */
+	@Deprecated
 	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model, final MonteCarloProcess process) {
 		super();
 		this.model		= model;
-
-		this.model.setProcess(process);
-		process.setModel(model);
-	}
-
-	/**
-	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORModel.
-	 *
-	 * @param model The LIBORModel.
-	 */
-	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model) {
-		super();
-		this.model		= model;
+		this.process	= process;
 	}
 
 	@Override
 	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return model.getProcess().getMonteCarloWeights(timeIndex);
+		return process.getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
@@ -63,17 +60,17 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		if(timeIndex < 0) {
 			timeIndex = (-timeIndex-1)-1;
 		}
-		return model.getProcess().getMonteCarloWeights(timeIndex);
+		return process.getMonteCarloWeights(timeIndex);
 	}
 
 	@Override
 	public int getNumberOfFactors() {
-		return model.getProcess().getNumberOfFactors();
+		return process.getNumberOfFactors();
 	}
 
 	@Override
 	public int getNumberOfPaths() {
-		return model.getProcess().getNumberOfPaths();
+		return process.getNumberOfPaths();
 	}
 
 	@Override
@@ -83,17 +80,17 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 
 	@Override
 	public double getTime(final int timeIndex) {
-		return model.getProcess().getTime(timeIndex);
+		return process.getTime(timeIndex);
 	}
 
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
-		return model.getProcess().getTimeDiscretization();
+		return process.getTimeDiscretization();
 	}
 
 	@Override
 	public int getTimeIndex(final double time) {
-		return model.getProcess().getTimeIndex(time);
+		return process.getTimeIndex(time);
 	}
 
 	@Override
@@ -103,7 +100,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 
 	@Override
 	public BrownianMotion getBrownianMotion() {
-		return (BrownianMotion)model.getProcess().getStochasticDriver();
+		return (BrownianMotion)process.getStochasticDriver();
 	}
 
 	@Override
@@ -154,7 +151,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return model.getNumeraire(time);
+		return model.getNumeraire(process, time);
 	}
 
 	@Override
@@ -162,12 +159,9 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		return model;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel#getProcess()
-	 */
 	@Override
 	public MonteCarloProcess getProcess() {
-		return model.getProcess();
+		return process;
 	}
 
 	@Override
@@ -181,8 +175,8 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		final LIBORModel modelClone = model.getCloneWithModifiedData(dataModified);
 		if(dataModified.containsKey("discountCurve") && dataModified.size() == 1) {
 			// In this case we may re-use the underlying process
-			final LIBORMonteCarloSimulationFromLIBORModel lmmSimClone = new LIBORMonteCarloSimulationFromLIBORModel(modelClone);
-			modelClone.setProcess(getProcess());		// Reuse process associated with other model
+			// Reuse process associated with other model
+			final LIBORMonteCarloSimulationFromLIBORModel lmmSimClone = new LIBORMonteCarloSimulationFromLIBORModel(modelClone, process);
 			return lmmSimClone;
 		}
 		else {

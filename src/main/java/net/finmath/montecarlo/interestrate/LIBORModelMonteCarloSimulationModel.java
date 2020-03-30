@@ -17,7 +17,6 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-
 public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteCarloSimulationModel, IndependentModelParameterProvider {
 
 	/**
