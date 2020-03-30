@@ -47,6 +47,21 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		super();
 		this.model		= model;
 		this.process	= process;
+
+		this.model.setProcess(process);
+		process.setModel(model);
+	}
+
+	/**
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORModel.
+	 *
+	 * @param model The LIBORModel.
+	 */
+	@Deprecated
+	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model) {
+		super();
+		this.model		= model;
+		this.process	= model.getProcess();
 	}
 
 	@Override
