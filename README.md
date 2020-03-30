@@ -36,6 +36,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - European option
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
     - LIBOR Market Model
+    - Cross-Currency LIBOR Market Model
     - Black-Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
     - Hull-White Short Rate Model (with time dependent parameters)
@@ -47,22 +48,25 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
 - **Calibration** of market data objects like curves (discount and forward curve) or volatility surfaces
     - Rate Curves:
-    - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
-    - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
-    - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
-    - Various interpolation entities (value, log-value, rate, etc.).
-    - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
+        - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
+        - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
+        - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
+        - Various interpolation entities (value, log-value, rate, etc.).
+        - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
     - Volatility Curves and Cubes:
         - **SABR smile** parameterization.
         - Swaption volatility cubes with SABR parameterization.
         - **CMS replication** with various annuity mappings.
-- Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
-- Calibration of the **LIBOR market model**
+- Simulation of **interest rate term structure models** (LIBOR market model with local and stochastic volatility)
+    - Calibration of the **LIBOR market model**
+    - Cross-Currency LIBOR Market Model
+    - Equity Hybrid LIBOR Market Model
+    - Local and stochastic volatility models (SABR, ZABR)
 - Valuation of complex derivatives
     - Bermudan options / multi-callables lower bound via regression estimation of the conditional expectation
     - Bermudan options / multi-callables upper bound via dual method
-- Hedge Simulation
-- Margin Valuation Adjustments (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
+- **Hedge Simulation**
+- **Margin Valuation Adjustments** (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
 
 Languages and Build
 --------------------------------------
