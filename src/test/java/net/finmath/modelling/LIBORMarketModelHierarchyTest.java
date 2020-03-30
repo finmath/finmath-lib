@@ -40,6 +40,7 @@ import net.finmath.montecarlo.interestrate.products.components.NotionalFromConst
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -220,10 +221,9 @@ public class LIBORMarketModelHierarchyTest {
 		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(
 				liborPeriodDiscretization, model, forwardCurve, discountCurve, covarianceModel, calibrationItems, properties);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
-						numberOfFactors, numberOfPaths, 3141 /* seed */));
-		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
+						numberOfFactors, numberOfPaths, 3141 /* seed */), Scheme.EULER_FUNCTIONAL);
 
 		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 	}

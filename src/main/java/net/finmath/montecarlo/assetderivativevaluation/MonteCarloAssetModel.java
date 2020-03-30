@@ -184,6 +184,15 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		return model;
 	}
 
+	/**
+	 * Returns the {@link MonteCarloProcess} used for this Monte-Carlo simulation.
+	 *
+	 * @return the process
+	 */
+	public MonteCarloProcess getProcess() {
+		return process;
+	}
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + " [model=" + model + "]";

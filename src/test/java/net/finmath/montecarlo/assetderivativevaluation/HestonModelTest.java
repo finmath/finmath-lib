@@ -101,7 +101,7 @@ public class HestonModelTest {
 			final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
@@ -113,7 +113,7 @@ public class HestonModelTest {
 			final AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
 			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);

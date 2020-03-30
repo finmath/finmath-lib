@@ -181,7 +181,7 @@ public class HullWhiteModelTest {
 
 			final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
-			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
+			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(hullWhiteModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 			hullWhiteModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(hullWhiteModel, process);
 		}
@@ -263,7 +263,7 @@ public class HullWhiteModelTest {
 
 			final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
+			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER);
 
 			liborMarketModelSimulation = new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
 		}

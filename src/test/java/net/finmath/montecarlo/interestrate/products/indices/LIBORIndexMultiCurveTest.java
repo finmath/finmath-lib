@@ -500,6 +500,7 @@ public class LIBORIndexMultiCurveTest {
 		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, analyticModel, analyticModel.getForwardCurve(forwardCurveName),  analyticModel.getDiscountCurve(DISCOUNT_CURVE_NAME), covarianceModel, calibrationItems, properties);
 
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(
+				liborMarketModel,
 				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray,
 						numberOfFactors, numberOfPaths, 8787 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);

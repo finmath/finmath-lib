@@ -203,9 +203,9 @@ public class TestCurvesFromLIBORModel {
 
 		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
 
-		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
+		return new LIBORMonteCarloSimulationFromLIBORModel(process);
 	}
 
 

@@ -16,6 +16,7 @@ import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -53,19 +54,15 @@ public class MonteCarloBlackScholesModelTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
-
-		// Link model and process for delegation
-		process.setModel(model);
-		model.setProcess(process);
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER);
 
 		/*
 		 * Value a call option - directly
 		 */
 
 		final RandomVariable asset = process.getProcessValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
-		final RandomVariable numeraireAtPayment = model.getNumeraire(optionMaturity);
-		final RandomVariable numeraireAtEval = model.getNumeraire(0.0);
+		final RandomVariable numeraireAtPayment = model.getNumeraire(process, optionMaturity);
+		final RandomVariable numeraireAtEval = model.getNumeraire(process, 0.0);
 
 		final RandomVariable payoff = asset.sub(optionStrike).floor(0.0);
 		final double value = payoff.div(numeraireAtPayment).mult(numeraireAtEval).getAverage();
@@ -86,7 +83,7 @@ public class MonteCarloBlackScholesModelTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
 		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);

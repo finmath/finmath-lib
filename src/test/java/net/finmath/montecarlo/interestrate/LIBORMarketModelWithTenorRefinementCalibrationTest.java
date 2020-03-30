@@ -267,7 +267,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.out.println(formatterParam.format(p));
 		}
 
-		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
 		final LIBORMonteCarloSimulationFromTermStructureModel simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated model:");
@@ -521,7 +521,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				}
 				bestParameters = param;
 
-				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
 				simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 			}
 		}
@@ -582,7 +582,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				System.out.println(p);
 			}
 
-			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
 			simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 		}
 		else if(test == 2) {
@@ -640,7 +640,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					// Create a LIBOR market model with the new covariance structure.
 					final LIBORModel model = new HullWhiteModel(
 							liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModel, null);
-					final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+					final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 					final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 					final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.size());
@@ -725,7 +725,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			// Create a LIBOR market model with the new covariance structure.
 			final LIBORModel modelCalibrated = new HullWhiteModel(
 					liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModelCalibrated, null);
-			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(modelCalibrated, brownianMotion);
 			simulationCalibrated =  new LIBORMonteCarloSimulationFromLIBORModel(modelCalibrated, process);
 		}
 		else if(test == 3) {
@@ -783,7 +783,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 					// Create a LIBOR market model with the new covariance structure.
 					final LIBORModel model = new HullWhiteModel(
 							liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModel, null);
-					final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+					final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 					final LIBORMonteCarloSimulationFromLIBORModel liborMarketModelMonteCarloSimulation =  new LIBORMonteCarloSimulationFromLIBORModel(model, process);
 
 					final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.size());
@@ -870,7 +870,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			// Create a LIBOR market model with the new covariance structure.
 			final LIBORModel modelCalibrated = new HullWhiteModel(
 					liborPeriodDiscretization, curveModel, forwardCurve, discountCurve, volatilityModelCalibrated, null);
-			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
+			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(modelCalibrated, brownianMotion);
 			simulationCalibrated =  new LIBORMonteCarloSimulationFromLIBORModel(modelCalibrated, process);
 		}
 

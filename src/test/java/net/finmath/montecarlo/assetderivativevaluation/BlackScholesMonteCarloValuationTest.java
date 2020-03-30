@@ -173,9 +173,9 @@ public class BlackScholesMonteCarloValuationTest {
 			final ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, abstractRandomVariableFactory));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, abstractRandomVariableFactory));
 
-			model = new MonteCarloAssetModel(blackScholesModel, process);
+			model = new MonteCarloAssetModel(process);
 		}
 
 		return model;

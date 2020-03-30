@@ -57,12 +57,12 @@ public class DisplacedLognomalModelTest {
 
 		AssetModelMonteCarloSimulationModel monteCarloDisplacedModel;
 		{
-			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
-
-			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			final ProcessModel displacedModel2 = new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility);
 
+			// Create a corresponding MC process
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(displacedModel2, brownianMotion);
+
+			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			monteCarloDisplacedModel = new MonteCarloAssetModel(displacedModel2, process);
 		}
 
@@ -81,23 +81,23 @@ public class DisplacedLognomalModelTest {
 		final double alpha = 1/(1+displacement);
 		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{
-			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
-
-			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			final ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
+			// Create a corresponding MC process
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, brownianMotion);
+
+			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			monteCarloBlackScholesModel = new MonteCarloAssetModel(blackScholesModel, process);
 		}
 
 		AssetModelMonteCarloSimulationModel monteCarloBachelierModel;
 		{
-			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(brownianMotion);
-
-			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			final ProcessModel bachelierModel = new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement);
 
+			// Create a corresponding MC process
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, brownianMotion);
+
+			// Using the process (Euler scheme), create an MC simulation of a displaced model
 			monteCarloBachelierModel = new MonteCarloAssetModel(bachelierModel, process);
 		}
 
