@@ -32,17 +32,23 @@ public interface Process {
 	 * @return The process realizations (given as array of <code>RandomVariable</code>)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	//	RandomVariable[] getProcessValue(int timeIndex);
+	default	RandomVariable[] getProcessValue(int timeIndex) throws CalculationException {
+		final RandomVariable[] processValue = new RandomVariable[getNumberOfComponents()];
+		for(int componentIndex=0; componentIndex<getNumberOfComponents(); componentIndex++) {
+			processValue[componentIndex] = getProcessValue(timeIndex, componentIndex);
+		}
+		return processValue;
+	}
 
 	/**
 	 * This method returns the realization of a component of the process for a given time index.
 	 *
-	 * @param timeIndex Time index at which the process should be observed
-	 * @param component Component index of the process
+	 * @param timeIndex Time index at which the process should be observed.
+	 * @param componentIndex Component index of the process.
 	 * @return The process component realizations (given as <code>RandomVariableFromDoubleArray</code>)
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariable getProcessValue(int timeIndex, int component) throws CalculationException;
+	RandomVariable getProcessValue(int timeIndex, int componentIndex) throws CalculationException;
 
 	/**
 	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
