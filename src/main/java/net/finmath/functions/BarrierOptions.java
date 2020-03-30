@@ -1,7 +1,10 @@
 package net.finmath.functions;
 
 /**
- * This class implements the pricing of barrier options in a lognormal model.
+ * This class implements the valuation of barrier options.
+ *
+ * Currently only supports a a lognormal model.
+ *
  * We use the notation from the book by Espeen Gaarder Haugh.
  * "The complete Guide to Option Pricing Formulas".
  *

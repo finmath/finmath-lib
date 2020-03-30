@@ -132,10 +132,6 @@ public class BachelierModel {
 			final double payoffUnit,
 			final double optionValue)
 	{
-		if(forward == optionStrike) {
-			return optionValue / Math.sqrt(optionMaturity / Math.PI / 2.0) / payoffUnit;
-		}
-
 		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
 		// TODO An exception should be thrown, when there is no implied volatility for the given value.
 		final int		maxIterations	= 100;
