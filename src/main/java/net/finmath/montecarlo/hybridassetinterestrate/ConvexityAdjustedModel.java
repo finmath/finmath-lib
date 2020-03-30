@@ -12,7 +12,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.stochastic.Scalar;
 
 /**
  * A general convexity adjustment for models.
