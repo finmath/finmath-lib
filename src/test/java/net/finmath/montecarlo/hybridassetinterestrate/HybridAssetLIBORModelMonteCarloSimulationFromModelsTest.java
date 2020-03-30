@@ -35,7 +35,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModelsTest {
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, new BrownianMotionLazyInit(model.getTimeDiscretization(), 1 /* numberOfFactors */, numberOfPaths, 323, randomVariableFactory));
 
-		final var model2 = new MonteCarloAssetModel(blackScholesModel, process);
+		final MonteCarloAssetModel model2 = new MonteCarloAssetModel(blackScholesModel, process);
 
 		final HybridAssetLIBORModelMonteCarloSimulationFromModels model3 = new HybridAssetLIBORModelMonteCarloSimulationFromModels(model, model2);
 
