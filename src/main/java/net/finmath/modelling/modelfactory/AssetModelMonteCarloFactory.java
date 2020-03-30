@@ -17,7 +17,6 @@ import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 
 /**
  * Constructs asset models, which evaluate products via Monte-Carlo method.
@@ -132,7 +131,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 					descriptor.getVolatility(),
 					descriptor.getDiscountCurveForDiscountRate(),
 					abstractRandomVariableFactory),
-					new EulerSchemeFromProcessModel(stochasticDriver));
+					stochasticDriver);
 			this.descriptor 	= descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
@@ -172,7 +171,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		private HestonModelMonteCarlo(final HestonModelDescriptor descriptor, final Scheme scheme, final RandomVariableFactory abstractRandomVariableFactory,
 				final IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, abstractRandomVariableFactory),
-					new EulerSchemeFromProcessModel(stochasticDriver));
+					stochasticDriver);
 			this.descriptor 	= descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
@@ -203,7 +202,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		private MertonModelMonteCarlo(final MertonModelDescriptor descriptor, final RandomVariableFactory abstractRandomVariableFactory,
 				final IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.MertonModel(descriptor),
-					new EulerSchemeFromProcessModel(stochasticDriver));
+					stochasticDriver);
 			this.descriptor = descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
@@ -233,7 +232,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel(descriptor),
-					new EulerSchemeFromProcessModel(stochasticDriver));
+					stochasticDriver);
 			this.descriptor = descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
 		}
