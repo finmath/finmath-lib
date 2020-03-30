@@ -208,7 +208,9 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 
 	@Override
 	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return assetSimulation.getAssetValue(timeIndex, assetIndex).mult(liborSimulation.getNumeraire(getTime(timeIndex))).div(assetSimulation.getNumeraire(timeIndex));
+		final RandomVariable asset = assetSimulation.getAssetValue(timeIndex, assetIndex);
+		final RandomVariable changeOfMeasure = liborSimulation.getNumeraire(timeIndex).div(assetSimulation.getNumeraire(timeIndex));
+		return asset.mult(changeOfMeasure);
 	}
 
 	@Override
