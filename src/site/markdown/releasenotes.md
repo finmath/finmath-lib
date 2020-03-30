@@ -6,6 +6,18 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 4.1.8 (29.03.2020)
+
+### General
+
+ - RandomVariables come with apply(RandomOperator).
+ 
+### Interest Rate Models (Monte-Carlo)
+
+ - Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
+ - LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
+ 
+
 ## 4.1.7 (22.03.2020)
 
 ### General
