@@ -296,7 +296,7 @@ public class InterestRateSwapLegDescriptorTest {
 						numberOfFactors, numberOfPaths, 3141 /* seed */));
 		//		process.setScheme(EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
+		return new LIBORMonteCarloSimulationFromLIBORModel(process);
 	}
 
 }
