@@ -1,56 +1,47 @@
 package net.finmath.finitedifference.solvers;
 
-import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
 /**
  * One dimensional finite difference solver.
- *
+ * Theta method for local volatility PDE.
  * This is where the real stuff happens.
  *
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
- * @version 1.0
  */
+
+
 public class FDMThetaMethod {
 	private final FiniteDifference1DModel model;
 	private final FiniteDifference1DBoundary boundaryCondition;
-	private final double alpha;
-	private final double beta;
-	private final double gamma;
 	private final double theta;
 	private final double center;
 	private final double timeHorizon;
 
-	public FDMThetaMethod(final FDMBlackScholesModel model, final FiniteDifference1DBoundary boundaryCondition, final double timeHorizon, final double center, final double theta) {
+	public FDMThetaMethod(FiniteDifference1DModel model, FiniteDifference1DBoundary boundaryCondition, double timeHorizon, double center, double theta) {
 		this.model = model;
 		this.boundaryCondition = boundaryCondition;
 		this.timeHorizon = timeHorizon;
 		this.center = center;
 		this.theta = theta;
-
-		gamma = (2 * model.getRiskFreeRate()) / Math.pow(model.getVolatility(), 2);
-		alpha = -0.5 * (gamma - 1);
-		beta = -0.25 * Math.pow((gamma + 1), 2);
 	}
 
-	public double[][] getValue(final double evaluationTime, final double time, final DoubleUnaryOperator valueAtMaturity) {
+	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator valueAtMaturity) {
 		if(evaluationTime != 0) {
 			throw new IllegalArgumentException("Evaluation time != 0 not supported.");
 		}
 		if(time != timeHorizon) {
-			throw new IllegalArgumentException("Given time != timeHorizonn not supported.");
+			throw new IllegalArgumentException("Given time != timeHorizon not supported.");
 		}
 
 		// Grid Generation
@@ -58,99 +49,126 @@ public class FDMThetaMethod {
 				+ model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon));
 		final double minimumStockPriceOnGrid = Math.max(model.getForwardValue(timeHorizon)
 				- model.getNumStandardDeviations() * Math.sqrt(model.varianceOfStockPrice(timeHorizon)), 0);
-		final double maximumX = f_x(maximumStockPriceOnGrid);
-		final double minimumX = f_x(Math.max(minimumStockPriceOnGrid, center/50.0));	// Previously there was a floor at 1 here. The floor at 1 is problematic. It does not scale with the spot! @TODO There should be a more intelligent method to set the floor (do we need this?)
-		final double dx = (maximumX - minimumX) / (model.getNumSpacesteps() - 2);
-		final int N_pos = (int) Math.ceil((maximumX / dx) + 1);
-		final int N_neg = (int) Math.floor((minimumX / dx) - 1);
+		final double deltaStock = (maximumStockPriceOnGrid - minimumStockPriceOnGrid) / model.getNumSpacesteps();
+		final double deltaTau = timeHorizon / model.getNumTimesteps();
 
-		// Create interior spatial vector for heat equation
-		final int len = N_pos - N_neg - 1;
-		final double[] x = new double[len];
-		for (int i = 0; i < len; i++) {
-			x[i] = (N_neg + 1) * dx + dx * i;
+		// Create interior spatial array of stock prices
+		final int spaceLength = model.getNumSpacesteps() - 1;
+		final double[] stock = new double[spaceLength];
+		for (int i= 0; i < spaceLength; i++) {
+			stock[i] = minimumStockPriceOnGrid + (i + 1) * deltaStock;
 		}
 
-		// Create time vector for heat equation
-		final double dtau = Math.pow(model.getVolatility(), 2) * timeHorizon / (2 * model.getNumSpacesteps());
-		final double[] tau = new double[model.getNumSpacesteps() + 1];
-		for (int i = 0; i < model.getNumSpacesteps() + 1; i++) {
-			tau[i] = i * dtau;
+		// Create time-reversed tau array
+		final int timeLength = model.getNumTimesteps() + 1;
+		final double[] tau = new double[timeLength];
+		for (int i = 0; i < timeLength; i++) {
+			tau[i] = i * deltaTau;
 		}
 
-		// Create necessary matrices
-		final double kappa = dtau / Math.pow(dx, 2);
-		final double[][] C = new double[len][len];
-		final double[][] D = new double[len][len];
-		for (int i = 0; i < len; i++) {
-			for (int j = 0; j < len; j++) {
+		// Create constant matrices
+		final RealMatrix eye = MatrixUtils.createRealIdentityMatrix(spaceLength);
+		final RealMatrix D1 = MatrixUtils.createRealMatrix(spaceLength, spaceLength);
+		final RealMatrix D2 = MatrixUtils.createRealMatrix(spaceLength, spaceLength);
+		final RealMatrix T1 = MatrixUtils.createRealMatrix(spaceLength, spaceLength);
+		final RealMatrix T2 = MatrixUtils.createRealMatrix(spaceLength, spaceLength);
+		for (int i = 0; i < spaceLength; i++) {
+			for (int j = 0; j < spaceLength; j++) {
 				if (i == j) {
-					C[i][j] = 1 + 2 * theta * kappa;
-					D[i][j] = 1 - 2 * (1 - theta) * kappa;
-				} else if ((i == j - 1) || (i == j + 1)) {
-					C[i][j] = - theta * kappa;
-					D[i][j] = (1 - theta) * kappa;
+					D1.setEntry(i, j, minimumStockPriceOnGrid / deltaStock + (i + 1));
+					D2.setEntry(i, j, Math.pow(minimumStockPriceOnGrid / deltaStock + (i + 1), 2));
+					T2.setEntry(i, j, -2);
+				} else if (i == j - 1) {
+					T1.setEntry(i, j, 1);
+					T2.setEntry(i, j, 1);
+				} else if (i == j + 1) {
+					T1.setEntry(i, j, -1);
+					T2.setEntry(i, j, 1);
 				} else {
-					C[i][j] = 0;
-					D[i][j] = 0;
+					D1.setEntry(i, j, 0);
+					D2.setEntry(i, j, 0);
+					T1.setEntry(i, j, 0);
+					T2.setEntry(i, j, 0);
 				}
 			}
 		}
-		final RealMatrix CMatrix = new Array2DRowRealMatrix(C);
-		final RealMatrix DMatrix = new Array2DRowRealMatrix(D);
-		final DecompositionSolver solver = new LUDecomposition(CMatrix).getSolver();
+		final RealMatrix F1 = eye.scalarMultiply(1 - model.getRiskFreeRate() * deltaTau);
+		final RealMatrix F2 = D1.scalarMultiply(0.5 * model.getRiskFreeRate() * deltaTau).multiply(T1);
+		final RealMatrix F3 = D2.scalarMultiply(0.5 * deltaTau).multiply(T2);
+		final RealMatrix G1 = eye.scalarMultiply(1 + model.getRiskFreeRate() * deltaTau);
+		final RealMatrix G2 = F2.scalarMultiply(-1);
+		final RealMatrix G3 = F3.scalarMultiply(-1);
 
-		// Create spatial boundary vector
-		final double[] b = new double[len];
-		Arrays.fill(b, 0);
-
-		// Initialize U
-		double[] U = new double[len];
-		for (int i = 0; i < U.length; i++) {
-			final double state = x[i];
-			U[i] = f(valueAtMaturity.applyAsDouble(f_s(state)), state, 0);
-		}
-		RealMatrix UVector = MatrixUtils.createColumnRealMatrix(U);
-
-		// Solve system
-		for (int m = 0; m < model.getNumSpacesteps(); m++) {
-			b[0] = (u_neg_inf(N_neg * dx, tau[m]) * (1 - theta) * kappa)
-					+ (u_neg_inf(N_neg * dx, tau[m + 1]) * theta * kappa);
-			b[len-1] = (u_pos_inf(N_pos * dx, tau[m]) * (1 - theta) * kappa)
-					+ (u_pos_inf(N_pos * dx, tau[m + 1]) * theta * kappa);
-
-			final RealMatrix bVector = MatrixUtils.createColumnRealMatrix(b);
-			final RealMatrix constantsMatrix = (DMatrix.multiply(UVector)).add(bVector);
-			UVector = solver.solve(constantsMatrix);
-		}
-		U = UVector.getColumn(0);
-
-		// Transform x to stockPrice and U to optionPrice
-		final double[] optionPrice = new double[len];
-		final double[] stockPrice = new double[len];
-		for (int i = 0; i < len; i++ ){
-			optionPrice[i] = U[i] * center *
-					Math.exp(alpha * x[i] + beta * tau[model.getNumSpacesteps()]);
-			stockPrice[i] = f_s(x[i]);
+		// Initialize boundary and solution vectors
+		final RealMatrix b = MatrixUtils.createRealMatrix(spaceLength, 1);
+		final RealMatrix b2 = MatrixUtils.createRealMatrix(spaceLength, 1);
+		RealMatrix U = MatrixUtils.createRealMatrix(spaceLength, 1);
+		for (int i = 0; i < spaceLength; i++) {
+			b.setEntry(i, 0, 0);
+			b2.setEntry(i, 0, 0);
+			U.setEntry(i, 0, valueAtMaturity.applyAsDouble(stock[i]));
 		}
 
-		final double[][] stockAndOptionPrice = new double[2][len];
-		stockAndOptionPrice[0] = stockPrice;
+		// Theta finite difference method
+		for (int m = 0; m < model.getNumTimesteps(); m++) {
+			final double[] sigma = new double[spaceLength];
+			final double[] sigma2 = new double[spaceLength];
+			for (int i = 0; i < spaceLength; i++) {
+				sigma[i] = Math.pow(model.getLocalVolatility(minimumStockPriceOnGrid + (i + 1) * deltaStock,
+						timeHorizon - m * deltaTau), 2);
+				sigma2[i] = Math.pow(model.getLocalVolatility(minimumStockPriceOnGrid + (i + 1) * deltaStock,
+						timeHorizon - (m + 1) * deltaTau), 2);
+			}
+			final RealMatrix Sigma = MatrixUtils.createRealDiagonalMatrix(sigma);
+			final RealMatrix Sigma2 = MatrixUtils.createRealDiagonalMatrix(sigma2);
+			final RealMatrix F = F1.add(F2).add(Sigma.multiply(F3));
+			final RealMatrix G = G1.add(G2).add(Sigma2.multiply(G3));
+			final RealMatrix H = G.scalarMultiply(theta).add(eye.scalarMultiply(1 - theta));
+			final DecompositionSolver solver = new LUDecomposition(H).getSolver();
+
+			final double Sl = (minimumStockPriceOnGrid / deltaStock + 1);
+			final double Su = (maximumStockPriceOnGrid / deltaStock - 1);
+			final double vl = Math.pow(model.getLocalVolatility(minimumStockPriceOnGrid + deltaStock,
+					timeHorizon - m * deltaTau), 2);
+			final double vu = Math.pow(model.getLocalVolatility(maximumStockPriceOnGrid - deltaStock,
+					timeHorizon - m * deltaTau), 2);
+			final double vl2 = Math.pow(model.getLocalVolatility(minimumStockPriceOnGrid + deltaStock,
+					timeHorizon - (m + 1) * deltaTau), 2);
+			final double vu2 = Math.pow(model.getLocalVolatility(maximumStockPriceOnGrid - deltaStock,
+					timeHorizon - (m + 1) * deltaTau), 2);
+
+			final double test = timeReversedUpperBoundary(maximumStockPriceOnGrid, tau[m]);
+			b.setEntry(0, 0,
+					0.5 * deltaTau * Sl * (vl * Sl - model.getRiskFreeRate()) * timeReversedLowerBoundary(minimumStockPriceOnGrid, tau[m]));
+			b.setEntry(spaceLength - 1, 0,
+					0.5 * deltaTau * Su * (vu * Su + model.getRiskFreeRate()) * timeReversedUpperBoundary(maximumStockPriceOnGrid, tau[m]));
+			b2.setEntry(0, 0,
+					0.5 * deltaTau * Sl * (vl2 * Sl - model.getRiskFreeRate()) * timeReversedLowerBoundary(minimumStockPriceOnGrid, tau[m + 1]));
+			b2.setEntry(spaceLength - 1, 0,
+					0.5 * deltaTau * Su * (vu2 * Su + model.getRiskFreeRate()) * timeReversedUpperBoundary(maximumStockPriceOnGrid, tau[m + 1]));
+			final RealMatrix U1 = (F.scalarMultiply(1 - theta).add(eye.scalarMultiply(theta))).multiply(U);
+			final RealMatrix U2 = b.scalarMultiply(1 - theta).add(b2.scalarMultiply(theta));
+			U = solver.solve(U1.add(U2));
+		}
+		final double[] optionPrice = U.getColumn(0);
+		final double[][] stockAndOptionPrice = new double[2][spaceLength];
+		stockAndOptionPrice[0] = stock;
 		stockAndOptionPrice[1] = optionPrice;
 		return stockAndOptionPrice;
 	}
 
-	// State Space Transformations
-	private double f_x(final double value) {return Math.log(value / center); }
-	private double f_s(final double x) { return center * Math.exp(x); }
-	private double f_t(final double tau) { return timeHorizon - (2 * tau) / Math.pow(model.getVolatility(), 2); }
-	private double f(final double value, final double x, final double tau) { return (value / center) * Math.exp(-alpha * x - beta * tau); }
+	// Time-reversed Boundary Conditions
+	//    private double U_initial(double stockPrice, double tau) {
+	//        return valueAtMaturity
+	//    }
+	private double timeReversedLowerBoundary(double stockPrice, double tau) {
+		return boundaryCondition.getValueAtLowerBoundary(model, timeHorizon - tau, stockPrice);
+	}
 
-	// Heat Equation Boundary Conditions
-	private double u_neg_inf(final double x, final double tau) {
-		return f(boundaryCondition.getValueAtLowerBoundary(model, f_t(tau), f_s(x)), x, tau);
+	private double timeReversedUpperBoundary(double stockPrice, double tau) {
+		return boundaryCondition.getValueAtUpperBoundary(model, timeHorizon - tau, stockPrice);
 	}
-	private double u_pos_inf(final double x, final double tau) {
-		return f(boundaryCondition.getValueAtUpperBoundary(model, f_t(tau), f_s(x)), x, tau);
-	}
+
 }
+
+
