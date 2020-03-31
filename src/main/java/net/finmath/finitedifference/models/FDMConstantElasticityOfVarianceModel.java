@@ -1,21 +1,23 @@
 package net.finmath.finitedifference.models;
 
+
 import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.finitedifference.solvers.FDMThetaMethod;
 
 /**
- * Black Scholes model using finite difference method.
+ * CEV model using finite difference method.
  *
  * @author Ralph Rudd
  * @author Christian Fries
  * @author Jörg Kienitz
- * @version 1.0
  */
-public class FDMBlackScholesModel implements FiniteDifference1DModel {
+
+public class FDMConstantElasticityOfVarianceModel implements FiniteDifference1DModel{
 	private final double initialValue;
 	private final double riskFreeRate;
 	private final double volatility;
+	private final double exponent;
 
 	/*
 	 * Solver properties - will be moved to solver.
@@ -26,7 +28,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	private final double center;
 	private final double theta;
 
-	public FDMBlackScholesModel(
+	public FDMConstantElasticityOfVarianceModel(
 			int numTimesteps,
 			int numSpacesteps,
 			int numStandardDeviations,
@@ -34,10 +36,12 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 			double theta,
 			double initialValue,
 			double riskFreeRate,
-			double volatility) {
+			double volatility,
+			double exponent) {
 		this.initialValue = initialValue;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
+		this.exponent = exponent;
 
 		this.numTimesteps = numTimesteps;
 		this.numSpacesteps = numSpacesteps;
@@ -48,6 +52,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 
 	/* (non-Javadoc)
 	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#varianceOfStockPrice(double)
+	 * @TODO Implement correct stock price variance for CEV model. Currently using BS variance.
 	 */
 	@Override
 	public double varianceOfStockPrice(double time) {
@@ -81,7 +86,9 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	}
 
 	@Override
-	public double getLocalVolatility(double assetValue, double time) { return volatility; }
+	public double getLocalVolatility(double assetValue, double time) {
+		return volatility * Math.pow(assetValue, exponent - 1);
+	}
 
 	@Override
 	public int getNumTimesteps() {
