@@ -64,6 +64,9 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 		super();
 		this.model		= model;
 		this.process	= model.getProcess();
+
+		this.model.setProcess(process);
+		process.setModel(model);
 	}
 
 	@Override
