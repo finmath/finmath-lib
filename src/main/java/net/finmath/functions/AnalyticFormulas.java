@@ -1531,4 +1531,39 @@ public class AnalyticFormulas {
 			return vega;
 		}
 	}
+
+	/**
+	 * Calculates the CEV option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a CEV process.
+	 * Formula is from 2007 - Hsu Lin Lee - 'Constant Elasticity of Variance Option Pricing Model'.
+	 * CEV exponent must be between 0 and 1.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate      The risk free rate r (df = exp(-r T)).
+	 * @param volatility        The CEV volatility (NOT the log-normal volatility).
+	 * @param exponent          The exponent of S in the diffusion term.
+	 * @param optionMaturity    The option maturity T.
+	 * @param optionStrike      The option strike.
+	 * @param isCall            If true, the value of a call is calculated, if false, the value of a put is calculated.
+	 * @return Returns the value of a European call option under the CEV model.
+	 */
+	public static double constantElasticityOfVarianceOptionValue(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double exponent,
+			double optionMaturity,
+			double optionStrike,
+			boolean isCall) {
+		final double kappa = 2 * riskFreeRate / (Math.pow(volatility, 2) * (1 - exponent) * (Math.exp(2 * riskFreeRate * (1 - exponent) * optionMaturity) - 1));
+		final double z = 2 + 1 / (1 - exponent);
+		final double y = kappa * Math.pow(optionStrike, 2 * (1 - exponent));
+		final double x = kappa * Math.pow(initialStockValue, 2 * (1 - exponent)) * Math.exp(2 * riskFreeRate * (1 - exponent) * optionMaturity);
+		final NonCentralChiSquaredDistribution P1 = new NonCentralChiSquaredDistribution(z, x);
+		final NonCentralChiSquaredDistribution P2 = new NonCentralChiSquaredDistribution(z - 2, y);
+		if (isCall) {
+			return initialStockValue * (1 - P1.cumulativeDistribution(y)) - optionStrike * Math.exp(-riskFreeRate * optionMaturity) * P2.cumulativeDistribution(x);
+		} else {
+			return -initialStockValue * P1.cumulativeDistribution(y) + optionStrike * Math.exp(-riskFreeRate * optionMaturity) * (1 - P2.cumulativeDistribution(x));
+		}
+	}
 }

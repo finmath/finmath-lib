@@ -9,7 +9,6 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
@@ -33,7 +32,7 @@ public class FDMThetaMethod {
 	private final double center;
 	private final double timeHorizon;
 
-	public FDMThetaMethod(final FDMBlackScholesModel model, final FiniteDifference1DBoundary boundaryCondition, final double timeHorizon, final double center, final double theta) {
+	public FDMThetaMethod(final FiniteDifference1DModel model, final FiniteDifference1DBoundary boundaryCondition, final double timeHorizon, final double center, final double theta) {
 		this.model = model;
 		this.boundaryCondition = boundaryCondition;
 		this.timeHorizon = timeHorizon;
