@@ -5,18 +5,18 @@ import org.apache.commons.math3.special.Gamma;
 
 /**
  * Implementation of the cumulative distribution function of the non-central &Chi;<sup>2</sup> distribution.
- * 
+ *
  * The implementation is that of Ding's algorithm, splitting the sum since the first term
  * of the sum is not the largest one (and may be zero).
- * 
+ *
  * The algorithm uses Kahan summation for the sums and limits the calculation time to avoid infinity loops.
- * 
+ *
  * The method is currently intended to be used as a benchmark in unit tests only.
- * 
+ *
  * Note: The implementation currently does not use an alternative algorithm
  * in cases of high non-centrality, like Benton and Krishnamoorthy. Since the number
  * of summation is limited, the method may be inaccurate for high non-centrality.
- * 
+ *
  * @author Christian Fries
  * @author Ralph Rudd
  */
@@ -67,7 +67,7 @@ public class NonCentralChiSquaredDistribution {
 		final double xHalf		= x / 2.0;
 		final double xHalfLog	= Math.log(xHalf);
 
-		double gammaRegularizedInitial = Gamma.regularizedGammaP(degreesOfFreedomHalf + summationSplitIndex, xHalf);
+		final double gammaRegularizedInitial = Gamma.regularizedGammaP(degreesOfFreedomHalf + summationSplitIndex, xHalf);
 
 		double p = pInitial;
 		double gammaRegularized = gammaRegularizedInitial;
@@ -84,12 +84,14 @@ public class NonCentralChiSquaredDistribution {
 			gammaRegularized += Math.exp((degreesOfFreedomHalf + i) * xHalfLog - xHalf - Gamma.logGamma(degreesOfFreedomHalf + i + 1));
 
 			// Kahan summation
-			double value = p * gammaRegularized - error;
-			
+			final double value = p * gammaRegularized - error;
+
 			newSum = sum + value;
 			error = (newSum - sum) - value;
 
-			if(Math.abs(newSum - sum) / newSum <= PRECISION) break;
+			if(Math.abs(newSum - sum) / newSum <= PRECISION) {
+				break;
+			}
 			sum = newSum;
 		}
 
@@ -104,14 +106,16 @@ public class NonCentralChiSquaredDistribution {
 		for(int i=summationSplitIndex; i<summationSplitIndex+maxSummation; i++) {
 			p *= nonCentralityHalf / (i+1);
 			gammaRegularized -= Math.exp((degreesOfFreedomHalf + i) * xHalfLog - xHalf - Gamma.logGamma(degreesOfFreedomHalf + i + 1));
-			
+
 			// Kahan summation
-			double value = p * gammaRegularized - error;
-			
+			final double value = p * gammaRegularized - error;
+
 			newSum = sum + value;
 			error = (newSum - sum) - value;
 
-			if(Math.abs(newSum - sum) / newSum <= PRECISION) break;
+			if(Math.abs(newSum - sum) / newSum <= PRECISION) {
+				break;
+			}
 			sum = newSum;
 		}
 
