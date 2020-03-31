@@ -22,7 +22,7 @@ public class BlackScholesThetaTest {
 		final double optionStrike = 50;
 
 		final int numTimesteps = 35;
-		final int numSpacesteps = 120;
+		final int numSpacesteps = 141;
 		final int numStandardDeviations = 5;
 		final double initialValue = 50;
 		final double theta = 0.5;
@@ -74,18 +74,18 @@ public class BlackScholesThetaTest {
 				initialValue,
 				riskFreeRate,
 				volatility);
+
 		final FiniteDifference1DProduct putOption = new FDMEuropeanPutOption(optionMaturity, optionStrike);
+
 		final double[][] valuePutFDM = putOption.getValue(0.0, model);
 		final double[] initialStockPriceForPut = valuePutFDM[0];
 		final double[] putOptionValue = valuePutFDM[1];
-		final double[] analyticalPutOptionValue = new double[putOptionValue.length];
-		for (int i =0; i < analyticalPutOptionValue.length; i++) {
-			analyticalPutOptionValue[i] = AnalyticFormulas.blackScholesOptionValue(initialStockPriceForPut[i], riskFreeRate,
+
+		for (int i=numSpacesteps/4; i < putOptionValue.length-numSpacesteps/4; i++) {
+			double analyticalPutOptionValue = AnalyticFormulas.blackScholesOptionValue(initialStockPriceForPut[i], riskFreeRate,
 					volatility, optionMaturity, optionStrike, false);
+			Assert.assertEquals("Option value at " + initialStockPriceForPut[i], putOptionValue[i], analyticalPutOptionValue, 1e-2);
 		}
 		System.out.println(Arrays.toString(putOptionValue));
-		Assert.assertArrayEquals(putOptionValue, analyticalPutOptionValue, 1e-2);
 	}
-
-
 }
