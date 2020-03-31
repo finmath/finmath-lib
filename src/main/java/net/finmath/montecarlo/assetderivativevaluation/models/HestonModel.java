@@ -392,7 +392,7 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		if(componentIndex == 0) {
 			return randomVariable.exp();
 		}
@@ -405,7 +405,7 @@ public class HestonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		if(componentIndex == 0) {
 			return randomVariable.log();
 		}

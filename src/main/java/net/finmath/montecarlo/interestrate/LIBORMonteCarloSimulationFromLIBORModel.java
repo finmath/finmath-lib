@@ -29,12 +29,20 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	private final LIBORModel model;
 	private final MonteCarloProcess process;
 
+	public LIBORMonteCarloSimulationFromLIBORModel(final MonteCarloProcess process) {
+		super();
+		// TODO Validate type
+		this.model		= (LIBORModel) process.getModel();
+		this.process	= process;
+	}
+
 	/**
 	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcess.
 	 *
 	 * @param model The LIBORMarketModelFromCovarianceModel.
 	 * @param process The process.
 	 */
+	@Deprecated
 	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model, final MonteCarloProcess process) {
 		super();
 		this.model		= model;

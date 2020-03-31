@@ -33,7 +33,6 @@ public class SwapLeg extends AbstractLIBORMonteCarloProduct {
 
 	private final ProductCollection				components;
 
-
 	/**
 	 * Creates a swap leg. The swap leg is build from elementary components.
 	 *

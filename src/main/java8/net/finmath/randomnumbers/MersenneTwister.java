@@ -9,11 +9,14 @@ package net.finmath.randomnumbers;
 import java.io.Serializable;
 
 /**
+ * Mersenne Twister random number generator. This class is just a wrapper of
+ * <code>org.apache.commons.math3.random.MersenneTwister</code>.
+ *
  * @author Christian Fries
  *
  * @version 1.0
  */
-public class MersenneTwister implements Serializable {
+public class MersenneTwister implements RandomNumberGenerator1D, Serializable {
 
 	private static final long serialVersionUID = -1827470318370174186L;
 
@@ -28,6 +31,7 @@ public class MersenneTwister implements Serializable {
 	 *
 	 * @return The next random number in the sequence.
 	 */
+	@Override
 	public double nextDouble() {
 		return mersenneTwister.nextDouble();
 	}

@@ -99,12 +99,12 @@ public class DisplacedLognomalModelExperimental extends AbstractProcessModel {
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp().sub(displacement);
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.add(displacement).log();
 	}
 

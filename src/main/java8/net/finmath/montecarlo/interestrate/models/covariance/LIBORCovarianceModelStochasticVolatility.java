@@ -212,12 +212,12 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 						return new RandomVariable[] { rho.mult(nu) , rho.squared().sub(1).mult(-1).sqrt().mult(nu) };
 					}
 					@Override
-					public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+					public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 						return randomVariable.exp();
 					}
 
 					@Override
-					public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+					public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 						return randomVariable.log();
 					}
 

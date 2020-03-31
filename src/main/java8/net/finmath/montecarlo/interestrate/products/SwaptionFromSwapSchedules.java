@@ -79,7 +79,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 
 		final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
 
-		final RandomVariable discountedCashflowFixLeg			= getValueOfLegAnalytic(exerciseTime, model, scheduleFixedLeg, false, swaprate, notional);
+		final RandomVariable discountedCashflowFixLeg		= getValueOfLegAnalytic(exerciseTime, model, scheduleFixedLeg, false, swaprate, notional);
 		final RandomVariable discountedCashflowFloatingLeg	= getValueOfLegAnalytic(exerciseTime, model, scheduleFloatLeg, true, 0.0, notional);
 
 		// Distinguish whether the swaption is of type "Payer" or "Receiver":

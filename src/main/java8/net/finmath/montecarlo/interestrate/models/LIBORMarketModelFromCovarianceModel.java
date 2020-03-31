@@ -443,20 +443,18 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
-	 * @param abstractRandomVariableFactory The random variable factory used to create the inital values of the model.
+	 * @param randomVariableFactory The random variable factory used to create the inital values of the model.
 	 * @param covarianceModel The covariance model to use.
 	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
 	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 * @deprecated Use LIBORMarketModelFromCovarianceModel.of() instead.
 	 */
-	@Deprecated
 	public LIBORMarketModelFromCovarianceModel(
 			final TimeDiscretization			liborPeriodDiscretization,
 			final AnalyticModel			analyticModel,
 			final ForwardCurve			forwardRateCurve,
 			final DiscountCurve			discountCurve,
-			final RandomVariableFactory	abstractRandomVariableFactory,
+			final RandomVariableFactory	randomVariableFactory,
 			final LIBORCovarianceModel			covarianceModel,
 			final CalibrationProduct[]			calibrationProducts,
 			final Map<String, ?>					properties
@@ -485,7 +483,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		curveModel					= analyticModel;
 		this.forwardRateCurve		= forwardRateCurve;
 		this.discountCurve			= discountCurve;
-		this.randomVariableFactory	= abstractRandomVariableFactory;
+		this.randomVariableFactory	= randomVariableFactory;
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
@@ -1193,7 +1191,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		RandomVariable value = randomVariable;
 
 		if(stateSpace == StateSpace.LOGNORMAL) {
@@ -1208,7 +1206,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	}
 
 	@Override
-	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
 		RandomVariable value = randomVariable;
 
 		if(stateSpace == StateSpace.LOGNORMAL) {

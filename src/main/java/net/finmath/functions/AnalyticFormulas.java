@@ -31,7 +31,9 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class AnalyticFormulas {
 
-	// Suppress default constructor for non-instantiability
+	/**
+	 * Preventing instantiation of this class.
+	 */
 	private AnalyticFormulas() {
 		// This constructor will never be invoked
 	}
