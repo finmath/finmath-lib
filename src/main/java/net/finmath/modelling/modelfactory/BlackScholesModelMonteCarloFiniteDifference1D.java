@@ -76,22 +76,31 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 						@Override
 						public Object getValue(final double evaluationTime, final Model model) {
+							// TODO Check return type - should be RandomVariable
 							return getValues(evaluationTime, model);
 						}
 
 						@Override
 						public Map<String, Object> getValues(final double evaluationTime, final Model model) {
+							// TODO This implementation should go into a class
 							final double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
 							final double[] initialStockPrice = valueFDM[0];
 							final double[] optionValue = valueFDM[1];
 
 							int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
-							if(indexOfSpot < 0) {
-								indexOfSpot = -indexOfSpot-1;
+
+							double value;
+							if(indexOfSpot >= 0) {
+								value = optionValue[indexOfSpot];
+							}
+							else {
+								int indexOfSpotLow	= -indexOfSpot-2;
+								double alpha = (initialValue-initialStockPrice[indexOfSpotLow])/(initialStockPrice[indexOfSpotLow+1]-initialStockPrice[indexOfSpotLow]);
+								value = (1-alpha) * optionValue[indexOfSpotLow] + alpha * optionValue[indexOfSpotLow+1];
 							}
 
 							final Map<String, Object> results = new HashMap<>();
-							results.put("value", optionValue[indexOfSpot]);
+							results.put("value", value);
 							return results;
 						}
 
