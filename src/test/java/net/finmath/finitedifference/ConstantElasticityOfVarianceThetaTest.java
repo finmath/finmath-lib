@@ -3,6 +3,7 @@ package net.finmath.finitedifference;
 import java.util.Arrays;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import net.finmath.finitedifference.models.FDMConstantElasticityOfVarianceModel;
@@ -15,6 +16,7 @@ import net.finmath.functions.AnalyticFormulas;
 public class ConstantElasticityOfVarianceThetaTest {
 
 	@Test
+	@Ignore
 	public void testEuropeanCallOption() throws AssertionError {
 		final double riskFreeRate = 0.06;
 		final double volatility = 0.4;
@@ -53,6 +55,7 @@ public class ConstantElasticityOfVarianceThetaTest {
 	}
 
 	@Test
+	@Ignore
 	public void testEuropeanPutOption() throws AssertionError {
 		final double riskFreeRate = 0.06;
 		final double volatility = 0.4;
