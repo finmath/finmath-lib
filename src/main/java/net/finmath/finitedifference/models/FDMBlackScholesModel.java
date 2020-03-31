@@ -27,14 +27,14 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	private final double theta;
 
 	public FDMBlackScholesModel(
-			int numTimesteps,
-			int numSpacesteps,
-			int numStandardDeviations,
-			double center,
-			double theta,
-			double initialValue,
-			double riskFreeRate,
-			double volatility) {
+			final int numTimesteps,
+			final int numSpacesteps,
+			final int numStandardDeviations,
+			final double center,
+			final double theta,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
 		this.initialValue = initialValue;
 		this.riskFreeRate = riskFreeRate;
 		this.volatility = volatility;
@@ -46,26 +46,17 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		this.theta = theta;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#varianceOfStockPrice(double)
-	 */
 	@Override
-	public double varianceOfStockPrice(double time) {
+	public double varianceOfStockPrice(final double time) {
 		return Math.pow(initialValue, 2) * Math.exp(2 * riskFreeRate * time)
 				* (Math.exp(Math.pow(volatility, 2) * time) - 1);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#getForwardValue(double)
-	 */
 	@Override
-	public double getForwardValue(double time) {
+	public double getForwardValue(final double time) {
 		return initialValue * Math.exp(riskFreeRate * time);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#getRiskFreeRate()
-	 */
 	@Override
 	public double getRiskFreeRate() {
 		return riskFreeRate;
@@ -81,7 +72,9 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	}
 
 	@Override
-	public double getLocalVolatility(double assetValue, double time) { return volatility; }
+	public double getLocalVolatility(double assetValue, double time) {
+		return volatility;
+	}
 
 	@Override
 	public int getNumTimesteps() {
@@ -98,13 +91,10 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 		return numStandardDeviations;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
-	 */
 	@Override
-	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
+	public double[][] getValue(final double evaluationnTime, final double time, final DoubleUnaryOperator values, final FiniteDifference1DBoundary boundary) {
 		final FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
-		return solver.getValue(evaluationTime, time, values);
+		return solver.getValue(evaluationnTime, time, values);
 	}
 
 }
