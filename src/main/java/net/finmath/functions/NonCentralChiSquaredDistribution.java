@@ -9,5 +9,4 @@ public class NonCentralChiSquaredDistribution {
 	public int cumulativeDistribution(double y) {
 		throw new UnsupportedOperationException("Not implemented.");
 	}
-
 }
