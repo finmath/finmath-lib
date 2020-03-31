@@ -1537,6 +1537,8 @@ public class AnalyticFormulas {
 	 * Formula is from 2007 - Hsu Lin Lee - 'Constant Elasticity of Variance Option Pricing Model'.
 	 * CEV exponent must be between 0 and 1.
 	 *
+	 * @author Ralph Rudd
+	 * 
 	 * @param initialStockValue The spot value of the underlying.
 	 * @param riskFreeRate      The risk free rate r (df = exp(-r T)).
 	 * @param volatility        The CEV volatility (NOT the log-normal volatility).
