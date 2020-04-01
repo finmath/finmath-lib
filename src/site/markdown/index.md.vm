@@ -16,20 +16,24 @@ About finmath lib
 
 The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
+- Analytic Formulas
+    - Distributions: Normal, Gamma, Non-Central Chi-Squared (some functions are delegated to Apache commons-math).
+    - Models: Black Scholes, Bachelier, SABR, ZABR, CEV, etc.
 - General numerical algorithms like
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
-- Valuation using **Fourier transforms** / **characteristic functions**
+- Valuation using **Fourier transforms** / **characteristic functions** (contributed by Alessandro Gnoatto, Lorenzo Toricelli and others)
     - Black-Scholes model
     - Heston model
     - Bates model
     - Two factor Bates model
     - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
-- **Finite difference methods**
+- **Finite difference methods** (contributed by Ralph Rudd and Jörg Kienitz)
     - Numerical schemes using finite differences
         - Theta-scheme
     - Models
         - Black-Scholes model
+        - Constant Elasticity of Variance model
     - Products
         - European option
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
@@ -55,7 +59,9 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - **SABR smile** parameterization.
         - Swaption volatility cubes with SABR parameterization.
         - **CMS replication** with various annuity mappings.
-- Simulation of **interest rate term structure models** (LIBOR market model with local and stochastic volatility)
+- Simulation of **interest rate term structure models**
+    - LIBOR market model with local and stochastic volatility
+    - Time-Homogenous LIBOR market model
     - Calibration of the **LIBOR market model**
     - Cross-Currency LIBOR Market Model
     - Equity Hybrid LIBOR Market Model
@@ -91,10 +97,10 @@ finmath lib is distributed through the central maven repository. It's coordinate
 
 For the Java 8 version:
 
-	<groupId>net.finmath</groupId>
-	<artifactId>finmath-lib</artifactId>
-	<version>${project.version}</version>
-	
+    <groupId>net.finmath</groupId>
+    <artifactId>finmath-lib</artifactId>
+    <version>${project.version}</version>
+    
 For the Java 6 version:
 
 	<groupId>net.finmath</groupId>
