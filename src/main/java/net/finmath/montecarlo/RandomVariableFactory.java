@@ -17,6 +17,32 @@ import net.finmath.stochastic.RandomVariable;
 public interface RandomVariableFactory {
 
 	/**
+	 * Static method for creating random variables from Objects.
+	 * 
+	 * @param randomVariableFactory
+	 * @param value
+	 * @param defaultValue
+	 * @return
+	 */
+	static 	RandomVariable getRandomVariableOrDefault(RandomVariableFactory randomVariableFactory, Object value, RandomVariable defaultValue) {
+		if(value == null) {
+			return defaultValue;
+		}
+		else if(value instanceof RandomVariable) {
+			return defaultValue;
+		}
+		else if(value instanceof Number) {
+			if(randomVariableFactory == null) {
+				throw new NullPointerException("Object value of type Number but nor randomVariableFactory given.");
+			}
+			return randomVariableFactory.createRandomVariable(((Number)value).doubleValue());
+		}
+		else {
+			throw new IllegalArgumentException("Object value must be of type Number or RandomVariable.");
+		}
+	}
+
+	/**
 	 * Create a (deterministic) random variable from a constant.
 	 *
 	 * @param value A constant value.
