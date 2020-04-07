@@ -4,6 +4,8 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.Validate;
+
 
 /**
  * A simple integrator using Simpson's rule.
@@ -31,9 +33,7 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 */
 	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		if(numberOfEvaluationPoints < 3) {
-			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
-		}
+		Validate.exclusiveBetween(1, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 1.");
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 		this.useParallelEvaluation = useParallelEvaluation;
 	}
@@ -49,9 +49,6 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		this(lowerBound, upperBound, numberOfEvaluationPoints, false);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
-	 */
 	@Override
 	public double integrate(final DoubleUnaryOperator integrand) {
 		final double	lowerBound			= getLowerBound();
