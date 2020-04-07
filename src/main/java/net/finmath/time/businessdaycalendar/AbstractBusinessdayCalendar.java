@@ -54,10 +54,10 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 			}
 			return adjustedDate;
 		}
-
-		throw new IllegalArgumentException("Unknown date roll convention.");
+		else {
+			throw new IllegalArgumentException("Unknown date roll convention.");
+		}
 	}
-
 
 	@Override
 	public LocalDate getRolledDate(final LocalDate baseDate, int businessDays) {
