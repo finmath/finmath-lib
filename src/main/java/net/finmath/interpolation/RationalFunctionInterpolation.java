@@ -99,9 +99,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		 * @param coefficients The coefficients of the polynomial, in increasing order.
 		 */
 		RationalFunction(final double[] coefficients) {
-			super();
-			coefficientsNumerator = coefficients;
-			coefficientsDenominator = null;
+			this(coefficients, null);
 		}
 
 		/**
