@@ -352,7 +352,8 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityEffective = volatility * Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -415,7 +416,8 @@ public class BachelierModel {
 	{
 		final double volatilityEffective = bachelierHomogeneousOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
-		final double volatility = volatilityEffective / Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double volatility = volatilityEffective / scaling;
 
 		return volatility;
 	}
@@ -445,7 +447,8 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityEffective = volatility * Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -510,11 +513,12 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityEffective = volatility * Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double volatilityEffective = volatility * scaling;
 
 		final double vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 
-		return vegaHomogenouse * volatilityEffective / volatility;
+		return vegaHomogenouse * scaling;
 	}
 
 	/**
