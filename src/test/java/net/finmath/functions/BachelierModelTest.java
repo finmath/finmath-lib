@@ -228,4 +228,56 @@ public class BachelierModelTest {
 		}
 		System.out.println("__________________________________________________________________________________________\n");
 	}
+
+	@Test
+	public void testImpliedVolatility() throws CalculationException
+	{
+		final double optionMaturity	= 1.0;
+
+		// Test conversion with different strike
+		for(double volatility = 1E-1; volatility < 10000.0; volatility *= 10) {
+			for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.20) {
+				for(double riskFreeRate = 0.00; riskFreeRate < 0.20; riskFreeRate += 0.02) {
+
+					final double payoffUnit		= Math.exp(- riskFreeRate * optionMaturity);
+					final double forward		= initialValue / payoffUnit;
+
+					final double optionValue = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+					final double volatilityImplied = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+
+					final String testCase = "volatility = " + volatility + ","
+							+ "optionStrike" + optionStrike + ","
+							+ "riskFreeRate" + riskFreeRate + ".";
+
+					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-10);
+				}
+			}
+		}
+	}
+
+	@Test
+	public void testInhomogeneousImpliedVolatility() throws CalculationException
+	{
+		final double optionMaturity	= 1.0;
+
+		// Test conversion with different strike
+		for(double volatility = 1E-1; volatility < 10000.0; volatility *= 10) {
+			for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.20) {
+				for(double riskFreeRate = 0.00; riskFreeRate < 0.20; riskFreeRate += 0.02) {
+
+					final double payoffUnit		= Math.exp(- riskFreeRate * optionMaturity);
+					final double forward		= initialValue / payoffUnit;
+
+					final double optionValue = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+					final double volatilityImplied = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+
+					final String testCase = "volatility = " + volatility + ","
+							+ "optionStrike" + optionStrike + ","
+							+ "riskFreeRate" + riskFreeRate + ".";
+
+					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-8);
+				}
+			}
+		}
+	}
 }
