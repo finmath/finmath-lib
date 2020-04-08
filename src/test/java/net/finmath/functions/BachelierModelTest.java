@@ -17,7 +17,7 @@ import net.finmath.stochastic.Scalar;
 
 /**
  * Testing the analytic formulas of the Bachelier model.
- * 
+ *
  * There is also a test comparing analytic formulas with a Monte-Carlo simulation,
  * see {@link net.finmath.montecarlo.assetderivativevaluation.BachelierModelMonteCarloValuationTest}.
  *
@@ -189,13 +189,13 @@ public class BachelierModelTest {
 		// Test options with different strike
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.10) {
 
-			double value = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-			double delta = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-			double vega = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double value = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double delta = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double vega = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
-			RandomVariable valueRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionValue(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
-			RandomVariable deltaRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
-			RandomVariable vegaRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable valueRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionValue(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable deltaRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionDelta(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable vegaRandomVariable = net.finmath.functions.BachelierModel.bachelierHomogeneousOptionVega(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
 
 			Assert.assertEquals("value", value, valueRandomVariable.doubleValue(), 1E-10);
 			Assert.assertEquals("delta", delta, deltaRandomVariable.doubleValue(), 1E-10);
@@ -214,13 +214,13 @@ public class BachelierModelTest {
 		// Test options with different strike
 		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.10) {
 
-			double value = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-			double delta = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
-			double vega = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double value = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double delta = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double vega = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
-			RandomVariable valueRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
-			RandomVariable deltaRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
-			RandomVariable vegaRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable valueRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionValue(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable deltaRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionDelta(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
+			final RandomVariable vegaRandomVariable = net.finmath.functions.BachelierModel.bachelierInhomogeneousOptionVega(new Scalar(forward), new Scalar(volatility), optionMaturity, optionStrike, new Scalar(payoffUnit));
 
 			Assert.assertEquals("value", value, valueRandomVariable.doubleValue(), 1E-10);
 			Assert.assertEquals("delta", delta, deltaRandomVariable.doubleValue(), 1E-10);

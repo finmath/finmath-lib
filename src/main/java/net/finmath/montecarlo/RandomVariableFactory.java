@@ -18,7 +18,7 @@ public interface RandomVariableFactory {
 
 	/**
 	 * Static method for creating random variables from Objects.
-	 * 
+	 *
 	 * @param randomVariableFactory
 	 * @param value
 	 * @param defaultValue

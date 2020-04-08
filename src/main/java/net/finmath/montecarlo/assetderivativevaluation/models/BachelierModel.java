@@ -148,7 +148,7 @@ public class BachelierModel extends AbstractProcessModel {
 		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("initialValue"), initialValue);
 		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("riskFreeRate"), riskFreeRate);
 		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("volatility"), volatility);
-		
+
 		return new BachelierModel(newRandomVariableFactory, newInitialValue, newRiskFreeRate, newVolatility);
 	}
 

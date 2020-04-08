@@ -224,7 +224,7 @@ public class BachelierModel {
 			final double optionMaturity,
 			final double optionStrike,
 			final RandomVariable payoffUnit)
-	{	
+	{
 		final RandomVariable volatilityBachelier = volatility.div(payoffUnit);
 
 		if(optionMaturity < 0) {
@@ -446,7 +446,7 @@ public class BachelierModel {
 			final double payoffUnit)
 	{
 		final double volatilityEffective = volatility * Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
-		
+
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
 
@@ -465,7 +465,7 @@ public class BachelierModel {
 	 * \[
 	 * 	1/T \int_s^T \sigma^2 exp(-2 r t) \mathrm{d}t \ = \ sigma^2 \frac{exp(-2 r s)-exp(-2 r T)}{2 r T}
 	 * \]
-	 * 
+	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
 	 * @param volatility The Bachelier volatility \( \sigma \).
 	 * @param optionMaturity The option maturity T.
@@ -511,9 +511,9 @@ public class BachelierModel {
 			final double payoffUnit)
 	{
 		final double volatilityEffective = volatility * Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)));
-		
+
 		final double vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
-		
+
 		return vegaHomogenouse * volatilityEffective / volatility;
 	}
 
@@ -545,7 +545,7 @@ public class BachelierModel {
 		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		final RandomVariable vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
-		
+
 		return vegaHomogenouse.mult(volatilityEffective).div(volatility);
 	}
 }
