@@ -30,7 +30,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -75,7 +75,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -158,7 +158,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -202,7 +202,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -243,7 +243,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -288,7 +288,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
-	 * normal process with numeraire scaled volatility, i.e., a Homogeneous Bachelier model
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
 	 * \]
@@ -329,7 +329,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Inhomogeneous Bachelier model
+	 * normal process with constant volatility, i.e., a inhomogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
@@ -360,7 +360,7 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Inhomogeneous Bachelier model
+	 * normal process with constant volatility, i.e., a inhomogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
@@ -392,7 +392,7 @@ public class BachelierModel {
 	/**
 	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff
 	 * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a
-	 * normal process with constant volatility, i.e., a Inhomogeneous Bachelier model
+	 * normal process with constant volatility, i.e., a inhomogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
