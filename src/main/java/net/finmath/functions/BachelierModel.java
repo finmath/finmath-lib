@@ -383,6 +383,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final RandomVariable payoffUnit)
 	{
+		// TODO The formula fails if payoffUnit == 1
 		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -483,6 +484,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final RandomVariable payoffUnit)
 	{
+		// TODO The formula fails if payoffUnit == 1
 		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -546,6 +548,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final RandomVariable payoffUnit)
 	{
+		// TODO The formula fails if payoffUnit == 1
 		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		final RandomVariable vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
