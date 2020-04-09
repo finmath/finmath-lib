@@ -91,7 +91,7 @@ public class CSVCurveParser {
 	public DiscountCurve[] parseZIP(final File file, final String currency, final String index) throws IOException {
 
 		final List<DiscountCurve> curves = new ArrayList<>();
-		try(final ZipFile zip = new ZipFile(file)) {
+		try(ZipFile zip = new ZipFile(file)) {
 
 			final Enumeration<? extends ZipEntry> entries = zip.entries();
 
