@@ -32,17 +32,11 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 		this.method = method;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getNextPoint()
-	 */
 	@Override
 	public RandomVariable getNextPoint() {
 		return nextPoint;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#setValueAndDerivative(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
-	 */
 	@Override
 	public void setValueAndDerivative(final RandomVariable value, final RandomVariable derivative) {
 
@@ -76,36 +70,23 @@ public class StochasticNewtonMethod implements StochasticRootFinderUsingDerivati
 
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getNumberOfIterations()
-	 */
 	@Override
 	public int getNumberOfIterations() {
 		return numberOfIterations;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getAccuracy()
-	 */
 	@Override
 	public double getAccuracy() {
 		return accuracy;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#isDone()
-	 */
 	@Override
 	public boolean isDone() {
 		return isDone;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.rootfinder.RandomVariableRootFinderUsingDerivative#getBestPoint()
-	 */
 	@Override
 	public RandomVariable getBestPoint() {
 		return bestPoint;
 	}
-
 }

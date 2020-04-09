@@ -7,6 +7,8 @@ package net.finmath.integration;
 
 import java.util.function.DoubleUnaryOperator;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * A simple integrator using the trapezoidal rule.
  *
@@ -42,10 +44,8 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 	 */
 	public TrapezoidalRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
 		super(lowerBound, upperBound);
+		Validate.exclusiveBetween(2, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 2.");
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
-		if(numberOfEvaluationPoints < 2) {
-			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints (minumum admissible value is 2).");
-		}
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import org.apache.commons.lang3.Validate;
+
 import net.finmath.randomnumbers.MersenneTwister;
 
 
@@ -33,9 +35,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 */
 	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		if(numberOfEvaluationPoints < 3) {
-			throw new IllegalArgumentException("Invalid numberOfEvaluationPoints.");
-		}
+		Validate.exclusiveBetween(0, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 0.");
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 	}
 
@@ -50,9 +50,6 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		this(lowerBound, upperBound, numberOfEvaluationPoints, false);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
-	 */
 	@Override
 	public double integrate(final DoubleUnaryOperator integrand) {
 		final double	lowerBound			= getLowerBound();

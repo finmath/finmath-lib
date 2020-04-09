@@ -87,15 +87,15 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 							final double[] initialStockPrice = valueFDM[0];
 							final double[] optionValue = valueFDM[1];
 
-							int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
+							final int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
 
 							double value;
 							if(indexOfSpot >= 0) {
 								value = optionValue[indexOfSpot];
 							}
 							else {
-								int indexOfSpotLow	= -indexOfSpot-2;
-								double alpha = (initialValue-initialStockPrice[indexOfSpotLow])/(initialStockPrice[indexOfSpotLow+1]-initialStockPrice[indexOfSpotLow]);
+								final int indexOfSpotLow	= -indexOfSpot-2;
+								final double alpha = (initialValue-initialStockPrice[indexOfSpotLow])/(initialStockPrice[indexOfSpotLow+1]-initialStockPrice[indexOfSpotLow]);
 								value = (1-alpha) * optionValue[indexOfSpotLow] + alpha * optionValue[indexOfSpotLow+1];
 							}
 

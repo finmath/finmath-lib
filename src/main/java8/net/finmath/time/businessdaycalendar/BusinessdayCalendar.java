@@ -9,6 +9,8 @@ package net.finmath.time.businessdaycalendar;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * @author Christian Fries
  * @version 1.0
@@ -29,9 +31,8 @@ public interface BusinessdayCalendar extends Serializable {
 		 * @return The date roll convention enum.
 		 */
 		public static DateOffsetUnit getEnum(final String string) {
-			if(string == null) {
-				throw new IllegalArgumentException();
-			}
+			Validate.notNull(string, "Date offset unit string must not be null.");
+
 			if(string.equalsIgnoreCase("d")) {
 				return DAYS;
 			}
@@ -69,9 +70,8 @@ public interface BusinessdayCalendar extends Serializable {
 		 * @return The date roll convention enum.
 		 */
 		public static DateRollConvention getEnum(final String string) {
-			if(string == null) {
-				throw new IllegalArgumentException();
-			}
+			Validate.notNull(string, "Date roll convention string must not be null.");
+
 			if(string.equalsIgnoreCase("actual")) {
 				return UNADJUSTED;
 			}
