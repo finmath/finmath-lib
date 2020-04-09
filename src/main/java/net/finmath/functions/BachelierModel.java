@@ -34,7 +34,7 @@ public class BachelierModel {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * 
+	 *
 	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
