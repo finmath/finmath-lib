@@ -249,7 +249,7 @@ public class BachelierModelTest {
 							+ "optionStrike" + optionStrike + ","
 							+ "riskFreeRate" + riskFreeRate + ".";
 
-					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-10);
+					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-7);
 				}
 			}
 		}
@@ -275,7 +275,7 @@ public class BachelierModelTest {
 							+ "optionStrike" + optionStrike + ","
 							+ "riskFreeRate" + riskFreeRate + ".";
 
-					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-8);
+					Assert.assertEquals(testCase, volatility, volatilityImplied, 1E-9);
 				}
 			}
 		}

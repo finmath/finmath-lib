@@ -32,18 +32,19 @@ public class BachelierModel {
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * 
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
 	public static double bachelierHomogeneousOptionValue(
@@ -53,21 +54,19 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityBachelier = volatility / payoffUnit;
-
 		if(optionMaturity < 0) {
 			return 0;
 		}
 		else if(forward == optionStrike) {
-			return volatilityBachelier * Math.sqrt(optionMaturity / Math.PI / 2.0) * payoffUnit;
+			return volatility * Math.sqrt(optionMaturity / Math.PI / 2.0) * payoffUnit;
 		}
 		else
 		{
 			// Calculate analytic value
-			final double dPlus = (forward - optionStrike) / (volatilityBachelier * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			final double valueAnalytic = ((forward - optionStrike) * NormalDistribution.cumulativeDistribution(dPlus)
-					+ volatilityBachelier * Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus)) * payoffUnit;
+					+ volatility * Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus)) * payoffUnit;
 
 			return valueAnalytic;
 		}
@@ -77,18 +76,18 @@ public class BachelierModel {
 	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
 	public static RandomVariable bachelierHomogeneousOptionValue(
@@ -103,8 +102,7 @@ public class BachelierModel {
 		}
 		else
 		{
-			final RandomVariable volatilityBachelier = volatility.div(payoffUnit);
-			final RandomVariable integratedVolatility = volatilityBachelier.mult(Math.sqrt(optionMaturity));
+			final RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
 			final RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
 			final RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward.sub(optionStrike))
@@ -115,8 +113,15 @@ public class BachelierModel {
 	}
 
 	/**
-	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff
-	 * <p><i>max(S(T)-K,0)</i></p>, where <i>S</i> follows a normal process with numeraire scaled volatility.
+	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
 	 *
 	 * @param forward The forward of the underlying.
 	 * @param optionMaturity The option maturity T.
@@ -160,18 +165,18 @@ public class BachelierModel {
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
 	public static double bachelierHomogeneousOptionDelta(
@@ -181,8 +186,6 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityBachelier = volatility / payoffUnit;
-
 		if(optionMaturity < 0) {
 			return 0;
 		}
@@ -192,7 +195,7 @@ public class BachelierModel {
 		else
 		{
 			// Calculate analytic value
-			final double dPlus = (forward - optionStrike) / (volatilityBachelier * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			final double deltaAnalytic = NormalDistribution.cumulativeDistribution(dPlus);
 
@@ -204,18 +207,18 @@ public class BachelierModel {
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
 	public static RandomVariable bachelierHomogeneousOptionDelta(
@@ -225,14 +228,12 @@ public class BachelierModel {
 			final double optionStrike,
 			final RandomVariable payoffUnit)
 	{
-		final RandomVariable volatilityBachelier = volatility.div(payoffUnit);
-
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			final RandomVariable integratedVolatility = volatilityBachelier.mult(Math.sqrt(optionMaturity));
+			final RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
 			final RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
 			final RandomVariable deltaAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution);
@@ -245,18 +246,18 @@ public class BachelierModel {
 	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the vega of a European call option under the Bachelier model.
 	 */
 	public static double bachelierHomogeneousOptionVega(
@@ -266,8 +267,6 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double volatilityBachelier = volatility / payoffUnit;
-
 		if(optionMaturity < 0) {
 			return 0;
 		}
@@ -278,11 +277,11 @@ public class BachelierModel {
 		else
 		{
 			// Calculate analytic value
-			final double dPlus = (forward - optionStrike) / (volatilityBachelier * Math.sqrt(optionMaturity));
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
 
 			final double vegaAnalytic = Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus) * payoffUnit;
 
-			return vegaAnalytic * volatilityBachelier / volatility;
+			return vegaAnalytic;
 		}
 	}
 
@@ -290,18 +289,18 @@ public class BachelierModel {
 	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
-	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(r t) \mathrm{d}W(t)
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
-	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
-	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
-	 * @param optionStrike The option strike.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the vega of a European call option under the Bachelier model.
 	 */
 	public static RandomVariable bachelierHomogeneousOptionVega(
@@ -311,19 +310,17 @@ public class BachelierModel {
 			final double optionStrike,
 			final RandomVariable payoffUnit)
 	{
-		final RandomVariable volatilityBachelier = volatility.div(payoffUnit);
-
 		if(optionMaturity < 0) {
 			return forward.mult(0.0);
 		}
 		else
 		{
-			final RandomVariable integratedVolatility = volatilityBachelier.mult(Math.sqrt(optionMaturity));
+			final RandomVariable integratedVolatility = volatility.mult(Math.sqrt(optionMaturity));
 			final RandomVariable dPlus	= forward.sub(optionStrike).div(integratedVolatility);
 
 			final RandomVariable vegaAnalytic = dPlus.apply(NormalDistribution::density).mult(payoffUnit).mult(Math.sqrt(optionMaturity));
 
-			return vegaAnalytic.mult(volatilityBachelier).div(volatility);
+			return vegaAnalytic;
 		}
 	}
 
@@ -333,9 +330,9 @@ public class BachelierModel {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
-	 * 	\mathrm{d} F(t) = \sigma exp(-r t) \mathrm{d}W(t) \text{.}
+	 * 	\mathrm{d} F(t) = \sigma exp(r (T-t)) \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
@@ -352,7 +349,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -364,9 +361,9 @@ public class BachelierModel {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
-	 * 	\mathrm{d} F(t) = \sigma exp(-r t) \mathrm{d}W(t) \text{.}
+	 * 	\mathrm{d} F(t) = \sigma exp(r (T-t)) \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
@@ -384,7 +381,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -396,9 +393,9 @@ public class BachelierModel {
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
-	 * 	\mathrm{d} F(t) = \sigma exp(-r t) \mathrm{d}W(t) \text{.}
+	 * 	\mathrm{d} F(t) = \sigma exp(r (T-t)) \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
 	 * @param forward The forward of the underlying.
@@ -417,7 +414,7 @@ public class BachelierModel {
 	{
 		final double volatilityEffective = bachelierHomogeneousOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
 		final double volatility = volatilityEffective / scaling;
 
 		return volatility;
@@ -425,13 +422,13 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Inhomogeneous Bachelier model
+	 * normal process with constant volatility, i.e., a inhomogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
-	 * 	\mathrm{d} F(t) = \sigma exp(-r t) \mathrm{d}W(t) \text{.}
+	 * 	\mathrm{d} F(t) = \sigma exp(r (T-t)) \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
@@ -448,7 +445,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -456,18 +453,18 @@ public class BachelierModel {
 
 	/**
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
-	 * normal process with constant volatility, i.e., a Inhomogeneous Bachelier model
+	 * normal process with constant volatility, i.e., a inhomogeneous Bachelier model
 	 * \[
 	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
 	 * \]
-	 * Considering the numeraire \( N(t) = exp( r t ) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
 	 * \[
-	 * 	\mathrm{d} F(t) = \sigma exp(-r t) \mathrm{d}W(t) \text{.}
+	 * 	\mathrm{d} F(t) = \sigma exp(r (T-t)) \mathrm{d}W(t) \text{.}
 	 * \]
 	 *
 	 * This implies an effective "Bachelier" integrated variance, being (with \( s = 0 \)
 	 * \[
-	 * 	1/T \int_s^T \sigma^2 exp(-2 r t) \mathrm{d}t \ = \ sigma^2 \frac{exp(-2 r s)-exp(-2 r T)}{2 r T}
+	 * 	1/T \int_{0}^{T} \sigma^2 exp(2 r (T-t)) \mathrm{d}t \ = \ sigma^2 \frac{exp(2 r (T-0))-exp(2 r (T-T)}{2 r T}
 	 * \]
 	 *
 	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
@@ -485,7 +482,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -515,7 +512,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		final double vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -549,7 +546,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		final RandomVariable vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 
