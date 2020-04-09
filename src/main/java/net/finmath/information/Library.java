@@ -6,6 +6,7 @@
 
 package net.finmath.information;
 
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -19,8 +20,8 @@ public class Library {
 	private static Properties properties;
 	static {
 		properties = new Properties();
-		try {
-			properties.load(Library.class.getResourceAsStream("/finmath-lib.properties"));
+		try(InputStream propertiesInputStream = Library.class.getResourceAsStream("/finmath-lib.properties")) {
+			properties.load(propertiesInputStream);
 		} catch (final Exception e) {
 			properties = null;
 		}
