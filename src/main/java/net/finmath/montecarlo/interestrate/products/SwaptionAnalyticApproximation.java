@@ -16,11 +16,11 @@ import net.finmath.marketdata.model.curves.Curve;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
@@ -150,24 +150,28 @@ public class SwaptionAnalyticApproximation extends AbstractLIBORMonteCarloProduc
 
 		// Return integratedSwapRateVariance if requested
 		if(valueUnit == ValueUnit.INTEGRATEDVARIANCELOGNORMAL || valueUnit == ValueUnit.INTEGRATEDVARIANCE) {
-			return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateVariance);
+			return new Scalar(integratedSwapRateVariance);
 		}
 
 		final double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);
 
 		// Return integratedSwapRateVariance if requested
 		if(valueUnit == ValueUnit.VOLATILITYLOGNORMAL || valueUnit == ValueUnit.VOLATILITY) {
-			return new RandomVariableFromDoubleArray(evaluationTime, volatility);
+			return new Scalar(volatility);
 		}
+		else if(valueUnit == ValueUnit.VALUE) {
+			// Use black formula for swaption to calculate the price
+			final double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
+			final double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());
 
-		// Use black formula for swaption to calculate the price
-		final double parSwaprate		= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());
-		final double swapAnnuity      = net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());
+			final double optionMaturity	= swapStart;
 
-		final double optionMaturity	= swapStart;
-
-		final double valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);
-		return new RandomVariableFromDoubleArray(evaluationTime, valueSwaption);
+			final double valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);
+			return new Scalar(valueSwaption);
+		}
+		else {
+			throw new IllegalArgumentException("Unknown valueUnit: " + valueUnit.name());
+		}
 	}
 
 	/**
