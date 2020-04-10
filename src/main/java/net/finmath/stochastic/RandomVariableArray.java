@@ -5,8 +5,6 @@
  */
 package net.finmath.stochastic;
 
-import java.util.function.Function;
-
 /**
  * An array of <code>RandomVariable</code> objects, implementing the <code>RandomVariable</code> interface.
  *
@@ -69,7 +67,7 @@ public interface RandomVariableArray extends RandomVariable {
 	 * @param operator A function operator mapping random variables x &rarr; operator(x).
 	 * @return An array where operator has been applied to eeach element.
 	 */
-	RandomVariableArray map(Function<RandomVariable, RandomVariable> operator);
+	RandomVariableArray map(RandomOperator operator);
 
 	/**
 	 * Components wise product followed by sum of all elements.
@@ -84,7 +82,7 @@ public interface RandomVariableArray extends RandomVariable {
 	@Override
 	default RandomVariableArray getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
 	{
-		return map(new Function<RandomVariable, RandomVariable>() {
+		return map(new RandomOperator() {
 			@Override
 			public RandomVariable apply(final RandomVariable x) {
 				return conditionalExpectationOperator.getConditionalExpectation(x);

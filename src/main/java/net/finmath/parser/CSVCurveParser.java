@@ -90,17 +90,19 @@ public class CSVCurveParser {
 	 */
 	public DiscountCurve[] parseZIP(final File file, final String currency, final String index) throws IOException {
 
-		final ZipFile zip = new ZipFile(file);
 		final List<DiscountCurve> curves = new ArrayList<>();
+		try(ZipFile zip = new ZipFile(file)) {
 
-		final Enumeration<? extends ZipEntry> entries = zip.entries();
+			final Enumeration<? extends ZipEntry> entries = zip.entries();
 
-		while(entries.hasMoreElements()) {
-			curves.add(parseStream(zip.getInputStream(entries.nextElement()), currency, index));
+			while(entries.hasMoreElements()) {
+				try(InputStream inputStream = zip.getInputStream(entries.nextElement())) {
+					curves.add(parseStream(inputStream, currency, index));
+				}
+			}
 		}
-		zip.close();
 
-		return curves.toArray(new DiscountCurve[0]);
+		return curves.toArray(new DiscountCurve[curves.size()]);
 	}
 
 	/**

@@ -110,9 +110,10 @@ public class EuropeanOptionWithBoundary extends AbstractAssetMonteCarloProduct {
 			values.add(remainingBoundaryAdjustment);
 		}
 
-		final double spot = ((MonteCarloBlackScholesModel)model).getModel().getInitialState()[0].get(0);
-		final double riskFreeRate = ((MonteCarloBlackScholesModel)model).getModel().getRiskFreeRate().doubleValue();
-		final double volatility = ((MonteCarloBlackScholesModel)model).getModel().getVolatility().doubleValue();
+		final MonteCarloBlackScholesModel modelBlackScholes = (MonteCarloBlackScholesModel)model;
+		final double spot = modelBlackScholes.getModel().getInitialState()[0].doubleValue();
+		final double riskFreeRate = modelBlackScholes.getModel().getRiskFreeRate().doubleValue();
+		final double volatility = modelBlackScholes.getModel().getVolatility().doubleValue();
 
 		double boundaryLocal = spot*Math.exp(riskFreeRate*maturity + boundary * 0.25 * Math.sqrt(maturity));
 		//    	boundaryLocal = boundary;

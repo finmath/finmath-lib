@@ -7,6 +7,8 @@ package net.finmath.randomnumbers;
 
 import java.util.function.DoubleUnaryOperator;
 
+import org.apache.commons.lang3.Validate;
+
 /**
  * Class implementing <code>RandomNumberGenerator</code> by the acceptance rejection method.
  *
@@ -30,10 +32,7 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 			final DoubleUnaryOperator referenceDensity,
 			final DoubleUnaryOperator referenceDistributionICDF,
 			final double acceptanceLevel) {
-
-		if(uniformRandomNumberGenerator.getDimension() < 2) {
-			throw new IllegalArgumentException("The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
-		}
+		Validate.inclusiveBetween(2, Integer.MAX_VALUE, uniformRandomNumberGenerator.getDimension(), "The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
 
 		this.uniformRandomNumberGenerator = uniformRandomNumberGenerator;
 		this.targetDensity = targetDensity;

@@ -379,8 +379,11 @@ public class CSVSwaptionParser {
 		for(final String maturity : maturities) {
 			for(final String tenor : tenors) {
 				final CSVSwaptionParser partialParser = new CSVSwaptionParser(new String[] {maturity}, new String[] {tenor}, fixMetaSchedule, floatMetaSchedule);
-				data = data.append(partialParser.parseStreams(atmZip.getInputStream(atmEntry), otmZip.getInputStream(otmEntry),
-						referenceDate, currency, index, discountCurveName), model);
+				try(InputStream atmStream = atmZip.getInputStream(atmEntry)) {
+					try(InputStream otmStream = otmZip.getInputStream(otmEntry)) {
+						data = data.append(partialParser.parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName), model);
+					}
+				}
 			}
 		}
 
