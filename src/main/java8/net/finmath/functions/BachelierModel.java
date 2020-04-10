@@ -47,7 +47,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
-	public static double bachelierHomogeneousOptionValue(
+	public static double bachelierOptionValue(
 			final double forward,
 			final double volatility,
 			final double optionMaturity,
@@ -90,7 +90,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
-	public static RandomVariable bachelierHomogeneousOptionValue(
+	public static RandomVariable bachelierOptionValue(
 			final RandomVariable forward,
 			final RandomVariable volatility,
 			final double optionMaturity,
@@ -130,7 +130,7 @@ public class BachelierModel {
 	 * @param optionValue The option value.
 	 * @return Returns the implied volatility of a European call option under the Bachelier model.
 	 */
-	public static double bachelierHomogeneousOptionImpliedVolatility(
+	public static double bachelierOptionImpliedVolatility(
 			final double forward,
 			final double optionMaturity,
 			final double optionStrike,
@@ -151,7 +151,7 @@ public class BachelierModel {
 		while(solver.getAccuracy() > maxAccuracy && !solver.isDone() && solver.getNumberOfIterations() < maxIterations) {
 			final double volatility = solver.getNextPoint();
 
-			final double valueAnalytic	= bachelierHomogeneousOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
+			final double valueAnalytic	= bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);
 
 			final double error = valueAnalytic - optionValue;
 
@@ -179,7 +179,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
-	public static double bachelierHomogeneousOptionDelta(
+	public static double bachelierOptionDelta(
 			final double forward,
 			final double volatility,
 			final double optionMaturity,
@@ -221,7 +221,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
 	 */
-	public static RandomVariable bachelierHomogeneousOptionDelta(
+	public static RandomVariable bachelierOptionDelta(
 			final RandomVariable forward,
 			final RandomVariable volatility,
 			final double optionMaturity,
@@ -260,7 +260,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the vega of a European call option under the Bachelier model.
 	 */
-	public static double bachelierHomogeneousOptionVega(
+	public static double bachelierOptionVega(
 			final double forward,
 			final double volatility,
 			final double optionMaturity,
@@ -303,7 +303,7 @@ public class BachelierModel {
 	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
 	 * @return Returns the vega of a European call option under the Bachelier model.
 	 */
-	public static RandomVariable bachelierHomogeneousOptionVega(
+	public static RandomVariable bachelierOptionVega(
 			final RandomVariable forward,
 			final RandomVariable volatility,
 			final double optionMaturity,
@@ -322,6 +322,211 @@ public class BachelierModel {
 
 			return vegaAnalytic;
 		}
+	}
+
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static double bachelierHomogeneousOptionValue(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+		return bachelierOptionValue(forward, volatility/payoffUnit, optionMaturity, optionStrike, payoffUnit);
+	}
+
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static RandomVariable bachelierHomogeneousOptionValue(
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
+	{
+		return bachelierOptionValue(forward, volatility.div(payoffUnit), optionMaturity, optionStrike, payoffUnit);
+	}
+
+	/**
+	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param optionValue The option value.
+	 * @return Returns the implied volatility of a European call option under the Bachelier model.
+	 */
+	public static double bachelierHomogeneousOptionImpliedVolatility(
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit,
+			final double optionValue)
+	{
+		return bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue)*payoffUnit;
+	}
+
+	/**
+	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
+	 */
+	public static double bachelierHomogeneousOptionDelta(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+		return bachelierOptionDelta(forward, volatility/payoffUnit, optionMaturity, optionStrike, payoffUnit);
+	}
+
+	/**
+	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
+	 */
+	public static RandomVariable bachelierHomogeneousOptionDelta(
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
+	{
+		return bachelierOptionDelta(forward, volatility.div(payoffUnit), optionMaturity, optionStrike, payoffUnit);
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the vega of a European call option under the Bachelier model.
+	 */
+	public static double bachelierHomogeneousOptionVega(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+		return bachelierOptionVega(forward, volatility/payoffUnit, optionMaturity, optionStrike, payoffUnit)/payoffUnit;
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(rt) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma / N(T) \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the vega of a European call option under the Bachelier model.
+	 */
+	public static RandomVariable bachelierHomogeneousOptionVega(
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
+	{
+		return bachelierOptionVega(forward, volatility.div(payoffUnit), optionMaturity, optionStrike, payoffUnit).div(payoffUnit);
 	}
 
 	/**
