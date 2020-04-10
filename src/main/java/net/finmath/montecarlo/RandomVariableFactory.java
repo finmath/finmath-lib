@@ -19,10 +19,10 @@ public interface RandomVariableFactory {
 	/**
 	 * Static method for creating random variables from Objects.
 	 *
-	 * @param randomVariableFactory
-	 * @param value
-	 * @param defaultValue
-	 * @return
+	 * @param randomVariableFactory The RandomVariableFactory used to construct the random variable, if needed.
+	 * @param value The value used to construct the random variable, if needed.
+	 * @param defaultValue The default value to be used if value is null.
+	 * @return A RandomVariable with the given value (or the defaultValue).
 	 */
 	static 	RandomVariable getRandomVariableOrDefault(RandomVariableFactory randomVariableFactory, Object value, RandomVariable defaultValue) {
 		if(value == null) {

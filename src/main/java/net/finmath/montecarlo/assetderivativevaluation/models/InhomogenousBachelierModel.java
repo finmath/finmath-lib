@@ -25,14 +25,14 @@ import net.finmath.stochastic.RandomVariable;
  * 	dN = r N \mathrm{d}t, \quad N(0) = N_{0},
  * \]
  *
- * <p/>
+ * <p>
  *
  * Note, the model corresponds to the following dynamic for the numeraire relative stock value \( F(t) = S(t)/N(t) \):
  * \[
  * 	\mathrm{d}F = exp(-r t) \sigma \mathrm{d}W, \quad F(0) = F_{0} = S_{0}/N_{0},
  * \]
  *
- * <p/>
+ * <p>
  *
  * Note that the variance of \( \int_{t}^{t+\Delta t} \mathrm{d}F \) is
  * \[ \int_{t}^{t+\Delta t} ( exp(-r s) \sigma )^{2} \mathrm{d}s = \frac{\exp(-2 r t)}{2 r} \left( 1 - \exp(-2 r \Delta t) \right) \]
