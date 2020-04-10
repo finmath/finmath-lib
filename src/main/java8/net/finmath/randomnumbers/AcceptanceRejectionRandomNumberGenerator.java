@@ -32,7 +32,7 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 			final DoubleUnaryOperator referenceDensity,
 			final DoubleUnaryOperator referenceDistributionICDF,
 			final double acceptanceLevel) {
-		Validate.exclusiveBetween(2, Integer.MAX_VALUE, uniformRandomNumberGenerator.getDimension(), "The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
+		Validate.inclusiveBetween(2, Integer.MAX_VALUE, uniformRandomNumberGenerator.getDimension(), "The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.");
 
 		this.uniformRandomNumberGenerator = uniformRandomNumberGenerator;
 		this.targetDensity = targetDensity;
