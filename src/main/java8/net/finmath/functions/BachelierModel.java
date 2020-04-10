@@ -13,12 +13,29 @@ import net.finmath.stochastic.RandomVariable;
  *
  * There are different variants of the Bachelier model, depending on if the volatility of the stock
  * or the volatility of the forward are assumed to be constant.
+ * 
+ * <dl>
+ * 	<dt>Bachelier model</dt>
+ * 	<dd>the model for a forward F(t) following dF = sigma dW, valuing the option max(F(T)-K,0) * N(T)</dd>
+ * 
+ * 	<dt>Homogeneous Bachelier model</dt>
+ * 	<dd>the model for a stock S(t) following dS = rS dt + sigma exp(rt) dW, valuing the option max(S(T)-K,0)</dd>
  *
+ * 	<dt>Inhomogeneous Bachelier model</dt>
+ * 	<dd>the model for a stock S(t) following dS = rS dt + sigma dW, valuing the option max(S(T)-K,0)</dd>
+ * </dl>
+ * 
+ * The class {@link net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel} is the Monte-Carlo
+ * implementation of a <i>Homogeneous Bachelier model</i>.
+ *
+ * The class {@link net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel} is the Monte-Carlo
+ * implementation of a <i>Inhomogeneous Bachelier model</i>.
+ * 
  * @see net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel
  * @see net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel
  *
  * @author Christian Fries
- * @version 1.10
+ * @version 1.11
  * @date 27.04.2012
  */
 public class BachelierModel {
@@ -554,7 +571,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -586,7 +603,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionValue(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -619,7 +636,7 @@ public class BachelierModel {
 	{
 		final double volatilityEffective = bachelierHomogeneousOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
 		final double volatility = volatilityEffective / scaling;
 
 		return volatility;
@@ -650,7 +667,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -687,7 +704,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		return bachelierHomogeneousOptionDelta(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 	}
@@ -717,7 +734,7 @@ public class BachelierModel {
 			final double optionStrike,
 			final double payoffUnit)
 	{
-		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit)))/payoffUnit : 1.0;
+		final double scaling = payoffUnit != 1 ? Math.sqrt((payoffUnit*payoffUnit-1)/(2.0*Math.log(payoffUnit))) : 1.0;
 		final double volatilityEffective = volatility * scaling;
 
 		final double vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
@@ -751,7 +768,7 @@ public class BachelierModel {
 			final RandomVariable payoffUnit)
 	{
 		// TODO The formula fails if payoffUnit == 1
-		final RandomVariable volatilityEffective = volatility.div(payoffUnit).mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
+		final RandomVariable volatilityEffective = volatility.mult(payoffUnit.squared().sub(1.0).div(payoffUnit.log().mult(2)).sqrt());
 
 		final RandomVariable vegaHomogenouse = bachelierHomogeneousOptionVega(forward, volatilityEffective, optionMaturity, optionStrike, payoffUnit);
 
