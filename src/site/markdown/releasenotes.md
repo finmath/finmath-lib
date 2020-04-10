@@ -6,17 +6,23 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.1.8 (29.03.2020)
+## 4.1.8 (10.04.2020)
 
 ### General
 
+ - RandomOperator is a synonym for Function<RandomVariable,RandomVariable>
  - RandomVariables come with apply(RandomOperator).
  
+### Analytic Formulas
+
+ - More convenient variants of Bachelier formula (classic, homogeneouse, inhomogeneouse).
+
 ### Interest Rate Models (Monte-Carlo)
 
  - Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
  - LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
- 
+ - Improve analytic calibration of normal LIBOR Market Model.
+
 
 ## 4.1.7 (22.03.2020)
 
