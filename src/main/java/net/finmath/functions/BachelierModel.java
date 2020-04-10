@@ -13,24 +13,24 @@ import net.finmath.stochastic.RandomVariable;
  *
  * There are different variants of the Bachelier model, depending on if the volatility of the stock
  * or the volatility of the forward are assumed to be constant.
- * 
+ *
  * <dl>
  * 	<dt>Bachelier model</dt>
  * 	<dd>the model for a forward F(t) following dF = sigma dW, valuing the option max(F(T)-K,0) * N(T)</dd>
- * 
+ *
  * 	<dt>Homogeneous Bachelier model</dt>
  * 	<dd>the model for a stock S(t) following dS = rS dt + sigma exp(rt) dW, valuing the option max(S(T)-K,0)</dd>
  *
  * 	<dt>Inhomogeneous Bachelier model</dt>
  * 	<dd>the model for a stock S(t) following dS = rS dt + sigma dW, valuing the option max(S(T)-K,0)</dd>
  * </dl>
- * 
+ *
  * The class {@link net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel} is the Monte-Carlo
  * implementation of a <i>Homogeneous Bachelier model</i>.
  *
  * The class {@link net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel} is the Monte-Carlo
  * implementation of a <i>Inhomogeneous Bachelier model</i>.
- * 
+ *
  * @see net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel
  * @see net.finmath.montecarlo.assetderivativevaluation.models.InhomogenousBachelierModel
  *

@@ -27,6 +27,7 @@ public class Bond extends HybridAssetMonteCarloProduct {
 
 	/**
 	 * @param referenceDate The date corresponding to \( t = 0 \).
+	 * @param currency The currency to be used (may include information on collateralization).
 	 * @param maturity The maturity given as double.
 	 */
 	public Bond(final LocalDateTime referenceDate, final String currency, final double maturity) {
@@ -37,6 +38,7 @@ public class Bond extends HybridAssetMonteCarloProduct {
 	}
 
 	/**
+	 * @param currency The currency to be used (may include information on collateralization).
 	 * @param maturity The maturity given as double.
 	 */
 	public Bond(final String currency, final double maturity) {
