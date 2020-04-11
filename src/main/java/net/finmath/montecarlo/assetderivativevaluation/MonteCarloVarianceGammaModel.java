@@ -105,10 +105,10 @@ public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulat
 		 */
 		final double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
 		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate();
-		final double	newSigma	= dataModified.get("sigma") != null	? ((Number)dataModified.get("sigma")).doubleValue()	: model.getSigma();
-		final double	newTheta	= dataModified.get("theta") != null	? ((Number)dataModified.get("theta")).doubleValue()	: model.getTheta();
-		final double	newNu	= dataModified.get("nu") != null	? ((Number)dataModified.get("nu")).doubleValue()	: model.getNu();
+		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate().doubleValue();
+		final double	newSigma	= dataModified.get("sigma") != null	? ((Number)dataModified.get("sigma")).doubleValue()	: model.getSigma().doubleValue();
+		final double	newTheta	= dataModified.get("theta") != null	? ((Number)dataModified.get("theta")).doubleValue()	: model.getTheta().doubleValue();
+		final double	newNu	= dataModified.get("nu") != null	? ((Number)dataModified.get("nu")).doubleValue()	: model.getNu().doubleValue();
 		final int		newSeed				= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
 
 		return new MonteCarloVarianceGammaModel(process.getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), process.getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newSigma, newTheta, newNu);
