@@ -37,6 +37,7 @@ public class BondWithForeignNumeraire extends HybridAssetMonteCarloProduct {
 	}
 
 	/**
+	 * @param account The account name to be used (determines the numeraire).
 	 * @param maturity The maturity given as double.
 	 */
 	public BondWithForeignNumeraire(final String account, final double maturity) {
