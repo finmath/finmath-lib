@@ -153,7 +153,7 @@ public class HestonModel extends AbstractProcessModel {
 	 * @param xi \( \xi \) - the volatility of volatility
 	 * @param rho \( \rho \) - the correlation of the Brownian drivers
 	 * @param scheme The truncation scheme, that is, either reflection (V &rarr; abs(V)) or truncation (V &rarr; max(V,0)).
-	 * @param abstractRandomVariableFactory The factory to be used to construct random variables.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
 	 */
 	public HestonModel(
 			final RandomVariable initialValue,
@@ -165,7 +165,7 @@ public class HestonModel extends AbstractProcessModel {
 			final RandomVariable xi,
 			final RandomVariable rho,
 			final Scheme scheme,
-			final RandomVariableFactory abstractRandomVariableFactory
+			final RandomVariableFactory randomVariableFactory
 			) {
 		super();
 
@@ -183,7 +183,7 @@ public class HestonModel extends AbstractProcessModel {
 
 		this.scheme			= scheme;
 
-		this.randomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 	}
 
 	/**
