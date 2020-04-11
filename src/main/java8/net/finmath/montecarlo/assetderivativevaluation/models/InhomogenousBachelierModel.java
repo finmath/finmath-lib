@@ -12,6 +12,7 @@ import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a (variant of the) Bachelier model, that is, it provides the drift and volatility specification
@@ -25,14 +26,14 @@ import net.finmath.stochastic.RandomVariable;
  * 	dN = r N \mathrm{d}t, \quad N(0) = N_{0},
  * \]
  *
- * <p/>
+ * <p>
  *
  * Note, the model corresponds to the following dynamic for the numeraire relative stock value \( F(t) = S(t)/N(t) \):
  * \[
  * 	\mathrm{d}F = exp(-r t) \sigma \mathrm{d}W, \quad F(0) = F_{0} = S_{0}/N_{0},
  * \]
  *
- * <p/>
+ * <p>
  *
  * Note that the variance of \( \int_{t}^{t+\Delta t} \mathrm{d}F \) is
  * \[ \int_{t}^{t+\Delta t} ( exp(-r s) \sigma )^{2} \mathrm{d}s = \frac{\exp(-2 r t)}{2 r} \left( 1 - \exp(-2 r \Delta t) \right) \]
@@ -99,7 +100,7 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);//.mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
+			drift[componentIndex] = new Scalar(0.0);
 		}
 		return drift;
 	}
