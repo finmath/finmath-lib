@@ -14,12 +14,12 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * This class implements an inhomogeneous displaced log-normal model, that is, it provides the drift and volatility specification
+ * This class implements a displaced lognormal model, that is, it provides the drift and volatility specification
  * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
  *
  * The model is
  * \[
- * 	\mathrm{d}S = r S dt + \sigma (S + d) \mathrm{d}W, \quad S(0) = S_{0},
+ * 	\mathrm{d}S = r S \mathrm{d}t + \sigma (d \cdot N + S) \mathrm{d}W, \quad S(0) = S_{0},
  * \]
  * \[
  * 	\mathrm{d}N = r N \mathrm{d}t, \quad N(0) = N_{0},
@@ -27,28 +27,34 @@ import net.finmath.stochastic.RandomVariable;
  *
  * Note that
  * \[
- *	\mathrm{d}(S/N) = \sigma (S/N + d/N) \mathrm{d}W
+ *	\mathrm{d}(S/N) = \sigma (d+S/N) \mathrm{d}W
  * \]
- * i.e.
+ * that is
  * \[
- *	\mathrm{d}(S/N + d/N) = -r d/N dt + \sigma (S/N + d/N) \mathrm{d}W
+ * 	\mathrm{d}X = - 1/2 \sigma^2 \mathrm{d}t + \sigma \mathrm{d}W
  * \]
+ * with exp(X) = d + S/N, i.e. S = N ( exp(X)-d ).
  *
  * The class provides the model of S to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code>
- * via the specification of (via X = S/N+d/N)
- * \( S = f(X) = N X - d \), \( \mu = d \frac{exp(- r t_2) - exp(- r t_1)}{t_2-t_1} \), \( \lambda_{1,1} = \sigma X \),
+ * via the specification of
+ * \( S = f(X) = N (exp(X)-d) \), \( \mu = -\frac{1}{2} \sigma^{2} \), \( \lambda_{1,1} = \sigma \), i.e.,
  * of the SDE
  * \[
- * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = S_{0} + e,
+ * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(d+S_{0}),
  * \]
  * with \( N(0) = 1 \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
+ *
+ * The model can be interpreted as a linear interpolation of the Black-Scholes model
+ * {@link net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel}
+ * and the homogeneous Bachelier model
+ * {@link net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel}.
  *
  * @author Christian Fries
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
- * @version 1.0
+ * @version 1.1
  */
-public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
+public class DisplacedLognomalModel extends AbstractProcessModel {
 
 	private final RandomVariableFactory randomVariableFactory;
 
@@ -57,10 +63,8 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	private final RandomVariable displacement;
 	private final RandomVariable volatility;
 
-	private final boolean isUseMilsteinCorrection;
-
 	/**
-	 * Create a blended normal/lognormal model.
+	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
 	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
 	 * @param initialValue Spot value.
@@ -68,122 +72,89 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
 	 */
-	public InhomogeneousDisplacedLognomalModel(
+	public DisplacedLognomalModel(
 			final RandomVariableFactory randomVariableFactory,
 			final RandomVariable initialValue,
 			final RandomVariable riskFreeRate,
 			final RandomVariable displacement,
-			final RandomVariable volatility,
-			final boolean isUseMilsteinCorrection) {
+			final RandomVariable volatility) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
 		this.initialValue	= initialValue;
 		this.riskFreeRate	= riskFreeRate;
 		this.displacement	= displacement;
 		this.volatility		= volatility;
-		this.isUseMilsteinCorrection = isUseMilsteinCorrection;
 	}
 
 	/**
-	 * Create a blended normal/lognormal model.
+	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
 	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
-	 * @param isUseMilsteinCorrection If true, the drift will include the Milstein correction (making an Euler scheme a Milstein scheme).
 	 */
-	public InhomogeneousDisplacedLognomalModel(
+	public DisplacedLognomalModel(
 			final RandomVariableFactory randomVariableFactory,
 			final double initialValue,
 			final double riskFreeRate,
 			final double displacement,
-			final double volatility,
-			final boolean isUseMilsteinCorrection) {
+			final double volatility) {
 		this(
 				randomVariableFactory,
 				randomVariableFactory.createRandomVariable(initialValue),
 				randomVariableFactory.createRandomVariable(riskFreeRate),
 				randomVariableFactory.createRandomVariable(displacement),
-				randomVariableFactory.createRandomVariable(volatility),
-				isUseMilsteinCorrection);
+				randomVariableFactory.createRandomVariable(volatility)
+				);
 	}
 
 	/**
-	 * Create a blended normal/lognormal model.
-	 *
-	 * @param initialValue Spot value.
-	 * @param riskFreeRate The risk free rate.
-	 * @param displacement The displacement parameter d.
-	 * @param volatility The volatility.
-	 * @param isUseMilsteinCorrection If true, the drift will include the Milstein correction (making an Euler scheme a Milstein scheme).
-	 */
-	public InhomogeneousDisplacedLognomalModel(
-			final double initialValue,
-			final double riskFreeRate,
-			final double displacement,
-			final double volatility,
-			final boolean isUseMilsteinCorrection) {
-		this(new RandomVariableFromArrayFactory(), initialValue, riskFreeRate, displacement, volatility, isUseMilsteinCorrection);
-	}
-
-	/**
-	 * Create a blended normal/lognormal model.
+	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
 	 */
-	public InhomogeneousDisplacedLognomalModel(
+	public DisplacedLognomalModel(
 			final double initialValue,
 			final double riskFreeRate,
 			final double displacement,
 			final double volatility) {
-		this(initialValue, riskFreeRate, displacement, volatility, false);
+		this(new RandomVariableFromArrayFactory(), initialValue, riskFreeRate, displacement, volatility);
 	}
 
 	@Override
 	public RandomVariable[] getInitialState() {
-		return new RandomVariable[] { initialValue.add(displacement) };
+		return new RandomVariable[] { initialValue.add(displacement).log() };
 	}
 
 	@Override
 	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		final double time = getProcess().getTimeDiscretization().getTime(timeIndex);
-		final double timeNext = getProcess().getTimeDiscretization().getTime(timeIndex+1);
-		final double dt = timeNext - time;
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = displacement.mult(riskFreeRate.mult(-timeNext).exp().sub(riskFreeRate.mult(-time).exp()).div(timeNext-time));
-			if(isUseMilsteinCorrection) {
-				drift[componentIndex] = drift[componentIndex].add(
-						getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex)[0].mult(volatility).div(2).mult(getProcess().getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
-			}
+			drift[componentIndex] = volatility.squared().mult(-0.5);
 		}
 		return drift;
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final RandomVariable[] volatilityOnPaths = new RandomVariable[realizationAtTimeIndex.length];
-		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			volatilityOnPaths[componentIndex] = applyStateSpaceTransformInverse(componentIndex, realizationAtTimeIndex[componentIndex]).mult(volatility);
-		}
-		return volatilityOnPaths;
+		return new RandomVariable[] { volatility };
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		final double time = Math.max(randomVariable.getFiltrationTime(),0.0);
-		return randomVariable.mult(riskFreeRate.mult(time).exp()).sub(displacement);
+		return randomVariable.exp().sub(displacement).mult(riskFreeRate.mult(time).exp());
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
 		final double time = Math.max(randomVariable.getFiltrationTime(),0.0);
-		return randomVariable.add(displacement).div(riskFreeRate.mult(time).exp());
+		return randomVariable.div(riskFreeRate.mult(time).exp()).add(displacement).log();
 	}
 
 	@Override
@@ -207,7 +178,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public InhomogeneousDisplacedLognomalModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
+	public DisplacedLognomalModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
@@ -218,14 +189,15 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 		final RandomVariable newDisplacement	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("displacement"), displacement);
 		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("volatility"), volatility);
 
-		return new InhomogeneousDisplacedLognomalModel(newRandomVariableFactory, newInitialValue, newRiskFreeRate, newDisplacement, newVolatility, isUseMilsteinCorrection);
+		return new DisplacedLognomalModel(newRandomVariableFactory, newInitialValue, newRiskFreeRate, newDisplacement, newVolatility);
 	}
+
 
 	@Override
 	public String toString() {
-		return "InhomogeneousDisplacedLognomalModel [randomVariableFactory=" + randomVariableFactory + ", initialValue="
+		return "DisplacedLognomalModelExperimental [randomVariableFactory=" + randomVariableFactory + ", initialValue="
 				+ initialValue + ", riskFreeRate=" + riskFreeRate + ", displacement=" + displacement + ", volatility="
-				+ volatility + ", isUseMilsteinCorrection=" + isUseMilsteinCorrection + "]";
+				+ volatility + "]";
 	}
 
 	public RandomVariableFactory getRandomVariableFactory() {
