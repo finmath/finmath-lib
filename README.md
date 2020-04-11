@@ -26,6 +26,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Heston model
     - Bates model
     - Two factor Bates model
+    - Merton Model
     - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 - **Finite difference methods**
     - Numerical schemes using finite differences
@@ -41,6 +42,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Hull-White Short Rate Model (with time dependent parameters)
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
+    - Variance Gamma Model (as Monte-Carlo Simulation)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
 - **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
