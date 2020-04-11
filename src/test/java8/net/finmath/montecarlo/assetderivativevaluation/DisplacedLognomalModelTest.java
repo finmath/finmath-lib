@@ -169,7 +169,7 @@ public class DisplacedLognomalModelTest {
 		System.out.println("value using sum of Black and Bachelier........: " + formatterValue.format(valueSumBlackBachelier));
 		System.out.println("value using analytic formula for Black Model..: " + formatterValue.format(valueAnalytic));
 
-		System.out.println("_".repeat(79));
+		System.out.println("________________________________________________");
 
 		Assert.assertEquals("Value Black-Scholes", valueBlack.getAverage(), valueAnalytic, 1E-2);
 
