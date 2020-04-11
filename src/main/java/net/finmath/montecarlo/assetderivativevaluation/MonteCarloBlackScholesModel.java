@@ -6,7 +6,6 @@
 package net.finmath.montecarlo.assetderivativevaluation;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
@@ -20,7 +19,6 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>

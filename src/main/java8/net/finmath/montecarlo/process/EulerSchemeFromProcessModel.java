@@ -299,14 +299,6 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	}
 
 	/**
-	 * Reset all precalculated values
-	 */
-	private synchronized void reset() {
-		discreteProcess = null;
-		discreteProcessWeights = null;
-	}
-
-	/**
 	 * @return Returns the numberOfPaths.
 	 */
 	@Override
@@ -349,8 +341,10 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	@Override
 	public MonteCarloProcess getCloneWithModifiedData(final Map<String, Object> dataModified) {
-		// @TODO Implement cloning with modified properties
-		throw new UnsupportedOperationException("Method not implemented");
+		final ProcessModel newModel = (ProcessModel) dataModified.getOrDefault("model", getModel());
+		final IndependentIncrements newStochasticDriver = (IndependentIncrements) dataModified.getOrDefault("stochasticDriver", stochasticDriver);
+
+		return new EulerSchemeFromProcessModel(newModel, newStochasticDriver, scheme);
 	}
 
 	@Override
