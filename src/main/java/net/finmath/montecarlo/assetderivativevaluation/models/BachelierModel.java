@@ -12,6 +12,7 @@ import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a (variant of the) Bachelier model, that is,
@@ -104,7 +105,7 @@ public class BachelierModel extends AbstractProcessModel {
 	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);
+			drift[componentIndex] = new Scalar(0.0);;
 		}
 		return drift;
 	}

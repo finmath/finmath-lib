@@ -12,6 +12,7 @@ import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a (variant of the) Bachelier model, that is, it provides the drift and volatility specification
@@ -99,7 +100,7 @@ public class InhomogenousBachelierModel extends AbstractProcessModel {
 		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);//.mult((Math.exp(riskFreeRate*dt)-1.0)/dt);
+			drift[componentIndex] = new Scalar(0.0);
 		}
 		return drift;
 	}
