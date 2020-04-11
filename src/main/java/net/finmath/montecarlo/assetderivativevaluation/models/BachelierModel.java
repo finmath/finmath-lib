@@ -60,6 +60,14 @@ public class BachelierModel extends AbstractProcessModel {
 	private final RandomVariable riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final RandomVariable volatility;
 
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The volatility.
+	 */
 	public BachelierModel(RandomVariableFactory randomVariableFactory, RandomVariable initialValue, RandomVariable riskFreeRate, RandomVariable volatility) {
 		super();
 		this.randomVariableFactory = randomVariableFactory;
