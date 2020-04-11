@@ -50,7 +50,7 @@ public class ForwardRateAgreementGeneralized extends HybridAssetMonteCarloProduc
 
 	/**
 	 * Create a forward rate agreement.
-	 * 
+	 *
 	 * @param referenceDate The referenceDate corresponding to time t=0 of the model.
 	 * @param curve The curve on which the fixing of the index occurs.
 	 * @param fixing The floating point of the fixing date offset to the referenceData.
