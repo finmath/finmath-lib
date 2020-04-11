@@ -67,6 +67,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * @param riskFreeRate The risk free rate.
 	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
+	 * @param isUseMilsteinCorrection If true, a Milstein scheme correction is applied in the drift.
 	 */
 	public InhomogeneousDisplacedLognomalModel(
 			final RandomVariableFactory randomVariableFactory,
@@ -158,8 +159,14 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = displacement.mult(riskFreeRate.mult(-timeNext).exp().sub(riskFreeRate.mult(-time).exp()).div(timeNext-time));
 			if(isUseMilsteinCorrection) {
+				/*
+				 * Note: The Milstein corrections assume that the model has a single factor.
+				 * While this is true for this model, in general you have to loop over all factors.
+				 */
 				drift[componentIndex] = drift[componentIndex].add(
-						getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex)[0].mult(volatility).div(2).mult(process.getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
+						getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex)[0]
+								.mult(volatility).div(2)
+								.mult(process.getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
 			}
 		}
 		return drift;
