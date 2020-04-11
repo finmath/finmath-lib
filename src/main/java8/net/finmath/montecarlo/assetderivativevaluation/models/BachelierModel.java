@@ -105,7 +105,7 @@ public class BachelierModel extends AbstractProcessModel {
 	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = new Scalar(0.0);;
+			drift[componentIndex] = new Scalar(0.0);
 		}
 		return drift;
 	}

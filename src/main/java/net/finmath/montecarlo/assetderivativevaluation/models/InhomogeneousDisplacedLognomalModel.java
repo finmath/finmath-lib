@@ -174,7 +174,6 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final double dt = process.getTimeDiscretization().getTimeStep(timeIndex);
 		final RandomVariable[] volatilityOnPaths = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			volatilityOnPaths[componentIndex] = applyStateSpaceTransformInverse(process, timeIndex, componentIndex, realizationAtTimeIndex[componentIndex]).mult(volatility);
