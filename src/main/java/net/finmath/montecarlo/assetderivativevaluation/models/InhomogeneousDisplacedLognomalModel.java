@@ -10,7 +10,6 @@ import java.util.Map;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -67,6 +66,7 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 	 * @param riskFreeRate The risk free rate.
 	 * @param displacement The displacement parameter d.
 	 * @param volatility The volatility.
+	 * @param isUseMilsteinCorrection If true, a Milstein scheme correction is applied in the drift.
 	 */
 	public InhomogeneousDisplacedLognomalModel(
 			final RandomVariableFactory randomVariableFactory,
@@ -158,8 +158,14 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
 			drift[componentIndex] = displacement.mult(riskFreeRate.mult(-timeNext).exp().sub(riskFreeRate.mult(-time).exp()).div(timeNext-time));
 			if(isUseMilsteinCorrection) {
+				/*
+				 * Note: The Milstein corrections assume that the model has a single factor.
+				 * While this is true for this model, in general you have to loop over all factors.
+				 */
 				drift[componentIndex] = drift[componentIndex].add(
-						getFactorLoading(timeIndex, componentIndex, realizationAtTimeIndex)[0].mult(volatility).div(2).mult(getProcess().getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
+						getFactorLoading(getProcess(), timeIndex, componentIndex, realizationAtTimeIndex)[0]
+								.mult(volatility).div(2)
+								.mult(getProcess().getStochasticDriver().getIncrement(timeIndex, 0).squared().sub(dt)));
 			}
 		}
 		return drift;
@@ -176,18 +182,18 @@ public class InhomogeneousDisplacedLognomalModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
-		final double time = Math.max(randomVariable.getFiltrationTime(),0.0);
+		final double time = Math.max(randomVariable.getFiltrationTime(), 0.0);
 		return randomVariable.mult(riskFreeRate.mult(time).exp()).sub(displacement);
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
-		final double time = Math.max(randomVariable.getFiltrationTime(),0.0);
+		final double time = Math.max(randomVariable.getFiltrationTime(), 0.0);
 		return randomVariable.add(displacement).div(riskFreeRate.mult(time).exp());
 	}
 
 	@Override
-	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+	public RandomVariable getNumeraire(final double time) {
 		return riskFreeRate.mult(time).exp();
 	}
 

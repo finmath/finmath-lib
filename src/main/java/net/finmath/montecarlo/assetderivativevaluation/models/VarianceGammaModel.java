@@ -5,6 +5,8 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -30,17 +32,72 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class VarianceGammaModel extends AbstractProcessModel {
 
-	private final double initialValue;
+	private final RandomVariableFactory randomVariableFactory;
+
+	private final RandomVariable initialValue;
 
 	private final DiscountCurve discountCurveForForwardRate;
-	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final RandomVariable riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 
 	private final DiscountCurve discountCurveForDiscountRate;
-	private final double discountRate;		// Constant rate, used if discountCurveForForwardRate is null
+	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
 
-	private final double sigma;
-	private final double theta;
-	private final double nu;
+	private final RandomVariable sigma;
+	private final RandomVariable theta;
+	private final RandomVariable nu;
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final RandomVariable initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final RandomVariable sigma, final RandomVariable theta, final RandomVariable nu,
+			final RandomVariableFactory randomVariableFactory) {
+		super();
+		this.randomVariableFactory = randomVariableFactory;
+
+		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		riskFreeRate = null;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		discountRate = null;
+		this.sigma = sigma;
+		this.theta = theta;
+		this.nu = nu;
+	}
+
+	/**
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param discountRate The constant rate used for discounting.
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final RandomVariable initialValue, final RandomVariable riskFreeRate, final RandomVariable discountRate, final RandomVariable sigma, final RandomVariable theta,
+			final RandomVariable nu,
+			final RandomVariableFactory randomVariableFactory) {
+		super();
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
+		this.initialValue = initialValue;
+		discountCurveForForwardRate = null;
+		this.riskFreeRate = riskFreeRate;
+		discountCurveForDiscountRate = null;
+		this.discountRate = discountRate;
+		this.sigma = sigma;
+		this.theta = theta;
+		this.nu = nu;
+	}
 
 	/**
 	 * Create the model from a descriptor.
@@ -65,18 +122,37 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @param sigma The parameter \( \sigma \).
 	 * @param theta The parameter \( \theta \).
 	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu,
+			final RandomVariableFactory randomVariableFactory) {
+		super();
+		this.initialValue = randomVariableFactory.createRandomVariable(initialValue);
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		riskFreeRate = null;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		discountRate = null;
+		this.sigma = randomVariableFactory.createRandomVariable(sigma);
+		this.theta = randomVariableFactory.createRandomVariable(theta);
+		this.nu = randomVariableFactory.createRandomVariable(nu);
+
+		this.randomVariableFactory = randomVariableFactory;
+	}
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
 	 */
 	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
 			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
-		super();
-		this.initialValue = initialValue;
-		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		riskFreeRate = Double.NaN;
-		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		discountRate = Double.NaN;
-		this.sigma = sigma;
-		this.theta = theta;
-		this.nu = nu;
+		this(initialValue, discountCurveForDiscountRate, discountCurveForDiscountRate, sigma, theta, nu, new RandomVariableFromArrayFactory());
 	}
 
 	/**
@@ -92,14 +168,15 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
 			final double nu) {
 		super();
-		this.initialValue = initialValue;
+		this.randomVariableFactory = new RandomVariableFromArrayFactory();
+		this.initialValue = this.randomVariableFactory.createRandomVariable(initialValue);
 		discountCurveForForwardRate = null;
-		this.riskFreeRate = riskFreeRate;
+		this.riskFreeRate = this.randomVariableFactory.createRandomVariable(riskFreeRate);
 		discountCurveForDiscountRate = null;
-		this.discountRate = discountRate;
-		this.sigma = sigma;
-		this.theta = theta;
-		this.nu = nu;
+		this.discountRate = this.randomVariableFactory.createRandomVariable(discountRate);
+		this.sigma = this.randomVariableFactory.createRandomVariable(sigma);
+		this.theta = this.randomVariableFactory.createRandomVariable(theta);
+		this.nu = this.randomVariableFactory.createRandomVariable(nu);
 	}
 
 
@@ -117,11 +194,6 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public int getNumberOfComponents() {
-		return 1;
-	}
-
-	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
@@ -133,62 +205,76 @@ public class VarianceGammaModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable[] getInitialState() {
-		return new RandomVariable[] {getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue))};
+		return new RandomVariable[] { initialValue.log() };
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) {
 		if(discountCurveForDiscountRate != null) {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+			return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
 		}
 		else {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(Math.exp(discountRate * time));
+			return discountRate.mult(time).exp();
 		}
 	}
 
 	@Override
-	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex,
-			final RandomVariable[] realizationPredictor) {
-		double riskFreeRateAtTimeStep = 0.0;
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		RandomVariable riskFreeRateAtTimeStep;
+
 		if(discountCurveForForwardRate != null) {
-			final double time		= getTime(timeIndex);
-			final double timeNext	= getTime(timeIndex+1);
+			final double time		= getProcess().getTime(timeIndex);
+			final double timeNext	= getProcess().getTime(timeIndex+1);
 
-			riskFreeRateAtTimeStep = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
-
-		}else {
+			riskFreeRateAtTimeStep = getRandomVariableForConstant(Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time));
+		}
+		else {
 			riskFreeRateAtTimeStep = riskFreeRate;
 		}
-		return new RandomVariable[] {getProcess().getStochasticDriver()
-				.getRandomVariableForConstant(riskFreeRateAtTimeStep-1/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu)))};
+
+		// r + log(1 - theta * nu - 0.5 nu sigma^2)
+		return new RandomVariable[] { riskFreeRateAtTimeStep.add(theta.mult(nu).add(sigma.squared().mult(nu).mult(0.5)).mult(-1).add(1.0).log().div(nu)) };
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex,
 			final RandomVariable[] realizationAtTimeIndex) {
 		final RandomVariable[] factors = new RandomVariable[1];
-		factors[0] = getProcess().getStochasticDriver().getRandomVariableForConstant(1.0);
+		factors[0] = getRandomVariableForConstant(1.0);
 		return factors;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
-	 */
+	@Override
+	public int getNumberOfComponents() {
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
 	public ProcessModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
-		final double newInitialValue = (double) dataModified.getOrDefault("initialValue", initialValue);
-		final double newRiskFreeRate = (double) dataModified.getOrDefault("riskFreeRate", riskFreeRate);
-		final double newDiscountRate = (double) dataModified.getOrDefault("discountRate", discountRate);
-		final double newSigma = (double) dataModified.getOrDefault("volatility", sigma);
-		final double newTheta = (double) dataModified.getOrDefault("volatility", theta);
-		final double newNu = (double) dataModified.getOrDefault("volatility", nu);
-		return new VarianceGammaModel(newInitialValue,newRiskFreeRate,newDiscountRate,newSigma,newTheta,newNu);
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+
+		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("initialValue"), initialValue);
+		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("riskFreeRate"), riskFreeRate);
+		final RandomVariable newDiscountRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("discountRate"), discountRate);
+
+		final RandomVariable newSigma	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("sigma"), sigma);
+		final RandomVariable newTheta	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("theta"), theta);
+		final RandomVariable newNu		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("nu"), nu);
+
+		return new VarianceGammaModel(newInitialValue, newRiskFreeRate, newDiscountRate, newSigma, newTheta, newNu, newRandomVariableFactory);
 	}
 
 	/**
@@ -202,7 +288,7 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @return the riskFreeRate
 	 */
 	public double getRiskFreeRate() {
-		return riskFreeRate;
+		return riskFreeRate.doubleValue();
 	}
 
 	/**
@@ -216,28 +302,28 @@ public class VarianceGammaModel extends AbstractProcessModel {
 	 * @return the discountRate
 	 */
 	public double getDiscountRate() {
-		return discountRate;
+		return discountRate.doubleValue();
 	}
 
 	/**
 	 * @return the sigma
 	 */
 	public double getSigma() {
-		return sigma;
+		return sigma.doubleValue();
 	}
 
 	/**
 	 * @return the theta
 	 */
 	public double getTheta() {
-		return theta;
+		return theta.doubleValue();
 	}
 
 	/**
 	 * @return the nu
 	 */
 	public double getNu() {
-		return nu;
+		return nu.doubleValue();
 	}
 
 	/* (non-Javadoc)

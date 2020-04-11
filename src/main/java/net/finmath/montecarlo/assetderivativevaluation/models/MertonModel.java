@@ -7,12 +7,14 @@ package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a <i>Merton Model</i>, that is, it provides the drift and volatility specification
@@ -59,19 +61,162 @@ import net.finmath.stochastic.RandomVariable;
  */
 public class MertonModel extends AbstractProcessModel {
 
-	private final double initialValue;
+	private static final RandomVariable ZERO = new Scalar(0.0);
+
+	private final RandomVariable initialValue;
 
 	private final DiscountCurve discountCurveForForwardRate;
-	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final RandomVariable riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
 
-	private final double volatility;
+	private final RandomVariable volatility;
 
 	private final DiscountCurve discountCurveForDiscountRate;
-	private final double discountRate;		// Constant rate, used if discountCurveForForwardRate is null
+	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
 
-	private final double jumpIntensity;
-	private final double jumpSizeMean;
-	private final double jumpSizeStdDev;
+	private final RandomVariable jumpIntensity;
+	private final RandomVariable jumpSizeMean;
+	private final RandomVariable jumpSizeStdDev;
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	/**
+	 * Create a Merton model.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MertonModel(
+			final RandomVariable initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final RandomVariable volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariable jumpIntensity,
+			final RandomVariable jumpSizeMean,
+			final RandomVariable jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+		super();
+		this.initialValue = initialValue;
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		this.riskFreeRate	= null;
+		this.volatility		= volatility;
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		this.discountRate   = null;
+		this.jumpIntensity = jumpIntensity;
+		this.jumpSizeMean = jumpSizeMean;
+		this.jumpSizeStdDev = jumpSizeStDev;
+		this.randomVariableFactory = randomVariableFactory;
+	}
+
+	/**
+	 * Create a Merton model.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MertonModel(
+			final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final double volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final double jumpIntensity,
+			final double jumpSizeMean,
+			final double jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+		super();
+
+		this.randomVariableFactory = randomVariableFactory;
+		this.initialValue	= randomVariableFactory.createRandomVariable(initialValue);
+		this.discountCurveForForwardRate = discountCurveForForwardRate;
+		riskFreeRate	= null;
+		this.volatility		= randomVariableFactory.createRandomVariable(volatility);
+		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
+		discountRate   = null;
+		this.jumpIntensity	= randomVariableFactory.createRandomVariable(jumpIntensity);
+		this.jumpSizeMean	= randomVariableFactory.createRandomVariable(jumpSizeMean);
+		jumpSizeStdDev	= randomVariableFactory.createRandomVariable(jumpSizeStDev);
+	}
+
+	/**
+	 * Create a Merton model.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MertonModel(
+			final RandomVariable initialValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final RandomVariable discountRate,
+			final RandomVariable jumpIntensity,
+			final RandomVariable jumpSizeMean,
+			final RandomVariable jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+		super();
+
+		this.randomVariableFactory = randomVariableFactory;
+		this.initialValue	= initialValue;
+		this.discountCurveForForwardRate = null;
+		this.riskFreeRate	= riskFreeRate;
+		this.volatility		= volatility;
+		this.discountCurveForDiscountRate = null;
+		this.discountRate   = discountRate;
+		this.jumpIntensity	= jumpIntensity;
+		this.jumpSizeMean	= jumpSizeMean;
+		this.jumpSizeStdDev	= jumpSizeStDev;
+	}
+
+	/**
+	 * Create a Merton model.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MertonModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double discountRate,
+			final double jumpIntensity,
+			final double jumpSizeMean,
+			final double jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+		this(randomVariableFactory.createRandomVariable(initialValue),
+				randomVariableFactory.createRandomVariable(riskFreeRate),
+				randomVariableFactory.createRandomVariable(volatility),
+				randomVariableFactory.createRandomVariable(discountRate),
+				randomVariableFactory.createRandomVariable(jumpIntensity),
+				randomVariableFactory.createRandomVariable(jumpSizeMean),
+				randomVariableFactory.createRandomVariable(jumpSizeStDev),
+				randomVariableFactory);
+	}
 
 	/**
 	 * Create the model from a descriptor.
@@ -108,17 +253,8 @@ public class MertonModel extends AbstractProcessModel {
 			final double jumpSizeMean,
 			final double jumpSizeStDev
 			) {
-		super();
-
-		this.initialValue	= initialValue;
-		this.discountCurveForForwardRate = discountCurveForForwardRate;
-		riskFreeRate	= Double.NaN;
-		this.volatility		= volatility;
-		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		discountRate   = Double.NaN;
-		this.jumpIntensity	= jumpIntensity;
-		this.jumpSizeMean	= jumpSizeMean;
-		jumpSizeStdDev	= jumpSizeStDev;
+		this(initialValue, discountCurveForForwardRate, volatility, discountCurveForDiscountRate,
+				jumpIntensity, jumpSizeMean, jumpSizeStDev, new RandomVariableFromArrayFactory());
 	}
 
 	/**
@@ -141,17 +277,7 @@ public class MertonModel extends AbstractProcessModel {
 			final double jumpSizeMean,
 			final double jumpSizeStDev
 			) {
-		super();
-
-		this.initialValue	= initialValue;
-		discountCurveForForwardRate = null;
-		this.riskFreeRate	= riskFreeRate;
-		this.volatility		= volatility;
-		discountCurveForDiscountRate = null;
-		this.discountRate   = discountRate;
-		this.jumpIntensity	= jumpIntensity;
-		this.jumpSizeMean	= jumpSizeMean;
-		jumpSizeStdDev	= jumpSizeStDev;
+		this(initialValue, riskFreeRate, volatility, discountRate, jumpIntensity, jumpSizeMean, jumpSizeStDev, new RandomVariableFromArrayFactory());
 	}
 
 	/**
@@ -176,11 +302,6 @@ public class MertonModel extends AbstractProcessModel {
 	}
 
 	@Override
-	public int getNumberOfComponents() {
-		return 1;
-	}
-
-	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
 		return randomVariable.exp();
 	}
@@ -192,97 +313,113 @@ public class MertonModel extends AbstractProcessModel {
 
 	@Override
 	public RandomVariable[] getInitialState() {
-		return new RandomVariable[] { getProcess().getStochasticDriver().getRandomVariableForConstant(Math.log(initialValue)) };
+		return new RandomVariable[] { initialValue.log() };
 	}
 
 	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
+	public RandomVariable getNumeraire(final double time) {
 		if(discountCurveForDiscountRate != null) {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
+			return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));
 		}
 		else {
-			return getProcess().getStochasticDriver().getRandomVariableForConstant(Math.exp(discountRate * time));
+			return discountRate.mult(time).exp();
 		}
 	}
 
 	@Override
 	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
-		double riskFreeRateAtTimeStep = 0.0;
+		RandomVariable riskFreeRateAtTimeStep;
 		if(discountCurveForForwardRate != null) {
-			final double time		= getTime(timeIndex);
-			final double timeNext	= getTime(timeIndex+1);
+			final double time		= getProcess().getTime(timeIndex);
+			final double timeNext	= getProcess().getTime(timeIndex+1);
 
-			riskFreeRateAtTimeStep = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);
+			riskFreeRateAtTimeStep = getRandomVariableForConstant(Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time));
 
 		}else {
 			riskFreeRateAtTimeStep = riskFreeRate;
 		}
-		return new RandomVariable[] { getProcess().getStochasticDriver().getRandomVariableForConstant(riskFreeRateAtTimeStep - (Math.exp(jumpSizeMean)-1)*jumpIntensity - 0.5 * volatility*volatility) };
+		return new RandomVariable[] {
+				riskFreeRateAtTimeStep
+				.sub(jumpSizeMean.exp().sub(1.0).mult(jumpIntensity))
+				.sub(volatility.squared().div(2))
+		};
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
 		final RandomVariable[] factors = new RandomVariable[3];
-		factors[0] = getProcess().getStochasticDriver().getRandomVariableForConstant(volatility);
-		factors[1] = getProcess().getStochasticDriver().getRandomVariableForConstant(jumpSizeStdDev);
-		factors[2] = getProcess().getStochasticDriver().getRandomVariableForConstant(jumpSizeMean - 0.5*jumpSizeStdDev*jumpSizeStdDev);
+		factors[0] = volatility;
+		factors[1] = jumpSizeStdDev;
+		factors[2] = jumpSizeMean.sub(jumpSizeStdDev.squared().div(2));
 
 		return factors;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.model.ProcessModel#getRandomVariableForConstant(double)
-	 */
+	@Override
+	public int getNumberOfComponents() {
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+		return 1;
+	}
+
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return getProcess().getStochasticDriver().getRandomVariableForConstant(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override
 	public ProcessModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
-		final double newInitialValue = (double) dataModified.getOrDefault("initialValue", initialValue);
-		final double newRiskFreeRate = (double) dataModified.getOrDefault("riskFreeRate", riskFreeRate);
-		final double newVolatility = (double) dataModified.getOrDefault("volatility", volatility);
-		final double newDiscountRate = (double) dataModified.getOrDefault("discountRate", discountRate);
-		final double newJumpIntensity = (double) dataModified.getOrDefault("jumpIntensity", jumpIntensity);
-		final double newJumpSizeMean = (double) dataModified.getOrDefault("jumpSizeMean", jumpSizeMean);
-		final double newJumpSizeStDev = (double) dataModified.getOrDefault("jumpSizeStdDev", jumpSizeStdDev);
-		return new MertonModel(newInitialValue,newRiskFreeRate,newVolatility,newDiscountRate,newJumpIntensity,newJumpSizeMean,newJumpSizeStDev);
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+
+		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("initialValue"), initialValue);
+		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("riskFreeRate"), riskFreeRate);
+		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("volatility"), volatility);
+		final RandomVariable newDiscountRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("discountRate"), discountRate);
+		final RandomVariable newJumpIntensity	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("riskFreeRate"), jumpIntensity);
+		final RandomVariable newJumpSizeMean	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("jumpSizeMean"), jumpSizeMean);
+		final RandomVariable newJumpSizeStDev	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("jumpSizeStdDev"), jumpSizeStdDev);
+
+		return new MertonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newJumpIntensity, newJumpSizeMean, newJumpSizeStDev, newRandomVariableFactory);
 	}
 
 	/**
 	 * @return the riskFreeRate
 	 */
 	public double getRiskFreeRate() {
-		return riskFreeRate;
+		return riskFreeRate.doubleValue();
 	}
 
 	/**
 	 * @return the volatility
 	 */
 	public double getVolatility() {
-		return volatility;
+		return volatility.doubleValue();
 	}
 
 	/**
 	 * @return the jumpIntensity
 	 */
 	public double getJumpIntensity() {
-		return jumpIntensity;
+		return jumpIntensity.doubleValue();
 	}
 
 	/**
 	 * @return the jumpSizeMean
 	 */
 	public double getJumpSizeMean() {
-		return jumpSizeMean;
+		return jumpSizeMean.doubleValue();
 	}
 
 	/**
 	 * @return the jumpSizeStdDev
 	 */
 	public double getJumpSizeStdDev() {
-		return jumpSizeStdDev;
+		return jumpSizeStdDev.doubleValue();
 	}
-
 }

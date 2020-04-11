@@ -148,7 +148,7 @@ public class LIBORMarketModelCalibrationTest {
 		System.out.println("Calibration to Swaptions:");
 		System.out.println("\tModel..................: " + modelType);
 		System.out.println("\tCalibration products...: " + calibrationProductType);
-		System.out.println();		
+		System.out.println();
 
 		/*
 		 * Calibration of rate curves

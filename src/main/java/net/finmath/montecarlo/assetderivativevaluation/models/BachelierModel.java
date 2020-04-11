@@ -11,6 +11,7 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a (variant of the) Bachelier model, that is,
@@ -55,15 +56,25 @@ public class BachelierModel extends AbstractProcessModel {
 
 	private final RandomVariableFactory randomVariableFactory;
 
-	private final double initialValue;
-	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private final double volatility;
+	private final RandomVariable initialValue;
+	private final RandomVariable riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final RandomVariable volatility;
 
-	/*
-	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
-	 * We construct the corresponding random variables here and will return (immutable) references to them.
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The volatility.
 	 */
-	private final RandomVariable[]	initialValueVector	= new RandomVariable[1];
+	public BachelierModel(RandomVariableFactory randomVariableFactory, RandomVariable initialValue, RandomVariable riskFreeRate, RandomVariable volatility) {
+		super();
+		this.randomVariableFactory = randomVariableFactory;
+		this.initialValue = initialValue;
+		this.riskFreeRate = riskFreeRate;
+		this.volatility = volatility;
+	}
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -79,54 +90,54 @@ public class BachelierModel extends AbstractProcessModel {
 		super();
 
 		this.randomVariableFactory = new RandomVariableFromArrayFactory();
-		this.initialValue	= initialValue;
-		this.riskFreeRate	= riskFreeRate;
-		this.volatility		= volatility;
+		this.initialValue	= randomVariableFactory.createRandomVariable(initialValue);
+		this.riskFreeRate	= randomVariableFactory.createRandomVariable(riskFreeRate);
+		this.volatility		= randomVariableFactory.createRandomVariable(volatility);
 	}
 
 	@Override
 	public RandomVariable[] getInitialState() {
-		if(initialValueVector[0] == null) {
-			initialValueVector[0] = getRandomVariableForConstant(initialValue);
-		}
-
-		return initialValueVector;
+		return new RandomVariable[] { initialValue };
 	}
 
 	@Override
 	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
 		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];
 		for(int componentIndex = 0; componentIndex<realizationAtTimeIndex.length; componentIndex++) {
-			drift[componentIndex] = realizationAtTimeIndex[componentIndex].mult(0.0);
+			drift[componentIndex] = new Scalar(0.0);
 		}
 		return drift;
 	}
 
 	@Override
 	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
-		final RandomVariable volatilityOnPaths = getRandomVariableForConstant(volatility);
-		return new RandomVariable[] { volatilityOnPaths };
+		return new RandomVariable[] { volatility };
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransform(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable.mult(Math.exp(riskFreeRate*Math.max(randomVariable.getFiltrationTime(),0)));
+		final double time = Math.max(randomVariable.getFiltrationTime(), 0.0);
+		return randomVariable.mult(riskFreeRate.mult(time).exp());
 	}
 
 	@Override
 	public RandomVariable applyStateSpaceTransformInverse(final int componentIndex, final RandomVariable randomVariable) {
-		return randomVariable.div(Math.exp(riskFreeRate*Math.max(randomVariable.getFiltrationTime(),0)));
+		final double time = Math.max(randomVariable.getFiltrationTime(), 0.0);
+		return randomVariable.div(riskFreeRate.mult(time).exp());
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final double time) {
-		final double numeraireValue = Math.exp(riskFreeRate * time);
-
-		return getRandomVariableForConstant(numeraireValue);
+		return riskFreeRate.mult(time).exp();
 	}
 
 	@Override
 	public int getNumberOfComponents() {
+		return 1;
+	}
+
+	@Override
+	public int getNumberOfFactors() {
 		return 1;
 	}
 
@@ -140,11 +151,13 @@ public class BachelierModel extends AbstractProcessModel {
 		/*
 		 * Determine the new model parameters from the provided parameter map.
 		 */
-		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : initialValue;
-		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : this.getRiskFreeRate();
-		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: this.getVolatility();
+		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 
-		return new BachelierModel(newInitialValue, newRiskFreeRate, newVolatility);
+		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("initialValue"), initialValue);
+		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("riskFreeRate"), riskFreeRate);
+		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get("volatility"), volatility);
+
+		return new BachelierModel(newRandomVariableFactory, newInitialValue, newRiskFreeRate, newVolatility);
 	}
 
 	@Override
@@ -162,7 +175,7 @@ public class BachelierModel extends AbstractProcessModel {
 	 * @return Returns the riskFreeRate.
 	 */
 	public double getRiskFreeRate() {
-		return riskFreeRate;
+		return riskFreeRate.doubleValue();
 	}
 
 	/**
@@ -171,10 +184,10 @@ public class BachelierModel extends AbstractProcessModel {
 	 * @return Returns the volatility.
 	 */
 	public double getVolatility() {
-		return volatility;
+		return volatility.doubleValue();
 	}
 
 	public double getImpliedBachelierVolatility(final double maturity) {
-		return volatility * Math.exp(riskFreeRate * maturity);
+		return volatility.mult(riskFreeRate.mult(maturity).exp()).doubleValue();
 	}
 }
