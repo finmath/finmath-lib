@@ -105,7 +105,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
-		final ProcessModel		newModel	= model.getCloneWithModifiedData(dataModified);
+		final ProcessModel	newModel = model.getCloneWithModifiedData(dataModified);
 
 		MonteCarloProcess	newProcess;
 		try {

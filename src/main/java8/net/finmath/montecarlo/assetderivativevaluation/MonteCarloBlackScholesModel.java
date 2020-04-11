@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -147,57 +148,46 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		return 1;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getCloneWithModifiedData(java.util.Map)
-	 * @TODO THE METHOD NEED TO BE CHANGED. NEED
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		/*
-		 * Determine the new model parameters from the provided parameter map.
+		 * Create a new model with the new model parameters.
 		 */
-		final double	newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
-		final double	newInitialValue	= dataModified.get("initialValue") != null	? ((Number)dataModified.get("initialValue")).doubleValue() : model.getInitialValue(process)[0].doubleValue();
-		final double	newRiskFreeRate	= dataModified.get("riskFreeRate") != null	? ((Number)dataModified.get("riskFreeRate")).doubleValue() : model.getRiskFreeRate().doubleValue();
-		final double	newVolatility	= dataModified.get("volatility") != null	? ((Number)dataModified.get("volatility")).doubleValue()	: model.getVolatility().doubleValue();
-		final int		newSeed			= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
+		final BlackScholesModel newModel = model.getCloneWithModifiedData(dataModified);
 
 		/*
-		 * Create a new model with the new model parameters
+		 * Create a new BrownianMotion, if requested.
 		 */
-		BrownianMotion brownianMotion;
+		final int		newSeed			= dataModified.get("seed") != null			? ((Number)dataModified.get("seed")).intValue()				: seed;
+
+		BrownianMotion newBrownianMotion;
 		if(dataModified.get("seed") != null) {
 			// The seed has changed. Hence we have to create a new BrownianMotionLazyInit.
-			brownianMotion = new BrownianMotionLazyInit(this.getTimeDiscretization(), 1, this.getNumberOfPaths(), newSeed);
+			newBrownianMotion = new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1, this.getNumberOfPaths(), newSeed);
 		}
-		else
-		{
+		else {
 			// The seed has not changed. We may reuse the random numbers (Brownian motion) of the original model
-			brownianMotion = (BrownianMotion)process.getStochasticDriver();
+			newBrownianMotion = (BrownianMotion)process.getStochasticDriver();
 		}
+
+		final double newInitialTime	= dataModified.get("initialTime") != null	? ((Number)dataModified.get("initialTime")).doubleValue() : getTime(0);
 
 		final double timeShift = newInitialTime - getTime(0);
 		if(timeShift != 0) {
-			final ArrayList<Double> newTimes = new ArrayList<>();
-			newTimes.add(newInitialTime);
-			for(final Double time : process.getStochasticDriver().getTimeDiscretization()) {
-				if(time > newInitialTime) {
-					newTimes.add(time);
-				}
-			}
-			final TimeDiscretization newTimeDiscretization = new TimeDiscretizationFromArray(newTimes);
-			brownianMotion = brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
+			final TimeDiscretization newTimeDiscretization =  process.getStochasticDriver().getTimeDiscretization().getTimeShiftedTimeDiscretization(timeShift);
+			newBrownianMotion = newBrownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization);
 		}
-		return new MonteCarloBlackScholesModel(newInitialValue, newRiskFreeRate, newVolatility, brownianMotion);
+
+		// Create a corresponding MC process
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+
+		return new MonteCarloBlackScholesModel(newModel, process);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getCloneWithModifiedSeed(int)
-	 */
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionLazyInit(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
 		return new MonteCarloBlackScholesModel(model, process);
 	}
 
