@@ -18,51 +18,63 @@ About finmath lib
 
 The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
 
+- Analytic Formulas
+    - Distributions: Normal, Gamma, Non-Central Chi-Squared (some functions are delegated to Apache commons-math).
+    - Models: Black Scholes, Bachelier, SABR, ZABR, CEV, etc.
 - General numerical algorithms like
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
-- Valuation using **Fourier transforms** / **characteristic functions**
+- Valuation using **Fourier transforms** / **characteristic functions** (contributed by Alessandro Gnoatto, Lorenzo Toricelli and others)
     - Black-Scholes model
     - Heston model
     - Bates model
     - Two factor Bates model
     - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
-- **Finite difference methods**
+- **Finite difference methods** (contributed by Ralph Rudd and Jörg Kienitz)
     - Numerical schemes using finite differences
         - Theta-scheme
     - Models
         - Black-Scholes model
+        - Constant Elasticity of Variance model
     - Products
         - European option
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
-    - LIBOR Market Model
+    - Hull-White Short Rate Model (with time dependent parameters)
+    - LIBOR Market Model (Forward Rate Model) (in various forms)
+    - Time Homogeneous Forward Rate Model
+    - Cross-Currency LIBOR Market Model
     - Black-Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
-    - Hull-White Short Rate Model (with time dependent parameters)
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
+    - Variance Gamma model (as Monte-Carlo Simulation, contributed and maintained by Alessandro Gnoatto)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
 - **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
 - **Calibration** of market data objects like curves (discount and forward curve) or volatility surfaces
     - Rate Curves:
-    - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
-    - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
-    - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
-    - Various interpolation entities (value, log-value, rate, etc.).
-    - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
+        - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).
+        - **Bond curve calibration** using local linear regression (see https://ssrn.com/abstract=3073942 ).
+        - Various interpolation methods (linear, cubic spline, harmonic spline, Akima).
+        - Various interpolation entities (value, log-value, rate, etc.).
+        - Parametric curves like Nelson-Siegel and Nelson-Siegel-Svensson.
     - Volatility Curves and Cubes:
         - **SABR smile** parameterization.
         - Swaption volatility cubes with SABR parameterization.
         - **CMS replication** with various annuity mappings.
-- Simulation of interest rate term structure models (LIBOR market model with local and stochastic volatility)
-- Calibration of the **LIBOR market model**
+- Simulation of **interest rate term structure models** (LIBOR market model with local and stochastic volatility)
+    - LIBOR market model with local and stochastic volatility
+    - Time-Homogeneous Forward Rate Model (LIBOR market model)
+    - Calibration of the **LIBOR market model**
+    - Cross-Currency LIBOR Market Model
+    - Equity Hybrid LIBOR Market Model
+    - Local and stochastic volatility models (SABR, ZABR)
 - Valuation of complex derivatives
     - Bermudan options / multi-callables lower bound via regression estimation of the conditional expectation
     - Bermudan options / multi-callables upper bound via dual method
-- Hedge Simulation
-- Margin Valuation Adjustments (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
+- **Hedge Simulation**
+- **Margin Valuation Adjustments** (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
 
 Languages and Build
 --------------------------------------
@@ -136,7 +148,6 @@ The eclipse project file is pre-configured to Java 8.
 #### Maven build
 
 The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use the maven profile "java-6".
-
 
 
 Repositories

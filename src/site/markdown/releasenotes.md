@@ -6,11 +6,44 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.1.3 (under development)
+## 4.1.8 (12.04.2020)
+
+### General
+
+ - RandomOperator is a synonym for Function<RandomVariable,RandomVariable>
+ - RandomVariables come with apply(RandomOperator).
+ 
+### Analytic Formulas
+
+ - More convenient variants of Bachelier formula (classic, homogeneous, inhomogeneous).
+
+### Interest Rate Models (Monte-Carlo)
+
+ - Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
+ - LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
+ - Improve analytic calibration of normal LIBOR Market Model.
+
+### Equity Models (Monte-Carlo)
+
+ - Reworked Monte-Carlo implementation of Displaced Lognormal Models.
+
+
+## 4.1.7 (22.03.2020)
+
+### General
+
+ - Prepearation of the refactoring introduces in 5.0. The `ProcessModel` and `MonteCarloProcess` model do not hold a reference to the process anymore.
+   Instead, a reference to the `ProcessModel` has to be passed as the first argument of methods like `getInitalState`, `getDrift`, `getFactorLoading`.
+   Starting with version 4.1.4 of the library default implementations of these methods are introduces while the old methods are marked as deprecated.
+   For a guideline of migrating any implementation see [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
+
+### Random Number Generators
+
+ - An interface `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator1D` has been added, using default implementation to extend `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator`.
 
 ### Fourier Methods
 
-    - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
+ - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 
 
 ## 4.1.2

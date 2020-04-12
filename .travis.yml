@@ -1,9 +1,9 @@
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 sudo: required 
 dist: trusty
 env:
-  - MVN_PROFILE=java-6
   - MVN_PROFILE=java-8
+  - MVN_PROFILE=java-11
 script: "mvn checkstyle:check test -B -V -P ${MVN_PROFILE}"
