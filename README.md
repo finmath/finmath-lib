@@ -63,7 +63,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - **SABR smile** parameterization.
         - Swaption volatility cubes with SABR parameterization.
         - **CMS replication** with various annuity mappings.
-- Simulation of **interest rate term structure models**
+- Simulation of **interest rate term structure models** (LIBOR market model with local and stochastic volatility)
     - LIBOR market model with local and stochastic volatility
     - Time-Homogeneous Forward Rate Model (LIBOR market model)
     - Calibration of the **LIBOR market model**
