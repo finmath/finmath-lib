@@ -39,13 +39,15 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Products
         - European option
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
-    - LIBOR Market Model
+    - Hull-White Short Rate Model (with time dependent parameters)
+    - LIBOR Market Model (Forward Rate Model) (in various forms)
+    - Time Homogeneous Forward Rate Model
     - Cross-Currency LIBOR Market Model
     - Black-Scholes type multi-asset model (multi-factor, multi-dimensional geometric Brownian motion)
     - Equity Hybrid LIBOR Market Model
-    - Hull-White Short Rate Model (with time dependent parameters)
     - Merton Model (as Monte-Carlo Simulation)
     - Heston Model (as Monte-Carlo Simulation)
+    - Variance Gamma model (as Monte-Carlo Simulation, contributed and maintained by Alessandro Gnoatto)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
 - **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
@@ -63,7 +65,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - **CMS replication** with various annuity mappings.
 - Simulation of **interest rate term structure models**
     - LIBOR market model with local and stochastic volatility
-    - Time-Homogenous LIBOR market model
+    - Time-Homogeneous Forward Rate Model (LIBOR market model)
     - Calibration of the **LIBOR market model**
     - Cross-Currency LIBOR Market Model
     - Equity Hybrid LIBOR Market Model
@@ -146,7 +148,6 @@ The eclipse project file is pre-configured to Java 8.
 #### Maven build
 
 The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use the maven profile "java-6".
-
 
 
 Repositories

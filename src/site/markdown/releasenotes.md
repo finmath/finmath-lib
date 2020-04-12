@@ -6,7 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 4.1.8 (10.04.2020)
+## 4.1.8 (12.04.2020)
 
 ### General
 
@@ -15,13 +15,17 @@ finmath lib Release Notes
  
 ### Analytic Formulas
 
- - More convenient variants of Bachelier formula (classic, homogeneouse, inhomogeneouse).
+ - More convenient variants of Bachelier formula (classic, homogeneous, inhomogeneous).
 
 ### Interest Rate Models (Monte-Carlo)
 
  - Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
  - LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
  - Improve analytic calibration of normal LIBOR Market Model.
+
+### Equity Models (Monte-Carlo)
+
+ - Reworked Monte-Carlo implementation of Displaced Lognormal Models.
 
 
 ## 4.1.7 (22.03.2020)
