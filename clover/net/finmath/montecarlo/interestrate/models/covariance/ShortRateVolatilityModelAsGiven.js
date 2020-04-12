@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":50,"id":24879,"methods":[{"el":34,"sc":2,"sl":29},{"el":39,"sc":2,"sl":36},{"el":44,"sc":2,"sl":41},{"el":49,"sc":2,"sl":46}],"name":"ShortRateVolatilityModelAsGiven","sl":21}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_18":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testSwaption","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_328":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testZeroCMSSwap","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_368":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testBond","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_394":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testCapletSmile","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_434":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testBermudanSwaption","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_483":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testCaplet","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_60":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testSwap","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_76":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testPutOnMoneyMarketAccount","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [483, 368, 328, 60, 76, 18, 434, 394], [], [483, 368, 328, 60, 76, 18, 434, 394], [], [], [483, 368, 328, 60, 76, 18, 434, 394], [], [483, 368, 328, 60, 76, 18, 434, 394], [], [], [483, 368, 328, 60, 76, 18, 434, 394], [], [483, 368, 328, 60, 76, 18, 434, 394], [], []]

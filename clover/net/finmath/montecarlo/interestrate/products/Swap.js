@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":100,"id":26260,"methods":[{"el":44,"sc":2,"sl":40},{"el":66,"sc":2,"sl":57},{"el":84,"sc":2,"sl":76},{"el":94,"sc":2,"sl":86},{"el":99,"sc":2,"sl":96}],"name":"Swap","sl":29}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_336":{"methods":[{"sl":40},{"sl":86}],"name":"testAgainstSwaption","pass":true,"statements":[{"sl":41},{"sl":42},{"sl":43},{"sl":88},{"sl":89},{"sl":90},{"sl":93}]},"test_441":{"methods":[{"sl":40},{"sl":86}],"name":"testExpectedPositiveExposure","pass":true,"statements":[{"sl":41},{"sl":42},{"sl":43},{"sl":88},{"sl":89},{"sl":90},{"sl":93}]},"test_474":{"methods":[{"sl":76},{"sl":86}],"name":"testSwap","pass":true,"statements":[{"sl":81},{"sl":82},{"sl":83},{"sl":88},{"sl":89},{"sl":93}]},"test_60":{"methods":[{"sl":40},{"sl":86}],"name":"testSwap","pass":true,"statements":[{"sl":41},{"sl":42},{"sl":43},{"sl":88},{"sl":89},{"sl":90},{"sl":93}]},"test_99":{"methods":[{"sl":40},{"sl":86}],"name":"testStochasticCurves","pass":true,"statements":[{"sl":41},{"sl":42},{"sl":43},{"sl":88},{"sl":89},{"sl":90},{"sl":93}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [441, 60, 336, 99], [441, 60, 336, 99], [441, 60, 336, 99], [441, 60, 336, 99], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [474], [], [], [], [], [474], [474], [474], [], [], [441, 60, 336, 99, 474], [], [441, 60, 336, 99, 474], [441, 60, 336, 99, 474], [441, 60, 336, 99], [], [], [441, 60, 336, 99, 474], [], [], [], [], [], [], []]
