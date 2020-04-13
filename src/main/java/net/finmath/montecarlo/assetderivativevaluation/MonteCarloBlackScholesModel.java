@@ -51,7 +51,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	/*
 	 * The default seed
 	 */
-	private final static int seed = 3141;
+	private static final int seed = 3141;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
