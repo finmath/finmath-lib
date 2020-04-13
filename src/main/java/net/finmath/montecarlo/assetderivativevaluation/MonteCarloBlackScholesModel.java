@@ -50,31 +50,10 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	private final BlackScholesModel model;
 	private final MonteCarloProcess process;
 
-	private final int seed = 3141;
-
-	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
-	 *
-	 * @param timeDiscretization The time discretization.
-	 * @param numberOfPaths The number of Monte-Carlo path to be used.
-	 * @param initialValue Spot value.
-	 * @param riskFreeRate The risk free rate.
-	 * @param volatility The log volatility.
+	/*
+	 * The default seed
 	 */
-	public MonteCarloBlackScholesModel(
-			final TimeDiscretization timeDiscretization,
-			final int numberOfPaths,
-			final double initialValue,
-			final double riskFreeRate,
-			final double volatility) {
-		super();
-
-		// Create the model
-		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-
-		// Create a corresponding MC process
-		process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER_FUNCTIONAL);
-	}
+	private final static int seed = 3141;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
@@ -94,6 +73,27 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		// Create the model
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 		process = new EulerSchemeFromProcessModel(model, brownianMotion);
+	}
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 */
+	public MonteCarloBlackScholesModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
+		this(
+				initialValue, riskFreeRate, volatility,
+				new BrownianMotionFromMersenneRandomNumbers(
+						timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
 	}
 
 	/**

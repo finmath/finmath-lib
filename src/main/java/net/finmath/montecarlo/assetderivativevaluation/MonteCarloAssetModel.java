@@ -38,8 +38,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 *
 	 * @param process The numerical scheme to be used.
 	 */
-	public MonteCarloAssetModel(
-			final MonteCarloProcess process) {
+	public MonteCarloAssetModel(final MonteCarloProcess process) {
 		super();
 
 		this.model = process.getModel();
