@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="finmath-lib" target="1.8" />
+      <module name="finmath-lib" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
