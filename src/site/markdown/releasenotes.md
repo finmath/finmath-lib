@@ -6,6 +6,16 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.0 (12.04.2020)
+
+ - Refactoring and cleanup (deprecation) from 4.1.8. See [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
+
+### Monte-Carlo Simulation Models
+
+ - The state space transform is time dependent, i.e., has timeIndex as addition argument. This allows more accurate numerical schemes.
+ - The `ProcessModel` has to be passed as the first argument to the methods `getInitalState`, `getDrift`, `getFactorLoading`, `applyStateSpaceTransfrom`.
+ 
+
 ## 4.1.8 (12.04.2020)
 
 ### General
