@@ -1,10 +1,10 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":50,"id":27624,"methods":[{"el":27,"sc":2,"sl":25},{"el":32,"sc":2,"sl":29},{"el":49,"sc":2,"sl":44}],"name":"Numeraire","sl":18}]}
+clover.pageData = {"classes":[{"el":50,"id":27586,"methods":[{"el":27,"sc":2,"sl":25},{"el":32,"sc":2,"sl":29},{"el":49,"sc":2,"sl":44}],"name":"Numeraire","sl":18}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
-clover.testTargets = {"test_76":{"methods":[{"sl":25},{"sl":44}],"name":"testPutOnMoneyMarketAccount","pass":true,"statements":[{"sl":26},{"sl":47}]}}
+clover.testTargets = {"test_362":{"methods":[{"sl":25},{"sl":44}],"name":"testPutOnMoneyMarketAccount","pass":true,"statements":[{"sl":26},{"sl":47}]}}
 
 // JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
-clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [76], [76], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [76], [], [], [76], [], [], []]
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [362], [362], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [362], [], [], [362], [], [], []]

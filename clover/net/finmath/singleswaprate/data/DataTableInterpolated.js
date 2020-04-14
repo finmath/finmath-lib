@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":211,"id":32224,"methods":[{"el":51,"sc":2,"sl":34},{"el":68,"sc":2,"sl":65},{"el":84,"sc":2,"sl":81},{"el":100,"sc":2,"sl":97},{"el":153,"sc":2,"sl":102},{"el":176,"sc":2,"sl":155},{"el":195,"sc":2,"sl":178},{"el":200,"sc":2,"sl":197},{"el":209,"sc":2,"sl":202}],"name":"DataTableInterpolated","sl":24}]}
+clover.pageData = {"classes":[{"el":211,"id":32129,"methods":[{"el":51,"sc":2,"sl":34},{"el":68,"sc":2,"sl":65},{"el":84,"sc":2,"sl":81},{"el":100,"sc":2,"sl":97},{"el":153,"sc":2,"sl":102},{"el":176,"sc":2,"sl":155},{"el":195,"sc":2,"sl":178},{"el":200,"sc":2,"sl":197},{"el":209,"sc":2,"sl":202}],"name":"DataTableInterpolated","sl":24}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}
