@@ -14,6 +14,9 @@ import org.apache.commons.lang3.Validate;
  * 
  * The summation uses Kahan error correction.
  * 
+ * For convenience the class can act as {@link java.util.function.DoubleUnaryOperator} specialization
+ * and as {@link java.util.function.Function<Double, Double>}.
+ * 
  * @author Christian Fries
  */
 public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator, Function<Double, Double> {
