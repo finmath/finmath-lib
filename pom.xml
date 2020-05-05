@@ -220,6 +220,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc-plugin.version}</version>
 				<configuration>
+					<source>${envSource}</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
@@ -514,6 +515,7 @@
 			<properties>
 				<src.main.java.dir>src/main/java</src.main.java.dir>
 				<src.test.java.dir>src/test/java</src.test.java.dir>
+				<envSource>11</envSource>
 				<envClassifier />
 			</properties>
 			<build>
@@ -597,6 +599,7 @@
 			<properties>
 				<src.main.java.dir>src/main/java</src.main.java.dir>
 				<src.test.java.dir>src/test/java</src.test.java.dir>
+				<envSource>11</envSource>
 				<envClassifier />
 			</properties>
 			<build>
@@ -622,7 +625,8 @@
 			<properties>
 				<src.main.java.dir>src/main/java8</src.main.java.dir>
 				<src.test.java.dir>src/test/java8</src.test.java.dir>
-				<envClassifier />
+				<envSource>8</envSource>
+				<envClassifier>java8</envClassifier>
 			</properties>
 			<build>
 				<plugins>
@@ -653,6 +657,7 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${javadoc-plugin.version}</version>
 				<configuration>
+					<source>${envSource}</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
 					<stylesheetfile>stylesheet.css</stylesheetfile>
 					<docfilessubdirs>true</docfilessubdirs>
