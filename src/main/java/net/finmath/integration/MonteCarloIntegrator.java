@@ -23,10 +23,26 @@ import net.finmath.randomnumbers.MersenneTwister;
 public class MonteCarloIntegrator extends AbstractRealIntegral{
 
 	private final int		numberOfEvaluationPoints;
-	private final int		seed = 3141;
+	private final int		seed;
 
 	/**
-	 * Create an integrator using Simpson's rule.
+	 * Create an integrator using Monte-Carlo integration.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
+	 * @param seed The seed of the random number generator.
+	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
+	 */
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final int seed, final boolean useParallelEvaluation) {
+		super(lowerBound, upperBound);
+		Validate.exclusiveBetween(0, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 0.");
+		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
+		this.seed = seed;
+	}
+
+	/**
+	 * Create an integrator using Monte-Carlo.
 	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
@@ -34,13 +50,11 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
 	 */
 	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
-		super(lowerBound, upperBound);
-		Validate.exclusiveBetween(0, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 0.");
-		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
+		this(lowerBound, upperBound, numberOfEvaluationPoints, 3141 /* fixed seed */, useParallelEvaluation);
 	}
 
 	/**
-	 * Create an integrator using Simpson's rule.
+	 * Create an integrator using Monte-Carlo.
 	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
@@ -59,18 +73,17 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		// Create random number sequence generator (we use MersenneTwister)
 		final MersenneTwister		mersenneTwister		= new MersenneTwister(seed);
 
-		final DoubleStream randomNumberSequence = IntStream.range(0, numberOfEvaluationPoints).sequential().mapToDouble(new IntToDoubleFunction() {
-			@Override
-			public double applyAsDouble(final int i) {
-				return mersenneTwister.nextDouble();
-			}
-		});
+		final DoubleStream randomNumberSequence = DoubleStream.generate(mersenneTwister).limit(numberOfEvaluationPoints);
+ 
+		// Integrate f(a x + b) on [0,1)
+		return randomNumberSequence.map(x -> lowerBound + x * range).map(integrand).sum() * range / numberOfEvaluationPoints;
+	}
 
-		return randomNumberSequence.map(new DoubleUnaryOperator() {
-			@Override
-			public double applyAsDouble(final double x) {
-				return (integrand.applyAsDouble(lowerBound + x * range));
-			}
-		}).sum() * range / numberOfEvaluationPoints;
+	public int getNumberOfEvaluationPoints() {
+		return numberOfEvaluationPoints;
+	}
+
+	public int getSeed() {
+		return seed;
 	}
 }
