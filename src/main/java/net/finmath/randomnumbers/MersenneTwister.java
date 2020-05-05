@@ -7,7 +7,6 @@
 package net.finmath.randomnumbers;
 
 import java.io.Serializable;
-import java.util.function.DoubleSupplier;
 
 /**
  * Mersenne Twister random number generator. This class is just a wrapper of
