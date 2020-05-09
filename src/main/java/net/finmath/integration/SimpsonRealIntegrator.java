@@ -1,7 +1,6 @@
 package net.finmath.integration;
 
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.Validate;
@@ -20,7 +19,7 @@ import org.apache.commons.lang3.Validate;
 public class SimpsonRealIntegrator extends AbstractRealIntegral{
 
 	private final int		numberOfEvaluationPoints;
-	private boolean	useParallelEvaluation = false;
+	private final boolean	useParallelEvaluation;
 
 
 	/**
@@ -28,12 +27,12 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 	 *
 	 * @param lowerBound Lower bound of the integral.
 	 * @param upperBound Upper bound of the integral.
-	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3, should be odd.
 	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
 	 */
 	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
 		super(lowerBound, upperBound);
-		Validate.exclusiveBetween(1, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 1.");
+		Validate.exclusiveBetween(2, Integer.MAX_VALUE, numberOfEvaluationPoints, "Parameter numberOfEvaluationPoints required to be > 2.");
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 		this.useParallelEvaluation = useParallelEvaluation;
 	}
@@ -54,27 +53,24 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		final double	lowerBound			= getLowerBound();
 		final double	upperBound			= getUpperBound();
 		final double	range				= upperBound-lowerBound;
-		final int		numberOfIntervalls	= (int) ((numberOfEvaluationPoints-1) / 2.0);
 
-		final double fullIntervall = range / numberOfIntervalls;
-		final double halfIntervall = 0.5 * fullIntervall;
+		final int		numberOfDoubleSizeIntervalls	= (int) ((numberOfEvaluationPoints-1) / 2.0);
 
-		IntStream intervals = IntStream.range(1, numberOfIntervalls);
+		final double doubleIntervall = range / numberOfDoubleSizeIntervalls;
+		final double singleIntervall = 0.5 * doubleIntervall;
+
+		IntStream intervals = IntStream.range(1, numberOfDoubleSizeIntervalls);
+
 		if(useParallelEvaluation) {
 			intervals = intervals.parallel();
 		}
 
 		double sum = intervals.mapToDouble(
-				new IntToDoubleFunction() {
-					@Override
-					public double applyAsDouble(final int i) {
-						return 2 * integrand.applyAsDouble(lowerBound + i * fullIntervall + halfIntervall) + integrand.applyAsDouble(lowerBound + i * fullIntervall);
-					}
-				}
+				i -> integrand.applyAsDouble(lowerBound + i * doubleIntervall) + 2 * integrand.applyAsDouble(lowerBound + i * doubleIntervall + singleIntervall)
 				).sum();
 
-		sum += 2.0 * integrand.applyAsDouble(lowerBound + halfIntervall);
+		sum += 2.0 * integrand.applyAsDouble(lowerBound + singleIntervall);
 
-		return (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound) + 2.0 * sum) / 6.0 * fullIntervall;
+		return (integrand.applyAsDouble(lowerBound) + 2.0 * sum + integrand.applyAsDouble(upperBound)) / 3.0 * singleIntervall;
 	}
 }
