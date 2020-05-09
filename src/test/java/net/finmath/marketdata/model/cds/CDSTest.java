@@ -68,9 +68,9 @@ public class CDSTest {
 				);
 
 		final CDS.DirtyCleanPrice dirtyCleanPrice = CDS.DirtyCleanPrice.CLEAN;
-		final CDS.PricingModel pricingModel_DISCRETE = CDS.PricingModel.DISCRETE;
-		final CDS.PricingModel pricingModel_JPM = CDS.PricingModel.JPM;
-		final CDS.PricingModel pricingModel_JPM_NOACCFEE = CDS.PricingModel.JPM_NOACCFEE;
+		final CDS.ValuationModel pricingModel_DISCRETE = CDS.ValuationModel.DISCRETE;
+		final CDS.ValuationModel pricingModel_JPM = CDS.ValuationModel.JPM;
+		final CDS.ValuationModel pricingModel_JPM_NOACCFEE = CDS.ValuationModel.JPM_NOACCFEE;
 
 		final DateTimeFormatter Formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 

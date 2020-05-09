@@ -38,7 +38,7 @@ import net.finmath.time.daycount.DayCountConvention;
  */
 public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
-	private final Schedule scheduleFromPeriods;
+	private final Schedule schedule;
 	private final String discountCurveName;
 	private final String forwardCurveName; //Set null if fixed-fee CDS
 	private final String survivalProbabilityCurveName;
@@ -47,14 +47,14 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	private final double floatingFeeSpread;
 	private final double upfrontPayment; //From the perspective of the protection buyer (<0 if upfront is recieved)! Set equal to 0 if conventional CDS spread is considered
 	private final LocalDate tradeDate; // Trading Date of the CDS contract
-	private final CDS.PricingModel pricingModel; // Either DISCRETE, JPM or JPM_NOACCFEE (DISCRETE = fee and recovery payments only at tenor dates, JPM = fee and recovery payments every business day according to JP Morgan Modell, JPM_NOACCFEE = JPM with fee payments only at tenor dates)
+	private final CDS.ValuationModel valuationModel; // Either DISCRETE, JPM or JPM_NOACCFEE (DISCRETE = fee and recovery payments only at tenor dates, JPM = fee and recovery payments every business day according to JP Morgan Modell, JPM_NOACCFEE = JPM with fee payments only at tenor dates)
 	private final CDS.DirtyCleanPrice dirtyCleanPrice; // Either CLEAN or DIRTY price
 	private final boolean useFinerDiscretization;
 
 	/**
 	 * Creates a CDS.
 	 *
-	 * @param scheduleFromPeriods ScheduleFromPeriods of the CDS.
+	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -63,11 +63,11 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
 	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
 	 * @param tradeDate Trading Date of the CDS contract
-	 * @param pricingModel Defines the Pricing Model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
 	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
 	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
 	 */
-	private CDS(Schedule       scheduleFromPeriods,
+	private CDS(Schedule       schedule,
 			String                  discountCurveName,
 			String                  forwardCurveName,
 			String                  survivalProbabilityCurveName,
@@ -76,12 +76,12 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			double                  floatingFeeSpread,
 			double                  upfrontPayment,
 			LocalDate               tradeDate,
-			CDS.PricingModel        pricingModel,
+			CDS.ValuationModel        valuationModel,
 			CDS.DirtyCleanPrice     dirtyCleanPrice,
 			boolean                 useFinerDiscretization)
 	{
 		super();
-		this.scheduleFromPeriods = scheduleFromPeriods;
+		this.schedule = schedule;
 		this.discountCurveName = discountCurveName;
 		this.forwardCurveName = forwardCurveName;
 		this.survivalProbabilityCurveName = survivalProbabilityCurveName;
@@ -90,67 +90,68 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 		this.floatingFeeSpread = floatingFeeSpread;
 		this.upfrontPayment = upfrontPayment;
 		this.tradeDate = tradeDate;
-		this.pricingModel = pricingModel;
+		this.valuationModel = valuationModel;
 		this.dirtyCleanPrice = dirtyCleanPrice;
 		this.useFinerDiscretization = useFinerDiscretization;
 	}
 
 	/**
 	 * Creates a CDS with a fixed fee, no upfront.
-	 *  @param schedule3 ScheduleFromPeriods of the bond.
+	 * 
+	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
 	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
 	 * @param fixedFee The fixed fee of the CDS expressed as absolute value.
 	 * @param tradeDate Trading Date of the CDS contract
-	 * @param pricingModel Defines the Pricing Model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
 	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
 	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
 	 */
-	public CDS(Schedule schedule3, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, LocalDate tradeDate, CDS.PricingModel pricingModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
-		this(schedule3, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, 0, tradeDate, pricingModel, dirtyCleanPrice, useFinerDiscretization );
+	public CDS(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+		this(schedule, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, 0, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );
 	}
 
 	/**
 	 * Creates a CDS with a fixed fee, with upfront.
 	 *
-	 * @param scheduleFromPeriods2 ScheduleFromPeriods of the bond.
+	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
 	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
 	 * @param fixedFee The fixed fee of the CDS expressed as absolute value.
 	 * @param tradeDate Trading Date of the CDS contract
 	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
-	 * @param pricingModel Defines the Pricing Model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
 	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
 	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
 	 */
-	public CDS(Schedule scheduleFromPeriods2, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, double upfrontPayment, LocalDate tradeDate, CDS.PricingModel pricingModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
-		this(scheduleFromPeriods2, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, upfrontPayment, tradeDate, pricingModel, dirtyCleanPrice, useFinerDiscretization );
+	public CDS(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, double upfrontPayment, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+		this(schedule, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, upfrontPayment, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );
 	}
 
 	/**
 	 * Creates a CDS with a floating fee, no upfront.
 	 *
-	 * @param scheduleFromPeriods ScheduleFromPeriods of the bond.
+	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
 	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
 	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
 	 * @param tradeDate Trading Date of the CDS contract
-	 * @param pricingModel Defines the Pricing Model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
 	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
 	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
 	 */
-	public CDS(ScheduleFromPeriods scheduleFromPeriods, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, LocalDate tradeDate, CDS.PricingModel pricingModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
-		this(scheduleFromPeriods, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, 0, tradeDate, pricingModel, dirtyCleanPrice, useFinerDiscretization );
+	public CDS(ScheduleFromPeriods schedule, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+		this(schedule, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, 0, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );
 	}
 
 	/**
 	 * Creates a CDS with a floating fee, with upfront.
 	 *
-	 * @param scheduleFromPeriods ScheduleFromPeriods of the bond.
+	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
@@ -158,12 +159,12 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
 	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
 	 * @param tradeDate Trading Date of the CDS contract
-	 * @param pricingModel Defines the Pricing Model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
 	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
 	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
 	 */
-	public CDS(ScheduleFromPeriods scheduleFromPeriods, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, double upfrontPayment, LocalDate tradeDate, CDS.PricingModel pricingModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
-		this(scheduleFromPeriods, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, upfrontPayment, tradeDate, pricingModel, dirtyCleanPrice, useFinerDiscretization );
+	public CDS(ScheduleFromPeriods schedule, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, double upfrontPayment, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+		this(schedule, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, upfrontPayment, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );
 	}
 
 
@@ -172,8 +173,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 *
 	 * @param evaluationTime Evaluation time of the pricing.
 	 * @param model Analytic Model, within the CDS is priced.
-	 **/
-	// @Override - Not in Java 8 anymore
+	 */
 	@Override
 	public double getValue(double evaluationTime, AnalyticModel model) {
 
@@ -212,9 +212,9 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 		for(int i=0; i<timesDiscountCurve.length; i++){
 			jointTimeDiscretizationSet.add(timesDiscountCurve[i]);
 		}
-		for(int i=0; i<scheduleFromPeriods.getNumberOfPeriods();i++){
-			jointTimeDiscretizationSet.add(scheduleFromPeriods.getPeriodStart(i));
-			jointTimeDiscretizationSet.add(scheduleFromPeriods.getPeriodEnd(i));
+		for(int i=0; i<schedule.getNumberOfPeriods();i++){
+			jointTimeDiscretizationSet.add(schedule.getPeriodStart(i));
+			jointTimeDiscretizationSet.add(schedule.getPeriodEnd(i));
 		}
 		final Double[] jointTimeDiscretization = jointTimeDiscretizationSet.toArray(new Double[0]);
 		Arrays.sort(jointTimeDiscretization);
@@ -223,31 +223,31 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 		double value = 0.0;
 
-		for(int periodIndex=0; periodIndex<scheduleFromPeriods.getNumberOfPeriods(); periodIndex++) {
+		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
 
 			// Consider upfront payments if defined
 			if (upfrontIsNonzero && periodIndex == 0) {
 				// Pay upfront on trade date.
-				final double upfrontPaymentDate = FloatingpointDate.getFloatingPointDateFromDate( scheduleFromPeriods.getReferenceDate() , tradeDate );
+				final double upfrontPaymentDate = FloatingpointDate.getFloatingPointDateFromDate( schedule.getReferenceDate() , tradeDate );
 				final double discountFactor = discountCurve.getDiscountFactor(model, upfrontPaymentDate);
 				final double survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, upfrontPaymentDate);
 				value += -upfrontPayment * discountFactor * survivalProbabilityFactor;
 			}
 
-			final double paymentDate = scheduleFromPeriods.getPayment(periodIndex);
-			double periodLength = scheduleFromPeriods.getPeriodLength(periodIndex);
+			final double paymentDate = schedule.getPayment(periodIndex);
+			double periodLength = schedule.getPeriodLength(periodIndex);
 
 			// When CLEAN Price => Adjust period Length in first period [First coupon not paid in full]
 			if (periodIndex == 0 && dirtyCleanPrice == DirtyCleanPrice.CLEAN) {
-				periodLength = scheduleFromPeriods.getDaycountconvention().getDaycountFraction(effectiveDate, scheduleFromPeriods.getPeriod(0).getPeriodEnd());
+				periodLength = schedule.getDaycountconvention().getDaycountFraction(effectiveDate, schedule.getPeriod(0).getPeriodEnd());
 			}
 			// Adjust period Length in last period by 1 businessday (CDS convention)
-			if (periodIndex == scheduleFromPeriods.getNumberOfPeriods() - 1) {
-				periodLength += scheduleFromPeriods.getDaycountconvention().getDaycountFraction(scheduleFromPeriods.getPeriod(periodIndex).getPeriodEnd(), scheduleFromPeriods.getPeriod(periodIndex).getPeriodEnd().plusDays(1));
+			if (periodIndex == schedule.getNumberOfPeriods() - 1) {
+				periodLength += schedule.getDaycountconvention().getDaycountFraction(schedule.getPeriod(periodIndex).getPeriodEnd(), schedule.getPeriod(periodIndex).getPeriodEnd().plusDays(1));
 			}
 
 			// The protection in the first period starts at the effective date = trade date + 1 business day
-			final double previousPaymentDate = periodIndex > 0 ? scheduleFromPeriods.getPayment(periodIndex - 1) : 0.0 + scheduleFromPeriods.getDaycountconvention().getDaycountFraction(tradeDate, effectiveDate);
+			final double previousPaymentDate = periodIndex > 0 ? schedule.getPayment(periodIndex - 1) : 0.0 + schedule.getDaycountconvention().getDaycountFraction(tradeDate, effectiveDate);
 
 			double discountFactor = paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			double previousDiscountFactor = previousPaymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, previousPaymentDate) : 1.0;
@@ -258,20 +258,20 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			//Fee to be paid
 			double feePayment = fixedFee;
 			if (forwardCurveInterpolation != null) {
-				feePayment = floatingFeeSpread + forwardCurveInterpolation.getForward(model, scheduleFromPeriods.getFixing(periodIndex));
+				feePayment = floatingFeeSpread + forwardCurveInterpolation.getForward(model, schedule.getFixing(periodIndex));
 			}
 			// Recovery rate in case of default
 			final double recoveryRate = recoveryRateCurve.getValue(model, paymentDate);
 
 			// Precomputation for JPM and JPM_NOACCFEE model
-			final double periodStartTime = Math.max(scheduleFromPeriods.getPeriodStart(periodIndex), evaluationTime);
-			final double periodEndTime = Math.max(scheduleFromPeriods.getPeriodEnd(periodIndex), evaluationTime);
+			final double periodStartTime = Math.max(schedule.getPeriodStart(periodIndex), evaluationTime);
+			final double periodEndTime = Math.max(schedule.getPeriodEnd(periodIndex), evaluationTime);
 			double forwardInterestRateFactor = (Math.log(discountCurve.getValue(model, periodStartTime)) - Math.log(discountCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);
 			double hazardRateFactor = (Math.log(survivalProbabilityCurve.getValue(model, periodStartTime)) - Math.log(survivalProbabilityCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);
 			double accruedFactorJPM = hazardRateFactor * (1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2) - ((periodEndTime - periodStartTime) / (forwardInterestRateFactor + hazardRateFactor) + 1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2)) * (Math.exp(-(forwardInterestRateFactor + hazardRateFactor) * (periodEndTime - periodStartTime))));
 
-			// Switch Pricing Models
-			switch (pricingModel) {
+			// Switch valuation models
+			switch (valuationModel) {
 			case DISCRETE:
 				value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]
 				value += Math.max(1.0 - recoveryRate,0) * discountFactor * (previousSurvivalProbabilityFactor - survivalProbabilityFactor); // Recovery payment [Protection Buyer View]
@@ -297,13 +297,13 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 						value += -feePayment * subPeriodLength * previousDiscountFactor * previousSurvivalProbabilityFactor * accruedFactorJPM; // Expected accrued fee according to JPM model
 						value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]
 					}
-					break;
-				}else {
+				}
+				else {
 					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]
 					value += -feePayment * periodLength * previousDiscountFactor * previousSurvivalProbabilityFactor * accruedFactorJPM; // Expected accrued fee according to JPM model
 					value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]
-					break;
 				}
+				break;
 			case JPM_NOACCFEE:
 				if (useFinerDiscretization) {
 					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor;
@@ -323,11 +323,14 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 						value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]
 					}
 
-				}else{
+				}
+				else{
 					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]
 					value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]
-					break;
 				}
+				break;
+			default:
+				throw new UnsupportedOperationException("Unknown valuation model: " + valuationModel);
 			}
 		}
 
@@ -341,7 +344,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 *
 	 * @param evaluationTime Evaluation time of the pricing.
 	 * @param calibratedModelJPM Analytic Model, within the CDS is priced.
-	 **/
+	 */
 	public double getConventionalSpread( double evaluationTime, AnalyticModel calibratedModelJPM ){
 
 		final ForwardCurve forwardCurveInterpolation = calibratedModelJPM.getForwardCurve(forwardCurveName);
@@ -367,10 +370,10 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 		double valueFloatingLeg = 0.0;
 		double valueFixedLeg = 0.0;
 
-		for(int periodIndex=0; periodIndex < scheduleFromPeriods.getNumberOfPeriods(); periodIndex++){
+		for(int periodIndex=0; periodIndex < schedule.getNumberOfPeriods(); periodIndex++){
 
-			final double paymentDate	= scheduleFromPeriods.getPayment(periodIndex);
-			final double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
+			final double paymentDate	= schedule.getPayment(periodIndex);
+			final double periodLength	= schedule.getPeriodLength(periodIndex);
 
 			final double discountFactor	= paymentDate > evaluationTime ? discountCurveInterpolation.getDiscountFactor(calibratedModelJPM, paymentDate) : 0.0;
 			final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, paymentDate) : 0.0;
@@ -379,7 +382,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 			double previousPaymentDate = 0	;
 			if(periodIndex>0) {
-				previousPaymentDate	= scheduleFromPeriods.getPayment(periodIndex-1);
+				previousPaymentDate	= schedule.getPayment(periodIndex-1);
 			}
 
 			final double previousSurvivalProbabilityFactor	= previousPaymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, previousPaymentDate) : 1.0;
@@ -391,12 +394,6 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 		return conventionalSpread;
 	}
-
-
-	private CDS getCopy(){
-		return this;
-	}
-
 
 	/**
 	 * Returns the CDS fee payment of the period with the given index. The analytic model is needed in case of a floating fee.
@@ -412,10 +409,10 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		final double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
+		final double periodLength	= schedule.getPeriodLength(periodIndex);
 		double couponPayment = fixedFee;
 		if(forwardCurveInterpolation != null ) {
-			couponPayment = floatingFeeSpread+forwardCurveInterpolation.getForward(model, scheduleFromPeriods.getFixing(periodIndex));
+			couponPayment = floatingFeeSpread+forwardCurveInterpolation.getForward(model, schedule.getFixing(periodIndex));
 		}
 		return couponPayment*periodLength;
 	}
@@ -429,10 +426,10 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @return The accrued fee.
 	 */
 	public double getAccruedFee(LocalDate date, AnalyticModel model) {
-		final int periodIndex=scheduleFromPeriods.getPeriodIndex(date);
-		final Period period=scheduleFromPeriods.getPeriod(periodIndex);
-		final DayCountConvention dcc= scheduleFromPeriods.getDaycountconvention();
-		final double accruedFee = getFeePayment(periodIndex, model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/scheduleFromPeriods.getPeriodLength(periodIndex);
+		final int periodIndex=schedule.getPeriodIndex(date);
+		final Period period=schedule.getPeriod(periodIndex);
+		final DayCountConvention dcc= schedule.getDaycountconvention();
+		final double accruedFee = getFeePayment(periodIndex, model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);
 		return accruedFee;
 	}
 
@@ -444,12 +441,12 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @return The accrued interest.
 	 */
 	public double getAccruedFee(double time, AnalyticModelFromCurvesAndVols model) {
-		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(scheduleFromPeriods.getReferenceDate(), time);
+		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);
 		return getAccruedFee(date, model);
 	}
 
 	public Schedule getSchedule() {
-		return scheduleFromPeriods;
+		return schedule;
 	}
 
 	public String getDiscountCurveName() {
@@ -480,9 +477,9 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 		return upfrontPayment;
 	}
 
-	public LocalDate getTradeDate(){return tradeDate;}
+	public LocalDate getTradeDate() { return tradeDate; }
 
-	public PricingModel getPricingModel() { return pricingModel; }
+	public ValuationModel getValuationModel() { return valuationModel; }
 
 	public DirtyCleanPrice getDirtyCleanPrice() { return dirtyCleanPrice; }
 
@@ -491,7 +488,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 	@Override
 	public String toString() {
-		return "CouponBond [ScheduleFromPeriods=" + scheduleFromPeriods
+		return "CouponBond [ScheduleFromPeriods=" + schedule
 				+ ", discountCurveName=" + discountCurveName
 				+ ", forwardCurveName=" + forwardCurveName
 				+ ", survivalProbabilityCurveName=" + survivalProbabilityCurveName
@@ -500,13 +497,13 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 				+ ", floatingFeeSpread=" + floatingFeeSpread
 				+ ", upfrontPayment=" + upfrontPayment
 				+ ", tradeDate=" + tradeDate
-				+ ", pricingModel=" + pricingModel
+				+ ", pricingModel=" + valuationModel
 				+ ", dirtyCleanPrice=" + dirtyCleanPrice
 				+ ", useFinerDiscretization=" + useFinerDiscretization + "]";
 	}
 
 
-	public enum PricingModel{
+	public enum ValuationModel{
 		DISCRETE,
 		JPM,
 		JPM_NOACCFEE
