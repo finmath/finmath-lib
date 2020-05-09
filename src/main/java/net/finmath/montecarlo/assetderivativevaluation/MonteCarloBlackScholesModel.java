@@ -11,10 +11,8 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -53,7 +51,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	/*
 	 * The default seed
 	 */
-	private final static int seed = 3141;
+	private static final int seed = 3141;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
