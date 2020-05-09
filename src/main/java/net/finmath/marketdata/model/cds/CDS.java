@@ -8,13 +8,9 @@ import java.util.Set;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.CurveInterpolation;
 import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
-import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.products.AbstractAnalyticProduct;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.time.FloatingpointDate;
@@ -51,9 +47,9 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	private final double floatingFeeSpread;
 	private final double upfrontPayment; //From the perspective of the protection buyer (<0 if upfront is recieved)! Set equal to 0 if conventional CDS spread is considered
 	private final LocalDate tradeDate; // Trading Date of the CDS contract
-	private CDS.PricingModel pricingModel; // Either DISCRETE, JPM or JPM_NOACCFEE (DISCRETE = fee and recovery payments only at tenor dates, JPM = fee and recovery payments every business day according to JP Morgan Modell, JPM_NOACCFEE = JPM with fee payments only at tenor dates)
-	private CDS.DirtyCleanPrice dirtyCleanPrice; // Either CLEAN or DIRTY price
-	private boolean useFinerDiscretization;
+	private final CDS.PricingModel pricingModel; // Either DISCRETE, JPM or JPM_NOACCFEE (DISCRETE = fee and recovery payments only at tenor dates, JPM = fee and recovery payments every business day according to JP Morgan Modell, JPM_NOACCFEE = JPM with fee payments only at tenor dates)
+	private final CDS.DirtyCleanPrice dirtyCleanPrice; // Either CLEAN or DIRTY price
+	private final boolean useFinerDiscretization;
 
 	/**
 	 * Creates a CDS.
@@ -178,40 +174,41 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @param model Analytic Model, within the CDS is priced.
 	 **/
 	// @Override - Not in Java 8 anymore
+	@Override
 	public double getValue(double evaluationTime, AnalyticModel model) {
 
 		if(model==null) {
 			throw new IllegalArgumentException("model==null");
 		}
 
-		ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);
 		if(forwardCurveInterpolation == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
 		// TODO Remove cast.
-		DiscountCurveInterpolation discountCurve = (DiscountCurveInterpolation) model.getDiscountCurve(discountCurveName);
+		final DiscountCurveInterpolation discountCurve = (DiscountCurveInterpolation) model.getDiscountCurve(discountCurveName);
 		if(discountCurve == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
+		final Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
 		if(survivalProbabilityCurve == null) {
 			throw new IllegalArgumentException("No survival probability curve with name '" + survivalProbabilityCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		Curve recoveryRateCurve = model.getCurve(recoveryRateCurveName);
+		final Curve recoveryRateCurve = model.getCurve(recoveryRateCurveName);
 		if(recoveryRateCurve == null) {
 			throw new IllegalArgumentException("No recovery rate curve with name '" + recoveryRateCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		BusinessdayCalendarExcludingWeekends businessdayCalendarExcludingWeekends = new BusinessdayCalendarExcludingWeekends();
-		LocalDate effectiveDate = businessdayCalendarExcludingWeekends.getRolledDate(tradeDate, 1);     // Effective Date is Business Day after trading date [IGNORES HOLIDAYS]
+		final BusinessdayCalendarExcludingWeekends businessdayCalendarExcludingWeekends = new BusinessdayCalendarExcludingWeekends();
+		final LocalDate effectiveDate = businessdayCalendarExcludingWeekends.getRolledDate(tradeDate, 1);     // Effective Date is Business Day after trading date [IGNORES HOLIDAYS]
 
 
 		// Create joint array of discountfactor times and payment dates
-		Set<Double> jointTimeDiscretizationSet = new HashSet<Double>();
-		double[] timesDiscountCurve = discountCurve.getTimes();
+		final Set<Double> jointTimeDiscretizationSet = new HashSet<Double>();
+		final double[] timesDiscountCurve = discountCurve.getTimes();
 		for(int i=0; i<timesDiscountCurve.length; i++){
 			jointTimeDiscretizationSet.add(timesDiscountCurve[i]);
 		}
@@ -219,10 +216,10 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			jointTimeDiscretizationSet.add(scheduleFromPeriods.getPeriodStart(i));
 			jointTimeDiscretizationSet.add(scheduleFromPeriods.getPeriodEnd(i));
 		}
-		Double[] jointTimeDiscretization = jointTimeDiscretizationSet.toArray(new Double[0]);
+		final Double[] jointTimeDiscretization = jointTimeDiscretizationSet.toArray(new Double[0]);
 		Arrays.sort(jointTimeDiscretization);
 
-		boolean upfrontIsNonzero = (upfrontPayment != 0);
+		final boolean upfrontIsNonzero = (upfrontPayment != 0);
 
 		double value = 0.0;
 
@@ -231,13 +228,13 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			// Consider upfront payments if defined
 			if (upfrontIsNonzero && periodIndex == 0) {
 				// Pay upfront on trade date.
-				double upfrontPaymentDate = FloatingpointDate.getFloatingPointDateFromDate( scheduleFromPeriods.getReferenceDate() , tradeDate );
-				double discountFactor = discountCurve.getDiscountFactor(model, upfrontPaymentDate);
-				double survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, upfrontPaymentDate);
+				final double upfrontPaymentDate = FloatingpointDate.getFloatingPointDateFromDate( scheduleFromPeriods.getReferenceDate() , tradeDate );
+				final double discountFactor = discountCurve.getDiscountFactor(model, upfrontPaymentDate);
+				final double survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, upfrontPaymentDate);
 				value += -upfrontPayment * discountFactor * survivalProbabilityFactor;
 			}
 
-			double paymentDate = scheduleFromPeriods.getPayment(periodIndex);
+			final double paymentDate = scheduleFromPeriods.getPayment(periodIndex);
 			double periodLength = scheduleFromPeriods.getPeriodLength(periodIndex);
 
 			// When CLEAN Price => Adjust period Length in first period [First coupon not paid in full]
@@ -250,7 +247,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 			}
 
 			// The protection in the first period starts at the effective date = trade date + 1 business day
-			double previousPaymentDate = periodIndex > 0 ? scheduleFromPeriods.getPayment(periodIndex - 1) : 0.0 + scheduleFromPeriods.getDaycountconvention().getDaycountFraction(tradeDate, effectiveDate);
+			final double previousPaymentDate = periodIndex > 0 ? scheduleFromPeriods.getPayment(periodIndex - 1) : 0.0 + scheduleFromPeriods.getDaycountconvention().getDaycountFraction(tradeDate, effectiveDate);
 
 			double discountFactor = paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 			double previousDiscountFactor = previousPaymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, previousPaymentDate) : 1.0;
@@ -264,11 +261,11 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 				feePayment = floatingFeeSpread + forwardCurveInterpolation.getForward(model, scheduleFromPeriods.getFixing(periodIndex));
 			}
 			// Recovery rate in case of default
-			double recoveryRate = recoveryRateCurve.getValue(model, paymentDate);
+			final double recoveryRate = recoveryRateCurve.getValue(model, paymentDate);
 
 			// Precomputation for JPM and JPM_NOACCFEE model
-			double periodStartTime = Math.max(scheduleFromPeriods.getPeriodStart(periodIndex), evaluationTime);
-			double periodEndTime = Math.max(scheduleFromPeriods.getPeriodEnd(periodIndex), evaluationTime);
+			final double periodStartTime = Math.max(scheduleFromPeriods.getPeriodStart(periodIndex), evaluationTime);
+			final double periodEndTime = Math.max(scheduleFromPeriods.getPeriodEnd(periodIndex), evaluationTime);
 			double forwardInterestRateFactor = (Math.log(discountCurve.getValue(model, periodStartTime)) - Math.log(discountCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);
 			double hazardRateFactor = (Math.log(survivalProbabilityCurve.getValue(model, periodStartTime)) - Math.log(survivalProbabilityCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);
 			double accruedFactorJPM = hazardRateFactor * (1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2) - ((periodEndTime - periodStartTime) / (forwardInterestRateFactor + hazardRateFactor) + 1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2)) * (Math.exp(-(forwardInterestRateFactor + hazardRateFactor) * (periodEndTime - periodStartTime))));
@@ -283,13 +280,13 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 				if (useFinerDiscretization) {
 					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]
 					// JPM Model on jointTimeDiscretization
-					int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);		// was ArrayUtils.indexOf
-					int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);			// was ArrayUtils.indexOf
+					final int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);		// was ArrayUtils.indexOf
+					final int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);			// was ArrayUtils.indexOf
 					// Loop over subperiods
 					for (int subTimeIndex = startIndex; subTimeIndex < endIndex; subTimeIndex++) {
-						double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];
-						double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];
-						double subPeriodLength = subPeriodEndTime - subPeriodStartTime;
+						final double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];
+						final double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];
+						final double subPeriodLength = subPeriodEndTime - subPeriodStartTime;
 						discountFactor = discountCurve.getDiscountFactor(model, subPeriodEndTime);
 						previousDiscountFactor = discountCurve.getDiscountFactor(model, subPeriodStartTime);
 						survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodEndTime);
@@ -311,12 +308,12 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 				if (useFinerDiscretization) {
 					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor;
 					// JPM Model on jointTimeDiscretization
-					int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);
-					int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);
+					final int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);
+					final int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);
 					// Loop over subperiods
 					for (int subTimeIndex = startIndex; subTimeIndex < endIndex; subTimeIndex++) {
-						double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];
-						double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];
+						final double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];
+						final double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];
 						discountFactor = discountCurve.getDiscountFactor(model, subPeriodEndTime);
 						previousDiscountFactor = discountCurve.getDiscountFactor(model, subPeriodStartTime);
 						survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodEndTime);
@@ -347,22 +344,22 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 **/
 	public double getConventionalSpread( double evaluationTime, AnalyticModel calibratedModelJPM ){
 
-		ForwardCurve forwardCurveInterpolation = calibratedModelJPM.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurveInterpolation = calibratedModelJPM.getForwardCurve(forwardCurveName);
 		if(forwardCurveInterpolation == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + calibratedModelJPM.toString());
 		}
 
-		DiscountCurve discountCurveInterpolation = calibratedModelJPM.getDiscountCurve(discountCurveName);
+		final DiscountCurve discountCurveInterpolation = calibratedModelJPM.getDiscountCurve(discountCurveName);
 		if(discountCurveInterpolation == null) {
 			throw new IllegalArgumentException("No discount curve with name '" + discountCurveName + "' was found in the model:\n" + calibratedModelJPM.toString());
 		}
 
-		Curve survivalProbabilityCurve = calibratedModelJPM.getCurve(survivalProbabilityCurveName);
+		final Curve survivalProbabilityCurve = calibratedModelJPM.getCurve(survivalProbabilityCurveName);
 		if(survivalProbabilityCurve == null) {
 			throw new IllegalArgumentException("No survival probability curve with name '" + survivalProbabilityCurveName + "' was found in the model:\n" + calibratedModelJPM.toString());
 		}
 
-		Curve recoveryRateCurve = calibratedModelJPM.getCurve(recoveryRateCurveName);
+		final Curve recoveryRateCurve = calibratedModelJPM.getCurve(recoveryRateCurveName);
 		if(recoveryRateCurve == null) {
 			throw new IllegalArgumentException("No recovery rate curve with name '" + recoveryRateCurveName + "' was found in the model:\n" + calibratedModelJPM.toString());
 		}
@@ -372,23 +369,25 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 		for(int periodIndex=0; periodIndex < scheduleFromPeriods.getNumberOfPeriods(); periodIndex++){
 
-			double paymentDate	= scheduleFromPeriods.getPayment(periodIndex);
-			double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
+			final double paymentDate	= scheduleFromPeriods.getPayment(periodIndex);
+			final double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
 
-			double discountFactor	= paymentDate > evaluationTime ? discountCurveInterpolation.getDiscountFactor(calibratedModelJPM, paymentDate) : 0.0;
-			double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, paymentDate) : 0.0;
+			final double discountFactor	= paymentDate > evaluationTime ? discountCurveInterpolation.getDiscountFactor(calibratedModelJPM, paymentDate) : 0.0;
+			final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, paymentDate) : 0.0;
 
 			valueFixedLeg += periodLength * discountFactor * survivalProbabilityFactor;
 
 			double previousPaymentDate = 0	;
-			if(periodIndex>0) previousPaymentDate	= scheduleFromPeriods.getPayment(periodIndex-1);
+			if(periodIndex>0) {
+				previousPaymentDate	= scheduleFromPeriods.getPayment(periodIndex-1);
+			}
 
-			double previousSurvivalProbabilityFactor	= previousPaymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, previousPaymentDate) : 1.0;
+			final double previousSurvivalProbabilityFactor	= previousPaymentDate > evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, previousPaymentDate) : 1.0;
 
 			valueFloatingLeg += (1.0 - recoveryRateCurve.getValue(calibratedModelJPM,paymentDate)) * discountFactor * (previousSurvivalProbabilityFactor- survivalProbabilityFactor);
 		}
 
-		double conventionalSpread = valueFloatingLeg/ valueFixedLeg;
+		final double conventionalSpread = valueFloatingLeg/ valueFixedLeg;
 
 		return conventionalSpread;
 	}
@@ -408,12 +407,12 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 */
 	public double getFeePayment(int periodIndex, AnalyticModel model) {
 
-		ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);
+		final ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);
 		if(forwardCurveInterpolation == null && forwardCurveName != null && forwardCurveName.length() > 0) {
 			throw new IllegalArgumentException("No forward curve with name '" + forwardCurveName + "' was found in the model:\n" + model.toString());
 		}
 
-		double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
+		final double periodLength	= scheduleFromPeriods.getPeriodLength(periodIndex);
 		double couponPayment = fixedFee;
 		if(forwardCurveInterpolation != null ) {
 			couponPayment = floatingFeeSpread+forwardCurveInterpolation.getForward(model, scheduleFromPeriods.getFixing(periodIndex));
@@ -430,10 +429,10 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @return The accrued fee.
 	 */
 	public double getAccruedFee(LocalDate date, AnalyticModel model) {
-		int periodIndex=scheduleFromPeriods.getPeriodIndex(date);
-		Period period=scheduleFromPeriods.getPeriod(periodIndex);
-		DayCountConvention dcc= scheduleFromPeriods.getDaycountconvention();
-		double accruedFee = getFeePayment(periodIndex, model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/scheduleFromPeriods.getPeriodLength(periodIndex);
+		final int periodIndex=scheduleFromPeriods.getPeriodIndex(date);
+		final Period period=scheduleFromPeriods.getPeriod(periodIndex);
+		final DayCountConvention dcc= scheduleFromPeriods.getDaycountconvention();
+		final double accruedFee = getFeePayment(periodIndex, model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/scheduleFromPeriods.getPeriodLength(periodIndex);
 		return accruedFee;
 	}
 
@@ -445,7 +444,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 * @return The accrued interest.
 	 */
 	public double getAccruedFee(double time, AnalyticModelFromCurvesAndVols model) {
-		LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(scheduleFromPeriods.getReferenceDate(), time);
+		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(scheduleFromPeriods.getReferenceDate(), time);
 		return getAccruedFee(date, model);
 	}
 
@@ -507,13 +506,13 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	}
 
 
-	public static enum PricingModel{
+	public enum PricingModel{
 		DISCRETE,
 		JPM,
 		JPM_NOACCFEE
 	}
 
-	public static enum DirtyCleanPrice {
+	public enum DirtyCleanPrice {
 		CLEAN,
 		DIRTY,
 	}

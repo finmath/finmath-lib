@@ -2,6 +2,7 @@ package net.finmath.integration;
 
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
+
 import org.apache.commons.lang3.Validate;
 
 import net.finmath.randomnumbers.MersenneTwister;
@@ -72,7 +73,7 @@ public class MonteCarloIntegrator extends AbstractRealIntegral{
 		final RandomNumberGenerator1D mersenneTwister	= new MersenneTwister(seed);
 
 		final DoubleStream randomNumberSequence = DoubleStream.generate(mersenneTwister).limit(numberOfEvaluationPoints);
- 
+
 		// Integrate f(a x + b) on [0,1)
 		return randomNumberSequence.map(x -> lowerBound + x * range).map(integrand).sum() * range / numberOfEvaluationPoints;
 	}

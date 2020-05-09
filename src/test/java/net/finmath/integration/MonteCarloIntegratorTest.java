@@ -18,7 +18,7 @@ import org.junit.Test;
  * @author Christian Fries
  */
 public class MonteCarloIntegratorTest {
-	
+
 	private final double	lowerBound = 1.0;
 	private final double	upperBound = 5.0;
 	private final int		numberOfEvaluationPoints = 1000000;
@@ -28,7 +28,7 @@ public class MonteCarloIntegratorTest {
 
 	@Before
 	public void setUp() {
-		integral = new MonteCarloIntegrator(lowerBound, upperBound, numberOfEvaluationPoints, (int)seed, true);
+		integral = new MonteCarloIntegrator(lowerBound, upperBound, numberOfEvaluationPoints, seed, true);
 	}
 
 	@Test
@@ -58,7 +58,7 @@ public class MonteCarloIntegratorTest {
 		final double monteCarloError = 1.0/Math.sqrt(q) * Math.sqrt(variance/((MonteCarloIntegrator)integral).getNumberOfEvaluationPoints());
 
 		final double optimalRate = 2.0 / numberOfEvaluationPoints;
-				
+
 		System.out.println("Result: " + value + ". \tError: " + error + ". \tMC: " + monteCarloError + ". \tBest accuracy: " + optimalRate);
 
 		Assert.assertEquals("Integreation error.", 0.0, error, monteCarloError);

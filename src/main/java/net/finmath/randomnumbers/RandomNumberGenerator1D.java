@@ -26,7 +26,7 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSu
 	default int getDimension() {
 		return 1;
 	}
-	
+
 	// Alias to function a <code>DoubleSupplier</code>
 	@Override
 	default double getAsDouble() {
