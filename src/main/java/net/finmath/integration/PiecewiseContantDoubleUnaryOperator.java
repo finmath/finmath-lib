@@ -11,12 +11,12 @@ import org.apache.commons.lang3.Validate;
 /**
  * A piecewise constant {@link java.util.function.DoubleUnaryOperator} \( f : \mathbb{R} \rightarrow \mathbb{R} \)
  * with exact calculation of the integral \( \int_{a}^{b} f(x) dx \) for given bounds \( a, b \).
- * 
+ *
  * The summation uses Kahan error correction.
- * 
+ *
  * For convenience the class can act as {@link java.util.function.DoubleUnaryOperator} specialization
  * and as {@link java.util.function.Function<Double, Double>}.
- * 
+ *
  * @author Christian Fries
  */
 public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator, Function<Double, Double> {
@@ -27,7 +27,7 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 	/**
 	 * Construct a piecewise constant {@link java.util.function.DoubleUnaryOperator}
 	 * \( f : \mathbb{R} \rightarrow \mathbb{R} \).
-	 * 
+	 *
 	 * @param intervalRightPoints Array of length \( n \) with the right hand points \( x_{i} \) of the intervals \( (x_{i-1},x_{i}] \) on which we have values.
 	 * @param values Array of length \( n+1 \) with the values \( f_{i} \) on the intervals \( (x_{i-1},x_{i}] \) where:
 	 * <ul>
@@ -48,7 +48,7 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 	/**
 	 * Construct a piecewise constant {@link java.util.function.DoubleUnaryOperator}
 	 * \( f : \mathbb{R} \rightarrow \mathbb{R} \).
-	 * 
+	 *
 	 * @param intervalRightPoints List of length \( n \) with the right hand points \( x_{i} \) of the intervals \( (x_{i-1},x_{i}] \) on which we have values.
 	 * @param values List of length \( n+1 \) with the values \( f_{i} \) on the intervals \( (x_{i-1},x_{i}] \) where:
 	 * <ul>
@@ -66,7 +66,7 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 	/**
 	 * Get the integral \( \int_{a}^{b} g(f(x)) dx \) of this function \( f \) plugged into a given function \( g \)
 	 * for given bounds \( a, b \).
-	 * 
+	 *
 	 * @param lowerBound The lower bound a.
 	 * @param upperBound The upper bound b.
 	 * @param operator The given function g.
@@ -82,10 +82,14 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 		}
 
 		int indexUpperOfLowerBound = Arrays.binarySearch(intervalRightPoints, lowerBound);
-		if(indexUpperOfLowerBound < 0) indexUpperOfLowerBound = -indexUpperOfLowerBound-1;
+		if(indexUpperOfLowerBound < 0) {
+			indexUpperOfLowerBound = -indexUpperOfLowerBound-1;
+		}
 
 		int indexLowerOfUpperBound = Arrays.binarySearch(intervalRightPoints, upperBound);
-		if(indexLowerOfUpperBound < 0) indexLowerOfUpperBound = -indexLowerOfUpperBound-1;
+		if(indexLowerOfUpperBound < 0) {
+			indexLowerOfUpperBound = -indexLowerOfUpperBound-1;
+		}
 		indexLowerOfUpperBound--;
 
 		if(indexLowerOfUpperBound < indexUpperOfLowerBound) {
@@ -101,8 +105,8 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 
 			// in between intervals (if any)
 			for(int i=indexUpperOfLowerBound; i<indexLowerOfUpperBound; i++) {
-				double value = operator.applyAsDouble(values[i+1]) * (intervalRightPoints[i+1]-intervalRightPoints[i]) - error;
-				double newIntegral = integral + value;
+				final double value = operator.applyAsDouble(values[i+1]) * (intervalRightPoints[i+1]-intervalRightPoints[i]) - error;
+				final double newIntegral = integral + value;
 				error = newIntegral - integral - value;
 				integral = newIntegral;
 			}
@@ -113,11 +117,11 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 			return integral;
 		}
 	}
-	
+
 	/**
 	 * Get the integral \( \int_{a}^{b} g(f(x)) dx \) of this function \( f \) plugged into a given function \( g \)
 	 * for given bounds \( a, b \).
-	 * 
+	 *
 	 * @param lowerBound The lower bound a.
 	 * @param upperBound The upper bound b.
 	 * @param operator The given function g.
@@ -128,14 +132,14 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 	}
 
 	private DoubleUnaryOperator toPrimitive(Function<Double, Double> operator) {
-		DoubleUnaryOperator doubleUnaryOperator = x -> operator.apply(x);
+		final DoubleUnaryOperator doubleUnaryOperator = x -> operator.apply(x);
 		return doubleUnaryOperator;
 	}
 
 	/**
 	 * Get the integral \( \int_{a}^{b} f(x) dx \) of this function \( f \)
 	 * for given bounds \( a, b \).
-	 * 
+	 *
 	 * @param lowerBound The lower bound a.
 	 * @param upperBound The upper bound b.
 	 * @return The integral \( \int_{a}^{b} f(x) dx \).
@@ -146,20 +150,22 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 
 	/**
 	 * Get the value of this unary operator \( f \) at the given argument.
-	 * 
+	 *
 	 * @param operand The given argument.
 	 * @return The value \( f(x) \).
 	 */
 	@Override
 	public double applyAsDouble(double operand) {
 		int index = Arrays.binarySearch(intervalRightPoints, operand);
-		if (index < 0) index = -index - 1;
+		if (index < 0) {
+			index = -index - 1;
+		}
 		return values[index];
 	}
 
 	/**
 	 * Get the value of this function \( f \) at the given argument.
-	 * 
+	 *
 	 * @param value The given argument.
 	 * @return The value \( f(x) \).
 	 */
