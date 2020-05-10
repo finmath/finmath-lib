@@ -4,6 +4,7 @@
 package net.finmath.randomnumbers;
 
 import java.io.Serializable;
+import java.util.function.DoubleSupplier;
 
 /**
  * Interface for a 1-dimensional random number generator
@@ -12,7 +13,7 @@ import java.io.Serializable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface RandomNumberGenerator1D extends RandomNumberGenerator, Serializable {
+public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSupplier, Serializable {
 
 	double nextDouble();
 
@@ -24,5 +25,11 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, Serializ
 	@Override
 	default int getDimension() {
 		return 1;
+	}
+
+	// Alias to function a <code>DoubleSupplier</code>
+	@Override
+	default double getAsDouble() {
+		return nextDouble();
 	}
 }

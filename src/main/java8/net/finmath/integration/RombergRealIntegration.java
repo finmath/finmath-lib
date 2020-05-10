@@ -35,9 +35,6 @@ public class RombergRealIntegration extends AbstractRealIntegral {
 		this.numberOfEvaluationPoints = numberOfEvaluationPoints;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.integration.AbstractRealIntegral#integrate(java.util.function.DoubleUnaryOperator)
-	 */
 	@Override
 	public double integrate(final DoubleUnaryOperator integrand) {
 

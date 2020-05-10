@@ -454,6 +454,21 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		return Collections.unmodifiableList(points);
 	}
 
+	/**
+	 * Returns the interpolation times (the x-values).
+	 *
+	 * The method creates a defensive copy.
+	 *
+	 * @return Array of interpolation times (the x-values).
+	 */
+	public double[] getTimes() {
+		final double[] times = new double[points.size()];
+		for(int i=0; i<points.size(); i++) {
+			times[i] = points.get(i).time;
+		}
+		return times;
+	}
+
 	protected int getTimeIndex(final double time) {
 		final Point point = new Point(time, Double.NaN, false);
 		return java.util.Collections.binarySearch(points, point);

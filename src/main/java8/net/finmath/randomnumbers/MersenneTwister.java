@@ -26,6 +26,10 @@ public class MersenneTwister implements RandomNumberGenerator1D, Serializable {
 		mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister(seed);
 	}
 
+	public MersenneTwister() {
+		mersenneTwister	= new org.apache.commons.math3.random.MersenneTwister();
+	}
+
 	/**
 	 * Returns the next random number in the sequence.
 	 *
