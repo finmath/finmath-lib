@@ -80,11 +80,11 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 Languages and Build
 --------------------------------------
 
-The library is available for Java 8 and Java 6. We are starting to provide examples in Kotlin.
+The library is available for Java 11 and Java 8. We are starting to provide examples in Kotlin.
 
 The Maven build file is provide. Import the project as Maven project.
 
-The default Maven profile is Java 8 without Kotlin. To enable Java 6 version select the Maven profile 'java-6'. To enable Kotlin select the Maven profile 'kotlin'.
+The default Maven profile is Java 11 without Kotlin. To enable Java 8 version select the Maven profile 'java-8'. To enable Kotlin select the Maven profile 'kotlin'.
 
 
 Releases
@@ -100,39 +100,39 @@ Distribution
 
 finmath lib is distributed through the central maven repository. It's coordinates are:
 
-For the Java 8 version:
+For the Java 11 version:
 
     <groupId>net.finmath</groupId>
     <artifactId>finmath-lib</artifactId>
     <version>${project.version}</version>
     
-For the Java 6 version:
+For the Java 8 version:
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
 	<version>3.6.3</version>
-	<classifier>java6</classifier>
+	<classifier>java8</classifier>
 
-*Note: finmath-lib Version 4 is currently not available for Java 6.*
+*Note: finmath-lib Version 4 and 5 is currently not available for Java 6. For Java 6 you may try version 3.6.3 with classifier java6.*
 
 
-You may build the Java 8 version via Maven using
+You may build the Java 11 version via Maven using
+
+	mvn -P java-11
+
+and the Java 8 version using
 
 	mvn -P java-8
-
-and the Java 6 version using
-
-	mvn -P java-6
 	
 Source code
 -------------------------------------
 
-The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 8/9 version and a Java 6 version.
-We will use Java 8 and Java 9 concepts in the future and try to provide Java 6 compatibility where possible.
+The finmath lib Java library comes in two flavors which have a slightly different code base: a Java 11 version and a Java 8 version.
+We will use Java 11 concepts in the future and try to provide Java 8 compatibility where possible.
 
 For that reason, the source code is duplicated:
--    src/main/java				contains the Java 8 compatible source files
--    src/main/java6				contains the Java 6 compatible source files
+-    src/main/java				contains the Java 11 compatible source files
+-    src/main/java8				contains the Java 8 compatible source files
 
 Although the two folder share some/many identical source files, we prefer this two folder layout
 over one with a third folder like java-common.
@@ -140,15 +140,15 @@ over one with a third folder like java-common.
 
 ### Building finmath lib
 
--    To build finmath lib for Java 8 use src/main/java
--    To build finmath lib for java 6 use src/main/java-6
+-    To build finmath lib for Java 11 use src/main/java
+-    To build finmath lib for Java 8 use src/main/java8
 
-These builds may be performed via Maven the profiles "java-8" and "java-6".
-The eclipse project file is pre-configured to Java 8.
+These builds may be performed via Maven the profiles "java-11" and "java-8".
+The eclipse project file is pre-configured to Java 11.
 
 #### Maven build
 
-The maven pom defaults to the Java 8 build. To build finmath lib for Java 6 use the maven profile "java-6".
+The maven pom defaults to the Java 11 build. To build finmath lib for Java 8 use the maven profile "java-8".
 
 
 Repositories
