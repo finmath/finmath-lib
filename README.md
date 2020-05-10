@@ -24,11 +24,12 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - General numerical algorithms like
     - Generation of random numbers
     - Optimization (a Levenberg–Marquardt algorithm is provided)
-- Valuation using **Fourier transforms** / **characteristic functions** (contributed by Alessandro Gnoatto, Lorenzo Toricelli and others)
+- Valuation using **Fourier transforms** / **characteristic functions** (contributed by Alessandro Gnoatto, Lorenzo Torricelli and others)
     - Black-Scholes model
     - Heston model
     - Bates model
     - Two factor Bates model
+    - Merton model
     - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 - **Finite difference methods** (contributed by Ralph Rudd and Jörg Kienitz)
     - Numerical schemes using finite differences
