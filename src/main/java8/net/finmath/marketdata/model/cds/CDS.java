@@ -344,6 +344,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 	 *
 	 * @param evaluationTime Evaluation time of the pricing.
 	 * @param calibratedModelJPM Analytic Model, within the CDS is priced.
+	 * @return The conventional CDS spread.
 	 */
 	public double getConventionalSpread( double evaluationTime, AnalyticModel calibratedModelJPM ){
 
