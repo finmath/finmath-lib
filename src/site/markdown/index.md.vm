@@ -52,6 +52,10 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
 - **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
+- **Analytic valuation via curves and surfaces** 
+    - Multi-Curve valuation of interest rate products (collateralization and funding) (Swaps, FRA).
+    - Bonds valuation using bond curves.
+    - CDS valuation.
 - **Calibration** of market data objects like curves (discount and forward curve) or volatility surfaces
     - Rate Curves:
         - **Multi-curve interest rate curve calibration** (OIS discounting, basis-swaps, cross-currency-swaps).

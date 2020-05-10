@@ -6,6 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.1 (10.05.2020)
+
+### Numerical Integration
+
+ - Exact integration of functions of piecewise constant functions (useful for intensity models). See `net.finmath.integrationnet.finmath.integration.PiecewiseContantDoubleUnaryOperator`.
+ 
+### Analytic valuation models
+
+ - CDS valuation (contributed by Matthias Föhr).
+
+
 ## 5.0.0 (12.04.2020)
 
  - Refactoring and cleanup (deprecation) from 4.1.8. See [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
