@@ -257,7 +257,7 @@ var Packages = {
     "text": "integration",
     "package": "net.finmath.integration",
     "url": "net/finmath/integration/pkg-summary.html",
-            "coverage": "73.5%",
+            "coverage": "85.2%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/integration/pkg-summary.html"},
@@ -297,7 +297,7 @@ var Packages = {
     "text": "calibration",
     "package": "net.finmath.marketdata.calibration",
     "url": "net/finmath/marketdata/calibration/pkg-summary.html",
-            "coverage": "48.9%",
+            "coverage": "49.4%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/marketdata/calibration/pkg-summary.html"},
@@ -333,11 +333,25 @@ var Packages = {
                                     
                 
 {
+    "id": "net.finmath.marketdata.model.cds",
+    "text": "cds",
+    "package": "net.finmath.marketdata.model.cds",
+    "url": "net/finmath/marketdata/model/cds/pkg-summary.html",
+            "coverage": "71.6%",
+        "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
+            "li_attr": {"data-is-link": "true"},
+        "a_attr": {"href": "net/finmath/marketdata/model/cds/pkg-summary.html"},
+    "children": [
+                    ]
+},
+                                    
+                
+{
     "id": "net.finmath.marketdata.model.curves",
     "text": "curves",
     "package": "net.finmath.marketdata.model.curves",
     "url": "net/finmath/marketdata/model/curves/pkg-summary.html",
-            "coverage": "56.6%",
+            "coverage": "56.8%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/marketdata/model/curves/pkg-summary.html"},
@@ -853,7 +867,7 @@ var Packages = {
     "text": "components",
     "package": "net.finmath.montecarlo.interestrate.products.components",
     "url": "net/finmath/montecarlo/interestrate/products/components/pkg-summary.html",
-            "coverage": "56.6%",
+            "coverage": "45.3%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/montecarlo/interestrate/products/components/pkg-summary.html"},
@@ -1025,7 +1039,7 @@ var Packages = {
     "text": "randomnumbers",
     "package": "net.finmath.randomnumbers",
     "url": "net/finmath/randomnumbers/pkg-summary.html",
-            "coverage": "89.8%",
+            "coverage": "88.2%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/randomnumbers/pkg-summary.html"},
