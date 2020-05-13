@@ -31,7 +31,7 @@
 		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
 		<kotlin.version>1.2.0</kotlin.version>
 		<commons-math.version>3.6.1</commons-math.version>
-		<commons-lang.version>3.9</commons-lang.version>
+		<commons-lang.version>3.10</commons-lang.version>
 		<junit.version>4.12</junit.version>
 		<!-- maven plugins -->
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
@@ -255,8 +255,8 @@
 					</tags>
 					<links>
 						<!-- links not compatible with JMPA -->
-						<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link> -->
 						<!-- <link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link> -->
+						<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link> -->
 					</links>
 					<detectLinks>false</detectLinks>
 					<additionalOptions>
@@ -698,10 +698,11 @@
 						</tag>
 					</tags>
 					<links>
-						<link>http://commons.apache.org/proper/commons-lang/javadocs/api-3.9/</link>
-						<link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link>
+						<!-- links not compatible with JMPA -->
+						<!-- <link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link> -->
+						<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link> -->
 					</links>
-					<detectLinks>true</detectLinks>
+					<detectLinks>false</detectLinks>
 					<additionalOptions>
 						<additionalOption>--allow-script-in-comments</additionalOption>
 					</additionalOptions>
