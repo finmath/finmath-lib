@@ -27,7 +27,7 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSu
 		return 1;
 	}
 
-	// Alias to function a <code>DoubleSupplier</code>
+	// Alias to function as <code>DoubleSupplier</code>
 	@Override
 	default double getAsDouble() {
 		return nextDouble();
