@@ -40,7 +40,7 @@
 		<javadoc-plugin.version>3.2.0</javadoc-plugin.version>
 		<jar-plugin.version>3.2.0</jar-plugin.version>
 		<source-plugin.version>3.2.1</source-plugin.version>
-		<site-plugin.version>3.8.2</site-plugin.version>
+		<site-plugin.version>3.9.0</site-plugin.version>
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 		<clover-plugin.version>4.4.1</clover-plugin.version>
 		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
