@@ -113,8 +113,15 @@ For the Java 8 version:
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>3.6.3</version>
+    <version>${project.version}</version>
 	<classifier>java8</classifier>
+
+For the Java 6 version:
+
+	<groupId>net.finmath</groupId>
+	<artifactId>finmath-lib</artifactId>
+	<version>3.6.3</version>
+	<classifier>java6</classifier>
 
 *Note: finmath-lib Version 4 and 5 is currently not available for Java 6. For Java 6 you may try version 3.6.3 with classifier java6.*
 
