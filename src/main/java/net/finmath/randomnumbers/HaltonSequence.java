@@ -5,6 +5,8 @@
  */
 package net.finmath.randomnumbers;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Implements a multi-dimensional Halton sequence (quasi random numbers) with the given bases.
  *
@@ -17,7 +19,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	private final int[] base;
 
-	private int currentIndex = 0;
+	private AtomicLong currentIndex = new AtomicLong();
 
 	/**
 	 * Constructs a Halton sequence with the given bases.
@@ -38,7 +40,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	@Override
 	public double[] getNext() {
-		return getHaltonNumber(currentIndex++);
+		return getHaltonNumber(currentIndex.getAndIncrement());
 	}
 
 	@Override
