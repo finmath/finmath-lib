@@ -193,7 +193,7 @@ public class BrownianMotionTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotion brownian = new BrownianMotionFromMersenneRandomNumbers(
 				timeDiscretization,
 				2,
 				numberOfPaths,
