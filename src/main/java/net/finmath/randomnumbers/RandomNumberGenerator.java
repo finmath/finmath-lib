@@ -16,6 +16,8 @@ public interface RandomNumberGenerator extends Serializable {
 
 	/**
 	 * Get the next sample vector of dimension n, where n is <code>getDimension</code>.
+	 * 
+	 * An implementation has to be thread safe.
 	 *
 	 * @return The next sample vector of dimension n, where n is <code>getDimension</code>.
 	 */
