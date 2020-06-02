@@ -161,7 +161,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 				final double sqrtDeltaT = sqrtOfTimeStep[timeIndex];
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
-					final double uniformIncrement = mersenneTwister.nextDouble();
+					final double uniformIncrement = mersenneTwister.nextDoubleFast();
 					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
 				}
 			}
