@@ -3,7 +3,6 @@ package net.finmath.singleswaprate.products;
 import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.integration.AbstractRealIntegral;
 import net.finmath.integration.RealIntegral;
 import net.finmath.integration.SimpsonRealIntegrator;
 import net.finmath.marketdata.model.curves.ForwardCurve;
