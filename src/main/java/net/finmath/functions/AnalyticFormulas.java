@@ -1132,6 +1132,14 @@ public class AnalyticFormulas {
 			// ATM case - we assume underlying = strike
 			term1 = alpha * Math.pow(underlying, beta);
 		}
+		else if(x == 0) {
+			// x ~ z for z small
+			if(beta < 1.0) {
+				term1 = (underlying-strike) * alpha / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);
+			} else {
+				term1 = (underlying-strike) * alpha / Math.log(underlying/strike);
+			}
+		}
 		else {
 			term1 = nu * (underlying-strike) / x;
 		}
