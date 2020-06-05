@@ -86,7 +86,7 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 				new GammaProcess(timeDiscretization,numberOfFactors,numberOfPaths,seed,1/nu,nu);
 
 		myBrownianMotion =
-				new BrownianMotionLazyInit(timeDiscretization,numberOfFactors,numberOfPaths,seed+1);
+				new BrownianMotionFromMersenneRandomNumbers(timeDiscretization,numberOfFactors,numberOfPaths,seed+1);
 
 		varianceGammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];
 

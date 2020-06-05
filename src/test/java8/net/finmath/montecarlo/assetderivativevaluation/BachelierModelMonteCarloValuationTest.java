@@ -172,7 +172,7 @@ public class BachelierModelMonteCarloValuationTest {
 			final ProcessModel bachelierModel = new BachelierModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
 
 			model = new MonteCarloAssetModel(bachelierModel, process);
 		}

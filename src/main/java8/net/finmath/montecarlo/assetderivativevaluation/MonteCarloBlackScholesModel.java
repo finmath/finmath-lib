@@ -73,7 +73,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a corresponding MC process
-		process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER_FUNCTIONAL);
+		process = new EulerSchemeFromProcessModel(model, new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER_FUNCTIONAL);
 	}
 
 	/**

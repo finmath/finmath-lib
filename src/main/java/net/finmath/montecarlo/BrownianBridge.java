@@ -116,7 +116,7 @@ public class BrownianBridge implements BrownianMotion {
 			return;	// Nothing to do
 		}
 
-		final BrownianMotionLazyInit generator = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion generator = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		// Allocate memory
 		brownianIncrements = new RandomVariable[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];

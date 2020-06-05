@@ -15,7 +15,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
@@ -354,7 +354,7 @@ public class RandomVariableDifferentiableTest {
 
 		final int numberOfPaths = 100000;
 		final int seed = 3141;
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(new TimeDiscretizationFromArray(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
 		final RandomVariable brownianIncrement = brownianMotion.getIncrement(0, 0);
 
 		final RandomVariableDifferentiable x = randomVariableFactory.createRandomVariable(1.0);

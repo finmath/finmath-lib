@@ -163,7 +163,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final int seed			= (Integer)calibrationParameters.getOrDefault("seed", 31415);
 		final int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
 		final double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
-		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed));
+		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed));
 
 		final RandomVariable[] initialParameters = this.getParameter();
 		final RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
@@ -370,7 +370,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		final int seed			= seedParameter != null ? seedParameter.intValue() : 31415;
 		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), getNumberOfFactors(), numberOfPaths, seed);
 		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();

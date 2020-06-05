@@ -146,7 +146,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		//		int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
 		//		int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
 		//		double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
-		//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
+		//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
 		//
 		//		RandomVariable[] initialParameters = this.getParameter();
 		//		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
@@ -312,7 +312,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		final int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
 		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
 		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final ExecutorService executor = null;

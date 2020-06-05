@@ -192,7 +192,7 @@ public class HullWhiteModelCalibrationTest {
 
 		final AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFromArrayFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
 
-		final BrownianMotionLazyInit brownianMotion = new BrownianMotionLazyInit(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+		final BrownianMotionLazyInit brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 		//		//Create map (mainly use calibration defaults)
 		final Map<String, Object> properties = new HashMap<>();

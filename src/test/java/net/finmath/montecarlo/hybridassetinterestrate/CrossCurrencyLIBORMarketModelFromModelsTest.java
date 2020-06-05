@@ -9,7 +9,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.RandomVariableFactory;
@@ -168,7 +168,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		/*
 		 * The configuration of Brownian drivers and convexity adjustments could be a bit more convenient.
 		 */
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 3 /* numberOfFactors */, numberOfPaths, 323, randomVariableFactory);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 3 /* numberOfFactors */, numberOfPaths, 323, randomVariableFactory);
 		final BrownianMotion brownianMotionDom = new BrownianMotionView(brownianMotion, new Integer[] { 0 });
 		final BrownianMotion brownianMotionFor = new BrownianMotionView(brownianMotion, new Integer[] { 1 });
 		final BrownianMotion brownianMotionFXM = new BrownianMotionView(brownianMotion, new Integer[] { 1 });

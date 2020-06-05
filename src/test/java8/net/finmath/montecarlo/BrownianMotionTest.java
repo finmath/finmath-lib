@@ -68,7 +68,7 @@ public class BrownianMotionTest {
 		final int numberOfFactors = 1;
 		final int numberOfPaths = 10000000;
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0, 10, 1.0);
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed, abstractRandomVariableFactory);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed, abstractRandomVariableFactory);
 
 		RandomVariable brownianMotionAtTime = brownianMotion.getBrownianIncrement(0, 0);
 		for(int timeIndex=1; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
@@ -109,7 +109,7 @@ public class BrownianMotionTest {
 		for(int numberOfPaths = 1000; numberOfPaths <= 100000000; numberOfPaths *= 10) {
 
 			// Test the quality of the Brownian motion
-			final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+			final BrownianMotionLazyInit brownian = new BrownianMotionFromMersenneRandomNumbers(
 					timeDiscretization,
 					1,
 					numberOfPaths,
@@ -149,7 +149,7 @@ public class BrownianMotionTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionFromMersenneRandomNumbers(
 				timeDiscretization,
 				1,
 				numberOfPaths,
@@ -193,7 +193,7 @@ public class BrownianMotionTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionFromMersenneRandomNumbers(
 				timeDiscretization,
 				2,
 				numberOfPaths,
@@ -253,7 +253,7 @@ public class BrownianMotionTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, (int)(lastTime/dt), dt);
 
 		// Test the quality of the Brownian motion
-		final BrownianMotionLazyInit brownian = new BrownianMotionLazyInit(
+		final BrownianMotionLazyInit brownian = new BrownianMotionFromMersenneRandomNumbers(
 				timeDiscretization,
 				2,
 				numberOfPaths,

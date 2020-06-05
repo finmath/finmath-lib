@@ -136,7 +136,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			final double[]	volatilities,
 			final double[][]	correlations
 			) {
-		this(new BrownianMotionLazyInit(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
+		this(new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
 	}
 
 	@Override
