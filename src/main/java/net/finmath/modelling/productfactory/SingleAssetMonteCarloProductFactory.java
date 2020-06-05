@@ -62,7 +62,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 */
-	public class EuropeanOptionMonteCarlo extends EuropeanOption implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
+	public static class EuropeanOptionMonteCarlo extends EuropeanOption implements DescribedProduct<SingleAssetEuropeanOptionProductDescriptor> {
 
 		private final SingleAssetEuropeanOptionProductDescriptor descriptor;
 
@@ -89,7 +89,7 @@ public class SingleAssetMonteCarloProductFactory implements ProductFactory<Singl
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 */
-	public class DigitalOptionMonteCarlo extends DigitalOption implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>  {
+	public static class DigitalOptionMonteCarlo extends DigitalOption implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>  {
 
 		private final SingleAssetDigitalOptionProductDescriptor descriptor;
 

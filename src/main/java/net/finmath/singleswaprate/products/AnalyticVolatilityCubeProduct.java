@@ -10,13 +10,6 @@ import net.finmath.singleswaprate.model.VolatilityCubeModel;
  * @author Roland Bachl
  *
  */
-/**
- * The interface which has to be implemented by a product which may
- * be evaluated using an <code>AnalyticModelFromCuvesAndVols</code>.
- *
- * @author Christian Fries
- * @version 1.0
- */
 public interface AnalyticVolatilityCubeProduct extends AnalyticProduct {
 
 	/**
