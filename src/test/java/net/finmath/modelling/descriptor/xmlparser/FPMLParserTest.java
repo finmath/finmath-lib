@@ -50,7 +50,7 @@ public class FPMLParserTest {
 		String packagePath = FPMLParserTest.class.getPackage().getName().replace('.', '/');
 		final ClassLoader classLoader = FPMLParserTest.class.getClassLoader();
 		try {
-			parameters.add(new Object[] { new File(classLoader.getResource(packagePath + "ird-ex01-vanilla-swap.xml").toURI()) });
+			parameters.add(new Object[] { new File(classLoader.getResource(packagePath + "/ird-ex01-vanilla-swap.xml").toURI()) });
 		} catch (final URISyntaxException e) {
 			e.printStackTrace();
 		}
