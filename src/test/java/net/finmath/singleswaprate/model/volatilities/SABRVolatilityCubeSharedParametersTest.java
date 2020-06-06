@@ -37,7 +37,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class SABRVolatilityCubeSharedParametersTEST {
+public class SABRVolatilityCubeSharedParametersTest {
 
 	private static double testAccuracy = 0.003;
 
@@ -226,7 +226,7 @@ public class SABRVolatilityCubeSharedParametersTEST {
 			final double maxDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).max().getAsDouble();
 			final double avrgDiff	= differenceList.stream().mapToDouble(a -> Math.abs(a)).average().getAsDouble();
 			output.append("Maximal difference: " + maxDiff + ", Average difference: " + avrgDiff +"\n\n\n\n");
-			SABRVolatilityCubeSharedParametersTEST.differenceList.addAll(differenceList);
+			SABRVolatilityCubeSharedParametersTest.differenceList.addAll(differenceList);
 		}
 
 	}

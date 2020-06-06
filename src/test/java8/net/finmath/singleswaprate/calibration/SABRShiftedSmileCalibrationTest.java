@@ -32,7 +32,7 @@ import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
-public class SABRShiftedSmileCalibrationTEST {
+public class SABRShiftedSmileCalibrationTest {
 
 	private static double testAccuracy				= 0.1;
 	private static int calibrationMaxIteration		= 5000;

@@ -28,7 +28,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 
-public class SABRCubeParallelCalibrationTEST {
+public class SABRCubeParallelCalibrationTest {
 
 	private final double testAccuracy = 0.02;
 	private final int calibrationMaxIteration = 5;
@@ -64,7 +64,7 @@ public class SABRCubeParallelCalibrationTEST {
 	private SwaptionDataLattice physicalSwaptions;
 
 
-	public SABRCubeParallelCalibrationTEST() {
+	public SABRCubeParallelCalibrationTest() {
 
 		//Get curves
 		DiscountCurve discountCurve = null;
@@ -170,7 +170,7 @@ public class SABRCubeParallelCalibrationTEST {
 
 	public static void main(final String[] args) {
 
-		final SABRCubeParallelCalibrationTEST test = new SABRCubeParallelCalibrationTEST();
+		final SABRCubeParallelCalibrationTest test = new SABRCubeParallelCalibrationTest();
 		test.testCalibration();
 
 		test.askForSwaptions();

@@ -18,7 +18,7 @@ import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
-public class DataTablesTEST {
+public class DataTablesTest {
 
 	private static LocalDate referenceDate =  LocalDate.of(2017, 8, 30);
 	private static SchedulePrototype scheduleMetaData = new SchedulePrototype(
