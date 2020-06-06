@@ -32,7 +32,7 @@ hs_err_pid*
 *.iml
 
 ## Directory-based project format:
-# .idea/
+.idea/
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
@@ -41,15 +41,15 @@ hs_err_pid*
 .idea/dictionaries
 
 # Sensitive or high-churn files:
-# .idea/dataSources.ids
-# .idea/dataSources.xml
-# .idea/sqlDataSources.xml
-# .idea/dynamic.xml
-# .idea/uiDesigner.xml
+ .idea/dataSources.ids
+ .idea/dataSources.xml
+ .idea/sqlDataSources.xml
+ .idea/dynamic.xml
+ .idea/uiDesigner.xml
 
 # Gradle:
-# .idea/gradle.xml
-# .idea/libraries
+ .idea/gradle.xml
+ .idea/libraries
 
 # Mongo Explorer plugin:
 # .idea/mongoSettings.xml
