@@ -76,13 +76,13 @@ public class BisectionSearch implements RootFinder {
 			} else {
 				nextPoint = (points[1] + points[0]) / 2.0;
 				/*
-				  @TODO Check if values[0]*values[1] < 0 here
+				 * TODO Check if values[0]*values[1] < 0 here
 				 */
 			}
 		}
 		else {
 			/*
-			  Bisection search update rule
+			 * Bisection search update rule
 			 */
 
 			if (values[1] * value > 0) {

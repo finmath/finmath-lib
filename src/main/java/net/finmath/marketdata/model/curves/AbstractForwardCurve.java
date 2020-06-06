@@ -95,17 +95,11 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		paymentDateRollConvention = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurveName()
-	 */
 	@Override
 	public String getDiscountCurveName() {
 		return discountCurveName;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset(double)
-	 */
 	@Override
 	public double getPaymentOffset(final double fixingTime) {
 		if(getPaymentOffsetCode() == null) {
@@ -117,9 +111,9 @@ public abstract class AbstractForwardCurve extends CurveInterpolation implements
 		}
 		else {
 			/*
-			   @TODO In case paymentDate is relevant for the index modeling, it should be checked
-			 *  if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
-			 *  In such a case, this method may be overridden.
+			 * TODO In case paymentDate is relevant for the index modeling, it should be checked
+			 * if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
+			 * In such a case, this method may be overridden.
 			 */
 			final LocalDate referenceDate = getReferenceDate();
 			final LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
