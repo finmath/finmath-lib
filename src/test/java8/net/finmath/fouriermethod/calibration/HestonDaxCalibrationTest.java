@@ -178,7 +178,7 @@ public class HestonDaxCalibrationTest {
 			System.out.println(myString);
 		}
 
-		Assert.assertEquals(result.getRootMeanSquaredError() < 1.0, true);
+		Assert.assertTrue(result.getRootMeanSquaredError() < 1.0);
 
 	}
 

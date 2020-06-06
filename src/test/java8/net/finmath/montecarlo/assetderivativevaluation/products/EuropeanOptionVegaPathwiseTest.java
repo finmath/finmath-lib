@@ -17,7 +17,7 @@ public class EuropeanOptionVegaPathwiseTest {
 	private final int		numberOfTimeSteps	= 10;
 	private final double	timeHorizon 		= 5;
 
-	public static void main(final String args[]) throws CalculationException {
+	public static void main(final String[] args) throws CalculationException {
 		(new EuropeanOptionVegaPathwiseTest()).test();
 	}
 

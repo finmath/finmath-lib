@@ -289,7 +289,7 @@ public class BrownianMotionTest {
 
 		final RandomVariable valueClone = brownianClone.getBrownianIncrement(10, 0);
 
-		Assert.assertTrue("Comparing random variable from original and deserialized object: different references.", value != valueClone);
+		Assert.assertNotSame("Comparing random variable from original and deserialized object: different references.", value, valueClone);
 		Assert.assertTrue("Comparing random variable from original and deserialized object: equals().", value.equals(valueClone));
 	}
 
