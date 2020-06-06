@@ -2,7 +2,7 @@ package net.finmath.randomnumbers;
 
 /**
  * Implements a multi-dimensional Sobol sequence.
- * 
+ *
  * The class is just a wrapper to Apache commons-math implementation
  * in order to implement the interfaces <code>RandomNumberGenerator1D</code>
  * and {@link java.util.function.DoubleSupplier}.
@@ -15,7 +15,7 @@ public class SobolSequence1D implements RandomNumberGenerator1D {
 	private static final long serialVersionUID = 1368710922067034251L;
 
 	private SobolSequence sobolSequence;
-	
+
 	/**
 	 * Create a Sobol sequence.
 	 */

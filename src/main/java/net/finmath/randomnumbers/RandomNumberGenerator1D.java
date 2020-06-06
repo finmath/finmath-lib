@@ -15,7 +15,7 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSu
 	/**
 	 * Thread safe implementation returning the next double value of
 	 * this random number generator.
-	 * 
+	 *
 	 * @return The next double value of this random number generator
 	 */
 	double nextDouble();
@@ -23,10 +23,10 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSu
 	/**
 	 * Possibly faster, non-thread safe implementation returning the next double value of
 	 * this random number generator.
-	 * 
+	 *
 	 * The user of this method has to ensure synchronization if
 	 * this generator is shared by different threads.
-	 * 
+	 *
 	 * @return The next double value of this random number generator
 	 */
 	default double nextDoubleFast() {

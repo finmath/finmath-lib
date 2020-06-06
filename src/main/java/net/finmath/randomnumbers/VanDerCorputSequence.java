@@ -7,7 +7,7 @@ import org.apache.commons.lang3.Validate;
 /**
  * A van-der-Corput sequence \( \{ x_{i} \vert i = 0, 1, \ldots \} \) implementing
  * {@link net.finmath.randomnumbers.RandomNumberGenerator1D}.
- * 
+ *
  * @author Christian Fries
  */
 public class VanDerCorputSequence implements RandomNumberGenerator1D {
@@ -16,17 +16,17 @@ public class VanDerCorputSequence implements RandomNumberGenerator1D {
 
 	private final AtomicInteger index;
 	private final int base;
-	
+
 	public static void main(String[] args) {
 		for(int i=0; i<30; i++) {
 			double x = getVanDerCorputNumber(i, 2);
 			System.out.println(i + "\t" + x);
 		}
 	}
-	
+
 	/**
 	 * Create a van-der-Corput sequence for a given start index and base.
-	 * 
+	 *
 	 * @param startIndex The start index. Must be &ge; 0.
 	 * @param base The base of the sequence. Must be &gt; 1.
 	 */
@@ -49,15 +49,15 @@ public class VanDerCorputSequence implements RandomNumberGenerator1D {
 
 	/**
 	 * Return the van-der-Corput number.
-	 * 
+	 *
 	 * @param index The index of the sequence starting with 0
 	 * @param base The base.
 	 * @return The van der Corput number
 	 */
 	public static double getVanDerCorputNumber(long index, int base) {
-		
+
 		index = index + 1;
-		
+
 		double x = 0.0;
 		double refinementFactor = 1.0 / base;
 
@@ -66,7 +66,7 @@ public class VanDerCorputSequence implements RandomNumberGenerator1D {
 			index = index / base;
 			refinementFactor = refinementFactor / base;
 		}
-		
+
 		return x;
 	}
 }

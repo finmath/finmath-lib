@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**

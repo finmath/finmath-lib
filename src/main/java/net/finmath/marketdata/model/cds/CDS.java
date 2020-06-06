@@ -97,7 +97,7 @@ public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
 
 	/**
 	 * Creates a CDS with a fixed fee, no upfront.
-	 * 
+	 *
 	 * @param schedule Schedule of the CDS.
 	 * @param discountCurveName Name of the discount curve.
 	 * @param survivalProbabilityCurveName Name of the survival probability curve.
