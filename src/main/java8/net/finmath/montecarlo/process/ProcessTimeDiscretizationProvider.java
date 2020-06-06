@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.montecarlo.process;
 
 import java.time.LocalDateTime;

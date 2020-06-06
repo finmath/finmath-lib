@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import java.util.ArrayList;
@@ -48,12 +45,6 @@ public class RandomVariableAAD implements RandomVariable {
 	private ArrayList<Integer> childrenIndices;
 	private boolean isConstant;
 
-	/**
-	 * @param indexOfRandomVariable
-	 * @param parentRandomVariables
-	 * @param parentOperator
-	 * @param isConstant
-	 */
 	private RandomVariableAAD(final int ownIndexInList, final RandomVariable ownRandomVariable,
 			final int[] parentIndices, final OperatorType parentOperator, final ArrayList<Integer> childrenIndices ,final boolean isConstant) {
 		super();

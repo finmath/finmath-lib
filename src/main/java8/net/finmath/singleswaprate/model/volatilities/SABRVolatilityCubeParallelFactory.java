@@ -95,7 +95,6 @@ public class SABRVolatilityCubeParallelFactory {
 	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
 	 * @param physicalATMSwaptionVolatilities Lattice containing at-the-money normal volatilities of physically settled swaptions.
 	 * @param model The model for context.
-	 * @param discountCurveName The name of the discount curve to use, when fitting the atm level.
 	 * @param forwardCurveName The name of the forward curve to use, when fitting the atm level.
 	 */
 	private SABRVolatilityCubeParallelFactory(final String cubeName, final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule,

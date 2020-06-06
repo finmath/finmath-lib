@@ -255,9 +255,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 					} else {
 						discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
 					}
-				} catch (final InterruptedException e) {
-					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
-				} catch (final ExecutionException e) {
+				} catch (final InterruptedException | ExecutionException e) {
 					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
 				}
 			}

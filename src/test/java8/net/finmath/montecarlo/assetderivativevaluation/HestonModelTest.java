@@ -23,7 +23,7 @@ import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
 import net.finmath.fouriermethod.products.FourierTransformProduct;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;

@@ -37,6 +37,13 @@ public class MersenneTwister implements RandomNumberGenerator1D, Serializable {
 	 */
 	@Override
 	public double nextDouble() {
-		return mersenneTwister.nextDouble();
+		synchronized (mersenneTwister) {
+			return mersenneTwister.nextDouble();
+		}
+	}
+
+	@Override
+	public double nextDoubleFast() {
+			return mersenneTwister.nextDouble();
 	}
 }

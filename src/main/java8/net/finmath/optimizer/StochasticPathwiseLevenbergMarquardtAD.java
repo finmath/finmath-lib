@@ -125,7 +125,7 @@ public abstract class StochasticPathwiseLevenbergMarquardtAD extends net.finmath
 
 	@Override
 	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
-		/**
+		/*
 		 * Small modification to avoid growing operator trees.
 		 */
 		for(int i=0; i<parameters.length; i++) {

@@ -36,6 +36,8 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
@@ -192,7 +194,7 @@ public class HullWhiteModelCalibrationTest {
 
 		final AbstractShortRateVolatilityModel volatilityModel = new ShortRateVolatilityModelPiecewiseConstant(randomVariableFromArrayFactory, timeDiscretizationFromArray, volatilityDiscretization, new double[] {0.02}, new double[] {0.1}, true);
 
-		final BrownianMotionLazyInit brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, 2 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);
 
 		//		//Create map (mainly use calibration defaults)
 		final Map<String, Object> properties = new HashMap<>();

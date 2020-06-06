@@ -175,8 +175,8 @@ public class CSVSwaptionParser {
 	/**
 	 * Parse a single lattice from streams. The parser will not check that the files are aligned for the same reference date.
 	 *
-	 * @param atmFile The file containing data on atm swpations.
-	 * @param otmFile The file containing data on otm swaptions.
+	 * @param atmStream The stream containing data on atm swpations.
+	 * @param otmStream The stream containing data on otm swaptions.
 	 * @param referenceDate The reference date the swaptions should be created with respect to.
 	 * @param currency The currency, which should be parsed from the files.
 	 * @param index The index, which should be parsed from the files.

@@ -23,7 +23,7 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.AssetModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.time.FloatingpointDate;

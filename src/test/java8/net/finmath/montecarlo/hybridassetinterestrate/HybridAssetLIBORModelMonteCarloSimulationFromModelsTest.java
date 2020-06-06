@@ -3,7 +3,7 @@ package net.finmath.montecarlo.hybridassetinterestrate;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;

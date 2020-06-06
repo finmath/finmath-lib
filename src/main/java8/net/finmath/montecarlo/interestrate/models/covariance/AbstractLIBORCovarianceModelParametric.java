@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
@@ -198,9 +198,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (final CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return new Scalar(0.0);
 							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
@@ -222,9 +219,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
@@ -319,7 +314,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 		return calibrationCovarianceModel;
 	}
 
-	class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
+	static class FutureTaskWithPriority<T> extends FutureTask<T> implements Comparable<FutureTaskWithPriority<T>> {
 		private final int priority;
 		FutureTaskWithPriority(final Callable<T> callable, final int priority) {
 			super(callable);
@@ -400,7 +395,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 								public RandomVariable call() throws Exception {
 									try {
 										return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-									} catch (final Exception e) {
+									} catch(final Exception e) {
 										// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 										return null;
 									}
@@ -422,9 +417,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
