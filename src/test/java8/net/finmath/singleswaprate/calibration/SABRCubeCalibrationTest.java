@@ -1,6 +1,5 @@
 package net.finmath.singleswaprate.calibration;
 
-
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,8 +37,8 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 
 public class SABRCubeCalibrationTest {
 
-	private final double testAccuracy = 0.01;
-	private final int calibrationMaxIteration = 5;
+	private final double testAccuracy = 0.03;
+	private final int calibrationMaxIteration = 8;
 	private static boolean useLinearInterpolation	= true;
 
 	private final boolean replicationUseAsOffset = true;
