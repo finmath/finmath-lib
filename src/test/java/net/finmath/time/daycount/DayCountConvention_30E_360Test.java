@@ -60,7 +60,7 @@ public class DayCountConvention_30E_360Test {
 			LocalDate.of(2009,2,28),
 			LocalDate.of(2008,3,30),
 			LocalDate.of(2008,3,31),
-			LocalDate.of(2007,3,05),
+			LocalDate.of(2007,3, 5),
 			LocalDate.of(2007,11,28),
 			LocalDate.of(2008,2,29),
 			LocalDate.of(2008,8,31),

@@ -130,7 +130,7 @@ public class GoldenSectionSearch {
 		}
 
 		if (numberOfIterations < 3) {
-			/**
+			/*
 			 * Initially fill values
 			 */
 			values[numberOfIterations] = value;
@@ -146,10 +146,9 @@ public class GoldenSectionSearch {
 			}
 		}
 		else {
-			/**
+			/*
 			 * Golden section search update rule
 			 */
-
 			if (points[1] - points[0] > points[2] - points[1]) {
 				// The left interval is the large one
 				if (value < values[1]) {

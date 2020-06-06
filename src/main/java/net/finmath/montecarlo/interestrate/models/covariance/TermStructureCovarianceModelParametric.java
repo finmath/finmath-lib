@@ -143,9 +143,6 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						public Double call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,lIBORMonteCarloSimulationFromTermStructureModel).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();
-							} catch (final CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return 0.0;
 							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return 0.0;
@@ -167,9 +164,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 						final double value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}

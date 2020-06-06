@@ -531,7 +531,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	public static void main(final String[] args) {
 
-		/**
+		/*
 		 * Example. Shows how to use this class.
 		 */
 		final int samplePoints = 200;

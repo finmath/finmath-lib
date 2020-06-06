@@ -367,6 +367,18 @@
 				<configuration>
 					<skipDeploy>true</skipDeploy>
 				</configuration>
+				<executions>
+					<execution>
+						<id>stage-for-scm-publish</id>
+						<phase>post-site</phase>
+						<goals>
+							<goal>stage</goal>
+						</goals>
+						<configuration>
+							<skipDeploy>false</skipDeploy><!-- MSITE-652: configuration won't be necessary with m-site-p 3.2 -->
+						</configuration>
+					</execution>
+				</executions>
 				<dependencies>
 					<dependency>
 						<!-- add support for ssh/scp -->
@@ -380,22 +392,6 @@
 						<version>1.9</version>
 					</dependency>
 				</dependencies>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>stage-for-scm-publish</id>
-						<phase>post-site</phase>
-						<goals>
-							<goal>stage</goal>
-						</goals>
-						<configuration>
-							<skipDeploy>false</skipDeploy><!-- MSITE-652: configuration won't be necessary with m-site-p 3.2 -->
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

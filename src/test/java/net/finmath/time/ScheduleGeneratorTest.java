@@ -55,12 +55,12 @@ public class ScheduleGeneratorTest {
 			Assert.assertTrue(schedule2.getPeriods().contains(period));
 		}
 
-		Assert.assertTrue("Period start.", schedule2.getPeriod(0).getPeriodStart().equals(LocalDate.of(2012, 1+9, 10+2)));
+		Assert.assertEquals("Period start.", schedule2.getPeriod(0).getPeriodStart(), LocalDate.of(2012, 1 + 9, 10 + 2));
 
 		/*
 		 * 12.01.2013 is a saturday. End date rolls to 14.01.2013
 		 */
-		Assert.assertTrue("Period end.", schedule2.getPeriod(0).getPeriodEnd().equals(LocalDate.of(2013, 01, 14)));
+		Assert.assertEquals("Period end.", schedule2.getPeriod(0).getPeriodEnd(), LocalDate.of(2013, 1, 14));
 		System.out.println(schedule2);
 	}
 

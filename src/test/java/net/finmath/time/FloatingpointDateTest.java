@@ -21,7 +21,7 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void test() {
-		final LocalDate referenceDate = LocalDate.of(2016, 01, 01);
+		final LocalDate referenceDate = LocalDate.of(2016, 1, 1);
 		for(int i=0; i<1000; i++) {
 			final LocalDate date = referenceDate.plusDays(i);
 
@@ -37,12 +37,12 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void testLocalDateLocalDateTimeConsistency() {
-		final LocalDate referenceDate = LocalDate.of(2016, 01, 01);
+		final LocalDate referenceDate = LocalDate.of(2016, 1, 1);
 		for(int i=0; i<1000; i++) {
 			final LocalDate date = referenceDate.plusDays(i);
 
 			final double floatingPointDate = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
-			final double floatingPointDateTime = FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(referenceDate, LocalTime.of(12, 00)), LocalDateTime.of(date, LocalTime.of(12, 00)));
+			final double floatingPointDateTime = FloatingpointDate.getFloatingPointDateFromDate(LocalDateTime.of(referenceDate, LocalTime.of(12, 0)), LocalDateTime.of(date, LocalTime.of(12, 0)));
 
 			Assert.assertEquals("Comparing Date to DateTime", floatingPointDate, floatingPointDateTime, 0.2/SECONDS_PER_DAY);
 		}
@@ -53,7 +53,7 @@ public class FloatingpointDateTest {
 	 */
 	@Test
 	public void testLocalDateTime() {
-		final LocalDateTime referenceDate = LocalDateTime.of(2016, 01, 01,12, 34);
+		final LocalDateTime referenceDate = LocalDateTime.of(2016, 1, 1,12, 34);
 		for(int i=0; i<1000; i+=2) {
 			for(int j=0; j<24*60*60; j+=7) {
 				final LocalDateTime date = referenceDate.plusDays(i).plusSeconds(j);

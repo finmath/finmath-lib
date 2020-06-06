@@ -198,9 +198,6 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, liborMarketModelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (final CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return new Scalar(0.0);
 							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return new Scalar(0.0);
@@ -222,9 +219,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
@@ -422,9 +417,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}
