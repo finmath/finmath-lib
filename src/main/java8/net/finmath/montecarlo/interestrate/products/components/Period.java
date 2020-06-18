@@ -170,7 +170,7 @@ public class Period extends AbstractPeriod {
 
 		// Apply notional exchange
 		if(notionalFlow) {
-			final RandomVariable	nationalAtPeriodEnd		= getNotional().getNotionalAtPeriodEnd(this, model);
+			final RandomVariable	notionalAtPeriodEnd		= getNotional().getNotionalAtPeriodEnd(this, model);
 
 			if(getPeriodStart() > evaluationTime) {
 				final RandomVariable	numeraireAtPeriodStart	= model.getNumeraire(getPeriodStart());
@@ -179,7 +179,7 @@ public class Period extends AbstractPeriod {
 
 			if(getPeriodEnd() > evaluationTime) {
 				final RandomVariable	numeraireAtPeriodEnd	= model.getNumeraire(getPeriodEnd());
-				values = values.addRatio(nationalAtPeriodEnd, numeraireAtPeriodEnd);
+				values = values.addRatio(notionalAtPeriodEnd, numeraireAtPeriodEnd);
 			}
 		}
 
