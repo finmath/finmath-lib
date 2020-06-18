@@ -12,6 +12,10 @@ finmath lib Release Notes
 
  - Minor improvements (additional c'tors).
 
+### Random number generators
+
+ - Added some quasi random number generators.
+
 
 ## 5.0.1 (10.05.2020)
 
