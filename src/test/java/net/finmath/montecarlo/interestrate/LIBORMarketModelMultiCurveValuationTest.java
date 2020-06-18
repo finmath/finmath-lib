@@ -185,11 +185,11 @@ public class LIBORMarketModelMultiCurveValuationTest {
 				calibrationItems,
 				properties);
 
-		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
+		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModel, brownianMotion, EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		return new LIBORMonteCarloSimulationFromLIBORModel(liborMarketModel, process);
+		return new LIBORMonteCarloSimulationFromLIBORModel(process);
 	}
 
 	@Test
@@ -638,11 +638,11 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		 * Test our calibration
 		 */
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated,
-				new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretization,
+				new net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers(timeDiscretization,
 						numberOfFactors, numberOfPaths, 3141 /* seed */), EulerSchemeFromProcessModel.Scheme.PREDICTOR_CORRECTOR);
 
-		final net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel calMode = new net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel(
-				liborMarketModelCalibrated, process);
+		final net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel calModel = new net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel(
+				process);
 
 		final double[] param = ((AbstractLIBORCovarianceModelParametric) liborMarketModelCalibrated.getCovarianceModel()).getParameterAsDouble();
 		for (final double p : param) {
@@ -652,7 +652,7 @@ public class LIBORMarketModelMultiCurveValuationTest {
 		double deviationSum = 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
 			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
-			final double valueModel = calibrationProduct.getValue(calMode);
+			final double valueModel = calibrationProduct.getValue(calModel);
 			final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);
 			System.out.println("Model: " + formatterValue.format(valueModel) + "\t Target: " + formatterValue.format(valueTarget) + "\t Deviation: " + formatterDeviation.format(valueModel-valueTarget));
