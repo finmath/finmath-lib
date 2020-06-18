@@ -19,7 +19,7 @@ public class VanDerCorputSequence implements RandomNumberGenerator1D {
 
 	public static void main(String[] args) {
 		for(int i=0; i<30; i++) {
-			double x = getVanDerCorputNumber(i, 2);
+			final double x = getVanDerCorputNumber(i, 2);
 			System.out.println(i + "\t" + x);
 		}
 	}

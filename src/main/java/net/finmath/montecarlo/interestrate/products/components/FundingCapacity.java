@@ -12,7 +12,7 @@ import net.finmath.stochastic.Scalar;
 /**
  * Model the survival probability of a funding capacity
  * using a piecewise constant function for the instantaneous survival probability.
- * 
+ *
  * @author Christian Fries
  */
 public class FundingCapacity extends AbstractProductComponent {
@@ -42,7 +42,7 @@ public class FundingCapacity extends AbstractProductComponent {
 
 		RandomVariable fundingIntervallLeft, fundingIntervallRight;
 		synchronized (currentCapacity) {
-			RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);		
+			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);
 			fundingIntervallLeft		= currentCapacity.cap(newCapacity);
 			fundingIntervallRight		= currentCapacity.floor(newCapacity);
 			currentCapacity = newCapacity;
@@ -50,9 +50,9 @@ public class FundingCapacity extends AbstractProductComponent {
 
 		RandomVariable integratedSurvivalProbability = new Scalar(0.0);
 		double previousFundingLevel = -Double.MAX_VALUE;
-		for(Map.Entry<Double, Double> entry : instantaneousSurvivalProbability.entrySet()) {
-			double fundingLevel = entry.getKey();
-			double survivalProbability = entry.getValue();
+		for(final Map.Entry<Double, Double> entry : instantaneousSurvivalProbability.entrySet()) {
+			final double fundingLevel = entry.getKey();
+			final double survivalProbability = entry.getValue();
 
 			integratedSurvivalProbability = integratedSurvivalProbability.add(
 					fundingIntervallRight.cap(fundingLevel)
@@ -64,7 +64,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervallRight.sub(fundingIntervallLeft));
 
 
-		return integratedSurvivalProbability;		
+		return integratedSurvivalProbability;
 	}
 
 	public RandomVariable getCurrentFundingLevel() {

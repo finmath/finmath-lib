@@ -19,7 +19,7 @@ public class HaltonSequence implements RandomNumberGenerator {
 
 	private final int[] base;
 
-	private AtomicLong currentIndex = new AtomicLong();
+	private final AtomicLong currentIndex = new AtomicLong();
 
 	/**
 	 * Constructs a Halton sequence with the given bases.

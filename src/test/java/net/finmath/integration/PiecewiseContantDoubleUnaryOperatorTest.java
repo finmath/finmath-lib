@@ -9,11 +9,11 @@ public class PiecewiseContantDoubleUnaryOperatorTest {
 
 	@Test
 	public void testValuation() {
-		double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
+		final double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
 
-		double[] values = new double[] {13, 7, 5, 21, 3, 2};
+		final double[] values = new double[] {13, 7, 5, 21, 3, 2};
 
-		PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
+		final PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
 
 		Assert.assertEquals("Valuation", 13, function.applyAsDouble(0.5), 0.0);
 		Assert.assertEquals("Valuation", 13, function.applyAsDouble(1.0), 0.0);
@@ -25,11 +25,11 @@ public class PiecewiseContantDoubleUnaryOperatorTest {
 
 	@Test
 	public void testIntegral() {
-		double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
+		final double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
 
-		double[] values = new double[] {13, 7, 5, 21, 3, 2};
+		final double[] values = new double[] {13, 7, 5, 21, 3, 2};
 
-		PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
+		final PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
 
 		Assert.assertEquals("Integral", 13*0.5, function.getIntegral(0, 0.5), 0.0);
 		Assert.assertEquals("Integral", 7*0.5, function.getIntegral(1, 1.5), 0.0);
@@ -42,12 +42,12 @@ public class PiecewiseContantDoubleUnaryOperatorTest {
 
 	@Test
 	public void testIntegralOfSquares() {
-		double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
+		final double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
 
-		double[] values = new double[] {13, 7, 5, 21, 3, 2};
+		final double[] values = new double[] {13, 7, 5, 21, 3, 2};
 
-		DoubleUnaryOperator squared = x -> x*x;
-		PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
+		final DoubleUnaryOperator squared = x -> x*x;
+		final PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
 
 		Assert.assertEquals("Integral", 13*13*0.5, function.getIntegral(0, 0.5, squared), 0.0);
 		Assert.assertEquals("Integral", 7*7*0.5, function.getIntegral(1, 1.5, squared), 0.0);
@@ -60,45 +60,48 @@ public class PiecewiseContantDoubleUnaryOperatorTest {
 
 	@Test
 	public void testIntegralErrorCorrection() {
-		double[] integralRightPoints = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+		final double[] integralRightPoints = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-		double[] values = new double[] { 100000, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 };
+		final double[] values = new double[] { 100000, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01 };
 
-		PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
+		final PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
 
 		Assert.assertEquals("Integral", 100000.1, function.getIntegral(0, 11), 0.0);
 	}
 
 	@Test
 	public void testExceptions() {
-		double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
+		final double[] integralRightPoints = new double[] { 1, 2, 4, 8, 10 };
 
-		double[] values = new double[] {13, 7, 5, 21, 3};
+		final double[] values = new double[] {13, 7, 5, 21, 3};
 
 		try {
 			@SuppressWarnings("unused")
+			final
 			PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, values);
 			Assert.fail("Exception not thrown.");
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			Assert.assertTrue(e instanceof IllegalArgumentException);
 		}
 
 		try {
 			@SuppressWarnings("unused")
+			final
 			PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(null, values);
 			Assert.fail("Exception not thrown.");
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			Assert.assertTrue(e instanceof NullPointerException);
 		}
 
 		try {
 			@SuppressWarnings("unused")
+			final
 			PiecewiseContantDoubleUnaryOperator function = new PiecewiseContantDoubleUnaryOperator(integralRightPoints, null);
 			Assert.fail("Exception not thrown.");
 		}
-		catch(Exception e) {
+		catch(final Exception e) {
 			Assert.assertTrue(e instanceof NullPointerException);
 		}
 	}
