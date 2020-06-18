@@ -9,7 +9,11 @@ import org.junit.jupiter.api.Test;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
-class FundingCapacityTest {
+/**
+ * @author Christian Fries
+ *
+ */
+public class FundingCapacityTest {
 
 	@Test
 	void test() {
