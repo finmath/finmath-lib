@@ -8,6 +8,8 @@ package net.finmath.montecarlo;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.apache.commons.lang3.Validate;
+
 import net.finmath.randomnumbers.RandomNumberGenerator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -79,6 +81,11 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		brownianIncrements	= null; 	// Lazy initialization
+		
+		Validate.notNull(timeDiscretization);
+		Validate.notNull(randomNumberGenerator);
+		int requiredDimension = numberOfFactors*timeDiscretization.getNumberOfTimeSteps();
+		Validate.isTrue(randomNumberGenerator.getDimension() >= requiredDimension, "Dimension of RandomNumberGenerator required to be at least %d.", requiredDimension);
 	}
 
 	/**
