@@ -30,20 +30,21 @@
 		<src.main.kotlin.dir>src/main/kotlin</src.main.kotlin.dir>
 		<src.test.kotlin.dir>src/test/kotlin</src.test.kotlin.dir>
 		<kotlin.version>1.2.0</kotlin.version>
+		<!-- dependencies -->
 		<commons-math.version>3.6.1</commons-math.version>
 		<commons-lang.version>3.10</commons-lang.version>
 		<junit.version>5.6.2</junit.version>
 		<!-- maven plugins -->
-		<compiler-plugin.version>3.8.1</compiler-plugin.version>
-		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
-		<surefire-report-plugin.version>3.0.0-M4</surefire-report-plugin.version>
-		<javadoc-plugin.version>3.2.0</javadoc-plugin.version>
-		<jar-plugin.version>3.2.0</jar-plugin.version>
-		<source-plugin.version>3.2.1</source-plugin.version>
-		<site-plugin.version>3.9.0</site-plugin.version>
+		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
+		<maven.surefire-plugin.version>3.0.0-M5</maven.surefire-plugin.version>
+		<maven.surefire-report-plugin.version>3.0.0-M5</maven.surefire-report-plugin.version>
+		<maven.javadoc-plugin.version>3.2.0</maven.javadoc-plugin.version>
+		<maven.jar-plugin.version>3.2.0</maven.jar-plugin.version>
+		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
+		<maven.site-plugin.version>3.9.0</maven.site-plugin.version>
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 		<clover-plugin.version>4.4.1</clover-plugin.version>
-		<maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
+		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
 		<maven-scm-publish-plugin.version>3.0.0</maven-scm-publish-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 	</properties>
@@ -191,7 +192,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin.version}</version>
+				<version>${maven.compiler-plugin.version}</version>
 				<executions>
 					<!-- Replacing default-compile as it is treated specially by maven -->
 					<execution>
@@ -223,7 +224,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>${source-plugin.version}</version>
+				<version>${maven.source-plugin.version}</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -237,7 +238,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${javadoc-plugin.version}</version>
+				<version>${maven.javadoc-plugin.version}</version>
 				<configuration>
 					<source>${envSource}</source>
 					<doctitle>${project.name} (${project.version}) documentation</doctitle>
@@ -318,7 +319,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${surefire-plugin.version}</version>
+				<version>${maven.surefire-plugin.version}</version>
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
@@ -363,7 +364,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>${site-plugin.version}</version>
+				<version>${maven.site-plugin.version}</version>
 				<configuration>
 					<skipDeploy>true</skipDeploy>
 				</configuration>
@@ -459,7 +460,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>${jar-plugin.version}</version>
+				<version>${maven.jar-plugin.version}</version>
 				<configuration>
 					<archive>
 						<manifestEntries>
@@ -568,7 +569,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>${compiler-plugin.version}</version>
+						<version>${maven.compiler-plugin.version}</version>
 						<configuration>
 							<source>11</source>
 							<target>11</target>
@@ -621,7 +622,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>${compiler-plugin.version}</version>
+						<version>${maven.compiler-plugin.version}</version>
 						<configuration>
 							<source>11</source>
 							<target>11</target>
@@ -647,7 +648,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-compiler-plugin</artifactId>
-						<version>${compiler-plugin.version}</version>
+						<version>${maven.compiler-plugin.version}</version>
 						<configuration>
 							<source>1.8</source>
 							<target>1.8</target>
@@ -669,7 +670,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${javadoc-plugin.version}</version>
+				<version>${maven.javadoc-plugin.version}</version>
 				<reportSets>
 					<reportSet><!-- by default, id = "default" -->
 						<reports><!-- select non-aggregate reports -->
@@ -770,7 +771,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>${surefire-report-plugin.version}</version>
+				<version>${maven.surefire-report-plugin.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.openclover</groupId>
