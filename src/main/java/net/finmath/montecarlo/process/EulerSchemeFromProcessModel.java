@@ -21,23 +21,40 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.
  *
+ * <p>
  * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
- * for <i>Y</i>, then applies the <i>state space transform</i> \( X = f(Y) \). For the standard Euler scheme
- * the process Y is discretized as
+ * for <i>Y</i>, then applies the <i>state space transform</i> \( X = f(Y) \).
+ * </p>
+ * 
+ * <p>
+ * For the standard Euler scheme the process \( Y = (Y_{1},\ldots,Y_{d}) \) is discretized as
  * \[
- * 	Y(t_{i+1}) = Y(t_{i}) + \mu(t_{i}) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \text{.}
+ * 	Y_{j}(t_{i+1}) = Y_{j}(t_{i}) + \mu_{j}(t_{i}) \Delta t_{i} + \lambda_{1,j}(t_{i}) \Delta W_{1}(t_{i}) + \ldots + \lambda_{m,j} \Delta W_{m} \text{.}
  * \]
-
+ * </p>
+ * 
+ * The parameters have to be provided by a {@link net.finmath.montecarlo.model.ProcessModel}:
+ * <ul>
+ * 	<li> \( f \) - <code>applyStateSpaceTransform</code> </li>
+ * 	<li> \( Y(t_{0}) \) - <code>getInitialState</code> </li>
+ * 	<li> \( \mu \) - <code>getDrift</code> </li>
+ * 	<li> \( \lambda_{j} \) - <code>getFactorLoading</code> </li>
+ * </ul>
  *
- * Hence, using the <i>state space transform</i>, it is possible to create a log-Euler scheme, i.e.,
+ * <p>
+ * Using the <i>state space transform</i> \( (t,x) \mapsto \exp(x) \), it is possible to create a log-Euler scheme, i.e.,
  * \[
- * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (\mu(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.}
+ * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (r(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.}
  * \]
+ * for a process \( \mathrm{d} X = r X \mathrm{d}t + \sigma X \mathrm{d}W \).
+ * </p>
  *
- * The dimension is called <code>numberOfComponents</code> here. The default for <code>numberOfFactors</code> is 1.
+ * The dimension \( d \) is called <code>numberOfComponents</code> here.
+ * The value \( m \) is called <code>numberOfFactors</code> here.
+ * The default for <code>numberOfFactors</code> is 1.
  *
  * @author Christian Fries
- * @see MonteCarloProcess The interface definition contains more details.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface definition contains more details.
  * @version 1.4
  */
 public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessModel {
