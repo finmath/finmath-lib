@@ -22,9 +22,9 @@ public class SobolSequence implements RandomNumberGenerator {
 
 	private static final long serialVersionUID = -1904010803493075019L;
 
-	private int dimension;
+	private final int dimension;
 
-	private SobolSequenceGenerator generator;
+	private final SobolSequenceGenerator generator;
 
 	/**
 	 * Constructs a Sobol sequence with given dimension.
