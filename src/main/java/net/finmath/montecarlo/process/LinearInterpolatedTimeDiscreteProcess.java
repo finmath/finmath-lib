@@ -17,7 +17,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * A linear interpolated time discrete process, that is, given a collection of tuples
- * ({@link java.lang.Double},  {@link net.finmath.stochastic.RandomVariable) representing
+ * ({@link java.lang.Double},  {@link net.finmath.stochastic.RandomVariable}) representing
  * realizations \( X(t_{i}) \) this class implements
  * the {@link Process} and creates a stochastic process \( t \mapsto X(t) \)
  * where
