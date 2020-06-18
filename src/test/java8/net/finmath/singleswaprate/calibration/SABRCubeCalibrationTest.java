@@ -1,11 +1,17 @@
 package net.finmath.singleswaprate.calibration;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,6 +23,8 @@ import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.optimizer.SolverException;
 import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.data.DataTable;
+import net.finmath.singleswaprate.data.DataTableLight;
 import net.finmath.singleswaprate.model.AnalyticModelWithVolatilityCubes;
 import net.finmath.singleswaprate.model.VolatilityCubeModel;
 import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
@@ -27,10 +35,11 @@ import net.finmath.time.SchedulePrototype;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
-public class StaticCubeCalibrationTEST {
+public class SABRCubeCalibrationTest {
 
 	private final double testAccuracy = 0.03;
-	private final int calibrationMaxIteration = 5;
+	private final int calibrationMaxIteration = 8;
+	private static boolean useLinearInterpolation	= true;
 
 	private final boolean replicationUseAsOffset = true;
 	private final double replicationLowerBound   = -0.15;
@@ -44,13 +53,21 @@ public class StaticCubeCalibrationTEST {
 	private final String swaptionFilePath				= "./src/test/resources/swaptions";
 	private final String payerFileName				= "CashPayerSwaptionPrice.sdl";
 	private final String receiverFileName				= "CashReceiverSwaptionPrice.sdl";
+	private final String physicalFileName				= "PhysicalSwaptionPriceATM.sdl";
 
 	private final AnnuityMappingType type = AnnuityMappingType.MULTIPITERBARG;
 
+	// cube parameters
+	private final double displacement = 0.25;
+	private final double beta = 0.5;
+	private final double correlationDecay = 0.045;
+	private final double iborOisDecorrelation = 1.2;
 	private final LocalDate referenceDate = LocalDate.of(2017, 8, 30);
 
+	//schedule data
 	private SchedulePrototype floatMetaSchedule;
 	private SchedulePrototype fixMetaSchedule;
+
 
 	private VolatilityCubeModel model;
 	private final String discountCurveName;
@@ -58,8 +75,14 @@ public class StaticCubeCalibrationTEST {
 	private VolatilityCube cube;
 	private SwaptionDataLattice payerSwaptions;
 	private SwaptionDataLattice receiverSwaptions;
+	private SwaptionDataLattice physicalSwaptions;
 
-	public StaticCubeCalibrationTEST() {
+	private boolean useCustomInitialParameters = false;
+	private DataTable initialRhos;
+	private DataTable initialBaseVols;
+	private DataTable initialVolvols;
+
+	public SABRCubeCalibrationTest() {
 
 		//Get curves
 		DiscountCurve discountCurve = null;
@@ -85,12 +108,14 @@ public class StaticCubeCalibrationTEST {
 
 		//Get swaption data
 		try (ObjectInputStream inPayer = new ObjectInputStream(new FileInputStream(new File(swaptionFilePath, payerFileName)));
-				ObjectInputStream inReceiver = new ObjectInputStream(new FileInputStream(new File(swaptionFilePath, receiverFileName)))) {
+				ObjectInputStream inReceiver = new ObjectInputStream(new FileInputStream(new File(swaptionFilePath, receiverFileName)));
+				ObjectInputStream inPhysical = new ObjectInputStream(new FileInputStream(new File(swaptionFilePath, physicalFileName)))) {
 			payerSwaptions 		= (SwaptionDataLattice) inPayer.readObject();
 			receiverSwaptions	= (SwaptionDataLattice) inReceiver.readObject();
+			physicalSwaptions	= (SwaptionDataLattice) inPhysical.readObject();
 
-			fixMetaSchedule		= payerSwaptions.getFixMetaSchedule();
-			floatMetaSchedule	= payerSwaptions.getFloatMetaSchedule();
+			fixMetaSchedule		= physicalSwaptions.getFixMetaSchedule();
+			floatMetaSchedule	= physicalSwaptions.getFloatMetaSchedule();
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
@@ -98,17 +123,24 @@ public class StaticCubeCalibrationTEST {
 	}
 
 	@Test
-	public void testStaticCubeCalibration() {
+	public void testSABRCubeCalibration() {
 
 		System.out.println("Running calibration...");
 		final long startTime = System.currentTimeMillis();
 
-		final StaticCubeCalibration calibrator = new StaticCubeCalibration(referenceDate, payerSwaptions, receiverSwaptions, model, type);
+		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, payerSwaptions, receiverSwaptions, physicalSwaptions,
+				model, type, displacement, beta, correlationDecay, iborOisDecorrelation);
 		calibrator.setCalibrationParameters(calibrationMaxIteration, Runtime.getRuntime().availableProcessors());
 		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+		calibrator.setUseLinearInterpolation(useLinearInterpolation);
+		if(useCustomInitialParameters) {
+			calibrator.setInitialParameters(initialRhos, initialBaseVols, initialVolvols);
+		}
+
+		final int[] terminations = physicalSwaptions.getTenors();
 
 		try {
-			cube = calibrator.calibrate("CalibratedStaticCube");
+			cube = calibrator.calibrate("CalibratedSABRCube", terminations);
 		} catch (final SolverException e) {
 			e.printStackTrace();
 		}
@@ -148,9 +180,61 @@ public class StaticCubeCalibrationTEST {
 
 	public static void main(final String[] args) {
 
-		final StaticCubeCalibrationTEST test = new StaticCubeCalibrationTEST();
-		test.testStaticCubeCalibration();
+		final SABRCubeCalibrationTest test = new SABRCubeCalibrationTest();
 
+		if(JOptionPane.showConfirmDialog(null, "Load tables from file for custom initial calibration parameters?", "Initial Parameters",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+			final JFileChooser jfc = new JFileChooser();
+			jfc.setDialogTitle("Select file containing tables");
+			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			jfc.setMultiSelectionEnabled(false);
+			if(jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				try(ObjectInputStream in = new ObjectInputStream(new FileInputStream(jfc.getSelectedFile()))) {
+
+					Object obj = null;
+					DataTable initialRhos		= null;
+					DataTable initialBaseVols	= null;
+					DataTable initialVolvols	= null;
+					while(true) {
+						try {
+							obj = in.readObject();
+							if(obj instanceof Map<?,?>) {
+								final Map<?, ?> map	= (Map<?, ?>) obj;
+								@SuppressWarnings("unchecked")
+								final
+								DataTable table = new DataTableLight(
+										(String) map.get("name"),
+										DataTable.TableConvention.valueOf((String) map.get("tableConvention")),
+										(List<Integer>) map.get("maturities"),
+										(List<Integer>) map.get("terminations"),
+										(List<Double>) map.get("values"));
+								final String name = table.getName().toUpperCase();
+								if(name.contains("RHO")) {
+									initialRhos = table;
+								} else if(name.contains("VOLVOL")) {
+									initialVolvols = table;
+								} else if(name.contains("BASEVOL")) {
+									initialBaseVols = table;
+								}
+							}
+						} catch (final EOFException e) {
+							break;
+						}
+					}
+					if(initialRhos != null && initialBaseVols != null && initialVolvols != null) {
+						test.useCustomInitialParameters	= true;
+						test.initialRhos				= initialRhos;
+						test.initialBaseVols			= initialBaseVols;
+						test.initialVolvols				= initialVolvols;
+						System.out.println("Proceeding with provided tables.");
+					}
+				} catch (IOException | ClassNotFoundException e) {
+					System.out.println("Failed to load tables from file. Continuing with precalibration.");
+				}
+			}
+		}
+
+		test.testSABRCubeCalibration();
 		test.askForSwaptions();
 	}
 
@@ -238,7 +322,7 @@ public class StaticCubeCalibrationTEST {
 		final double strike = forwardSwapRate + moneyness/10000.0;
 
 		final CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
-				cube.getName(), type);
+				cube.getName(), type, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}
 
@@ -250,7 +334,7 @@ public class StaticCubeCalibrationTEST {
 		final double strike = forwardSwapRate - moneyness/10000.0;
 
 		final CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName, forwardCurveName,
-				cube.getName(), type);
+				cube.getName(), type, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
 		return css.getValue(floatSchedule.getFixing(0), model);
 	}
 

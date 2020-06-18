@@ -240,7 +240,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					final ObjectiveFunction objectiveFunctionScalar = new ObjectiveFunction() {
 
 						// Storage of the inner result
-						final RandomVariable valuesVector[] = new RandomVariable[targetValues.length];
+						final RandomVariable[] valuesVector = new RandomVariable[targetValues.length];
 
 						@Override
 						public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {

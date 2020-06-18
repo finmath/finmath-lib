@@ -295,10 +295,6 @@ public class SABRCubeCalibration {
 
 	}
 
-
-	/**
-	 * @param maturities
-	 */
 	private void makeSwapRateTable() {
 
 		final ArrayList<Double> swapRates = new ArrayList<>();

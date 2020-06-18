@@ -66,7 +66,7 @@ public class BisectionSearch implements RootFinder {
 	@Override
 	public void setValue(final double value) {
 		if (numberOfIterations < 2) {
-			/**
+			/*
 			 * Initially fill values
 			 */
 			values[numberOfIterations] = value;
@@ -75,13 +75,13 @@ public class BisectionSearch implements RootFinder {
 				nextPoint = points[numberOfIterations + 1];
 			} else {
 				nextPoint = (points[1] + points[0]) / 2.0;
-				/**
-				 * @TODO Check if values[0]*values[1] < 0 here
+				/*
+				 * TODO Check if values[0]*values[1] < 0 here
 				 */
 			}
 		}
 		else {
-			/**
+			/*
 			 * Bisection search update rule
 			 */
 

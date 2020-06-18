@@ -80,7 +80,7 @@ public class InterestRateProductTest {
 	public InterestRateProductTest() throws CalculationException {
 		super();
 
-		final LocalDateTime referenceDate = LocalDateTime.of(2012,01,12, 17, 00);
+		final LocalDateTime referenceDate = LocalDateTime.of(2012, 1,12, 17, 0);
 		liborMarketModel = createLIBORMarketModel(referenceDate, 10000 /* numberOfPaths */, 8, 0.02);
 	}
 
@@ -384,9 +384,9 @@ public class InterestRateProductTest {
 		/*
 		 * Price an flexi cap
 		 */
-		final double	capFixingDates[]	= {0.5 , 1.0 , 1.5 };
-		final double	capPaymentDates[]	= {1.0 , 1.5 , 2.0 };
-		final double	capStrikes[]		= {0.05, 0.05, 0.02};
+		final double[] capFixingDates = {0.5 , 1.0 , 1.5 };
+		final double[] capPaymentDates = {1.0 , 1.5 , 2.0 };
+		final double[] capStrikes = {0.05, 0.05, 0.02};
 		final int		maximumNumberOfExercises = 2;
 
 		final double priceOfFlexiCap	= (new FlexiCap(

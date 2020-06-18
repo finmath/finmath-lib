@@ -34,7 +34,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConventi
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
-public class ConstantMaturitySwapTEST {
+public class ConstantMaturitySwapTest {
 
 	private static double testAccuracy = 0.005;
 

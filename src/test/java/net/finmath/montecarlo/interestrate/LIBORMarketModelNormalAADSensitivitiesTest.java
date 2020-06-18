@@ -246,7 +246,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 
 	private LIBORVolatilityModel volatilityModel;
 
-	public static void main(final String args[]) throws CalculationException {
+	public static void main(final String[] args) throws CalculationException {
 		final Object[] data = (Object[])data().toArray(new Object[4])[3];
 
 		final boolean isParalellSensi = false;

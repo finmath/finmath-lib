@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.randomnumbers;
 
 import java.io.Serializable;
@@ -15,7 +12,26 @@ import java.util.function.DoubleSupplier;
  */
 public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSupplier, Serializable {
 
+	/**
+	 * Thread safe implementation returning the next double value of
+	 * this random number generator.
+	 *
+	 * @return The next double value of this random number generator
+	 */
 	double nextDouble();
+
+	/**
+	 * Possibly faster, non-thread safe implementation returning the next double value of
+	 * this random number generator.
+	 *
+	 * The user of this method has to ensure synchronization if
+	 * this generator is shared by different threads.
+	 *
+	 * @return The next double value of this random number generator
+	 */
+	default double nextDoubleFast() {
+		return nextDouble();
+	}
 
 	@Override
 	default double[] getNext() {
@@ -27,7 +43,7 @@ public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSu
 		return 1;
 	}
 
-	// Alias to function a <code>DoubleSupplier</code>
+	// Alias to function as <code>DoubleSupplier</code>
 	@Override
 	default double getAsDouble() {
 		return nextDouble();

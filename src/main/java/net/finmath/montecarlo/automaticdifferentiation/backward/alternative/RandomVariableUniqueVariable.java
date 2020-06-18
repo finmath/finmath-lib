@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 
 import java.util.ArrayList;

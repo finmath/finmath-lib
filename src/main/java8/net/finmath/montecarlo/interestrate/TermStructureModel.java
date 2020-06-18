@@ -74,7 +74,7 @@ public interface TermStructureModel extends ProcessModel {
 	 */
 	ForwardCurve getForwardRateCurve();
 
-	/**
+	/*+
 	 * Returns the term structure covariance model.
 	 *
 	 * @return the term structure covariance model.

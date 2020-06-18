@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.optimizer;
 
 import java.util.Arrays;

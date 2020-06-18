@@ -3,7 +3,7 @@ package net.finmath.montecarlo.hybridassetinterestrate;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
@@ -33,7 +33,7 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModelsTest {
 		final ProcessModel blackScholesModel = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, new BrownianMotionLazyInit(model.getTimeDiscretization(), 1 /* numberOfFactors */, numberOfPaths, 323, randomVariableFactory));
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(blackScholesModel, new BrownianMotionFromMersenneRandomNumbers(model.getTimeDiscretization(), 1 /* numberOfFactors */, numberOfPaths, 323, randomVariableFactory));
 
 		final var model2 = new MonteCarloAssetModel(blackScholesModel, process);
 

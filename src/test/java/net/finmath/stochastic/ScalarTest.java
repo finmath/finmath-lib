@@ -57,7 +57,7 @@ public class ScalarTest {
 
 	@Test
 	public void testArrayOf() {
-		final Scalar testArray[] = Scalar.arrayOf(new double[] {10, -5, 14.1});
+		final Scalar[] testArray = Scalar.arrayOf(new double[] {10, -5, 14.1});
 		Assert.assertTrue(new Scalar(10).equals(testArray[0]));
 		Assert.assertTrue(new Scalar(-5).equals(testArray[1]));
 		Assert.assertTrue(new Scalar(14.1).equals(testArray[2]));

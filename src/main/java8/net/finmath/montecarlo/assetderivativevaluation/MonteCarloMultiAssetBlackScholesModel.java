@@ -12,7 +12,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
@@ -136,7 +136,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			final double[]	volatilities,
 			final double[][]	correlations
 			) {
-		this(new BrownianMotionLazyInit(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
+		this(new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
 	}
 
 	@Override

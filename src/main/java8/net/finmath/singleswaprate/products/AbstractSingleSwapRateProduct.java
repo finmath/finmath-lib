@@ -3,7 +3,7 @@ package net.finmath.singleswaprate.products;
 import java.util.function.DoubleUnaryOperator;
 
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.integration.AbstractRealIntegral;
+import net.finmath.integration.RealIntegral;
 import net.finmath.integration.SimpsonRealIntegrator;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
@@ -142,8 +142,8 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 			Math.max(this.lowerBound, model.getVolatilityCube(getVolatilityCubeName()).getLowestStrike(model));
 
 		// Numerical integration
-		final AbstractRealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);
-		final AbstractRealIntegral    payerIntegral = new SimpsonRealIntegrator(forwardSwapRate, upperBound, numberOfEvaluationPoints);
+		final RealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);
+		final RealIntegral    payerIntegral = new SimpsonRealIntegrator(forwardSwapRate, upperBound, numberOfEvaluationPoints);
 
 		final DoubleUnaryOperator  receiverIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valuePut(x,model, forwardSwapRate));
 		final DoubleUnaryOperator 	payerIntegrand = x -> (hedgeWeight(x, internalAnnuityMapping, model) * valueCall(x,model, forwardSwapRate));
@@ -228,7 +228,8 @@ public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVola
 		final double optionMaturity 	= getFixSchedule().getFixing(0);
 		final double termination 		= getFixSchedule().getPayment(getFixSchedule().getNumberOfPeriods()-1);
 		final double volatility = model.getVolatilityCube(getVolatilityCubeName()).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);
-		return AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, optionStrike, 1.0);
+		final double value = AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, optionStrike, 1.0);
+		return value;
 	}
 
 	/**

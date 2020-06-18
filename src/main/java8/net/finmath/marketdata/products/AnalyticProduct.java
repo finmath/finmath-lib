@@ -10,7 +10,7 @@ import net.finmath.modelling.Product;
 
 /**
  * The interface which has to be implemented by a product which may
- * be evaluated using an <code>AnalyticModelFromCuvesAndVols</code>.
+ * be evaluated using an <code>AnalyticModelFromCurvesAndVols</code>.
  *
  * @author Christian Fries
  * @version 1.0

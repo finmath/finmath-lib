@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.rootfinder;
 
 import net.finmath.stochastic.RandomVariable;

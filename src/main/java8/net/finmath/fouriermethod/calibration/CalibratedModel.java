@@ -157,7 +157,7 @@ public class CalibratedModel {
 
 		final CalibratableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());
 
-		return new OptimizationResult(calibratedModel,optimizer.getBestFitParameters(),optimizer.getIterations(),optimizer.getRootMeanSquaredError(),calibrationOutput);
+		return new OptimizationResult(calibratedModel, optimizer.getBestFitParameters(), optimizer.getIterations(), optimizer.getRootMeanSquaredError(), calibrationOutput);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class CalibratedModel {
 	 *
 	 * @author Alessandro Gnoatto
 	 */
-	public class OptimizationResult{
+	public static class OptimizationResult{
 		private final CalibratableProcess model; //the calibrated model
 		private final double[] bestFitParameters;
 		private final int iterations;

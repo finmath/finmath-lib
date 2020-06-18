@@ -13,7 +13,7 @@ import org.junit.Test;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.BrownianMotionView;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
@@ -63,7 +63,7 @@ public class MertonModelTest {
 		// Create a time discretization
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
 		{

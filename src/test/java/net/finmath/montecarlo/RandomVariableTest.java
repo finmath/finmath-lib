@@ -62,10 +62,10 @@ public class RandomVariableTest {
 		randomVariable = randomVariable.div(7.0);
 
 		// The random variable has average value 3.0 (it is constant 3.0)
-		Assert.assertTrue(randomVariable.getAverage() == 3.0);
+		Assert.assertEquals(3.0, randomVariable.getAverage(), 0.0);
 
 		// Since the random variable is deterministic, it has zero variance
-		Assert.assertTrue(randomVariable.getVariance() == 0.0);
+		Assert.assertEquals(0.0, randomVariable.getVariance(), 0.0);
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class RandomVariableTest {
 		randomVariable2 = randomVariable2.div(2.0);
 
 		// The random variable has average value 2.0
-		Assert.assertTrue(randomVariable2.getAverage() == 2.0);
+		Assert.assertEquals(2.0, randomVariable2.getAverage(), 0.0);
 
 		// The random variable has variance value 2.0 = (4 + 1 + 0 + 1 + 4) / 5
 		Assert.assertEquals(2.0, randomVariable2.getVariance(), 1E-12);
@@ -90,10 +90,10 @@ public class RandomVariableTest {
 		randomVariable = randomVariable.mult(randomVariable2);
 
 		// The random variable has average value 6.0
-		Assert.assertTrue(randomVariable.getAverage() == 6.0);
+		Assert.assertEquals(6.0, randomVariable.getAverage(), 0.0);
 
 		// The random variable has variance value 2 * 9
-		Assert.assertTrue(randomVariable.getVariance() == 2.0 * 9.0);
+		Assert.assertEquals(randomVariable.getVariance(), 2.0 * 9.0, 0.0);
 	}
 
 	@Test
@@ -106,8 +106,8 @@ public class RandomVariableTest {
 		final RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
 
 		// The random variable is identical 0.0
-		Assert.assertTrue(check.getAverage() == 0.0);
-		Assert.assertTrue(check.getVariance() == 0.0);
+		Assert.assertEquals(0.0, check.getAverage(), 0.0);
+		Assert.assertEquals(0.0, check.getVariance(), 0.0);
 	}
 
 	@Test
@@ -120,8 +120,8 @@ public class RandomVariableTest {
 		final RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
 
 		// The random variable is identical 0.0
-		Assert.assertTrue(check.getAverage() == 0.0);
-		Assert.assertTrue(check.getVariance() == 0.0);
+		Assert.assertEquals(0.0, check.getAverage(), 0.0);
+		Assert.assertEquals(0.0, check.getVariance(), 0.0);
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class RandomVariableTest {
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		final double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
-		Assert.assertTrue(check == 0.0);
+		Assert.assertEquals(0.0, check, 0.0);
 	}
 
 	/**

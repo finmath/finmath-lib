@@ -11,10 +11,8 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -50,31 +48,10 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	private final BlackScholesModel model;
 	private final MonteCarloProcess process;
 
-	private final int seed = 3141;
-
-	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
-	 *
-	 * @param timeDiscretization The time discretization.
-	 * @param numberOfPaths The number of Monte-Carlo path to be used.
-	 * @param initialValue Spot value.
-	 * @param riskFreeRate The risk free rate.
-	 * @param volatility The log volatility.
+	/*
+	 * The default seed
 	 */
-	public MonteCarloBlackScholesModel(
-			final TimeDiscretization timeDiscretization,
-			final int numberOfPaths,
-			final double initialValue,
-			final double riskFreeRate,
-			final double volatility) {
-		super();
-
-		// Create the model
-		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-
-		// Create a corresponding MC process
-		process = new EulerSchemeFromProcessModel(model, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER_FUNCTIONAL);
-	}
+	private static final int seed = 3141;
 
 	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
@@ -104,6 +81,24 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
+	 */
+	public MonteCarloBlackScholesModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
+		this(
+				initialValue, riskFreeRate, volatility,
+				new BrownianMotionFromMersenneRandomNumbers(
+						timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed));
+	}
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param model The model.
+	 * @param process The process.
 	 */
 	private MonteCarloBlackScholesModel(
 			final BlackScholesModel model,

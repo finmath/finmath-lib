@@ -24,7 +24,7 @@ import net.finmath.marketdata.model.volatilities.VolatilitySurface;
  * Implements a collection of market data objects (e.g., discount curves, forward curve)
  * which provide interpolation of market data or other derived quantities
  * ("calibrated curves"). This can be seen as a model to be used in analytic pricing
- * formulas - hence this class is termed <code>AnalyticModelFromCuvesAndVols</code>.
+ * formulas - hence this class is termed <code>AnalyticModelFromCurvesAndVols</code>.
  *
  * @author Christian Fries
  * @version 1.0
@@ -326,7 +326,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 
 	@Override
 	public String toString() {
-		return "AnalyticModelFromCuvesAndVols: referenceDate=" + referenceDate + ", curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
+		return "AnalyticModelFromCurvesAndVols: referenceDate=" + referenceDate + ", curves=" + curvesMap.keySet() + ", volatilitySurfaces=" + volatilitySurfaceMap.keySet();
 	}
 
 	/**

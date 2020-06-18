@@ -128,10 +128,7 @@ public class Choice extends AbstractProductComponent {
 		try {
 			valueUnderlying1 = valueUnderlying1Future.get();
 			valueUnderlying2 = valueUnderlying2Future.get();
-		} catch (final InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final ExecutionException e) {
+		} catch (final InterruptedException | ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

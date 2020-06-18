@@ -91,7 +91,7 @@ public class SingleAssetFourierProductFactory implements ProductFactory<SingleAs
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 */
-	public class DigitalOptionFourierMethod extends DigitalOption  implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
+	public static class DigitalOptionFourierMethod extends DigitalOption  implements DescribedProduct<SingleAssetDigitalOptionProductDescriptor>{
 
 		private final SingleAssetDigitalOptionProductDescriptor descriptor;
 

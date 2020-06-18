@@ -23,7 +23,7 @@ import net.finmath.modelling.modelfactory.AssetModelFourierMethodFactory;
 import net.finmath.modelling.modelfactory.BlackScholesModelMonteCarloFactory;
 import net.finmath.modelling.modelfactory.HestonModelMonteCarloFactory;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
@@ -253,7 +253,7 @@ public class ModelWithProductFactoryTest {
 	 */
 	private static BrownianMotion getBronianMotion(final int numberOfTimeSteps, final double deltaT, final int numberOfFactors, final int numberOfPaths, final int seed) {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 		return brownianMotion;
 	}
 }

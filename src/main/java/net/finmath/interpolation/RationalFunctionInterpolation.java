@@ -74,7 +74,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	private InterpolationMethod	interpolationMethod = InterpolationMethod.LINEAR;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
-	private class RationalFunction implements Serializable {
+	private static class RationalFunction implements Serializable {
 
 		private static final long serialVersionUID = -1596026703859403853L;
 
@@ -531,7 +531,7 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 
 	public static void main(final String[] args) {
 
-		/**
+		/*
 		 * Example. Shows how to use this class.
 		 */
 		final int samplePoints = 200;

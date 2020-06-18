@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
@@ -146,7 +146,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		//		int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
 		//		int maxIterations	= (Integer)calibrationParameters.getOrDefault("maxIterations", 400);
 		//		double accuracy		= (Double)calibrationParameters.getOrDefault("accuracy", 1E-7);
-		//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
+		//		final BrownianMotion brownianMotion = (BrownianMotion)calibrationParameters.getOrDefault("brownianMotion", new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed));
 		//
 		//		RandomVariable[] initialParameters = this.getParameter();
 		//		RandomVariable[] lowerBound = new RandomVariable[initialParameters.length];
@@ -312,7 +312,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 		final int numberOfFactors	= 2;	// Hull-White model implementation uses two factors for exact discretization.
 		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;
 		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;
-		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionLazyInit(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = brownianMotionParameter != null ? brownianMotionParameter : new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), numberOfFactors, numberOfPaths, seed);
 		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
 
 		final ExecutorService executor = null;
@@ -340,9 +340,6 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 						public RandomVariable call() {
 							try {
 								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0, modelMonteCarloSimulation).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight());
-							} catch (final CalculationException e) {
-								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-								return null;
 							} catch (final Exception e) {
 								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 								return null;
@@ -364,9 +361,7 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 						final RandomVariable value = valueFutures.get(calibrationProductIndex).get();
 						values[calibrationProductIndex] = value != null ? value.getAverage() : 0.0;
 					}
-					catch (final InterruptedException e) {
-						throw new SolverException(e);
-					} catch (final ExecutionException e) {
+					catch (final InterruptedException | ExecutionException e) {
 						throw new SolverException(e);
 					}
 				}

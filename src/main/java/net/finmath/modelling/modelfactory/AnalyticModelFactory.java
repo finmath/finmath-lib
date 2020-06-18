@@ -28,7 +28,7 @@ public class AnalyticModelFactory implements ModelFactory<AnalyticModelDescripto
 	}
 
 	/**
-	 * Class extending {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols} with the funtionality of a described model.
+	 * Class extending {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols} with the functionality of a described model.
 	 *
 	 * @author Christian Fries
 	 * @author Roland Bachl

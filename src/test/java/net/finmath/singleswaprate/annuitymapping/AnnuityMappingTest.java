@@ -42,7 +42,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class AnnuityMappingTEST {
+public class AnnuityMappingTest {
 
 	private static String curveFilePath				= "./src/test/resources/curves";
 	private static String discountCurveFileName		= "EUR-EONIA.crv";

@@ -30,7 +30,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConventi
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
 
-public class AnnuityDummyTEST {
+public class AnnuityDummyTest {
 
 	private static double testAccuracy = 0.0001;
 

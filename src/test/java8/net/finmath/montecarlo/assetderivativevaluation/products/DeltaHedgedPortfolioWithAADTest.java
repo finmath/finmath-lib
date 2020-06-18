@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
@@ -121,7 +121,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion, net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);
@@ -155,7 +155,7 @@ public class DeltaHedgedPortfolioWithAADTest {
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, timeHorizon/numberOfTimeSteps);
 
 		// Create a Brownian motion
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion, EulerSchemeFromProcessModel.Scheme.EULER_FUNCTIONAL);

@@ -37,7 +37,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
  * @author Roland Bachl
  *
  */
-public class NormalizingFunctionTEST {
+public class NormalizingFunctionTest {
 
 	private static String curveFilePath				= "./src/test/resources/curves";
 	private static String discountCurveFileName		= "EUR-EONIA.crv";

@@ -62,9 +62,9 @@ public class ExposureTest {
 		 * Create a receiver swap (receive fix, pay float)
 		 */
 		final Schedule legScheduleRec = ScheduleGenerator.createScheduleFromConventions(
-				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
-				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
-				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 3) /* referenceDate */,
+				LocalDate.of(2015, Month.JANUARY, 6) /* startDate */,
+				LocalDate.of(2025, Month.JANUARY, 6) /* maturityDate */,
 				ScheduleGenerator.Frequency.ANNUAL /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,
@@ -74,9 +74,9 @@ public class ExposureTest {
 				0 /* paymentOffsetDays */);
 
 		final Schedule legSchedulePay = ScheduleGenerator.createScheduleFromConventions(
-				LocalDate.of(2015, Month.JANUARY, 03) /* referenceDate */,
-				LocalDate.of(2015, Month.JANUARY, 06) /* startDate */,
-				LocalDate.of(2025, Month.JANUARY, 06) /* maturityDate */,
+				LocalDate.of(2015, Month.JANUARY, 3) /* referenceDate */,
+				LocalDate.of(2015, Month.JANUARY, 6) /* startDate */,
+				LocalDate.of(2025, Month.JANUARY, 6) /* maturityDate */,
 				ScheduleGenerator.Frequency.QUARTERLY /* frequency */,
 				ScheduleGenerator.DaycountConvention.ACT_365 /* daycountConvention */,
 				ScheduleGenerator.ShortPeriodConvention.FIRST /* shortPeriodConvention */,

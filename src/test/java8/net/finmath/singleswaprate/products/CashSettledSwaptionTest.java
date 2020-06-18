@@ -47,7 +47,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 
-public class CashSettledSwaptionTEST {
+public class CashSettledSwaptionTest {
 
 	// files
 	private static String curveFilePath					= "./src/test/resources/curves";

@@ -9,7 +9,8 @@ package net.finmath.functions;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
@@ -22,7 +23,7 @@ public class JarqueBeraTestTest {
 
 	@Test
 	public void test() {
-		final BrownianMotionLazyInit bm = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
+		final BrownianMotion bm = new BrownianMotionFromMersenneRandomNumbers(new TimeDiscretizationFromArray(0.0, 1.0, 2.0), 1 /* numberOfFactors */, 10000 /* numberOfPaths */, 2342 /* seed */);
 
 		final double test = (new JarqueBeraTest()).test(bm.getBrownianIncrement(0 /* timeIndex */, 0 /* factor */));
 

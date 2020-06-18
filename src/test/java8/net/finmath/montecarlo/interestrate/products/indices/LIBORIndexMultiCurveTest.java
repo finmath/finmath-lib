@@ -166,7 +166,7 @@ public class LIBORIndexMultiCurveTest {
 		 * Calibration of a single curve - OIS curve - self disocunted curve, from a set of calibration products.
 		 */
 
-		final LocalDate referenceDate = LocalDate.of(2012,01,10);
+		final LocalDate referenceDate = LocalDate.of(2012, 1,10);
 
 		/*
 		 * Define the calibration spec generators for our calibration products

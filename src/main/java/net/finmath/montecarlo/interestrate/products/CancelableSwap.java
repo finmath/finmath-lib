@@ -122,7 +122,7 @@ public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
 	/**
 	 * Return the basis functions for the regression suitable for this product.
 	 *
-	 * @param fixingDateIndex The time index corresponding to the fixing date
+	 * @param fixingDate The the fixing date
 	 * @param model The model
 	 * @return The basis functions for the regression suitable for this product.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.

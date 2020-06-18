@@ -44,7 +44,7 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 	 * Wrapper to an array of RandomVariable[] implementing RegressionBasisFunctions
 	 * @author Christian Fries
 	 */
-	public class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
+	public static class RegressionBasisFunctionsGiven implements RegressionBasisFunctions {
 		private final RandomVariable[] basisFunctions;
 
 		public RegressionBasisFunctionsGiven(final RandomVariable[] basisFunctions) {

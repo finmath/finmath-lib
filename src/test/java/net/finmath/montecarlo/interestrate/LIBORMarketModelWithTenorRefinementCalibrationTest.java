@@ -651,9 +651,6 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							public Double call() {
 								try {
 									return calibrationProducts.get(workerCalibrationProductIndex).getProduct().getValue(liborMarketModelMonteCarloSimulation);
-								} catch (final CalculationException e) {
-									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-									return calibrationProducts.get(workerCalibrationProductIndex).getTargetValue().getAverage();
 								} catch (final Exception e) {
 									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
 									return calibrationProducts.get(workerCalibrationProductIndex).getTargetValue().getAverage();
@@ -675,9 +672,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							final double value = valueFutures.get(calibrationProductIndex).get();
 							values[calibrationProductIndex] = value;
 						}
-						catch (final InterruptedException e) {
-							throw new SolverException(e);
-						} catch (final ExecutionException e) {
+						catch (final InterruptedException | ExecutionException e) {
 							throw new SolverException(e);
 						}
 					}
@@ -794,10 +789,6 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							public Double call() {
 								try {
 									return  calibrationProducts.get(workerCalibrationProductIndex).getProduct().getValue(liborMarketModelMonteCarloSimulation);
-								} catch (final CalculationException e) {
-									//									e.printStackTrace();
-									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
-									return calibrationTargetValues[workerCalibrationProductIndex];
 								} catch (final Exception e) {
 									//									e.printStackTrace();
 									// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
@@ -820,9 +811,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 							final double value = valueFutures.get(calibrationProductIndex).get();
 							values[calibrationProductIndex] = value;
 						}
-						catch (final InterruptedException e) {
-							throw new SolverException(e);
-						} catch (final ExecutionException e) {
+						catch (final InterruptedException | ExecutionException e) {
 							throw new SolverException(e);
 						}
 					}

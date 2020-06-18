@@ -1,6 +1,3 @@
-/**
- *
- */
 package net.finmath.montecarlo.automaticdifferentiation;
 
 import java.util.Arrays;
@@ -15,7 +12,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory;
@@ -63,10 +60,10 @@ public class RandomVariableDifferentiableTest {
 		randomVariable = randomVariable.div(7.0);
 
 		// The random variable has average value 3.0 (it is constant 3.0)
-		Assert.assertTrue(randomVariable.getAverage() == 3.0);
+		Assert.assertEquals(3.0, randomVariable.getAverage(), 0.0);
 
 		// Since the random variable is deterministic, it has zero variance
-		Assert.assertTrue(randomVariable.getVariance() == 0.0);
+		Assert.assertEquals(0.0, randomVariable.getVariance(), 0.0);
 
 	}
 
@@ -82,7 +79,7 @@ public class RandomVariableDifferentiableTest {
 		randomVariable2 = randomVariable2.div(2.0);
 
 		// The random variable has average value 2.0
-		Assert.assertTrue(randomVariable2.getAverage() == 2.0);
+		Assert.assertEquals(2.0, randomVariable2.getAverage(), 0.0);
 
 		// The random variable has variance value 2.0 = (4 + 1 + 0 + 1 + 4) / 5
 		Assert.assertEquals(2.0, randomVariable2.getVariance(), 1E-12);
@@ -92,10 +89,10 @@ public class RandomVariableDifferentiableTest {
 		randomVariable = randomVariable.mult(randomVariable2);
 
 		// The random variable has average value 6.0
-		Assert.assertTrue(randomVariable.getAverage() == 6.0);
+		Assert.assertEquals(6.0, randomVariable.getAverage(), 0.0);
 
 		// The random variable has variance value 2 * 9
-		Assert.assertTrue(randomVariable.getVariance() == 2.0 * 9.0);
+		Assert.assertEquals(randomVariable.getVariance(), 2.0 * 9.0, 0.0);
 	}
 
 	@Test
@@ -108,8 +105,8 @@ public class RandomVariableDifferentiableTest {
 		final RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
 
 		// The random variable is identical 0.0
-		Assert.assertTrue(check.getAverage() == 0.0);
-		Assert.assertTrue(check.getVariance() == 0.0);
+		Assert.assertEquals(0.0, check.getAverage(), 0.0);
+		Assert.assertEquals(0.0, check.getVariance(), 0.0);
 
 	}
 
@@ -123,8 +120,8 @@ public class RandomVariableDifferentiableTest {
 		final RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
 
 		// The random variable is identical 0.0
-		Assert.assertTrue(check.getAverage() == 0.0);
-		Assert.assertTrue(check.getVariance() == 0.0);
+		Assert.assertEquals(0.0, check.getAverage(), 0.0);
+		Assert.assertEquals(0.0, check.getVariance(), 0.0);
 
 	}
 
@@ -136,7 +133,7 @@ public class RandomVariableDifferentiableTest {
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		final double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
-		Assert.assertTrue(check == 0.0);
+		Assert.assertEquals(0.0, check, 0.0);
 	}
 
 	@Test
@@ -354,7 +351,7 @@ public class RandomVariableDifferentiableTest {
 
 		final int numberOfPaths = 100000;
 		final int seed = 3141;
-		final BrownianMotion brownianMotion = new BrownianMotionLazyInit(new TimeDiscretizationFromArray(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(new TimeDiscretizationFromArray(0.0, 1.0), 1 /* numberOfFactors */, numberOfPaths, seed);
 		final RandomVariable brownianIncrement = brownianMotion.getIncrement(0, 0);
 
 		final RandomVariableDifferentiable x = randomVariableFactory.createRandomVariable(1.0);

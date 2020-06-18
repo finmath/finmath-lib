@@ -71,7 +71,7 @@ public class RationalFunctionInterpolation  {
 	private InterpolationMethod	interpolationMethod = InterpolationMethod.LINEAR;
 	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;
 
-	private class RationalFunction {
+	private static class RationalFunction {
 		private final RandomVariable[] coefficientsNumerator;
 		private final RandomVariable[] coefficientsDenominator;
 

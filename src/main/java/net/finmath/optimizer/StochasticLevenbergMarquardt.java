@@ -444,9 +444,7 @@ public abstract class StochasticLevenbergMarquardt implements Serializable, Clon
 			try {
 				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();
 			}
-			catch (final InterruptedException e) {
-				throw new SolverException(e);
-			} catch (final ExecutionException e) {
+			catch (final InterruptedException | ExecutionException e) {
 				throw new SolverException(e);
 			}
 		}

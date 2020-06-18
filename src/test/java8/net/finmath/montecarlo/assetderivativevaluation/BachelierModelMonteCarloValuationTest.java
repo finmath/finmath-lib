@@ -22,7 +22,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel;
@@ -172,7 +172,7 @@ public class BachelierModelMonteCarloValuationTest {
 			final ProcessModel bachelierModel = new BachelierModel(initialValue, riskFreeRate, volatility);
 
 			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionLazyInit(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
+			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(bachelierModel, new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed, randomVariableFactory));
 
 			model = new MonteCarloAssetModel(bachelierModel, process);
 		}
