@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.2 (12.06.2020)
+
+### General
+
+ - Minor improvements (additional c'tors).
+
+
 ## 5.0.1 (10.05.2020)
 
 ### Numerical Integration
