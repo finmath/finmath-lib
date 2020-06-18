@@ -81,7 +81,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
 
 		brownianIncrements	= null; 	// Lazy initialization
-		
+
 		Validate.notNull(timeDiscretization);
 		Validate.notNull(randomNumberGenerator);
 		int requiredDimension = numberOfFactors*timeDiscretization.getNumberOfTimeSteps();

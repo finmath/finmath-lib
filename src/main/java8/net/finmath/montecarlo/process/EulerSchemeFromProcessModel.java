@@ -25,14 +25,14 @@ import net.finmath.stochastic.RandomVariable;
  * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
  * for <i>Y</i>, then applies the <i>state space transform</i> \( X = f(Y) \).
  * </p>
- * 
+ *
  * <p>
  * For the standard Euler scheme the process \( Y = (Y_{1},\ldots,Y_{d}) \) is discretized as
  * \[
  * 	Y_{j}(t_{i+1}) = Y_{j}(t_{i}) + \mu_{j}(t_{i}) \Delta t_{i} + \lambda_{1,j}(t_{i}) \Delta W_{1}(t_{i}) + \ldots + \lambda_{m,j} \Delta W_{m} \text{.}
  * \]
  * </p>
- * 
+ *
  * The parameters have to be provided by a {@link net.finmath.montecarlo.model.ProcessModel}:
  * <ul>
  * 	<li> \( f \) - <code>applyStateSpaceTransform</code> </li>
