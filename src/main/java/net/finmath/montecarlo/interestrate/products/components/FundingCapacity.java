@@ -31,7 +31,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		this.instantaneousSurvivalProbability = instantaneouseSurvivalProbability;
 	}
 
-	RandomVariable getSurvivalProbabilityRequiredFunding(double time, RandomVariable fundingRequirement) {
+	public RandomVariable getSurvivalProbabilityRequiredFunding(double time, RandomVariable fundingRequirement) {
 
 		synchronized (currentTime) {
 			if(time < currentTime) {
