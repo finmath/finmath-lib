@@ -16,7 +16,7 @@ import net.finmath.stochastic.Scalar;
 public class FundingCapacityTest {
 
 	@Test
-	void test() {
+	public void test() {
 
 		final SortedMap<Double, Double> instSurvProb = new TreeMap<Double, Double>();
 		instSurvProb.put(1.5, 0.9);
