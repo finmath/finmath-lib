@@ -1318,21 +1318,40 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
+	 * Exact conversion of displaced lognormal ATM volatility to normal ATM volatility.
 	 *
 	 * @param forward The forward
 	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
-	 * @param maturity The maturity
-	 * @param lognormalVolatiltiy The (implied) lognormal volatility.
+	 * @param optionMaturity The maturity
+	 * @param lognormalVolatility The (implied) lognormal volatility.
 	 * @return The (implied) normal volatility.
 	 * @see <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2687742">Dimitroff, Fries, Lichtner and Rodi: Lognormal vs Normal Volatilities and Sensitivities in Practice</a>
 	 */
-	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double maturity, final double lognormalVolatiltiy) {
-		final double x = lognormalVolatiltiy * Math.sqrt(maturity / 8);
+	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double optionMaturity, final double lognormalVolatility) {
+		final double x = lognormalVolatility * Math.sqrt(optionMaturity / 8);
 		final double y = org.apache.commons.math3.special.Erf.erf(x);
-		final double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
+		final double normalVol = Math.sqrt(2*Math.PI / optionMaturity) * (forward+displacement) * y;
 
 		return normalVol;
+	}
+
+	/**
+	 * Numerical conversion of displaced lognormal volatility to normal volatility.
+	 * 
+	 * @param forward The forward.
+	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
+	 * @param optionMaturity The maturity.
+	 * @param optionStrike The strike.
+	 * @param lognormalVolatility The (implied) lognormal volatility.
+	 * @return The (implied) normal volatility.
+	 */
+	public static double volatilityConversionLognormalToNormal(final double forward, final double displacement, final double optionMaturity, final double optionStrike, final double lognormalVolatility) {
+		double payoffUnit = 1.0;		// does not matter in this conversion
+		double optionValue = blackScholesGeneralizedOptionValue(forward+displacement, lognormalVolatility, optionMaturity, optionStrike+displacement, payoffUnit);
+
+		double impliedNormalVolatility = bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+
+		return impliedNormalVolatility;
 	}
 
 	/**
