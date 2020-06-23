@@ -23,7 +23,7 @@ import net.finmath.functions.DoubleTernaryOperator;
  * This is used to ensure that arguments or return values are not changed.
  *
  * @author Christian Fries
- * @version 1.5
+ * @version 1.6
  */
 public interface RandomVariable extends Serializable {
 
@@ -382,6 +382,15 @@ public interface RandomVariable extends Serializable {
 	RandomVariable sub(double value);
 
 	/**
+	 * Applies x &rarr; value - x to this random variable.
+	 * @param value The value from which this is subtracted.
+	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable bus(double value) {
+		return this.mult(-1).add(value);
+	}
+
+	/**
 	 * Applies x &rarr; x * value to this random variable.
 	 * @param value The value to multiply.
 	 * @return New random variable with the result of the function.
@@ -394,6 +403,15 @@ public interface RandomVariable extends Serializable {
 	 * @return New random variable with the result of the function.
 	 */
 	RandomVariable div(double value);
+
+	/**
+	 * Applies x &rarr; value / x to this random variable.
+	 * @param value The numerator of the ratio where this is the denominator.
+	 * @return New random variable with the result of the function.
+	 */
+	default RandomVariable vid(double value) {
+		return invert().mult(value);
+	}
 
 	/**
 	 * Applies x &rarr; pow(x,exponent) to this random variable.
