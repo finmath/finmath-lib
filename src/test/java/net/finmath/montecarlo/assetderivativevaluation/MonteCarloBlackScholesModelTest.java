@@ -13,7 +13,6 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
-import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.ProcessModel;
@@ -108,7 +107,7 @@ public class MonteCarloBlackScholesModelTest {
 		final double value = europeanOption.getValue(monteCarloBlackScholesModel);
 		
 		/*
-		 * Analytic value using Black-Schole formula
+		 * Analytic value using Black-Scholes formula
 		 */
 
 		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
