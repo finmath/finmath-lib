@@ -38,7 +38,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	private final String nameOfUnderliyng;
 
 	/**
-	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param underlyingName Name of the underlying
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
