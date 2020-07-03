@@ -43,10 +43,7 @@ import net.finmath.time.TimeDiscretization;
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
  */
-public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulationModel {
-
-	private final BlackScholesModel model;
-	private final MonteCarloProcess process;
+public class MonteCarloBlackScholesModel extends MonteCarloAssetModel {
 
 	/*
 	 * The default seed
@@ -66,11 +63,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 			final double riskFreeRate,
 			final double volatility,
 			final BrownianMotion brownianMotion) {
-		super();
-
-		// Create the model
-		model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
-		process = new EulerSchemeFromProcessModel(model, brownianMotion);
+		super(new BlackScholesModel(initialValue, riskFreeRate, volatility), brownianMotion);
 	}
 
 	/**
@@ -103,10 +96,7 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	private MonteCarloBlackScholesModel(
 			final BlackScholesModel model,
 			final MonteCarloProcess process) {
-		super();
-
-		this.model = model;
-		this.process = process;
+		super(model, process);
 	}
 
 	@Override
@@ -120,38 +110,14 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	}
 
 	@Override
-	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return process.getProcessValue(timeIndex, assetIndex);
-	}
-
-	@Override
-	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
-		final double time = getTime(timeIndex);
-
-		return model.getNumeraire(process, time);
-	}
-
-	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return model.getNumeraire(process, time);
-	}
-
-	@Override
-	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
-		return getMonteCarloWeights(getTimeIndex(time));
-	}
-
-	@Override
-	public int getNumberOfAssets() {
-		return 1;
-	}
-
-	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
+		
+		MonteCarloProcess process = getProcess();
+
 		/*
 		 * Create a new model with the new model parameters.
 		 */
-		final BlackScholesModel newModel = model.getCloneWithModifiedData(dataModified);
+		final BlackScholesModel newModel = getModel().getCloneWithModifiedData(dataModified);
 
 		/*
 		 * Create a new BrownianMotion, if requested.
@@ -177,55 +143,16 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 		}
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+		final MonteCarloProcessFromProcessModel newProcess = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
 
-		return new MonteCarloBlackScholesModel(newModel, process);
+		return new MonteCarloBlackScholesModel(newModel, newProcess);
 	}
 
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
-		return new MonteCarloBlackScholesModel(model, process);
-	}
-
-	@Override
-	public int getNumberOfPaths() {
-		return process.getNumberOfPaths();
-	}
-
-	@Override
-	public LocalDateTime getReferenceDate() {
-		return model.getReferenceDate();
-	}
-
-	@Override
-	public TimeDiscretization getTimeDiscretization() {
-		return process.getTimeDiscretization();
-	}
-
-	@Override
-	public double getTime(final int timeIndex) {
-		return process.getTime(timeIndex);
-	}
-
-	@Override
-	public int getTimeIndex(final double time) {
-		return process.getTimeIndex(time);
-	}
-
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.MonteCarloSimulationModel#getRandomVariableForConstant(double)
-	 * @TODO Move this to base class
-	 */
-	@Override
-	public RandomVariable getRandomVariableForConstant(final double value) {
-		return model.getRandomVariableForConstant(value);
-	}
-
-	@Override
-	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
-		return process.getMonteCarloWeights(timeIndex);
+		return new MonteCarloBlackScholesModel(getModel(), process);
 	}
 
 	/**
@@ -234,15 +161,6 @@ public class MonteCarloBlackScholesModel implements AssetModelMonteCarloSimulati
 	 * @return the model
 	 */
 	public BlackScholesModel getModel() {
-		return model;
-	}
-
-	/**
-	 * Returns the {@link MonteCarloProcess} used for this Monte-Carlo simulation.
-	 *
-	 * @return the process
-	 */
-	public MonteCarloProcess getProcess() {
-		return process;
+		return (BlackScholesModel)super.getModel();
 	}
 }
