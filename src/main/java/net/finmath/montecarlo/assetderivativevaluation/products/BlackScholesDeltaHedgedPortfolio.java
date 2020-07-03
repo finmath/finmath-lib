@@ -9,6 +9,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a delta hedged portfolio of an European option (a hedge simulator).
@@ -49,9 +50,6 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 	@Override
 	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
-		// Ask the model for its discretization
-		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
@@ -60,17 +58,19 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);
 		final RandomVariable numeraireToday  = model.getNumeraire(0.0);
 
-		final RandomVariable valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesGeneralizedOptionValue(
-				underlyingToday.mult(Math.exp(riskFreeRate * (maturity - 0.0))),
-				model.getRandomVariableForConstant(volatility),
+		final RandomVariable valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
+				underlyingToday,
+				riskFreeRate,
+				volatility,
 				maturity - 0.0,
-				strike,
-				model.getRandomVariableForConstant(Math.exp(-riskFreeRate * (maturity - 0.0))));
+				strike);
 
 		// We store the composition of the hedge portfolio (depending on the path)
 		RandomVariable amountOfNumeraireAsset = valueOfOptionAccordingBlackScholes.div(numeraireToday);
-		RandomVariable amountOfUderlyingAsset = model.getRandomVariableForConstant(0.0);
+		RandomVariable amountOfUnderlyingAsset = new Scalar(0.0);
 
+		// Ask the model for its discretization
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets
 			final RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
@@ -79,8 +79,8 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 			// Delta of option to replicate
 			final RandomVariable delta = AnalyticFormulas.blackScholesOptionDelta(
 					underlyingAtTimeIndex,
-					model.getRandomVariableForConstant(riskFreeRate),
-					model.getRandomVariableForConstant(volatility),
+					riskFreeRate,
+					volatility,
 					maturity-model.getTime(timeIndex),	// remaining time
 					strike);
 
@@ -89,8 +89,8 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 			 */
 
 			// Determine the delta hedge
-			final RandomVariable newNumberOfStocks	    	= delta;
-			final RandomVariable stocksToBuy			    	= newNumberOfStocks.sub(amountOfUderlyingAsset);
+			final RandomVariable newNumberOfStocks	= delta;
+			final RandomVariable stocksToBuy		= newNumberOfStocks.sub(amountOfUnderlyingAsset);
 
 			// Ensure self financing
 			final RandomVariable numeraireAssetsToSell   	= stocksToBuy.mult(underlyingAtTimeIndex).div(numeraireAtTimeIndex);
@@ -98,11 +98,11 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 
 			// Update portfolio
 			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;
-			amountOfUderlyingAsset	= newNumberOfStocks;
+			amountOfUnderlyingAsset	= newNumberOfStocks;
 		}
 
 		/*
-		 * At maturity, calculate the value of the replication portfolio
+		 * At evaluationTime, calculate the value of the replication portfolio
 		 */
 
 		// Get value of underlying and numeraire assets
@@ -110,7 +110,7 @@ public class BlackScholesDeltaHedgedPortfolio extends AbstractAssetMonteCarloPro
 		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
 		final RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime)
-				.add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));
+				.add(amountOfUnderlyingAsset.mult(underlyingAtEvaluationTime));
 
 		return portfolioValue;
 	}

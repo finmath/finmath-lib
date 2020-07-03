@@ -5,13 +5,11 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation.products;
 
-import java.util.Arrays;
-
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).
@@ -20,7 +18,7 @@ import net.finmath.stochastic.RandomVariable;
  *
  * In case of the gamma hedge and the vega hedge, note that we make the assumption that the
  * market trades these option according to Black-Scholes parameters assumed in hedging.
- * While this is a simple model, it is to some extend resonable, when we assume that the
+ * While this is a simple model, it is to some extend reasonable, when we assume that the
  * hedge is done by calculating delta from a calibrated model (where the risk free rate and
  * the volatility are "market implied").
  *
@@ -28,8 +26,11 @@ import net.finmath.stochastic.RandomVariable;
  * risk free rate and volatility, while the underlying follows a given (possibly different) stochastic
  * process.
  *
+ * The <code>getValue</code>-method returns the random variable \( \Pi(t) \) representing the value
+ * of the replication portfolio \( \Pi(t) = \phi_0(t) N(t) +  \phi_1(t) S(t) +  \psi_0(t) C(t) \).
+ * 
  * @author Christian Fries
- * @version 1.3
+ * @version 1.4
  */
 public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct {
 
@@ -91,196 +92,163 @@ public class BlackScholesHedgedPortfolio extends AbstractAssetMonteCarloProduct 
 	@Override
 	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 
-		// Ask the model for its discretization
-		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
-		final int numberOfPath			= model.getNumberOfPaths();
-
 		/*
 		 *  Going forward in time we monitor the hedge portfolio on each path.
 		 */
 
-		// We store the composition of the hedge portfolio (depending on the path)
-		final double[] amountOfUderlyingAsset		= new double[numberOfPath];
-		final double[] amountOfNumeraireAsset		= new double[numberOfPath];
-
-		// In case of a gamma hedge, the hedge portfolio consist of additional options
-		final double[] amountOfHedgeOptions		= new double[numberOfPath];
-
-
-
-		/*
-		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
-		 */
+		// Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
 		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);
-		final RandomVariable numeraireToday = model.getNumeraire(0.0);
-		final double initialValue = underlyingToday.doubleValue();
+		final RandomVariable numeraireToday  = model.getNumeraire(0.0);
 
-		final double valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
-				initialValue,
+		final RandomVariable valueOfOptionAccordingBlackScholes = 	AnalyticFormulas.blackScholesOptionValue(
+				underlyingToday,
 				riskFreeRate,
 				volatility,
-				maturity,
+				maturity - 0.0,
 				strike);
 
-		final double amountOfNumeraireAssetAccordingBlackScholes = valueOfOptionAccordingBlackScholes / numeraireToday.doubleValue();
+		// We store the composition of the hedge portfolio (depending on the path)
+		RandomVariable amountOfNumeraireAsset	= valueOfOptionAccordingBlackScholes.div(numeraireToday);
+		RandomVariable amountOfUnderlyingAsset	= model.getRandomVariableForConstant(0.0);
+		// In case of a gamma hedge, the hedge portfolio consist of additional options
+		RandomVariable amountOfHedgeOptions		= model.getRandomVariableForConstant(0.0);
 
-		Arrays.fill(amountOfNumeraireAsset, amountOfNumeraireAssetAccordingBlackScholes);
-		Arrays.fill(amountOfUderlyingAsset, 0.0);
-		Arrays.fill(amountOfHedgeOptions, 0.0);
-
+		// Ask the model for its discretization
+		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);
 		for(int timeIndex = 0; timeIndex<timeIndexEvaluationTime; timeIndex++) {
 			// Get value of underlying and numeraire assets
 			final RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);
 			final RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);
 
-			for(int path=0; path<model.getNumberOfPaths(); path++)
-			{
-				final double underlyingValue	= underlyingAtTimeIndex.get(path);
-				final double numeraireValue	= numeraireAtTimeIndex.get(path);
+			// Delta of option to replicate
+			RandomVariable delta = AnalyticFormulas.blackScholesOptionDelta(
+					underlyingAtTimeIndex,
+					riskFreeRate,
+					volatility,
+					maturity-model.getTime(timeIndex),	// remaining time
+					strike);
 
-				// Change the portfolio according to the trading strategy
-
-				/*
-				 *  Calculate delta and gamma of option to replicate.
-				 */
-
-				// Delta of option to replicate
-				double delta = AnalyticFormulas.blackScholesOptionDelta(
-						underlyingValue,						// current underlying value
+			// If we do not perform a gamma hedge, set gamma to zero here, otherwise set it to the gamma of option to replicate.
+			RandomVariable gamma = model.getRandomVariableForConstant(0.0);
+			if(hedgeOptionStrike != 0) {
+				gamma = AnalyticFormulas.blackScholesOptionGamma(
+						underlyingAtTimeIndex,				// current underlying value
 						riskFreeRate,
 						volatility,
 						maturity-model.getTime(timeIndex),	// remaining time
 						strike);
-
-				// If we do not perform a gamma hedge, set gamma to zero here, otherwise set it to the gamma of option to replicate.
-				double gamma = 0.0;
-				if(hedgeOptionStrike != 0) {
-					gamma = AnalyticFormulas.blackScholesOptionGamma(
-							underlyingValue,						// current underlying value
-							riskFreeRate,
-							volatility,
-							maturity-model.getTime(timeIndex),	// remaining time
-							strike);
-				}
-
-				// If we do not perform a vega hedge, set vega to zero here, otherwise set it to the gamma of option to replicate.
-				double vega = 0.0;
-				if(hedgeOptionStrike != 0) {
-					vega = AnalyticFormulas.blackScholesOptionVega(
-							underlyingValue,						// current underlying value
-							riskFreeRate,
-							volatility,
-							maturity-model.getTime(timeIndex),	// remaining time
-							strike) / (maturity-model.getTime(timeIndex));
-				}
-
-				/*
-				 * If our hedge portfolio consist of a second option (gamma hedge), calculate its price, delta and gamma
-				 */
-
-				// Price of option used in hedge
-				final double priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
-						underlyingValue,						// current underlying value
-						riskFreeRate,							// riskFreeRate,
-						volatility,								// volatility,										// *(1.0+0.1*(Math.random()-0.5))
-						hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
-						hedgeOptionStrike);
-
-				// Delta of option used in hedge
-				final double deltaOfHedgeOption = AnalyticFormulas.blackScholesOptionDelta(
-						underlyingValue,						// current underlying value
-						riskFreeRate,							// riskFreeRate,
-						volatility,								// volatility,
-						hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
-						hedgeOptionStrike);
-
-				// Gamma of option used in hedge
-				final double gammaOfHedgeOption = AnalyticFormulas.blackScholesOptionGamma(
-						underlyingValue,						// current underlying value
-						riskFreeRate,							// riskFreeRate,
-						volatility,								// volatility,
-						hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
-						hedgeOptionStrike);
-
-				// Vega of option used in hedge
-				final double vegaOfHedgeOption = AnalyticFormulas.blackScholesOptionVega(
-						underlyingValue,						// current underlying value
-						riskFreeRate,							// riskFreeRate,
-						volatility,								// volatility,
-						hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
-						hedgeOptionStrike) / (hedgeOptionMaturity-model.getTime(timeIndex));
-
-
-				// Determine the amount of hedge options to buy
-				double newNumberOfHedgeOptions	= 0.0;
-				switch(hedgeStrategy) {
-				case deltaGammaHedge:
-					newNumberOfHedgeOptions	= gamma/gammaOfHedgeOption;
-					break;
-				case deltaVegaHedge:
-					newNumberOfHedgeOptions	= vega/vegaOfHedgeOption;
-					break;
-				case deltaHedge:
-				default:
-					newNumberOfHedgeOptions	= 0.0;
-					break;
-				}
-				if(Double.isNaN(newNumberOfHedgeOptions) || Double.isInfinite(newNumberOfHedgeOptions) || maturity-model.getTime(timeIndex) < 0.15) {
-					newNumberOfHedgeOptions = 0.0;
-				}
-
-				final double hedgeOptionsToBuy		= newNumberOfHedgeOptions	- amountOfHedgeOptions[path];
-				// Adjust delta
-				delta -= newNumberOfHedgeOptions * deltaOfHedgeOption;
-
-				// Determine the delta hedge
-				final double newNumberOfStocks		= delta;
-				final double stocksToBuy				= newNumberOfStocks				- amountOfUderlyingAsset[path];
-
-				// Ensure self financing
-				final double numeraireAssetsToBuy			= - (stocksToBuy * underlyingValue + hedgeOptionsToBuy * priceOfHedgeOption) / numeraireValue;
-				final double newNumberOfNumeraireAsset	= amountOfNumeraireAsset[path] + numeraireAssetsToBuy;
-
-				// Update portfolio
-				amountOfNumeraireAsset[path]	= newNumberOfNumeraireAsset;
-				amountOfUderlyingAsset[path]	= newNumberOfStocks;
-				amountOfHedgeOptions[path]		= newNumberOfHedgeOptions;
 			}
+
+			// If we do not perform a vega hedge, set vega to zero here, otherwise set it to the vega of option to replicate.
+			RandomVariable vega = model.getRandomVariableForConstant(0.0);
+			if(hedgeOptionStrike != 0) {
+				vega = AnalyticFormulas.blackScholesOptionVega(
+						underlyingAtTimeIndex,				// current underlying value
+						riskFreeRate,
+						volatility,
+						maturity-model.getTime(timeIndex),	// remaining time
+						strike);
+			}
+
+			/*
+			 * If our hedge portfolio consist of a second option (gamma hedge), calculate its price, delta and gamma
+			 */
+
+			// Price of option used in hedge
+			final RandomVariable priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
+					underlyingAtTimeIndex,						// current underlying value
+					riskFreeRate,
+					volatility,
+					hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
+					hedgeOptionStrike);
+
+			// Delta of option used in hedge
+			final RandomVariable deltaOfHedgeOption = AnalyticFormulas.blackScholesOptionDelta(
+					underlyingAtTimeIndex,						// current underlying value
+					riskFreeRate,
+					volatility,
+					hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
+					hedgeOptionStrike);
+
+			// Gamma of option used in hedge
+			final RandomVariable gammaOfHedgeOption = AnalyticFormulas.blackScholesOptionGamma(
+					underlyingAtTimeIndex,						// current underlying value
+					riskFreeRate,
+					volatility,
+					hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
+					hedgeOptionStrike);
+
+			// Vega of option used in hedge
+			final RandomVariable vegaOfHedgeOption = AnalyticFormulas.blackScholesOptionVega(
+					underlyingAtTimeIndex,						// current underlying value
+					riskFreeRate,
+					volatility,
+					hedgeOptionMaturity-model.getTime(timeIndex),	// remaining time
+					hedgeOptionStrike);
+
+			/*
+			 * Change the portfolio according to the trading strategy
+			 */
+
+			// Determine the amount of hedge options to buy
+			RandomVariable newNumberOfHedgeOptions;
+			switch(hedgeStrategy) {
+			case deltaGammaHedge:
+				newNumberOfHedgeOptions	= gamma.div(gammaOfHedgeOption);
+				break;
+			case deltaVegaHedge:
+				newNumberOfHedgeOptions	= vega.div(vegaOfHedgeOption);
+				break;
+			case deltaHedge:
+			default:
+				newNumberOfHedgeOptions	= new Scalar(0.0);
+				break;
+			}
+
+			final RandomVariable hedgeOptionsToBuy		= newNumberOfHedgeOptions.sub(amountOfHedgeOptions);
+
+			// Adjust delta: remainingDelta = delta - newNumberOfHedgeOptions * deltaOfHedgeOption
+			delta = delta.sub(newNumberOfHedgeOptions.mult(deltaOfHedgeOption));
+
+			// Determine the delta hedge
+			final RandomVariable newNumberOfStocks	= delta;
+			final RandomVariable stocksToBuy		= newNumberOfStocks.sub(amountOfUnderlyingAsset);
+
+			// Ensure self financing
+			final RandomVariable numeraireAssetsToSell   	= stocksToBuy.mult(underlyingAtTimeIndex).add(hedgeOptionsToBuy.mult(priceOfHedgeOption)).div(numeraireAtTimeIndex);
+			final RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.sub(numeraireAssetsToSell);
+
+			// Update portfolio
+			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;
+			amountOfUnderlyingAsset	= newNumberOfStocks;
+			amountOfHedgeOptions = newNumberOfHedgeOptions;
 		}
 
 		/*
 		 * At evaluationTime, calculate the value of the replication portfolio
 		 */
-		//
-		final double[] portfolioValue				= new double[numberOfPath];
 
 		// Get value of underlying and numeraire assets
-		final RandomVariable underlyingAtEvaluationTime = model.getAssetValue(timeIndexEvaluationTime,0);
-		final RandomVariable numeraireAtEvaluationTime  = model.getNumeraire(timeIndexEvaluationTime);
-		for(int path=0; path<portfolioValue.length; path++)
-		{
-			final double underlyingValue = underlyingAtEvaluationTime.get(path);
+		final RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);
+		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);
 
-			// In case we use option to hedge
-			double priceOfHedgeOption;
-			if(hedgeStrategy.equals(HedgeStrategy.deltaHedge)) {
-				priceOfHedgeOption = 0.0;
-			}
-			else {
-				priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
-						underlyingValue,						// current underlying value
-						riskFreeRate,
-						volatility,
-						hedgeOptionMaturity-model.getTime(timeIndexEvaluationTime),	// remaining time
-						hedgeOptionStrike);
-			}
-
-			portfolioValue[path] =
-					amountOfNumeraireAsset[path] * numeraireAtEvaluationTime.get(path)
-					+	amountOfUderlyingAsset[path] * underlyingValue
-					+	amountOfHedgeOptions[path] * priceOfHedgeOption;
+		final RandomVariable priceOfHedgeOption;
+		if(hedgeStrategy.equals(HedgeStrategy.deltaHedge)) {
+			priceOfHedgeOption = new Scalar(0.0);
+		}
+		else {
+			priceOfHedgeOption = AnalyticFormulas.blackScholesOptionValue(
+					underlyingAtEvaluationTime,						// current underlying value
+					model.getRandomVariableForConstant(riskFreeRate),
+					model.getRandomVariableForConstant(volatility),
+					hedgeOptionMaturity-model.getTime(timeIndexEvaluationTime),	// remaining time
+					hedgeOptionStrike);
 		}
 
-		return new RandomVariableFromDoubleArray(evaluationTime, portfolioValue);
+		final RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime)
+				.add(amountOfUnderlyingAsset.mult(underlyingAtEvaluationTime))
+				.add(amountOfHedgeOptions.mult(priceOfHedgeOption));
+
+		return portfolioValue;
 	}
 }
