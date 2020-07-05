@@ -440,6 +440,18 @@ public interface RandomVariable extends Serializable {
 	}
 
 	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the covariance of this random variable and the argument.
+	 *
+	 * @param value The random variable Y to be used in Cov(X,Y) with X being this.
+	 * @return New random variable being the covariance of this random variable and the argument.
+	 */
+	default RandomVariable covariance(RandomVariable value)
+	{
+		return this.sub(average()).mult(value.sub(value.average())).average();
+	}
+
+	/**
 	 * Applies x &rarr; x * x to this random variable.
 	 * @return New random variable with the result of the function.
 	 */
