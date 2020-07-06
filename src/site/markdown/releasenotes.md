@@ -11,7 +11,13 @@ finmath lib Release Notes
 ### General
 
  - Added some convenient methods in AnalyticFomulas consuming RandomVariable parameters.
+ - Interface RandomVariable contains convenient default methods for variance and covariance.
+ - TimeDiscretization can be used as DoubleStream.
 
+### Monte-Carlo Single Asset Model
+
+ - MonteCarloBlackScholesModel extends MonteCarloAssetModel
+ 
 
 ## 5.0.2 (12.06.2020)
 
