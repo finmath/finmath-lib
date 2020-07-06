@@ -6,6 +6,7 @@
 package net.finmath.time;
 
 import java.util.ArrayList;
+import java.util.stream.DoubleStream;
 
 /**
  * @author Christian Fries
@@ -82,6 +83,14 @@ public interface TimeDiscretization extends Iterable<Double> {
 	 */
 	ArrayList<Double> getAsArrayList();
 
+	/**
+	 * Return a DoubleStream of this time discretization.
+	 *
+	 * @return The time discretization as <code>DoubleStream</code>
+	 */
+	default DoubleStream doubleStream() {
+		return DoubleStream.of(getAsDoubleArray());
+	}
 
 	/**
 	 * Return a new time discretization where all time points have been shifted by

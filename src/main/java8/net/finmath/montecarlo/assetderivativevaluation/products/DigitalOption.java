@@ -18,7 +18,7 @@ import net.finmath.stochastic.Scalar;
  * <br>
  * 	<i>V(T) = indicator(S(T) - K)</i> in <i>T</i>.
  * <br>
- * That is 1 if <i>S(T) &gt; 0</i> otherwise 0.
+ * That is 1 if <i>S(T) &gt; K</i> otherwise 0.
  *
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
  * where <i>N</i> is the numeraire provided by the model. If <i>N(t)</i> is deterministic,
@@ -36,7 +36,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 	private final String nameOfUnderlying;
 
 	/**
-	 * Construct a product representing an digital option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * Construct a product representing an digital option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff indicator(S(T)-K)
 	 * @param strike The strike K in the option payoff indicator(S(T)-K).
 	 * @param underlyingIndex The index of the underlying to be fetched from the model.

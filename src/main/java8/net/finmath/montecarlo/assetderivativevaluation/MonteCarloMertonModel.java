@@ -98,7 +98,12 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 
 	@Override
 	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
-		return getAssetValue(getTimeIndex(time), assetIndex);
+		int timeIndex = getTimeIndex(time);
+		if(timeIndex < 0) {
+			throw new IllegalArgumentException("The model does not provide an interpolation of simulation time (time given was " + time + ").");
+		}
+
+		return getAssetValue(timeIndex, assetIndex);
 	}
 
 	@Override

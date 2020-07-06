@@ -429,6 +429,40 @@ public interface RandomVariable extends Serializable {
 	RandomVariable average();
 
 	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the expectation of this random variable.
+	 *
+	 * @return New random variable being the expectation of this random variable.
+	 */
+	default RandomVariable expectation() {
+		return average();
+	};
+
+	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the variance of this random variable.
+	 *
+	 * @return New random variable being the variance of this random variable and the argument.
+	 */
+	default RandomVariable variance()
+	{
+		RandomVariable meanDeviation = this.sub(average());
+		return meanDeviation.squared().average();
+	}
+
+	/**
+	 * Returns a random variable which is deterministic and corresponds
+	 * the covariance of this random variable and the argument.
+	 *
+	 * @param value The random variable Y to be used in Cov(X,Y) with X being this.
+	 * @return New random variable being the covariance of this random variable and the argument.
+	 */
+	default RandomVariable covariance(RandomVariable value)
+	{
+		return this.sub(average()).mult(value.sub(value.average())).average();
+	}
+
+	/**
 	 * Returns the conditional expectation using a given conditional expectation estimator.
 	 *
 	 * @param conditionalExpectationOperator A given conditional expectation estimator.

@@ -9,6 +9,7 @@ import java.util.Calendar;
 
 import net.finmath.rootfinder.NewtonsMethod;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * This class implements some functions as static class methods.
@@ -138,6 +139,58 @@ public class AnalyticFormulas {
 				optionMaturity,
 				optionStrike,
 				Math.exp(-riskFreeRate * optionMaturity)						// payoff unit
+				);
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariable blackScholesOptionValue(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return blackScholesGeneralizedOptionValue(
+				initialStockValue.mult(riskFreeRate.mult(optionMaturity).exp()),	// forward
+				volatility,
+				optionMaturity - 0.0,
+				optionStrike,
+				riskFreeRate.mult(-optionMaturity).exp()							// payoff unit
+				);
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariable blackScholesOptionValue(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return blackScholesGeneralizedOptionValue(
+				initialStockValue.mult(Math.exp(riskFreeRate*optionMaturity)),	// forward
+				new Scalar(volatility),
+				optionMaturity - 0.0,
+				optionStrike,
+				new Scalar(Math.exp(-riskFreeRate*optionMaturity))				// payoff unit
 				);
 	}
 
@@ -305,6 +358,30 @@ public class AnalyticFormulas {
 	 */
 	public static RandomVariable blackScholesOptionDelta(
 			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return blackScholesOptionDelta(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariable blackScholesOptionDelta(
+			final RandomVariable initialStockValue,
 			final RandomVariable riskFreeRate,
 			final RandomVariable volatility,
 			final double optionMaturity,
@@ -391,6 +468,26 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * This static method calculated the gamma of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The gamma of the option
+	 */
+	public static RandomVariable blackScholesOptionGamma(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return blackScholesOptionGamma(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);
+	}
+
+	/**
 	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
 	 * normal process with constant volatility, i.e., a Black-Scholes model
 	 * \[
@@ -425,6 +522,67 @@ public class AnalyticFormulas {
 
 			return vega;
 		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static RandomVariable blackScholesOptionVega(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
+		{
+			// The Black-Scholes model does not consider it being an option
+			return initialStockValue.mult(0.0);
+		}
+		else
+		{
+			// Calculate vega
+			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));
+
+			final RandomVariable vega	= dPlus.squared().mult(-0.5).exp().div(Math.sqrt(2.0 * Math.PI * optionMaturity)).mult(initialStockValue).mult(volatility);
+
+			return vega;
+		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static RandomVariable blackScholesOptionVega(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return blackScholesOptionVega(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);
 	}
 
 	/**
@@ -1318,21 +1476,40 @@ public class AnalyticFormulas {
 	}
 
 	/**
-	 * Exact conversion of displaced lognormal ATM volatiltiy to normal ATM volatility.
+	 * Exact conversion of displaced lognormal ATM volatility to normal ATM volatility.
 	 *
 	 * @param forward The forward
 	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
-	 * @param maturity The maturity
-	 * @param lognormalVolatiltiy The (implied) lognormal volatility.
+	 * @param optionMaturity The maturity
+	 * @param lognormalVolatility The (implied) lognormal volatility.
 	 * @return The (implied) normal volatility.
 	 * @see <a href="http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2687742">Dimitroff, Fries, Lichtner and Rodi: Lognormal vs Normal Volatilities and Sensitivities in Practice</a>
 	 */
-	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double maturity, final double lognormalVolatiltiy) {
-		final double x = lognormalVolatiltiy * Math.sqrt(maturity / 8);
+	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double optionMaturity, final double lognormalVolatility) {
+		final double x = lognormalVolatility * Math.sqrt(optionMaturity / 8);
 		final double y = org.apache.commons.math3.special.Erf.erf(x);
-		final double normalVol = Math.sqrt(2*Math.PI / maturity) * (forward+displacement) * y;
+		final double normalVol = Math.sqrt(2*Math.PI / optionMaturity) * (forward+displacement) * y;
 
 		return normalVol;
+	}
+
+	/**
+	 * Numerical conversion of displaced lognormal volatility to normal volatility.
+	 *
+	 * @param forward The forward.
+	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
+	 * @param optionMaturity The maturity.
+	 * @param optionStrike The strike.
+	 * @param lognormalVolatility The (implied) lognormal volatility.
+	 * @return The (implied) normal volatility.
+	 */
+	public static double volatilityConversionLognormalToNormal(final double forward, final double displacement, final double optionMaturity, final double optionStrike, final double lognormalVolatility) {
+		double payoffUnit = 1.0;		// does not matter in this conversion
+		double optionValue = blackScholesGeneralizedOptionValue(forward+displacement, lognormalVolatility, optionMaturity, optionStrike+displacement, payoffUnit);
+
+		double impliedNormalVolatility = bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+
+		return impliedNormalVolatility;
 	}
 
 	/**
