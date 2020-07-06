@@ -28,7 +28,7 @@ import net.finmath.stochastic.Scalar;
  *
  * The <code>getValue</code>-method returns the random variable \( \Pi(t) \) representing the value
  * of the replication portfolio \( \Pi(t) = \phi_0(t) N(t) +  \phi_1(t) S(t) +  \psi_0(t) C(t) \).
- * 
+ *
  * @author Christian Fries
  * @version 1.4
  */

@@ -332,19 +332,19 @@ public class AnalyticFormulasTest {
 
 	@Test
 	public void testVolatilityConversionLognormalToNormal() {
-		
+
 		double forward = 0.02;
 		double displacement = 0.03;
 		double optionMaturity = 5.0;
 		double lognormalVolatility = 0.212;
 		double optionStrike = forward;
-		
+
 		double normalATM = AnalyticFormulas.volatilityConversionLognormalATMtoNormalATM(
 				forward, displacement, optionMaturity, lognormalVolatility);
 
 		double normal2 = AnalyticFormulas.volatilityConversionLognormalToNormal(
 				forward, displacement, optionMaturity, optionStrike, lognormalVolatility);
-		
+
 		Assertions.assertEquals(normalATM, normal2, 1E-10);
 	}
 }

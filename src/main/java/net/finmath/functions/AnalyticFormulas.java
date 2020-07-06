@@ -544,7 +544,7 @@ public class AnalyticFormulas {
 			final RandomVariable volatility,
 			final double optionMaturity,
 			final double optionStrike)
-	{	
+	{
 		if(optionStrike <= 0.0 || optionMaturity <= 0.0)
 		{
 			// The Black-Scholes model does not consider it being an option
@@ -581,10 +581,10 @@ public class AnalyticFormulas {
 			final double volatility,
 			final double optionMaturity,
 			final double optionStrike)
-	{	
+	{
 		return blackScholesOptionVega(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);
 	}
-	
+
 	/**
 	 * This static method calculated the vega of a call option under a Black-Scholes model
 	 *
@@ -1495,7 +1495,7 @@ public class AnalyticFormulas {
 
 	/**
 	 * Numerical conversion of displaced lognormal volatility to normal volatility.
-	 * 
+	 *
 	 * @param forward The forward.
 	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
 	 * @param optionMaturity The maturity.

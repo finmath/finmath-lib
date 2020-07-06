@@ -89,7 +89,7 @@ public class MonteCarloBlackScholesModelTest {
 
 		// Create Brownian motion (and random number generator)
 		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
-		
+
 		// Create a corresponding MC process
 		final MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
@@ -99,13 +99,13 @@ public class MonteCarloBlackScholesModelTest {
 		/*
 		 * Product: Value a call option (using the product implementation)
 		 */
-		
+
 		// Create product
 		final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
-		
+
 		// Value product using model
 		final double value = europeanOption.getValue(monteCarloBlackScholesModel);
-		
+
 		/*
 		 * Analytic value using Black-Scholes formula
 		 */
