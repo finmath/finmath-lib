@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.3 (05.07.2020)
+
+### General
+
+ - Added some convenient methods in AnalyticFomulas consuming RandomVariable parameters.
+
+
 ## 5.0.2 (12.06.2020)
 
 ### General
