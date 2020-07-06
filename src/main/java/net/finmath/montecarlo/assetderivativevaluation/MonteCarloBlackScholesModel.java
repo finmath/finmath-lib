@@ -5,7 +5,6 @@
  */
 package net.finmath.montecarlo.assetderivativevaluation;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
