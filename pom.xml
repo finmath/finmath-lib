@@ -187,6 +187,7 @@
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<sourceDirectory>${src.main.java.dir}</sourceDirectory>
 		<testSourceDirectory>${src.test.java.dir}</testSourceDirectory>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -238,82 +239,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>${maven.javadoc-plugin.version}</version>
-				<configuration>
-					<source>${envSource}</source>
-					<doctitle>${project.name} (${project.version}) documentation</doctitle>
-					<stylesheetfile>stylesheet.css</stylesheetfile>
-					<docfilessubdirs>true</docfilessubdirs>
-					<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
-					<header>
-			   			<![CDATA[
-						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
-						<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-			   			]]>
-					</header>
-					<footer>
-			   			<![CDATA[
-						<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
-			   			]]>
-					</footer>
-					<tags>
-						<tag>
-							<name>TODO</name>
-							<placement>a</placement>
-							<head>To dos:</head>
-						</tag>
-						<tag>
-							<name>date</name>
-							<placement>a</placement>
-							<head>Date:</head>
-						</tag>
-					</tags>
-					<links>
-						<!-- links not compatible with JMPA -->
-						<!-- <link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link> -->
-						<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link> -->
-					</links>
-					<detectLinks>false</detectLinks>
-					<additionalOptions>
-						<additionalOption>--allow-script-in-comments</additionalOption>
-					</additionalOptions>
-					<groups>
-						<group>
-							<title>Market Data (Curves and Volatilities)</title>
-							<packages>net.finmath.marketdata</packages>
-							<packages>net.finmath.marketdata.*</packages>
-						</group>
-						<group>
-							<title>Analytic Functions</title>
-							<packages>net.finmath.functions</packages>
-							<packages>net.finmath.functions.*</packages>
-						</group>
-						<group>
-							<title>Algorithmic Differentiation</title>
-							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
-						</group>
-						<group>
-							<title>Monte-Carlo Methods</title>
-							<packages>net.finmath.montecarlo*</packages>
-						</group>
-						<group>
-							<title>Fourier Methods</title>
-							<packages>net.finmath.fouriermethod*</packages>
-						</group>
-						<group>
-							<title>Finite Difference Methods (PDEs)</title>
-							<packages>net.finmath.finitedifference</packages>
-							<packages>net.finmath.finitedifference.*</packages>
-						</group>
-					</groups>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -484,8 +409,91 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven.javadoc-plugin.version}</version>
+					<configuration>
+						<source>${envSource}</source>
+						<doctitle>${project.name} (${project.version}) documentation</doctitle>
+						<stylesheetfile>stylesheet.css</stylesheetfile>
+						<docfilessubdirs>true</docfilessubdirs>
+						<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
+						<header>
+				   			<![CDATA[
+							<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
+							<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+				   			]]>
+						</header>
+						<footer>
+				   			<![CDATA[
+							<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
+				   			]]>
+						</footer>
+						<tags>
+							<tag>
+								<name>TODO</name>
+								<placement>a</placement>
+								<head>To dos:</head>
+							</tag>
+							<tag>
+								<name>date</name>
+								<placement>a</placement>
+								<head>Date:</head>
+							</tag>
+						</tags>
+						<links>
+							<!-- links not compatible with JMPA -->
+							<!-- <link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link> -->
+							<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link> -->
+						</links>
+						<detectLinks>false</detectLinks>
+						<additionalOptions>
+							<additionalOption>--allow-script-in-comments</additionalOption>
+						</additionalOptions>
+						<groups>
+							<group>
+								<title>Market Data (Curves and Volatilities)</title>
+								<packages>net.finmath.marketdata</packages>
+								<packages>net.finmath.marketdata.*</packages>
+							</group>
+							<group>
+								<title>Analytic Functions</title>
+								<packages>net.finmath.functions</packages>
+								<packages>net.finmath.functions.*</packages>
+							</group>
+							<group>
+								<title>Algorithmic Differentiation</title>
+								<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+							</group>
+							<group>
+								<title>Monte-Carlo Methods</title>
+								<packages>net.finmath.montecarlo*</packages>
+							</group>
+							<group>
+								<title>Fourier Methods</title>
+								<packages>net.finmath.fouriermethod*</packages>
+							</group>
+							<group>
+								<title>Finite Difference Methods (PDEs)</title>
+								<packages>net.finmath.finitedifference</packages>
+								<packages>net.finmath.finitedifference.*</packages>
+							</group>
+						</groups>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>
@@ -678,74 +686,6 @@
 						</reports>
 					</reportSet>
 				</reportSets>
-				<configuration>
-					<source>${envSource}</source>
-					<doctitle>${project.name} (${project.version}) documentation</doctitle>
-					<stylesheetfile>stylesheet.css</stylesheetfile>
-					<docfilessubdirs>true</docfilessubdirs>
-					<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
-					<header>
-			   			<![CDATA[
-						<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
-						<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-			   			]]>
-					</header>
-					<footer>
-			   			<![CDATA[
-						<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
-			   			]]>
-					</footer>
-					<tags>
-						<tag>
-							<name>TODO</name>
-							<placement>a</placement>
-							<head>To dos:</head>
-						</tag>
-						<tag>
-							<name>date</name>
-							<placement>a</placement>
-							<head>Date:</head>
-						</tag>
-					</tags>
-					<links>
-						<!-- links not compatible with JMPA -->
-						<!-- <link>http://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/</link> -->
-						<!-- <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link> -->
-					</links>
-					<detectLinks>false</detectLinks>
-					<additionalOptions>
-						<additionalOption>--allow-script-in-comments</additionalOption>
-					</additionalOptions>
-					<groups>
-						<group>
-							<title>Market Data (Curves and Volatilities)</title>
-							<packages>net.finmath.marketdata</packages>
-							<packages>net.finmath.marketdata.*</packages>
-						</group>
-						<group>
-							<title>Analytic Functions</title>
-							<packages>net.finmath.functions</packages>
-							<packages>net.finmath.functions.*</packages>
-						</group>
-						<group>
-							<title>Algorithmic Differentiation</title>
-							<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
-						</group>
-						<group>
-							<title>Monte-Carlo Methods</title>
-							<packages>net.finmath.montecarlo*</packages>
-						</group>
-						<group>
-							<title>Fourier Methods</title>
-							<packages>net.finmath.fouriermethod*</packages>
-						</group>
-						<group>
-							<title>Finite Difference Methods (PDEs)</title>
-							<packages>net.finmath.finitedifference</packages>
-							<packages>net.finmath.finitedifference.*</packages>
-						</group>
-					</groups>
-				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
