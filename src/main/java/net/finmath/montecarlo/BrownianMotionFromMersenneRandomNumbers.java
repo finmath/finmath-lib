@@ -8,6 +8,8 @@ package net.finmath.montecarlo;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.apache.commons.lang3.Validate;
+
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -71,6 +73,9 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 			final int seed,
 			final RandomVariableFactory abstractRandomVariableFactory) {
 		super();
+		Validate.isTrue(numberOfFactors > 0, "Number of factors must be greater or equal 1 (given %d).", numberOfFactors);
+		Validate.isTrue(numberOfPaths > 0, "Number of paths must be greater or equal 1 (given %d).", numberOfPaths);
+
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
 		this.numberOfPaths		= numberOfPaths;
