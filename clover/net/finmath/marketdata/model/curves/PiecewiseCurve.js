@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":162,"id":4935,"methods":[{"el":71,"sc":2,"sl":63},{"el":76,"sc":2,"sl":73},{"el":81,"sc":2,"sl":78},{"el":86,"sc":2,"sl":83},{"el":91,"sc":2,"sl":88},{"el":98,"sc":2,"sl":96},{"el":105,"sc":2,"sl":103},{"el":112,"sc":2,"sl":110},{"el":119,"sc":2,"sl":117},{"el":124,"sc":2,"sl":121},{"el":134,"sc":2,"sl":126},{"el":142,"sc":2,"sl":136},{"el":147,"sc":2,"sl":144},{"el":152,"sc":2,"sl":149},{"el":161,"sc":2,"sl":154}],"name":"PiecewiseCurve","sl":22},{"el":61,"id":4935,"methods":[{"el":52,"sc":3,"sl":49},{"el":60,"sc":3,"sl":54}],"name":"PiecewiseCurve.Builder","sl":39}]}
+clover.pageData = {"classes":[{"el":162,"id":4958,"methods":[{"el":71,"sc":2,"sl":63},{"el":76,"sc":2,"sl":73},{"el":81,"sc":2,"sl":78},{"el":86,"sc":2,"sl":83},{"el":91,"sc":2,"sl":88},{"el":98,"sc":2,"sl":96},{"el":105,"sc":2,"sl":103},{"el":112,"sc":2,"sl":110},{"el":119,"sc":2,"sl":117},{"el":124,"sc":2,"sl":121},{"el":134,"sc":2,"sl":126},{"el":142,"sc":2,"sl":136},{"el":147,"sc":2,"sl":144},{"el":152,"sc":2,"sl":149},{"el":161,"sc":2,"sl":154}],"name":"PiecewiseCurve","sl":22},{"el":61,"id":4958,"methods":[{"el":52,"sc":3,"sl":49},{"el":60,"sc":3,"sl":54}],"name":"PiecewiseCurve.Builder","sl":39}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}
