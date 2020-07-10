@@ -149,6 +149,37 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatilities The log volatilities.
 	 * @param correlations A correlation matrix.
+	 *
+	 * @deprecated uses default seed of 3141.
+	 */
+	@Deprecated
+	public MonteCarloMultiAssetBlackScholesModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double[]	initialValues,
+			final double		riskFreeRate,
+			final double[]	volatilities,
+			final double[][]	correlations
+			) {
+		this(timeDiscretization,
+				numberOfPaths,
+				3141 /* seed */,
+				initialValues,
+				riskFreeRate,
+				volatilities,
+				correlations
+				);
+	}
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed to be used.
+	 * @param initialValues Spot values.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatilities The log volatilities.
+	 * @param correlations A correlation matrix.
 	 */
 	public MonteCarloMultiAssetBlackScholesModel(
 			final TimeDiscretization timeDiscretization,
