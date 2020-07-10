@@ -46,6 +46,7 @@ import net.finmath.time.TimeDiscretization;
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
+ * @author Roland Bachl
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.0
@@ -60,8 +61,6 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	private final double		riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double[]		volatilities;
 	private final double[][]	factorLoadings;
-
-	private static final int seed = 3141;
 
 	private final RandomVariable[]		initialStates;
 	private final RandomVariable[]		drift;
@@ -83,6 +82,28 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			final double[]	volatilities,
 			final double[][]	correlations
 			) {
+		this(brownianMotion, initialValues, riskFreeRate, volatilities, correlations, false);
+	};
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
+	 * @param initialValues Spot values.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatilities The log volatilities.
+	 * @param correlations A correlation matrix.
+	 * @param isCorrelationFactorized Indicates whether correlations have already been converted to
+	 * factor matrix.
+	 */
+	private MonteCarloMultiAssetBlackScholesModel(
+			final BrownianMotion brownianMotion,
+			final double[]	initialValues,
+			final double		riskFreeRate,
+			final double[]	volatilities,
+			final double[][]	correlations,
+			final boolean 	isCorrelationFactorized
+			) {
 		super();
 
 		this.randomVariableFactory = new RandomVariableFromArrayFactory();
@@ -95,7 +116,8 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		this.initialValues	= initialValues;
 		this.riskFreeRate	= riskFreeRate;
 		this.volatilities	= volatilities;
-		factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		factorLoadings = isCorrelationFactorized ? correlations :
+			LinearAlgebra.getFactorMatrix(correlations, correlations.length);
 
 		/*
 		 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
@@ -131,6 +153,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	public MonteCarloMultiAssetBlackScholesModel(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfPaths,
+			final int seed,
 			final double[]	initialValues,
 			final double		riskFreeRate,
 			final double[]	volatilities,
@@ -256,11 +279,21 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	@Override
 	public MonteCarloMultiAssetBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 
-		double[]	newInitialValues = initialValues;
-		double		newRiskFreeRate = riskFreeRate;
-		double[]	newVolatilities = volatilities;
-		double[][]	newCorrelations = null;// = correlations;
+		BrownianMotion 	newBrownianMotion		= (BrownianMotion) process.getStochasticDriver();
+		double[]		newInitialValues		= initialValues;
+		double			newRiskFreeRate			= riskFreeRate;
+		double[]		newVolatilities			= volatilities;
+		double[][]		newCorrelations			= factorLoadings;
+		boolean 		isCorrelationFactorized = true;
 
+		if(dataModified.containsKey("seed")) {
+			newBrownianMotion = newBrownianMotion.getCloneWithModifiedSeed(
+					(Integer) dataModified.get("seed"));
+		}
+		if(dataModified.containsKey("timeDiscretization")) {
+			newBrownianMotion = newBrownianMotion.getCloneWithModifiedTimeDiscretization(
+					(TimeDiscretization) dataModified.get("timeDiscretization"));
+		}
 		if(dataModified.containsKey("initialValues")) {
 			newInitialValues = (double[]) dataModified.get("initialValues");
 		}
@@ -272,15 +305,23 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		}
 		if(dataModified.containsKey("correlations")) {
 			newCorrelations = (double[][]) dataModified.get("correlations");
+			isCorrelationFactorized = false;
 		}
 
-		return new MonteCarloMultiAssetBlackScholesModel(getTimeDiscretization(), getNumberOfPaths(), newInitialValues, newRiskFreeRate, newVolatilities, newCorrelations);
+		return new MonteCarloMultiAssetBlackScholesModel(
+				newBrownianMotion,
+				newInitialValues,
+				newRiskFreeRate,
+				newVolatilities,
+				newCorrelations,
+				isCorrelationFactorized
+				);
 	}
 
 	@Override
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		final Map<String, Object> dataModified = new HashMap<>();
-		dataModified.put("seed", new Integer(seed));
+		dataModified.put("seed", Integer.valueOf(seed));
 		return getCloneWithModifiedData(dataModified);
 	}
 
