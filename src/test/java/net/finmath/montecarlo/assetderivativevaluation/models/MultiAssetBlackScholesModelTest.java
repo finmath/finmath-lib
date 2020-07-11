@@ -20,10 +20,10 @@ import net.finmath.time.TimeDiscretizationFromArray;
  *
  * @author Christian Fries
  */
-class MultiAssetBlackScholesModelTest {
+public class MultiAssetBlackScholesModelTest {
 
 	@Test
-	void testModelWithFactorLoadings() throws CalculationException {
+	public void testModelWithFactorLoadings() throws CalculationException {
 
 		double[] initialValue = new double[] { 100.0, 110 };
 		double riskFreeRate = 0.05;
