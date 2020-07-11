@@ -126,4 +126,20 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		return "EuropeanOption [maturity=" + maturity + ", strike=" + strike + ", underlyingIndex=" + underlyingIndex
 				+ ", nameOfUnderliyng=" + nameOfUnderliyng + "]";
 	}
+
+	public double getMaturity() {
+		return maturity;
+	}
+
+	public double getStrike() {
+		return strike;
+	}
+
+	public Integer getUnderlyingIndex() {
+		return underlyingIndex;
+	}
+
+	public String getNameOfUnderliyng() {
+		return nameOfUnderliyng;
+	}
 }
