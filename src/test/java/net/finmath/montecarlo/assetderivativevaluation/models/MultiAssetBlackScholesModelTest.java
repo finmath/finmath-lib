@@ -1,5 +1,8 @@
 package net.finmath.montecarlo.assetderivativevaluation.models;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
@@ -139,11 +142,70 @@ public class MultiAssetBlackScholesModelTest {
 		Assertions.assertEquals(valueSeed2, valueSeed3, "Models with same seed, different construction.");
 	}
 
+	@Test
+	void testModelWithCloneModifiedVolatility() throws CalculationException {
+
+		double[] initialValue = new double[] { 100.0, 110 };
+		double riskFreeRate = 0.05;
+		double[] volatilities = new double[] { 0.30, 0.20 };
+		double[][] correlations = new double[][] {
+			{ 1.0, 0.2 },
+			{ 0.2, 1.0 }
+
+		};
+
+		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, volatilities, correlations);
+
+		int numberOfPaths = 10000;
+		int seed = 3216;
+		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
+
+		/*
+		 * Test the two individual European options
+		 */
+		double maturity = 5.0;
+		double strike1 = 120;
+		double strike2 = 130;
+		EuropeanOption europeanOption1 = new EuropeanOption(maturity, strike1, 0);
+		EuropeanOption europeanOption2 = new EuropeanOption(maturity, strike2, 1);
+
+		/*
+		 * Calling getCloneWithModifiedData, but using same volatilities as before.
+		 */
+		double tolerance = 1E-5;
+		assertEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
+		assertEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
+		assertEqualsValuationEuropeanProduct(
+				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
+				europeanOption1, initialValue[0], riskFreeRate, volatilities[0]);
+		assertEqualsValuationEuropeanProduct(
+				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
+				europeanOption2, initialValue[1], riskFreeRate, volatilities[1]);
+
+		/*
+		 * Calling getCloneWithModifiedData, but using different volatilities.
+		 */
+		double[] newVolatilities = new double[] { 0.10, 0.30 };
+		assertEqualsValuationEuropeanProduct(
+				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
+				europeanOption1, initialValue[0], riskFreeRate, newVolatilities[0]);
+		assertEqualsValuationEuropeanProduct(
+				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
+				europeanOption2, initialValue[1], riskFreeRate, newVolatilities[1]);
+
+		/*
+		 * Checking that the two models are indeed different
+		 */
+		assertNotEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
+		assertNotEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
+	}
+
 	private static void assertEqualsValuationEuropeanProduct(MonteCarloAssetModel assetModel, EuropeanOption europeanOption, double initialValue, double riskFreeRate, double volatility) throws CalculationException {
 
+		double tolerance = 100 * 1.0/Math.sqrt(assetModel.getNumberOfPaths());
 		double valueMonteCarlo = europeanOption.getValue(assetModel);
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, europeanOption.getMaturity(), europeanOption.getStrike());
-		Assertions.assertEquals(valueAnalytic, valueMonteCarlo, 5E-2, "valuation");
+		Assertions.assertEquals(valueAnalytic, valueMonteCarlo, tolerance, "valuation");
 
 	}
 }
