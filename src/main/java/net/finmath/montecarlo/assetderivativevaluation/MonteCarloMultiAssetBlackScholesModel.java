@@ -23,8 +23,7 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class glues together a <code>BlackScholeModel</code> and a Monte-Carlo implementation of a <code>MonteCarloProcessFromProcessModel</code>
- * and forms a Monte-Carlo implementation of the Black-Scholes Model by implementing <code>AssetModelMonteCarloSimulationModel</code>.
+ * This class implements a multi-asset Black Schole Model as Monte-Carlo simulation implementing <code>AssetModelMonteCarloSimulationModel</code>.
  *
  * The model is
  * \[
@@ -49,7 +48,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Roland Bachl
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
- * @version 1.0
+ * @version 1.1
  */
 public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel implements AssetModelMonteCarloSimulationModel {
 
@@ -70,6 +69,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to construct model parameters as random variables.
 	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
