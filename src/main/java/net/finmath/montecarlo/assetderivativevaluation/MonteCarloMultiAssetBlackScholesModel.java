@@ -314,7 +314,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 				double factorLoading = factorLoadings[underlyingIndex][factorIndex];
 				volatilitySquaredOfUnderlying += factorLoading*factorLoading;
 			}
-			volatilities[underlyingIndex] = volatilitySquaredOfUnderlying;
+			volatilities[underlyingIndex] = Math.sqrt(volatilitySquaredOfUnderlying);
 		}
 		return volatilities;
 	}
