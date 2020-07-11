@@ -59,8 +59,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 	private final double[]		initialValues;
 	private final double		riskFreeRate;		// Actually the same as the drift (which is not stochastic)
-	private final double[]		volatilities;
 	private final double[][]	factorLoadings;
+
+	private static final int defaultSeed = 3141;
 
 	private final RandomVariable[]		initialStates;
 	private final RandomVariable[]		drift;
@@ -72,52 +73,19 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
-	 * @param volatilities The log volatilities.
-	 * @param correlations A correlation matrix.
+	 * @param factorLoadings The matrix of factor loadings, where factorLoadings[underlyingIndex][factorIndex] is the coefficient of the Brownian driver factorIndex used for the underlying underlyingIndex.
 	 */
 	public MonteCarloMultiAssetBlackScholesModel(
+			final RandomVariableFactory randomVariableFactory,
 			final BrownianMotion brownianMotion,
-			final double[]	initialValues,
+			final double[]		initialValues,
 			final double		riskFreeRate,
-			final double[]	volatilities,
-			final double[][]	correlations
+			final double[][]	factorLoadings
 			) {
-		this(brownianMotion, initialValues, riskFreeRate, volatilities, correlations, false);
-	};
-
-	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
-	 *
-	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
-	 * @param initialValues Spot values.
-	 * @param riskFreeRate The risk free rate.
-	 * @param volatilities The log volatilities.
-	 * @param correlations A correlation matrix.
-	 * @param isCorrelationFactorized Indicates whether correlations have already been converted to
-	 * factor matrix.
-	 */
-	private MonteCarloMultiAssetBlackScholesModel(
-			final BrownianMotion brownianMotion,
-			final double[]	initialValues,
-			final double		riskFreeRate,
-			final double[]	volatilities,
-			final double[][]	correlations,
-			final boolean 	isCorrelationFactorized
-			) {
-		super();
-
-		this.randomVariableFactory = new RandomVariableFromArrayFactory();
-
-		// TODO Creation of this should be completed before calling process constructor.
-
-		// Create a corresponding MC process
-		process = new EulerSchemeFromProcessModel(this, brownianMotion, Scheme.EULER_FUNCTIONAL);
-
+		this.randomVariableFactory = randomVariableFactory;
 		this.initialValues	= initialValues;
 		this.riskFreeRate	= riskFreeRate;
-		this.volatilities	= volatilities;
-		factorLoadings = isCorrelationFactorized ? correlations :
-			LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		this.factorLoadings	= factorLoadings;
 
 		/*
 		 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
@@ -131,13 +99,51 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 		drift = new RandomVariable[getNumberOfComponents()];
 		factorLoadingOnPaths = new RandomVariable[getNumberOfComponents()][];
 		for(int underlyingIndex = 0; underlyingIndex<initialValues.length; underlyingIndex++) {
+			double volatilitySquaredForUnderlying = 0.0;
+			factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[factorLoadings[underlyingIndex].length];
+			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
+				volatilitySquaredForUnderlying += factorLoadings[underlyingIndex][factorIndex] * factorLoadings[underlyingIndex][factorIndex];
+				factorLoadingOnPaths[underlyingIndex][factorIndex]	= getRandomVariableForConstant(factorLoadings[underlyingIndex][factorIndex]);
+			}
+
 			initialStates[underlyingIndex]				= getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
-			drift[underlyingIndex]						= getRandomVariableForConstant(riskFreeRate - volatilities[underlyingIndex] * volatilities[underlyingIndex] / 2.0);
-			factorLoadingOnPaths[underlyingIndex]		= new RandomVariable[process.getNumberOfFactors()];
-			for(int factorIndex = 0; factorIndex<process.getNumberOfFactors(); factorIndex++) {
-				factorLoadingOnPaths[underlyingIndex][factorIndex]	= getRandomVariableForConstant(volatilities[underlyingIndex] * factorLoadings[underlyingIndex][factorIndex]);
+			drift[underlyingIndex]						= getRandomVariableForConstant(riskFreeRate - volatilitySquaredForUnderlying / 2.0);
+		}
+
+		// TODO Creation of this should be completed before calling process constructor.
+
+		// Create a corresponding MC process
+		process = new EulerSchemeFromProcessModel(this, brownianMotion, Scheme.EULER_FUNCTIONAL);
+	};
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
+	 * @param initialValues Spot values.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatilities The log volatilities.
+	 * @param correlations A correlation matrix.
+	 */
+	public MonteCarloMultiAssetBlackScholesModel(
+			final BrownianMotion brownianMotion,
+			final double[]	initialValues,
+			final double		riskFreeRate,
+			final double[]	volatilities,
+			final double[][]	correlations
+			) {
+		this(new RandomVariableFromArrayFactory(), brownianMotion, initialValues, riskFreeRate, getFactorLoadingsFromVolatilityAnCorrelation(volatilities, correlations));
+	};
+
+	private static double[][] getFactorLoadingsFromVolatilityAnCorrelation(double[] volatilities, double[][] correlations) {
+		double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
+			double volatility = volatilities[underlyingIndex];
+			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
+				factorLoadings[underlyingIndex][factorIndex] = factorLoadings[underlyingIndex][factorIndex] * volatility;
 			}
 		}
+		return factorLoadings;
 	}
 
 	/**
@@ -149,10 +155,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatilities The log volatilities.
 	 * @param correlations A correlation matrix.
-	 *
-	 * @deprecated uses default seed of 3141.
 	 */
-	@Deprecated
 	public MonteCarloMultiAssetBlackScholesModel(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfPaths,
@@ -163,13 +166,14 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			) {
 		this(timeDiscretization,
 				numberOfPaths,
-				3141 /* seed */,
+				defaultSeed,
 				initialValues,
 				riskFreeRate,
 				volatilities,
 				correlations
 				);
 	}
+
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
 	 *
@@ -185,9 +189,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			final TimeDiscretization timeDiscretization,
 			final int numberOfPaths,
 			final int seed,
-			final double[]	initialValues,
+			final double[]		initialValues,
 			final double		riskFreeRate,
-			final double[]	volatilities,
+			final double[]		volatilities,
 			final double[][]	correlations
 			) {
 		this(new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
@@ -275,8 +279,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	public String toString() {
 		return "MonteCarloMultiAssetBlackScholesModel [initialValues="
 				+ Arrays.toString(initialValues) + ", riskFreeRate="
-				+ riskFreeRate + ", volatilities="
-				+ Arrays.toString(volatilities) + ", factorLoadings="
+				+ riskFreeRate + ", factorLoadings="
 				+ Arrays.toString(factorLoadings) + "]";
 	}
 
@@ -290,15 +293,64 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	/**
+	 * Returns the factorLoadings parameters of this model.
+	 *
+	 * @return Returns the factorLoadings.
+	 */
+	public double[][] getFactorLoadings() {
+		return factorLoadings;
+	}
+
+	/**
 	 * Returns the volatility parameters of this model.
 	 *
 	 * @return Returns the volatilities.
 	 */
 	public double[] getVolatilities() {
+		double[] volatilities = new double[factorLoadings.length];
+		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
+			double volatilitySquaredOfUnderlying = 0.0;
+			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
+				double factorLoading = factorLoadings[underlyingIndex][factorIndex];
+				volatilitySquaredOfUnderlying += factorLoading*factorLoading;
+			}
+			volatilities[underlyingIndex] = volatilitySquaredOfUnderlying;
+		}
 		return volatilities;
 	}
 
 	/**
+	 * Returns the volatility parameters of this model.
+	 *
+	 * @return Returns the volatilities.
+	 */
+	public double[][] getCorrelations() {
+		double[] volatilities = getVolatilities();
+
+		double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
+		for(int underlyingIndex1 = 0; underlyingIndex1<factorLoadings.length; underlyingIndex1++) {
+			for(int underlyingIndex2 = 0; underlyingIndex2<factorLoadings.length; underlyingIndex2++) {
+				double covariance = 0.0;
+				for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex1].length; factorIndex++) {
+					covariance += factorLoadings[underlyingIndex1][factorIndex]*factorLoadings[underlyingIndex2][factorIndex];
+				}
+
+				double correlation;
+				if(volatilities[underlyingIndex1] != 0 && volatilities[underlyingIndex2] != 0) {
+					correlation = covariance / volatilities[underlyingIndex1] / volatilities[underlyingIndex2];
+				}
+				else {
+					correlation = underlyingIndex1 == underlyingIndex2 ? 1.0 : 0.0;
+				}
+				correlations[underlyingIndex1][underlyingIndex2] = correlation;
+			}
+		}
+		return correlations;
+	}
+
+	/**
+	 * Returns the number of paths.
+	 * 
 	 * @return The number of paths.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getNumberOfPaths()
 	 */
@@ -311,41 +363,36 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	public MonteCarloMultiAssetBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 
 		BrownianMotion 	newBrownianMotion		= (BrownianMotion) process.getStochasticDriver();
-		double[]		newInitialValues		= initialValues;
-		double			newRiskFreeRate			= riskFreeRate;
-		double[]		newVolatilities			= volatilities;
-		double[][]		newCorrelations			= factorLoadings;
-		boolean 		isCorrelationFactorized = true;
+
+		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+
+		double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
+		double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
+
+		double[][]		newFactorLoadings		= (double[][]) dataModified.getOrDefault("factorLoadings", factorLoadings);
+		if(dataModified.containsKey("volatilities") || dataModified.containsKey("correlations")) {
+			if(dataModified.containsKey("factorLoadings")) {
+				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
+			}
+
+			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", (double[])getVolatilities());
+			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", (double[][])getCorrelations());
+			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
+		}
 
 		if(dataModified.containsKey("seed")) {
-			newBrownianMotion = newBrownianMotion.getCloneWithModifiedSeed(
-					(Integer) dataModified.get("seed"));
+			newBrownianMotion = newBrownianMotion.getCloneWithModifiedSeed((Integer) dataModified.get("seed"));
 		}
 		if(dataModified.containsKey("timeDiscretization")) {
-			newBrownianMotion = newBrownianMotion.getCloneWithModifiedTimeDiscretization(
-					(TimeDiscretization) dataModified.get("timeDiscretization"));
-		}
-		if(dataModified.containsKey("initialValues")) {
-			newInitialValues = (double[]) dataModified.get("initialValues");
-		}
-		if(dataModified.containsKey("riskFreeRate")) {
-			newRiskFreeRate = ((Double)dataModified.get("riskFreeRate")).doubleValue();
-		}
-		if(dataModified.containsKey("volatilities")) {
-			newVolatilities = (double[]) dataModified.get("volatilities");
-		}
-		if(dataModified.containsKey("correlations")) {
-			newCorrelations = (double[][]) dataModified.get("correlations");
-			isCorrelationFactorized = false;
+			newBrownianMotion = newBrownianMotion.getCloneWithModifiedTimeDiscretization( (TimeDiscretization) dataModified.get("timeDiscretization"));
 		}
 
 		return new MonteCarloMultiAssetBlackScholesModel(
+				newRandomVariableFactory,
 				newBrownianMotion,
 				newInitialValues,
 				newRiskFreeRate,
-				newVolatilities,
-				newCorrelations,
-				isCorrelationFactorized
+				newFactorLoadings
 				);
 	}
 
