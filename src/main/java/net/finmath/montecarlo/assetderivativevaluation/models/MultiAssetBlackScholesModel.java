@@ -6,27 +6,19 @@
 package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
-import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretization;
 
 /**
  * This class implements a multi-asset Black Scholes model providing an <code>AbstractProcessModel</code>.
  * The class can be used with an EulerSchemeFromProcessModel to create a Monte-Carlo simulation.
- * 
+ *
  * The model can be specified by general factor loadings, that is, in the form
  * \[
  * 	dS_{i} = r S_{i} dt + S_{i} \sum_{j=0}^{m-1} f{i,j} dW_{j}, \quad S_{i}(0) = S_{i,0},
@@ -242,8 +234,8 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
 			}
 
-			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", (double[])getVolatilityVector());
-			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", (double[][])getCorrelationMatrix());
+			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilityVector());
+			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelationMatrix());
 			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
 		}
 

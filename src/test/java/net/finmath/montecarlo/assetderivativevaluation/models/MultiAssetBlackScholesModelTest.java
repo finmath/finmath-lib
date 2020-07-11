@@ -1,7 +1,5 @@
 package net.finmath.montecarlo.assetderivativevaluation.models;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,9 +15,9 @@ import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
- * 
+ *
  * TODO Add UnitTest for correlation - using ExchangeOption.
- * 
+ *
  * @author Christian Fries
  */
 class MultiAssetBlackScholesModelTest {
@@ -32,13 +30,13 @@ class MultiAssetBlackScholesModelTest {
 		double[][] factorLoadings = new double[][] {
 			{ 0.25, 0.10 },
 			{ 0.00, 0.20 }
-			
+
 		};
-		
+
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, factorLoadings);
 
 		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model);
-		
+
 		/*
 		 * Test the two individual European options
 		 */
@@ -47,7 +45,7 @@ class MultiAssetBlackScholesModelTest {
 		double strike2 = 130;
 		EuropeanOption europeanOption1 = new EuropeanOption(maturity, strike1, 0);
 		EuropeanOption europeanOption2 = new EuropeanOption(maturity, strike2, 1);
-		
+
 		double volatility1 = Math.sqrt(factorLoadings[0][0]*factorLoadings[0][0] + factorLoadings[0][1]*factorLoadings[0][1]);
 
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption1, initialValue[0], riskFreeRate, volatility1);
@@ -65,13 +63,13 @@ class MultiAssetBlackScholesModelTest {
 		double[][] correlations = new double[][] {
 			{ 1.0, 0.0 },
 			{ 0.0, 1.0 }
-			
+
 		};
-		
+
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, volatilities, correlations);
 
 		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model);
-		
+
 		/*
 		 * Test the two individual European options
 		 */
@@ -80,7 +78,7 @@ class MultiAssetBlackScholesModelTest {
 		double strike2 = 130;
 		EuropeanOption europeanOption1 = new EuropeanOption(maturity, strike1, 0);
 		EuropeanOption europeanOption2 = new EuropeanOption(maturity, strike2, 1);
-		
+
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption1, initialValue[0], riskFreeRate, volatilities[0]);
 
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption2, initialValue[1], riskFreeRate, volatilities[1]);
@@ -100,7 +98,7 @@ class MultiAssetBlackScholesModelTest {
 		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
 		MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
-		
+
 		return new MonteCarloAssetModel(process);
 	}
 
@@ -109,6 +107,6 @@ class MultiAssetBlackScholesModelTest {
 		double valueMonteCarlo = europeanOption.getValue(assetModel);
 		double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, europeanOption.getMaturity(), europeanOption.getStrike());
 		Assertions.assertEquals(valueAnalytic, valueMonteCarlo, 5E-2, "valuation");
-		
+
 	}
 }
