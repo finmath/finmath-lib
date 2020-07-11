@@ -132,7 +132,14 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		return new MonteCarloAssetModel(newModel, newProcess);
 	}
 
+	/**
+	 * The method is not implemented. Instead call getCloneWithModifiedData on the model
+	 * an create a new process from it.
+	 * 
+	 * @param seed The new seed.
+	 */
 	@Override
+	@Deprecated
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
