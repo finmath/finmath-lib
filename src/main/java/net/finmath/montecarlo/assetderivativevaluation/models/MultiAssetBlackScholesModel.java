@@ -24,9 +24,23 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * This class implements a multi-asset Black Schole model providing an <code>AbstractProcessModel</code>.
+ * This class implements a multi-asset Black Scholes model providing an <code>AbstractProcessModel</code>.
+ * The class can be used with an EulerSchemeFromProcessModel to create a Monte-Carlo simulation.
+ * 
+ * The model can be specified by general factor loadings, that is, in the form
+ * \[
+ * 	dS_{i} = r S_{i} dt + S_{i} \sum_{j=0}^{m-1} f{i,j} dW_{j}, \quad S_{i}(0) = S_{i,0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0}.
+ * \]
  *
- * The model is
+ * Alternatively, the model can be specifies by providing volatilities and correlations
+ * from which the factor loadings \( f_{i,j} \) are derived such that
+ * \[
+ * 	\sum_{k=0}^{m-1} f{i,k} f{j,k} = \sigma_{i} \sigma_{j} \rho_{i,j}
+ * \]
+ * such that the effective model is
  * \[
  * 	dS_{i} = r S_{i} dt + \sigma_{i} S_{i} dW_{i}, \quad S_{i}(0) = S_{i,0},
  * \]
@@ -36,12 +50,15 @@ import net.finmath.time.TimeDiscretization;
  * \[
  * 	dW_{i} dW_{j} = \rho_{i,j} dt,
  * \]
+ * Note that in case the model is used with an EulerSchemeFromProcessModel, the BrownianMotion used can
+ * have a correlation, which alters the simulation (which is admissible).
+ * The specification above hold, provided that the BrownianMotion used has independent components.
  *
  * The class provides the model of \( S_{i} \) to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu_{i} = r - \frac{1}{2} \sigma_{i}^2 \), \( \lambda_{i,j} = \sigma_{i} g_{i,j} \), i.e.,
  * of the SDE
  * \[
- * 	dX_{i} = \mu_{i} dt + \lambda_{i,j} dW, \quad X_{i}(0) = \log(S_{i,0}),
+ * 	dX_{i} = \mu_{i} dt + \sum_{j=0}^{m-1} \lambda_{i,j} dW_{j}, \quad X_{i}(0) = \log(S_{i,0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
