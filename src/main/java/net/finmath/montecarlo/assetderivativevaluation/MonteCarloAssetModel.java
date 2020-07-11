@@ -135,7 +135,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	/**
 	 * The method is not implemented. Instead call getCloneWithModifiedData on the model
 	 * an create a new process from it.
-	 * 
+	 *
 	 * @param seed The new seed.
 	 */
 	@Override

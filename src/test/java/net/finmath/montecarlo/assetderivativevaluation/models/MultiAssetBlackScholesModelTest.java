@@ -40,7 +40,7 @@ public class MultiAssetBlackScholesModelTest {
 
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, factorLoadings);
 
-		int numberOfPaths = 2000000;
+		int numberOfPaths = 1000000;
 		int seed = 3216;
 		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
 
@@ -75,7 +75,7 @@ public class MultiAssetBlackScholesModelTest {
 
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, volatilities, correlations);
 
-		int numberOfPaths = 2000000;
+		int numberOfPaths = 1000000;
 		int seed = 3216;
 		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
 
@@ -91,23 +91,6 @@ public class MultiAssetBlackScholesModelTest {
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption1, initialValue[0], riskFreeRate, volatilities[0]);
 
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption2, initialValue[1], riskFreeRate, volatilities[1]);
-	}
-
-	private MonteCarloAssetModel getMonteCarloAssetModel(MultiAssetBlackScholesModel model, int numberOfPaths, int seed) {
-		int numberOfTimeSteps = 30;
-		double deltaT = 0.2;
-
-		int numberOfFactors = model.getNumberOfFactors();
-
-		// Create a time discretization
-		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
-
-		// Create Brownian motion (and random number generator)
-		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors , numberOfPaths, seed);
-
-		MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
-
-		return new MonteCarloAssetModel(process);
 	}
 
 	@Test
@@ -137,7 +120,7 @@ public class MultiAssetBlackScholesModelTest {
 		double valueSeed1 = europeanOption.getValue(assetModel);
 		double valueSeed2 = europeanOption.getValue(assetModel.getCloneWithModifiedData(Map.of("seed", 3141)));
 		double valueSeed3 = europeanOption.getValue(getMonteCarloAssetModel(model, numberOfPaths, 3141));
-		
+
 		Assertions.assertNotEquals(valueSeed1, valueSeed2, "Models with different seed.");
 		Assertions.assertEquals(valueSeed2, valueSeed3, "Models with same seed, different construction.");
 	}
@@ -173,8 +156,8 @@ public class MultiAssetBlackScholesModelTest {
 		 * Calling getCloneWithModifiedData, but using same volatilities as before.
 		 */
 		double tolerance = 1E-5;
-		assertEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
-		assertEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
+		assertEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
+		assertEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
 		assertEqualsValuationEuropeanProduct(
 				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
 				europeanOption1, initialValue[0], riskFreeRate, volatilities[0]);
@@ -196,8 +179,29 @@ public class MultiAssetBlackScholesModelTest {
 		/*
 		 * Checking that the two models are indeed different
 		 */
-		assertNotEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
-		assertNotEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue((MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
+		assertNotEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
+		assertNotEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities))), tolerance);
+	}
+
+	/*
+	 * Private helpers
+	 */
+
+	private MonteCarloAssetModel getMonteCarloAssetModel(MultiAssetBlackScholesModel model, int numberOfPaths, int seed) {
+		int numberOfTimeSteps = 30;
+		double deltaT = 0.2;
+
+		int numberOfFactors = model.getNumberOfFactors();
+
+		// Create a time discretization
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+
+		// Create Brownian motion (and random number generator)
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors , numberOfPaths, seed);
+
+		MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
+
+		return new MonteCarloAssetModel(process);
 	}
 
 	private static void assertEqualsValuationEuropeanProduct(MonteCarloAssetModel assetModel, EuropeanOption europeanOption, double initialValue, double riskFreeRate, double volatility) throws CalculationException {
