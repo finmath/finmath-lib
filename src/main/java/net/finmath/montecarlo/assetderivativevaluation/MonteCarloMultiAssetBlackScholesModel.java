@@ -350,7 +350,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 	/**
 	 * Returns the number of paths.
-	 * 
+	 *
 	 * @return The number of paths.
 	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getNumberOfPaths()
 	 */
@@ -375,8 +375,8 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
 			}
 
-			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", (double[])getVolatilities());
-			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", (double[][])getCorrelations());
+			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilities());
+			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelations());
 			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
 		}
 
