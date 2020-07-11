@@ -5,12 +5,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.time.TimeDiscretization;
