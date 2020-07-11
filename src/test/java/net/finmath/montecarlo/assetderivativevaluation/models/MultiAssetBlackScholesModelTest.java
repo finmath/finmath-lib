@@ -89,13 +89,14 @@ public class MultiAssetBlackScholesModelTest {
 		double deltaT = 0.2;
 
 		int numberOfPaths = 2000000;
+		int numberOfFactors = model.getNumberOfFactors();
 		int seed = 3216;
 
 		// Create a time discretization
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
 
 		// Create Brownian motion (and random number generator)
-		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors , numberOfPaths, seed);
 
 		MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
