@@ -151,13 +151,12 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	/**
 	 * Create a multi-asset Black-Scholes model.
 	 *
-	 * @param randomVariableFactory The RandomVariableFactory used to construct model parameters as random variables.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
 	 * @param factorLoadings The matrix of factor loadings, where factorLoadings[underlyingIndex][factorIndex] is the coefficient of the Brownian driver factorIndex used for the underlying underlyingIndex.
 	 */
-	public MultiAssetBlackScholesModel(double[] initialValue, double riskFreeRate, double[][] factorLoadings) {
-		this(new RandomVariableFromArrayFactory(), initialValue, riskFreeRate, factorLoadings);
+	public MultiAssetBlackScholesModel(double[] initialValues, double riskFreeRate, double[][] factorLoadings) {
+		this(new RandomVariableFromArrayFactory(), initialValues, riskFreeRate, factorLoadings);
 	}
 
 	/**
@@ -168,8 +167,8 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	 * @param volatilities The log volatilities.
 	 * @param correlations A correlation matrix.
 	 */
-	public MultiAssetBlackScholesModel(double[] initialValue, double riskFreeRate, double[] volatilities, double[][] correlations) {
-		this(new RandomVariableFromArrayFactory(), initialValue, riskFreeRate, volatilities, correlations);
+	public MultiAssetBlackScholesModel(double[] initialValues, double riskFreeRate, double[] volatilities, double[][] correlations) {
+		this(new RandomVariableFromArrayFactory(), initialValues, riskFreeRate, volatilities, correlations);
 	}
 
 	@Override
