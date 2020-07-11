@@ -1,5 +1,7 @@
 package net.finmath.montecarlo.assetderivativevaluation.models;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +37,9 @@ public class MultiAssetBlackScholesModelTest {
 
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, factorLoadings);
 
-		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model);
+		int numberOfPaths = 2000000;
+		int seed = 3216;
+		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
 
 		/*
 		 * Test the two individual European options
@@ -68,7 +72,9 @@ public class MultiAssetBlackScholesModelTest {
 
 		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, volatilities, correlations);
 
-		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model);
+		int numberOfPaths = 2000000;
+		int seed = 3216;
+		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
 
 		/*
 		 * Test the two individual European options
@@ -84,13 +90,11 @@ public class MultiAssetBlackScholesModelTest {
 		assertEqualsValuationEuropeanProduct(assetModel, europeanOption2, initialValue[1], riskFreeRate, volatilities[1]);
 	}
 
-	private MonteCarloAssetModel getMonteCarloAssetModel(MultiAssetBlackScholesModel model) {
+	private MonteCarloAssetModel getMonteCarloAssetModel(MultiAssetBlackScholesModel model, int numberOfPaths, int seed) {
 		int numberOfTimeSteps = 30;
 		double deltaT = 0.2;
 
-		int numberOfPaths = 2000000;
 		int numberOfFactors = model.getNumberOfFactors();
-		int seed = 3216;
 
 		// Create a time discretization
 		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
@@ -101,6 +105,38 @@ public class MultiAssetBlackScholesModelTest {
 		MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
 		return new MonteCarloAssetModel(process);
+	}
+
+	@Test
+	public void testModelCloneWithModifiedSeed() throws CalculationException {
+
+		double[] initialValue = new double[] { 100.0, 110 };
+		double riskFreeRate = 0.05;
+		double[][] factorLoadings = new double[][] {
+			{ 0.25, 0.10 },
+			{ 0.00, 0.20 }
+
+		};
+
+		MultiAssetBlackScholesModel model = new MultiAssetBlackScholesModel(initialValue, riskFreeRate, factorLoadings);
+
+		int numberOfPaths = 10000;
+		int seed = 3216;
+		MonteCarloAssetModel assetModel = getMonteCarloAssetModel(model, numberOfPaths, seed);
+
+		/*
+		 * Test the European option with different seeds.
+		 */
+		double maturity = 5.0;
+		double strike = 120;
+		EuropeanOption europeanOption = new EuropeanOption(maturity, strike, 0);
+
+		double valueSeed1 = europeanOption.getValue(assetModel);
+		double valueSeed2 = europeanOption.getValue(assetModel.getCloneWithModifiedData(Map.of("seed", 3141)));
+		double valueSeed3 = europeanOption.getValue(getMonteCarloAssetModel(model, numberOfPaths, 3141));
+		
+		Assertions.assertNotEquals(valueSeed1, valueSeed2, "Models with different seed.");
+		Assertions.assertEquals(valueSeed2, valueSeed3, "Models with same seed, different construction.");
 	}
 
 	private static void assertEqualsValuationEuropeanProduct(MonteCarloAssetModel assetModel, EuropeanOption europeanOption, double initialValue, double riskFreeRate, double volatility) throws CalculationException {
