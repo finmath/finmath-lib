@@ -62,7 +62,7 @@ public class MultiAssetBlackScholesModelTest {
 	}
 
 	@Test
-	void testModelWithVolatilityAndCorrelation() throws CalculationException {
+	public void testModelWithVolatilityAndCorrelation() throws CalculationException {
 
 		double[] initialValue = new double[] { 100.0, 110 };
 		double riskFreeRate = 0.05;
@@ -126,7 +126,7 @@ public class MultiAssetBlackScholesModelTest {
 	}
 
 	@Test
-	void testModelWithCloneModifiedVolatility() throws CalculationException {
+	public void testModelWithCloneModifiedVolatility() throws CalculationException {
 
 		double[] initialValue = new double[] { 100.0, 110 };
 		double riskFreeRate = 0.05;
