@@ -142,7 +142,7 @@ public class MonteCarloBlackScholesModel extends MonteCarloAssetModel {
 		}
 
 		// Create a corresponding MC process
-		final MonteCarloProcessFromProcessModel newProcess = new EulerSchemeFromProcessModel(getModel(), new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
+		final MonteCarloProcessFromProcessModel newProcess = new EulerSchemeFromProcessModel(newModel, new BrownianMotionFromMersenneRandomNumbers(this.getTimeDiscretization(), 1 /* numberOfFactors */, this.getNumberOfPaths(), seed));
 
 		return new MonteCarloBlackScholesModel(newModel, newProcess);
 	}
