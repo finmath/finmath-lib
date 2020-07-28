@@ -6,6 +6,22 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.4 (28.07.2020)
+
+### General
+
+ - Removed Kotlin dependency - there is a separate project now: finmath-lib-kotlin.
+
+### Monte-Carlo Single Asset Model
+
+ - Fixes to getCloneWithModifiedData to support more parameters.
+
+### Monte-Carlo Multi-Asset Black-Scholes Model
+
+ - Multi-asset Black-Scholes model allows construction from factor loadings and volatility-and-correlation.
+ - Added unit tests.
+ 
+
 ## 5.0.3 (05.07.2020)
 
 ### General
