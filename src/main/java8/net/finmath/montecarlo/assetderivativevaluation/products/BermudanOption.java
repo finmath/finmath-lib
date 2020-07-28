@@ -153,26 +153,27 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			// Value received if exercised at current time
 			final RandomVariable valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
-			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
-			ArrayList<RandomVariable> basisFunctions;
-			if(intrinsicValueAsBasisFunction) {
-				basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
-			} else {
-				basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
-			}
-			final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
-
-			RandomVariable underlying	= null;
-			RandomVariable trigger		= null;
-
-			// Calculate the exercise criteria (exercise if the following trigger is negative)
+			/*
+			 * Calculate the exercise criteria (exercise if the following exerciseCriteria is negative)
+			 */
+			RandomVariable exerciseValue = null;
+			RandomVariable exerciseCriteria = null;
 			switch(exerciseMethod) {
 			case ESTIMATE_COND_EXPECTATION:
+				// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
+				ArrayList<RandomVariable> basisFunctions;
+				if(intrinsicValueAsBasisFunction) {
+					basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
+				} else {
+					basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
+				}
+				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
+
 				// Calculate conditional expectation on numeraire relative quantity.
 				final RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
 
-				underlying	= valueOfPaymentsIfExercised;
-				trigger		= valueIfNotExcercisedEstimated.sub(underlying);
+				exerciseValue		= valueOfPaymentsIfExercised;
+				exerciseCriteria	= valueIfNotExcercisedEstimated.sub(exerciseValue);
 				break;
 			case UPPER_BOUND_METHOD:
 				RandomVariable martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));
@@ -184,16 +185,16 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 					value = value.sub(martingale);
 				}
 
-				underlying	= valueOfPaymentsIfExercised.sub(martingale);
-				trigger		= value.sub(underlying);
+				exerciseValue		= valueOfPaymentsIfExercised.sub(martingale);
+				exerciseCriteria	= value.sub(exerciseValue);
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown exerciseMethod " + exerciseMethod + ".");
 			}
 
 			// If trigger is positive keep value, otherwise take underlying
-			value			= trigger.choose(value, underlying);
-			exerciseTime	= trigger.choose(exerciseTime, new Scalar(exerciseDate));
+			value			= exerciseCriteria.choose(value, exerciseValue);
+			exerciseTime	= exerciseCriteria.choose(exerciseTime, new Scalar(exerciseDate));
 		}
 		lastValuationExerciseTime = exerciseTime;
 

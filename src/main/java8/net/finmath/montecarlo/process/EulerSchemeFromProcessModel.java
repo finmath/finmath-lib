@@ -357,9 +357,25 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	@Override
 	public MonteCarloProcess getCloneWithModifiedData(final Map<String, Object> dataModified) {
 		final ProcessModel newModel = (ProcessModel) dataModified.getOrDefault("model", getModel());
-		final IndependentIncrements newStochasticDriver = (IndependentIncrements) dataModified.getOrDefault("stochasticDriver", stochasticDriver);
 
-		return new EulerSchemeFromProcessModel(newModel, newStochasticDriver, scheme);
+		if(dataModified.containsKey("seed") && dataModified.containsKey("stochasticDriver")) {
+			throw new IllegalArgumentException("Simultaneous specification of stochasticDriver and seed.");
+		}
+
+		final IndependentIncrements newStochasticDriver;
+		if(dataModified.containsKey("seed")) {
+			newStochasticDriver = getStochasticDriver().getCloneWithModifiedSeed((int)dataModified.get("seed"));
+		}
+		else if(dataModified.containsKey("stochasticDriver")) {
+			newStochasticDriver = (IndependentIncrements) dataModified.getOrDefault("stochasticDriver", stochasticDriver);
+		}
+		else {
+			newStochasticDriver = stochasticDriver;
+		}
+
+		Scheme newScheme = (Scheme) dataModified.getOrDefault("scheme", scheme);
+
+		return new EulerSchemeFromProcessModel(newModel, newStochasticDriver, newScheme);
 	}
 
 	@Override

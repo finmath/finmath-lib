@@ -3,29 +3,36 @@
  *
  * Created on 09.06.2014
  */
-package net.finmath.montecarlo.assetderivativevaluation;
+package net.finmath.montecarlo.assetderivativevaluation.models;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.functions.LinearAlgebra;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.model.AbstractProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
-import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.time.TimeDiscretization;
 
 /**
- * This class implements a multi-asset Black Schole Model as Monte-Carlo simulation implementing <code>AssetModelMonteCarloSimulationModel</code>.
+ * This class implements a multi-asset Black Scholes model providing an <code>AbstractProcessModel</code>.
+ * The class can be used with an EulerSchemeFromProcessModel to create a Monte-Carlo simulation.
  *
- * The model is
+ * The model can be specified by general factor loadings, that is, in the form
+ * \[
+ * 	dS_{i} = r S_{i} dt + S_{i} \sum_{j=0}^{m-1} f{i,j} dW_{j}, \quad S_{i}(0) = S_{i,0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0}.
+ * \]
+ *
+ * Alternatively, the model can be specifies by providing volatilities and correlations
+ * from which the factor loadings \( f_{i,j} \) are derived such that
+ * \[
+ * 	\sum_{k=0}^{m-1} f{i,k} f{j,k} = \sigma_{i} \sigma_{j} \rho_{i,j}
+ * \]
+ * such that the effective model is
  * \[
  * 	dS_{i} = r S_{i} dt + \sigma_{i} S_{i} dW_{i}, \quad S_{i}(0) = S_{i,0},
  * \]
@@ -35,24 +42,24 @@ import net.finmath.time.TimeDiscretization;
  * \[
  * 	dW_{i} dW_{j} = \rho_{i,j} dt,
  * \]
+ * Note that in case the model is used with an EulerSchemeFromProcessModel, the BrownianMotion used can
+ * have a correlation, which alters the simulation (which is admissible).
+ * The specification above hold, provided that the BrownianMotion used has independent components.
  *
  * The class provides the model of \( S_{i} \) to an <code>{@link net.finmath.montecarlo.process.MonteCarloProcess}</code> via the specification of
  * \( f = exp \), \( \mu_{i} = r - \frac{1}{2} \sigma_{i}^2 \), \( \lambda_{i,j} = \sigma_{i} g_{i,j} \), i.e.,
  * of the SDE
  * \[
- * 	dX_{i} = \mu_{i} dt + \lambda_{i,j} dW, \quad X_{i}(0) = \log(S_{i,0}),
+ * 	dX_{i} = \mu_{i} dt + \sum_{j=0}^{m-1} \lambda_{i,j} dW_{j}, \quad X_{i}(0) = \log(S_{i,0}),
  * \]
  * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
  *
  * @author Christian Fries
- * @author Roland Bachl
  * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
  * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
  * @version 1.1
  */
-public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel implements AssetModelMonteCarloSimulationModel {
-
-	private final MonteCarloProcess process;
+public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 
 	private final RandomVariableFactory randomVariableFactory;
 
@@ -60,24 +67,20 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	private final double		riskFreeRate;		// Actually the same as the drift (which is not stochastic)
 	private final double[][]	factorLoadings;
 
-	private static final int defaultSeed = 3141;
-
 	private final RandomVariable[]		initialStates;
 	private final RandomVariable[]		drift;
 	private final RandomVariable[][]	factorLoadingOnPaths;
 
 	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
+	 * Create a multi-asset Black-Scholes model.
 	 *
 	 * @param randomVariableFactory The RandomVariableFactory used to construct model parameters as random variables.
-	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
 	 * @param factorLoadings The matrix of factor loadings, where factorLoadings[underlyingIndex][factorIndex] is the coefficient of the Brownian driver factorIndex used for the underlying underlyingIndex.
 	 */
-	public MonteCarloMultiAssetBlackScholesModel(
+	public MultiAssetBlackScholesModel(
 			final RandomVariableFactory randomVariableFactory,
-			final BrownianMotion brownianMotion,
 			final double[]		initialValues,
 			final double		riskFreeRate,
 			final double[][]	factorLoadings
@@ -109,31 +112,30 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			initialStates[underlyingIndex]				= getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
 			drift[underlyingIndex]						= getRandomVariableForConstant(riskFreeRate - volatilitySquaredForUnderlying / 2.0);
 		}
-
-		// TODO Creation of this should be completed before calling process constructor.
-
-		// Create a corresponding MC process
-		process = new EulerSchemeFromProcessModel(this, brownianMotion, Scheme.EULER_FUNCTIONAL);
 	};
 
 	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
+	 * Create a multi-asset Black-Scholes model.
 	 *
-	 * @param brownianMotion The Brownian motion to be used for the numerical scheme.
+	 * @param randomVariableFactory The RandomVariableFactory used to construct model parameters as random variables.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatilities The log volatilities.
 	 * @param correlations A correlation matrix.
 	 */
-	public MonteCarloMultiAssetBlackScholesModel(
-			final BrownianMotion brownianMotion,
-			final double[]	initialValues,
+	public MultiAssetBlackScholesModel(
+			final RandomVariableFactory randomVariableFactory,
+			final double[]		initialValues,
 			final double		riskFreeRate,
-			final double[]	volatilities,
+			final double[]		volatilities,
 			final double[][]	correlations
 			) {
-		this(new RandomVariableFromArrayFactory(), brownianMotion, initialValues, riskFreeRate, getFactorLoadingsFromVolatilityAnCorrelation(volatilities, correlations));
-	};
+		this(	randomVariableFactory,
+				initialValues,
+				riskFreeRate,
+				getFactorLoadingsFromVolatilityAnCorrelation(volatilities, correlations)
+				);
+	}
 
 	private static double[][] getFactorLoadingsFromVolatilityAnCorrelation(double[] volatilities, double[][] correlations) {
 		double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
@@ -147,54 +149,26 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
+	 * Create a multi-asset Black-Scholes model.
 	 *
-	 * @param timeDiscretization The time discretization.
-	 * @param numberOfPaths The number of Monte-Carlo path to be used.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
-	 * @param volatilities The log volatilities.
-	 * @param correlations A correlation matrix.
+	 * @param factorLoadings The matrix of factor loadings, where factorLoadings[underlyingIndex][factorIndex] is the coefficient of the Brownian driver factorIndex used for the underlying underlyingIndex.
 	 */
-	public MonteCarloMultiAssetBlackScholesModel(
-			final TimeDiscretization timeDiscretization,
-			final int numberOfPaths,
-			final double[]	initialValues,
-			final double		riskFreeRate,
-			final double[]	volatilities,
-			final double[][]	correlations
-			) {
-		this(timeDiscretization,
-				numberOfPaths,
-				defaultSeed,
-				initialValues,
-				riskFreeRate,
-				volatilities,
-				correlations
-				);
+	public MultiAssetBlackScholesModel(double[] initialValues, double riskFreeRate, double[][] factorLoadings) {
+		this(new RandomVariableFromArrayFactory(), initialValues, riskFreeRate, factorLoadings);
 	}
 
 	/**
-	 * Create a Monte-Carlo simulation using given time discretization.
+	 * Create a multi-asset Black-Scholes model.
 	 *
-	 * @param timeDiscretization The time discretization.
-	 * @param numberOfPaths The number of Monte-Carlo path to be used.
-	 * @param seed The seed to be used.
 	 * @param initialValues Spot values.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatilities The log volatilities.
 	 * @param correlations A correlation matrix.
 	 */
-	public MonteCarloMultiAssetBlackScholesModel(
-			final TimeDiscretization timeDiscretization,
-			final int numberOfPaths,
-			final int seed,
-			final double[]		initialValues,
-			final double		riskFreeRate,
-			final double[]		volatilities,
-			final double[][]	correlations
-			) {
-		this(new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, initialValues.length /* numberOfFactors */, numberOfPaths, seed), initialValues, riskFreeRate, volatilities, correlations);
+	public MultiAssetBlackScholesModel(double[] initialValues, double riskFreeRate, double[] volatilities, double[][] correlations) {
+		this(new RandomVariableFromArrayFactory(), initialValues, riskFreeRate, volatilities, correlations);
 	}
 
 	@Override
@@ -223,41 +197,10 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	@Override
-	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
-		int timeIndex = getTimeIndex(time);
-		if(timeIndex < 0) {
-			timeIndex = -timeIndex-1;
-		}
-		return getAssetValue(timeIndex, assetIndex);
-	}
-
-	@Override
-	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
-		return process.getProcessValue(timeIndex, assetIndex);
-	}
-
-	@Override
-	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
-		return process.getMonteCarloWeights(getTimeIndex(time));
-	}
-
-	@Override
 	public RandomVariable getNumeraire(final MonteCarloProcess process, double time) {
 		final double numeraireValue = Math.exp(riskFreeRate * time);
 
 		return getRandomVariableForConstant(numeraireValue);
-	}
-
-	@Override
-	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
-		final double time = process.getTime(timeIndex);
-
-		return getNumeraire(process, time);
-	}
-
-	@Override
-	public RandomVariable getNumeraire(final double time) throws CalculationException {
-		return getNumeraire(process, time);
 	}
 
 	@Override
@@ -271,8 +214,36 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	@Override
-	public int getNumberOfAssets() {
-		return getNumberOfComponents();
+	public int getNumberOfFactors() {
+		return factorLoadings[0].length;
+	}
+
+
+	@Override
+	public MultiAssetBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
+
+		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+
+		double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
+		double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
+
+		double[][]		newFactorLoadings		= (double[][]) dataModified.getOrDefault("factorLoadings", factorLoadings);
+		if(dataModified.containsKey("volatilities") || dataModified.containsKey("correlations")) {
+			if(dataModified.containsKey("factorLoadings")) {
+				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
+			}
+
+			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilityVector());
+			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelationMatrix());
+			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
+		}
+
+		return new MultiAssetBlackScholesModel(
+				newRandomVariableFactory,
+				newInitialValues,
+				newRiskFreeRate,
+				newFactorLoadings
+				);
 	}
 
 	@Override
@@ -297,7 +268,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 *
 	 * @return Returns the factorLoadings.
 	 */
-	public double[][] getFactorLoadings() {
+	public double[][] getFactorLoadingMatrix() {
 		return factorLoadings;
 	}
 
@@ -306,7 +277,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 *
 	 * @return Returns the volatilities.
 	 */
-	public double[] getVolatilities() {
+	public double[] getVolatilityVector() {
 		double[] volatilities = new double[factorLoadings.length];
 		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
 			double volatilitySquaredOfUnderlying = 0.0;
@@ -324,8 +295,8 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 *
 	 * @return Returns the volatilities.
 	 */
-	public double[][] getCorrelations() {
-		double[] volatilities = getVolatilities();
+	public double[][] getCorrelationMatrix() {
+		double[] volatilities = getVolatilityVector();
 
 		double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
 		for(int underlyingIndex1 = 0; underlyingIndex1<factorLoadings.length; underlyingIndex1++) {
@@ -346,85 +317,5 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			}
 		}
 		return correlations;
-	}
-
-	/**
-	 * Returns the number of paths.
-	 *
-	 * @return The number of paths.
-	 * @see net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel#getNumberOfPaths()
-	 */
-	@Override
-	public int getNumberOfPaths() {
-		return process.getNumberOfPaths();
-	}
-
-	@Override
-	public MonteCarloMultiAssetBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
-
-		BrownianMotion 	newBrownianMotion		= (BrownianMotion) process.getStochasticDriver();
-
-		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
-
-		double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
-		double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
-
-		double[][]		newFactorLoadings		= (double[][]) dataModified.getOrDefault("factorLoadings", factorLoadings);
-		if(dataModified.containsKey("volatilities") || dataModified.containsKey("correlations")) {
-			if(dataModified.containsKey("factorLoadings")) {
-				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
-			}
-
-			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilities());
-			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelations());
-			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
-		}
-
-		if(dataModified.containsKey("seed")) {
-			newBrownianMotion = newBrownianMotion.getCloneWithModifiedSeed((Integer) dataModified.get("seed"));
-		}
-		if(dataModified.containsKey("timeDiscretization")) {
-			newBrownianMotion = newBrownianMotion.getCloneWithModifiedTimeDiscretization( (TimeDiscretization) dataModified.get("timeDiscretization"));
-		}
-
-		return new MonteCarloMultiAssetBlackScholesModel(
-				newRandomVariableFactory,
-				newBrownianMotion,
-				newInitialValues,
-				newRiskFreeRate,
-				newFactorLoadings
-				);
-	}
-
-	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
-		final Map<String, Object> dataModified = new HashMap<>();
-		dataModified.put("seed", Integer.valueOf(seed));
-		return getCloneWithModifiedData(dataModified);
-	}
-
-	@Override
-	public TimeDiscretization getTimeDiscretization() {
-		return process.getTimeDiscretization();
-	}
-
-	@Override
-	public double getTime(int timeIndex) {
-		return process.getTime(timeIndex);
-	}
-
-	@Override
-	public int getTimeIndex(double time) {
-		return process.getTimeIndex(time);
-	}
-
-	@Override
-	public RandomVariable getMonteCarloWeights(int timeIndex) throws CalculationException {
-		return process.getMonteCarloWeights(timeIndex);
-	}
-
-	@Override
-	public int getNumberOfFactors() {
-		return process.getNumberOfFactors();
 	}
 }

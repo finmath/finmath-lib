@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
+import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.time.Schedule;
 import net.finmath.time.SchedulePrototype;
 

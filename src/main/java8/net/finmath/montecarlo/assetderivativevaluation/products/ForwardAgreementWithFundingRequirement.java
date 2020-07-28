@@ -11,15 +11,16 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.models.FundingCapacity;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Implements the valuation of a European option on a single asset.
+ * Implements the valuation of a forward on a single asset.
  *
- * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
+ * Given a model for an asset <i>S</i>, the Forward Agreement with forward <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
- * 	<i>V(T) = max(S(T) - K , 0)</i> in <i>T</i>.
+ * 	<i>V(T) = S(T) - K</i> in <i>T</i>.
  * <br>
  *
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
@@ -30,48 +31,56 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.3
  */
-public class EuropeanOption extends AbstractAssetMonteCarloProduct {
+public class ForwardAgreementWithFundingRequirement extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
-	private final double strike;
+	private final double forwardValue;
 	private final Integer underlyingIndex;
 	private final String nameOfUnderliyng;
 
+	private final FundingCapacity fundingCapacity;
+
 	/**
-	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param underlyingName Name of the underlying
-	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param maturity The maturity T in the option payoff S(T)-K
+	 * @param forwardValue The strike K in the option payoff S(T)-K.
+	 * @param fundingCapacity A funding capacity monitor.
 	 */
-	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
+	public ForwardAgreementWithFundingRequirement(final String underlyingName, final double maturity, final double forwardValue, final FundingCapacity fundingCapacity) {
 		super();
 		nameOfUnderliyng	= underlyingName;
-		this.maturity			= maturity;
-		this.strike				= strike;
+		this.maturity		= maturity;
+		this.forwardValue	= forwardValue;
 		underlyingIndex		= 0;
+
+		this.fundingCapacity	= fundingCapacity;
 	}
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param forwardValue The strike K in the option payoff max(S(T)-K,0).
 	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 * @param fundingCapacity A funding capacity monitor.
 	 */
-	public EuropeanOption(final double maturity, final double strike, final int underlyingIndex) {
+	public ForwardAgreementWithFundingRequirement(final double maturity, final double forwardValue, final int underlyingIndex, final FundingCapacity fundingCapacity) {
 		super();
 		this.maturity			= maturity;
-		this.strike				= strike;
+		this.forwardValue		= forwardValue;
 		this.underlyingIndex	= underlyingIndex;
-		nameOfUnderliyng	= null;		// Use underlyingIndex
+		nameOfUnderliyng		= null;		// Use underlyingIndex
+
+		this.fundingCapacity	= fundingCapacity;
 	}
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
-	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param forwardValue The strike K in the option payoff max(S(T)-K,0).
 	 */
-	public EuropeanOption(final double maturity, final double strike) {
-		this(maturity, strike, 0);
+	public ForwardAgreementWithFundingRequirement(final double maturity, final double forwardValue) {
+		this(maturity, forwardValue, 0, null);
 	}
 
 	/**
@@ -91,11 +100,14 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		// Get S(T)
 		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
-		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
-		RandomVariable values = underlyingAtMaturity.sub(strike).floor(0.0);
+		// The payoff: values = underlying - strike = V(T) = S(T)-K
+		RandomVariable values = underlyingAtMaturity.sub(forwardValue);
+
+		RandomVariable defaultCompensation = fundingCapacity.getDefaultFactors(maturity, values).getDefaultCompensation();
+		values = values.mult(defaultCompensation);
 
 		// Discounting...
-		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
 		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
@@ -121,25 +133,4 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		return "EuropeanOption [maturity=" + maturity + ", strike=" + strike + ", underlyingIndex=" + underlyingIndex
-				+ ", nameOfUnderliyng=" + nameOfUnderliyng + "]";
-	}
-
-	public double getMaturity() {
-		return maturity;
-	}
-
-	public double getStrike() {
-		return strike;
-	}
-
-	public Integer getUnderlyingIndex() {
-		return underlyingIndex;
-	}
-
-	public String getNameOfUnderliyng() {
-		return nameOfUnderliyng;
-	}
 }

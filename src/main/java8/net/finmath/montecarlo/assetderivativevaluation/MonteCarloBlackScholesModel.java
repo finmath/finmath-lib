@@ -109,7 +109,7 @@ public class MonteCarloBlackScholesModel extends MonteCarloAssetModel {
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
+	public MonteCarloBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 
 		MonteCarloProcess process = getProcess();
 
@@ -159,7 +159,6 @@ public class MonteCarloBlackScholesModel extends MonteCarloAssetModel {
 	 *
 	 * @return the model
 	 */
-	@Override
 	public BlackScholesModel getModel() {
 		return (BlackScholesModel)super.getModel();
 	}

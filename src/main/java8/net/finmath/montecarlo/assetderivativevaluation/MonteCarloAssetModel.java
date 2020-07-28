@@ -46,10 +46,21 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	/**
+	 * Convenient constructor being the same as this(new EulerSchemeFromProcessModel(model, stochasticDriver))
+	 * 
+	 * @param model The model to use for the EulerSchemeFromProcessModel.
+	 * @param stochasticDriver The stochatic driver to use.
+	 */
+	public MonteCarloAssetModel(ProcessModel model, IndependentIncrements stochasticDriver) {
+		this(new EulerSchemeFromProcessModel(model, stochasticDriver));
+	}
+
+	/**
 	 * Create a Monte-Carlo simulation using given process discretization scheme.
 	 *
 	 * @param model The model to be used.
 	 * @param process The numerical scheme to be used.
+	 * @deprecated May be made private in future releases.
 	 */
 	public MonteCarloAssetModel(
 			final ProcessModel model,
@@ -58,13 +69,6 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 		this.model = model;
 		this.process = process;
-	}
-
-	public MonteCarloAssetModel(ProcessModel model, IndependentIncrements stochasticDriver) {
-		super();
-
-		this.model = model;
-		this.process = new EulerSchemeFromProcessModel(model, stochasticDriver);
 	}
 
 	@Override
@@ -108,7 +112,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	}
 
 	@Override
-	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
+	public MonteCarloAssetModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
 		final ProcessModel	newModel = model.getCloneWithModifiedData(dataModified);
 
 		MonteCarloProcess	newProcess;
@@ -132,7 +136,14 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 		return new MonteCarloAssetModel(newModel, newProcess);
 	}
 
+	/**
+	 * The method is not implemented. Instead call getCloneWithModifiedData on the model
+	 * an create a new process from it.
+	 *
+	 * @param seed The new seed.
+	 */
 	@Override
+	@Deprecated
 	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
 		throw new UnsupportedOperationException("Method not implemented");
 	}
