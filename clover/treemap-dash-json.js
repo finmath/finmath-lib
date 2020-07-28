@@ -1,16 +1,16 @@
-var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"","data":{
-    "$area":37110.0,"$color":42.266235,"title":
-    " 37110 Elements, 42.3% Coverage"},"children":[{"id":
-      "net.finmath.montecarlo.interestrate19860","name":
+var treeMapJson = {"id":"Clover database Tue Jul 28 2020 13:44:29 CEST0","name":"","data":{
+    "$area":37500.0,"$color":42.069332,"title":
+    " 37500 Elements, 42.1% Coverage"},"children":[{"id":
+      "net.finmath.montecarlo.interestrate20102","name":
       "net.finmath.montecarlo.interestrate","data":{"$area":189.0,"$color":
         35.978836,"title":
         "net.finmath.montecarlo.interestrate 189 Elements, 36% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.automaticdifferentiation16173","name":
+      "net.finmath.montecarlo.automaticdifferentiation16415","name":
       "net.finmath.montecarlo.automaticdifferentiation","data":{"$area":
         21.0,"$color":61.904762,"title":
         "net.finmath.montecarlo.automaticdifferentiation 21 Elements, 61.9% Coverage"},
-      "children":[]},{"id":"net.finmath.rootfinder31002","name":
+      "children":[]},{"id":"net.finmath.rootfinder31392","name":
       "net.finmath.rootfinder","data":{"$area":219.0,"$color":69.40639,
         "title":"net.finmath.rootfinder 219 Elements, 69.4% Coverage"},
       "children":[]},{"id":"net.finmath.fouriermethod306","name":
@@ -21,11 +21,11 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         96.55172,"title":
         "net.finmath.finitedifference.solvers 116 Elements, 96.6% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.hybridassetinterestrate.products19715","name":
+      "net.finmath.montecarlo.hybridassetinterestrate.products19957","name":
       "net.finmath.montecarlo.hybridassetinterestrate.products","data":{
         "$area":145.0,"$color":57.24138,"title":
         "net.finmath.montecarlo.hybridassetinterestrate.products 145 Elements, 57.2% Coverage"},
-      "children":[]},{"id":"net.finmath.montecarlo.products29176","name":
+      "children":[]},{"id":"net.finmath.montecarlo.products29566","name":
       "net.finmath.montecarlo.products","data":{"$area":44.0,"$color":0.0,
         "title":"net.finmath.montecarlo.products 44 Elements, 0% Coverage"},
       "children":[]},{"id":"net.finmath.marketdata.products6952","name":
@@ -33,11 +33,11 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         56.14035,"title":
         "net.finmath.marketdata.products 627 Elements, 56.1% Coverage"},
       "children":[]},{"id":
-      "net.finmath.singleswaprate.annuitymapping31321","name":
+      "net.finmath.singleswaprate.annuitymapping31711","name":
       "net.finmath.singleswaprate.annuitymapping","data":{"$area":300.0,
         "$color":89.0,"title":
         "net.finmath.singleswaprate.annuitymapping 300 Elements, 89% Coverage"},
-      "children":[]},{"id":"net.finmath.singleswaprate.products33676","name":
+      "children":[]},{"id":"net.finmath.singleswaprate.products34066","name":
       "net.finmath.singleswaprate.products","data":{"$area":290.0,"$color":
         91.37931,"title":
         "net.finmath.singleswaprate.products 290 Elements, 91.4% Coverage"},
@@ -55,10 +55,10 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "net.finmath.fouriermethod.calibration","data":{"$area":182.0,"$color":
         74.72527,"title":
         "net.finmath.fouriermethod.calibration 182 Elements, 74.7% Coverage"},
-      "children":[]},{"id":"net.finmath.time34560","name":
+      "children":[]},{"id":"net.finmath.time34950","name":
       "net.finmath.time","data":{"$area":668.0,"$color":56.886227,"title":
         "net.finmath.time 668 Elements, 56.9% Coverage"},"children":[]},{
-      "id":"net.finmath.stochastic33966","name":"net.finmath.stochastic",
+      "id":"net.finmath.stochastic34356","name":"net.finmath.stochastic",
       "data":{"$area":483.0,"$color":23.395445,"title":
         "net.finmath.stochastic 483 Elements, 23.4% Coverage"},"children":[]},
     {"id":"net.finmath.modelling.descriptor.xmlparser9759","name":
@@ -87,11 +87,11 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         46.875,"title":
         "net.finmath.marketdata2.model.curves 736 Elements, 46.9% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.automaticdifferentiation.backward16194","name":
+      "net.finmath.montecarlo.automaticdifferentiation.backward16436","name":
       "net.finmath.montecarlo.automaticdifferentiation.backward","data":{
         "$area":713.0,"$color":66.33941,"title":
         "net.finmath.montecarlo.automaticdifferentiation.backward 713 Elements, 66.3% Coverage"},
-      "children":[]},{"id":"net.finmath.randomnumbers30892","name":
+      "children":[]},{"id":"net.finmath.randomnumbers31282","name":
       "net.finmath.randomnumbers","data":{"$area":110.0,"$color":50.90909,
         "title":"net.finmath.randomnumbers 110 Elements, 50.9% Coverage"},
       "children":[]},{"id":"net.finmath.marketdata.model.curves3921","name":
@@ -99,12 +99,12 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         43.138935,"title":
         "net.finmath.marketdata.model.curves 1166 Elements, 43.1% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.interestrate.products.components27594","name":
+      "net.finmath.montecarlo.interestrate.products.components27970","name":
       "net.finmath.montecarlo.interestrate.products.components","data":{
         "$area":772.0,"$color":39.37824,"title":
         "net.finmath.montecarlo.interestrate.products.components 772 Elements, 39.4% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation29373",
+      "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation29763",
       "name":
       "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation",
       "data":{"$area":50.0,"$color":0.0,"title":
@@ -113,7 +113,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "net.finmath.fouriermethod.products","data":{"$area":57.0,"$color":
         89.47369,"title":
         "net.finmath.fouriermethod.products 57 Elements, 89.5% Coverage"},
-      "children":[]},{"id":"net.finmath.swing34449","name":
+      "children":[]},{"id":"net.finmath.swing34839","name":
       "net.finmath.swing","data":{"$area":111.0,"$color":0.0,"title":
         "net.finmath.swing 111 Elements, 0% Coverage"},"children":[]},{"id":
       "net.finmath.marketdata.model3294","name":
@@ -132,11 +132,11 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         "$color":40.88398,"title":
         "net.finmath.modelling.productfactory 181 Elements, 40.9% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.process.component.barrier29176","name":
+      "net.finmath.montecarlo.process.component.barrier29566","name":
       "net.finmath.montecarlo.process.component.barrier","data":{"$area":
         0.0,"$color":-100.0,"title":
         "net.finmath.montecarlo.process.component.barrier 0 Elements,  -  Coverage"},
-      "children":[]},{"id":"net.finmath.parser30620","name":
+      "children":[]},{"id":"net.finmath.parser31010","name":
       "net.finmath.parser","data":{"$area":272.0,"$color":0.0,"title":
         "net.finmath.parser 272 Elements, 0% Coverage"},"children":[]},{"id":
       "net.finmath.marketdata.calibration2869","name":
@@ -147,15 +147,15 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "net.finmath.marketdata.model.cds","data":{"$area":260.0,"$color":
         53.076923,"title":
         "net.finmath.marketdata.model.cds 260 Elements, 53.1% Coverage"},
-      "children":[]},{"id":"net.finmath.singleswaprate.data32413","name":
+      "children":[]},{"id":"net.finmath.singleswaprate.data32803","name":
       "net.finmath.singleswaprate.data","data":{"$area":819.0,"$color":
         49.45055,"title":
         "net.finmath.singleswaprate.data 819 Elements, 49.5% Coverage"},
-      "children":[]},{"id":"net.finmath.singleswaprate.model.curves33267",
+      "children":[]},{"id":"net.finmath.singleswaprate.model.curves33657",
       "name":"net.finmath.singleswaprate.model.curves","data":{"$area":
         16.0,"$color":50.0,"title":
         "net.finmath.singleswaprate.model.curves 16 Elements, 50% Coverage"},
-      "children":[]},{"id":"net.finmath.montecarlo.crosscurrency19492",
+      "children":[]},{"id":"net.finmath.montecarlo.crosscurrency19734",
       "name":"net.finmath.montecarlo.crosscurrency","data":{"$area":0.0,
         "$color":-100.0,"title":
         "net.finmath.montecarlo.crosscurrency 0 Elements,  -  Coverage"},
@@ -166,10 +166,10 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "name":"net.finmath.marketdata2.interpolation","data":{"$area":117.0,
         "$color":56.41026,"title":
         "net.finmath.marketdata2.interpolation 117 Elements, 56.4% Coverage"},
-      "children":[]},{"id":"net.finmath.singleswaprate31221","name":
+      "children":[]},{"id":"net.finmath.singleswaprate31611","name":
       "net.finmath.singleswaprate","data":{"$area":100.0,"$color":72.0,
         "title":"net.finmath.singleswaprate 100 Elements, 72% Coverage"},
-      "children":[]},{"id":"net.finmath.singleswaprate.model33232","name":
+      "children":[]},{"id":"net.finmath.singleswaprate.model33622","name":
       "net.finmath.singleswaprate.model","data":{"$area":35.0,"$color":
         71.42857,"title":
         "net.finmath.singleswaprate.model 35 Elements, 71.4% Coverage"},
@@ -178,28 +178,28 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "net.finmath.marketdata.model.volatility.caplet","data":{"$area":
         569.0,"$color":0.0,"title":
         "net.finmath.marketdata.model.volatility.caplet 569 Elements, 0% Coverage"},
-      "children":[]},{"id":"net.finmath.montecarlo.process28954","name":
-      "net.finmath.montecarlo.process","data":{"$area":222.0,"$color":
-        69.36937,"title":
-        "net.finmath.montecarlo.process 222 Elements, 69.4% Coverage"},
+      "children":[]},{"id":"net.finmath.montecarlo.process29330","name":
+      "net.finmath.montecarlo.process","data":{"$area":236.0,"$color":
+        68.64407,"title":
+        "net.finmath.montecarlo.process 236 Elements, 68.6% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.conditionalexpectation19316","name":
+      "net.finmath.montecarlo.conditionalexpectation19558","name":
       "net.finmath.montecarlo.conditionalexpectation","data":{"$area":
         176.0,"$color":50.0,"title":
         "net.finmath.montecarlo.conditionalexpectation 176 Elements, 50% Coverage"},
-      "children":[]},{"id":"net.finmath.util37091","name":
+      "children":[]},{"id":"net.finmath.util37481","name":
       "net.finmath.util","data":{"$area":19.0,"$color":0.0,"title":
         "net.finmath.util 19 Elements, 0% Coverage"},"children":[]},{"id":
-      "net.finmath.singleswaprate.calibration31621","name":
+      "net.finmath.singleswaprate.calibration32011","name":
       "net.finmath.singleswaprate.calibration","data":{"$area":792.0,
         "$color":74.621216,"title":
         "net.finmath.singleswaprate.calibration 792 Elements, 74.6% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.interestrate.models20049","name":
-      "net.finmath.montecarlo.interestrate.models","data":{"$area":2818.0,
-        "$color":35.131298,"title":
-        "net.finmath.montecarlo.interestrate.models 2818 Elements, 35.1% Coverage"},
-      "children":[]},{"id":"net.finmath.time.businessdaycalendar35228",
+      "net.finmath.montecarlo.interestrate.models20291","name":
+      "net.finmath.montecarlo.interestrate.models","data":{"$area":2908.0,
+        "$color":35.419533,"title":
+        "net.finmath.montecarlo.interestrate.models 2908 Elements, 35.4% Coverage"},
+      "children":[]},{"id":"net.finmath.time.businessdaycalendar35618",
       "name":"net.finmath.time.businessdaycalendar","data":{"$area":314.0,
         "$color":57.961784,"title":
         "net.finmath.time.businessdaycalendar 314 Elements, 58% Coverage"},
@@ -208,7 +208,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         0.0,"title":
         "net.finmath.marketdata.model.bond 206 Elements, 0% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.hybridassetinterestrate19492","name":
+      "net.finmath.montecarlo.hybridassetinterestrate19734","name":
       "net.finmath.montecarlo.hybridassetinterestrate","data":{"$area":
         223.0,"$color":50.224216,"title":
         "net.finmath.montecarlo.hybridassetinterestrate 223 Elements, 50.2% Coverage"},
@@ -220,7 +220,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "name":"net.finmath.finitedifference.experimental","data":{"$area":
         81.0,"$color":0.0,"title":
         "net.finmath.finitedifference.experimental 81 Elements, 0% Coverage"},
-      "children":[]},{"id":"net.finmath.timeseries35901","name":
+      "children":[]},{"id":"net.finmath.timeseries36291","name":
       "net.finmath.timeseries","data":{"$area":45.0,"$color":0.0,"title":
         "net.finmath.timeseries 45 Elements, 0% Coverage"},"children":[]},{
       "id":"net.finmath.integration2349","name":"net.finmath.integration",
@@ -231,7 +231,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         86.88525,"title":
         "net.finmath.finitedifference.models 61 Elements, 86.9% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.automaticdifferentiation.backward.alternative16907",
+      "net.finmath.montecarlo.automaticdifferentiation.backward.alternative17149",
       "name":
       "net.finmath.montecarlo.automaticdifferentiation.backward.alternative",
       "data":{"$area":1833.0,"$color":0.0,"title":
@@ -243,32 +243,32 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "children":[]},{"id":"net.finmath.modelling9463","name":
       "net.finmath.modelling","data":{"$area":19.0,"$color":0.0,"title":
         "net.finmath.modelling 19 Elements, 0% Coverage"},"children":[]},{
-      "id":"net.finmath.montecarlo.assetderivativevaluation.models14402",
+      "id":"net.finmath.montecarlo.assetderivativevaluation.models14455",
       "name":"net.finmath.montecarlo.assetderivativevaluation.models","data":
-      {"$area":701.0,"$color":65.90585,"title":
-        "net.finmath.montecarlo.assetderivativevaluation.models 701 Elements, 65.9% Coverage"},
+      {"$area":816.0,"$color":56.61765,"title":
+        "net.finmath.montecarlo.assetderivativevaluation.models 816 Elements, 56.6% Coverage"},
       "children":[]},{"id":
-      "net.finmath.singleswaprate.model.volatilities33283","name":
+      "net.finmath.singleswaprate.model.volatilities33673","name":
       "net.finmath.singleswaprate.model.volatilities","data":{"$area":
         393.0,"$color":68.95674,"title":
         "net.finmath.singleswaprate.model.volatilities 393 Elements, 69% Coverage"},
-      "children":[]},{"id":"net.finmath.optimizer29423","name":
+      "children":[]},{"id":"net.finmath.optimizer29813","name":
       "net.finmath.optimizer","data":{"$area":1197.0,"$color":66.08187,
         "title":"net.finmath.optimizer 1197 Elements, 66.1% Coverage"},
-      "children":[]},{"id":"net.finmath.timeseries.models.parametric35946",
+      "children":[]},{"id":"net.finmath.timeseries.models.parametric36336",
       "name":"net.finmath.timeseries.models.parametric","data":{"$area":
         1145.0,"$color":0.0,"title":
         "net.finmath.timeseries.models.parametric 1145 Elements, 0% Coverage"},
       "children":[]},{"id":"net.finmath.exception13","name":
       "net.finmath.exception","data":{"$area":7.0,"$color":0.0,"title":
         "net.finmath.exception 7 Elements, 0% Coverage"},"children":[]},{
-      "id":"net.finmath.time.daycount35542","name":
+      "id":"net.finmath.time.daycount35932","name":
       "net.finmath.time.daycount","data":{"$area":359.0,"$color":34.818943,
         "title":"net.finmath.time.daycount 359 Elements, 34.8% Coverage"},
       "children":[]},{"id":"net.finmath.information2324","name":
       "net.finmath.information","data":{"$area":25.0,"$color":84.0,"title":
         "net.finmath.information 25 Elements, 84% Coverage"},"children":[]},{
-      "id":"net.finmath.montecarlo.automaticdifferentiation.forward18740",
+      "id":"net.finmath.montecarlo.automaticdifferentiation.forward18982",
       "name":"net.finmath.montecarlo.automaticdifferentiation.forward",
       "data":{"$area":576.0,"$color":56.42361,"title":
         "net.finmath.montecarlo.automaticdifferentiation.forward 576 Elements, 56.4% Coverage"},
@@ -276,12 +276,12 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "net.finmath.concurrency","data":{"$area":13.0,"$color":38.46154,
         "title":"net.finmath.concurrency 13 Elements, 38.5% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.interestrate.products25568","name":
+      "net.finmath.montecarlo.interestrate.products25900","name":
       "net.finmath.montecarlo.interestrate.products","data":{"$area":
-        2026.0,"$color":49.457058,"title":
-        "net.finmath.montecarlo.interestrate.products 2026 Elements, 49.5% Coverage"},
+        2070.0,"$color":48.405796,"title":
+        "net.finmath.montecarlo.interestrate.products 2070 Elements, 48.4% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.interestrate.products.indices28366","name":
+      "net.finmath.montecarlo.interestrate.products.indices28742","name":
       "net.finmath.montecarlo.interestrate.products.indices","data":{"$area":
         576.0,"$color":21.354168,"title":
         "net.finmath.montecarlo.interestrate.products.indices 576 Elements, 21.4% Coverage"},
@@ -292,17 +292,17 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "children":[]},{"id":
       "net.finmath.montecarlo.assetderivativevaluation14061","name":
       "net.finmath.montecarlo.assetderivativevaluation","data":{"$area":
-        341.0,"$color":31.671555,"title":
-        "net.finmath.montecarlo.assetderivativevaluation 341 Elements, 31.7% Coverage"},
+        394.0,"$color":26.903551,"title":
+        "net.finmath.montecarlo.assetderivativevaluation 394 Elements, 26.9% Coverage"},
       "children":[]},{"id":"net.finmath.marketdata.model.volatilities5223",
       "name":"net.finmath.marketdata.model.volatilities","data":{"$area":
         891.0,"$color":45.90348,"title":
         "net.finmath.marketdata.model.volatilities 891 Elements, 45.9% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.assetderivativevaluation.products15103","name":
+      "net.finmath.montecarlo.assetderivativevaluation.products15271","name":
       "net.finmath.montecarlo.assetderivativevaluation.products","data":{
-        "$area":1070.0,"$color":38.13084,"title":
-        "net.finmath.montecarlo.assetderivativevaluation.products 1070 Elements, 38.1% Coverage"},
+        "$area":1144.0,"$color":38.723774,"title":
+        "net.finmath.montecarlo.assetderivativevaluation.products 1144 Elements, 38.7% Coverage"},
       "children":[]},{"id":
       "net.finmath.fouriermethod.calibration.models488","name":
       "net.finmath.fouriermethod.calibration.models","data":{"$area":227.0,
@@ -311,14 +311,14 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
       "children":[]},{"id":"net.finmath.montecarlo10368","name":
       "net.finmath.montecarlo","data":{"$area":3693.0,"$color":42.86488,
         "title":"net.finmath.montecarlo 3693 Elements, 42.9% Coverage"},
-      "children":[]},{"id":"net.finmath.montecarlo.model28942","name":
+      "children":[]},{"id":"net.finmath.montecarlo.model29318","name":
       "net.finmath.montecarlo.model","data":{"$area":12.0,"$color":0.0,
         "title":"net.finmath.montecarlo.model 12 Elements, 0% Coverage"},
       "children":[]},{"id":"net.finmath.functions1217","name":
-      "net.finmath.functions","data":{"$area":1107.0,"$color":58.897926,
-        "title":"net.finmath.functions 1107 Elements, 58.9% Coverage"},
+      "net.finmath.functions","data":{"$area":1107.0,"$color":59.80126,
+        "title":"net.finmath.functions 1107 Elements, 59.8% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.templatemethoddesign29220","name":
+      "net.finmath.montecarlo.templatemethoddesign29610","name":
       "net.finmath.montecarlo.templatemethoddesign","data":{"$area":153.0,
         "$color":0.0,"title":
         "net.finmath.montecarlo.templatemethoddesign 153 Elements, 0% Coverage"},
@@ -328,7 +328,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         28.0,"$color":0.0,"title":
         "net.finmath.marketdata.model.volatility.caplet.smile 28 Elements, 0% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.process.component.factordrift29176","name":
+      "net.finmath.montecarlo.process.component.factordrift29566","name":
       "net.finmath.montecarlo.process.component.factordrift","data":{"$area":
         0.0,"$color":-100.0,"title":
         "net.finmath.montecarlo.process.component.factordrift 0 Elements,  -  Coverage"},
@@ -338,7 +338,7 @@ var treeMapJson = {"id":"Clover database Mon Jul 6 2020 21:40:23 CEST0","name":"
         "$color":0.0,"title":
         "net.finmath.marketdata2.model.volatilities 72 Elements, 0% Coverage"},
       "children":[]},{"id":
-      "net.finmath.montecarlo.interestrate.models.covariance22867","name":
+      "net.finmath.montecarlo.interestrate.models.covariance23199","name":
       "net.finmath.montecarlo.interestrate.models.covariance","data":{
         "$area":2701.0,"$color":40.9478,"title":
         "net.finmath.montecarlo.interestrate.models.covariance 2701 Elements, 40.9% Coverage"},

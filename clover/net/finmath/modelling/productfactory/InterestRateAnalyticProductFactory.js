@@ -4,7 +4,7 @@ var clover = new Object();
 clover.pageData = {"classes":[{"el":60,"id":10187,"methods":[{"el":34,"sc":2,"sl":31},{"el":58,"sc":2,"sl":36}],"name":"InterestRateAnalyticProductFactory","sl":21}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
-clover.testTargets = {"test_563":{"methods":[{"sl":31},{"sl":36}],"name":"testFixLeg","pass":true,"statements":[{"sl":32},{"sl":33},{"sl":38},{"sl":39},{"sl":40},{"sl":43}]},"test_64":{"methods":[{"sl":31},{"sl":36}],"name":"testFloatLeg","pass":true,"statements":[{"sl":32},{"sl":33},{"sl":38},{"sl":39},{"sl":40},{"sl":43}]}}
+clover.testTargets = {"test_380":{"methods":[{"sl":31},{"sl":36}],"name":"testFixLeg","pass":true,"statements":[{"sl":32},{"sl":33},{"sl":38},{"sl":39},{"sl":40},{"sl":43}]},"test_46":{"methods":[{"sl":31},{"sl":36}],"name":"testFloatLeg","pass":true,"statements":[{"sl":32},{"sl":33},{"sl":38},{"sl":39},{"sl":40},{"sl":43}]}}
 
 // JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
-clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [563, 64], [563, 64], [563, 64], [], [], [563, 64], [], [563, 64], [563, 64], [563, 64], [], [], [563, 64], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [380, 46], [380, 46], [380, 46], [], [], [380, 46], [], [380, 46], [380, 46], [380, 46], [], [], [380, 46], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
