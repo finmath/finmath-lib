@@ -6,6 +6,13 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.5-SNAPSHIT (current)
+
+### Monte-Carlo Single Asset Model
+
+ - Fixed a bug in the implementation of `DigitalOptionDeltaLikelihood` related to weighted Monte-Carlo simulation (weights were ignored).
+
+
 ## 5.0.4 (28.07.2020)
 
 ### General
