@@ -4,13 +4,12 @@ import java.time.LocalDate;
 import java.util.HashMap;
 
 import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.IEquityForwardStructure;
 import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * This class implements the forward structure for a stock with affine dividends
  * according to Buehler's 2007 paper.
- * 
+ *
  * @author Andreas Grotz
  */
 
@@ -21,14 +20,14 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 	private final AffineDividendStream dividendStream;
 	private final DayCountConvention dayCounter;
 	private final HashMap<LocalDate,Double> dividendTimes;
-	
-	
+
+
 	public BuehlerDividendForwardStructure(
 			final LocalDate valuationDate,
 			final double spot,
 			final FlatYieldCurve repoCurve,
 			final AffineDividendStream dividendStream,
-			final DayCountConvention dayCounter) 
+			final DayCountConvention dayCounter)
 	{
 		this.valuationDate = valuationDate;
 		this.spot = spot;
@@ -42,79 +41,89 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		}
 		validate();
 	};
-	
+
 	public void validate()
 	{
 		assert getFutureDividendFactor(valuationDate) <= spot : "PV of future dividends is larger than spot.";
 	}
-	
+
+	@Override
 	public BuehlerDividendForwardStructure cloneWithNewSpot(double newSpot)
 	{
 		return new BuehlerDividendForwardStructure(
-			this.valuationDate,
-			newSpot,
-			this.repoCurve,
-			this.dividendStream,
-			this.dayCounter);
+				this.valuationDate,
+				newSpot,
+				this.repoCurve,
+				this.dividendStream,
+				this.dayCounter);
 	}
-	
+
+	@Override
 	public BuehlerDividendForwardStructure cloneWithNewDate(LocalDate newDate)
 	{
 		return new BuehlerDividendForwardStructure(
-			newDate,
-			this.spot,
-			this.repoCurve,
-			this.dividendStream,
-			this.dayCounter);
+				newDate,
+				this.spot,
+				this.repoCurve,
+				this.dividendStream,
+				this.dayCounter);
 	}
-	
+
+	@Override
 	public DividendModelType getDividendModel()
 	{
 		return DividendModelType.Buehler;
 	}
-		
+
+	@Override
 	public LocalDate getValuationDate()
 	{
 		return valuationDate;
 	}
-	
+
+	@Override
 	public double getSpot()
 	{
 		return spot;
 	}
-	
+
+	@Override
 	public FlatYieldCurve getRepoCurve()
 	{
 		return repoCurve;
 	}
-	
+
+	@Override
 	public AffineDividendStream getDividendStream()
 	{
 		return dividendStream;
 	}
-	
-	public double getGrowthDiscountFactor(double startTime, double endTime)
-		{
-			var df = 1.0;
-			for (var date : dividendStream.getDividendDates())
-			{
-				var dividendTime = dividendTimes.get(date);
-				if (dividendTime > startTime && dividendTime <= endTime)
-					df *= (1.0 - dividendStream.getProportionalDividendFactor(date));
-			}
 
-			return df / repoCurve.getForwardDiscountFactor(startTime, endTime);
+	@Override
+	public double getGrowthDiscountFactor(double startTime, double endTime)
+	{
+		var df = 1.0;
+		for (var date : dividendStream.getDividendDates())
+		{
+			var dividendTime = dividendTimes.get(date);
+			if (dividendTime > startTime && dividendTime <= endTime)
+				df *= (1.0 - dividendStream.getProportionalDividendFactor(date));
 		}
-	
+
+		return df / repoCurve.getForwardDiscountFactor(startTime, endTime);
+	}
+
+	@Override
 	public double getGrowthDiscountFactor(
-		LocalDate startDate,
-		LocalDate endDate)
+			LocalDate startDate,
+			LocalDate endDate)
 	{
 		var startTime = dayCounter.getDaycountFraction(valuationDate, startDate);
 		var endTime = dayCounter.getDaycountFraction(valuationDate, endDate);
 		return getGrowthDiscountFactor(startTime, endTime);
 	}
-	
+
+	@Override
 	public double getFutureDividendFactor(double valTime)
 	{
 		var df = 0.0;
@@ -126,13 +135,15 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		}
 		return df;
 	}
-	
+
+	@Override
 	public double getFutureDividendFactor(LocalDate valDate)
 	{
 		var valTime = dayCounter.getDaycountFraction(valuationDate, valDate);
 		return getFutureDividendFactor(valTime);
 	}
-	
+
+	@Override
 	public double getForward(double expiryTime)
 	{
 		var forward = spot * getGrowthDiscountFactor(0.0, expiryTime);
@@ -144,27 +155,31 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		}
 		return forward;
 	}
-	
+
+	@Override
 	public double getForward(LocalDate expiryDate)
 	{
 		var expiryTime = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 		return getForward(expiryTime);
 	}
-	
+
+	@Override
 	public double getDividendAdjustedStrike(
 			double strike,
 			double expiryTime)
 	{
 		return strike - getFutureDividendFactor(expiryTime);
 	}
-	
+
+	@Override
 	public double getDividendAdjustedStrike(
 			double strike,
 			LocalDate expiryDate)
 	{
 		return strike - getFutureDividendFactor(expiryDate);
 	}
-	
+
+	@Override
 	public double getLogMoneyness(
 			double strike,
 			double expiryTime)
@@ -172,7 +187,8 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		return Math.log(getDividendAdjustedStrike(strike, expiryTime)
 				/ getDividendAdjustedStrike(getForward(expiryTime), expiryTime));
 	}
-	
+
+	@Override
 	public double getLogMoneyness(
 			double strike,
 			LocalDate expiryDate)

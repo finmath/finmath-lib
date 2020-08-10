@@ -22,21 +22,21 @@ import org.apache.commons.math3.linear.RealMatrix;
  * This class implements a finite difference pricer under a Black-Scholes process or a
  * local volatility process in the presence of Buehler dividends.
  * It supports European and American options. Greeks are calculated inside the grid to the extent possible.
- * The implementation uses a Crank-Nicolson scheme. 
+ * The implementation uses a Crank-Nicolson scheme.
  * Payoffs are smoothed using the modified timestepping from Rannacher's 1984 paper.
  * The American exercise feature is priced using the penalty approach from Forsyth's 2001 paper.
- * 
+ *
  * TODO: The linear algebra framework used (apache.commons.math3) is not optimized for the discretized PDE.
  * More performant linear algebra algorithms should be used that take account of
  * the tridiagonal matrix structure of the problem, e.g. direct diagonal operations instead of full-blown
  * matrix multiplication, and the Thomas algorithm instead of LU decomposition for solving equations.
- * 
+ *
  * @author Andreas Grotz
  */
 
 public class PdeOptionPricer implements IOptionPricer
 {
-	
+
 	private final int timeStepsPerYear;
 	private final double spaceMinForwardMultiple;
 	private final double spaceMaxForwardMultiple;
@@ -47,8 +47,8 @@ public class PdeOptionPricer implements IOptionPricer
 	private final DayCountConvention dayCounter;
 	private final boolean isLvPricer;
 	private final boolean includeDividendDatesInGrid;
-	
-	
+
+
 	public PdeOptionPricer(
 			double spaceMinForwardMultiple,
 			double spaceMaxForwardMultiple,
@@ -56,16 +56,16 @@ public class PdeOptionPricer implements IOptionPricer
 			final int timeStepsPerYear,
 			DayCountConvention dcc,
 			final boolean isLvPricer,
-			final boolean includeDividendDatesInGrid) 
+			final boolean includeDividendDatesInGrid)
 	{
 		assert spaceMinForwardMultiple < 1.0 : "min multiple of forward must be below 1.0";
 		assert spaceMaxForwardMultiple > 1.0 : "max multiple of forward must be below 1.0";
-		
+
 		this.timeStepsPerYear = timeStepsPerYear;
 		this.dayCounter = dcc;
 		this.isLvPricer = isLvPricer;
 		this.includeDividendDatesInGrid = includeDividendDatesInGrid;
-		
+
 		// Set up the space grid for the pure volatility process
 		var tmpSpaceStepSize = (spaceMaxForwardMultiple - spaceMinForwardMultiple) / spaceNbPoints;
 		var tmpSpaceNbPoints = spaceNbPoints;
@@ -88,7 +88,7 @@ public class PdeOptionPricer implements IOptionPricer
 				tmpSpaceNbPoints++;
 			}
 		}
-		
+
 		this.spaceMinForwardMultiple = spaceMinForwardMultiple;
 		this.spaceMaxForwardMultiple = tmpSpots.get(tmpSpots.size() - 1);
 		this.spaceNbOfSteps = tmpSpaceNbPoints;
@@ -96,7 +96,8 @@ public class PdeOptionPricer implements IOptionPricer
 		spaceStepSize = tmpSpaceStepSize;
 		spotIndex = lowerBound;
 	}
-	
+
+	@Override
 	public EquityPricingResult calculate(
 			EquityPricingRequest request,
 			IEquityForwardStructure forwardStructure,
@@ -106,16 +107,16 @@ public class PdeOptionPricer implements IOptionPricer
 		var results = new HashMap<CalculationRequestType, Double>();
 		if(request.calcsRequested.isEmpty())
 			return new EquityPricingResult(request, results);
-		
+
 		double price = 0.0;
-		if(request.calcsRequested.contains(CalculationRequestType.EqDelta) 
+		if(request.calcsRequested.contains(CalculationRequestType.EqDelta)
 				|| request.calcsRequested.contains(CalculationRequestType.EqGamma ))
 		{
 			var spotSensis = getPdeSensis(
-				request.option,
-				forwardStructure,
-				discountCurve,
-				volaSurface);
+					request.option,
+					forwardStructure,
+					discountCurve,
+					volaSurface);
 			price = spotSensis[0];
 			if(request.calcsRequested.contains(CalculationRequestType.EqDelta))
 				results.put(CalculationRequestType.EqDelta, spotSensis[1]);
@@ -125,29 +126,29 @@ public class PdeOptionPricer implements IOptionPricer
 		else
 		{
 			price = getPrice(
-				request.option,
-				forwardStructure,
-				discountCurve,
-				volaSurface);
+					request.option,
+					forwardStructure,
+					discountCurve,
+					volaSurface);
 		}
-		
+
 		if(request.calcsRequested.contains(CalculationRequestType.Price))
 			results.put(CalculationRequestType.Price, price);
-		
+
 		if(request.calcsRequested.contains(CalculationRequestType.EqVega))
 		{
 			var volShift = 0.0001; // TODO: Make part of class members
 			var priceShifted = getPrice(
-				request.option,
-				forwardStructure,
-				discountCurve,
-				volaSurface.getShiftedSurface(volShift));
+					request.option,
+					forwardStructure,
+					discountCurve,
+					volaSurface.getShiftedSurface(volShift));
 			results.put(CalculationRequestType.EqVega, (priceShifted - price) / volShift);
 		}
-		
+
 		return new EquityPricingResult(request, results);
 	}
-	
+
 	public double getPrice(
 			IOption option,
 			IEquityForwardStructure forwardStructure,
@@ -156,7 +157,7 @@ public class PdeOptionPricer implements IOptionPricer
 	{
 		return evolvePde(option, forwardStructure, discountCurve, volSurface, false)[0];
 	}
-	
+
 	public double[] getPdeSensis(
 			IOption option,
 			IEquityForwardStructure forwardStructure,
@@ -165,7 +166,7 @@ public class PdeOptionPricer implements IOptionPricer
 	{
 		return evolvePde(option, forwardStructure, discountCurve, volSurface, true);
 	}
-	
+
 	public double getVega(
 			IOption option,
 			IEquityForwardStructure forwardStructure,
@@ -177,7 +178,7 @@ public class PdeOptionPricer implements IOptionPricer
 		var shiftedPrice = getPrice(option, forwardStructure, discountCurve, volSurface.getShiftedSurface(volShift));
 		return (shiftedPrice - basePrice) / volShift;
 	}
-	
+
 	public double getTheta(
 			IOption option,
 			IEquityForwardStructure forwardStructure,
@@ -192,20 +193,20 @@ public class PdeOptionPricer implements IOptionPricer
 		var shiftedPrice = getPrice(option, shiftedFwdStructure, discountCurve, volSurface);
 		return (shiftedPrice - basePrice) / dayCounter.getDaycountFraction(valDate, thetaDate);
 	}
-	
+
 	private double[] evolvePde(
-		IOption option,
-		IEquityForwardStructure forwardStructure,
-		FlatYieldCurve discountCurve,
-		IVolatilitySurface volSurface,
-		boolean calculateSensis)
+			IOption option,
+			IEquityForwardStructure forwardStructure,
+			FlatYieldCurve discountCurve,
+			IVolatilitySurface volSurface,
+			boolean calculateSensis)
 	{
 		// Get data
 		var valDate = forwardStructure.getValuationDate();
 		var expiryDate = option.getExpiryDate();
 		var expiryTime = dayCounter.getDaycountFraction(valDate, expiryDate);
-		assert !forwardStructure.getValuationDate().isAfter(expiryDate) 
-			: "Valuation date must not be after option expiry";
+		assert !forwardStructure.getValuationDate().isAfter(expiryDate)
+		: "Valuation date must not be after option expiry";
 		var impliedVol = volSurface.getVolatility(option.getStrike(), expiryDate, forwardStructure);
 		var forward = forwardStructure.getForward(expiryDate);
 		var fdf = forwardStructure.getFutureDividendFactor(expiryDate);
@@ -220,24 +221,24 @@ public class PdeOptionPricer implements IOptionPricer
 				{
 					tridiagMatrix.setEntry(i, j, Math.pow(spots.get(i), 2) / spaceStepSq);
 				}
-				else if (i == j - 1 || i == j + 1) 
+				else if (i == j - 1 || i == j + 1)
 				{
 					tridiagMatrix.setEntry(i, j, -0.5 * Math.pow(spots.get(i), 2) / spaceStepSq);
-				} 
-				else 
+				}
+				else
 				{
 					tridiagMatrix.setEntry(i, j, 0);
 				}
 			}
 		}
-		
+
 		// Set initial values
 		var prices = MatrixUtils.createRealVector(new double[spaceNbOfSteps]);
 		for (int i = 0; i < spaceNbOfSteps; i++)
 		{
 			prices.setEntry(i, option.getPayoff((forward - fdf) * spots.get(i) + fdf));
 		}
-		
+
 		// Set time intervals to evolve the PDE (i.e. from dividend to dividend)
 		var diviDates = forwardStructure.getDividendStream().getDividendDates();
 		var anchorTimes = new ArrayList<Double> ();
@@ -256,7 +257,7 @@ public class PdeOptionPricer implements IOptionPricer
 		anchorTimes.sort(Comparator.comparing(pt -> pt));
 		var lastAtmPrice = 0.0;
 		var dt = 0.0;
-		
+
 		// Evolve PDE
 		for (int a = anchorTimes.size() - 1; a > 0; a--)
 		{
@@ -274,13 +275,13 @@ public class PdeOptionPricer implements IOptionPricer
 				timeNbOfSteps = (int)Math.floor(timeInterval * timeStepsPerYear);
 				timeStepSize = timeInterval / timeNbOfSteps;
 			}
-			
+
 			var times = new ArrayList<Double>();
 			for (int i = 0; i <= 4; i++) // Rannacher steps
 				times.add(anchorTimes.get(a) - i * 0.25 * timeStepSize);
 			for (int i = timeNbOfSteps - 2; i >= 0; i--) // Regular steps
 				times.add(anchorTimes.get(a - 1) + i * timeStepSize);
-			
+
 			// Evolve PDE in current time interval
 			for (int i = 1; i < times.size(); i++)
 			{
@@ -291,7 +292,7 @@ public class PdeOptionPricer implements IOptionPricer
 					theta = 1.0;
 				var theta1 = 1.0 - theta;
 				var volSq = impliedVol * impliedVol;
-				
+
 				RealMatrix implicitMatrix, explicitMatrix;
 				if (isLvPricer)
 				{
@@ -304,7 +305,7 @@ public class PdeOptionPricer implements IOptionPricer
 								Math.log(spots.get(s)), times.get(i-1), forwardStructure, spaceStepSize, dt);
 						localVol[s] = lv * lv;
 					}
-						
+
 					var volaMatrix = MatrixUtils.createRealDiagonalMatrix(localVol);
 					implicitMatrix = volaMatrix.multiply(implicitMatrix);
 					explicitMatrix = volaMatrix.multiply(explicitMatrix);
@@ -314,7 +315,7 @@ public class PdeOptionPricer implements IOptionPricer
 					implicitMatrix = tridiagMatrix.scalarMultiply(theta * dt * volSq);
 					explicitMatrix = tridiagMatrix.scalarMultiply(-theta1 * dt * volSq);
 				}
-				
+
 				implicitMatrix = idMatrix.add(implicitMatrix);
 				explicitMatrix = idMatrix.add(explicitMatrix);
 
@@ -335,7 +336,7 @@ public class PdeOptionPricer implements IOptionPricer
 						payoffs.setEntry(j, payoff);
 						penaltyMatrix.setEntry(j, j, prices.getEntry(j) < payoff ? penaltyFactor : 0);
 					}
-					
+
 					var b = explicitMatrix.operate(prices);
 					var oldPrices = prices.copy();
 					var oldPenaltyMatrix = penaltyMatrix.copy();
@@ -354,14 +355,14 @@ public class PdeOptionPricer implements IOptionPricer
 						}
 
 						if (penaltyMatrix.equals(oldPenaltyMatrix)
-							|| (prices.subtract(oldPrices).getLInfNorm()) 
+								|| (prices.subtract(oldPrices).getLInfNorm())
 								/ Math.max(oldPrices.getLInfNorm(), 1.0) < tol)
 						{
 							break;
 						}
 						oldPrices = prices.copy();
 					}
-					
+
 				}
 				else
 				{
@@ -370,7 +371,7 @@ public class PdeOptionPricer implements IOptionPricer
 					final DecompositionSolver solver = new LUDecomposition(implicitMatrix).getSolver();
 					prices = solver.solve(prices);
 				}
-				
+
 				// Set boundary conditions
 				prices.setEntry(0, option.getPayoff((forward - fdf) * spaceMinForwardMultiple + fdf));
 				prices.setEntry(spaceNbOfSteps - 1,  option.getPayoff((forward - fdf) * spaceMaxForwardMultiple + fdf));
@@ -379,17 +380,17 @@ public class PdeOptionPricer implements IOptionPricer
 
 		var discountFactor = discountCurve.getDiscountFactor(expiryDate);
 		var price = discountFactor * prices.getEntry(spotIndex);
-		
+
 		if (calculateSensis)
 		{
 			var dFdX = forwardStructure.getDividendAdjustedStrike(
 					forwardStructure.getForward(expiryDate), expiryDate);
 			var dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);
-			var delta = discountFactor * 0.5 
+			var delta = discountFactor * 0.5
 					* (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1)) / spaceStepSize
 					* dFdS / dFdX;
 			var gamma = discountFactor * (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1)
-				- 2 * prices.getEntry(spotIndex)) / spaceStepSq * dFdS * dFdS / dFdX / dFdX;
+			- 2 * prices.getEntry(spotIndex)) / spaceStepSq * dFdS * dFdS / dFdX / dFdX;
 			var theta = (discountFactor * lastAtmPrice - price) / dt;
 			return new double[] {price, delta, gamma, theta};
 		}
@@ -399,12 +400,12 @@ public class PdeOptionPricer implements IOptionPricer
 		}
 	}
 
-	
+
 	public double getImpliedVolatility(
-		IOption option,
-		IEquityForwardStructure forwardStructure,
-		FlatYieldCurve discountCurve,
-		double price)
+			IOption option,
+			IEquityForwardStructure forwardStructure,
+			FlatYieldCurve discountCurve,
+			double price)
 	{
 		double initialGuess = 0.25;
 		var forward = forwardStructure.getForward(option.getExpiryDate());
@@ -417,10 +418,10 @@ public class PdeOptionPricer implements IOptionPricer
 			{
 				final double currentVol = bisectionSolver.getNextPoint();
 				final double currentPrice = getPrice(
-					option,
-					forwardStructure,
-					discountCurve,
-					new FlatVolatilitySurface(currentVol));
+						option,
+						forwardStructure,
+						discountCurve,
+						new FlatVolatilitySurface(currentVol));
 
 				bisectionSolver.setValue(currentPrice - price);
 			}
@@ -435,22 +436,22 @@ public class PdeOptionPricer implements IOptionPricer
 			else
 				testOption = option;
 			initialGuess = anaPricer.getImpliedVolatility(testOption, forwardStructure, discountCurve, price);
-				
+
 		}
-		
+
 		// Solve for implied vol
 		var solver = new SecantMethod(initialGuess, initialGuess * 1.01);
 		while(solver.getAccuracy() / price > 1e-3 && !solver.isDone()) {
 			final double currentVol = solver.getNextPoint();
 			final double currentPrice = getPrice(
-				option,
-				forwardStructure,
-				discountCurve,
-				new FlatVolatilitySurface(currentVol));
+					option,
+					forwardStructure,
+					discountCurve,
+					new FlatVolatilitySurface(currentVol));
 
 			solver.setValue(currentPrice - price);
 		}
-		
+
 		return Math.abs(solver.getBestPoint()); // Note that the PDE only uses sigma^2
 	}
 }

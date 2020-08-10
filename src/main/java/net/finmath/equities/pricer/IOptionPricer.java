@@ -7,7 +7,7 @@ import net.finmath.equities.models.IVolatilitySurface;
 /**
  * Interface for option pricers that handle pricing requests.
  * Currently implemented are an analytic pricer and a PDE pricer for lognormal models with Buehler dividends.
- * 
+ *
  * @author Andreas Grotz
  */
 

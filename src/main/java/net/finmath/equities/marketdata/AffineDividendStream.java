@@ -9,21 +9,21 @@ import java.util.HashMap;
 
 /**
  * Class to store and handle a stream of affine dividends
- * 
+ *
  * @author Andreas Grotz
  */
 
 public class AffineDividendStream {
 	private final AffineDividend[] dividendStream;
-	
+
 	public AffineDividendStream(
-			final AffineDividend[] dividendStream) 
-		{
-			var diviList = Arrays.asList(dividendStream);
-			diviList.sort(Comparator.comparing(pt -> pt.getDate()));
-			this.dividendStream = diviList.toArray(new AffineDividend[0]);
-		};
-		
+			final AffineDividend[] dividendStream)
+	{
+		var diviList = Arrays.asList(dividendStream);
+		diviList.sort(Comparator.comparing(pt -> pt.getDate()));
+		this.dividendStream = diviList.toArray(new AffineDividend[0]);
+	};
+
 	public ArrayList<LocalDate> getDividendDates()
 	{
 		var dates = new ArrayList<LocalDate>();
@@ -31,10 +31,10 @@ public class AffineDividendStream {
 			dates.add(divi.getDate());
 		return dates;
 	}
-		
+
 	public double getDividend(
-		final LocalDate date,
-		final double stockPrice)
+			final LocalDate date,
+			final double stockPrice)
 	{
 		for (AffineDividend divi : dividendStream)
 		{
@@ -43,7 +43,7 @@ public class AffineDividendStream {
 		}
 		return 0.0;
 	}
-	
+
 	public double getProportionalDividendFactor(
 			final LocalDate date)
 	{
@@ -54,9 +54,9 @@ public class AffineDividendStream {
 		}
 		return 1.0;
 	}
-	
+
 	public double getCashDividend(
-		final LocalDate date)
+			final LocalDate date)
 	{
 		for (AffineDividend divi : dividendStream)
 		{
@@ -65,13 +65,13 @@ public class AffineDividendStream {
 		}
 		return 0.0;
 	}
-	
+
 	public static AffineDividendStream getAffineDividendsFromCashDividends(
-		AffineDividendStream cashDividends,
-		HashMap<LocalDate, Double> transformationFactors,
-		LocalDate valDate,
-		double spot,
-		FlatYieldCurve repoCurve)
+			AffineDividendStream cashDividends,
+			HashMap<LocalDate, Double> transformationFactors,
+			LocalDate valDate,
+			double spot,
+			FlatYieldCurve repoCurve)
 	{
 		// This method takes a stream of cash dividends and converts them to affine dividends,
 		// by transforming a part of each cash dividend to a proportional dividend.
@@ -81,11 +81,11 @@ public class AffineDividendStream {
 		// This method is usefull in practice, where traders use dividend futures as input, and transform
 		// a part to a proportional dividend (the further away the dividend, the higher the proportional part
 		// and the lower the cash part.
-		
+
 		var dates = cashDividends.getDividendDates();
-		
+
 		var affineDividends = new ArrayList<AffineDividend>();
-		
+
 		for (var date : dates)
 		{
 			if (date.isBefore(valDate))
@@ -97,20 +97,20 @@ public class AffineDividendStream {
 			for (var otherDate : dates)
 			{
 				if (otherDate.isBefore(date) && !otherDate.isBefore(valDate))
-					fwd -= cashDividends.getCashDividend(otherDate) 
+					fwd -= cashDividends.getCashDividend(otherDate)
 					* repoCurve.getForwardDiscountFactor(valDate, otherDate);
 			}
-			var q = transformationFactors.get(date) * cashDividend 
+			var q = transformationFactors.get(date) * cashDividend
 					* repoCurve.getForwardDiscountFactor(valDate, date)
 					/ fwd;
 			affineDividends.add(
 					new AffineDividend(
-							date, 
-							(1.0 - transformationFactors.get(date)) * cashDividend, 
+							date,
+							(1.0 - transformationFactors.get(date)) * cashDividend,
 							q));
 		}
-		
+
 		return new AffineDividendStream(affineDividends.toArray(new AffineDividend[0]));
 	}
-	
+
 }
