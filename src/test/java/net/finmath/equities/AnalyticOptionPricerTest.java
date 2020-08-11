@@ -1,18 +1,22 @@
 package net.finmath.equities;
 
+import static org.junit.Assert.assertEquals;
+
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
+import net.finmath.equities.marketdata.AffineDividend;
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.models.BuehlerDividendForwardStructure;
+import net.finmath.equities.models.FlatVolatilitySurface;
+import net.finmath.equities.pricer.AnalyticOptionPricer;
+import net.finmath.equities.products.EuropeanOption;
 import net.finmath.exception.CalculationException;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;
-import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.*;
-import net.finmath.equities.products.*;
-import net.finmath.equities.pricer.*;
 
 
 /**

@@ -6,7 +6,9 @@
 package net.finmath.equities.models;
 
 import java.time.LocalDate;
-import net.finmath.equities.marketdata.*;
+
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.FlatYieldCurve;
 
 /**
  * I to cover the forward structure of a stock, i.e. spot, repo curve and dividends.
@@ -23,7 +25,6 @@ import net.finmath.equities.marketdata.*;
  *
  * @author Andreas Grotz
  */
-
 public interface IEquityForwardStructure {
 
 	enum DividendModelType
@@ -34,37 +35,37 @@ public interface IEquityForwardStructure {
 		HaugHaugLewis,
 	}
 
-	public DividendModelType getDividendModel();
+	DividendModelType getDividendModel();
 
-	public LocalDate getValuationDate();
+	LocalDate getValuationDate();
 
-	public double getSpot();
+	double getSpot();
 
-	public FlatYieldCurve getRepoCurve();
+	FlatYieldCurve getRepoCurve();
 
-	public AffineDividendStream getDividendStream();
+	AffineDividendStream getDividendStream();
 
-	public IEquityForwardStructure cloneWithNewSpot(double newSpot);
+	IEquityForwardStructure cloneWithNewSpot(double newSpot);
 
-	public IEquityForwardStructure cloneWithNewDate(LocalDate newDate);
+	IEquityForwardStructure cloneWithNewDate(LocalDate newDate);
 
-	public double getGrowthDiscountFactor(double startTime, double endTime);
+	double getGrowthDiscountFactor(double startTime, double endTime);
 
-	public double getGrowthDiscountFactor(LocalDate startDate, LocalDate endDate);
+	double getGrowthDiscountFactor(LocalDate startDate, LocalDate endDate);
 
-	public double getFutureDividendFactor(double valTime);
+	double getFutureDividendFactor(double valTime);
 
-	public double getFutureDividendFactor(LocalDate valDate);
+	double getFutureDividendFactor(LocalDate valDate);
 
-	public double getForward(double expiryTime);
+	double getForward(double expiryTime);
 
-	public double getForward(LocalDate expiryDate);
+	double getForward(LocalDate expiryDate);
 
-	public double getDividendAdjustedStrike(double strike, double expiryTime);
+	double getDividendAdjustedStrike(double strike, double expiryTime);
 
-	public double getDividendAdjustedStrike(double strike, LocalDate expiryDate);
+	double getDividendAdjustedStrike(double strike, LocalDate expiryDate);
 
-	public double getLogMoneyness(double strike, double expiryTime);
+	double getLogMoneyness(double strike, double expiryTime);
 
-	public double getLogMoneyness(double strike, LocalDate expiryDate);
+	double getLogMoneyness(double strike, LocalDate expiryDate);
 }

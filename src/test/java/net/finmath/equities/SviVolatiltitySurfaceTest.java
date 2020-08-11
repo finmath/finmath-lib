@@ -1,16 +1,23 @@
 package net.finmath.equities;
 
+import static org.junit.Assert.assertEquals;
+
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import net.finmath.equities.marketdata.AffineDividend;
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.marketdata.VolatilityPoint;
+import net.finmath.equities.models.BuehlerDividendForwardStructure;
+import net.finmath.equities.models.SviVolatilitySmile;
+import net.finmath.equities.models.SviVolatilitySurface;
 import net.finmath.exception.CalculationException;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;
-import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.*;
 
 /**
  * Tests for the SVI volatility surface implementation.
@@ -166,31 +173,31 @@ public class SviVolatiltitySurfaceTest {
 
 		System.out.println("a in: " + a);
 		System.out.println("a guess: " + initialGuess[0]);
-		System.out.println("a calib: " + newSmile.a);
+		System.out.println("a calib: " + newSmile.getA());
 		System.out.println("b in: " + b);
 		System.out.println("b guess: " + initialGuess[1]);
-		System.out.println("b calib: " + newSmile.b);
+		System.out.println("b calib: " + newSmile.getB());
 		System.out.println("rho in: " + rho);
 		System.out.println("rho guess: " + initialGuess[2]);
-		System.out.println("rho calib: " + newSmile.rho);
+		System.out.println("rho calib: " + newSmile.getRho());
 		System.out.println("m in: " + m);
 		System.out.println("m guess: " + initialGuess[3]);
-		System.out.println("m calib: " + newSmile.m);
+		System.out.println("m calib: " + newSmile.getM());
 		System.out.println("sigma in: " + sigma);
 		System.out.println("sigma guess: " + initialGuess[4]);
-		System.out.println("sigma calib: " + newSmile.sigma);
+		System.out.println("sigma calib: " + newSmile.getSigma());
 		System.out.println();
 
 		assertEquals(0.0, initialGuess[0] / a - 1.0, 1e-1);
-		assertEquals(0.0, newSmile.a / a - 1.0, 1e-6);
+		assertEquals(0.0, newSmile.getA() / a - 1.0, 1e-6);
 		assertEquals(0.0, initialGuess[1] / b - 1.0, 1e-1);
-		assertEquals(0.0, newSmile.b / b - 1.0, 1e-6);
+		assertEquals(0.0, newSmile.getB() / b - 1.0, 1e-6);
 		assertEquals(0.0, initialGuess[2] / rho - 1.0, 1e-1);
-		assertEquals(0.0, newSmile.rho / rho - 1.0, 1e-6);
+		assertEquals(0.0, newSmile.getRho() / rho - 1.0, 1e-6);
 		assertEquals(0.0, initialGuess[3] / m - 1.0, 1e-1);
-		assertEquals(0.0, newSmile.m / m - 1.0, 1e-6);
+		assertEquals(0.0, newSmile.getM() / m - 1.0, 1e-6);
 		assertEquals(0.0, initialGuess[4] / sigma - 1.0, 1e-1);
-		assertEquals(0.0, newSmile.sigma / sigma - 1.0, 1e-6);
+		assertEquals(0.0, newSmile.getSigma() / sigma - 1.0, 1e-6);
 
 	}
 }

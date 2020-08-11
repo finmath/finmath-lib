@@ -1,8 +1,9 @@
 package net.finmath.equities.models;
 
 import java.time.LocalDate;
-import net.finmath.equities.marketdata.*;
 import java.util.ArrayList;
+
+import net.finmath.equities.marketdata.VolatilityPoint;
 
 /**
  * This class implements the volatility interfaces for a flat volatility surface.

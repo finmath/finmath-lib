@@ -21,5 +21,4 @@ public interface IOption extends Cloneable {
 	double callPutFactor();
 
 	double getPayoff(double spot);
-
 }

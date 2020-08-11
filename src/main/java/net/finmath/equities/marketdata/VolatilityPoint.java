@@ -10,9 +10,9 @@ import java.time.LocalDate;
 
 public class VolatilityPoint {
 
-	public final LocalDate date;
-	public final double strike;
-	public final double volatility;
+	private final LocalDate date;
+	private final double strike;
+	private final double volatility;
 
 	public VolatilityPoint(
 			final LocalDate date,
@@ -35,5 +35,4 @@ public class VolatilityPoint {
 	public double getVolatility() {
 		return volatility;
 	}
-
 }

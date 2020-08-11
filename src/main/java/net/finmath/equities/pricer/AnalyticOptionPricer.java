@@ -1,12 +1,16 @@
 package net.finmath.equities.pricer;
 
 import java.util.HashMap;
+
 import org.apache.commons.lang3.NotImplementedException;
-import net.finmath.time.daycount.DayCountConvention;
-import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.*;
+
+import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.models.Black76Model;
+import net.finmath.equities.models.IEquityForwardStructure;
+import net.finmath.equities.models.IVolatilitySurface;
 import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
-import net.finmath.equities.products.*;
+import net.finmath.equities.products.IOption;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * This class implements analytic pricing formulas for European options under a
@@ -33,8 +37,9 @@ public class AnalyticOptionPricer implements IOptionPricer
 			IVolatilitySurface volaSurface)
 	{
 		var results = new HashMap<CalculationRequestType, Double>();
-		for (var calcType  : request.calcsRequested)
-			results.put(calcType, calculate(request.option, forwardStructure, discountCurve, volaSurface, calcType));
+		for (var calcType  : request.getCalcsRequested()) {
+			results.put(calcType, calculate(request.getOption(), forwardStructure, discountCurve, volaSurface, calcType));
+		}
 
 		return new EquityPricingResult(request, results);
 	}

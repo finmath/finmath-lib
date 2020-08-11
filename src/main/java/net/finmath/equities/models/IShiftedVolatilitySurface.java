@@ -8,5 +8,5 @@ package net.finmath.equities.models;
 
 public interface IShiftedVolatilitySurface extends IVolatilitySurface {
 
-	public double getShift();
+	double getShift();
 }

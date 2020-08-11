@@ -21,12 +21,20 @@ public class EquityPricingRequest {
 		Theta,
 	}
 
-	public final IOption option;
-	public final ArrayList<CalculationRequestType> calcsRequested;
+	private final IOption option;
+	private final ArrayList<CalculationRequestType> calcsRequested;
 
 	public EquityPricingRequest(final IOption option, final ArrayList<CalculationRequestType> calcsRequested)
 	{
 		this.option = option;
 		this.calcsRequested = calcsRequested;
+	}
+
+	public IOption getOption() {
+		return option;
+	}
+
+	public ArrayList<CalculationRequestType> getCalcsRequested() {
+		return calcsRequested;
 	}
 }

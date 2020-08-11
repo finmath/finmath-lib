@@ -1,6 +1,7 @@
 package net.finmath.equities.models;
 
 import java.util.function.Function;
+
 import net.finmath.functions.NormalDistribution;
 
 /**
@@ -218,8 +219,9 @@ public final class Black76Model {
 		}
 		assert beta >= 0.0 && beta <= bMax : "The price " + undiscountedPrice
 				+ "is not attainable in Black-Scholes given the other parameters provided.";
-		if (x == 0.0) // Analytic ATM case
+		if (x == 0.0) {
 			return 2.0 * NormalDistribution.inverseCumulativeDistribution(0.5 * (beta + 1.0));
+		}
 		// Initial guess using rational interpolation
 		final double sqrtPi = Math.sqrt(2.0 * Math.PI);
 		final double sigmaCentral = Math.sqrt(-2.0 * x);

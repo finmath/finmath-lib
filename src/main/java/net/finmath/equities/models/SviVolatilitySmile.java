@@ -14,8 +14,12 @@ import java.util.stream.Collectors;
 
 public class SviVolatilitySmile {
 
-	public final double a, b, rho, m, sigma;
-	public final LocalDate smileDate;
+	private final double a;
+	private final double b;
+	private final double rho;
+	private final double m;
+	private final double sigma;
+	private final LocalDate smileDate;
 
 	public SviVolatilitySmile(LocalDate date, double a, double b, double rho, double m, double sigma) {
 		this.a = a;
@@ -102,25 +106,49 @@ public class SviVolatilitySmile {
 
 	public void validate()
 	{
-		assert b >= 0.0;
-		assert Math.abs(rho) < 1.0;
-		assert sigma > 0.0;
-		assert a + b * sigma * Math.sqrt(1.0 - rho * rho) >= 0.0;
+		assert getB() >= 0.0;
+		assert Math.abs(getRho()) < 1.0;
+		assert getSigma() > 0.0;
+		assert getA() + getB() * getSigma() * Math.sqrt(1.0 - getRho() * getRho()) >= 0.0;
 
 	}
 
 	public double getTotalVariance(double logStrike)
 	{
-		return sviTotalVariance(logStrike, a, b, rho, m, sigma);
+		return sviTotalVariance(logStrike, getA(), getB(), getRho(), getM(), getSigma());
 	}
 
 	public double getTotalVariance(double strike, double forward)
 	{
-		return sviTotalVariance(Math.log(strike/forward), a, b, rho, m, sigma);
+		return sviTotalVariance(Math.log(strike/forward), getA(), getB(), getRho(), getM(), getSigma());
 	}
 
 	public double getVolatility(double strike, double forward, double timeToExpiry)
 	{
-		return sviVolatility(Math.log(strike/forward), a, b, rho, m, sigma, timeToExpiry);
+		return sviVolatility(Math.log(strike/forward), getA(), getB(), getRho(), getM(), getSigma(), timeToExpiry);
+	}
+
+	public LocalDate getSmileDate() {
+		return smileDate;
+	}
+
+	public double getSigma() {
+		return sigma;
+	}
+
+	public double getM() {
+		return m;
+	}
+
+	public double getRho() {
+		return rho;
+	}
+
+	public double getB() {
+		return b;
+	}
+
+	public double getA() {
+		return a;
 	}
 }

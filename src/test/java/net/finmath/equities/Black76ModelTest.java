@@ -1,9 +1,11 @@
 package net.finmath.equities;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
+import net.finmath.equities.models.Black76Model;
 import net.finmath.exception.CalculationException;
-import net.finmath.equities.models.*;
 
 /**
  * Tests for the analytic formulas of the Black76 model.

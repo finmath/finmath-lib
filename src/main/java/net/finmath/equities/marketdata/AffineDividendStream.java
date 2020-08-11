@@ -27,8 +27,9 @@ public class AffineDividendStream {
 	public ArrayList<LocalDate> getDividendDates()
 	{
 		var dates = new ArrayList<LocalDate>();
-		for (AffineDividend divi : dividendStream)
+		for (AffineDividend divi : dividendStream) {
 			dates.add(divi.getDate());
+		}
 		return dates;
 	}
 
@@ -38,8 +39,9 @@ public class AffineDividendStream {
 	{
 		for (AffineDividend divi : dividendStream)
 		{
-			if (divi.getDate() == date)
+			if (divi.getDate() == date) {
 				return divi.getDividend(stockPrice);
+			}
 		}
 		return 0.0;
 	}
@@ -49,8 +51,9 @@ public class AffineDividendStream {
 	{
 		for (AffineDividend divi : dividendStream)
 		{
-			if (divi.getDate() == date)
+			if (divi.getDate() == date) {
 				return divi.getProportionalDividendFactor();
+			}
 		}
 		return 1.0;
 	}
@@ -60,8 +63,9 @@ public class AffineDividendStream {
 	{
 		for (AffineDividend divi : dividendStream)
 		{
-			if (divi.getDate() == date)
+			if (divi.getDate() == date) {
 				return divi.getCashDividend();
+			}
 		}
 		return 0.0;
 	}
@@ -88,17 +92,19 @@ public class AffineDividendStream {
 
 		for (var date : dates)
 		{
-			if (date.isBefore(valDate))
+			if (date.isBefore(valDate)) {
 				continue;
+			}
 			assert cashDividends.getProportionalDividendFactor(date) == 0.0 :
 				"Proportional dividend different from zero for date " + date;
 			var cashDividend = cashDividends.getCashDividend(date);
 			var fwd = spot;
 			for (var otherDate : dates)
 			{
-				if (otherDate.isBefore(date) && !otherDate.isBefore(valDate))
+				if (otherDate.isBefore(date) && !otherDate.isBefore(valDate)) {
 					fwd -= cashDividends.getCashDividend(otherDate)
-					* repoCurve.getForwardDiscountFactor(valDate, otherDate);
+							* repoCurve.getForwardDiscountFactor(valDate, otherDate);
+				}
 			}
 			var q = transformationFactors.get(date) * cashDividend
 					* repoCurve.getForwardDiscountFactor(valDate, date)
@@ -112,5 +118,4 @@ public class AffineDividendStream {
 
 		return new AffineDividendStream(affineDividends.toArray(new AffineDividend[0]));
 	}
-
 }

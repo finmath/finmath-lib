@@ -6,7 +6,7 @@ import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * Class to provide methods of a flat yield curve.
- * TODO: This class should be integrated into or replaced by finmat-lib's curve universe.
+ * TODO This class should be integrated into or replaced by finmat-lib's curve universe.
  *
  * @author Andreas Grotz
  */

@@ -3,7 +3,8 @@ package net.finmath.equities.models;
 import java.time.LocalDate;
 import java.util.HashMap;
 
-import net.finmath.equities.marketdata.*;
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.FlatYieldCurve;
 import net.finmath.time.daycount.DayCountConvention;
 
 /**
@@ -106,8 +107,9 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		for (var date : dividendStream.getDividendDates())
 		{
 			var dividendTime = dividendTimes.get(date);
-			if (dividendTime > startTime && dividendTime <= endTime)
+			if (dividendTime > startTime && dividendTime <= endTime) {
 				df *= (1.0 - dividendStream.getProportionalDividendFactor(date));
+			}
 		}
 
 		return df / repoCurve.getForwardDiscountFactor(startTime, endTime);
@@ -130,8 +132,9 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		for (var date : dividendStream.getDividendDates())
 		{
 			var dividendTime = dividendTimes.get(date);
-			if (dividendTime > valTime)
+			if (dividendTime > valTime) {
 				df += dividendStream.getCashDividend(date) / getGrowthDiscountFactor(valTime, dividendTime);
+			}
 		}
 		return df;
 	}
@@ -150,8 +153,9 @@ public class BuehlerDividendForwardStructure implements IEquityForwardStructure 
 		for (var date : dividendStream.getDividendDates())
 		{
 			var dividendTime = dividendTimes.get(date);
-			if (dividendTime <= expiryTime)
+			if (dividendTime <= expiryTime) {
 				forward -= dividendStream.getCashDividend(date) * getGrowthDiscountFactor(dividendTime, expiryTime);
+			}
 		}
 		return forward;
 	}

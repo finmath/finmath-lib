@@ -5,18 +5,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.*;
-import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
-import net.finmath.equities.products.*;
-import net.finmath.rootfinder.BisectionSearch;
-import net.finmath.rootfinder.SecantMethod;
-import net.finmath.time.daycount.DayCountConvention;
-
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
+
+import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.models.FlatVolatilitySurface;
+import net.finmath.equities.models.IEquityForwardStructure;
+import net.finmath.equities.models.IVolatilitySurface;
+import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
+import net.finmath.equities.products.EuropeanOption;
+import net.finmath.equities.products.IOption;
+import net.finmath.rootfinder.BisectionSearch;
+import net.finmath.rootfinder.SecantMethod;
+import net.finmath.time.daycount.DayCountConvention;
 
 /**
  * This class implements a finite difference pricer under a Black-Scholes process or a
@@ -26,14 +29,13 @@ import org.apache.commons.math3.linear.RealMatrix;
  * Payoffs are smoothed using the modified timestepping from Rannacher's 1984 paper.
  * The American exercise feature is priced using the penalty approach from Forsyth's 2001 paper.
  *
- * TODO: The linear algebra framework used (apache.commons.math3) is not optimized for the discretized PDE.
+ * TODO The linear algebra framework used (apache.commons.math3) is not optimized for the discretized PDE.
  * More performant linear algebra algorithms should be used that take account of
  * the tridiagonal matrix structure of the problem, e.g. direct diagonal operations instead of full-blown
  * matrix multiplication, and the Thomas algorithm instead of LU decomposition for solving equations.
  *
  * @author Andreas Grotz
  */
-
 public class PdeOptionPricer implements IOptionPricer
 {
 
@@ -70,8 +72,9 @@ public class PdeOptionPricer implements IOptionPricer
 		var tmpSpaceStepSize = (spaceMaxForwardMultiple - spaceMinForwardMultiple) / spaceNbPoints;
 		var tmpSpaceNbPoints = spaceNbPoints;
 		var tmpSpots  = new ArrayList<Double>();
-		for (int i = 0; i < tmpSpaceNbPoints; i++)
+		for (int i = 0; i < tmpSpaceNbPoints; i++) {
 			tmpSpots.add(spaceMinForwardMultiple + tmpSpaceStepSize * i);
+		}
 		// The space grid needs to include the forward level 1.0 for the pure volatility process
 		// Hence if necessary, we increase the step size slightly to include it
 		var lowerBound = Math.abs(Collections.binarySearch(tmpSpots, 1.0)) - 2;
@@ -105,41 +108,45 @@ public class PdeOptionPricer implements IOptionPricer
 			IVolatilitySurface volaSurface)
 	{
 		var results = new HashMap<CalculationRequestType, Double>();
-		if(request.calcsRequested.isEmpty())
+		if(request.getCalcsRequested().isEmpty()) {
 			return new EquityPricingResult(request, results);
+		}
 
 		double price = 0.0;
-		if(request.calcsRequested.contains(CalculationRequestType.EqDelta)
-				|| request.calcsRequested.contains(CalculationRequestType.EqGamma ))
+		if(request.getCalcsRequested().contains(CalculationRequestType.EqDelta)
+				|| request.getCalcsRequested().contains(CalculationRequestType.EqGamma ))
 		{
 			var spotSensis = getPdeSensis(
-					request.option,
+					request.getOption(),
 					forwardStructure,
 					discountCurve,
 					volaSurface);
 			price = spotSensis[0];
-			if(request.calcsRequested.contains(CalculationRequestType.EqDelta))
+			if(request.getCalcsRequested().contains(CalculationRequestType.EqDelta)) {
 				results.put(CalculationRequestType.EqDelta, spotSensis[1]);
-			if(request.calcsRequested.contains(CalculationRequestType.EqGamma))
+			}
+			if(request.getCalcsRequested().contains(CalculationRequestType.EqGamma)) {
 				results.put(CalculationRequestType.EqGamma, spotSensis[2]);
+			}
 		}
 		else
 		{
 			price = getPrice(
-					request.option,
+					request.getOption(),
 					forwardStructure,
 					discountCurve,
 					volaSurface);
 		}
 
-		if(request.calcsRequested.contains(CalculationRequestType.Price))
+		if(request.getCalcsRequested().contains(CalculationRequestType.Price)) {
 			results.put(CalculationRequestType.Price, price);
+		}
 
-		if(request.calcsRequested.contains(CalculationRequestType.EqVega))
+		if(request.getCalcsRequested().contains(CalculationRequestType.EqVega))
 		{
-			var volShift = 0.0001; // TODO: Make part of class members
+			var volShift = 0.0001; // TODO Make part of class members
 			var priceShifted = getPrice(
-					request.option,
+					request.getOption(),
 					forwardStructure,
 					discountCurve,
 					volaSurface.getShiftedSurface(volShift));
@@ -277,10 +284,12 @@ public class PdeOptionPricer implements IOptionPricer
 			}
 
 			var times = new ArrayList<Double>();
-			for (int i = 0; i <= 4; i++) // Rannacher steps
+			for (int i = 0; i <= 4; i++) {
 				times.add(anchorTimes.get(a) - i * 0.25 * timeStepSize);
-			for (int i = timeNbOfSteps - 2; i >= 0; i--) // Regular steps
+			}
+			for (int i = timeNbOfSteps - 2; i >= 0; i--) {
 				times.add(anchorTimes.get(a - 1) + i * timeStepSize);
+			}
 
 			// Evolve PDE in current time interval
 			for (int i = 1; i < times.size(); i++)
@@ -288,8 +297,9 @@ public class PdeOptionPricer implements IOptionPricer
 				lastAtmPrice = prices.getEntry(spotIndex);
 				dt = times.get(i-1) - times.get(i);
 				double theta = 0.5;
-				if (i <= 4) // Rannacher steps
+				if (i <= 4) {
 					theta = 1.0;
+				}
 				var theta1 = 1.0 - theta;
 				var volSq = impliedVol * impliedVol;
 
@@ -431,10 +441,11 @@ public class PdeOptionPricer implements IOptionPricer
 		{
 			var anaPricer = new AnalyticOptionPricer(dayCounter);
 			IOption testOption;
-			if(option.isAmericanOption())
+			if(option.isAmericanOption()) {
 				testOption = new EuropeanOption(option.getExpiryDate(), option.getStrike(), option.isCallOption());
-			else
+			} else {
 				testOption = option;
+			}
 			initialGuess = anaPricer.getImpliedVolatility(testOption, forwardStructure, discountCurve, price);
 
 		}

@@ -47,5 +47,4 @@ public class AffineDividend {
 	{
 		return propDividendFactor * stockPrice + cashDividend;
 	}
-
 }

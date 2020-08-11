@@ -1,8 +1,9 @@
 package net.finmath.equities.models;
 
-import net.finmath.equities.marketdata.VolatilityPoint;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
+import net.finmath.equities.marketdata.VolatilityPoint;
 
 /**
  * Interface for an equity volatility surface. Currently implemented are a flat surface
@@ -13,33 +14,33 @@ import java.util.ArrayList;
 
 public interface IVolatilitySurface extends Cloneable {
 
-	public double getVolatility(
+	double getVolatility(
 			double strike,
 			LocalDate expiryDate,
 			IEquityForwardStructure currentForwardStructure);
 
-	public double getVolatility(
+	double getVolatility(
 			double strike,
 			double  timeToMaturity,
 			IEquityForwardStructure currentForwardStructure);
 
-	public double getLocalVolatility(
+	double getLocalVolatility(
 			double strike,
 			LocalDate expiryDate,
 			IEquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift);
 
-	public double getLocalVolatility(
+	double getLocalVolatility(
 			double logStrike,
 			double timeToMaturity,
 			IEquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift);
 
-	public void calibrate(
+	void calibrate(
 			IEquityForwardStructure forwardStructure,
 			ArrayList<VolatilityPoint> volaPoints);
 
-	public IShiftedVolatilitySurface getShiftedSurface(double shift);
+	IShiftedVolatilitySurface getShiftedSurface(double shift);
 }

@@ -1,15 +1,15 @@
 package net.finmath.equities.models;
 
 import java.time.LocalDate;
-import net.finmath.interpolation.RationalFunctionInterpolation;
-import net.finmath.optimizer.LevenbergMarquardt;
-import net.finmath.optimizer.SolverException;
-import net.finmath.equities.marketdata.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
+import net.finmath.equities.marketdata.VolatilityPoint;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
 import net.finmath.time.daycount.DayCountConvention;
 
 /**
@@ -70,11 +70,12 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		this.volShift = volShift;
 
 		var sortedSmiles = Arrays.asList(smiles);
-		sortedSmiles.sort(Comparator.comparing(pt -> pt.smileDate));
+		sortedSmiles.sort(Comparator.comparing(pt -> pt.getSmileDate()));
 		smileTimes = new double[sortedSmiles.size() + 1];
 		smileTimes[0] = 0.0;
-		for (int i = 0; i < sortedSmiles.size(); i++)
-			smileTimes[i+1] = dayCounter.getDaycountFraction(valuationDate, sortedSmiles.get(i).smileDate);
+		for (int i = 0; i < sortedSmiles.size(); i++) {
+			smileTimes[i+1] = dayCounter.getDaycountFraction(valuationDate, sortedSmiles.get(i).getSmileDate());
+		}
 
 		isCalibrated = true;
 	}
@@ -128,10 +129,11 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		// sticky moneyness
 		assert isCalibrated : "Surface is not calibrated yet";
 	double logStrike;
-	if(useStickyStrike)
+	if(useStickyStrike) {
 		logStrike = forwardStructure.getLogMoneyness(strike, timeToMaturity);
-	else
+	} else {
 		logStrike = currentForwardStructure.getLogMoneyness(strike, timeToMaturity);
+	}
 	return interpolateVolatility(logStrike, timeToMaturity);
 	}
 
@@ -183,20 +185,22 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;
 		return Math.sqrt(f_t / lv);
 	}
-	else if (timeToMaturity >= 0.0)
+	else if (timeToMaturity >= 0.0) {
 		return getLocalVolatility(logStrike, 1e-16, currentForwardStructure, strikeShift, timeShift);
-	else
+	} else {
 		return 0.0;
+	}
 	}
 
 	private double interpolateVolatility(double logStrike, double timeToMaturity)
 	{
-		if (timeToMaturity >= 1e-16)
+		if (timeToMaturity >= 1e-16) {
 			return Math.sqrt(interpolateTotalVariance(logStrike, timeToMaturity) / timeToMaturity);
-		else if (timeToMaturity >= 0.0)
+		} else if (timeToMaturity >= 0.0) {
 			return interpolateVolatility(logStrike, 1e-16);
-		else
+		} else {
 			return 0.0;
+		}
 	}
 
 	private double interpolateTotalVariance(double logStrike, double timeToMaturity)
@@ -204,8 +208,9 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		var len = smileTimes.length;
 		var totalVariances = new double[len];
 		totalVariances[0] = 0.0;
-		for (int i = 1; i< len; i++)
+		for (int i = 1; i< len; i++) {
 			totalVariances[i] = smiles[i-1].getTotalVariance(logStrike);
+		}
 
 		final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(
 				smileTimes,
@@ -214,10 +219,11 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 				RationalFunctionInterpolation.ExtrapolationMethod.LINEAR);
 		var totalVariance = interpolator.getValue(timeToMaturity);
 
-		if (volShift == 0.0)
+		if (volShift == 0.0) {
 			return totalVariance;
-		else
+		} else {
 			return totalVariance + volShift * (2 * Math.sqrt(totalVariance * timeToMaturity) + volShift * timeToMaturity);
+		}
 	}
 
 
@@ -226,7 +232,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 			IEquityForwardStructure forwardStructure,
 			ArrayList<VolatilityPoint> volaPoints)
 	{
-		/*TODO: The current calibration is smile by smile. It does not ensure absence of arbitrage.
+		/*TODO The current calibration is smile by smile. It does not ensure absence of arbitrage.
 		 * An improved calibration would use optimization constraints obtained from
 		 * the density formula from Gatheral's 2013 paper to remove butterfly arbitrage,
 		 * as well as monotonicity of total variances to remove calendar arbitrage.
@@ -247,15 +253,15 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		{
 			var date = sortedSmileDates.get(i);
 			var thisPoints = groupedPoints.get(date);
-			thisPoints.sort(Comparator.comparing(pt -> pt.strike));
+			thisPoints.sort(Comparator.comparing(pt -> pt.getStrike()));
 			var forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;
 			var ttm = dayCounter.getDaycountFraction(valuationDate, date);
 			var logStrikes = new ArrayList<Double>();
 			var totalVariances = new ArrayList<Double>();
 			for (var pt : thisPoints)
 			{
-				totalVariances.add(ttm * pt.volatility * pt.volatility);
-				logStrikes.add(Math.log(forwardStructure.getDividendAdjustedStrike(pt.strike, date) / forward));
+				totalVariances.add(ttm * pt.getVolatility() * pt.getVolatility());
+				logStrikes.add(Math.log(forwardStructure.getDividendAdjustedStrike(pt.getStrike(), date) / forward));
 			}
 
 			double[] thisSviParams;

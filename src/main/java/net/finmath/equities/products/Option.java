@@ -41,10 +41,11 @@ public abstract class Option implements IOption {
 
 	@Override
 	public final double callPutFactor() {
-		if (isCallOption)
+		if (isCallOption) {
 			return 1.0;
-		else
+		} else {
 			return -1.0;
+		}
 	}
 
 	@Override

@@ -1,18 +1,29 @@
 package net.finmath.equities;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
+
+import net.finmath.equities.marketdata.AffineDividend;
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.models.BuehlerDividendForwardStructure;
+import net.finmath.equities.models.FlatVolatilitySurface;
+import net.finmath.equities.models.SviVolatilitySmile;
+import net.finmath.equities.models.SviVolatilitySurface;
+import net.finmath.equities.pricer.AnalyticOptionPricer;
+import net.finmath.equities.pricer.PdeOptionPricer;
+import net.finmath.equities.products.AmericanOption;
+import net.finmath.equities.products.EuropeanOption;
+import net.finmath.equities.products.IOption;
 import net.finmath.exception.CalculationException;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;
-import net.finmath.equities.marketdata.*;
-import net.finmath.equities.models.*;
-import net.finmath.equities.products.*;
-import net.finmath.equities.pricer.*;
 
 /**
  * Tests for the PDE option pricer under a lognormal model with Buehler dividends.
@@ -24,7 +35,7 @@ public class PdeOptionPricerTest {
 	/*
 	 */
 	static final DecimalFormat decform = new DecimalFormat("#0.00");
-	DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
+	private DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
 
 	@Test
 	public void Test_pricer_european() throws CalculationException
@@ -220,10 +231,11 @@ public class PdeOptionPricerTest {
 			for (var isAmerican : americanOrEuropean)
 			{
 				IOption option;
-				if (isAmerican)
+				if (isAmerican) {
 					option = new AmericanOption(expiryDate, strike, isCall);
-				else
+				} else {
 					option = new EuropeanOption(expiryDate, strike, isCall);
+				}
 
 				var pdePrice = pdePricer.getPrice(option, fwdStructure, curve, surface);
 				var pdeLvPrice = pdeLvPricer.getPrice(option, fwdStructure, curve, surface);
@@ -409,8 +421,9 @@ public class PdeOptionPricerTest {
 		boolean[] callput = {true, false};
 		boolean[] american = {true, false};
 		var spots = new ArrayList<Double>();
-		for (int i = 50; i <= 150; i++)
+		for (int i = 50; i <= 150; i++) {
 			spots.add(1.0 * i);
+		}
 		//spots = new ArrayList<Double>() {{add(80.0);}};
 		System.out.println("Exercise,Type,Spot,Price,Delta,Gamma,Vega,Theta");
 		for (var isAmerican : american)
@@ -421,10 +434,11 @@ public class PdeOptionPricerTest {
 				{
 					var thisStructure = fwdStructure.cloneWithNewSpot(spot);
 					IOption option;
-					if(isAmerican)
+					if(isAmerican) {
 						option = new AmericanOption(expiryDate, strike, isCall);
-					else
+					} else {
 						option = new EuropeanOption(expiryDate, strike, isCall);
+					}
 
 					var pdeSensis = pdePricer.getPdeSensis(option, thisStructure, curve, flatVol);
 					var pdeVega = pdePricer.getVega(option, thisStructure, curve, flatVol, pdeSensis[0], 1e-6);

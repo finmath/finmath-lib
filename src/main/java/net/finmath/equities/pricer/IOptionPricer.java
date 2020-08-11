@@ -13,7 +13,7 @@ import net.finmath.equities.models.IVolatilitySurface;
 
 public interface IOptionPricer extends Cloneable {
 
-	public EquityPricingResult calculate(
+	EquityPricingResult calculate(
 			EquityPricingRequest request,
 			IEquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,

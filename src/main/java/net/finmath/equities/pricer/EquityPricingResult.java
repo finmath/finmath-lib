@@ -12,8 +12,8 @@ import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
 
 public class EquityPricingResult {
 
-	public final EquityPricingRequest request;
-	public final HashMap<CalculationRequestType, Double> results;
+	private final EquityPricingRequest request;
+	private final HashMap<CalculationRequestType, Double> results;
 
 	public EquityPricingResult(
 			final EquityPricingRequest request, final HashMap<CalculationRequestType, Double> results)
