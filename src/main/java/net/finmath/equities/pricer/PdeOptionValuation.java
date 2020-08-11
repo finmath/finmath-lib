@@ -14,7 +14,7 @@ import net.finmath.equities.marketdata.FlatYieldCurve;
 import net.finmath.equities.models.FlatVolatilitySurface;
 import net.finmath.equities.models.EquityForwardStructure;
 import net.finmath.equities.models.VolatilitySurface;
-import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
+import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
 import net.finmath.equities.products.EuropeanOption;
 import net.finmath.equities.products.Option;
 import net.finmath.rootfinder.BisectionSearch;
@@ -36,7 +36,7 @@ import net.finmath.time.daycount.DayCountConvention;
  *
  * @author Andreas Grotz
  */
-public class PdeOptionPricer implements OptionPricer
+public class PdeOptionValuation implements OptionValuation
 {
 
 	private final int timeStepsPerYear;
@@ -51,7 +51,7 @@ public class PdeOptionPricer implements OptionPricer
 	private final boolean includeDividendDatesInGrid;
 
 
-	public PdeOptionPricer(
+	public PdeOptionValuation(
 			double spaceMinForwardMultiple,
 			double spaceMaxForwardMultiple,
 			int spaceNbPoints,
@@ -101,15 +101,15 @@ public class PdeOptionPricer implements OptionPricer
 	}
 
 	@Override
-	public EquityPricingResult calculate(
-			EquityPricingRequest request,
+	public EquityValuationResult calculate(
+			EquityValuationRequest request,
 			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
 			VolatilitySurface volaSurface)
 	{
 		var results = new HashMap<CalculationRequestType, Double>();
 		if(request.getCalcsRequested().isEmpty()) {
-			return new EquityPricingResult(request, results);
+			return new EquityValuationResult(request, results);
 		}
 
 		double price = 0.0;
@@ -153,7 +153,7 @@ public class PdeOptionPricer implements OptionPricer
 			results.put(CalculationRequestType.EqVega, (priceShifted - price) / volShift);
 		}
 
-		return new EquityPricingResult(request, results);
+		return new EquityValuationResult(request, results);
 	}
 
 	public double getPrice(
@@ -439,7 +439,7 @@ public class PdeOptionPricer implements OptionPricer
 		}
 		else
 		{
-			var anaPricer = new AnalyticOptionPricer(dayCounter);
+			var anaPricer = new AnalyticOptionValuation(dayCounter);
 			Option testOption;
 			if(option.isAmericanOption()) {
 				testOption = new EuropeanOption(option.getExpiryDate(), option.getStrike(), option.isCallOption());

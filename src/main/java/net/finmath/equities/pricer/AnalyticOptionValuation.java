@@ -8,7 +8,7 @@ import net.finmath.equities.marketdata.FlatYieldCurve;
 import net.finmath.equities.models.Black76Model;
 import net.finmath.equities.models.EquityForwardStructure;
 import net.finmath.equities.models.VolatilitySurface;
-import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
+import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
 import net.finmath.equities.products.Option;
 import net.finmath.time.daycount.DayCountConvention;
 
@@ -19,19 +19,19 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Andreas Grotz
  */
 
-public class AnalyticOptionPricer implements OptionPricer
+public class AnalyticOptionValuation implements OptionValuation
 {
 
 	private final DayCountConvention dcc;
 
-	public AnalyticOptionPricer(
+	public AnalyticOptionValuation(
 			DayCountConvention dcc) {
 		this.dcc = dcc;
 	}
 
 	@Override
-	public EquityPricingResult calculate(
-			EquityPricingRequest request,
+	public EquityValuationResult calculate(
+			EquityValuationRequest request,
 			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
 			VolatilitySurface volaSurface)
@@ -41,7 +41,7 @@ public class AnalyticOptionPricer implements OptionPricer
 			results.put(calcType, calculate(request.getOption(), forwardStructure, discountCurve, volaSurface, calcType));
 		}
 
-		return new EquityPricingResult(request, results);
+		return new EquityValuationResult(request, results);
 	}
 
 

@@ -10,7 +10,7 @@ import net.finmath.equities.products.Option;
  * @author Andreas Grotz
  */
 
-public class EquityPricingRequest {
+public class EquityValuationRequest {
 
 	enum CalculationRequestType
 	{
@@ -24,7 +24,7 @@ public class EquityPricingRequest {
 	private final Option option;
 	private final ArrayList<CalculationRequestType> calcsRequested;
 
-	public EquityPricingRequest(final Option option, final ArrayList<CalculationRequestType> calcsRequested)
+	public EquityValuationRequest(final Option option, final ArrayList<CalculationRequestType> calcsRequested)
 	{
 		this.option = option;
 		this.calcsRequested = calcsRequested;

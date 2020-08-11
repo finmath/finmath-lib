@@ -16,8 +16,8 @@ import net.finmath.equities.models.BuehlerDividendForwardStructure;
 import net.finmath.equities.models.FlatVolatilitySurface;
 import net.finmath.equities.models.SviVolatilitySmile;
 import net.finmath.equities.models.SviVolatilitySurface;
-import net.finmath.equities.pricer.AnalyticOptionPricer;
-import net.finmath.equities.pricer.PdeOptionPricer;
+import net.finmath.equities.pricer.AnalyticOptionValuation;
+import net.finmath.equities.pricer.PdeOptionValuation;
 import net.finmath.equities.products.AmericanOption;
 import net.finmath.equities.products.EuropeanOption;
 import net.finmath.equities.products.Option;
@@ -43,8 +43,8 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test European option price");
 		System.out.println("===========================================");
 
-		var anaPricer = new AnalyticOptionPricer(dcc);
-		var pdePricer = new PdeOptionPricer(0.1, 5.0, 50, 30, dcc, false, false);
+		var anaPricer = new AnalyticOptionValuation(dcc);
+		var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.25;
@@ -84,8 +84,8 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American option price");
 		System.out.println("===========================================");
 
-		var anaPricer = new AnalyticOptionPricer(dcc);
-		var pdePricer = new PdeOptionPricer(0.1, 3.0, 50, 30, dcc, false, true);
+		var anaPricer = new AnalyticOptionValuation(dcc);
+		var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, true);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.25;
@@ -129,7 +129,7 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American call early exercise");
 		System.out.println("==================================================");
 
-		var pdePricer = new PdeOptionPricer(0.1, 3.0, 50, 30, dcc, false, false);
+		var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.0000001;
@@ -166,7 +166,7 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American put early exercise");
 		System.out.println("=================================================");
 
-		var pdePricer = new PdeOptionPricer(0.1, 3.0, 50, 30, dcc, false, false);
+		var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 50.0;
 		var volatility = 0.5;
@@ -202,8 +202,8 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test local volatility price");
 		System.out.println("============================================");
 
-		var pdePricer = new PdeOptionPricer(0.1, 3.0, 75, 50, dcc, false, false);
-		var pdeLvPricer = new PdeOptionPricer(0.1, 3.0, 75, 50, dcc, true, false);
+		var pdePricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, false, false);
+		var pdeLvPricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, true, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var rate = 0.05;
@@ -259,7 +259,7 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American option arbitrage");
 		System.out.println("===============================================");
 
-		var pricer = new PdeOptionPricer(0.1, 3.0, 50, 40, dcc, false, false);
+		var pricer = new PdeOptionValuation(0.1, 3.0, 50, 40, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.25;
@@ -298,8 +298,8 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test European Greeks");
 		System.out.println("==================================================");
 
-		var anaPricer = new AnalyticOptionPricer(dcc);
-		var pdePricer = new PdeOptionPricer(0.1, 5.0, 50, 30, dcc, false, false);
+		var anaPricer = new AnalyticOptionValuation(dcc);
+		var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.35;
@@ -355,7 +355,7 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test implied volatility");
 		System.out.println("========================================");
 
-		var pdePricer = new PdeOptionPricer(0.1, 5.0, 50, 30, dcc, false, false);
+		var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
 		var valDate = LocalDate.parse("2019-06-15");
 		var spot = 100.0;
 		var volatility = 0.35;
@@ -397,7 +397,7 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Provide sensitivities for stability analysis");
 		System.out.println("=============================================================");
 
-		var pdePricer = new PdeOptionPricer(0.1, 3.0, 70, 0, dcc, false, true);
+		var pdePricer = new PdeOptionValuation(0.1, 3.0, 70, 0, dcc, false, true);
 		var valDate = LocalDate.parse("2019-06-15");
 		var volatility = 0.35;
 		//var volatility = 0.2;

@@ -27,8 +27,8 @@ import net.finmath.time.daycount.DayCountConventionFactory;
 public class AffineDividendStreamTest {
 	/*
 	 */
-	static final DecimalFormat decform = new DecimalFormat("#0.00");
-	DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
+	private static final DecimalFormat decform = new DecimalFormat("#0.00");
+	private static final DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
 
 	@Test
 	public void Test_sorting() throws CalculationException

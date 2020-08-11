@@ -28,8 +28,8 @@ import net.finmath.time.daycount.DayCountConventionFactory;
 public class SviVolatiltitySurfaceTest {
 	/*
 	 */
-	static final DecimalFormat decform = new DecimalFormat("#0.00");
-	DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
+	private static final DecimalFormat decform = new DecimalFormat("#0.00");
+	private static final DayCountConvention dcc = DayCountConventionFactory.getDayCountConvention("act/365") ;
 
 	@Test
 	public void Test_noArbitrage() throws CalculationException
@@ -198,6 +198,5 @@ public class SviVolatiltitySurfaceTest {
 		assertEquals(0.0, newSmile.getM() / m - 1.0, 1e-6);
 		assertEquals(0.0, initialGuess[4] / sigma - 1.0, 1e-1);
 		assertEquals(0.0, newSmile.getSigma() / sigma - 1.0, 1e-6);
-
 	}
 }

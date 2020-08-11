@@ -11,10 +11,10 @@ import net.finmath.equities.models.VolatilitySurface;
  * @author Andreas Grotz
  */
 
-public interface OptionPricer extends Cloneable {
+public interface OptionValuation extends Cloneable {
 
-	EquityPricingResult calculate(
-			EquityPricingRequest request,
+	EquityValuationResult calculate(
+			EquityValuationRequest request,
 			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
 			VolatilitySurface volSurface);
