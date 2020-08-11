@@ -1,6 +1,5 @@
 package net.finmath.montecarlo.process.component.factordrift;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -26,9 +25,8 @@ public interface FactorDrift {
 	 * @param timeIndex The time index (associated with the process time discretization).
 	 * @param realizationPredictor The realization predictor (in case we use a predictor corrector scheme).
 	 * @return A vector of random variables given the factor drift for each factor. If the size is less then the number of factors, then higher order factors have no drift.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariable[]	getFactorDrift(int timeIndex, RandomVariable[] realizationPredictor) throws CalculationException;
+	RandomVariable[]	getFactorDrift(int timeIndex, RandomVariable[] realizationPredictor);
 
 	/**
 	 * The interface describes how an additional factor drift may be specified for the generation of a process (see e.g. LogNormalProcess).

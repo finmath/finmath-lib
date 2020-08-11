@@ -86,14 +86,14 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 		RandomVariable values = average.sub(strike).floor(0.0);
 
 		// Discounting...
-		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
 		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
-		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
+		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);
 
 		return values;
 	}

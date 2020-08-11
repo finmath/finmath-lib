@@ -199,9 +199,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		lastValuationExerciseTime = exerciseTime;
 
 		// Note that values is a relative price - no numeraire division is required
-		final RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		final RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		value = value.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);
+		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		value = value.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);
 
 		return value;
 	}
