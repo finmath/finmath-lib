@@ -179,8 +179,9 @@ public class LIBORIndexMultiCurveTest {
 					return "quarterly";
 				case "6M":
 					return "semiannual";
+				default:
+					throw new IllegalArgumentException("Unkown tenor " + tenor);
 				}
-				throw new IllegalArgumentException("Unkown tenor " + tenor);
 			}
 		};
 

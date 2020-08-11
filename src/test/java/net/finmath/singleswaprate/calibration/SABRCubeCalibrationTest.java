@@ -309,6 +309,8 @@ public class SABRCubeCalibrationTest {
 						System.out.println("Market data not available.");
 					}
 					break;
+				default:
+					throw new IllegalArgumentException("Unkown payer/receiver flag: " + inputs[0]);
 				}
 			}
 		}
