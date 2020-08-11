@@ -6,7 +6,7 @@ package net.finmath.equities.models;
  * @author Andreas Grotz
  */
 
-public interface IShiftedVolatilitySurface extends IVolatilitySurface {
+public interface ShiftedVolatilitySurface extends VolatilitySurface {
 
 	double getShift();
 }

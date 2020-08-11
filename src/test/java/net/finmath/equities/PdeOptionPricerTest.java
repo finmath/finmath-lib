@@ -20,7 +20,7 @@ import net.finmath.equities.pricer.AnalyticOptionPricer;
 import net.finmath.equities.pricer.PdeOptionPricer;
 import net.finmath.equities.products.AmericanOption;
 import net.finmath.equities.products.EuropeanOption;
-import net.finmath.equities.products.IOption;
+import net.finmath.equities.products.Option;
 import net.finmath.exception.CalculationException;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;
@@ -230,7 +230,7 @@ public class PdeOptionPricerTest {
 		{
 			for (var isAmerican : americanOrEuropean)
 			{
-				IOption option;
+				Option option;
 				if (isAmerican) {
 					option = new AmericanOption(expiryDate, strike, isCall);
 				} else {
@@ -433,7 +433,7 @@ public class PdeOptionPricerTest {
 				for (var spot : spots)
 				{
 					var thisStructure = fwdStructure.cloneWithNewSpot(spot);
-					IOption option;
+					Option option;
 					if(isAmerican) {
 						option = new AmericanOption(expiryDate, strike, isCall);
 					} else {

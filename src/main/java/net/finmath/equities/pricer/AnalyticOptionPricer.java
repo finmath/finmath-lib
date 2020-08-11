@@ -6,10 +6,10 @@ import org.apache.commons.lang3.NotImplementedException;
 
 import net.finmath.equities.marketdata.FlatYieldCurve;
 import net.finmath.equities.models.Black76Model;
-import net.finmath.equities.models.IEquityForwardStructure;
-import net.finmath.equities.models.IVolatilitySurface;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.VolatilitySurface;
 import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
-import net.finmath.equities.products.IOption;
+import net.finmath.equities.products.Option;
 import net.finmath.time.daycount.DayCountConvention;
 
 /**
@@ -19,7 +19,7 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Andreas Grotz
  */
 
-public class AnalyticOptionPricer implements IOptionPricer
+public class AnalyticOptionPricer implements OptionPricer
 {
 
 	private final DayCountConvention dcc;
@@ -32,9 +32,9 @@ public class AnalyticOptionPricer implements IOptionPricer
 	@Override
 	public EquityPricingResult calculate(
 			EquityPricingRequest request,
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		var results = new HashMap<CalculationRequestType, Double>();
 		for (var calcType  : request.getCalcsRequested()) {
@@ -46,10 +46,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 
 
 	public double calculate(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface,
+			VolatilitySurface volaSurface,
 			CalculationRequestType calcType)
 	{
 		assert !option.isAmericanOption() : "Analytic pricer cannot handle American options.";
@@ -125,10 +125,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getPrice(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		return calculate(
 				option,
@@ -139,10 +139,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getDelta(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		return calculate(
 				option,
@@ -153,10 +153,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getGamma(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		return calculate(
 				option,
@@ -167,10 +167,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getVega(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		return calculate(
 				option,
@@ -181,10 +181,10 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getTheta(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		return calculate(
 				option,
@@ -195,8 +195,8 @@ public class AnalyticOptionPricer implements IOptionPricer
 	}
 
 	public double getImpliedVolatility(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
 			double price)
 	{

@@ -22,12 +22,12 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Andreas Grotz
  */
 
-public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatilitySurface {
+public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilitySurface {
 
 	private final DayCountConvention dayCounter;
 	private final boolean useStickyStrike;
 	private LocalDate valuationDate;
-	private IEquityForwardStructure forwardStructure;
+	private EquityForwardStructure forwardStructure;
 	private SviVolatilitySmile[] smiles = new SviVolatilitySmile[0];
 	private double[] smileTimes = new double[0];
 	private boolean isCalibrated = false;
@@ -43,7 +43,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	public SviVolatilitySurface(
 			LocalDate valuationDate,
 			DayCountConvention dayCounter,
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			SviVolatilitySmile[] smiles,
 			boolean useStickyStrike)
 	{
@@ -58,7 +58,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	private SviVolatilitySurface(
 			LocalDate valuationDate,
 			DayCountConvention dayCounter,
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			SviVolatilitySmile[] smiles,
 			boolean useStickyStrike,
 			double volShift)
@@ -104,7 +104,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 		return smiles;
 	}
 
-	private void setForwardStructure(IEquityForwardStructure forwardStructure)
+	private void setForwardStructure(EquityForwardStructure forwardStructure)
 	{
 		this.forwardStructure = forwardStructure;
 		valuationDate = forwardStructure.getValuationDate();
@@ -114,7 +114,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	public double getVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure)
+			EquityForwardStructure currentForwardStructure)
 	{
 		var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 		return 	getVolatility(strike, timeToMaturity, currentForwardStructure);
@@ -124,7 +124,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	public double getVolatility(
 			double strike,
 			double timeToMaturity,
-			IEquityForwardStructure currentForwardStructure)
+			EquityForwardStructure currentForwardStructure)
 	{
 		// sticky moneyness
 		assert isCalibrated : "Surface is not calibrated yet";
@@ -141,7 +141,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	public double getLocalVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift)
 	{
@@ -155,7 +155,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 	public double getLocalVolatility(
 			double logStrike,
 			double timeToMaturity,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift)
 	{
@@ -229,7 +229,7 @@ public class SviVolatilitySurface implements IVolatilitySurface, IShiftedVolatil
 
 	@Override
 	public void calibrate(
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			ArrayList<VolatilityPoint> volaPoints)
 	{
 		/*TODO The current calibration is smile by smile. It does not ensure absence of arbitrage.

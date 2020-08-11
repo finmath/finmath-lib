@@ -8,7 +8,7 @@ import java.time.LocalDate;
  * @author Andreas Grotz
  */
 
-public class AmericanOption extends Option {
+public class AmericanOption extends AbstractOption {
 
 	public AmericanOption(LocalDate expiryDate, double strike, boolean isCallOption) {
 		super(expiryDate, strike, isCallOption);

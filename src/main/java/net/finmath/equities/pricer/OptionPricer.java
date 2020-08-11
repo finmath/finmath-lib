@@ -1,8 +1,8 @@
 package net.finmath.equities.pricer;
 
 import net.finmath.equities.marketdata.FlatYieldCurve;
-import net.finmath.equities.models.IEquityForwardStructure;
-import net.finmath.equities.models.IVolatilitySurface;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.VolatilitySurface;
 
 /**
  * Interface for option pricers that handle pricing requests.
@@ -11,11 +11,11 @@ import net.finmath.equities.models.IVolatilitySurface;
  * @author Andreas Grotz
  */
 
-public interface IOptionPricer extends Cloneable {
+public interface OptionPricer extends Cloneable {
 
 	EquityPricingResult calculate(
 			EquityPricingRequest request,
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface);
+			VolatilitySurface volSurface);
 }

@@ -25,7 +25,7 @@ import net.finmath.equities.marketdata.FlatYieldCurve;
  *
  * @author Andreas Grotz
  */
-public interface IEquityForwardStructure {
+public interface EquityForwardStructure {
 
 	enum DividendModelType
 	{
@@ -45,9 +45,9 @@ public interface IEquityForwardStructure {
 
 	AffineDividendStream getDividendStream();
 
-	IEquityForwardStructure cloneWithNewSpot(double newSpot);
+	EquityForwardStructure cloneWithNewSpot(double newSpot);
 
-	IEquityForwardStructure cloneWithNewDate(LocalDate newDate);
+	EquityForwardStructure cloneWithNewDate(LocalDate newDate);
 
 	double getGrowthDiscountFactor(double startTime, double endTime);
 

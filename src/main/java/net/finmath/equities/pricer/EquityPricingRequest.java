@@ -2,7 +2,7 @@ package net.finmath.equities.pricer;
 
 import java.util.ArrayList;
 
-import net.finmath.equities.products.IOption;
+import net.finmath.equities.products.Option;
 
 /**
  * Class to store a pricing request handed to implementations of the IOptionPricer interface.
@@ -21,16 +21,16 @@ public class EquityPricingRequest {
 		Theta,
 	}
 
-	private final IOption option;
+	private final Option option;
 	private final ArrayList<CalculationRequestType> calcsRequested;
 
-	public EquityPricingRequest(final IOption option, final ArrayList<CalculationRequestType> calcsRequested)
+	public EquityPricingRequest(final Option option, final ArrayList<CalculationRequestType> calcsRequested)
 	{
 		this.option = option;
 		this.calcsRequested = calcsRequested;
 	}
 
-	public IOption getOption() {
+	public Option getOption() {
 		return option;
 	}
 

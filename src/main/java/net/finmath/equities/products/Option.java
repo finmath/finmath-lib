@@ -3,53 +3,22 @@ package net.finmath.equities.products;
 import java.time.LocalDate;
 
 /**
- * Abstract class to handle common methods and members for American and European options.
+ * Interface to handle American and European options.
  *
  * @author Andreas Grotz
  */
 
-public abstract class Option implements IOption {
+public interface Option extends Cloneable {
 
-	private final LocalDate expiryDate;
-	private final double strike;
-	private final boolean isCallOption;
+	double getStrike();
 
-	public Option(
-			final LocalDate expiryDate,
-			final double strike,
-			final boolean isCallOption)
-	{
-		this.expiryDate = expiryDate;
-		this.strike = strike;
-		this.isCallOption = isCallOption;
-	}
+	LocalDate getExpiryDate();
 
-	@Override
-	public final LocalDate getExpiryDate() {
-		return expiryDate;
-	}
+	boolean isCallOption();
 
-	@Override
-	public final double getStrike() {
-		return strike;
-	}
+	boolean isAmericanOption();
 
-	@Override
-	public final boolean isCallOption() {
-		return isCallOption;
-	}
+	double callPutFactor();
 
-	@Override
-	public final double callPutFactor() {
-		if (isCallOption) {
-			return 1.0;
-		} else {
-			return -1.0;
-		}
-	}
-
-	@Override
-	public final double getPayoff(double spot) {
-		return Math.max(callPutFactor() * (spot - strike),0);
-	}
+	double getPayoff(double spot);
 }

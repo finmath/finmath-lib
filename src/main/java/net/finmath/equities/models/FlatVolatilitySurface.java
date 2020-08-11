@@ -11,7 +11,7 @@ import net.finmath.equities.marketdata.VolatilityPoint;
  * @author Andreas Grotz
  */
 
-public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolatilitySurface {
+public class FlatVolatilitySurface  implements VolatilitySurface, ShiftedVolatilitySurface {
 
 	private final double volatility;
 	private final double volShift;
@@ -26,7 +26,7 @@ public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolat
 	}
 
 	@Override
-	public IShiftedVolatilitySurface getShiftedSurface(double shift) {
+	public ShiftedVolatilitySurface getShiftedSurface(double shift) {
 		assert volShift == 0.0 : "Surface is already shifted";
 		return new FlatVolatilitySurface(this.volatility, shift);
 	}
@@ -39,13 +39,13 @@ public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolat
 	public double getVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure)
+			EquityForwardStructure currentForwardStructure)
 	{
 		return volatility + volShift;
 	}
 
 	@Override
-	public double getVolatility(double strike, double timeToMaturity, IEquityForwardStructure currentForwardStructure) {
+	public double getVolatility(double strike, double timeToMaturity, EquityForwardStructure currentForwardStructure) {
 		return volatility + volShift;
 	}
 
@@ -53,7 +53,7 @@ public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolat
 	public double getLocalVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift)
 	{
@@ -64,7 +64,7 @@ public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolat
 	public double getLocalVolatility(
 			double logStrike,
 			double timeToMaturity,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift)
 	{
@@ -72,7 +72,7 @@ public class FlatVolatilitySurface  implements IVolatilitySurface, IShiftedVolat
 	}
 
 	public void calibrate(
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			ArrayList<VolatilityPoint> volaPoints)
 	{
 		assert false : "A flat surface cannot be calibrated";

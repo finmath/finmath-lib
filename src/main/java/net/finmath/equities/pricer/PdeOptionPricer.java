@@ -12,11 +12,11 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.equities.marketdata.FlatYieldCurve;
 import net.finmath.equities.models.FlatVolatilitySurface;
-import net.finmath.equities.models.IEquityForwardStructure;
-import net.finmath.equities.models.IVolatilitySurface;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.VolatilitySurface;
 import net.finmath.equities.pricer.EquityPricingRequest.CalculationRequestType;
 import net.finmath.equities.products.EuropeanOption;
-import net.finmath.equities.products.IOption;
+import net.finmath.equities.products.Option;
 import net.finmath.rootfinder.BisectionSearch;
 import net.finmath.rootfinder.SecantMethod;
 import net.finmath.time.daycount.DayCountConvention;
@@ -36,7 +36,7 @@ import net.finmath.time.daycount.DayCountConvention;
  *
  * @author Andreas Grotz
  */
-public class PdeOptionPricer implements IOptionPricer
+public class PdeOptionPricer implements OptionPricer
 {
 
 	private final int timeStepsPerYear;
@@ -103,9 +103,9 @@ public class PdeOptionPricer implements IOptionPricer
 	@Override
 	public EquityPricingResult calculate(
 			EquityPricingRequest request,
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volaSurface)
+			VolatilitySurface volaSurface)
 	{
 		var results = new HashMap<CalculationRequestType, Double>();
 		if(request.getCalcsRequested().isEmpty()) {
@@ -157,28 +157,28 @@ public class PdeOptionPricer implements IOptionPricer
 	}
 
 	public double getPrice(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface)
+			VolatilitySurface volSurface)
 	{
 		return evolvePde(option, forwardStructure, discountCurve, volSurface, false)[0];
 	}
 
 	public double[] getPdeSensis(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface)
+			VolatilitySurface volSurface)
 	{
 		return evolvePde(option, forwardStructure, discountCurve, volSurface, true);
 	}
 
 	public double getVega(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface,
+			VolatilitySurface volSurface,
 			double basePrice,
 			double volShift)
 	{
@@ -187,10 +187,10 @@ public class PdeOptionPricer implements IOptionPricer
 	}
 
 	public double getTheta(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface,
+			VolatilitySurface volSurface,
 			double basePrice)
 	{
 		var valDate = forwardStructure.getValuationDate();
@@ -202,10 +202,10 @@ public class PdeOptionPricer implements IOptionPricer
 	}
 
 	private double[] evolvePde(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
-			IVolatilitySurface volSurface,
+			VolatilitySurface volSurface,
 			boolean calculateSensis)
 	{
 		// Get data
@@ -412,8 +412,8 @@ public class PdeOptionPricer implements IOptionPricer
 
 
 	public double getImpliedVolatility(
-			IOption option,
-			IEquityForwardStructure forwardStructure,
+			Option option,
+			EquityForwardStructure forwardStructure,
 			FlatYieldCurve discountCurve,
 			double price)
 	{
@@ -440,7 +440,7 @@ public class PdeOptionPricer implements IOptionPricer
 		else
 		{
 			var anaPricer = new AnalyticOptionPricer(dayCounter);
-			IOption testOption;
+			Option testOption;
 			if(option.isAmericanOption()) {
 				testOption = new EuropeanOption(option.getExpiryDate(), option.getStrike(), option.isCallOption());
 			} else {

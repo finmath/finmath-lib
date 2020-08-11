@@ -14,7 +14,7 @@ import net.finmath.time.daycount.DayCountConvention;
  * @author Andreas Grotz
  */
 
-public class BuehlerDividendForwardStructure implements IEquityForwardStructure {
+public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 	private final LocalDate valuationDate;
 	private final double spot;
 	private final FlatYieldCurve repoCurve;

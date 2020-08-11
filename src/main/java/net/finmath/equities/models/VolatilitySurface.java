@@ -12,35 +12,35 @@ import net.finmath.equities.marketdata.VolatilityPoint;
  * @author Andreas Grotz
  */
 
-public interface IVolatilitySurface extends Cloneable {
+public interface VolatilitySurface extends Cloneable {
 
 	double getVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure);
+			EquityForwardStructure currentForwardStructure);
 
 	double getVolatility(
 			double strike,
 			double  timeToMaturity,
-			IEquityForwardStructure currentForwardStructure);
+			EquityForwardStructure currentForwardStructure);
 
 	double getLocalVolatility(
 			double strike,
 			LocalDate expiryDate,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift);
 
 	double getLocalVolatility(
 			double logStrike,
 			double timeToMaturity,
-			IEquityForwardStructure currentForwardStructure,
+			EquityForwardStructure currentForwardStructure,
 			double strikeShift,
 			double timeShift);
 
 	void calibrate(
-			IEquityForwardStructure forwardStructure,
+			EquityForwardStructure forwardStructure,
 			ArrayList<VolatilityPoint> volaPoints);
 
-	IShiftedVolatilitySurface getShiftedSurface(double shift);
+	ShiftedVolatilitySurface getShiftedSurface(double shift);
 }
