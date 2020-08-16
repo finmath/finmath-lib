@@ -57,7 +57,7 @@ net.finmath.montecarlo.interestrate.products.indices
 net.finmath.montecarlo.model
 net.finmath.montecarlo.process
 net.finmath.montecarlo.process.component.barrier
-net.finmath.montecarlo.process.component.factordrift
+net.finmath.montecarlo.process.component.factortransform
 net.finmath.montecarlo.products
 net.finmath.montecarlo.templatemethoddesign
 net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation
