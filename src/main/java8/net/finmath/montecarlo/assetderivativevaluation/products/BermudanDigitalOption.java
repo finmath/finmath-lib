@@ -136,7 +136,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 			final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);
 
 			// Value received if exercised at current time
-			final RandomVariable valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
+			final RandomVariable valueOfPaymentsIfExercised = one.mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 
 			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 			final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(underlyingAtExercise));
@@ -150,7 +150,7 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 				// Calculate conditional expectation on numeraire relative quantity.
 				final RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);
 
-				underlying	= underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment);//.mult(monteCarloWeights);
+				underlying	= underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);
 				trigger		= underlying.sub(valueIfNotExcercisedEstimated);
 				break;
 			case UPPER_BOUND_METHOD:
@@ -187,9 +187,9 @@ public class BermudanDigitalOption extends AbstractAssetMonteCarloProduct {
 		 */
 
 		// Note that values is a relative price - no numeraire division is required
-		final RandomVariable	numeraireAtZero					= model.getNumeraire(evaluationTime);
-		final RandomVariable	monteCarloProbabilitiesAtZero	= model.getMonteCarloWeights(evaluationTime);
-		value = value.mult(numeraireAtZero);//.div(monteCarloProbabilitiesAtZero);
+		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		value = value.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);
 
 		return value;
 	}

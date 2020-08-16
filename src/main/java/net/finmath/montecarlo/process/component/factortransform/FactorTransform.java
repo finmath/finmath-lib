@@ -1,4 +1,4 @@
-package net.finmath.montecarlo.process.component.factordrift;
+package net.finmath.montecarlo.process.component.factortransform;
 
 import net.finmath.stochastic.RandomVariable;
 
@@ -6,7 +6,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public interface FactorDrift {
+public interface FactorTransform {
 
 	/**
 	 * The interface describes how an additional factor scaling may be specified for the generation of a process (see e.g. LogNormalProcess).

@@ -114,7 +114,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 		// Create a corresponding MC process
 		process = new EulerSchemeFromProcessModel(this, brownianMotion, Scheme.EULER_FUNCTIONAL);
-	};
+	}
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization.
@@ -133,7 +133,7 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 			final double[][]	correlations
 			) {
 		this(new RandomVariableFromArrayFactory(), brownianMotion, initialValues, riskFreeRate, getFactorLoadingsFromVolatilityAnCorrelation(volatilities, correlations));
-	};
+	}
 
 	private static double[][] getFactorLoadingsFromVolatilityAnCorrelation(double[] volatilities, double[][] correlations) {
 		double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);

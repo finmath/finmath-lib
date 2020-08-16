@@ -29,7 +29,6 @@ import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;

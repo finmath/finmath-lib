@@ -97,4 +97,40 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 
 		return values;
 	}
+
+	/**
+	 * Returns the maturity of the option.
+	 * 
+	 * @return the maturity of the option.
+	 */
+	public double getMaturity() {
+		return maturity;
+	}
+
+	/**
+	 * Returns the strike of the option.
+	 * 
+	 * @return the strike of the option.
+	 */
+	public double getStrike() {
+		return strike;
+	}
+
+	/**
+	 * Returns the TimeDiscretization used for averaging in the asian option.
+	 * 
+	 * @return the TimeDiscretization used for averaging in the asian option.
+	 */
+	public TimeDiscretization getTimesForAveraging() {
+		return timesForAveraging;
+	}
+
+	/**
+	 * Returns the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 * 
+	 * @return the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 */
+	public Integer getUnderlyingIndex() {
+		return underlyingIndex;
+	}
 }
