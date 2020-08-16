@@ -87,15 +87,57 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 		RandomVariable values = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));
 
 		// Discounting...
-		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
 		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
 		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);
 
 		// ...to evaluation time.
-		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);
-		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
-		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);
+		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);
+		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
+		values = values.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);
 
 		return values;
+	}
+
+	/**
+	 * Returns the maturity of the option.
+	 * 
+	 * @return the maturity of the option.
+	 */
+	public double getMaturity() {
+		return maturity;
+	}
+
+	/**
+	 * Returns the strike of the option.
+	 * 
+	 * @return the strike of the option.
+	 */
+	public double getStrike() {
+		return strike;
+	}
+
+	/**
+	 * Returns the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 * 
+	 * @return the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 */
+	public Integer getUnderlyingIndex() {
+		return underlyingIndex;
+	}
+
+	/**
+	 * Returns a string name of the underlying (if supported), otherwise null.
+	 * 
+	 * @return a string name of the underlying (if supported), otherwise null.
+	 */
+	public String getNameOfUnderlying() {
+		return nameOfUnderlying;
+	}
+
+	@Override
+	public String toString() {
+		return "DigitalOption [maturity=" + maturity + ", strike=" + strike + ", underlyingIndex=" + underlyingIndex
+				+ ", nameOfUnderlying=" + nameOfUnderlying + "]";
 	}
 }

@@ -134,7 +134,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 			newProcess = process.getCloneWithModifiedModel(newModel);
 		}
 
-		return new MonteCarloAssetModel(newModel, newProcess);
+		return new MonteCarloAssetModel(newProcess);
 	}
 
 	/**

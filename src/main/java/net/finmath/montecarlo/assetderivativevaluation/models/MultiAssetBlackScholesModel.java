@@ -112,7 +112,7 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 			initialStates[underlyingIndex]				= getRandomVariableForConstant(Math.log(initialValues[underlyingIndex]));
 			drift[underlyingIndex]						= getRandomVariableForConstant(riskFreeRate - volatilitySquaredForUnderlying / 2.0);
 		}
-	};
+	}
 
 	/**
 	 * Create a multi-asset Black-Scholes model.
