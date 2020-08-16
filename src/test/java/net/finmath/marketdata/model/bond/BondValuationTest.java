@@ -40,7 +40,7 @@ public class BondValuationTest {
 
 	static final double errorTolerance = 1E-14;
 
-	final InterpolationMethod interpolationMethod;
+	private final InterpolationMethod interpolationMethod;
 
 	public BondValuationTest(final InterpolationMethod interpolationMethod)
 	{
@@ -176,12 +176,6 @@ public class BondValuationTest {
 
 		System.out.println(value);
 
-
-
-
 	}
-
-
-
 
 }

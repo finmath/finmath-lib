@@ -97,6 +97,8 @@ public class InhomogenousBachelierModelMonteCarloValuationTest {
 			// This test requires a MonteCarloBlackScholesModel and will not work with others models
 			pricingTest.testEuropeanCallVega();
 			break;
+		default:
+			throw new IllegalArgumentException("Unknown test.");
 		}
 
 		final long end = System.currentTimeMillis();

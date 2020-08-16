@@ -117,7 +117,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		return new MonteCarloAssetModel(model, process);
+		return new MonteCarloAssetModel(process);
 	}
 
 	public Map<String, Object> getSensitivityApproximations(final double width, final int seed, final boolean isDirectRegression) throws CalculationException {

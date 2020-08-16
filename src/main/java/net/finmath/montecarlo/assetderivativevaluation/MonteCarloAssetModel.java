@@ -47,7 +47,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	/**
 	 * Convenient constructor being the same as this(new EulerSchemeFromProcessModel(model, stochasticDriver))
-	 * 
+	 *
 	 * @param model The model to use for the EulerSchemeFromProcessModel.
 	 * @param stochasticDriver The stochatic driver to use.
 	 */
@@ -62,6 +62,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @param process The numerical scheme to be used.
 	 * @deprecated May be made private in future releases.
 	 */
+	@Deprecated
 	public MonteCarloAssetModel(
 			final ProcessModel model,
 			final MonteCarloProcess process) {
@@ -133,7 +134,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 			newProcess = process.getCloneWithModifiedModel(newModel);
 		}
 
-		return new MonteCarloAssetModel(newModel, newProcess);
+		return new MonteCarloAssetModel(newProcess);
 	}
 
 	/**

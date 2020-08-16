@@ -2,11 +2,11 @@ package net.finmath.equities.models;
 
 /**
  * Interface for a shifted volatility surface (used in Vega calculations).
- * 
+ *
  * @author Andreas Grotz
  */
 
-public interface IShiftedVolatilitySurface extends IVolatilitySurface {
+public interface ShiftedVolatilitySurface extends VolatilitySurface {
 
-	public double getShift();
+	double getShift();
 }

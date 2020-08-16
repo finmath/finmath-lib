@@ -13,7 +13,7 @@ import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.hybridassetinterestrate.HybridAssetMonteCarloSimulation;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.process.component.factordrift.FactorDrift;
+import net.finmath.montecarlo.process.component.factortransform.FactorTransform;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -75,7 +75,7 @@ public abstract class HybridAssetMonteCarloProduct extends AbstractMonteCarloPro
 	 * @param targetScheme The target scheme
 	 * @return The FactorDriftInterface
 	 */
-	public FactorDrift getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme) {
+	public FactorTransform getFactorDrift(LIBORModelMonteCarloSimulationModel referenceScheme, LIBORModelMonteCarloSimulationModel targetScheme) {
 		return null;
 	}
 

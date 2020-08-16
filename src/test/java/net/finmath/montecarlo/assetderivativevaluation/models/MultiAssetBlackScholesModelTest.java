@@ -159,10 +159,10 @@ public class MultiAssetBlackScholesModelTest {
 		assertEquals(europeanOption1.getValue(assetModel), europeanOption1.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
 		assertEquals(europeanOption2.getValue(assetModel), europeanOption2.getValue(assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities))), tolerance);
 		assertEqualsValuationEuropeanProduct(
-				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
+				assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
 				europeanOption1, initialValue[0], riskFreeRate, volatilities[0]);
 		assertEqualsValuationEuropeanProduct(
-				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
+				assetModel.getCloneWithModifiedData(Map.of("volatilities", volatilities)),
 				europeanOption2, initialValue[1], riskFreeRate, volatilities[1]);
 
 		/*
@@ -170,10 +170,10 @@ public class MultiAssetBlackScholesModelTest {
 		 */
 		double[] newVolatilities = new double[] { 0.10, 0.30 };
 		assertEqualsValuationEuropeanProduct(
-				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
+				assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
 				europeanOption1, initialValue[0], riskFreeRate, newVolatilities[0]);
 		assertEqualsValuationEuropeanProduct(
-				(MonteCarloAssetModel) assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
+				assetModel.getCloneWithModifiedData(Map.of("volatilities", newVolatilities)),
 				europeanOption2, initialValue[1], riskFreeRate, newVolatilities[1]);
 
 		/*

@@ -84,10 +84,10 @@ public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct
 		final RandomVariable modifiedPayoff = payoff.mult(lr);
 
 		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
-		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
+		final RandomVariable numeraireAtEvalTime	= model.getNumeraire(evaluationTime);
 		final RandomVariable monteCarloWeightsAtMaturity	= model.getMonteCarloWeights(maturity);
-		final RandomVariable monteCarloWeightsAtToday		= model.getMonteCarloWeights(evaluationTime);
+		final RandomVariable monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);
 
-		return modifiedPayoff.div(numeraireAtMaturity).mult(numeraireAtToday).mult(monteCarloWeightsAtMaturity).div(monteCarloWeightsAtToday);
+		return modifiedPayoff.div(numeraireAtMaturity).mult(numeraireAtEvalTime).mult(monteCarloWeightsAtMaturity).div(monteCarloWeightsAtEvalTime);
 	}
 }

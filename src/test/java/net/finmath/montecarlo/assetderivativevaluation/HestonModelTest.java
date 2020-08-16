@@ -29,7 +29,7 @@ import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
 import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
-import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.time.TimeDiscretization;
@@ -95,29 +95,13 @@ public class HestonModelTest {
 
 		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel;
-		{
-			// Create a model
-			final AbstractProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = getMonteCarloSimulationFromModel(
+				new BlackScholesModel(initialValue, riskFreeRate, volatility),
+				new BrownianMotionView(brownianMotion, new Integer[] { 0 }));
 
-			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, new BrownianMotionView(brownianMotion, new Integer[] { new Integer(0) }));
-
-			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-			monteCarloBlackScholesModel = new MonteCarloAssetModel(model, process);
-		}
-
-		AssetModelMonteCarloSimulationModel monteCarloHestonModel;
-		{
-			// Create a model
-			final AbstractProcessModel model = new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme);
-
-			// Create a corresponding MC process
-			final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
-
-			// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
-		}
+		AssetModelMonteCarloSimulationModel monteCarloHestonModel = getMonteCarloSimulationFromModel(
+				new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme),
+				brownianMotion);
 
 		final CharacteristicFunctionModel characteristFunctionHeston = new net.finmath.fouriermethod.models.HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho);
 
@@ -164,5 +148,13 @@ public class HestonModelTest {
 			}
 		}
 		System.out.println();
+	}
+
+	private AssetModelMonteCarloSimulationModel getMonteCarloSimulationFromModel(ProcessModel model, BrownianMotion brownianMotion) {
+		// Create a corresponding MC process
+		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
+
+		// Using the process (Euler scheme), create an MC simulation model
+		return new MonteCarloAssetModel(process);
 	}
 }

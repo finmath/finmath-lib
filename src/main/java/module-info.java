@@ -66,7 +66,7 @@ module net.finmath.lib {
 	exports net.finmath.montecarlo.model;
 	exports net.finmath.montecarlo.process;
 	exports net.finmath.montecarlo.process.component.barrier;
-	exports net.finmath.montecarlo.process.component.factordrift;
+	exports net.finmath.montecarlo.process.component.factortransform;
 	exports net.finmath.montecarlo.products;
 	exports net.finmath.montecarlo.templatemethoddesign;
 	exports net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;

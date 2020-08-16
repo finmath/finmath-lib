@@ -436,7 +436,7 @@ public interface RandomVariable extends Serializable {
 	 */
 	default RandomVariable expectation() {
 		return average();
-	};
+	}
 
 	/**
 	 * Returns a random variable which is deterministic and corresponds
