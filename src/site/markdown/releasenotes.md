@@ -6,11 +6,16 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 5.0.5-SNAPSHIT (current)
+## 5.0.5 (16.08-2020)
+
+### Equity European and American Options with Local Volatility (SVI) and Dividents (Bühler 2007)
+
+ - Under the package `net.finmath.equities` the valuation of European and American options with Local Volatility (SVI) and Dividents (Bühler 2007) has been contributed by Andreas Grotz.
 
 ### Monte-Carlo Single Asset Model
 
  - Fixed a bug in the implementation of `DigitalOptionDeltaLikelihood` related to weighted Monte-Carlo simulation (weights were ignored).
+ - Added some getters.
 
 
 ## 5.0.4 (28.07.2020)
