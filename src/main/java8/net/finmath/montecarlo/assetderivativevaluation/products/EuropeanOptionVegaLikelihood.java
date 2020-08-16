@@ -57,10 +57,11 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 
 		// Get underlying and numeraire
 		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);
-		final RandomVariable numeraireAtMaturity		= model.getNumeraire(maturity);
+		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
 		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);
 		final RandomVariable numeraireAtToday		= model.getNumeraire(0);
 		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);
+		final RandomVariable monteCarloWeightsAtToday	= model.getMonteCarloWeights(0.0);
 
 		/*
 		 *  The following way of calculating the expected value (average) is discouraged since it makes too strong
@@ -103,7 +104,7 @@ public class EuropeanOptionVegaLikelihood extends AbstractAssetMonteCarloProduct
 				final double payOff			= (underlyingAtMaturity.get(path) - strike);
 				final double modifiedPayoff	= payOff * lr;
 
-				average += modifiedPayoff / numeraireAtMaturity.get(path) * monteCarloWeights.get(path) * numeraireAtToday.get(path);
+				average += modifiedPayoff / numeraireAtMaturity.get(path) * numeraireAtToday.get(path) * monteCarloWeights.get(path) / monteCarloWeightsAtToday.get(path);
 			}
 		}
 
