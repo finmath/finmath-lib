@@ -28,7 +28,7 @@ import net.finmath.stochastic.Scalar;
  * 	</dt>
  * 	<dd>
  * 		\[ \frac{1}{x} \int_{a}^{a+x} q(\xi) \mathrm{d}\xi \],
- * 
+ *
  * 		where a denotes the current level of fund provided by this capacity, and
  * 	</dd>
  * 	<dt>
@@ -42,7 +42,7 @@ import net.finmath.stochastic.Scalar;
  * Important: since the class keeps track of past fundings
  * used, it is mandatory that the factors are calculated in
  * time-sequential order.
- * 
+ *
  * @author Christian Fries
  */
 public class FundingCapacity extends AbstractProductComponent {
