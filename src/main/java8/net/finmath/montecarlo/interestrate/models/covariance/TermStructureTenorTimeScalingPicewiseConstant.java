@@ -34,16 +34,31 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	@Override
 	public double getScaledTenorTime(final double periodStart, final double periodEnd) {
 
-		final int timeStartIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodStart);
-		final int timeEndIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(periodEnd);
+		final double timeIntegratedStart;
+		{
+			final int timeStartIndex = timeDiscretization.getTimeIndex(periodStart);
+			if(timeStartIndex >= 0) {
+				timeIntegratedStart = timesIntegrated[timeStartIndex];
+			}
+			else {
+				int timeStartIndexLo = -timeStartIndex-2;
+				timeIntegratedStart = (timesIntegrated[timeStartIndexLo+1]-timesIntegrated[timeStartIndexLo])/timeDiscretization.getTimeStep(timeStartIndexLo)*(timeDiscretization.getTime(timeStartIndexLo+1)-periodStart);
+			}
+		}
 
-		if(timeDiscretization.getTime(timeStartIndex) != periodStart) {
-			System.out.println("*****S" + (periodStart));
+		final double timeIntegratedEnd;
+		{
+			final int timeEndIndex = timeDiscretization.getTimeIndex(periodEnd);
+			if(timeEndIndex >= 0) {
+				timeIntegratedEnd = timesIntegrated[timeEndIndex];
+			}
+			else {
+				int timeEndIndexLo = -timeEndIndex-2;
+				timeIntegratedEnd = (timesIntegrated[timeEndIndexLo+1]-timesIntegrated[timeEndIndexLo])/timeDiscretization.getTimeStep(timeEndIndexLo)*(periodEnd-timeDiscretization.getTime(timeEndIndexLo));
+			}
 		}
-		if(timeDiscretization.getTime(timeEndIndex) != periodEnd) {
-			System.out.println("*****E" + (periodStart));
-		}
-		final double timeScaled = timesIntegrated[timeEndIndex] - timesIntegrated[timeStartIndex];
+
+		final double timeScaled = timeIntegratedEnd - timeIntegratedStart;
 
 		return timeScaled;
 	}
@@ -53,9 +68,6 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 		return new TermStructureTenorTimeScalingPicewiseConstant(timeDiscretization, parameters);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingInterface#getParameter()
-	 */
 	@Override
 	public double[] getParameter() {
 		final double[] parameter = new double[timeDiscretization.getNumberOfTimeSteps()];
