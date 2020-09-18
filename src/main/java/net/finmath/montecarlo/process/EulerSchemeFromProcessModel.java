@@ -102,7 +102,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	/**
 	 * Create an Euler discretization scheme.
 	 *
-	 * @param model The model (the SDE specifcation) used to generate the (sampling of the) stochastic process.
+	 * @param model The model (the SDE specification) used to generate the (sampling of the) stochastic process.
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
 	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
