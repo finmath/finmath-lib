@@ -397,7 +397,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					switch(factory.getDiracDeltaApproximationMethod()) {
 					case ONE:
 					{
-						derivative = one;
+						derivative = Y.sub(Z);
 						break;
 					}
 					case ZERO:
@@ -413,7 +413,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 						 */
 						final double epsilon = factory.getDiracDeltaApproximationWidthPerStdDev()*X.getStandardDeviation();
 						if(Double.isInfinite(epsilon)) {
-							derivative = one;
+							derivative = Y.sub(Z);
 						}
 						else if(epsilon > 0) {
 							derivative = Y.sub(Z);
@@ -429,7 +429,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					case REGRESSION_ON_DENSITY:
 					case REGRESSION_ON_DISTRIBUITON:
 					{
-						derivative = one;
+						derivative = Y.sub(Z);
 						break;
 					}
 					default:
@@ -532,7 +532,9 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);
 
 				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
-				//				double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.mult(0.0).add(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0) }).getRegressionCoefficients(densityValues);
+//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX }).getRegressionCoefficients(densityValues);
+//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.mult(0.0).add(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
 				final double density = densityRegressionCoeff[0];
 
 				return density;
