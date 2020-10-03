@@ -6,6 +6,23 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.6 (03.10-2020)
+
+### General
+
+ - Improved exceptions.
+ 
+### Algorithmic Differentiation / Automatic Differentiation
+
+ - Improvement to AAD for indicators.
+ - Fixed an issue where (in a very special non-default setting), an algorithmic differentiation of an indicator function did not carry out the inner derivative.
+ 
+### Monte-Carlo Single Asset Model
+
+ - Monte-Carlo Merton model supports use of RandomVariableFactory. (Hence:)
+ - Monte-Carlo Merton model supports AAD.
+ 
+
 ## 5.0.5 (16.08-2020)
 
 ### Equity European and American Options with Local Volatility (SVI) and Dividents (Bühler 2007)
