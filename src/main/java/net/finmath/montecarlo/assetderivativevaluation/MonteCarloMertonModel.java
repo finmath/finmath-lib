@@ -85,7 +85,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		this.seed = seed;
 
 		double discountRate = riskFreeRate;
-		
+
 		// Create the model
 		model = new MertonModel(initialValue, riskFreeRate, volatility, discountRate, jumpIntensity, jumpSizeMean, jumpSizeStDev, randomVariableFactory);
 
