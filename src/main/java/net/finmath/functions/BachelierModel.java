@@ -221,6 +221,52 @@ public class BachelierModel {
 	}
 
 	/**
+	 * Calculates the option delta dV(0)/dS(0) of a digital call option, i.e., the payoff V(T)=indicator(S(T)-K &gt; 0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
+	 * 
+	 * The delta reported is \[ \frac{1}{\sigma \sqrt{T}} \phi( \frac{F-K}{\sigma \sqrt{T}} ) \], where \( \phi \) is the density of the standard normal distribution.
+	 * 
+	 * Note: The delta does not depend on the argument payoffUnit, due to \( \frac{\mathrm{d}F(0)}{\mathrm{d}S(0)} = \frac{1}{N(0)} \) being equal to 1 / payoffUnit.
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
+	 */
+	public static double bachelierDigitalOptionDelta(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+		if(optionMaturity < 0) {
+			return 0;
+		}
+		else if(forward == optionStrike) {
+			return 1.0 / Math.sqrt(2.0 * Math.PI) / (volatility * Math.sqrt(optionMaturity));
+		}
+		else
+		{
+			// Calculate analytic value
+			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));
+
+			final double deltaAnalytic = NormalDistribution.density(dPlus) / (volatility * Math.sqrt(optionMaturity));
+
+			return deltaAnalytic;
+		}
+	}
+
+	/**
 	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
 	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
 	 * \[
