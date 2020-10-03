@@ -84,4 +84,20 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		// Return values
 		return values;
 	}
+
+	public double getOptionMaturity() {
+		return optionMaturity;
+	}
+
+	public double getPeriodStart() {
+		return periodStart;
+	}
+
+	public double getPeriodEnd() {
+		return periodEnd;
+	}
+
+	public double getStrike() {
+		return strike;
+	}
 }
