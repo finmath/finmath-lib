@@ -12,6 +12,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.IndependentIncrements;
 import net.finmath.montecarlo.MertonJumpProcess;
+import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.assetderivativevaluation.models.MertonModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
@@ -51,6 +52,49 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 
 	private final double initialValue;
 	private final int seed;
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed used for the random number generator.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MonteCarloMertonModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double jumpIntensity,
+			final double jumpSizeMean,
+			final double jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+		super();
+
+		this.initialValue = initialValue;
+		this.seed = seed;
+
+		double discountRate = riskFreeRate;
+		
+		// Create the model
+		model = new MertonModel(initialValue, riskFreeRate, volatility, discountRate, jumpIntensity, jumpSizeMean, jumpSizeStDev, randomVariableFactory);
+
+		// Create the Compound Poisson process
+		final IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);
+
+		// Create a corresponding MC process
+		process = new EulerSchemeFromProcessModel(model, icrements, Scheme.EULER_FUNCTIONAL);
+	}
 
 	/**
 	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
