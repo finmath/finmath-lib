@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    
+    
+    <link rel="SHORTCUT ICON" href="../../../../img/clover.ico" />
+
+    <link rel="stylesheet" href="../../../../aui/css/aui.min.css" media="all"/>
+    <link rel="stylesheet" href="../../../../aui/css/aui-experimental.min.css" media="all"/>
+    <!--[if IE 9]><link rel="stylesheet" href="../../../../aui/css/aui-ie9.min.css" media="all"/><![endif]-->
+
+    <style type="text/css" media="all">
+        @import url('../../../../style.css');
+        @import url('../../../../tree.css');
+        
+    </style>
+
+    <script src="../../../../jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui-experimental.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui-soy.min.js" type="text/javascript"></script>
+
+    <script src="../../../../package-nodes-tree.js" type="text/javascript"></script>
+    <script src="../../../../clover-tree.js" type="text/javascript"></script>
+    <script src="../../../../clover.js" type="text/javascript"></script>
+    <script src="../../../../clover-descriptions.js" type="text/javascript"></script>
+    <script src="../../../../cloud.js" type="text/javascript"></script>
+
+            <title>finmath lib 5.0.6</title>
+    </head>
+
+<body  onload="onLoad('finmath lib 5.0.6: net.finmath.montecarlo.interestrate.CalibrationProduct.java')">
+    <div id="page">
+        
+        
+
+
+<header id="header" role="banner">
+    <nav class="aui-header aui-dropdown2-trigger-group" role="navigation">
+        <div class="aui-header-inner">
+            <div class="aui-header-primary">
+                <h1 id="logo" class="aui-header-logo aui-header-logo-clover">
+                    <a href="http://openclover.org" title="Visit OpenClover home page"><span class="aui-header-logo-device">OpenClover</span></a>
+                </h1>
+                            </div>
+            <div class="aui-header-secondary">
+                <ul class="aui-nav">
+                    <li id="system-help-menu">
+                        <a class="aui-nav-link" title="Open online documentation" target="_blank"
+                           href="http://openclover.org/documentation">
+                            <span class="aui-icon aui-icon-small aui-iconfont-help">&#160;Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+        
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <div class="aui-page-panel-nav aui-page-panel-nav-clover">
+                    
+
+<div class="aui-page-header-inner" style="margin-bottom: 20px;">
+    <div class="aui-page-header-image">
+                    <a href="http://www.finmath.net/finmath-lib" target="_top">
+                <div class="aui-avatar aui-avatar-large aui-avatar-project">
+            <div class="aui-avatar-inner">
+                                    <img src="../../../../img/clover_logo_large.png" alt="Clover icon"/>
+                            </div>
+        </div>
+                    </a>
+            </div>
+    <div class="aui-page-header-main" >
+        <h1>
+                            <a href="http://www.finmath.net/finmath-lib" target="_top">
+                                        finmath lib 5.0.6
+                                        </a>
+                    </h1>
+    </div>
+</div>
+
+<nav class="aui-navgroup aui-navgroup-vertical">
+    <div class="aui-navgroup-inner">
+                                            <ul class="aui-nav">
+                <li class="">
+                    <a href="../../../../dashboard.html">Project overview</a>
+                </li>
+            </ul>
+        
+                <div class="aui-nav-heading packages-nav-heading">
+            <strong>Packages</strong>
+        </div>
+        <div class="aui-nav project-packages">
+            <form method="get" action="#" class="aui package-filter-container">
+                <input type="text" autocomplete="off" class="package-filter text"
+                       placeholder="Type to filter packages..." name="package-filter" id="package-filter"
+                       title="Start typing package name (or part of the name) to search through the tree. Use arrow keys and the Enter key to navigate."/>
+            </form>
+            <p class="package-filter-no-results-message hidden">
+                <small>No results found.</small>
+            </p>
+                                                <div class="packages-tree-wrapper" data-root-relative="../../../../" data-package-name="net.finmath.montecarlo.interestrate">
+                <div class="packages-tree-container"></div>
+                <div class="clover-packages-lozenges"></div>
+            </div>
+        </div>
+        
+            </div>
+</nav>                </div>
+                <section class="aui-page-panel-content">
+                    <div class="aui-page-panel-content-clover">
+
+                    
+                    <ol class="aui-nav aui-nav-breadcrumbs">
+            
+        <li><a href="../../../../dashboard.html">Project Clover database Sun Oct 4 2020 00:39:25 CEST</a></li> 
+        <li><a href="pkg-summary.html">        Package net.finmath.montecarlo.interestrate</a></li> 
+    </ol>
+    
+<h1 class="aui-h2-clover">
+            File CalibrationProduct.java
+    </h1>
+
+
+
+
+
+
+
+
+    
+<div class="aui-tabs horizontal-tabs" id="tabs-file">
+            <div class="tabs-pane aui-tabs-pane-100-pcnt active-pane" id="tabs-file-source">
+        <div>&#160;</div>
+
+        
+                <div style="display: table; width: 100%">
+                            <div class="clover-histogram-table-cell">
+                                <div class="dashboard-widget">
+            <header class="dashboard-widget-header">
+                <h3>Coverage histogram</h3>
+            </header>
+            <div class="dashboard-widget-content">
+                <div class="aui-item clover-aui-item-histogram">
+                    <img src="../../../../img/srcFileCovDistChart7.png" alt="../../../../img/srcFileCovDistChart7.png"
+                         usemap="#srcFileCovDistChart7.png" class="clover-histogram-img"/>
+                    <map id="srcFileCovDistChart7.png" name="srcFileCovDistChart7.png">
+<area shape="rect" coords="100,51,107,66" title="53 files have 91-100% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="91,54,98,66" title="43 files have 81-90% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="82,47,89,66" title="65 files have 71-80% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="73,52,80,66" title="47 files have 61-70% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="64,54,71,66" title="41 files have 51-60% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="56,60,63,66" title="21 files have 41-50% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="47,60,54,66" title="21 files have 31-40% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="38,64,45,66" title="8 files have 21-30% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="29,66,36,67" title="1 file has 11-20% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="20,66,27,67" title="1 file has 1-10% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="11,8,18,65" title="194 files have 0% coverage" alt="" nohref="nohref"/>
+</map><br />
+                    <span class="subtle"><strong>32% </strong>of files have more coverage</span>
+                </div>
+            </div>
+        </div>
+                    </div>
+                        <div style="display: table-cell; width: 67%;">
+                    <div class="dashboard-widget">
+        <header class="dashboard-widget-header">
+            <h3>Code metrics</h3>
+        </header>
+        <div class="dashboard-widget-content">
+                        
+
+<div id="td-header-stats" class="aui-item" style="display: ">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">11</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">107</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">56</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">1.64</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">11</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.09</div>
+    </div>
+</div>
+
+</div>
+                        
+
+<div id="td-filtered-header-stats" class="aui-item" style="display: none">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">11</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">107</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">56</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">1.64</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">11</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.09</div>
+    </div>
+</div>
+
+</div>        </div>
+    </div>
+            </div>
+        </div>
+
+        
+        
+
+
+    <h2>Classes</h2>
+
+        <table class="aui aui-table-sortable">
+        <thead>
+                        <tr>     <th>Class</th>
+    <th>Line #</th>
+
+            
+        <th class="">
+            <label  title="The total number of statements.">Total Statements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The percentage of elements that have been filtered from this report.">% Filtered</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label>
+        </th>
+        
+    
+            <th>Actions</th>
+    </tr>         </thead>
+        <tbody>
+                              <tr> <td id="CalibrationProduct">
+        <span><a href="#17" title="CalibrationProduct" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '17');">CalibrationProduct</a></span>
+</td>
+<td>17<a name="sl-17"></a></td>
+    <td class="">18</td>
+    <td class="">0%</td>
+    <td class="">12</td>
+    <td class="">10</td>
+    <td class=""><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.67741936</span>67.7%</div><div style="display: table-cell">
+ <div title="67.7% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:67.7%"></div></div></div></div></td>
+    <td><button data-dialog-id="dialog-CalibrationProduct" class="aui-button aui-button-link dialog-show-button">Show methods</button></td>
+</tr>                      </tbody>
+    </table>
+
+    
+     
+        <section role="dialog" id="dialog-CalibrationProduct" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+            
+            <header class="aui-dialog2-header">
+                <h1 class="aui-dialog2-header-main">Class CalibrationProduct</h1>
+                <div class="aui-dialog2-header-secondary">
+                    <input id="dialog-CalibrationProduct-method-filter" class="test-filter text" type="text" name="method-filter"
+                           placeholder="Type to filter methods..." autocomplete="off"
+                           onkeyup="filterMethods('dialog-CalibrationProduct-methods-body', 'dialog-CalibrationProduct-method-filter');"/>
+                </div>
+            </header>
+
+            
+            <div class="aui-dialog2-content">
+
+                
+
+                <table class="aui aui-table-sortable">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+                    <thead>
+                                                 <tr> <th id="CalibrationProduct">
+    Class<br/>    <span><a href="#17" title="CalibrationProduct" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '17');">CalibrationProduct</a></span>
+</th>
+<th>Line #<br/>17<a name="sl-17"></a></th>
+    <th class=""><label  title="The total number of statements.">Total Statements</label><br/>18</th>
+    <th class=""><label  title="The percentage of elements that have been filtered from this report.">% Filtered</label><br/>0%</th>
+    <th class=""><label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label><br/>12</th>
+    <th class=""><label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label><br/>10</th>
+    <th class=""><label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label><br/><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.67741936</span>67.7%</div><div style="display: table-cell">
+ <div title="67.7% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:67.7%"></div></div></div></div></th>
+</tr>                     </thead>
+                    <tbody id="dialog-CalibrationProduct-methods-body">
+                                                                                                            <tr id="CalibrationProduct-1">
+<td id="summary-35-2">
+ <span class="sortValue">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double,int)</span>
+&#160;&#160;<a href="?line=29#35" title="CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double,int)" name="sl-35" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '35');">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double,int)</a>
+</td>
+<td align="right"><span class="sortValue">35</span>35</td>
+<td class="" align="right"><span class="sortValue">6.0</span>6</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-2">
+<td id="summary-44-2">
+ <span class="sortValue">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double)</span>
+&#160;&#160;<a href="?line=29#44" title="CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double)" name="sl-44" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '44');">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,RandomVariable,double)</a>
+</td>
+<td align="right"><span class="sortValue">44</span>44</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-3">
+<td id="summary-48-2">
+ <span class="sortValue">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,double,double)</span>
+&#160;&#160;<a href="?line=29#48" title="CalibrationProduct(String,AbstractLIBORMonteCarloProduct,double,double)" name="sl-48" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '48');">CalibrationProduct(String,AbstractLIBORMonteCarloProduct,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">48</span>48</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-4">
+<td id="summary-52-2">
+ <span class="sortValue">CalibrationProduct(AbstractLIBORMonteCarloProduct,RandomVariable,double)</span>
+&#160;&#160;<a href="?line=29#52" title="CalibrationProduct(AbstractLIBORMonteCarloProduct,RandomVariable,double)" name="sl-52" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '52');">CalibrationProduct(AbstractLIBORMonteCarloProduct,RandomVariable,double)</a>
+</td>
+<td align="right"><span class="sortValue">52</span>52</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-5">
+<td id="summary-56-2">
+ <span class="sortValue">CalibrationProduct(AbstractLIBORMonteCarloProduct,double,double)</span>
+&#160;&#160;<a href="?line=29#56" title="CalibrationProduct(AbstractLIBORMonteCarloProduct,double,double)" name="sl-56" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '56');">CalibrationProduct(AbstractLIBORMonteCarloProduct,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">56</span>56</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-6">
+<td id="summary-65-2">
+ <span class="sortValue">getName()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#65" title="getName()&#160;:&#160;String" name="sl-65" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '65');">getName()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">65</span>65</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">5.0</span>5</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-7">
+<td id="summary-76-2">
+ <span class="sortValue">getProduct()&#160;:&#160;AbstractLIBORMonteCarloProduct</span>
+&#160;&#160;<a href="?line=29#76" title="getProduct()&#160;:&#160;AbstractLIBORMonteCarloProduct" name="sl-76" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '76');">getProduct()&#160;:&#160;AbstractLIBORMonteCarloProduct</a>
+</td>
+<td align="right"><span class="sortValue">76</span>76</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-8">
+<td id="summary-83-2">
+ <span class="sortValue">getTargetValue()&#160;:&#160;RandomVariable</span>
+&#160;&#160;<a href="?line=29#83" title="getTargetValue()&#160;:&#160;RandomVariable" name="sl-83" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '83');">getTargetValue()&#160;:&#160;RandomVariable</a>
+</td>
+<td align="right"><span class="sortValue">83</span>83</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-9">
+<td id="summary-90-2">
+ <span class="sortValue">getWeight()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#90" title="getWeight()&#160;:&#160;double" name="sl-90" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '90');">getWeight()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">90</span>90</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-10">
+<td id="summary-97-2">
+ <span class="sortValue">getPriority()&#160;:&#160;Integer</span>
+&#160;&#160;<a href="?line=29#97" title="getPriority()&#160;:&#160;Integer" name="sl-97" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '97');">getPriority()&#160;:&#160;Integer</a>
+</td>
+<td align="right"><span class="sortValue">97</span>97</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="CalibrationProduct-11">
+<td id="summary-101-2">
+ <span class="sortValue">toString()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#101" title="toString()&#160;:&#160;String" name="sl-101" onclick="closeDialogAndScrollTo('dialog-CalibrationProduct', '101');">toString()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">101</span>101</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                         </tbody>
+                </table>
+
+                <div>&#160;</div>
+                
+
+            </div>
+
+            
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button class="aui-button aui-button-primary dialog-close-button"
+                            data-dialog-id="dialog-CalibrationProduct">Close</button>
+                </div>
+                <div class="aui-dialog2-footer-hint">Click on a class or a method name to jump to source.</div>
+            </footer>
+        </section>
+
+     
+ 
+        
+        <div>&#160;</div>
+
+<h2>Contributing tests</h2>
+
+    <div>
+                This file is covered by 13 tests.
+        <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-link dialog-show-button">
+            Select tests to highlight the test coverage
+        </button>.
+    </div>
+
+<section role="dialog" id="contr-tests-dialog" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+    
+    <header class="aui-dialog2-header">
+        <h1 class="aui-dialog2-header-main">Contributing tests</h1>
+        <div class="aui-dialog2-header-secondary">
+            <input id="test-filter" class="test-filter text" type="text" name="test-filter"
+                   placeholder="Type to filter tests..." autocomplete="off"
+                   onkeyup="filterTests('tests-body', 'test-filter', 3);"/>
+        </div>
+    </header>
+
+    
+    <div class="aui-dialog2-content">
+    
+
+        <p class="aui-buttons">
+            <button title="Selects all tests for this file, highlighting their coverage."
+                    class="aui-button" id="selectalltests">Select all</button>
+        </p>
+
+        <table class="aui aui-table-sortable">
+            <thead id="tests-head">
+            <tr id="testHeaderRow">
+                <th class="aui-table-column-unsortable"></th>
+                <th>
+                    <label title="The percentage of coverage contributed by each single test.">Test contribution</label>
+                </th>
+                <th>
+                    <label title="The test (or test iteration) which was executed.">Test</label>
+                </th>
+                <th>
+                    <label>Result</label>
+                </th>
+                <th class="aui-table-column-unsortable">
+                    <label>Actions</label>
+                </th>
+            </tr>
+            </thead>
+            <tbody id="tests-body">
+
+<tr id="test-98">
+<td><a name="testA-98"></a><input type="checkbox" id="cb-98" value="98" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_TERMINAL__2q.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-98">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelMultiCurveValuationTest.testSwaptionCalibration[TERMINAL]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_TERMINAL__2q.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelMultiCurveValuationTest.testSwaptionCalibration[TERMINAL]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest.html?line=553#src-553" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_TERMINAL__2q.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-528">
+<td><a name="testA-528"></a><input type="checkbox" id="cb-528" value="528" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true___eo.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-528">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true___eo.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest.html?line=684#src-684" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true___eo.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-126">
+<td><a name="testA-126"></a><input type="checkbox" id="cb-126" value="126" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationSmileTest_testSwaptionSmileCalibration_3i.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-126">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationSmileTest.testSwaptionSmileCalibration</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationSmileTest_testSwaptionSmileCalibration_3i.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationSmileTest.testSwaptionSmileCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationSmileTest.html?line=133#src-133" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationSmileTest_testSwaptionSmileCalibration_3i.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-253">
+<td><a name="testA-253"></a><input type="checkbox" id="cb-253" value="253" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__ANALYTIC__71.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-253">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: NORMAL, Calibration: ANALYTIC]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__ANALYTIC__71.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: NORMAL, Calibration: ANALYTIC]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest.html?line=136#src-136" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__ANALYTIC__71.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-565">
+<td><a name="testA-565"></a><input type="checkbox" id="cb-565" value="565" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableADFactory__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____fp.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-565">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableDifferentiableADFactory [toString()=AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable=RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]]]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableADFactory__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____fp.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableDifferentiableADFactory [toString()=AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable=RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]]]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest.html?line=684#src-684" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableADFactory__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____fp.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-378">
+<td><a name="testA-378"></a><input type="checkbox" id="cb-378" value="378" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_false___ai.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-378">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=false]]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_false___ai.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=false]]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest.html?line=684#src-684" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_false___ai.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-100">
+<td><a name="testA-100"></a><input type="checkbox" id="cb-100" value="100" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableAADFactory__diracDeltaApproximationMethod_DISCRETE_DELTA__diracDeltaApproximationWidthPerStdDev_0_05__diracDeltaApproximationDensityRegressionWidthPerStdDev_0_5__isGradientRetainsLeafNodesOnly_true__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____2s.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-100">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableDifferentiableAADFactory [diracDeltaApproximationMethod=DISCRETE_DELTA, diracDeltaApproximationWidthPerStdDev=0.05, diracDeltaApproximationDensityRegressionWidthPerStdDev=0.5, isGradientRetainsLeafNodesOnly=true, toString()=AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable=RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]]]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableAADFactory__diracDeltaApproximationMethod_DISCRETE_DELTA__diracDeltaApproximationWidthPerStdDev_0_05__diracDeltaApproximationDensityRegressionWidthPerStdDev_0_5__isGradientRetainsLeafNodesOnly_true__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____2s.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelValuationTest.testSwaptionCalibration[RandomVariableDifferentiableAADFactory [diracDeltaApproximationMethod=DISCRETE_DELTA, diracDeltaApproximationWidthPerStdDev=0.05, diracDeltaApproximationDensityRegressionWidthPerStdDev=0.5, isGradientRetainsLeafNodesOnly=true, toString()=AbstractRandomVariableDifferentiableFactory [randomVariableFactoryForNonDifferentiable=RandomVariableFromArrayFactory [isUseDoublePrecisionFloatingPointImplementation=true]]]]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest.html?line=684#src-684" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelValuationTest_testSwaptionCalibration_RandomVariableDifferentiableAADFactory__diracDeltaApproximationMethod_DISCRETE_DELTA__diracDeltaApproximationWidthPerStdDev_0_05__diracDeltaApproximationDensityRegressionWidthPerStdDev_0_5__isGradientRetainsLeafNodesOnly_true__toString___AbstractRandomVariableDifferentiableFactory__randomVariableFactoryForNonDifferentiable_RandomVariableFromArrayFactory__isUseDoublePrecisionFloatingPointImplementation_true_____2s.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-80">
+<td><a name="testA-80"></a><input type="checkbox" id="cb-80" value="80" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__MONTECARLO__28.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-80">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: NORMAL, Calibration: MONTECARLO]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__MONTECARLO__28.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: NORMAL, Calibration: MONTECARLO]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest.html?line=136#src-136" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__NORMAL__Calibration__MONTECARLO__28.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-371">
+<td><a name="testA-371"></a><input type="checkbox" id="cb-371" value="371" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_SPOT__ab.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-371">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelMultiCurveValuationTest.testSwaptionCalibration[SPOT]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_SPOT__ab.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelMultiCurveValuationTest.testSwaptionCalibration[SPOT]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest.html?line=553#src-553" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelMultiCurveValuationTest_testSwaptionCalibration_SPOT__ab.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-604">
+<td><a name="testA-604"></a><input type="checkbox" id="cb-604" value="604" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__DISPLACED__Calibration__MONTECARLO__gs.html';">
+<span class="sortValue">0.67741936</span>
+<div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:67.7%"></div></div></div></td>
+<td id="tc-604">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: DISPLACED, Calibration: MONTECARLO]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__DISPLACED__Calibration__MONTECARLO__gs.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationTest.testATMSwaptionCalibration[Model: DISPLACED, Calibration: MONTECARLO]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest.html?line=136#src-136" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationTest_testATMSwaptionCalibration_Model__DISPLACED__Calibration__MONTECARLO__gs.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-298">
+<td><a name="testA-298"></a><input type="checkbox" id="cb-298" value="298" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_FINITE_DIFFERENCES__8a.html';">
+<span class="sortValue">0.61290324</span>
+<div>
+<div title="61.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:61.3%"></div></div></div></td>
+<td id="tc-298">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationAADTest.testATMSwaptionCalibration[VOLATILITYNORMAL-STOCHASTIC_LEVENBERG_MARQUARDT-FINITE_DIFFERENCES]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_FINITE_DIFFERENCES__8a.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationAADTest.testATMSwaptionCalibration[VOLATILITYNORMAL-STOCHASTIC_LEVENBERG_MARQUARDT-FINITE_DIFFERENCES]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest.html?line=198#src-198" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_FINITE_DIFFERENCES__8a.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-238">
+<td><a name="testA-238"></a><input type="checkbox" id="cb-238" value="238" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/HullWhiteModelCalibrationTest_testATMSwaptionCalibration_6m.html';">
+<span class="sortValue">0.61290324</span>
+<div>
+<div title="61.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:61.3%"></div></div></div></td>
+<td id="tc-238">  <span class="sortValue">net.finmath.montecarlo.interestrate.HullWhiteModelCalibrationTest.testATMSwaptionCalibration</span><a href="../../../../net/finmath/montecarlo/interestrate/HullWhiteModelCalibrationTest_testATMSwaptionCalibration_6m.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.HullWhiteModelCalibrationTest.testATMSwaptionCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/HullWhiteModelCalibrationTest.html?line=107#src-107" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/HullWhiteModelCalibrationTest_testATMSwaptionCalibration_6m.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-552">
+<td><a name="testA-552"></a><input type="checkbox" id="cb-552" value="552" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_ADJOINT_AUTOMATIC_DIFFERENTIATION__fc.html';">
+<span class="sortValue">0.61290324</span>
+<div>
+<div title="61.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:61.3%"></div></div></div></td>
+<td id="tc-552">  <span class="sortValue">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationAADTest.testATMSwaptionCalibration[VOLATILITYNORMAL-STOCHASTIC_LEVENBERG_MARQUARDT-ADJOINT_AUTOMATIC_DIFFERENTIATION]</span><a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_ADJOINT_AUTOMATIC_DIFFERENTIATION__fc.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.LIBORMarketModelCalibrationAADTest.testATMSwaptionCalibration[VOLATILITYNORMAL-STOCHASTIC_LEVENBERG_MARQUARDT-ADJOINT_AUTOMATIC_DIFFERENTIATION]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest.html?line=198#src-198" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/montecarlo/interestrate/LIBORMarketModelCalibrationAADTest_testATMSwaptionCalibration_VOLATILITYNORMAL_STOCHASTIC_LEVENBERG_MARQUARDT_ADJOINT_AUTOMATIC_DIFFERENTIATION__fc.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+
+            </tbody>
+        </table>
+
+        
+        <div>&#160;</div>
+
+    
+    </div>
+
+    
+    <footer class="aui-dialog2-footer">
+        <div class="aui-dialog2-footer-actions">
+            <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-primary dialog-close-button">Apply</button>
+        </div>
+        <div class="aui-dialog2-footer-hint">Select tests to highlight code covered by them in the source view.</div>
+    </footer>
+</section>
+
+ 
+        
+        
+
+
+
+
+
+<h2>Source view</h2>
+
+
+<div style="display: table; width: 100%;">
+    <div style="display: table-cell">
+        <button class="aui-button aui-button-link"
+                title="Toggles all methods in the source to be either expanded or collapsed."
+                onclick="toggleAllInlineMethods(this); return false;" id="method-expander">
+            Collapse all methods
+        </button>
+    </div>
+    <div style="display: table-cell">
+        <div style="text-align: right; margin-bottom: 10px">
+            <button class="aui-button aui-button-subtle" id="popupHelp">
+    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>&#160;Show legend
+</button>
+<script>
+    AJS.InlineDialog(AJS.$("#popupHelp"), "helpDialog",
+            function(content, trigger, showPopup) {
+                content.css({"padding":"20px"}).html(SRC_FILE_LEGEND_TEXT);
+                showPopup();
+                return false;
+            },
+            {
+                width: 700, hideDelay: 60000
+            }
+    );
+</script>        </div>
+    </div>
+</div>
+
+<table cellspacing="0" cellpadding="0" class="srcView" width="100%">
+
+    
+<tbody> <tr id="l1">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=1#src-1">1</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-1" class="srcLine"><span class="comment">/*</span></span></td>
+</tr>
+ <tr id="l2">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=2#src-2">2</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-2" class="srcLine"><span class="comment"> * (c) Copyright Christian P. Fries, Germany. Contact: email</span><span class="comment">@christian-fries.de.</span></span></td>
+</tr>
+ <tr id="l3">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=3#src-3">3</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-3" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l4">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=4#src-4">4</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-4" class="srcLine"><span class="comment"> * Created on 09.02.2004</span></span></td>
+</tr>
+ <tr id="l5">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=5#src-5">5</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-5" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+ <tr id="l6">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=6#src-6">6</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-6" class="srcLine"><span class="keyword">package</span> net.finmath.<a href="../../montecarlo/pkg-summary.html">montecarlo</a>.<a href="../interestrate/pkg-summary.html">interestrate</a>;</span></td>
+</tr>
+ <tr id="l7">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=7#src-7">7</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-7" class="srcLine"></span></td>
+</tr>
+ <tr id="l8">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=8#src-8">8</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-8" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../montecarlo/pkg-summary.html">montecarlo</a>.<a href="../interestrate/pkg-summary.html">interestrate</a>.<a href="../interestrate/products/pkg-summary.html">products</a>.<a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a>;</span></td>
+</tr>
+ <tr id="l9">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=9#src-9">9</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-9" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../stochastic/pkg-summary.html">stochastic</a>.<a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a>;</span></td>
+</tr>
+ <tr id="l10">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=10#src-10">10</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-10" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../stochastic/pkg-summary.html">stochastic</a>.<a href="../../../../net/finmath/stochastic/Scalar.html#Scalar">Scalar</a>;</span></td>
+</tr>
+ <tr id="l11">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=11#src-11">11</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-11" class="srcLine"></span></td>
+</tr>
+ <tr id="l12">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=12#src-12">12</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-12" class="srcLine"><span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l13">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=13#src-13">13</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-13" class="srcLine"><span class="comment"> * A class for calibration products, that is a triple (P,V,w) where P is a product, V is a target value and w is a weight.</span></span></td>
+</tr>
+ <tr id="l14">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=14#src-14">14</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-14" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l15">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=15#src-15">15</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-15" class="srcLine"><span class="comment"> * </span><span class="javadoc">@author</span><span class="comment"> Christian Fries</span></span></td>
+</tr>
+ <tr id="l16">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=16#src-16">16</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-16" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="17" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-17' onclick="toggleInlineStats(this, 'inlinestats-17');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-17" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-17'), 'inlinestats-17');return true;">
+                <td><div>
+<div title="67.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:67.7%"></div></div></div></td><td>67.7%</td>
+                <td class="inlineStat">Uncovered Elements: 10 (31)</td>
+                <td class="inlineStat">Complexity: 12</td>
+                <td class="inlineStat">Complexity Density: 0.67</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l17">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=17#src-17">17</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" id="id-17"><span class="spacer"></span><span id="src-17" class="srcLine"><span class="keyword">public</span> <span class="keyword">class</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a> {</span></td>
+</tr>
+ <tr id="l18">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=18#src-18">18</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-18" class="srcLine"></span></td>
+</tr>
+ <tr id="l19">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=19#src-19">19</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-19" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> String     name;</span></td>
+</tr>
+ <tr id="l20">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=20#src-20">20</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-20" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a>        product;</span></td>
+</tr>
+ <tr id="l21">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=21#src-21">21</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-21" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a>                        targetValue;</span></td>
+</tr>
+ <tr id="l22">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=22#src-22">22</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-22" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span>                                weight;</span></td>
+</tr>
+ <tr id="l23">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=23#src-23">23</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-23" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> Integer                                priority;</span></td>
+</tr>
+ <tr id="l24">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=24#src-24">24</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-24" class="srcLine"></span></td>
+</tr>
+ <tr id="l25">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=25#src-25">25</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-25" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l26">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=26#src-26">26</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-26" class="srcLine"><span class="comment">     * Construct a calibration product. A calibration product consists of a product implementing {</span><span class="javadoc">@link</span><span class="comment"> AbstractLIBORMonteCarloProduct}, a target value</span></span></td>
+</tr>
+ <tr id="l27">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=27#src-27">27</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-27" class="srcLine"><span class="comment">     * given as {</span><span class="javadoc">@link</span><span class="comment"> RandomVariable} and a weight. In addition you may give a short name which may be printed by the logger.</span></span></td>
+</tr>
+ <tr id="l28">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=28#src-28">28</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-28" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l29">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=29#src-29">29</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-29" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> name A short name (for example a &quot;SYMBOL&quot; representing the product.</span></span></td>
+</tr>
+ <tr id="l30">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=30#src-30">30</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-30" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> product The product.</span></span></td>
+</tr>
+ <tr id="l31">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=31#src-31">31</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-31" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> targetValue The target value.</span></span></td>
+</tr>
+ <tr id="l32">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=32#src-32">32</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-32" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> weight The calibration weight.</span></span></td>
+</tr>
+ <tr id="l33">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=33#src-33">33</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-33" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> priority The priority (may be used when submitting the product for calculation)</span></span></td>
+</tr>
+ <tr id="l34">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=34#src-34">34</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-34" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="35" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-35' onclick="toggleInlineStats(this, 'inlinestats-35');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-35" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-35'), 'inlinestats-35');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (6)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.17</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l35">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=35#src-35">35</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 35, Col 2: method entered 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" methodStart  srcCell" id="id-35"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 35,42);" id="img-35" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-35" class="srcLine"><span class="nolink" title="Line 35, Col 2: method entered 3,021 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> product, <span class="keyword">final</span> <a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> targetValue, <span class="keyword">final</span> <span class="keyword">double</span> weight, <span class="keyword">final</span> <span class="keyword">int</span> priority) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-35'), 35,42);" id="e35" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l36">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=36#src-36">36</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 36, 'Tests that hit line # 36');" ><span title="Line 36, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-36" class="srcLine"><span class="nolink" title="Line 36, Col 3: statement executed 3,021 times.">        <span class="keyword">super</span>();</span></span></td>
+</tr>
+ <tr id="l37">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=37#src-37">37</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 37, 'Tests that hit line # 37');" ><span title="Line 37, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-37" class="srcLine"><span class="nolink" title="Line 37, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>.name            = name;</span></span></td>
+</tr>
+ <tr id="l38">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=38#src-38">38</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 38, 'Tests that hit line # 38');" ><span title="Line 38, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-38" class="srcLine"><span class="nolink" title="Line 38, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>.product        = product;</span></span></td>
+</tr>
+ <tr id="l39">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=39#src-39">39</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 39, 'Tests that hit line # 39');" ><span title="Line 39, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-39" class="srcLine"><span class="nolink" title="Line 39, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>.targetValue    = targetValue;</span></span></td>
+</tr>
+ <tr id="l40">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=40#src-40">40</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 40, 'Tests that hit line # 40');" ><span title="Line 40, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-40" class="srcLine"><span class="nolink" title="Line 40, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>.weight            = weight;</span></span></td>
+</tr>
+ <tr id="l41">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=41#src-41">41</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 41, 'Tests that hit line # 41');" ><span title="Line 41, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-41" class="srcLine"><span class="nolink" title="Line 41, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>.priority        = priority;</span></span></td>
+</tr>
+ <tr id="l42">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=42#src-42">42</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-42" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l43">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=43#src-43">43</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-43" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="44" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-44' onclick="toggleInlineStats(this, 'inlinestats-44');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-44" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-44'), 'inlinestats-44');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l44">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=44#src-44">44</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 44, Col 2: method entered 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" methodStart  srcCell" id="id-44"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 44,46);" id="img-44" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-44" class="srcLine"><span class="nolink" title="Line 44, Col 2: method entered 3,021 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> product, <span class="keyword">final</span> <a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> targetValue, <span class="keyword">final</span> <span class="keyword">double</span> weight) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-44'), 44,46);" id="e44" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l45">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=45#src-45">45</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 45, 'Tests that hit line # 45');" ><span title="Line 45, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-45" class="srcLine"><span class="nolink" title="Line 45, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>(name, product, targetValue, weight, 0);</span></span></td>
+</tr>
+ <tr id="l46">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=46#src-46">46</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-46" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l47">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=47#src-47">47</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-47" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="48" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-48' onclick="toggleInlineStats(this, 'inlinestats-48');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-48" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-48'), 'inlinestats-48');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l48">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=48#src-48">48</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 48, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-48"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 48,50);" id="img-48" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-48" class="srcLineHilight"><span class="nolink" title="Line 48, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> product, <span class="keyword">final</span> <span class="keyword">double</span> targetValue, <span class="keyword">final</span> <span class="keyword">double</span> weight) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-48'), 48,50);" id="e48" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l49">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=49#src-49">49</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 49, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-49" class="srcLineHilight"><span class="nolink" title="Line 49, Col 3: statement not executed.">        <span class="keyword">this</span>(name, product, <span class="keyword">new</span> <a href="../../../../net/finmath/stochastic/Scalar.html#Scalar">Scalar</a>(targetValue), weight);</span></span></td>
+</tr>
+ <tr id="l50">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=50#src-50">50</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-50" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l51">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=51#src-51">51</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-51" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="52" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-52' onclick="toggleInlineStats(this, 'inlinestats-52');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-52" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-52'), 'inlinestats-52');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l52">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=52#src-52">52</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 52, Col 2: method entered 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" methodStart  srcCell" id="id-52"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 52,54);" id="img-52" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-52" class="srcLine"><span class="nolink" title="Line 52, Col 2: method entered 3,021 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a>(<span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> product, <span class="keyword">final</span> <a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> targetValue, <span class="keyword">final</span> <span class="keyword">double</span> weight) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-52'), 52,54);" id="e52" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l53">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=53#src-53">53</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 53, 'Tests that hit line # 53');" ><span title="Line 53, Col 3: statement executed 3,021 times." class="nolink">&#160;3021</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-53" class="srcLine"><span class="nolink" title="Line 53, Col 3: statement executed 3,021 times.">        <span class="keyword">this</span>(<span class="keyword">null</span>, product, targetValue, weight);</span></span></td>
+</tr>
+ <tr id="l54">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=54#src-54">54</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-54" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l55">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=55#src-55">55</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-55" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="56" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-56' onclick="toggleInlineStats(this, 'inlinestats-56');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-56" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-56'), 'inlinestats-56');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l56">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=56#src-56">56</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 56, Col 2: method entered 2,244 times." class="nolink">&#160;2244</span></td>
+<td class=" methodStart  srcCell" id="id-56"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 56,58);" id="img-56" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-56" class="srcLine"><span class="nolink" title="Line 56, Col 2: method entered 2,244 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/CalibrationProduct.html#CalibrationProduct">CalibrationProduct</a>(<span class="keyword">final</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> product, <span class="keyword">final</span> <span class="keyword">double</span> targetValue, <span class="keyword">final</span> <span class="keyword">double</span> weight) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-56'), 56,58);" id="e56" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l57">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=57#src-57">57</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 57, 'Tests that hit line # 57');" ><span title="Line 57, Col 3: statement executed 2,244 times." class="nolink">&#160;2244</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-57" class="srcLine"><span class="nolink" title="Line 57, Col 3: statement executed 2,244 times.">        <span class="keyword">this</span>(product, <span class="keyword">new</span> <a href="../../../../net/finmath/stochastic/Scalar.html#Scalar">Scalar</a>(targetValue), weight);</span></span></td>
+</tr>
+ <tr id="l58">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=58#src-58">58</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-58" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l59">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=59#src-59">59</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-59" class="srcLine"></span></td>
+</tr>
+ <tr id="l60">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=60#src-60">60</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-60" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l61">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=61#src-61">61</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-61" class="srcLine"><span class="comment">     * The method returns a short name for this calibration product. If no short name was given, the method returns &lt;code&gt;getProduct().toString()&lt;/code&gt;.</span></span></td>
+</tr>
+ <tr id="l62">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=62#src-62">62</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-62" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l63">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=63#src-63">63</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-63" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> A short name for this calibration product. If no short name was given, the method returns &lt;code&gt;getProduct().toString()&lt;/code&gt;</span></span></td>
+</tr>
+ <tr id="l64">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=64#src-64">64</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-64" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="65" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-65' onclick="toggleInlineStats(this, 'inlinestats-65');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-65" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-65'), 'inlinestats-65');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 5 (5)</td>
+                <td class="inlineStat">Complexity: 2</td>
+                <td class="inlineStat">Complexity Density: 0.67</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l65">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=65#src-65">65</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 65, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-65"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 65,71);" id="img-65" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-65" class="srcLineHilight"><span class="nolink" title="Line 65, Col 2: method not entered.">    <span class="keyword">public</span> String getName() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-65'), 65,71);" id="e65" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l66">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=66#src-66">66</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 66, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-66" class="srcLineHilight"><span class="nolink" title="Line 66, Col 3: statement not executed.">        <span class="keyword">if</span>(name != <span class="keyword">null</span>) {</span></span></td>
+</tr>
+ <tr id="l67">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=67#src-67">67</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 67, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-67" class="srcLineHilight"><span class="nolink" title="Line 67, Col 4: statement not executed.">            <span class="keyword">return</span> name;</span></span></td>
+</tr>
+ <tr id="l68">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=68#src-68">68</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-68" class="srcLine">        } <span class="keyword">else</span> {</span></td>
+</tr>
+ <tr id="l69">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=69#src-69">69</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 69, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-69" class="srcLineHilight"><span class="nolink" title="Line 69, Col 4: statement not executed.">            <span class="keyword">return</span> product.toString();</span></span></td>
+</tr>
+ <tr id="l70">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=70#src-70">70</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-70" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l71">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=71#src-71">71</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-71" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l72">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=72#src-72">72</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-72" class="srcLine"></span></td>
+</tr>
+ <tr id="l73">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=73#src-73">73</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-73" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l74">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=74#src-74">74</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-74" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the product.</span></span></td>
+</tr>
+ <tr id="l75">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=75#src-75">75</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-75" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="76" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-76' onclick="toggleInlineStats(this, 'inlinestats-76');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-76" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-76'), 'inlinestats-76');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l76">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=76#src-76">76</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 76, Col 2: method entered 372,401 times." class="nolink">&#160;372401</span></td>
+<td class=" methodStart  srcCell" id="id-76"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 76,78);" id="img-76" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-76" class="srcLine"><span class="nolink" title="Line 76, Col 2: method entered 372,401 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct">AbstractLIBORMonteCarloProduct</a> getProduct() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-76'), 76,78);" id="e76" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l77">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=77#src-77">77</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 77, 'Tests that hit line # 77');" ><span title="Line 77, Col 3: statement executed 372,409 times." class="nolink">&#160;372409</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-77" class="srcLine"><span class="nolink" title="Line 77, Col 3: statement executed 372,409 times.">        <span class="keyword">return</span> product;</span></span></td>
+</tr>
+ <tr id="l78">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=78#src-78">78</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-78" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l79">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=79#src-79">79</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-79" class="srcLine"></span></td>
+</tr>
+ <tr id="l80">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=80#src-80">80</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-80" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l81">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=81#src-81">81</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-81" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the target value.</span></span></td>
+</tr>
+ <tr id="l82">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=82#src-82">82</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-82" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="83" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-83' onclick="toggleInlineStats(this, 'inlinestats-83');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-83" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-83'), 'inlinestats-83');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l83">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=83#src-83">83</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 83, Col 2: method entered 348,214 times." class="nolink">&#160;348214</span></td>
+<td class=" methodStart  srcCell" id="id-83"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 83,85);" id="img-83" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-83" class="srcLine"><span class="nolink" title="Line 83, Col 2: method entered 348,214 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> getTargetValue() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-83'), 83,85);" id="e83" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l84">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=84#src-84">84</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 84, 'Tests that hit line # 84');" ><span title="Line 84, Col 3: statement executed 348,247 times." class="nolink">&#160;348247</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-84" class="srcLine"><span class="nolink" title="Line 84, Col 3: statement executed 348,247 times.">        <span class="keyword">return</span> targetValue;</span></span></td>
+</tr>
+ <tr id="l85">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=85#src-85">85</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-85" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l86">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=86#src-86">86</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-86" class="srcLine"></span></td>
+</tr>
+ <tr id="l87">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=87#src-87">87</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-87" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l88">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=88#src-88">88</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-88" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the calibrationWeight</span></span></td>
+</tr>
+ <tr id="l89">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=89#src-89">89</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-89" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="90" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-90' onclick="toggleInlineStats(this, 'inlinestats-90');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-90" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-90'), 'inlinestats-90');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l90">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=90#src-90">90</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 90, Col 2: method entered 346,534 times." class="nolink">&#160;346534</span></td>
+<td class=" methodStart  srcCell" id="id-90"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 90,92);" id="img-90" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-90" class="srcLine"><span class="nolink" title="Line 90, Col 2: method entered 346,534 times.">    <span class="keyword">public</span> <span class="keyword">double</span> getWeight() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-90'), 90,92);" id="e90" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l91">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=91#src-91">91</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 91, 'Tests that hit line # 91');" ><span title="Line 91, Col 3: statement executed 346,576 times." class="nolink">&#160;346576</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-91" class="srcLine"><span class="nolink" title="Line 91, Col 3: statement executed 346,576 times.">        <span class="keyword">return</span> weight;</span></span></td>
+</tr>
+ <tr id="l92">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=92#src-92">92</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-92" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l93">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=93#src-93">93</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-93" class="srcLine"></span></td>
+</tr>
+ <tr id="l94">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=94#src-94">94</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-94" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l95">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=95#src-95">95</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-95" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the priority</span></span></td>
+</tr>
+ <tr id="l96">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=96#src-96">96</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-96" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="97" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-97' onclick="toggleInlineStats(this, 'inlinestats-97');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-97" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-97'), 'inlinestats-97');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l97">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=97#src-97">97</a></td>
+<td align="right" class="coverageCount Good hitByTest"   ><span title="Line 97, Col 2: method entered 231,239 times." class="nolink">&#160;231239</span></td>
+<td class=" methodStart  srcCell" id="id-97"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 97,99);" id="img-97" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-97" class="srcLine"><span class="nolink" title="Line 97, Col 2: method entered 231,239 times.">    <span class="keyword">public</span> Integer getPriority() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-97'), 97,99);" id="e97" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l98">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=98#src-98">98</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 98, 'Tests that hit line # 98');" ><span title="Line 98, Col 3: statement executed 231,242 times." class="nolink">&#160;231242</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-98" class="srcLine"><span class="nolink" title="Line 98, Col 3: statement executed 231,242 times.">        <span class="keyword">return</span> priority;</span></span></td>
+</tr>
+ <tr id="l99">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=99#src-99">99</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-99" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l100">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=100#src-100">100</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-100" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="101" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-101' onclick="toggleInlineStats(this, 'inlinestats-101');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-101" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-101'), 'inlinestats-101');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l101">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=101#src-101">101</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 101, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-101"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 101,106);" id="img-101" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-101" class="srcLineHilight"><span class="nolink" title="Line 101, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-101'), 101,106);" id="e101" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l102">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=102#src-102">102</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-102" class="srcLine">    <span class="keyword">public</span> String toString() {</span></td>
+</tr>
+ <tr id="l103">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=103#src-103">103</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 103, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-103" class="srcLineHilight"><span class="nolink" title="Line 103, Col 3: statement not executed.">        <span class="keyword">return</span> <span class="string">&quot;CalibrationProduct [product=&quot;</span> + getProduct()</span></span></td>
+</tr>
+ <tr id="l104">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=104#src-104">104</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-104" class="srcLine">        + <span class="string">&quot;, targetValue=&quot;</span> + getTargetValue()</span></td>
+</tr>
+ <tr id="l105">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=105#src-105">105</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-105" class="srcLine">        + <span class="string">&quot;, weight=&quot;</span> + getWeight() + <span class="string">&quot;]&quot;</span>;</span></td>
+</tr>
+ <tr id="l106">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=106#src-106">106</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-106" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l107">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=107#src-107">107</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-107" class="srcLine">}</span></td>
+</tr>
+ 
+    </tbody></table>    </div>
+</div><!-- .aui-tabs -->
+
+<script type="text/javascript"> 
+    var ol_bgclass = "overBG";
+    var ol_fgclass = "overFG";
+    var ol_cgclass = "overCaption";
+    var ol_captionfontclass= "overCaption";
+    var ol_closefontclass = "closeFont";
+    var ol_closeclick = 1;
+    var ol_close = 'X';
+    var ol_wrap = 1;
+    var rootRelPath = '../../../../';
+    var testsPerFile = -1;
+</script>
+<script src="CalibrationProduct.js" type="text/javascript"></script>
+
+                        </div> <!-- class="aui-page-panel-content-clover" -->
+                    <footer id="footer" role="contentinfo">
+    <section class="footer-body">
+        <ul>
+            <li>
+                Report generated by <a target="_new" href="http://openclover.org">OpenClover</a> v 4.4.1
+                on Sun Oct 4 2020 06:25:31 CEST using coverage data from Sun Oct 4 2020 05:59:14 CEST.
+            </li>
+        </ul>
+        <ul>
+            <li>OpenClover is free and open-source software. </li>
+        </ul>
+    </section>
+</footer>                </section> <!-- class="aui-page-panel-content" -->
+            </div> <!-- class="aui-page-panel-inner" -->
+        </div> <!-- class="aui-page-panel" -->
+    </div> <!-- id="page" -->
+</body>
+</html>

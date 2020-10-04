@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    
+    
+    <link rel="SHORTCUT ICON" href="../../../../img/clover.ico" />
+
+    <link rel="stylesheet" href="../../../../aui/css/aui.min.css" media="all"/>
+    <link rel="stylesheet" href="../../../../aui/css/aui-experimental.min.css" media="all"/>
+    <!--[if IE 9]><link rel="stylesheet" href="../../../../aui/css/aui-ie9.min.css" media="all"/><![endif]-->
+
+    <style type="text/css" media="all">
+        @import url('../../../../style.css');
+        @import url('../../../../tree.css');
+        
+    </style>
+
+    <script src="../../../../jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui-experimental.min.js" type="text/javascript"></script>
+    <script src="../../../../aui/js/aui-soy.min.js" type="text/javascript"></script>
+
+    <script src="../../../../package-nodes-tree.js" type="text/javascript"></script>
+    <script src="../../../../clover-tree.js" type="text/javascript"></script>
+    <script src="../../../../clover.js" type="text/javascript"></script>
+    <script src="../../../../clover-descriptions.js" type="text/javascript"></script>
+    <script src="../../../../cloud.js" type="text/javascript"></script>
+
+            <title>finmath lib 5.0.6</title>
+    </head>
+
+<body  onload="onLoad('finmath lib 5.0.6: net.finmath.fouriermethod.models.MertonModel.java')">
+    <div id="page">
+        
+        
+
+
+<header id="header" role="banner">
+    <nav class="aui-header aui-dropdown2-trigger-group" role="navigation">
+        <div class="aui-header-inner">
+            <div class="aui-header-primary">
+                <h1 id="logo" class="aui-header-logo aui-header-logo-clover">
+                    <a href="http://openclover.org" title="Visit OpenClover home page"><span class="aui-header-logo-device">OpenClover</span></a>
+                </h1>
+                            </div>
+            <div class="aui-header-secondary">
+                <ul class="aui-nav">
+                    <li id="system-help-menu">
+                        <a class="aui-nav-link" title="Open online documentation" target="_blank"
+                           href="http://openclover.org/documentation">
+                            <span class="aui-icon aui-icon-small aui-iconfont-help">&#160;Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+        
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <div class="aui-page-panel-nav aui-page-panel-nav-clover">
+                    
+
+<div class="aui-page-header-inner" style="margin-bottom: 20px;">
+    <div class="aui-page-header-image">
+                    <a href="http://www.finmath.net/finmath-lib" target="_top">
+                <div class="aui-avatar aui-avatar-large aui-avatar-project">
+            <div class="aui-avatar-inner">
+                                    <img src="../../../../img/clover_logo_large.png" alt="Clover icon"/>
+                            </div>
+        </div>
+                    </a>
+            </div>
+    <div class="aui-page-header-main" >
+        <h1>
+                            <a href="http://www.finmath.net/finmath-lib" target="_top">
+                                        finmath lib 5.0.6
+                                        </a>
+                    </h1>
+    </div>
+</div>
+
+<nav class="aui-navgroup aui-navgroup-vertical">
+    <div class="aui-navgroup-inner">
+                                            <ul class="aui-nav">
+                <li class="">
+                    <a href="../../../../dashboard.html">Project overview</a>
+                </li>
+            </ul>
+        
+                <div class="aui-nav-heading packages-nav-heading">
+            <strong>Packages</strong>
+        </div>
+        <div class="aui-nav project-packages">
+            <form method="get" action="#" class="aui package-filter-container">
+                <input type="text" autocomplete="off" class="package-filter text"
+                       placeholder="Type to filter packages..." name="package-filter" id="package-filter"
+                       title="Start typing package name (or part of the name) to search through the tree. Use arrow keys and the Enter key to navigate."/>
+            </form>
+            <p class="package-filter-no-results-message hidden">
+                <small>No results found.</small>
+            </p>
+                                                <div class="packages-tree-wrapper" data-root-relative="../../../../" data-package-name="net.finmath.fouriermethod.models">
+                <div class="packages-tree-container"></div>
+                <div class="clover-packages-lozenges"></div>
+            </div>
+        </div>
+        
+            </div>
+</nav>                </div>
+                <section class="aui-page-panel-content">
+                    <div class="aui-page-panel-content-clover">
+
+                    
+                    <ol class="aui-nav aui-nav-breadcrumbs">
+            
+        <li><a href="../../../../dashboard.html">Project Clover database Sun Oct 4 2020 00:39:25 CEST</a></li> 
+        <li><a href="pkg-summary.html">        Package net.finmath.fouriermethod.models</a></li> 
+    </ol>
+    
+<h1 class="aui-h2-clover">
+            File MertonModel.java
+    </h1>
+
+
+
+
+
+
+
+
+    
+<div class="aui-tabs horizontal-tabs" id="tabs-file">
+            <div class="tabs-pane aui-tabs-pane-100-pcnt active-pane" id="tabs-file-source">
+        <div>&#160;</div>
+
+        
+                <div style="display: table; width: 100%">
+                            <div class="clover-histogram-table-cell">
+                                <div class="dashboard-widget">
+            <header class="dashboard-widget-header">
+                <h3>Coverage histogram</h3>
+            </header>
+            <div class="dashboard-widget-content">
+                <div class="aui-item clover-aui-item-histogram">
+                    <img src="../../../../img/srcFileCovDistChart7.png" alt="../../../../img/srcFileCovDistChart7.png"
+                         usemap="#srcFileCovDistChart7.png" class="clover-histogram-img"/>
+                    <map id="srcFileCovDistChart7.png" name="srcFileCovDistChart7.png">
+<area shape="rect" coords="100,51,107,66" title="53 files have 91-100% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="91,54,98,66" title="43 files have 81-90% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="82,47,89,66" title="65 files have 71-80% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="73,52,80,66" title="47 files have 61-70% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="64,54,71,66" title="41 files have 51-60% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="56,60,63,66" title="21 files have 41-50% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="47,60,54,66" title="21 files have 31-40% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="38,64,45,66" title="8 files have 21-30% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="29,66,36,67" title="1 file has 11-20% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="20,66,27,67" title="1 file has 1-10% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="11,8,18,65" title="194 files have 0% coverage" alt="" nohref="nohref"/>
+</map><br />
+                    <span class="subtle"><strong>32% </strong>of files have more coverage</span>
+                </div>
+            </div>
+        </div>
+                    </div>
+                        <div style="display: table-cell; width: 67%;">
+                    <div class="dashboard-widget">
+        <header class="dashboard-widget-header">
+            <h3>Code metrics</h3>
+        </header>
+        <div class="dashboard-widget-content">
+                        
+
+<div id="td-header-stats" class="aui-item" style="display: ">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">4</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">45</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">247</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">120</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">20</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.44</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">2.5</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.11</div>
+    </div>
+</div>
+
+</div>
+                        
+
+<div id="td-filtered-header-stats" class="aui-item" style="display: none">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">4</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">45</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">247</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">120</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">20</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.44</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">2.5</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">18</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.11</div>
+    </div>
+</div>
+
+</div>        </div>
+    </div>
+            </div>
+        </div>
+
+        
+        
+
+
+    <h2>Classes</h2>
+
+        <table class="aui aui-table-sortable">
+        <thead>
+                        <tr>     <th>Class</th>
+    <th>Line #</th>
+
+            
+        <th class="">
+            <label  title="The total number of statements.">Total Statements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The percentage of elements that have been filtered from this report.">% Filtered</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label>
+        </th>
+        
+    
+            <th>Actions</th>
+    </tr>         </thead>
+        <tbody>
+                              <tr> <td id="MertonModel">
+        <span><a href="#30" title="MertonModel" onclick="closeDialogAndScrollTo('dialog-MertonModel', '30');">MertonModel</a></span>
+</td>
+<td>30<a name="sl-30"></a></td>
+    <td class="">45</td>
+    <td class="">0%</td>
+    <td class="">20</td>
+    <td class="">22</td>
+    <td class=""><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.67164177</span>67.2%</div><div style="display: table-cell">
+ <div title="67.2% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:67.2%"></div></div></div></div></td>
+    <td><button data-dialog-id="dialog-MertonModel" class="aui-button aui-button-link dialog-show-button">Show methods</button></td>
+</tr>                      </tbody>
+    </table>
+
+    
+     
+        <section role="dialog" id="dialog-MertonModel" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+            
+            <header class="aui-dialog2-header">
+                <h1 class="aui-dialog2-header-main">Class MertonModel</h1>
+                <div class="aui-dialog2-header-secondary">
+                    <input id="dialog-MertonModel-method-filter" class="test-filter text" type="text" name="method-filter"
+                           placeholder="Type to filter methods..." autocomplete="off"
+                           onkeyup="filterMethods('dialog-MertonModel-methods-body', 'dialog-MertonModel-method-filter');"/>
+                </div>
+            </header>
+
+            
+            <div class="aui-dialog2-content">
+
+                
+
+                <table class="aui aui-table-sortable">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                    <thead>
+                                                 <tr> <th id="MertonModel">
+    Class<br/>    <span><a href="#30" title="MertonModel" onclick="closeDialogAndScrollTo('dialog-MertonModel', '30');">MertonModel</a></span>
+</th>
+<th>Line #<br/>30<a name="sl-30"></a></th>
+    <th class=""><label  title="The total number of statements.">Total Statements</label><br/>45</th>
+    <th class=""><label  title="The percentage of elements that have been filtered from this report.">% Filtered</label><br/>0%</th>
+    <th class=""><label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label><br/>20</th>
+    <th class=""><label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label><br/>22</th>
+    <th class=""><label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label><br/><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.67164177</span>67.2%</div><div style="display: table-cell">
+ <div title="67.2% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:67.2%"></div></div></div></div></th>
+</tr>                     </thead>
+                    <tbody id="dialog-MertonModel-methods-body">
+                                                                                                            <tr id="MertonModel-1">
+<td id="summary-59-2">
+ <span class="sortValue">MertonModel(LocalDate,double,DiscountCurve,DiscountCurve,double,double,double,double)</span>
+&#160;&#160;<a href="?line=29#59" title="MertonModel(LocalDate,double,DiscountCurve,DiscountCurve,double,double,double,double)" name="sl-59" onclick="closeDialogAndScrollTo('dialog-MertonModel', '59');">MertonModel(LocalDate,double,DiscountCurve,DiscountCurve,double,double,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">59</span>59</td>
+<td class="" align="right"><span class="sortValue">11.0</span>11</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-2">
+<td id="summary-87-2">
+ <span class="sortValue">MertonModel(double,double,double,double,double,double,double)</span>
+&#160;&#160;<a href="?line=29#87" title="MertonModel(double,double,double,double,double,double,double)" name="sl-87" onclick="closeDialogAndScrollTo('dialog-MertonModel', '87');">MertonModel(double,double,double,double,double,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">87</span>87</td>
+<td class="" align="right"><span class="sortValue">11.0</span>11</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-3">
+<td id="summary-114-2">
+ <span class="sortValue">MertonModel(double,double,double,double,double,double)</span>
+&#160;&#160;<a href="?line=29#114" title="MertonModel(double,double,double,double,double,double)" name="sl-114" onclick="closeDialogAndScrollTo('dialog-MertonModel', '114');">MertonModel(double,double,double,double,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">114</span>114</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-4">
+<td id="summary-125-4">
+ <span class="sortValue">apply(Complex)&#160;:&#160;Complex</span>
+&#160;&#160;<a href="?line=29#125" title="apply(Complex)&#160;:&#160;Complex" name="sl-125" onclick="closeDialogAndScrollTo('dialog-MertonModel', '125');">apply(Complex)&#160;:&#160;Complex</a>
+</td>
+<td align="right"><span class="sortValue">125</span>125</td>
+<td class="" align="right"><span class="sortValue">5.0</span>5</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-5">
+<td id="summary-119-2">
+ <span class="sortValue">apply(double)&#160;:&#160;CharacteristicFunction</span>
+&#160;&#160;<a href="?line=29#119" title="apply(double)&#160;:&#160;CharacteristicFunction" name="sl-119" onclick="closeDialogAndScrollTo('dialog-MertonModel', '119');">apply(double)&#160;:&#160;CharacteristicFunction</a>
+</td>
+<td align="right"><span class="sortValue">119</span>119</td>
+<td class="" align="right"><span class="sortValue">4.0</span>4</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-6">
+<td id="summary-154-2">
+ <span class="sortValue">getLogDiscountFactorForForward(double)&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#154" title="getLogDiscountFactorForForward(double)&#160;:&#160;double" name="sl-154" onclick="closeDialogAndScrollTo('dialog-MertonModel', '154');">getLogDiscountFactorForForward(double)&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">154</span>154</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-7">
+<td id="summary-164-2">
+ <span class="sortValue">getLogDiscountFactorForDiscounting(double)&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#164" title="getLogDiscountFactorForDiscounting(double)&#160;:&#160;double" name="sl-164" onclick="closeDialogAndScrollTo('dialog-MertonModel', '164');">getLogDiscountFactorForDiscounting(double)&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">164</span>164</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-8">
+<td id="summary-171-2">
+ <span class="sortValue">getReferenceDate()&#160;:&#160;LocalDate</span>
+&#160;&#160;<a href="?line=29#171" title="getReferenceDate()&#160;:&#160;LocalDate" name="sl-171" onclick="closeDialogAndScrollTo('dialog-MertonModel', '171');">getReferenceDate()&#160;:&#160;LocalDate</a>
+</td>
+<td align="right"><span class="sortValue">171</span>171</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-9">
+<td id="summary-178-2">
+ <span class="sortValue">getInitialValue()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#178" title="getInitialValue()&#160;:&#160;double" name="sl-178" onclick="closeDialogAndScrollTo('dialog-MertonModel', '178');">getInitialValue()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">178</span>178</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-10">
+<td id="summary-185-2">
+ <span class="sortValue">getDiscountCurveForForwardRate()&#160;:&#160;DiscountCurve</span>
+&#160;&#160;<a href="?line=29#185" title="getDiscountCurveForForwardRate()&#160;:&#160;DiscountCurve" name="sl-185" onclick="closeDialogAndScrollTo('dialog-MertonModel', '185');">getDiscountCurveForForwardRate()&#160;:&#160;DiscountCurve</a>
+</td>
+<td align="right"><span class="sortValue">185</span>185</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-11">
+<td id="summary-192-2">
+ <span class="sortValue">getRiskFreeRate()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#192" title="getRiskFreeRate()&#160;:&#160;double" name="sl-192" onclick="closeDialogAndScrollTo('dialog-MertonModel', '192');">getRiskFreeRate()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">192</span>192</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-12">
+<td id="summary-199-2">
+ <span class="sortValue">getDiscountCurveForDiscountRate()&#160;:&#160;DiscountCurve</span>
+&#160;&#160;<a href="?line=29#199" title="getDiscountCurveForDiscountRate()&#160;:&#160;DiscountCurve" name="sl-199" onclick="closeDialogAndScrollTo('dialog-MertonModel', '199');">getDiscountCurveForDiscountRate()&#160;:&#160;DiscountCurve</a>
+</td>
+<td align="right"><span class="sortValue">199</span>199</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-13">
+<td id="summary-206-2">
+ <span class="sortValue">getDiscountRate()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#206" title="getDiscountRate()&#160;:&#160;double" name="sl-206" onclick="closeDialogAndScrollTo('dialog-MertonModel', '206');">getDiscountRate()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">206</span>206</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-14">
+<td id="summary-213-2">
+ <span class="sortValue">getVolatility()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#213" title="getVolatility()&#160;:&#160;double" name="sl-213" onclick="closeDialogAndScrollTo('dialog-MertonModel', '213');">getVolatility()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">213</span>213</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-15">
+<td id="summary-220-2">
+ <span class="sortValue">getJumpIntensity()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#220" title="getJumpIntensity()&#160;:&#160;double" name="sl-220" onclick="closeDialogAndScrollTo('dialog-MertonModel', '220');">getJumpIntensity()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">220</span>220</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-16">
+<td id="summary-227-2">
+ <span class="sortValue">getJumpSizeMean()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#227" title="getJumpSizeMean()&#160;:&#160;double" name="sl-227" onclick="closeDialogAndScrollTo('dialog-MertonModel', '227');">getJumpSizeMean()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">227</span>227</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-17">
+<td id="summary-234-2">
+ <span class="sortValue">getJumpSizeStdDev()&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#234" title="getJumpSizeStdDev()&#160;:&#160;double" name="sl-234" onclick="closeDialogAndScrollTo('dialog-MertonModel', '234');">getJumpSizeStdDev()&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">234</span>234</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="MertonModel-18">
+<td id="summary-238-2">
+ <span class="sortValue">toString()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#238" title="toString()&#160;:&#160;String" name="sl-238" onclick="closeDialogAndScrollTo('dialog-MertonModel', '238');">toString()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">238</span>238</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                         </tbody>
+                </table>
+
+                <div>&#160;</div>
+                
+
+            </div>
+
+            
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button class="aui-button aui-button-primary dialog-close-button"
+                            data-dialog-id="dialog-MertonModel">Close</button>
+                </div>
+                <div class="aui-dialog2-footer-hint">Click on a class or a method name to jump to source.</div>
+            </footer>
+        </section>
+
+     
+ 
+        
+        <div>&#160;</div>
+
+<h2>Contributing tests</h2>
+
+    <div>
+                This file is covered by 3 tests.
+        <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-link dialog-show-button">
+            Select tests to highlight the test coverage
+        </button>.
+    </div>
+
+<section role="dialog" id="contr-tests-dialog" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+    
+    <header class="aui-dialog2-header">
+        <h1 class="aui-dialog2-header-main">Contributing tests</h1>
+        <div class="aui-dialog2-header-secondary">
+            <input id="test-filter" class="test-filter text" type="text" name="test-filter"
+                   placeholder="Type to filter tests..." autocomplete="off"
+                   onkeyup="filterTests('tests-body', 'test-filter', 3);"/>
+        </div>
+    </header>
+
+    
+    <div class="aui-dialog2-content">
+    
+
+        <p class="aui-buttons">
+            <button title="Selects all tests for this file, highlighting their coverage."
+                    class="aui-button" id="selectalltests">Select all</button>
+        </p>
+
+        <table class="aui aui-table-sortable">
+            <thead id="tests-head">
+            <tr id="testHeaderRow">
+                <th class="aui-table-column-unsortable"></th>
+                <th>
+                    <label title="The percentage of coverage contributed by each single test.">Test contribution</label>
+                </th>
+                <th>
+                    <label title="The test (or test iteration) which was executed.">Test</label>
+                </th>
+                <th>
+                    <label>Result</label>
+                </th>
+                <th class="aui-table-column-unsortable">
+                    <label>Actions</label>
+                </th>
+            </tr>
+            </thead>
+            <tbody id="tests-body">
+
+<tr id="test-602">
+<td><a name="testA-602"></a><input type="checkbox" id="cb-602" value="602" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_testMartingaleProperty_gq.html';">
+<span class="sortValue">0.46268657</span>
+<div>
+<div title="46.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:46.3%"></div></div></div></td>
+<td id="tc-602">  <span class="sortValue">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.testMartingaleProperty</span><a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_testMartingaleProperty_gq.html" title="View Test Summary Page">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.testMartingaleProperty</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest.html?line=50#src-50" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_testMartingaleProperty_gq.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-572">
+<td><a name="testA-572"></a><input type="checkbox" id="cb-572" value="572" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_fw.html';">
+<span class="sortValue">0.46268657</span>
+<div>
+<div title="46.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:46.3%"></div></div></div></td>
+<td id="tc-572">  <span class="sortValue">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</span><a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_fw.html" title="View Test Summary Page">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest.html?line=81#src-81" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_fw.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-265">
+<td><a name="testA-265"></a><input type="checkbox" id="cb-265" value="265" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_7d.html';">
+<span class="sortValue">0.43283582</span>
+<div>
+<div title="43.3% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:43.3%"></div></div></div></td>
+<td id="tc-265">  <span class="sortValue">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</span><a href="../../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_7d.html" title="View Test Summary Page">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest.html?line=58#src-58" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_7d.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+
+            </tbody>
+        </table>
+
+        
+        <div>&#160;</div>
+
+    
+    </div>
+
+    
+    <footer class="aui-dialog2-footer">
+        <div class="aui-dialog2-footer-actions">
+            <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-primary dialog-close-button">Apply</button>
+        </div>
+        <div class="aui-dialog2-footer-hint">Select tests to highlight code covered by them in the source view.</div>
+    </footer>
+</section>
+
+ 
+        
+        
+
+
+
+
+
+<h2>Source view</h2>
+
+
+<div style="display: table; width: 100%;">
+    <div style="display: table-cell">
+        <button class="aui-button aui-button-link"
+                title="Toggles all methods in the source to be either expanded or collapsed."
+                onclick="toggleAllInlineMethods(this); return false;" id="method-expander">
+            Collapse all methods
+        </button>
+    </div>
+    <div style="display: table-cell">
+        <div style="text-align: right; margin-bottom: 10px">
+            <button class="aui-button aui-button-subtle" id="popupHelp">
+    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>&#160;Show legend
+</button>
+<script>
+    AJS.InlineDialog(AJS.$("#popupHelp"), "helpDialog",
+            function(content, trigger, showPopup) {
+                content.css({"padding":"20px"}).html(SRC_FILE_LEGEND_TEXT);
+                showPopup();
+                return false;
+            },
+            {
+                width: 700, hideDelay: 60000
+            }
+    );
+</script>        </div>
+    </div>
+</div>
+
+<table cellspacing="0" cellpadding="0" class="srcView" width="100%">
+
+    
+<tbody> <tr id="l1">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=1#src-1">1</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-1" class="srcLine"><span class="keyword">package</span> net.finmath.<a href="../../fouriermethod/pkg-summary.html">fouriermethod</a>.<a href="../models/pkg-summary.html">models</a>;</span></td>
+</tr>
+ <tr id="l2">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=2#src-2">2</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-2" class="srcLine"></span></td>
+</tr>
+ <tr id="l3">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=3#src-3">3</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-3" class="srcLine"><span class="keyword">import</span> java.time.LocalDate;</span></td>
+</tr>
+ <tr id="l4">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=4#src-4">4</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-4" class="srcLine"></span></td>
+</tr>
+ <tr id="l5">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=5#src-5">5</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-5" class="srcLine"><span class="keyword">import</span> org.apache.commons.math3.complex.Complex;</span></td>
+</tr>
+ <tr id="l6">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=6#src-6">6</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-6" class="srcLine"></span></td>
+</tr>
+ <tr id="l7">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=7#src-7">7</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-7" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../fouriermethod/pkg-summary.html">fouriermethod</a>.<a href="../../../../net/finmath/fouriermethod/CharacteristicFunction.html#CharacteristicFunction">CharacteristicFunction</a>;</span></td>
+</tr>
+ <tr id="l8">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=8#src-8">8</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-8" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../marketdata/pkg-summary.html">marketdata</a>.<a href="../../marketdata/model/pkg-summary.html">model</a>.<a href="../../marketdata/model/curves/pkg-summary.html">curves</a>.<a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a>;</span></td>
+</tr>
+ <tr id="l9">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=9#src-9">9</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-9" class="srcLine"></span></td>
+</tr>
+ <tr id="l10">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=10#src-10">10</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-10" class="srcLine"><span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l11">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=11#src-11">11</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-11" class="srcLine"><span class="comment"> * Implements the characteristic function of a Merton jump diffusion model.</span></span></td>
+</tr>
+ <tr id="l12">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=12#src-12">12</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-12" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l13">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=13#src-13">13</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-13" class="srcLine"><span class="comment"> * The model is</span></span></td>
+</tr>
+ <tr id="l14">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=14#src-14">14</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-14" class="srcLine"><span class="comment"> * \[</span></span></td>
+</tr>
+ <tr id="l15">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=15#src-15">15</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-15" class="srcLine"><span class="comment"> *     dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},</span></span></td>
+</tr>
+ <tr id="l16">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=16#src-16">16</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-16" class="srcLine"><span class="comment"> * \]</span></span></td>
+</tr>
+ <tr id="l17">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=17#src-17">17</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-17" class="srcLine"><span class="comment"> * \[</span></span></td>
+</tr>
+ <tr id="l18">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=18#src-18">18</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-18" class="srcLine"><span class="comment"> *     dN = r N dt, \quad N(0) = N_{0},</span></span></td>
+</tr>
+ <tr id="l19">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=19#src-19">19</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-19" class="srcLine"><span class="comment"> * \]</span></span></td>
+</tr>
+ <tr id="l20">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=20#src-20">20</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-20" class="srcLine"><span class="comment"> * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).</span></span></td>
+</tr>
+ <tr id="l21">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=21#src-21">21</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-21" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l22">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=22#src-22">22</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-22" class="srcLine"><span class="comment"> * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where</span></span></td>
+</tr>
+ <tr id="l23">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=23#src-23">23</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-23" class="srcLine"><span class="comment"> * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).</span></span></td>
+</tr>
+ <tr id="l24">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=24#src-24">24</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-24" class="srcLine"><span class="comment"> * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.</span></span></td>
+</tr>
+ <tr id="l25">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=25#src-25">25</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-25" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l26">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=26#src-26">26</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-26" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l27">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=27#src-27">27</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-27" class="srcLine"><span class="comment"> * </span><span class="javadoc">@author</span><span class="comment"> Alessandro Gnoatto</span></span></td>
+</tr>
+ <tr id="l28">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=28#src-28">28</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-28" class="srcLine"><span class="comment"> * </span><span class="javadoc">@version</span><span class="comment"> 1.0</span></span></td>
+</tr>
+ <tr id="l29">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=29#src-29">29</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-29" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="30" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-30' onclick="toggleInlineStats(this, 'inlinestats-30');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-30" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-30'), 'inlinestats-30');return true;">
+                <td><div>
+<div title="67.2% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:67.2%"></div></div></div></td><td>67.2%</td>
+                <td class="inlineStat">Uncovered Elements: 22 (67)</td>
+                <td class="inlineStat">Complexity: 20</td>
+                <td class="inlineStat">Complexity Density: 0.44</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l30">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=30#src-30">30</a></td>
+<td align="right" class="coverageCount NoHilight "   onclick="return showTestsForLine(this, 30, 'Tests that hit MertonModel');" >&#160;&#160;</td>
+<td class=" srcCell" id="id-30"><span class="spacer"></span><span id="src-30" class="srcLine"><span class="keyword">public</span> <span class="keyword">class</span> <a href="../../../../net/finmath/fouriermethod/models/MertonModel.html#MertonModel">MertonModel</a> <span class="keyword">implements</span> <a href="../../../../net/finmath/fouriermethod/models/CharacteristicFunctionModel.html#CharacteristicFunctionModel">CharacteristicFunctionModel</a>{</span></td>
+</tr>
+ <tr id="l31">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=31#src-31">31</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-31" class="srcLine"></span></td>
+</tr>
+ <tr id="l32">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=32#src-32">32</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-32" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> LocalDate referenceDate;</span></td>
+</tr>
+ <tr id="l33">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=33#src-33">33</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-33" class="srcLine"></span></td>
+</tr>
+ <tr id="l34">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=34#src-34">34</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-34" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> initialValue;</span></td>
+</tr>
+ <tr id="l35">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=35#src-35">35</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-35" class="srcLine"></span></td>
+</tr>
+ <tr id="l36">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=36#src-36">36</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-36" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurveForForwardRate;</span></td>
+</tr>
+ <tr id="l37">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=37#src-37">37</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-37" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> riskFreeRate;    <span class="comment">// Constant rate, used if discountCurveForForwardRate is null</span></span></td>
+</tr>
+ <tr id="l38">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=38#src-38">38</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-38" class="srcLine"></span></td>
+</tr>
+ <tr id="l39">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=39#src-39">39</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-39" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurveForDiscountRate;</span></td>
+</tr>
+ <tr id="l40">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=40#src-40">40</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-40" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> discountRate;    <span class="comment">// Constant rate, used if discountCurveForForwardRate is null</span></span></td>
+</tr>
+ <tr id="l41">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=41#src-41">41</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-41" class="srcLine"></span></td>
+</tr>
+ <tr id="l42">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=42#src-42">42</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-42" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> volatility;</span></td>
+</tr>
+ <tr id="l43">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=43#src-43">43</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-43" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> jumpIntensity;</span></td>
+</tr>
+ <tr id="l44">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=44#src-44">44</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-44" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeMean;</span></td>
+</tr>
+ <tr id="l45">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=45#src-45">45</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-45" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeStdDev;</span></td>
+</tr>
+ <tr id="l46">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=46#src-46">46</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-46" class="srcLine"></span></td>
+</tr>
+ <tr id="l47">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=47#src-47">47</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-47" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l48">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=48#src-48">48</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-48" class="srcLine"><span class="comment">     * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.</span></span></td>
+</tr>
+ <tr id="l49">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=49#src-49">49</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-49" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l50">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=50#src-50">50</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-50" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> referenceDate The date representing the time t = 0. All other double times are following {</span><span class="javadoc">@link</span><span class="comment"> net.finmath.time.FloatingpointDate}.</span></span></td>
+</tr>
+ <tr id="l51">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=51#src-51">51</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-51" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> initialValue \( S_{0} \) - spot - initial value of S</span></span></td>
+</tr>
+ <tr id="l52">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=52#src-52">52</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-52" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate</span></span></td>
+</tr>
+ <tr id="l53">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=53#src-53">53</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-53" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> volatility \( \sigma \) the initial volatility level</span></span></td>
+</tr>
+ <tr id="l54">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=54#src-54">54</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-54" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpIntensity Coefficients of for the jump intensity.</span></span></td>
+</tr>
+ <tr id="l55">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=55#src-55">55</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-55" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeMean Jump size mean</span></span></td>
+</tr>
+ <tr id="l56">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=56#src-56">56</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-56" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeStdDev Jump size variance.</span></span></td>
+</tr>
+ <tr id="l57">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=57#src-57">57</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-57" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate</span></span></td>
+</tr>
+ <tr id="l58">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=58#src-58">58</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-58" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="59" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-59' onclick="toggleInlineStats(this, 'inlinestats-59');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-59" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-59'), 'inlinestats-59');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (11)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.09</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l59">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=59#src-59">59</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 59, 'Tests that hit MertonModel(LocalDate,double,DiscountCurve,DiscountCurve,double,double,double,double)');" ><span title="Line 59, Col 2: method entered 1 time." class="nolink">&#160;1</span></td>
+<td class=" methodStart  srcCell" id="id-59"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 59,74);" id="img-59" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-59" class="srcLine"><span class="nolink" title="Line 59, Col 2: method entered 1 time.">    <span class="keyword">public</span> <a href="../../../../net/finmath/fouriermethod/models/MertonModel.html#MertonModel">MertonModel</a>(<span class="keyword">final</span> LocalDate referenceDate, <span class="keyword">final</span> <span class="keyword">double</span> initialValue,</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-59'), 59,74);" id="e59" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l60">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=60#src-60">60</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-60" class="srcLine">            <span class="keyword">final</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurveForForwardRate,</span></td>
+</tr>
+ <tr id="l61">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=61#src-61">61</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-61" class="srcLine">            <span class="keyword">final</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurveForDiscountRate, <span class="keyword">final</span> <span class="keyword">double</span> volatility, <span class="keyword">final</span> <span class="keyword">double</span> jumpIntensity,</span></td>
+</tr>
+ <tr id="l62">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=62#src-62">62</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-62" class="srcLine">            <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeMean, <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeStdDev) {</span></td>
+</tr>
+ <tr id="l63">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=63#src-63">63</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 63, 'Tests that hit line # 63');" ><span title="Line 63, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-63" class="srcLine"><span class="nolink" title="Line 63, Col 3: statement executed 1 time.">        <span class="keyword">super</span>();</span></span></td>
+</tr>
+ <tr id="l64">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=64#src-64">64</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 64, 'Tests that hit line # 64');" ><span title="Line 64, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-64" class="srcLine"><span class="nolink" title="Line 64, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.referenceDate = referenceDate;</span></span></td>
+</tr>
+ <tr id="l65">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=65#src-65">65</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 65, 'Tests that hit line # 65');" ><span title="Line 65, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-65" class="srcLine"><span class="nolink" title="Line 65, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.initialValue = initialValue;</span></span></td>
+</tr>
+ <tr id="l66">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=66#src-66">66</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 66, 'Tests that hit line # 66');" ><span title="Line 66, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-66" class="srcLine"><span class="nolink" title="Line 66, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.discountCurveForForwardRate = discountCurveForForwardRate;</span></span></td>
+</tr>
+ <tr id="l67">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=67#src-67">67</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 67, 'Tests that hit line # 67');" ><span title="Line 67, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-67" class="srcLine"><span class="nolink" title="Line 67, Col 3: statement executed 1 time.">        riskFreeRate = Double.NaN;</span></span></td>
+</tr>
+ <tr id="l68">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=68#src-68">68</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 68, 'Tests that hit line # 68');" ><span title="Line 68, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-68" class="srcLine"><span class="nolink" title="Line 68, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.discountCurveForDiscountRate = discountCurveForDiscountRate;</span></span></td>
+</tr>
+ <tr id="l69">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=69#src-69">69</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 69, 'Tests that hit line # 69');" ><span title="Line 69, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-69" class="srcLine"><span class="nolink" title="Line 69, Col 3: statement executed 1 time.">        discountRate = Double.NaN;</span></span></td>
+</tr>
+ <tr id="l70">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=70#src-70">70</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 70, 'Tests that hit line # 70');" ><span title="Line 70, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-70" class="srcLine"><span class="nolink" title="Line 70, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.volatility = volatility;</span></span></td>
+</tr>
+ <tr id="l71">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=71#src-71">71</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 71, 'Tests that hit line # 71');" ><span title="Line 71, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-71" class="srcLine"><span class="nolink" title="Line 71, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.jumpIntensity = jumpIntensity;</span></span></td>
+</tr>
+ <tr id="l72">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=72#src-72">72</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 72, 'Tests that hit line # 72');" ><span title="Line 72, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-72" class="srcLine"><span class="nolink" title="Line 72, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.jumpSizeMean = jumpSizeMean;</span></span></td>
+</tr>
+ <tr id="l73">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=73#src-73">73</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 73, 'Tests that hit line # 73');" ><span title="Line 73, Col 3: statement executed 1 time." class="nolink">&#160;1</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-73" class="srcLine"><span class="nolink" title="Line 73, Col 3: statement executed 1 time.">        <span class="keyword">this</span>.jumpSizeStdDev = jumpSizeStdDev;</span></span></td>
+</tr>
+ <tr id="l74">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=74#src-74">74</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-74" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l75">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=75#src-75">75</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-75" class="srcLine"></span></td>
+</tr>
+ <tr id="l76">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=76#src-76">76</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-76" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l77">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=77#src-77">77</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-77" class="srcLine"><span class="comment">     * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.</span></span></td>
+</tr>
+ <tr id="l78">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=78#src-78">78</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-78" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l79">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=79#src-79">79</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-79" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> initialValue \( S_{0} \) - spot - initial value of S</span></span></td>
+</tr>
+ <tr id="l80">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=80#src-80">80</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-80" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).</span></span></td>
+</tr>
+ <tr id="l81">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=81#src-81">81</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-81" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> volatility \( \sigma \) the initial volatility level</span></span></td>
+</tr>
+ <tr id="l82">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=82#src-82">82</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-82" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpIntensity Coefficients of for the jump intensity.</span></span></td>
+</tr>
+ <tr id="l83">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=83#src-83">83</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-83" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeMean Jump size mean</span></span></td>
+</tr>
+ <tr id="l84">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=84#src-84">84</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-84" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeStdDev Jump size variance.</span></span></td>
+</tr>
+ <tr id="l85">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=85#src-85">85</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-85" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> discountRate The constant rate used for discounting.</span></span></td>
+</tr>
+ <tr id="l86">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=86#src-86">86</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-86" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="87" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-87' onclick="toggleInlineStats(this, 'inlinestats-87');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-87" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-87'), 'inlinestats-87');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (11)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.09</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l87">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=87#src-87">87</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 87, 'Tests that hit MertonModel(double,double,double,double,double,double,double)');" ><span title="Line 87, Col 2: method entered 2 times." class="nolink">&#160;2</span></td>
+<td class=" methodStart  srcCell" id="id-87"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 87,102);" id="img-87" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-87" class="srcLine"><span class="nolink" title="Line 87, Col 2: method entered 2 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/fouriermethod/models/MertonModel.html#MertonModel">MertonModel</a>(<span class="keyword">final</span> <span class="keyword">double</span> initialValue, <span class="keyword">final</span> <span class="keyword">double</span> riskFreeRate,</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-87'), 87,102);" id="e87" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l88">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=88#src-88">88</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-88" class="srcLine">            <span class="keyword">final</span> <span class="keyword">double</span> discountRate,</span></td>
+</tr>
+ <tr id="l89">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=89#src-89">89</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-89" class="srcLine">            <span class="keyword">final</span> <span class="keyword">double</span> volatility, <span class="keyword">final</span> <span class="keyword">double</span> jumpIntensity, <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeMean,</span></td>
+</tr>
+ <tr id="l90">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=90#src-90">90</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-90" class="srcLine">            <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeStdDev) {</span></td>
+</tr>
+ <tr id="l91">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=91#src-91">91</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 91, 'Tests that hit line # 91');" ><span title="Line 91, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-91" class="srcLine"><span class="nolink" title="Line 91, Col 3: statement executed 2 times.">        <span class="keyword">super</span>();</span></span></td>
+</tr>
+ <tr id="l92">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=92#src-92">92</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 92, 'Tests that hit line # 92');" ><span title="Line 92, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-92" class="srcLine"><span class="nolink" title="Line 92, Col 3: statement executed 2 times.">        referenceDate = <span class="keyword">null</span>;</span></span></td>
+</tr>
+ <tr id="l93">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=93#src-93">93</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 93, 'Tests that hit line # 93');" ><span title="Line 93, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-93" class="srcLine"><span class="nolink" title="Line 93, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.initialValue = initialValue;</span></span></td>
+</tr>
+ <tr id="l94">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=94#src-94">94</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 94, 'Tests that hit line # 94');" ><span title="Line 94, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-94" class="srcLine"><span class="nolink" title="Line 94, Col 3: statement executed 2 times.">        discountCurveForForwardRate = <span class="keyword">null</span>;</span></span></td>
+</tr>
+ <tr id="l95">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=95#src-95">95</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 95, 'Tests that hit line # 95');" ><span title="Line 95, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-95" class="srcLine"><span class="nolink" title="Line 95, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.riskFreeRate = riskFreeRate;</span></span></td>
+</tr>
+ <tr id="l96">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=96#src-96">96</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 96, 'Tests that hit line # 96');" ><span title="Line 96, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-96" class="srcLine"><span class="nolink" title="Line 96, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.volatility = volatility;</span></span></td>
+</tr>
+ <tr id="l97">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=97#src-97">97</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 97, 'Tests that hit line # 97');" ><span title="Line 97, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-97" class="srcLine"><span class="nolink" title="Line 97, Col 3: statement executed 2 times.">        discountCurveForDiscountRate = <span class="keyword">null</span>;</span></span></td>
+</tr>
+ <tr id="l98">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=98#src-98">98</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 98, 'Tests that hit line # 98');" ><span title="Line 98, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-98" class="srcLine"><span class="nolink" title="Line 98, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.discountRate = discountRate;</span></span></td>
+</tr>
+ <tr id="l99">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=99#src-99">99</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 99, 'Tests that hit line # 99');" ><span title="Line 99, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-99" class="srcLine"><span class="nolink" title="Line 99, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.jumpIntensity = jumpIntensity;</span></span></td>
+</tr>
+ <tr id="l100">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=100#src-100">100</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 100, 'Tests that hit line # 100');" ><span title="Line 100, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-100" class="srcLine"><span class="nolink" title="Line 100, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.jumpSizeMean = jumpSizeMean;</span></span></td>
+</tr>
+ <tr id="l101">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=101#src-101">101</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 101, 'Tests that hit line # 101');" ><span title="Line 101, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-101" class="srcLine"><span class="nolink" title="Line 101, Col 3: statement executed 2 times.">        <span class="keyword">this</span>.jumpSizeStdDev = jumpSizeStdDev;</span></span></td>
+</tr>
+ <tr id="l102">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=102#src-102">102</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-102" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l103">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=103#src-103">103</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-103" class="srcLine"></span></td>
+</tr>
+ <tr id="l104">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=104#src-104">104</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-104" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l105">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=105#src-105">105</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-105" class="srcLine"><span class="comment">     * Construct a single curve Merton jump diffusion model.</span></span></td>
+</tr>
+ <tr id="l106">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=106#src-106">106</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-106" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l107">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=107#src-107">107</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-107" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> initialValue \( S_{0} \) - spot - initial value of S</span></span></td>
+</tr>
+ <tr id="l108">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=108#src-108">108</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-108" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> riskFreeRate The constant risk free rate for the drift (repo rate of the underlying). It is also used for discounting.</span></span></td>
+</tr>
+ <tr id="l109">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=109#src-109">109</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-109" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> volatility \( \sigma \) the initial volatility level</span></span></td>
+</tr>
+ <tr id="l110">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=110#src-110">110</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-110" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpIntensity Coefficients of for the jump intensity.</span></span></td>
+</tr>
+ <tr id="l111">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=111#src-111">111</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-111" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeMean Jump size mean</span></span></td>
+</tr>
+ <tr id="l112">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=112#src-112">112</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-112" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> jumpSizeStdDev Jump size variance.</span></span></td>
+</tr>
+ <tr id="l113">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=113#src-113">113</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-113" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="114" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-114' onclick="toggleInlineStats(this, 'inlinestats-114');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-114" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-114'), 'inlinestats-114');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l114">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=114#src-114">114</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 114, 'Tests that hit MertonModel(double,double,double,double,double,double)');" ><span title="Line 114, Col 2: method entered 2 times." class="nolink">&#160;2</span></td>
+<td class=" methodStart  srcCell" id="id-114"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 114,117);" id="img-114" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-114" class="srcLine"><span class="nolink" title="Line 114, Col 2: method entered 2 times.">    <span class="keyword">public</span> <a href="../../../../net/finmath/fouriermethod/models/MertonModel.html#MertonModel">MertonModel</a>(<span class="keyword">final</span> <span class="keyword">double</span> initialValue, <span class="keyword">final</span> <span class="keyword">double</span> riskFreeRate, <span class="keyword">final</span> <span class="keyword">double</span> volatility,</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-114'), 114,117);" id="e114" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l115">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=115#src-115">115</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-115" class="srcLine">            <span class="keyword">final</span> <span class="keyword">double</span> jumpIntensity, <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeMean, <span class="keyword">final</span> <span class="keyword">double</span> jumpSizeStdDev) {</span></td>
+</tr>
+ <tr id="l116">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=116#src-116">116</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 116, 'Tests that hit line # 116');" ><span title="Line 116, Col 3: statement executed 2 times." class="nolink">&#160;2</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-116" class="srcLine"><span class="nolink" title="Line 116, Col 3: statement executed 2 times.">        <span class="keyword">this</span>(initialValue,riskFreeRate,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);</span></span></td>
+</tr>
+ <tr id="l117">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=117#src-117">117</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-117" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l118">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=118#src-118">118</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-118" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="119" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-119' onclick="toggleInlineStats(this, 'inlinestats-119');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-119" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-119'), 'inlinestats-119');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (4)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.25</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l119">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=119#src-119">119</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 119, 'Tests that hit apply(double)&#160;:&#160;CharacteristicFunction');" ><span title="Line 119, Col 2: method entered 32 times." class="nolink">&#160;32</span></td>
+<td class=" methodStart  srcCell" id="id-119"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 119,146);" id="img-119" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-119" class="srcLine"><span class="nolink" title="Line 119, Col 2: method entered 32 times.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-119'), 119,146);" id="e119" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l120">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=120#src-120">120</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-120" class="srcLine">    <span class="keyword">public</span> <a href="../../../../net/finmath/fouriermethod/CharacteristicFunction.html#CharacteristicFunction">CharacteristicFunction</a> apply(<span class="keyword">final</span> <span class="keyword">double</span> time) {</span></td>
+</tr>
+ <tr id="l121">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=121#src-121">121</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 121, 'Tests that hit line # 121');" ><span title="Line 121, Col 3: statement executed 32 times." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-121" class="srcLine"><span class="nolink" title="Line 121, Col 3: statement executed 32 times.">        <span class="keyword">final</span> <span class="keyword">double</span> logDiscountFactorForForward        = <span class="keyword">this</span>.getLogDiscountFactorForForward(time);</span></span></td>
+</tr>
+ <tr id="l122">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=122#src-122">122</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 122, 'Tests that hit line # 122');" ><span title="Line 122, Col 3: statement executed 32 times." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-122" class="srcLine"><span class="nolink" title="Line 122, Col 3: statement executed 32 times.">        <span class="keyword">final</span> <span class="keyword">double</span> logDiscountFactorForDiscounting    = <span class="keyword">this</span>.getLogDiscountFactorForDiscounting(time);</span></span></td>
+</tr>
+ <tr id="l123">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=123#src-123">123</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 123, 'Tests that hit line # 123');" ><span title="Line 123, Col 3: statement executed 32 times." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-123" class="srcLine"><span class="nolink" title="Line 123, Col 3: statement executed 32 times.">        <span class="keyword">final</span> <span class="keyword">double</span> transformedMean =  jumpSizeMean - 0.5 * jumpSizeStdDev*jumpSizeStdDev;</span></span></td>
+</tr>
+ <tr id="l124">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=124#src-124">124</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 124, 'Tests that hit line # 124');" ><span title="Line 124, Col 3: statement executed 32 times." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-124" class="srcLine"><span class="nolink" title="Line 124, Col 3: statement executed 32 times.">        <span class="keyword">return</span> <span class="keyword">new</span> <a href="../../../../net/finmath/fouriermethod/CharacteristicFunction.html#CharacteristicFunction">CharacteristicFunction</a>() {</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="125" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-125' onclick="toggleInlineStats(this, 'inlinestats-125');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-125" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-125'), 'inlinestats-125');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (5)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.2</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l125">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=125#src-125">125</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 125, 'Tests that hit apply(Complex)&#160;:&#160;Complex');" ><span title="Line 125, Col 4: method entered 373,955 times." class="nolink">&#160;373955</span></td>
+<td class=" methodStart  srcCell" id="id-125"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 125,143);" id="img-125" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-125" class="srcLine"><span class="nolink" title="Line 125, Col 4: method entered 373,955 times.">            @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-125'), 125,143);" id="e125" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l126">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=126#src-126">126</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-126" class="srcLine">            <span class="keyword">public</span> Complex apply(<span class="keyword">final</span> Complex argument) {</span></td>
+</tr>
+ <tr id="l127">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=127#src-127">127</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 127, 'Tests that hit line # 127');" ><span title="Line 127, Col 5: statement executed 382,845 times." class="nolink">&#160;382845</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-127" class="srcLine"><span class="nolink" title="Line 127, Col 5: statement executed 382,845 times.">                <span class="keyword">final</span> Complex iargument = argument.multiply(Complex.I);</span></span></td>
+</tr>
+ <tr id="l128">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=128#src-128">128</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-128" class="srcLine"></span></td>
+</tr>
+ <tr id="l129">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=129#src-129">129</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 129, 'Tests that hit line # 129');" ><span title="Line 129, Col 5: statement executed 393,407 times." class="nolink">&#160;393407</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-129" class="srcLine"><span class="nolink" title="Line 129, Col 5: statement executed 393,407 times.">                <span class="keyword">final</span> Complex exponent = (iargument.multiply(transformedMean))</span></span></td>
+</tr>
+ <tr id="l130">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=130#src-130">130</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-130" class="srcLine">                        .add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));</span></td>
+</tr>
+ <tr id="l131">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=131#src-131">131</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-131" class="srcLine"></span></td>
+</tr>
+ <tr id="l132">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=132#src-132">132</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 132, 'Tests that hit line # 132');" ><span title="Line 132, Col 5: statement executed 376,446 times." class="nolink">&#160;376446</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-132" class="srcLine"><span class="nolink" title="Line 132, Col 5: statement executed 376,446 times.">                <span class="keyword">final</span> Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);</span></span></td>
+</tr>
+ <tr id="l133">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=133#src-133">133</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-133" class="srcLine"></span></td>
+</tr>
+ <tr id="l134">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=134#src-134">134</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 134, 'Tests that hit line # 134');" ><span title="Line 134, Col 5: statement executed 377,860 times." class="nolink">&#160;377860</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-134" class="srcLine"><span class="nolink" title="Line 134, Col 5: statement executed 377,860 times.">                <span class="keyword">final</span> <span class="keyword">double</span> jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);</span></span></td>
+</tr>
+ <tr id="l135">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=135#src-135">135</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-135" class="srcLine"></span></td>
+</tr>
+ <tr id="l136">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=136#src-136">136</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 136, 'Tests that hit line # 136');" ><span title="Line 136, Col 5: statement executed 385,392 times." class="nolink">&#160;385392</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-136" class="srcLine"><span class="nolink" title="Line 136, Col 5: statement executed 385,392 times.">                <span class="keyword">return</span>    iargument</span></span></td>
+</tr>
+ <tr id="l137">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=137#src-137">137</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-137" class="srcLine">                        .multiply(</span></td>
+</tr>
+ <tr id="l138">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=138#src-138">138</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-138" class="srcLine">                                iargument</span></td>
+</tr>
+ <tr id="l139">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=139#src-139">139</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-139" class="srcLine">                                .multiply(0.5*volatility*volatility*time)</span></td>
+</tr>
+ <tr id="l140">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=140#src-140">140</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-140" class="srcLine">                                .add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))</span></td>
+</tr>
+ <tr id="l141">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=141#src-141">141</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-141" class="srcLine">                        .add(logDiscountFactorForDiscounting).add(jumpTransform.subtract(jumpTransformCompensator))</span></td>
+</tr>
+ <tr id="l142">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=142#src-142">142</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-142" class="srcLine">                        .exp();</span></td>
+</tr>
+ <tr id="l143">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=143#src-143">143</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-143" class="srcLine">            }</span></td>
+</tr>
+ <tr id="l144">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=144#src-144">144</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-144" class="srcLine">        };</span></td>
+</tr>
+ <tr id="l145">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=145#src-145">145</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-145" class="srcLine"></span></td>
+</tr>
+ <tr id="l146">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=146#src-146">146</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-146" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l147">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=147#src-147">147</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-147" class="srcLine"></span></td>
+</tr>
+ <tr id="l148">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=148#src-148">148</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-148" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l149">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=149#src-149">149</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-149" class="srcLine"><span class="comment">     * Small helper to calculate rate off the curve or use constant.</span></span></td>
+</tr>
+ <tr id="l150">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=150#src-150">150</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-150" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l151">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=151#src-151">151</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-151" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> time Maturity.</span></span></td>
+</tr>
+ <tr id="l152">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=152#src-152">152</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-152" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> The log of the discount factor, i.e., - rate * time.</span></span></td>
+</tr>
+ <tr id="l153">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=153#src-153">153</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-153" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="154" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-154' onclick="toggleInlineStats(this, 'inlinestats-154');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-154" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-154'), 'inlinestats-154');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (3)</td>
+                <td class="inlineStat">Complexity: 2</td>
+                <td class="inlineStat">Complexity Density: 2</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l154">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=154#src-154">154</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 154, 'Tests that hit getLogDiscountFactorForForward(double)&#160;:&#160;double');" ><span title="Line 154, Col 2: method entered 32 times." class="nolink">&#160;32</span></td>
+<td class=" methodStart  srcCell" id="id-154"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 154,156);" id="img-154" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-154" class="srcLine"><span class="nolink" title="Line 154, Col 2: method entered 32 times.">    <span class="keyword">private</span> <span class="keyword">double</span> getLogDiscountFactorForForward(<span class="keyword">final</span> <span class="keyword">double</span> time) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-154'), 154,156);" id="e154" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l155">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=155#src-155">155</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 155, 'Tests that hit line # 155');" ><span title="Line 155, Col 9: true branch executed 31 times, false branch executed 1 time." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-155" class="srcLine"><span class="nolink" title="Line 155, Col 9: true branch executed 31 times, false branch executed 1 time.">        <span class="keyword">return</span> discountCurveForForwardRate == <span class="keyword">null</span> ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(<span class="keyword">null</span>, time));</span></span></td>
+</tr>
+ <tr id="l156">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=156#src-156">156</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-156" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l157">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=157#src-157">157</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-157" class="srcLine"></span></td>
+</tr>
+ <tr id="l158">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=158#src-158">158</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-158" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l159">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=159#src-159">159</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-159" class="srcLine"><span class="comment">     * Small helper to calculate rate off the curve or use constant.</span></span></td>
+</tr>
+ <tr id="l160">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=160#src-160">160</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-160" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l161">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=161#src-161">161</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-161" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> time Maturity.</span></span></td>
+</tr>
+ <tr id="l162">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=162#src-162">162</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-162" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> The log of the discount factor, i.e., - rate * time.</span></span></td>
+</tr>
+ <tr id="l163">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=163#src-163">163</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-163" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="164" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-164' onclick="toggleInlineStats(this, 'inlinestats-164');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-164" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-164'), 'inlinestats-164');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (3)</td>
+                <td class="inlineStat">Complexity: 2</td>
+                <td class="inlineStat">Complexity Density: 2</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l164">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=164#src-164">164</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 164, 'Tests that hit getLogDiscountFactorForDiscounting(double)&#160;:&#160;double');" ><span title="Line 164, Col 2: method entered 32 times." class="nolink">&#160;32</span></td>
+<td class=" methodStart  srcCell" id="id-164"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 164,166);" id="img-164" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-164" class="srcLine"><span class="nolink" title="Line 164, Col 2: method entered 32 times.">    <span class="keyword">private</span> <span class="keyword">double</span> getLogDiscountFactorForDiscounting(<span class="keyword">final</span> <span class="keyword">double</span> time) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-164'), 164,166);" id="e164" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l165">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=165#src-165">165</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 165, 'Tests that hit line # 165');" ><span title="Line 165, Col 9: true branch executed 31 times, false branch executed 1 time." class="nolink">&#160;32</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-165" class="srcLine"><span class="nolink" title="Line 165, Col 9: true branch executed 31 times, false branch executed 1 time.">        <span class="keyword">return</span> discountCurveForDiscountRate == <span class="keyword">null</span> ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(<span class="keyword">null</span>, time));</span></span></td>
+</tr>
+ <tr id="l166">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=166#src-166">166</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-166" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l167">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=167#src-167">167</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-167" class="srcLine"></span></td>
+</tr>
+ <tr id="l168">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=168#src-168">168</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-168" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l169">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=169#src-169">169</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-169" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the referenceDate</span></span></td>
+</tr>
+ <tr id="l170">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=170#src-170">170</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-170" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="171" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-171' onclick="toggleInlineStats(this, 'inlinestats-171');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-171" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-171'), 'inlinestats-171');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l171">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=171#src-171">171</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 171, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-171"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 171,173);" id="img-171" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-171" class="srcLineHilight"><span class="nolink" title="Line 171, Col 2: method not entered.">    <span class="keyword">public</span> LocalDate getReferenceDate() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-171'), 171,173);" id="e171" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l172">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=172#src-172">172</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 172, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-172" class="srcLineHilight"><span class="nolink" title="Line 172, Col 3: statement not executed.">        <span class="keyword">return</span> referenceDate;</span></span></td>
+</tr>
+ <tr id="l173">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=173#src-173">173</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-173" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l174">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=174#src-174">174</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-174" class="srcLine"></span></td>
+</tr>
+ <tr id="l175">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=175#src-175">175</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-175" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l176">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=176#src-176">176</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-176" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the initialValue</span></span></td>
+</tr>
+ <tr id="l177">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=177#src-177">177</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-177" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="178" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-178' onclick="toggleInlineStats(this, 'inlinestats-178');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-178" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-178'), 'inlinestats-178');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l178">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=178#src-178">178</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 178, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-178"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 178,180);" id="img-178" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-178" class="srcLineHilight"><span class="nolink" title="Line 178, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getInitialValue() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-178'), 178,180);" id="e178" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l179">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=179#src-179">179</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 179, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-179" class="srcLineHilight"><span class="nolink" title="Line 179, Col 3: statement not executed.">        <span class="keyword">return</span> initialValue;</span></span></td>
+</tr>
+ <tr id="l180">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=180#src-180">180</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-180" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l181">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=181#src-181">181</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-181" class="srcLine"></span></td>
+</tr>
+ <tr id="l182">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=182#src-182">182</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-182" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l183">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=183#src-183">183</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-183" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the discountCurveForForwardRate</span></span></td>
+</tr>
+ <tr id="l184">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=184#src-184">184</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-184" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="185" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-185' onclick="toggleInlineStats(this, 'inlinestats-185');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-185" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-185'), 'inlinestats-185');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l185">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=185#src-185">185</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 185, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-185"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 185,187);" id="img-185" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-185" class="srcLineHilight"><span class="nolink" title="Line 185, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> getDiscountCurveForForwardRate() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-185'), 185,187);" id="e185" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l186">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=186#src-186">186</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 186, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-186" class="srcLineHilight"><span class="nolink" title="Line 186, Col 3: statement not executed.">        <span class="keyword">return</span> discountCurveForForwardRate;</span></span></td>
+</tr>
+ <tr id="l187">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=187#src-187">187</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-187" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l188">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=188#src-188">188</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-188" class="srcLine"></span></td>
+</tr>
+ <tr id="l189">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=189#src-189">189</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-189" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l190">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=190#src-190">190</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-190" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the riskFreeRate</span></span></td>
+</tr>
+ <tr id="l191">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=191#src-191">191</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-191" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="192" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-192' onclick="toggleInlineStats(this, 'inlinestats-192');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-192" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-192'), 'inlinestats-192');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l192">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=192#src-192">192</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 192, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-192"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 192,194);" id="img-192" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-192" class="srcLineHilight"><span class="nolink" title="Line 192, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getRiskFreeRate() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-192'), 192,194);" id="e192" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l193">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=193#src-193">193</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 193, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-193" class="srcLineHilight"><span class="nolink" title="Line 193, Col 3: statement not executed.">        <span class="keyword">return</span> riskFreeRate;</span></span></td>
+</tr>
+ <tr id="l194">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=194#src-194">194</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-194" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l195">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=195#src-195">195</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-195" class="srcLine"></span></td>
+</tr>
+ <tr id="l196">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=196#src-196">196</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-196" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l197">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=197#src-197">197</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-197" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the discountCurveForDiscountRate</span></span></td>
+</tr>
+ <tr id="l198">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=198#src-198">198</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-198" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="199" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-199' onclick="toggleInlineStats(this, 'inlinestats-199');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-199" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-199'), 'inlinestats-199');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l199">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=199#src-199">199</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 199, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-199"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 199,201);" id="img-199" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-199" class="srcLineHilight"><span class="nolink" title="Line 199, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> getDiscountCurveForDiscountRate() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-199'), 199,201);" id="e199" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l200">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=200#src-200">200</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 200, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-200" class="srcLineHilight"><span class="nolink" title="Line 200, Col 3: statement not executed.">        <span class="keyword">return</span> discountCurveForDiscountRate;</span></span></td>
+</tr>
+ <tr id="l201">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=201#src-201">201</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-201" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l202">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=202#src-202">202</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-202" class="srcLine"></span></td>
+</tr>
+ <tr id="l203">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=203#src-203">203</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-203" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l204">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=204#src-204">204</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-204" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the discountRate</span></span></td>
+</tr>
+ <tr id="l205">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=205#src-205">205</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-205" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="206" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-206' onclick="toggleInlineStats(this, 'inlinestats-206');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-206" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-206'), 'inlinestats-206');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l206">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=206#src-206">206</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 206, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-206"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 206,208);" id="img-206" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-206" class="srcLineHilight"><span class="nolink" title="Line 206, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getDiscountRate() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-206'), 206,208);" id="e206" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l207">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=207#src-207">207</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 207, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-207" class="srcLineHilight"><span class="nolink" title="Line 207, Col 3: statement not executed.">        <span class="keyword">return</span> discountRate;</span></span></td>
+</tr>
+ <tr id="l208">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=208#src-208">208</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-208" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l209">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=209#src-209">209</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-209" class="srcLine"></span></td>
+</tr>
+ <tr id="l210">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=210#src-210">210</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-210" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l211">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=211#src-211">211</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-211" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the volatility</span></span></td>
+</tr>
+ <tr id="l212">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=212#src-212">212</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-212" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="213" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-213' onclick="toggleInlineStats(this, 'inlinestats-213');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-213" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-213'), 'inlinestats-213');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l213">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=213#src-213">213</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 213, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-213"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 213,215);" id="img-213" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-213" class="srcLineHilight"><span class="nolink" title="Line 213, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getVolatility() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-213'), 213,215);" id="e213" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l214">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=214#src-214">214</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 214, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-214" class="srcLineHilight"><span class="nolink" title="Line 214, Col 3: statement not executed.">        <span class="keyword">return</span> volatility;</span></span></td>
+</tr>
+ <tr id="l215">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=215#src-215">215</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-215" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l216">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=216#src-216">216</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-216" class="srcLine"></span></td>
+</tr>
+ <tr id="l217">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=217#src-217">217</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-217" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l218">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=218#src-218">218</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-218" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the jumpIntensity</span></span></td>
+</tr>
+ <tr id="l219">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=219#src-219">219</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-219" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="220" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-220' onclick="toggleInlineStats(this, 'inlinestats-220');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-220" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-220'), 'inlinestats-220');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l220">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=220#src-220">220</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 220, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-220"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 220,222);" id="img-220" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-220" class="srcLineHilight"><span class="nolink" title="Line 220, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getJumpIntensity() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-220'), 220,222);" id="e220" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l221">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=221#src-221">221</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 221, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-221" class="srcLineHilight"><span class="nolink" title="Line 221, Col 3: statement not executed.">        <span class="keyword">return</span> jumpIntensity;</span></span></td>
+</tr>
+ <tr id="l222">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=222#src-222">222</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-222" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l223">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=223#src-223">223</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-223" class="srcLine"></span></td>
+</tr>
+ <tr id="l224">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=224#src-224">224</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-224" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l225">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=225#src-225">225</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-225" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the jumpSizeMean</span></span></td>
+</tr>
+ <tr id="l226">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=226#src-226">226</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-226" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="227" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-227' onclick="toggleInlineStats(this, 'inlinestats-227');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-227" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-227'), 'inlinestats-227');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l227">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=227#src-227">227</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 227, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-227"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 227,229);" id="img-227" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-227" class="srcLineHilight"><span class="nolink" title="Line 227, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getJumpSizeMean() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-227'), 227,229);" id="e227" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l228">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=228#src-228">228</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 228, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-228" class="srcLineHilight"><span class="nolink" title="Line 228, Col 3: statement not executed.">        <span class="keyword">return</span> jumpSizeMean;</span></span></td>
+</tr>
+ <tr id="l229">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=229#src-229">229</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-229" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l230">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=230#src-230">230</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-230" class="srcLine"></span></td>
+</tr>
+ <tr id="l231">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=231#src-231">231</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-231" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l232">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=232#src-232">232</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-232" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> the jumpSizeStdDev</span></span></td>
+</tr>
+ <tr id="l233">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=233#src-233">233</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-233" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="234" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-234' onclick="toggleInlineStats(this, 'inlinestats-234');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-234" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-234'), 'inlinestats-234');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l234">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=234#src-234">234</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 234, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-234"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 234,236);" id="img-234" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-234" class="srcLineHilight"><span class="nolink" title="Line 234, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> getJumpSizeStdDev() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-234'), 234,236);" id="e234" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l235">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=235#src-235">235</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 235, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-235" class="srcLineHilight"><span class="nolink" title="Line 235, Col 3: statement not executed.">        <span class="keyword">return</span> jumpSizeStdDev;</span></span></td>
+</tr>
+ <tr id="l236">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=236#src-236">236</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-236" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l237">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=237#src-237">237</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-237" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="238" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-238' onclick="toggleInlineStats(this, 'inlinestats-238');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-238" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-238'), 'inlinestats-238');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l238">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=238#src-238">238</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 238, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-238"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 238,245);" id="img-238" src="../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-238" class="srcLineHilight"><span class="nolink" title="Line 238, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-238'), 238,245);" id="e238" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l239">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=239#src-239">239</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-239" class="srcLine">    <span class="keyword">public</span> String toString() {</span></td>
+</tr>
+ <tr id="l240">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=240#src-240">240</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 240, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-240" class="srcLineHilight"><span class="nolink" title="Line 240, Col 3: statement not executed.">        <span class="keyword">return</span> <span class="string">&quot;MertonModel [initialValue=&quot;</span> + initialValue + <span class="string">&quot;, discountCurveForForwardRate=&quot;</span></span></span></td>
+</tr>
+ <tr id="l241">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=241#src-241">241</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-241" class="srcLine">                + discountCurveForForwardRate + <span class="string">&quot;, riskFreeRate=&quot;</span> + riskFreeRate + <span class="string">&quot;, discountCurveForDiscountRate=&quot;</span></span></td>
+</tr>
+ <tr id="l242">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=242#src-242">242</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-242" class="srcLine">                + discountCurveForDiscountRate + <span class="string">&quot;, discountRate=&quot;</span> + discountRate + <span class="string">&quot;, volatility=&quot;</span> + volatility</span></td>
+</tr>
+ <tr id="l243">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=243#src-243">243</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-243" class="srcLine">                + <span class="string">&quot;, jumpIntensity=&quot;</span> + jumpIntensity + <span class="string">&quot;, jumpSizeMean=&quot;</span> + jumpSizeMean + <span class="string">&quot;, jumpSizeStdDev=&quot;</span></span></td>
+</tr>
+ <tr id="l244">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=244#src-244">244</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-244" class="srcLine">                + jumpSizeStdDev + <span class="string">&quot;]&quot;</span>;</span></td>
+</tr>
+ <tr id="l245">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=245#src-245">245</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-245" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l246">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=246#src-246">246</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-246" class="srcLine"></span></td>
+</tr>
+ <tr id="l247">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=247#src-247">247</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-247" class="srcLine">}</span></td>
+</tr>
+ 
+    </tbody></table>    </div>
+</div><!-- .aui-tabs -->
+
+<script type="text/javascript"> 
+    var ol_bgclass = "overBG";
+    var ol_fgclass = "overFG";
+    var ol_cgclass = "overCaption";
+    var ol_captionfontclass= "overCaption";
+    var ol_closefontclass = "closeFont";
+    var ol_closeclick = 1;
+    var ol_close = 'X';
+    var ol_wrap = 1;
+    var rootRelPath = '../../../../';
+    var testsPerFile = -1;
+</script>
+<script src="MertonModel.js" type="text/javascript"></script>
+
+                        </div> <!-- class="aui-page-panel-content-clover" -->
+                    <footer id="footer" role="contentinfo">
+    <section class="footer-body">
+        <ul>
+            <li>
+                Report generated by <a target="_new" href="http://openclover.org">OpenClover</a> v 4.4.1
+                on Sun Oct 4 2020 06:25:31 CEST using coverage data from Sun Oct 4 2020 05:59:14 CEST.
+            </li>
+        </ul>
+        <ul>
+            <li>OpenClover is free and open-source software. </li>
+        </ul>
+    </section>
+</footer>                </section> <!-- class="aui-page-panel-content" -->
+            </div> <!-- class="aui-page-panel-inner" -->
+        </div> <!-- class="aui-page-panel" -->
+    </div> <!-- id="page" -->
+</body>
+</html>
