@@ -60,4 +60,205 @@ public class RandomVariableDifferentiableAADTest {
 
 		Assert.assertEquals(derivativeExpected, derivativeAAD, 1E-15);
 	}
+
+	@Test
+	public void testOperatorAdd1() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.add(x);
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(2.0, dydx.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorAdd2() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x0.add(x1);
+		
+		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		
+		Assert.assertEquals("dydx0", 1.0, dydx0.doubleValue(), 1E-15);
+
+		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		
+		Assert.assertEquals("dydx1", 1.0, dydx1.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorSub1() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.sub(x);
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(0.0, dydx.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorSub2() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x0.sub(x1);
+		
+		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		
+		Assert.assertEquals("dydx0", 1.0, dydx0.doubleValue(), 1E-15);
+
+		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		
+		Assert.assertEquals("dydx1", -1.0, dydx1.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorMult1() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.mult(x);
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(2.0 * x.doubleValue(), dydx.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorMult2() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x0.mult(x1);
+		
+		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		
+		Assert.assertEquals("dydx0", x1.doubleValue(), dydx0.doubleValue(), 1E-15);
+
+		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		
+		Assert.assertEquals("dydx1", x0.doubleValue(), dydx1.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorDiv1() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.div(x);
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(0.0, dydx.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorDiv2() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x0.div(x1);
+		
+		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		
+		Assert.assertEquals("dydx0", x1.invert().doubleValue(), dydx0.doubleValue(), 1E-15);
+
+		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		
+		Assert.assertEquals("dydx1", x0.div(x1.squared()).mult(-1).doubleValue(), dydx1.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorExp() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.exp();
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(y.doubleValue(), dydx.doubleValue(), 1E-15);
+	}		
+
+	@Test
+	public void testOperatorLog() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+	
+		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		RandomVariable y = x.log();
+		
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		
+		Assert.assertEquals(x.invert().doubleValue(), dydx.doubleValue(), 1E-15);
+	}		
+
 }
