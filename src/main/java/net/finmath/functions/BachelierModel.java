@@ -61,7 +61,7 @@ public class BachelierModel {
 	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
 	 * @param optionMaturity The option maturity T.
 	 * @param optionStrike The option strike K.
-	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = \exp(-r T) \))
 	 * @return Returns the value of a European call option under the Bachelier model.
 	 */
 	public static double bachelierOptionValue(
