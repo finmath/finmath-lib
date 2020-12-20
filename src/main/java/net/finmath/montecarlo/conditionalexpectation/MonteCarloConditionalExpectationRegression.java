@@ -15,6 +15,7 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
+ * 
  * In oder to estimate the conditional expectation, basis functions have to be
  * specified.
  *
@@ -110,7 +111,6 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 	/**
 	 * Return the solution x of XTX x = XT y for a given y.
-	 * @TODO Performance upon repeated call can be optimized by caching XTX.
 	 *
 	 * @param dependents The sample vector of the random variable y.
 	 * @return The solution x of XTX x = XT y.
@@ -119,6 +119,9 @@ public class MonteCarloConditionalExpectationRegression implements ConditionalEx
 
 		final RandomVariable[] basisFunctions = basisFunctionsEstimator.getBasisFunctions();
 
+		/*
+		 * We cache the creation of XTX, or to be precise, the solver, that solves XTX x = z for a given z.
+		 */
 		synchronized (solverLock) {
 			if(solver == null) {
 				// Build XTX - the symmetric matrix consisting of the scalar products of the basis functions.
