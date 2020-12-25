@@ -230,9 +230,9 @@ public class BachelierModel {
 	 * \[
 	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
 	 * \]
-	 * 
+	 *
 	 * The delta reported is \[ \frac{1}{\sigma \sqrt{T}} \phi( \frac{F-K}{\sigma \sqrt{T}} ) \], where \( \phi \) is the density of the standard normal distribution.
-	 * 
+	 *
 	 * Note: The delta does not depend on the argument payoffUnit, due to \( \frac{\mathrm{d}F(0)}{\mathrm{d}S(0)} = \frac{1}{N(0)} \) being equal to 1 / payoffUnit.
 	 *
 	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).

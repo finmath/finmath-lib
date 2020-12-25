@@ -11,8 +11,8 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.equities.marketdata.FlatYieldCurve;
-import net.finmath.equities.models.FlatVolatilitySurface;
 import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.FlatVolatilitySurface;
 import net.finmath.equities.models.VolatilitySurface;
 import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
 import net.finmath.equities.products.EuropeanOption;

@@ -99,7 +99,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			this.arguments = arguments;
 			this.operator = operator;
 			this.factory = factory;
-			
+
 			/*
 			 * This is the simple modification which reduces memory requirements.
 			 */
@@ -509,7 +509,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);
 				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);
 
-//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
 				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
 				final double density = densityRegressionCoeff[0];
 
@@ -532,11 +532,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);
 				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);
-//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
 				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
-//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0) }).getRegressionCoefficients(densityValues);
-//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX }).getRegressionCoefficients(densityValues);
-//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
 				final double density = densityRegressionCoeff[0];
 
 				return density;

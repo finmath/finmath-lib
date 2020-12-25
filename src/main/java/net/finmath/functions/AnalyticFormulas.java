@@ -929,7 +929,7 @@ public class AnalyticFormulas {
 	 * Calculate the value of a digital caplet assuming the Black'76 model.
 	 *
 	 * This method exists for backward compatiblitiy due to a typo in an earlier version.
-	 * 
+	 *
 	 * @param forward The forward (spot).
 	 * @param volatility The Black'76 volatility.
 	 * @param periodLength The period length of the underlying forward rate.
@@ -948,7 +948,7 @@ public class AnalyticFormulas {
 	{
 		return AnalyticFormulas.blackModelDigitalCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
 	}
-	
+
 	/**
 	 * Calculate the value of a swaption assuming the Black'76 model.
 	 *

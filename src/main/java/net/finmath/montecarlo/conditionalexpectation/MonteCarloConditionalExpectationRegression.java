@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariable;
 
 /**
  * A service that allows to estimate conditional expectation via regression.
- * 
+ *
  * In oder to estimate the conditional expectation, basis functions have to be
  * specified.
  *
