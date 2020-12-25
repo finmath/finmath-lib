@@ -890,7 +890,7 @@ public class AnalyticFormulas {
 	 * @param optionStrike The option strike.
 	 * @return Returns the price of a digital caplet under the Black'76 model
 	 */
-	public static double blackModelDgitialCapletValue(
+	public static double blackModelDigitalCapletValue(
 			final double forward,
 			final double volatility,
 			final double periodLength,
@@ -902,6 +902,53 @@ public class AnalyticFormulas {
 		return AnalyticFormulas.blackScholesDigitalOptionValue(forward, 0.0, volatility, optionMaturity, optionStrike) * periodLength * discountFactor;
 	}
 
+	/**
+	 * Calculate the delta of a digital caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @return Returns the price of a digital caplet under the Black'76 model
+	 */
+	public static double blackModelDigitalCapletDelta(
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+		return AnalyticFormulas.blackScholesDigitalOptionDelta(forward, 0.0, volatility, optionMaturity, optionStrike) * periodLength * discountFactor;
+	}
+
+	/**
+	 * Calculate the value of a digital caplet assuming the Black'76 model.
+	 *
+	 * This method exists for backward compatiblitiy due to a typo in an earlier version.
+	 * 
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @return Returns the price of a digital caplet under the Black'76 model
+	 */
+	public static double blackModelDgitialCapletValue(
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return AnalyticFormulas.blackModelDigitalCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+	}
+	
 	/**
 	 * Calculate the value of a swaption assuming the Black'76 model.
 	 *
