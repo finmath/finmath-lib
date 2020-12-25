@@ -6,6 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.7 (25.12-2020)
+
+### Analytic Formulas
+
+ - Some minor additions to the analytic formulas.
+
+### Algorithmic Differentiation / Automatic Differentiation
+
+ - Added unit tests.
+
+
 ## 5.0.6 (03.10-2020)
 
 ### General
