@@ -6,7 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 5.0.7 (25.12-2020)
+## 5.0.8 (25.12-2020)
 
 ### Analytic Formulas
 
