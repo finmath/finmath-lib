@@ -37,9 +37,9 @@ import net.finmath.time.daycount.DayCountConvention;
  * (which could be considers as an additional industry specific factor) and the issuer specific
  * survival probalbilty. The effective discount factor is the product of the three:
  * discountFactor * survivalProbabilityFactor * basisFactorFactor
- * 
+ *
  * You may set the arguments for the survival probability curve and the basis factor curve to null.
- * 
+ *
  * @author Moritz Scherrmann
  * @author Chrisitan Fries
  * @version 1.1
@@ -139,7 +139,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 	public Bond(final Schedule schedule, final String discountCurveName, final double fixedCoupon) {
 		this(schedule, discountCurveName, null,null, null, fixedCoupon,0, 0);
 	}
-	
+
 	@Override
 	public double getValue(final double evaluationTime, final AnalyticModel model) {
 
