@@ -113,7 +113,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(REFERENCE_DAY, startDate, maturityDate, ANNUAL, ACT_365, "first", "following", businessdayCalendar, -2, 0);
 
-			final Bond bond = new Bond(schedulePay, DISCOUNT_CURVE_NAME, DISCOUNT_CURVE_NAME, DISCOUNT_CURVE_NAME, rates[i]);
+			final Bond bond = new Bond(schedulePay, DISCOUNT_CURVE_NAME, null, null, rates[i]);
 			calibrationProducts.add(bond);
 
 		}
@@ -123,7 +123,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		curvesToCalibrate.add(discountCurve);
 
 		// Calibrate the curve
-		final Solver solver = new Solver(model, calibrationProducts, Arrays.stream(prices).boxed().collect(Collectors.toList()), null, 0, 0);
+		final Solver solver = new Solver(model, calibrationProducts, Arrays.stream(prices).map(x -> x/100).boxed().collect(Collectors.toList()), null, 0, 0);
 		final AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 
 		// Get best parameters
@@ -140,6 +140,6 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 	 * @return yield to maturity
 	 */
 	public static double getYieldToMaturity(double pv, double fv, double couponRate, double maturityYears) {
-		return 100 * ((fv - pv) / maturityYears + fv * couponRate) / pv;
+		return 1.0 * ((fv - pv) / maturityYears + fv * couponRate) / pv;
 	}
 }
