@@ -27,6 +27,27 @@ public class AnalyticFormulasTest {
 	private final boolean isPrintOutVerbose = false;
 
 	@Test
+	public void testBlackModelDigitalCapletDelta() {
+
+		double forward = 0.05;
+		double volatility = 0.30;
+		double periodLength = 0.5;
+		double discountFactor = 0.9;
+		double optionMaturity = 2.0;
+		double optionStrike = 0.06;
+
+		double shift = 1E-5;
+
+		double valueDn = AnalyticFormulas.blackModelDigitalCapletValue(forward-shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+		double valueUp = AnalyticFormulas.blackModelDigitalCapletValue(forward+shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+		double deltaFiniteDifference = (valueUp - valueDn) / (2*shift);
+
+		double deltaAnalytic = AnalyticFormulas.blackModelDigitalCapletDelta(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+
+		Assertions.assertEquals(deltaAnalytic, deltaFiniteDifference, 1E-5, "Digital Caplet Delta");
+	}
+
+	@Test
 	public void testBachelierOptionImpliedVolatility() {
 		final double spot = 100;
 		final double riskFreeRate = 0.05;

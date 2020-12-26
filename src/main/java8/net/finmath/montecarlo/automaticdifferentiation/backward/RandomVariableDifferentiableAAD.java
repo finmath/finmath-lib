@@ -92,10 +92,6 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 		private static final RandomVariable one = new Scalar(1.0);
 		private static final RandomVariable minusOne = new Scalar(-1.0);
 
-		OperatorTreeNode(final OperatorType operatorType, final List<RandomVariable> arguments, final Object operator, final RandomVariableDifferentiableAADFactory factory) {
-			this(operatorType, extractOperatorTreeNodes(arguments), extractOperatorValues(arguments), operator, factory);
-		}
-
 		OperatorTreeNode(final OperatorType operatorType, final List<OperatorTreeNode> arguments, List<RandomVariable> argumentValues, final Object operator, final RandomVariableDifferentiableAADFactory factory) {
 			super();
 			id = indexOfNextRandomVariable.getAndIncrement();
@@ -103,7 +99,10 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			this.arguments = arguments;
 			this.operator = operator;
 			this.factory = factory;
-			// This is the simple modification which reduces memory requirements.
+
+			/*
+			 * This is the simple modification which reduces memory requirements.
+			 */
 			if(operatorType != null && (operatorType.equals(OperatorType.ADD) || operatorType.equals(OperatorType.SUB))) {
 				// Addition does not need to retain arguments
 				argumentValues = null;
@@ -160,9 +159,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			this.argumentValues = argumentValues;
 		}
 
+		/*
+		 * This implements the update rule D_i = D_i + Dm * d fm/dxi where i are the arguments of this node and m is this node.
+		 */
 		private void propagateDerivativesFromResultToArgument(final Map<Long, RandomVariable> derivatives) {
 			if(arguments == null) {
-				// The node has no arguments (it is a leaf nodeo the tree). Do nothing.
+				// The node has no arguments (it is a leaf node the tree). Do nothing.
 				return;
 			}
 
@@ -235,7 +237,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 			final RandomVariable Y = arguments.size() > 1 && argumentValues != null ? argumentValues.get(1) : null;
 			final RandomVariable Z = arguments.size() > 2 && argumentValues != null ? argumentValues.get(2) : null;
 
-			RandomVariable derivative = null;
+			RandomVariable derivative;
 
 			switch(operatorType) {
 			/* functions with one argument  */
@@ -343,9 +345,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));
 				break;
 			case POW:
-				// second argument will always be deterministic and constant.
-				// @TODO Optimize this part by making use of Y being scalar.
-				derivative = (differentialIndex == 0) ? X.pow(Y.getAverage() - 1.0).mult(Y) : zero;
+				// second argument will always be deterministic and constant (currently pow does not exist with a random variable exponent)
+				derivative = (differentialIndex == 0) ? X.pow(Y.doubleValue() - 1.0).mult(Y) : zero;
 				break;
 			case ADDPRODUCT:
 				if(differentialIndex == 0) {
@@ -397,7 +398,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					switch(factory.getDiracDeltaApproximationMethod()) {
 					case ONE:
 					{
-						derivative = one;
+						derivative = Y.sub(Z);
 						break;
 					}
 					case ZERO:
@@ -413,7 +414,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 						 */
 						final double epsilon = factory.getDiracDeltaApproximationWidthPerStdDev()*X.getStandardDeviation();
 						if(Double.isInfinite(epsilon)) {
-							derivative = one;
+							derivative = Y.sub(Z);
 						}
 						else if(epsilon > 0) {
 							derivative = Y.sub(Z);
@@ -429,7 +430,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 					case REGRESSION_ON_DENSITY:
 					case REGRESSION_ON_DISTRIBUITON:
 					{
-						derivative = one;
+						derivative = Y.sub(Z);
 						break;
 					}
 					default:
@@ -508,7 +509,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);
 				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);
 
-				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
 				final double density = densityRegressionCoeff[0];
 
 				return density;
@@ -530,9 +532,11 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 
 				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);
 				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);
-
-				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
-				//				double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.mult(0.0).add(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
+				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
 				final double density = densityRegressionCoeff[0];
 
 				return density;

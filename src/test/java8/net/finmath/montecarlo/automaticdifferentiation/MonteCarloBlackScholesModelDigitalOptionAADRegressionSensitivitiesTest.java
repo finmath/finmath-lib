@@ -105,7 +105,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	 * Create a Monte-Carlo simulation of a Black-Scholes model using a specified Brownian motion
 	 * and random variable factory. The random variable factory will control the use of AAD (by means of dependency injection).
 	 *
-	 * @param abstractRandomVariableFactory The random variable factory to be used.
+	 * @param randomVariableFactory The random variable factory to be used.
 	 * @param brownianMotion The Brownian motion used to drive the model.
 	 * @return A Monte-Carlo simulation of a Black-Scholes model.
 	 */

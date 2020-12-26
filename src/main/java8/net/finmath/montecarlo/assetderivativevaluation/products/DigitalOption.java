@@ -101,7 +101,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	/**
 	 * Returns the maturity of the option.
-	 * 
+	 *
 	 * @return the maturity of the option.
 	 */
 	public double getMaturity() {
@@ -110,7 +110,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	/**
 	 * Returns the strike of the option.
-	 * 
+	 *
 	 * @return the strike of the option.
 	 */
 	public double getStrike() {
@@ -119,7 +119,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	/**
 	 * Returns the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
-	 * 
+	 *
 	 * @return the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
 	 */
 	public Integer getUnderlyingIndex() {
@@ -128,7 +128,7 @@ public class DigitalOption extends AbstractAssetMonteCarloProduct {
 
 	/**
 	 * Returns a string name of the underlying (if supported), otherwise null.
-	 * 
+	 *
 	 * @return a string name of the underlying (if supported), otherwise null.
 	 */
 	public String getNameOfUnderlying() {

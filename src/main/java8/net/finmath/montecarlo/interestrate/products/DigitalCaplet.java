@@ -6,9 +6,9 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 
 /**
  * Implements the valuation of a digital caplet using a given
@@ -65,8 +65,8 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 		// Get random variables
 		final RandomVariable	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
 
-		final RandomVariable 			trigger		= libor.sub(strike).mult(periodLength);
-		RandomVariable				values		= trigger.choose((new RandomVariableFromDoubleArray(periodLength)), (new RandomVariableFromDoubleArray(0.0)));
+		final RandomVariable 		trigger		= libor.sub(strike);
+		RandomVariable				values		= trigger.choose((new Scalar(periodLength)), (new Scalar(0.0)));
 
 		// Get numeraire and probabilities for payment time
 		final RandomVariable	numeraire					= model.getNumeraire(paymentDate);
@@ -82,5 +82,21 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 
 		// Return values
 		return values;
+	}
+
+	public double getOptionMaturity() {
+		return optionMaturity;
+	}
+
+	public double getPeriodStart() {
+		return periodStart;
+	}
+
+	public double getPeriodEnd() {
+		return periodEnd;
+	}
+
+	public double getStrike() {
+		return strike;
 	}
 }

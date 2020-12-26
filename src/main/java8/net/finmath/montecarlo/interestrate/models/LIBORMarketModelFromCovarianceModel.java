@@ -268,11 +268,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			liborCap	= (Double)properties.get("liborCap");
 		}
 
-		Map<String,Object> calibrationParameters = null;
-		if(properties != null && properties.containsKey("calibrationParameters")) {
-			calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
-		}
-
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 		curveModel					= analyticModel;
 		this.forwardRateCurve		= forwardRateCurve;
@@ -1647,7 +1642,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	@Override
 	public LIBORMarketModelFromCovarianceModel getCloneWithModifiedData(final Map<String, Object> dataModified) throws CalculationException {
-		RandomVariableFactory 	abstractRandomVariableFactory	= this.randomVariableFactory;
+		RandomVariableFactory 	randomVariableFactory		= this.randomVariableFactory;
 		TimeDiscretization		liborPeriodDiscretization	= this.liborPeriodDiscretization;
 		AnalyticModel			analyticModel				= curveModel;
 		ForwardCurve			forwardRateCurve			= this.forwardRateCurve;
@@ -1661,7 +1656,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		properties.put("liborCap", liborCap);
 
 		if(dataModified != null) {
-			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
+			randomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			analyticModel = (AnalyticModel)dataModified.getOrDefault("analyticModel", analyticModel);
 			forwardRateCurve = (ForwardCurve)dataModified.getOrDefault("forwardRateCurve", forwardRateCurve);
@@ -1673,11 +1668,19 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			}
 
 			if(dataModified.containsKey("forwardRateShift")) {
-				throw new RuntimeException("Forward rate shift clone currently disabled.");
+				try {
+					double[] forwardCurveValues = getForwardRateCurve().getParameter();
+					double[] forwardCurveValuesShift = (double[])dataModified.get("forwardRateShift");
+					double[] forwardCurveValuesShifted = new double[forwardCurveValues.length];
+					for(int i=0; i<forwardCurveValues.length; i++) forwardCurveValuesShifted[i] = forwardCurveValues[i] + forwardCurveValuesShift[i];
+					forwardRateCurve = (ForwardCurve) forwardRateCurve.getCloneForParameter(forwardCurveValuesShifted);
+				} catch (CloneNotSupportedException e) {
+					throw new RuntimeException("Forward rate shift not supported.", e);
+				}
 			}
 		}
 
-		final LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, abstractRandomVariableFactory, covarianceModel, null, properties);
+		final LIBORMarketModelFromCovarianceModel newModel = LIBORMarketModelFromCovarianceModel.of(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, null, properties);
 		return newModel;
 	}
 

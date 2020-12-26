@@ -3,4 +3,4 @@
  *
  * @author Christian Fries
  */
-package net.finmath.montecarlo.process.component.factordrift;
+package net.finmath.montecarlo.process.component.factortransform;

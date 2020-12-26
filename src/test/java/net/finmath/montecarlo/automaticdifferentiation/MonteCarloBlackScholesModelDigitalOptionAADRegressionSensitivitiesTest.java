@@ -69,7 +69,6 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	private final double	optionMaturity = 1.0;
 	private final double	optionStrike = 1.05;
 
-
 	@Test
 	public void test() throws CalculationException {
 

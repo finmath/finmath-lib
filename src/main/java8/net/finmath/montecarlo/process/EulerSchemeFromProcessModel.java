@@ -102,7 +102,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	/**
 	 * Create an Euler discretization scheme.
 	 *
-	 * @param model The model (the SDE specifcation) used to generate the (sampling of the) stochastic process.
+	 * @param model The model (the SDE specification) used to generate the (sampling of the) stochastic process.
 	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
 	 */
 	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
@@ -273,7 +273,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 						discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];
 					}
 				} catch (final InterruptedException | ExecutionException e) {
-					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e);
+					throw new RuntimeException("Euler step failed at time index " + timeIndex + " (time=" + getTime(timeIndex) + "). See cause of this exception for details.", e.getCause());
 				}
 			}
 

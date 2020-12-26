@@ -6,7 +6,7 @@ finmath lib Release Notes
 # Release Notes
 
 
-## 5.0.8 (25.12-2020)
+## 5.0.9 (26.12-2020)
 
 ### Analytic Formulas
 
@@ -15,6 +15,10 @@ finmath lib Release Notes
 ### Algorithmic Differentiation / Automatic Differentiation
 
  - Added unit tests.
+
+### Java 8
+
+ - Backporting fixes from 5.0.6 to the Java 8 branch.
 
 
 ## 5.0.6 (03.10-2020)
