@@ -11,15 +11,12 @@ import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
-
-//TODO
-//it is not clear why interpolated yield is so different from the actual yield. For exmaple for the first bond in the list (the one with maturity 0.1 years)
-//actual yield: 11.616161616161616, interpolated yield : -15.188921707979922, exampleInterpolatedYield: 7.187521869740281
 
 public class NelsonSiegelSvenssonBondCalibrationTest {
 
@@ -39,19 +36,17 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 	 */
 	@Test
 	public void testBondNSSCurveCalibration() throws SolverException {
-		//maturities in years.
-		double[] maturity = new double[]{0.1, 0.3, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 20.0, 30.0};
-		//coupon rates of bonds, 1.5% for all of them
-		double[] rates = new double[]{0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015};
-		//current prices of bonds, current price for face value of 100. (i.e. 99 means that the bond is sold with a discount)
-		double[] prices = new double[]{99.0, 99.8, 101.0, 101.5, 102.0, 102.8, 103.0, 103.8, 103.9, 104.0, 104.2};
-		//yield to maturity
+		// maturities in years.
+		double[] maturity = new double[]{ 0.1, 0.3, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 20.0, 30.0 };
+		// coupon rates of bonds, 1.5% for all of them
+		double[] rates = new double[]{ 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015 };
+		// current prices of bonds, current price for face value of 1.0. (i.e. 0.99 means that the bond is sold with a discount)
+		double[] prices = new double[]{ 0.99, 0.998, 1.010, 1.015, 1.020, 1.028, 1.030, 1.038, 1.039, 1.040, 1.042 };
+		// yield to maturity
 		double[] actualYields = new double[maturity.length];
 		for(int i = 0; i < maturity.length; i++) {
-			actualYields[i] = getYieldToMaturity(prices[i], 100, rates[i], maturity[i]);
+			actualYields[i] = getYieldToMaturity(prices[i], 1.0, rates[i], maturity[i]);
 		}
-		//example parameters of NSS curve (pre-calculated using some other calibration method)
-		double[] nssExample = new double[]{-2.309007062964981, 9.806543347881817, 2.785897664184778, -1.1102357677666546, 1.1336182819018041, 9.490989944468486};
 
 		final HashMap<String, Object> parameters = new HashMap<>();
 
@@ -62,20 +57,16 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		double[] nssParameters = calibrateNSSCurve(parameters);
 
 		final DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", LocalDate.now(), nssParameters, 1.0);
-		final DiscountCurve exampleDiscountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", LocalDate.now(), nssExample, 1.0);
 		System.out.println("Calibrated parameters: " + Arrays.toString(nssParameters));
-		System.out.println("Example parameters: " + Arrays.toString(nssExample));
 		for(int i = 0; i < maturity.length; i++) {
 			final double discountFactor = discountCurve.getDiscountFactor(maturity[i]);
-			final double exampleDiscountFactor = exampleDiscountCurve.getDiscountFactor(maturity[i]);
-			double interpolatedYield = -1 * Math.log(discountFactor) / maturity[i];
-			double exampleInterpolatedYield = -1 * Math.log(exampleDiscountFactor) / maturity[i];
-			System.out.println(
-					"  actual yield: " + actualYields[i]
-							+ ", interpolated yield : " + interpolatedYield
-							+ ", exampleInterpolatedYield: " + exampleInterpolatedYield);
-		}
+			final double interpolatedYield = -1 * Math.log(discountFactor) / maturity[i];
 
+			System.out.println(
+					String.format("%-10s%f", "actual yield: ", actualYields[i]) +
+					"\t" +
+					String.format("%-10s%f", "interpolated yield: ", interpolatedYield));
+		}
 	}
 
 	/**
@@ -98,7 +89,6 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 		DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson(DISCOUNT_CURVE_NAME, REFERENCE_DAY, initialParameters, 1.0);
 
-
 		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[]{discountCurve});
 
 		// Create a collection of objective functions (calibration products)
@@ -113,7 +103,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(REFERENCE_DAY, startDate, maturityDate, ANNUAL, ACT_365, "first", "following", businessdayCalendar, -2, 0);
 
-			final Bond bond = new Bond(schedulePay, DISCOUNT_CURVE_NAME, null, null, rates[i]);
+			final Bond bond = new Bond(schedulePay, DISCOUNT_CURVE_NAME, rates[i]);
 			calibrationProducts.add(bond);
 
 		}
@@ -123,9 +113,23 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		curvesToCalibrate.add(discountCurve);
 
 		// Calibrate the curve
-		final Solver solver = new Solver(model, calibrationProducts, Arrays.stream(prices).map(x -> x/100).boxed().collect(Collectors.toList()), null, 0, 0);
+		final Solver solver = new Solver(model, calibrationProducts, Arrays.stream(prices).boxed().collect(Collectors.toList()), null, 0, 0);
 		final AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
 
+		/*
+		 * Check valuation errors
+		 */
+		System.out.println("Calibration errors: ");
+		System.out.println(String.format("%8s\t%8s\t%8s\t", "model", "target", "error"));
+
+		for(int i = 0; i < calibrationProducts.size(); i++) {
+			double valueModel = calibrationProducts.get(i).getValue(0.0, calibratedModel);
+			double valueTarget = prices[i];
+			double error = valueModel-valueTarget;
+			System.out.println(String.format("%8.5f\t%8.5f\t%8.5f\t", valueModel, valueTarget, error));
+
+			Assertions.assertEquals(valueTarget, valueModel, 0.01, "bond value");
+		}
 		// Get best parameters
 		return calibratedModel.getDiscountCurve(discountCurve.getName()).getParameter();
 	}
@@ -140,6 +144,6 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 	 * @return yield to maturity
 	 */
 	public static double getYieldToMaturity(double pv, double fv, double couponRate, double maturityYears) {
-		return 1.0 * ((fv - pv) / maturityYears + fv * couponRate) / pv;
+		return ((fv - pv) / maturityYears + fv * couponRate) / pv;
 	}
 }
