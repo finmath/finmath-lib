@@ -12,6 +12,11 @@ finmath lib Release Notes
 
  - Some minor additions to the analytic formulas.
 
+### Bond curves and Bond valuation
+
+ - Bonds can be valued on a single discount curve
+ (instead a set of three curves consisting of (separate risk free curve, basis curve, survival prob. curve)).
+ 
 ### Algorithmic Differentiation / Automatic Differentiation
 
  - Added unit tests.
