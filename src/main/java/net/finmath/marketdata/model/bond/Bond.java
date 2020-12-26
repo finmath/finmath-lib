@@ -122,9 +122,17 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, 0);
 	}
 
-
-
-
+	/**
+	 * Creates a fixed coupon bond using a single discount curve only.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 */
+	public Bond(final Schedule schedule, final String discountCurveName, final double fixedCoupon) {
+		this(schedule, discountCurveName, null,null, null, fixedCoupon,0, 0);
+	}
+	
 	@Override
 	public double getValue(final double evaluationTime, final AnalyticModel model) {
 
@@ -145,14 +153,7 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 		}
 
 		final Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);
-		if(survivalProbabilityCurve == null) {
-			throw new IllegalArgumentException("No survival probability curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
-		}
-
 		final Curve basisFactorCurve = model.getCurve(basisFactorCurveName);
-		if(basisFactorCurve == null) {
-			throw new IllegalArgumentException("No basis factor curve with name '" + discountCurveName + "' was found in the model:\n" + model.toString());
-		}
 
 		double value = 0.0;
 		for(int periodIndex=0; periodIndex<schedule.getNumberOfPeriods(); periodIndex++) {
@@ -161,9 +162,9 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
 			final double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 
-			final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
+			final double survivalProbabilityFactor	= survivalProbabilityCurve != null ? (paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0) : 1.0;
 
-			final double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
+			final double basisFactorFactor	= basisFactorCurve != null ? (paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0) : 1.0;
 
 			double couponPayment=fixedCoupon ;
 			if(forwardCurve != null ) {
@@ -189,9 +190,9 @@ public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
 		final double discountFactor	= paymentDate > evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;
 
-		final double survivalProbabilityFactor	= paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;
+		final double survivalProbabilityFactor	= survivalProbabilityCurve != null ? (paymentDate > evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0) : 1.0;
 
-		final double basisFactorFactor	= paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0;
+		final double basisFactorFactor	= basisFactorCurve != null ? (paymentDate > evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0) : 1.0;
 
 		value +=  discountFactor * survivalProbabilityFactor * basisFactorFactor;
 
