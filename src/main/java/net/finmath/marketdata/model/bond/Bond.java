@@ -33,9 +33,16 @@ import net.finmath.time.daycount.DayCountConvention;
  * Support for day counting is provided via the class implementing
  * <code>Schedule</code>.
  *
+ * The effective bond curve is a combination of the discount curve (risk free curve), the basis factor curve
+ * (which could be considers as an additional industry specific factor) and the issuer specific
+ * survival probalbilty. The effective discount factor is the product of the three:
+ * discountFactor * survivalProbabilityFactor * basisFactorFactor
+ * 
+ * You may set the arguments for the survival probability curve and the basis factor curve to null.
+ * 
  * @author Moritz Scherrmann
  * @author Chrisitan Fries
- * @version 1.0
+ * @version 1.1
  */
 public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
 
