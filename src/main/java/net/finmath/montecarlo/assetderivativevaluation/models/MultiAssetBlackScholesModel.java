@@ -138,9 +138,9 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	}
 
 	private static double[][] getFactorLoadingsFromVolatilityAnCorrelation(double[] volatilities, double[][] correlations) {
-		double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		final double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
 		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
-			double volatility = volatilities[underlyingIndex];
+			final double volatility = volatilities[underlyingIndex];
 			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
 				factorLoadings[underlyingIndex][factorIndex] = factorLoadings[underlyingIndex][factorIndex] * volatility;
 			}
@@ -222,10 +222,10 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	@Override
 	public MultiAssetBlackScholesModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
 
-		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 
-		double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
-		double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
+		final double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
+		final double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
 
 		double[][]		newFactorLoadings		= (double[][]) dataModified.getOrDefault("factorLoadings", factorLoadings);
 		if(dataModified.containsKey("volatilities") || dataModified.containsKey("correlations")) {
@@ -233,8 +233,8 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
 			}
 
-			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilityVector());
-			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelationMatrix());
+			final double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilityVector());
+			final double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelationMatrix());
 			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
 		}
 
@@ -278,11 +278,11 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	 * @return Returns the volatilities.
 	 */
 	public double[] getVolatilityVector() {
-		double[] volatilities = new double[factorLoadings.length];
+		final double[] volatilities = new double[factorLoadings.length];
 		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
 			double volatilitySquaredOfUnderlying = 0.0;
 			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
-				double factorLoading = factorLoadings[underlyingIndex][factorIndex];
+				final double factorLoading = factorLoadings[underlyingIndex][factorIndex];
 				volatilitySquaredOfUnderlying += factorLoading*factorLoading;
 			}
 			volatilities[underlyingIndex] = Math.sqrt(volatilitySquaredOfUnderlying);
@@ -296,9 +296,9 @@ public class MultiAssetBlackScholesModel extends AbstractProcessModel {
 	 * @return Returns the volatilities.
 	 */
 	public double[][] getCorrelationMatrix() {
-		double[] volatilities = getVolatilityVector();
+		final double[] volatilities = getVolatilityVector();
 
-		double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
+		final double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
 		for(int underlyingIndex1 = 0; underlyingIndex1<factorLoadings.length; underlyingIndex1++) {
 			for(int underlyingIndex2 = 0; underlyingIndex2<factorLoadings.length; underlyingIndex2++) {
 				double covariance = 0.0;

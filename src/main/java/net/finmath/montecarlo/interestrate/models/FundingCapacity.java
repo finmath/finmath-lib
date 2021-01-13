@@ -55,8 +55,8 @@ public class FundingCapacity extends AbstractProductComponent {
 	private RandomVariable		currentCapacity;
 
 	public class DefaultFactors {
-		private RandomVariable survivalProbability;
-		private RandomVariable defaultCompensation;
+		private final RandomVariable survivalProbability;
+		private final RandomVariable defaultCompensation;
 
 		public DefaultFactors(RandomVariable survivalProbability, RandomVariable defaultCompensation) {
 			this.survivalProbability = survivalProbability;
@@ -131,7 +131,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		}
 
 		// The cap is used to map to avoid 0*infty to zero.
-		RandomVariable oneOverFundingAmount = fundingIntervallRight.sub(fundingIntervallLeft).invert().cap(Double.MAX_VALUE);
+		final RandomVariable oneOverFundingAmount = fundingIntervallRight.sub(fundingIntervallLeft).invert().cap(Double.MAX_VALUE);
 		integratedSurvivalProbability = integratedSurvivalProbability.mult(oneOverFundingAmount);
 		integratedDefaultCompensation = integratedDefaultCompensation.mult(oneOverFundingAmount);
 
@@ -160,7 +160,7 @@ public class FundingCapacity extends AbstractProductComponent {
 
 		RandomVariable integratedSurvivalProbability = new Scalar(0.0);
 		double previousFundingLevel = -Double.MAX_VALUE;
-		double previousProvidedLevel = -Double.MAX_VALUE;
+		final double previousProvidedLevel = -Double.MAX_VALUE;
 		for(final Map.Entry<Double, Double> entry : instantaneousSurvivalProbability.entrySet()) {
 			final double fundingLevel = entry.getKey();
 			final double survivalProbability = entry.getValue();

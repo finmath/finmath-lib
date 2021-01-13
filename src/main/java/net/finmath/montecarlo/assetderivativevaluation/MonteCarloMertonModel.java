@@ -84,7 +84,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 		this.initialValue = initialValue;
 		this.seed = seed;
 
-		double discountRate = riskFreeRate;
+		final double discountRate = riskFreeRate;
 
 		// Create the model
 		model = new MertonModel(initialValue, riskFreeRate, volatility, discountRate, jumpIntensity, jumpSizeMean, jumpSizeStDev, randomVariableFactory);
@@ -142,7 +142,7 @@ public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationMode
 
 	@Override
 	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
-		int timeIndex = getTimeIndex(time);
+		final int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			throw new IllegalArgumentException("The model does not provide an interpolation of simulation time (time given was " + time + ").");
 		}

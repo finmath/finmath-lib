@@ -1551,10 +1551,10 @@ public class AnalyticFormulas {
 	 * @return The (implied) normal volatility.
 	 */
 	public static double volatilityConversionLognormalToNormal(final double forward, final double displacement, final double optionMaturity, final double optionStrike, final double lognormalVolatility) {
-		double payoffUnit = 1.0;		// does not matter in this conversion
-		double optionValue = blackScholesGeneralizedOptionValue(forward+displacement, lognormalVolatility, optionMaturity, optionStrike+displacement, payoffUnit);
+		final double payoffUnit = 1.0;		// does not matter in this conversion
+		final double optionValue = blackScholesGeneralizedOptionValue(forward+displacement, lognormalVolatility, optionMaturity, optionStrike+displacement, payoffUnit);
 
-		double impliedNormalVolatility = bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
+		final double impliedNormalVolatility = bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);
 
 		return impliedNormalVolatility;
 	}

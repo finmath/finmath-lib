@@ -15,6 +15,11 @@ public class LogNormalDistribution {
 	static final org.apache.commons.math3.distribution.LogNormalDistribution logNormalDistribution  = new org.apache.commons.math3.distribution.LogNormalDistribution();
 
 	public static class LogNormalDistributionParameters {
+		private final double mean;
+		private final double standardDeviation;
+		private final double mu;
+		private final double sigma;
+
 		public LogNormalDistributionParameters(double mean, double standardDeviation, double mu, double sigma) {
 			super();
 			this.mean = mean;
@@ -22,26 +27,38 @@ public class LogNormalDistribution {
 			this.mu = mu;
 			this.sigma = sigma;
 		}
-		double mean;
-		double standardDeviation;
-		double mu;
-		double sigma;
+
+		public double getMean() {
+			return mean;
+		}
+
+		public double getStandardDeviation() {
+			return standardDeviation;
+		}
+
+		public double getMu() {
+			return mu;
+		}
+
+		public double getSigma() {
+			return sigma;
+		}
 	}
-	
+
 	private LogNormalDistribution() {
 	}
 
 	public static LogNormalDistributionParameters getParametersFromMuAndSigma(double mu, double sigma) {
-		double mean = Math.exp(mu) * Math.exp(sigma*sigma/2);
-		double standardDeviation = Math.exp(mu) * Math.sqrt((Math.exp(Math.pow(sigma,2))-1)*Math.exp(Math.pow(sigma,2)));
-		
+		final double mean = Math.exp(mu) * Math.exp(sigma*sigma/2);
+		final double standardDeviation = Math.exp(mu) * Math.sqrt((Math.exp(Math.pow(sigma,2))-1)*Math.exp(Math.pow(sigma,2)));
+
 		return new LogNormalDistributionParameters(mean, standardDeviation, mu, sigma);
 	}
 
 	public static LogNormalDistributionParameters getParametersFromMeanAndStdDev(double mean, double standardDeviation) {
-		double mu = Math.log(  mean / Math.sqrt(Math.pow(standardDeviation / mean,2)+1 ) );
-		double sigma = Math.sqrt( 2 * (Math.log(mean)-mu) );
-		
+		final double mu = Math.log(  mean / Math.sqrt(Math.pow(standardDeviation / mean,2)+1 ) );
+		final double sigma = Math.sqrt( 2 * (Math.log(mean)-mu) );
+
 		return new LogNormalDistributionParameters(mean, standardDeviation, mu, sigma);
 	}
 

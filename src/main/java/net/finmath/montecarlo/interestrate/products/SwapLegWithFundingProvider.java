@@ -97,7 +97,7 @@ public class SwapLegWithFundingProvider extends AbstractLIBORMonteCarloProduct {
 			RandomVariable payoff = index.getValue(productToModelTimeOffset + fixingDate, model).add(spreads[periodIndex]).mult(periodLength);
 			payoff = payoff.mult(notionalAtPeriodStart);
 
-			RandomVariable survivalProbility = fundingCapacity.getDefaultFactors(productToModelTimeOffset + periodEnd, payoff).getSurvivalProbability();
+			final RandomVariable survivalProbility = fundingCapacity.getDefaultFactors(productToModelTimeOffset + periodEnd, payoff).getSurvivalProbability();
 			payoff = payoff.mult(survivalProbility);
 
 			payoff = payoff.div(numeraire);

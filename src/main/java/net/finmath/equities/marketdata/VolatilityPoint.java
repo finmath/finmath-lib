@@ -22,7 +22,7 @@ public class VolatilityPoint {
 		this.date = date;
 		this.strike = strike;
 		this.volatility = volatility;
-	};
+	}
 
 	public LocalDate getDate() {
 		return date;

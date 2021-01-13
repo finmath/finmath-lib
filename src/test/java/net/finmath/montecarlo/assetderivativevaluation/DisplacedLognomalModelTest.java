@@ -91,19 +91,19 @@ public class DisplacedLognomalModelTest {
 		// Create a brownianMotion
 		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
 
-		AssetModelMonteCarloSimulationModel monteCarloInhomogeneouseDisplacedModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloInhomogeneouseDisplacedModel = getMonteCarloSimulationFromModel(
 				new InhomogeneousDisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility),
 				brownianMotion);
 
-		AssetModelMonteCarloSimulationModel monteCarloDisplacedModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloDisplacedModel = getMonteCarloSimulationFromModel(
 				new DisplacedLognomalModel(initialValue, riskFreeRate, displacement, volatility),
 				brownianMotion);
 
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = getMonteCarloSimulationFromModel(
 				new BlackScholesModel(initialValue, riskFreeRate, volatility),
 				brownianMotion);
 
-		AssetModelMonteCarloSimulationModel monteCarloBachelierModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloBachelierModel = getMonteCarloSimulationFromModel(
 				new InhomogenousBachelierModel(initialValue, riskFreeRate, volatility*displacement),
 				brownianMotion);
 
