@@ -261,4 +261,53 @@ public class RandomVariableDifferentiableAADTest {
 		Assert.assertEquals(x.invert().doubleValue(), dydx.doubleValue(), 1E-15);
 	}
 
+	@Test
+	public void testExpectation() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+
+		RandomVariable x = randomVariableFactory.createRandomVariable(0.0, new double[] { 0.0, 2.0, 1.0, -2.0, -1.0 });
+		RandomVariable a = randomVariableFactory.createRandomVariable(0.0, new double[] { 3.0, 3.0, 3.0, 3.0, 3.0 });
+
+		RandomVariable y = a.mult(x.expectation());
+
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+
+		// Finite Difference
+		double epsilon = 1E-8;
+		RandomVariable dydxFD = a.mult(x.add(epsilon).expectation()).sub(a.mult(x.add(-epsilon).expectation())).div(2*epsilon);
+
+		// We do not expect that the derivative agrees point-wise, but the expectation should agree.
+		Assert.assertEquals(dydx.expectation().doubleValue(), dydxFD.expectation().doubleValue(), 1E-7);
+	}
+
+	@Test
+	public void testVariance() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+
+		RandomVariable x = randomVariableFactory.createRandomVariable(0.0, new double[] { 0.0, 2.0, 1.0, -2.0, -1.0 });
+		RandomVariable a = randomVariableFactory.createRandomVariable(0.0, new double[] { 3.0, 3.0, 3.0, 3.0, 3.0 });
+
+		RandomVariable y = a.mult(x.variance());
+
+		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+
+		// Finite Difference
+		double epsilon = 1E-8;
+		RandomVariable dydxFD = a.mult(x.add(epsilon).variance()).sub(a.mult(x.add(-epsilon).variance())).div(2*epsilon);
+
+		// We do not expect that the derivative agrees point-wise, but the expectation should agree.
+		Assert.assertEquals(dydx.expectation().doubleValue(), dydxFD.expectation().doubleValue(), 1E-7);
+	}
 }
