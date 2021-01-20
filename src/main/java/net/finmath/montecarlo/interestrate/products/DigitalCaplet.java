@@ -6,7 +6,7 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -56,14 +56,14 @@ public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Set payment date and period length
 		final double	paymentDate		= periodEnd;
 		final double	periodLength	= periodEnd - periodStart;
 
 		// Get random variables
-		final RandomVariable	libor		= model.getLIBOR(optionMaturity, periodStart, periodEnd);
+		final RandomVariable	libor		= model.getForwardRate(optionMaturity, periodStart, periodEnd);
 
 		final RandomVariable 		trigger		= libor.sub(strike);
 		RandomVariable				values		= trigger.choose((new Scalar(periodLength)), (new Scalar(0.0)));

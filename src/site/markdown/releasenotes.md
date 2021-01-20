@@ -5,6 +5,12 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 5.1.0 (xx.xx.xxxx)
+
+## Monte-Carlo Interest Rate Models
+
+ - The ``TermStructureMonteCarloProduct`` getValue method requires only a ``TermStructureMonteCarloSimulationModel`` as model. The stronger interface ``LIBORModelMonteCarloSimulationModel`` is rarely needed. Cases where it is used should be checked in future versions.
+ - The name of the method ``getLIBOR`` has been replaced by ```getForwardRate``. A default implementation provides ``getLIBOR`` for backward compatibility.
 
 ## 5.0.9 (26.12-2020)
 

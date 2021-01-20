@@ -136,9 +136,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	}
 
 	private static double[][] getFactorLoadingsFromVolatilityAnCorrelation(double[] volatilities, double[][] correlations) {
-		double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
+		final double[][] factorLoadings = LinearAlgebra.getFactorMatrix(correlations, correlations.length);
 		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
-			double volatility = volatilities[underlyingIndex];
+			final double volatility = volatilities[underlyingIndex];
 			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
 				factorLoadings[underlyingIndex][factorIndex] = factorLoadings[underlyingIndex][factorIndex] * volatility;
 			}
@@ -307,11 +307,11 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 * @return Returns the volatilities.
 	 */
 	public double[] getVolatilities() {
-		double[] volatilities = new double[factorLoadings.length];
+		final double[] volatilities = new double[factorLoadings.length];
 		for(int underlyingIndex = 0; underlyingIndex<factorLoadings.length; underlyingIndex++) {
 			double volatilitySquaredOfUnderlying = 0.0;
 			for(int factorIndex = 0; factorIndex<factorLoadings[underlyingIndex].length; factorIndex++) {
-				double factorLoading = factorLoadings[underlyingIndex][factorIndex];
+				final double factorLoading = factorLoadings[underlyingIndex][factorIndex];
 				volatilitySquaredOfUnderlying += factorLoading*factorLoading;
 			}
 			volatilities[underlyingIndex] = Math.sqrt(volatilitySquaredOfUnderlying);
@@ -325,9 +325,9 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 	 * @return Returns the volatilities.
 	 */
 	public double[][] getCorrelations() {
-		double[] volatilities = getVolatilities();
+		final double[] volatilities = getVolatilities();
 
-		double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
+		final double[][] correlations = new double[factorLoadings.length][factorLoadings.length];
 		for(int underlyingIndex1 = 0; underlyingIndex1<factorLoadings.length; underlyingIndex1++) {
 			for(int underlyingIndex2 = 0; underlyingIndex2<factorLoadings.length; underlyingIndex2++) {
 				double covariance = 0.0;
@@ -364,10 +364,10 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 
 		BrownianMotion 	newBrownianMotion		= (BrownianMotion) process.getStochasticDriver();
 
-		RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
+		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory) dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 
-		double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
-		double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
+		final double[]		newInitialValues		= (double[]) dataModified.getOrDefault("initialValues", initialValues);
+		final double			newRiskFreeRate			= ((Double) dataModified.getOrDefault("riskFreeRate", riskFreeRate)).doubleValue();
 
 		double[][]		newFactorLoadings		= (double[][]) dataModified.getOrDefault("factorLoadings", factorLoadings);
 		if(dataModified.containsKey("volatilities") || dataModified.containsKey("correlations")) {
@@ -375,8 +375,8 @@ public class MonteCarloMultiAssetBlackScholesModel extends AbstractProcessModel 
 				throw new IllegalArgumentException("Inconsistend parameters. Cannot specify volatility or corellation and factorLoadings at the same time.");
 			}
 
-			double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilities());
-			double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelations());
+			final double[] newVolatilities = (double[]) dataModified.getOrDefault("volatilities", getVolatilities());
+			final double[][] newCorrelations = (double[][]) dataModified.getOrDefault("correlations", getCorrelations());
 			newFactorLoadings = getFactorLoadingsFromVolatilityAnCorrelation(newVolatilities, newCorrelations);
 		}
 

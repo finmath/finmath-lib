@@ -653,7 +653,7 @@ public class LIBORMarketModelValuationTest {
 		for(double payment = 5.0; payment < 20; payment += 0.5) {
 			final double periodStart = fixing;
 			final double periodEnd = fixing + 0.5;
-			final RandomVariable libor = liborMarketModel.getLIBOR(fixing, periodStart, periodEnd);
+			final RandomVariable libor = liborMarketModel.getForwardRate(fixing, periodStart, periodEnd);
 			final RandomVariable numeraireAtPayment = liborMarketModel.getNumeraire(payment);
 			final RandomVariable numeraireAtEvaluation = liborMarketModel.getNumeraire(0);
 

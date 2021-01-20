@@ -339,7 +339,7 @@ public class ForwardCurveInterpolation extends AbstractForwardCurve implements S
 		final int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(startTime);
 		final double firstLiborTime = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 		if(firstLiborTime>startTime) {
-			liborsAtTimeIndex.add(model.getLIBOR(startTime, startTime, firstLiborTime));
+			liborsAtTimeIndex.add(model.getForwardRate(startTime, startTime, firstLiborTime));
 		}
 		// Vector of times for the forward curve
 		final double[] times = new double[firstLiborTime==startTime ? (model.getNumberOfLibors()-firstLiborIndex) : (model.getNumberOfLibors()-firstLiborIndex+1)];

@@ -10,6 +10,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloProduct;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.process.component.factortransform.FactorTransform;
 import net.finmath.stochastic.RandomVariable;
 
@@ -31,7 +32,7 @@ public interface TermStructureMonteCarloProduct extends MonteCarloProduct {
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
+	RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
 
 	/**
 	 * This method returns the valuation of the product within the specified model, evaluated at a given evalutationTime.
@@ -44,7 +45,7 @@ public interface TermStructureMonteCarloProduct extends MonteCarloProduct {
 	 * @return The random variable representing the value of the product discounted to evaluation time
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	Map<String, Object> getValues(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
+	Map<String, Object> getValues(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
 
 	/**
 	 * Overwrite this method if the product supplies a custom FactorDriftInterface to be used in proxy simulation.

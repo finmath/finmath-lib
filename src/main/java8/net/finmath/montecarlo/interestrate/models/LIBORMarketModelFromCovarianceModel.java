@@ -1669,12 +1669,14 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 			if(dataModified.containsKey("forwardRateShift")) {
 				try {
-					double[] forwardCurveValues = getForwardRateCurve().getParameter();
-					double[] forwardCurveValuesShift = (double[])dataModified.get("forwardRateShift");
-					double[] forwardCurveValuesShifted = new double[forwardCurveValues.length];
-					for(int i=0; i<forwardCurveValues.length; i++) forwardCurveValuesShifted[i] = forwardCurveValues[i] + forwardCurveValuesShift[i];
+					final double[] forwardCurveValues = getForwardRateCurve().getParameter();
+					final double[] forwardCurveValuesShift = (double[])dataModified.get("forwardRateShift");
+					final double[] forwardCurveValuesShifted = new double[forwardCurveValues.length];
+					for(int i=0; i<forwardCurveValues.length; i++) {
+						forwardCurveValuesShifted[i] = forwardCurveValues[i] + forwardCurveValuesShift[i];
+					}
 					forwardRateCurve = (ForwardCurve) forwardRateCurve.getCloneForParameter(forwardCurveValuesShifted);
-				} catch (CloneNotSupportedException e) {
+				} catch (final CloneNotSupportedException e) {
 					throw new RuntimeException("Forward rate shift not supported.", e);
 				}
 			}

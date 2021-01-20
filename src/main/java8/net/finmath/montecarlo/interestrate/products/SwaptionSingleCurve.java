@@ -10,9 +10,8 @@ import java.util.Arrays;
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -113,7 +112,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect foresight - all rates are simulationTime=exerciseDate)
 		 */
@@ -129,7 +128,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 			final double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			final RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
+			final RandomVariable libor	= model.getForwardRate(exerciseDate, fixingDate, paymentDate);
 
 			// Add payment received at end of period
 			final RandomVariable payoff = libor.sub(swaprate).mult(periodLength);
@@ -141,7 +140,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 
 		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
 		if(fixingDates[0] != exerciseDate) {
-			final RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			final RandomVariable libor	= model.getForwardRate(exerciseDate, exerciseDate, fixingDates[0]);
 			final double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period
@@ -184,7 +183,7 @@ public class SwaptionSingleCurve extends AbstractLIBORMonteCarloProduct {
 		System.arraycopy(fixingDates, 0, swapTenor, 0, fixingDates.length);
 		swapTenor[swapTenor.length-1] = paymentDates[paymentDates.length-1];
 
-		final double forwardSwapRate = Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve);
+		final double forwardSwapRate = net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), forwardCurve);
 		final double swapAnnuity = SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), forwardCurve);
 
 		return AnalyticFormulas.blackModelSwaptionValue(forwardSwapRate, swaprateVolatility, exerciseDate, swaprate, swapAnnuity);

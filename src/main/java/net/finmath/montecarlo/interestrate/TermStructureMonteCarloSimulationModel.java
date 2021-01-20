@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
-import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
@@ -31,14 +30,14 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	 * @return The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	default RandomVariable getLIBOR(final LocalDateTime date, final LocalDateTime periodStartDate, final LocalDateTime periodEndDate) throws CalculationException {
+	default RandomVariable getForwardRate(final LocalDateTime date, final LocalDateTime periodStartDate, final LocalDateTime periodEndDate) throws CalculationException {
 		final LocalDateTime referenceDate = getReferenceDate();
 
 		final double time = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, date);
 		final double periodStart = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodStartDate);
 		final double periodEnd = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periodEndDate);
 
-		return getLIBOR(time, periodStart, periodEnd);
+		return getForwardRate(time, periodStart, periodEnd);
 	}
 
 	/**
@@ -50,7 +49,7 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariable getForwardRate(double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Return the numeraire at a given time.
@@ -74,17 +73,42 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	RandomVariable getNumeraire(double time) throws CalculationException;
 
 	/**
+	 * Return the forward rate for a given simulation time and a given period start and period end.
+	 *
+	 * @param date Simulation time
+	 * @param periodStartDate Start time of period
+	 * @param periodEndDate End time of period
+	 * @return The forward rate as a random variable as seen on simulation time for the specified period.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	default RandomVariable getLIBOR(final LocalDateTime date, final LocalDateTime periodStartDate, final LocalDateTime periodEndDate) throws CalculationException {
+		return getForwardRate(date, periodStartDate, periodEndDate);
+	}
+
+	/**
+	 * Return the forward rate for a given simulation time and a given period start and period end.
+	 *
+	 * @param time          Simulation time
+	 * @param periodStart   Start time of period
+	 * @param periodEnd     End time of period
+	 * @return 				The forward rate as a random variable as seen on simulation time for the specified period.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	default RandomVariable getLIBOR(double time, double periodStart, double periodEnd) throws CalculationException {
+		return getForwardRate(time, periodStart, periodEnd);
+	}
+
+	/**
 	 * Returns the underlying model.
 	 *
 	 * The model specifies the measure, the initial value, the drift, the factor loadings (covariance model), etc.
 	 *
 	 * @return The underlying model
 	 */
-	ProcessModel getModel();
+	TermStructureModel getModel();
 
 	/**
 	 * @return The implementation of the process
 	 */
 	MonteCarloProcess getProcess();
-
 }

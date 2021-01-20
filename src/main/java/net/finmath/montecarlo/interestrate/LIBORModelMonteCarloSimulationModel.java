@@ -79,16 +79,6 @@ public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteC
 	BrownianMotion getBrownianMotion();
 
 	/**
-	 * Returns the underlying model.
-	 *
-	 * The model specifies the measure, the initial value, the drift, the factor loadings (covariance model), etc.
-	 *
-	 * @return The underlying model
-	 */
-	@Override
-	TermStructureModel getModel();
-
-	/**
 	 * Return a clone of this model with a modified Brownian motion using a different seed.
 	 *
 	 * @param seed The seed

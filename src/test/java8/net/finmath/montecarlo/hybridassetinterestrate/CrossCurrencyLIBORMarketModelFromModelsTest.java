@@ -60,7 +60,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign Forward Rate (1)/(2).....: " + foreignForward);
 		System.out.println("Analytic Foreign Forward.........: " + foreignForwardAnalytic);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign Forward", foreignForwardAnalytic, foreignForward, 1E-2);
 	}
@@ -86,7 +86,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Forein Bond valued in foreign model..: " + valueForeign);
 		System.out.println("Domestic Bond in Domestic Currency...: " + valueCcyDom);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign Bond", valueCcyFor, valueForeign, 1E-2);
 	}
@@ -109,7 +109,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign FRA in ccy model......: " + fraCcy);
 		System.out.println("Foreign FRA in foreign model..: " + fraFor);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign FRA", fraFor, fraCcy, 1E-2);
 	}
@@ -148,7 +148,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign Caplet in ccy model......: " + capletCcy);
 		System.out.println("Foreign Caplet in foreign model..: " + capletFor);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign FRA", capletFor, capletCcy, 1E-2);
 	}

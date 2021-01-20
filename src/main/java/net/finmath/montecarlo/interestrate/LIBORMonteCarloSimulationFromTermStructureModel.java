@@ -115,7 +115,7 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return model.getLIBOR(process, time, periodStart, periodEnd);
 	}

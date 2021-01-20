@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -104,13 +104,13 @@ public class ConstantMaturitySwaprate extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Fetch curve
 		final RandomVariable[] forwardRates = new RandomVariable[periodLengths.length];
 		double periodStart = evaluationTime+fixingOffset;
 		for(int periodIndex = 0; periodIndex < periodLengths.length; periodIndex++) {
-			forwardRates[periodIndex] = model.getLIBOR(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);
+			forwardRates[periodIndex] = model.getForwardRate(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);
 			periodStart += periodLengths[periodIndex];
 		}
 

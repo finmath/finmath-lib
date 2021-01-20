@@ -41,7 +41,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 				timeIntegratedStart = timesIntegrated[timeStartIndex];
 			}
 			else {
-				int timeStartIndexLo = -timeStartIndex-2;
+				final int timeStartIndexLo = -timeStartIndex-2;
 				timeIntegratedStart = (timesIntegrated[timeStartIndexLo+1]-timesIntegrated[timeStartIndexLo])/timeDiscretization.getTimeStep(timeStartIndexLo)*(timeDiscretization.getTime(timeStartIndexLo+1)-periodStart);
 			}
 		}
@@ -53,7 +53,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 				timeIntegratedEnd = timesIntegrated[timeEndIndex];
 			}
 			else {
-				int timeEndIndexLo = -timeEndIndex-2;
+				final int timeEndIndexLo = -timeEndIndex-2;
 				timeIntegratedEnd = (timesIntegrated[timeEndIndexLo+1]-timesIntegrated[timeEndIndexLo])/timeDiscretization.getTimeStep(timeEndIndexLo)*(periodEnd-timeDiscretization.getTime(timeEndIndexLo));
 			}
 		}
