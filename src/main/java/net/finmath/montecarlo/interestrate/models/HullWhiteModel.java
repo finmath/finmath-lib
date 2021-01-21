@@ -358,8 +358,8 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 
 	@Override
 	public RandomVariable getForwardDiscountBond(final MonteCarloProcess process, final double time, final double maturity) throws CalculationException {
-		final RandomVariable inverseForwardBondAsOfTime = getLIBOR(process, time, time, maturity).mult(maturity-time).add(1.0);
-		final RandomVariable inverseForwardBondAsOfZero = getLIBOR(process, 0.0, time, maturity).mult(maturity-time).add(1.0);
+		final RandomVariable inverseForwardBondAsOfTime = getForwardRate(process, time, time, maturity).mult(maturity-time).add(1.0);
+		final RandomVariable inverseForwardBondAsOfZero = getForwardRate(process, 0.0, time, maturity).mult(maturity-time).add(1.0);
 		final RandomVariable forwardDiscountBondAsOfZero = getDiscountFactor(process, maturity).div(getDiscountFactor(process, time));
 		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);
 	}
@@ -429,7 +429,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return getZeroCouponBond(process, time, periodStart).div(getZeroCouponBond(process, time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
 	}

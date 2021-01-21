@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
-import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromTermStructureModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationFromTermStructureModel;
 import net.finmath.montecarlo.interestrate.TermStructureModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.Optimizer;
@@ -133,7 +133,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 					throw new SolverException(e);
 				}
 				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
-				final LIBORMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
+				final TermStructureMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new TermStructureMonteCarloSimulationFromTermStructureModel(model, process);
 
 				final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {

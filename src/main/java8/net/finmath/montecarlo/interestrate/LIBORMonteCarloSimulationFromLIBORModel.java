@@ -122,7 +122,7 @@ public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteC
 	@Override
 	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
-		return model.getLIBOR(process, time, periodStart, periodEnd);
+		return model.getForwardRate(process, time, periodStart, periodEnd);
 	}
 
 	@Override

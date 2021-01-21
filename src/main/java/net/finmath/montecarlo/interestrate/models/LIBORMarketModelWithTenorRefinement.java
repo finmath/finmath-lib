@@ -243,7 +243,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 				final double periodStart	= liborPeriodDiscretizations[0].getTime(timeIndex-1);
 				final double periodEnd	= liborPeriodDiscretizations[0].getTime(timeIndex);
-				final RandomVariable libor = getLIBOR(process, periodStart, periodStart, periodEnd);
+				final RandomVariable libor = getForwardRate(process, periodStart, periodStart, periodEnd);
 
 				numeraire = numeraire.accrue(libor, periodEnd-periodStart);
 			}
@@ -655,7 +655,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 
 	@Override
-	public RandomVariable getLIBOR(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) {
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) {
 		int timeIndex = process.getTimeIndex(time);
 		// @TODO Improve interpolation in simulation time here, if required.
 		if(timeIndex < 0) {

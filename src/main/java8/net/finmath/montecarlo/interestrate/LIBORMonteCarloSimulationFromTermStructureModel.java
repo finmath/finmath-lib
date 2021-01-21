@@ -100,11 +100,6 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 	}
 
 	@Override
-	public BrownianMotion getBrownianMotion() {
-		return (BrownianMotion)process.getStochasticDriver();
-	}
-
-	@Override
 	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
 		throw new UnsupportedOperationException();
 	}

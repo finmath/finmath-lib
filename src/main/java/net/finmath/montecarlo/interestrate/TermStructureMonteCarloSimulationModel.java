@@ -9,7 +9,9 @@ package net.finmath.montecarlo.interestrate;
 import java.time.LocalDateTime;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
@@ -19,7 +21,7 @@ import net.finmath.time.FloatingpointDate;
  *
  * @version 1.0
  */
-public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimulationModel {
+public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimulationModel, IndependentModelParameterProvider {
 
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.
@@ -111,4 +113,30 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 	 * @return The implementation of the process
 	 */
 	MonteCarloProcess getProcess();
+
+	/**
+	 * @return Returns the numberOfFactors.
+	 */
+	default int getNumberOfFactors() {
+		return getProcess().getNumberOfFactors();
+	}
+
+	/**
+	 * Returns the Brownian motion used to simulate the curve.
+	 *
+	 * @return The Brownian motion used to simulate the curve.
+	 */
+	default BrownianMotion getBrownianMotion() {
+		return (BrownianMotion)getProcess().getStochasticDriver();
+	}
+
+	/**
+	 * Return a clone of this model with a modified Brownian motion using a different seed.
+	 *
+	 * @param seed The seed
+	 * @return Clone of this object, but having a different seed.
+	 * @deprecated
+	 */
+	@Deprecated
+	Object getCloneWithModifiedSeed(int seed);
 }
