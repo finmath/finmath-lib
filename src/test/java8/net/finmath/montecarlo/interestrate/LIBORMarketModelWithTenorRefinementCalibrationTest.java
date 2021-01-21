@@ -60,7 +60,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatility
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelAsGiven;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructCovarianceModelFromLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
-import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScaling;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingPicewiseConstant;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
@@ -448,7 +448,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			final TimeDiscretization tenorTimeScalingDiscretization = new TimeDiscretizationFromArray(0.0, 40.0, 0.25, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 			final double[] tenorTimeScalings = new double[tenorTimeScalingDiscretization.getNumberOfTimes()];
 			Arrays.fill(tenorTimeScalings, 0.0);
-			final TermStructureTenorTimeScalingInterface tenorTimeScalingModel = new TermStructureTenorTimeScalingPicewiseConstant(tenorTimeScalingDiscretization, tenorTimeScalings);
+			final TermStructureTenorTimeScaling tenorTimeScalingModel = new TermStructureTenorTimeScalingPicewiseConstant(tenorTimeScalingDiscretization, tenorTimeScalings);
 
 			// Create blended local volatility model with fixed parameter 0.0 (that is "lognormal").
 			final AbstractLIBORCovarianceModelParametric covarianceModelBlended = new BlendedLocalVolatilityModel(covarianceModelParametric, 0.0, false);

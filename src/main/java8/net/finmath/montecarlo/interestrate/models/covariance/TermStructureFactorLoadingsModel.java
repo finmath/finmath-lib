@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public interface TermStructureFactorLoadingsModelInterface {
+public interface TermStructureFactorLoadingsModel {
 
 	/**
 	 * Return the factor loading for a given time and a term structure period.

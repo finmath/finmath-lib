@@ -13,7 +13,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * @version 1.0
  */
-public class TermStructureTenorTimeScalingPicewiseConstant implements TermStructureTenorTimeScalingInterface {
+public class TermStructureTenorTimeScalingPicewiseConstant implements TermStructureTenorTimeScaling {
 
 	private final TimeDiscretization timeDiscretization;
 	private final double[] timesIntegrated;
@@ -64,7 +64,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	}
 
 	@Override
-	public TermStructureTenorTimeScalingInterface getCloneWithModifiedParameters(final double[] parameters) {
+	public TermStructureTenorTimeScaling getCloneWithModifiedParameters(final double[] parameters) {
 		return new TermStructureTenorTimeScalingPicewiseConstant(timeDiscretization, parameters);
 	}
 
@@ -79,7 +79,7 @@ public class TermStructureTenorTimeScalingPicewiseConstant implements TermStruct
 	}
 
 	@Override
-	public TermStructureTenorTimeScalingInterface clone() {
+	public TermStructureTenorTimeScaling clone() {
 		return this;
 	}
 }

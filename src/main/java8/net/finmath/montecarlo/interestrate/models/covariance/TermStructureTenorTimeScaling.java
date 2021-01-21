@@ -11,7 +11,7 @@ package net.finmath.montecarlo.interestrate.models.covariance;
  *
  * @version 1.0
  */
-public interface TermStructureTenorTimeScalingInterface {
+public interface TermStructureTenorTimeScaling {
 
 	double getScaledTenorTime(double periodStart, double periodEnd);
 
@@ -21,7 +21,7 @@ public interface TermStructureTenorTimeScalingInterface {
 	 * @param parameters The set of new parameters.
 	 * @return A new object constructed from a clone of this time scaling, where some parameters have been modified.
 	 */
-	TermStructureTenorTimeScalingInterface getCloneWithModifiedParameters(double[] parameters);
+	TermStructureTenorTimeScaling getCloneWithModifiedParameters(double[] parameters);
 
 	/**
 	 * @return The parameter set representing the state of this object.
@@ -31,5 +31,5 @@ public interface TermStructureTenorTimeScalingInterface {
 	/**
 	 * @return A clone of this object.
 	 */
-	TermStructureTenorTimeScalingInterface clone();
+	TermStructureTenorTimeScaling clone();
 }
