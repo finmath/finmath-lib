@@ -11,6 +11,7 @@ import org.apache.commons.math3.analysis.interpolation.BivariateGridInterpolator
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
 import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
 
+import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.time.SchedulePrototype;
 
 

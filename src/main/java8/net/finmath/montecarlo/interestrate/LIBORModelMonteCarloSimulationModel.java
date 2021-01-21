@@ -6,8 +6,6 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
