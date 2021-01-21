@@ -36,7 +36,7 @@ import net.finmath.optimizer.SolverException;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface, TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelParametricInterface {
+public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModel, TermStructureTenorTimeScaling, TermStructureFactorLoadingsModelParametricInterface {
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 

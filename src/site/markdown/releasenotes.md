@@ -14,6 +14,9 @@ finmath lib Release Notes
  - The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
  - The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.
  - Interest rate Monte-Carlo simulations implement the slightly weaker interface `TermStructureMonteCarloSimulationModel`. The class `TermStructureMonteCarloSimulationFromTermStructureModel` implements the weaker interface `TermStructureMonteCarloSimulationFromTermStructureModel`. This is used in valuation of interest rate products. This interface does not provide the methods related to forward rate period discretizations - `getLIBORPeriodDiscretization`. In case it is needed, there is still a `LIBORMonteCarloSimulationFromTermStructureModel` implementing `LIBORModelMonteCarloSimulationModel` for backward compatibility (however, here the corresponding methods thrown an exception). (This was the case in the previous version). As before, the class `LIBORMonteCarloSimulationFromLIBORModel` implements `LIBORModelMonteCarloSimulationModel` and provides a getLIBORPeriodDiscretization(). 
+ - Refactor rename TermStructureFactorLoadingsModelInterface to TermStructureFactorLoadingsModel
+ - Refactor rename TermStructureCovarianceModelInterface to TermStructureCovarianceModel
+ - Refactor rename TermStructureTenorTimeScalingInterface to TermStructureTenorTimeScaling
 
 
 ## 5.0.9 (26.12-2020)
