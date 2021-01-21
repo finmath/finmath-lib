@@ -39,7 +39,7 @@ public interface TermStructureMonteCarloSimulationModel extends MonteCarloSimula
 
 		return getForwardRate(time, periodStart, periodEnd);
 	}
-	
+
 	/**
 	 * Return the forward rate for a given simulation time and a given period start and period end.
 	 *
