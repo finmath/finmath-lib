@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -855,16 +856,14 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if (discountCurve != null) {
 			final RandomVariable defaultableZeroBondAsOfTimeZero = getNumeraireDefaultableZeroBondAsOfTimeZero(process, time);
 
-			final double nonDefaultableZeroBond = numeraire.invert()
-					.mult(getNumerairetUnAdjusted(process, 0.0))
-					.getAverage();
+			final double nonDefaultableZeroBond = numeraire.invert().mult(getNumerairetUnAdjusted(process, 0.0)).getAverage();
 			numeraire = numeraire.mult(nonDefaultableZeroBond).div(defaultableZeroBondAsOfTimeZero);
 		}
 		return numeraire;
 	}
 
 	/*
-	 * Calculate the numeraire adjustment, that is, the adjustment of the between the forward curve and the discount curve.
+	 * Calculate the numeraire adjustment, that is, the adjustment between the forward curve and the discount curve.
 	 *
 	 * This methods performs the interpolation only, if the numeraire adjustment is not on the time grid.
 	 */
@@ -983,7 +982,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				numeraireUnadjusted = getNumerairetUnAdjusted(process, getLiborPeriod(upperIndex));
 			}
 			else {
-				throw new CalculationException("Numeraire not implemented for specified measure.");
+				throw new IllegalArgumentException("Numeraire not implemented for specified measure.");
 			}
 
 			/*
@@ -1053,7 +1052,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 						numeraireUnadjusted = getRandomVariableForConstant(1.0);
 					}
 				} else {
-					throw new CalculationException("Numeraire not implemented for specified measure.");
+					throw new IllegalArgumentException("Numeraire not implemented for specified measure.");
 				}
 				numeraires.put(liborTimeIndex, numeraireUnadjusted);
 			}
@@ -1126,9 +1125,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		final RandomVariable[]	covarianceFactorSums	= new RandomVariable[process.getNumberOfFactors()];
-		for(int factorIndex=0; factorIndex<covarianceFactorSums.length; factorIndex++) {
-			covarianceFactorSums[factorIndex] = zero;
-		}
+		Arrays.fill(covarianceFactorSums, zero);
 
 		if(measure == Measure.SPOT) {
 			// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
@@ -1167,7 +1164,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				}
 			}
 		}
-
+		else {
+			throw new IllegalArgumentException("Drift not implemented for specified measure.");
+		}
 		if(stateSpace == StateSpace.LOGNORMAL) {
 			// Drift adjustment for log-coordinate in each component
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
@@ -1175,7 +1174,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				drift[componentIndex] = drift[componentIndex].addProduct(variance, -0.5);
 			}
 		}
-
 		return drift;
 	}
 
