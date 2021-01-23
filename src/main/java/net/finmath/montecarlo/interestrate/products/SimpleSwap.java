@@ -149,8 +149,8 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			}
 
 			// Get random variables
-			final RandomVariable libor	= model.getForwardRate(fixingDate, fixingDate, paymentDate);
-			RandomVariable payoff	= libor.sub(swaprate).mult(periodLength).mult(notional[period]);
+			final RandomVariable forwardRate	= model.getForwardRate(fixingDate, fixingDate, paymentDate);
+			RandomVariable payoff	= forwardRate.sub(swaprate).mult(periodLength).mult(notional[period]);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}
