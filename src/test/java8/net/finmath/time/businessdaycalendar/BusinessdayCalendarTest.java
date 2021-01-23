@@ -31,14 +31,14 @@ public class BusinessdayCalendarTest {
 
 		// Test days
 		for(final int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(days) + "D";
+			final String offsetCode = days + "D";
 			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays(days).isEqual(targetDate));
 		}
 
 		// Test weeks
 		for(final int weeks : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(weeks) + "W";
+			final String offsetCode = weeks + "W";
 			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusWeeks(weeks).isEqual(targetDate));
 		}
@@ -46,21 +46,21 @@ public class BusinessdayCalendarTest {
 
 		// Test month
 		for(final int months : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(months) + "M";
+			final String offsetCode = months + "M";
 			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusMonths(months).isEqual(targetDate));
 		}
 
 		// Test years
 		for(final int years : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(years) + "Y";
+			final String offsetCode = years + "Y";
 			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusYears(years).isEqual(targetDate));
 		}
 
 		// Test business days for BusinessdayCalendarAny
 		for(final int days : new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(days) + "BD";
+			final String offsetCode = days + "BD";
 			final LocalDate targetDate = bdCalendarAny.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays(days).isEqual(targetDate));
 		}
@@ -68,7 +68,7 @@ public class BusinessdayCalendarTest {
 		// Test business days for BusinessdayCalendarExcludingWeekends
 		final BusinessdayCalendar bdCalendarWeekends = new BusinessdayCalendarExcludingWeekends();
 		for(final int days : new int[] { 1, 5, 10, 20, 100 }) {
-			final String offsetCode = Integer.toString(days) + "BD";
+			final String offsetCode = days + "BD";
 			final LocalDate targetDate = bdCalendarWeekends.getDateFromDateAndOffsetCode(baseDate, offsetCode);
 			Assert.assertTrue(baseDate.plusDays((int) Math.round(days / 5.0 * 7.0)).isEqual(targetDate));
 		}
@@ -88,19 +88,19 @@ public class BusinessdayCalendarTest {
 		Assert.assertTrue(combinedCalendar.isBusinessday(dateToTest));
 		// weekend
 		dateToTest = LocalDate.of(2017, 6, 10);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(combinedCalendar.isBusinessday(dateToTest));
 		// weekendAndHoliday
 		dateToTest = LocalDate.of(2017, 1, 1);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(combinedCalendar.isBusinessday(dateToTest));
 		// labourDay
 		dateToTest = LocalDate.of(2017, 5, 1);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(combinedCalendar.isBusinessday(dateToTest));
 		// independence day
 		dateToTest = LocalDate.of(2017, 7, 4);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(combinedCalendar.isBusinessday(dateToTest));
 		// summer bank holiday
 		dateToTest = LocalDate.of(2017, 8, 28);
-		Assert.assertTrue(!combinedCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(combinedCalendar.isBusinessday(dateToTest));
 	}
 
 	/**
@@ -114,28 +114,28 @@ public class BusinessdayCalendarTest {
 		Assert.assertTrue(targetCalendar.isBusinessday(dateToTest));
 		// weekend
 		dateToTest = LocalDate.of(2017, 6, 10);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// weekendAndHoliday
 		dateToTest = LocalDate.of(2017, 1, 1);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// newYear
 		dateToTest = LocalDate.of(2018, 1, 1);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// goodFriday
 		dateToTest = LocalDate.of(2017, 4, 14);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// easterMonday
 		dateToTest = LocalDate.of(2017, 4, 17);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// labourDay
 		dateToTest = LocalDate.of(2017, 5, 1);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// christmasDay
 		dateToTest = LocalDate.of(2017, 12, 25);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 		// boxingDay
 		dateToTest = LocalDate.of(2017, 12, 26);
-		Assert.assertTrue(!targetCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(targetCalendar.isBusinessday(dateToTest));
 	}
 
 	/**
@@ -149,10 +149,10 @@ public class BusinessdayCalendarTest {
 		Assert.assertTrue(newYorkCalendar.isBusinessday(dateToTest));
 		// weekend
 		dateToTest = LocalDate.of(2017, 6, 10);
-		Assert.assertTrue(!newYorkCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(newYorkCalendar.isBusinessday(dateToTest));
 		// independence day
 		dateToTest = LocalDate.of(2017, 7, 4);
-		Assert.assertTrue(!newYorkCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(newYorkCalendar.isBusinessday(dateToTest));
 	}
 
 	/**
@@ -166,9 +166,9 @@ public class BusinessdayCalendarTest {
 		Assert.assertTrue(londonCalendar.isBusinessday(dateToTest));
 		// weekend
 		dateToTest = LocalDate.of(2017, 6, 10);
-		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(londonCalendar.isBusinessday(dateToTest));
 		// summer bank holiday
 		dateToTest = LocalDate.of(2017, 8, 28);
-		Assert.assertTrue(!londonCalendar.isBusinessday(dateToTest));
+		Assert.assertFalse(londonCalendar.isBusinessday(dateToTest));
 	}
 }

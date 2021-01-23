@@ -35,7 +35,7 @@ public interface TermStructureModel extends ProcessModel {
 	 * @return The forward rate.
 	 * @throws CalculationException Thrown if model fails to calculate the random variable.
 	 */
-	RandomVariable getLIBOR(MonteCarloProcess process, double time, double periodStart, double periodEnd) throws CalculationException;
+	RandomVariable getForwardRate(MonteCarloProcess process, double time, double periodStart, double periodEnd) throws CalculationException;
 
 	/**
 	 * Returns the time \( t \) forward bond derived from the numeraire, i.e., \( P(T;t) = E( \frac{N(t)}{N(T)} \vert \mathcal{F}_{t} ) \).
@@ -91,4 +91,19 @@ public interface TermStructureModel extends ProcessModel {
 	@Override
 	TermStructureModel getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 
+	/**
+	 * Returns the time \( t \) forward rate on the models forward curve.
+	 *
+	 * Note: It is guaranteed that the random variable returned by this method is \( \mathcal{F}_{t} ) \)-measurable.
+	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param time The evaluation time.
+	 * @param periodStart The period start of the forward rate.
+	 * @param periodEnd The period end of the forward rate.
+	 * @return The forward rate.
+	 * @throws CalculationException Thrown if model fails to calculate the random variable.
+	 */
+	default RandomVariable getLIBOR(MonteCarloProcess process, double time, double periodStart, double periodEnd) throws CalculationException {
+		return getForwardRate(process, time, periodStart, periodEnd);
+	}
 }

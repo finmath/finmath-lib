@@ -37,37 +37,37 @@ public class AnalyticOptionValuationTest {
 		System.out.println("AnalyticOptionPricer: Test for arbitrage");
 		System.out.println("========================================");
 
-		var pricer = new AnalyticOptionValuation(dcc);
-		var valDate = LocalDate.parse("2019-06-15");
-		var spot = 100.0;
-		var volatility = 0.25;
-		var flatVol = new FlatVolatilitySurface(volatility);
-		var rate = 0.01;
-		var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final var pricer = new AnalyticOptionValuation(dcc);
+		final var valDate = LocalDate.parse("2019-06-15");
+		final var spot = 100.0;
+		final var volatility = 0.25;
+		final var flatVol = new FlatVolatilitySurface(volatility);
+		final var rate = 0.01;
+		final var curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		var dividends = new AffineDividendStream(new AffineDividend[]
+		final var dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.0),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 10.0, 0.0),});
 
-		var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		var expiryDateBefore = LocalDate.parse("2020-09-16");
-		var strikeBefore = 100.0;
-		var expiryDateAfter = LocalDate.parse("2020-09-17");
-		var strikeAfter = 90.0;
+		final var expiryDateBefore = LocalDate.parse("2020-09-16");
+		final var strikeBefore = 100.0;
+		final var expiryDateAfter = LocalDate.parse("2020-09-17");
+		final var strikeAfter = 90.0;
 
-		boolean[] callput = {true, false};
-		for (var isCall : callput)
+		final boolean[] callput = {true, false};
+		for (final var isCall : callput)
 		{
-			var optionBefore = new EuropeanOption(expiryDateBefore, strikeBefore, isCall);
-			var optionAfter = new EuropeanOption(expiryDateAfter, strikeAfter, isCall);
+			final var optionBefore = new EuropeanOption(expiryDateBefore, strikeBefore, isCall);
+			final var optionAfter = new EuropeanOption(expiryDateAfter, strikeAfter, isCall);
 
-			var priceBefore = pricer.getPrice(optionBefore, fwdStructure, curve, flatVol);
-			var priceAfter = pricer.getPrice(optionAfter, fwdStructure, curve, flatVol);
+			final var priceBefore = pricer.getPrice(optionBefore, fwdStructure, curve, flatVol);
+			final var priceAfter = pricer.getPrice(optionAfter, fwdStructure, curve, flatVol);
 
 
-			var volBefore = pricer.getImpliedVolatility(optionBefore, fwdStructure, curve, priceBefore);
-			var volAfter = pricer.getImpliedVolatility(optionAfter, fwdStructure, curve, priceAfter);
+			final var volBefore = pricer.getImpliedVolatility(optionBefore, fwdStructure, curve, priceBefore);
+			final var volAfter = pricer.getImpliedVolatility(optionAfter, fwdStructure, curve, priceAfter);
 
 			//System.out.println("BS Price " + (isCall ? "Call" : "Put") + " before: " + bsPrice);
 			System.out.println("Price before: " + priceBefore);
@@ -91,51 +91,51 @@ public class AnalyticOptionValuationTest {
 		System.out.println("AnalyticOptionPricer: Test Greeks");
 		System.out.println("=================================");
 
-		var pricer = new AnalyticOptionValuation(dcc);
-		var valDate = LocalDate.parse("2019-06-15");
-		var spot = 100.0;
-		var volatility = 0.35;
-		var flatVol = new FlatVolatilitySurface(volatility);
-		var rate = 0.15;
-		var discountCurve = new FlatYieldCurve(valDate, rate, dcc);
-		var repoRate = 0.25;
-		var repoCurve = new FlatYieldCurve(valDate, repoRate, dcc);
+		final var pricer = new AnalyticOptionValuation(dcc);
+		final var valDate = LocalDate.parse("2019-06-15");
+		final var spot = 100.0;
+		final var volatility = 0.35;
+		final var flatVol = new FlatVolatilitySurface(volatility);
+		final var rate = 0.15;
+		final var discountCurve = new FlatYieldCurve(valDate, rate, dcc);
+		final var repoRate = 0.25;
+		final var repoCurve = new FlatYieldCurve(valDate, repoRate, dcc);
 
-		var dividends = new AffineDividendStream(new AffineDividend[]
+		final var dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.0),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 10.0, 0.0),});
 
-		var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, repoCurve, dividends, dcc);
+		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, repoCurve, dividends, dcc);
 
-		var expiryDate = LocalDate.parse("2020-12-15");
-		var strike = 90.0;
+		final var expiryDate = LocalDate.parse("2020-12-15");
+		final var strike = 90.0;
 
-		boolean[] callput = {true, false};
-		for (var isCall : callput)
+		final boolean[] callput = {true, false};
+		for (final var isCall : callput)
 		{
-			var option = new EuropeanOption(expiryDate, strike, isCall);
+			final var option = new EuropeanOption(expiryDate, strike, isCall);
 
-			var price = pricer.getPrice(option, fwdStructure, discountCurve, flatVol);
-			var spotStep = spot * 0.01;
-			var priceUp = pricer.getPrice(option, fwdStructure.cloneWithNewSpot(spot + spotStep), discountCurve, flatVol);
-			var priceDown = pricer.getPrice(option, fwdStructure.cloneWithNewSpot(spot - spotStep), discountCurve, flatVol);
+			final var price = pricer.getPrice(option, fwdStructure, discountCurve, flatVol);
+			final var spotStep = spot * 0.01;
+			final var priceUp = pricer.getPrice(option, fwdStructure.cloneWithNewSpot(spot + spotStep), discountCurve, flatVol);
+			final var priceDown = pricer.getPrice(option, fwdStructure.cloneWithNewSpot(spot - spotStep), discountCurve, flatVol);
 
-			var anaDelta = pricer.getDelta(option, fwdStructure, discountCurve, flatVol);
-			var anaGamma = pricer.getGamma(option, fwdStructure, discountCurve, flatVol);
-			var fdDelta = 0.5 * (priceUp - priceDown) / spotStep;
-			var fdGamma = (priceUp + priceDown - 2 * price) / spotStep / spotStep;
+			final var anaDelta = pricer.getDelta(option, fwdStructure, discountCurve, flatVol);
+			final var anaGamma = pricer.getGamma(option, fwdStructure, discountCurve, flatVol);
+			final var fdDelta = 0.5 * (priceUp - priceDown) / spotStep;
+			final var fdGamma = (priceUp + priceDown - 2 * price) / spotStep / spotStep;
 
-			var volStep = 0.0001;
-			var priceVega = pricer.getPrice(option, fwdStructure, discountCurve, flatVol.getShiftedSurface(volStep));
-			var anaVega = pricer.getVega(option, fwdStructure, discountCurve, flatVol);
-			var fdVega = (priceVega - price) / volStep;
+			final var volStep = 0.0001;
+			final var priceVega = pricer.getPrice(option, fwdStructure, discountCurve, flatVol.getShiftedSurface(volStep));
+			final var anaVega = pricer.getVega(option, fwdStructure, discountCurve, flatVol);
+			final var fdVega = (priceVega - price) / volStep;
 
-			var anaTheta = pricer.getTheta(option, fwdStructure, discountCurve, flatVol);
-			var thetaDate = valDate.plusDays(1);
-			var thetaSpot = fwdStructure.getForward(thetaDate);
-			var shiftedFwdStructure = fwdStructure.cloneWithNewSpot(thetaSpot).cloneWithNewDate(thetaDate);
-			var priceTheta = pricer.getPrice(option, shiftedFwdStructure, discountCurve, flatVol);
-			var fdTheta = (priceTheta - price) / dcc.getDaycountFraction(valDate, thetaDate);
+			final var anaTheta = pricer.getTheta(option, fwdStructure, discountCurve, flatVol);
+			final var thetaDate = valDate.plusDays(1);
+			final var thetaSpot = fwdStructure.getForward(thetaDate);
+			final var shiftedFwdStructure = fwdStructure.cloneWithNewSpot(thetaSpot).cloneWithNewDate(thetaDate);
+			final var priceTheta = pricer.getPrice(option, shiftedFwdStructure, discountCurve, flatVol);
+			final var fdTheta = (priceTheta - price) / dcc.getDaycountFraction(valDate, thetaDate);
 
 
 			System.out.println("Ana "+ (isCall ? "Call" : "Put") + " Delta: " + anaDelta);

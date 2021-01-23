@@ -458,7 +458,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final MonteCarloProcess process, double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getForwardRate(final MonteCarloProcess process, double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		final int periodStartIndex    = getLiborPeriodIndex(periodStart);
 		final int periodEndIndex      = getLiborPeriodIndex(periodEnd);
@@ -470,8 +470,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			final int		previousEndIndex	= (-periodEndIndex-1)-1;
 			final double	previousEndTime		= getLiborPeriod(previousEndIndex);
 			final double	nextEndTime			= getLiborPeriod(previousEndIndex+1);
-			final RandomVariable liborLongPeriod		= getLIBOR(process, time, periodStart, nextEndTime);
-			final RandomVariable	liborShortPeriod	= getLIBOR(process, time, previousEndTime, nextEndTime);
+			final RandomVariable liborLongPeriod		= getForwardRate(process, time, periodStart, nextEndTime);
+			final RandomVariable	liborShortPeriod	= getForwardRate(process, time, previousEndTime, nextEndTime);
 
 			// Interpolate libor from periodStart to periodEnd on periodEnd
 			RandomVariable libor = liborLongPeriod.mult(nextEndTime-periodStart).add(1.0)
@@ -496,8 +496,8 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 			final int		previousStartIndex	= (-periodStartIndex-1)-1;
 			final double	previousStartTime	= getLiborPeriod(previousStartIndex);
 			final double	nextStartTime		= getLiborPeriod(previousStartIndex+1);
-			final RandomVariable liborLongPeriod		= getLIBOR(process, time, previousStartTime, periodEnd);
-			final RandomVariable	liborShortPeriod	= getLIBOR(process, time, previousStartTime, nextStartTime);
+			final RandomVariable liborLongPeriod		= getForwardRate(process, time, previousStartTime, periodEnd);
+			final RandomVariable	liborShortPeriod	= getForwardRate(process, time, previousStartTime, nextStartTime);
 
 			RandomVariable libor = liborLongPeriod.mult(periodEnd-previousStartTime).add(1.0)
 					.div(

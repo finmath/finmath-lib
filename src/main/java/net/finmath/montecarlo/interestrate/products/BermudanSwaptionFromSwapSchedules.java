@@ -25,6 +25,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionFactory;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
@@ -188,7 +189,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	}
 
 	@Override
-	public Map<String, Object> getValues(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public Map<String, Object> getValues(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		final LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();
 
@@ -253,7 +254,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		return (RandomVariable) getValues(evaluationTime, model).get("values");
 	}
 
@@ -313,7 +314,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @return The sum of the numeraire relative cash flows.
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
-	private RandomVariable getValueUnderlyingNumeraireRelative(final LIBORModelMonteCarloSimulationModel model, final Schedule legSchedule, final boolean paysFloat, final double swaprate, final double notional) throws CalculationException {
+	private RandomVariable getValueUnderlyingNumeraireRelative(final TermStructureMonteCarloSimulationModel model, final Schedule legSchedule, final boolean paysFloat, final double swaprate, final double notional) throws CalculationException {
 
 		if(isUseAnalyticSwapValuationAtExercise) {
 			final double valuationTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(0).getFixing());
@@ -340,7 +341,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 					value = value.add(periodCashFlowFix);
 				}
 				if(paysFloat) {
-					final RandomVariable libor = model.getLIBOR(fixingTime, fixingTime, paymentTime);
+					final RandomVariable libor = model.getForwardRate(fixingTime, fixingTime, paymentTime);
 					final RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
 					value = value.add(periodCashFlowFloat);
 				}
@@ -357,7 +358,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 	 * @return The condition expectation estimator
 	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
 	 */
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double exerciseTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double exerciseTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		final RandomVariable[] regressionBasisFunctions = regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model);
 		return conditionalExpectationRegressionFactory.getConditionalExpectationEstimator(regressionBasisFunctions, regressionBasisFunctions);
 	}
@@ -419,7 +420,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		}
 
 		// forward rate to the next period
-		final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+		final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 		basisFunctions.add(rateShort.mult(discountFactor));
 		basisFunctions.add(rateShort.mult(discountFactor).pow(2.0));
 
@@ -471,7 +472,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 				}
 
 				// forward rate to the next period
-				final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+				final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 				basisFunctions.add(rateShort);
 				basisFunctions.add(rateShort.pow(2.0));
 
@@ -518,12 +519,12 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 				basisFunctions.add(basisFunction);
 
 				// forward rate to the next period
-				final RandomVariable rateShort = model.getLIBOR(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
+				final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);
 				basisFunctions.add(rateShort);
 				basisFunctions.add(rateShort.pow(2.0));
 
 				// forward rate to the end of the product
-				final RandomVariable rateLong = model.getLIBOR(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);
+				final RandomVariable rateLong = model.getForwardRate(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);
 				basisFunctions.add(rateLong);
 				basisFunctions.add(rateLong.pow(2.0));
 

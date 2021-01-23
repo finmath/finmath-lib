@@ -29,20 +29,20 @@ public class AnalyticFormulasTest {
 	@Test
 	public void testBlackModelDigitalCapletDelta() {
 
-		double forward = 0.05;
-		double volatility = 0.30;
-		double periodLength = 0.5;
-		double discountFactor = 0.9;
-		double optionMaturity = 2.0;
-		double optionStrike = 0.06;
+		final double forward = 0.05;
+		final double volatility = 0.30;
+		final double periodLength = 0.5;
+		final double discountFactor = 0.9;
+		final double optionMaturity = 2.0;
+		final double optionStrike = 0.06;
 
-		double shift = 1E-5;
+		final double shift = 1E-5;
 
-		double valueDn = AnalyticFormulas.blackModelDigitalCapletValue(forward-shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
-		double valueUp = AnalyticFormulas.blackModelDigitalCapletValue(forward+shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
-		double deltaFiniteDifference = (valueUp - valueDn) / (2*shift);
+		final double valueDn = AnalyticFormulas.blackModelDigitalCapletValue(forward-shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+		final double valueUp = AnalyticFormulas.blackModelDigitalCapletValue(forward+shift, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+		final double deltaFiniteDifference = (valueUp - valueDn) / (2*shift);
 
-		double deltaAnalytic = AnalyticFormulas.blackModelDigitalCapletDelta(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
+		final double deltaAnalytic = AnalyticFormulas.blackModelDigitalCapletDelta(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);
 
 		Assertions.assertEquals(deltaAnalytic, deltaFiniteDifference, 1E-5, "Digital Caplet Delta");
 	}
@@ -354,16 +354,16 @@ public class AnalyticFormulasTest {
 	@Test
 	public void testVolatilityConversionLognormalToNormal() {
 
-		double forward = 0.02;
-		double displacement = 0.03;
-		double optionMaturity = 5.0;
-		double lognormalVolatility = 0.212;
-		double optionStrike = forward;
+		final double forward = 0.02;
+		final double displacement = 0.03;
+		final double optionMaturity = 5.0;
+		final double lognormalVolatility = 0.212;
+		final double optionStrike = forward;
 
-		double normalATM = AnalyticFormulas.volatilityConversionLognormalATMtoNormalATM(
+		final double normalATM = AnalyticFormulas.volatilityConversionLognormalATMtoNormalATM(
 				forward, displacement, optionMaturity, lognormalVolatility);
 
-		double normal2 = AnalyticFormulas.volatilityConversionLognormalToNormal(
+		final double normal2 = AnalyticFormulas.volatilityConversionLognormalToNormal(
 				forward, displacement, optionMaturity, optionStrike, lognormalVolatility);
 
 		Assertions.assertEquals(normalATM, normal2, 1E-10);

@@ -428,7 +428,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 			periodStart = time;
 			periodEnd   = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 			forwardRates = new RandomVariable[remainingLibors+1];
-			forwardRates[0] = model.getLIBOR(time, periodStart, periodEnd);
+			forwardRates[0] = model.getForwardRate(time, periodStart, periodEnd);
 			indexOffset = 1;
 			liborTimes = new double[forwardRates.length+1];
 			liborTimes[0] = 0;
@@ -442,7 +442,7 @@ public class DiscountCurveInterpolation extends CurveInterpolation implements Se
 		for(int liborIndex=firstLiborIndex;liborIndex<model.getNumberOfLibors();liborIndex++){
 			periodStart = model.getLiborPeriodDiscretization().getTime(liborIndex);
 			periodEnd   = model.getLiborPeriodDiscretization().getTime(liborIndex+1);
-			forwardRates[liborIndex-firstLiborIndex+indexOffset]=model.getLIBOR(time, periodStart, periodEnd);
+			forwardRates[liborIndex-firstLiborIndex+indexOffset]=model.getForwardRate(time, periodStart, periodEnd);
 		}
 
 		for(int i=indexOffset;i<liborTimes.length;i++) {

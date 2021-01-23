@@ -107,7 +107,7 @@ public class CrossCurrencyLIBORMarketModelFromModels implements HybridAssetMonte
 			final RiskFactorForwardRate riskFactorForwardRate = (RiskFactorForwardRate)riskFactorIdentifyer;
 			final LIBORModelMonteCarloSimulationModel riskFactorModel = interestRatesModels.get(riskFactorIdentifyer.getName());
 
-			final RandomVariable forwardRate = riskFactorModel.getLIBOR(time,riskFactorForwardRate.getPeriodStart(), riskFactorForwardRate.getPeriodEnd());
+			final RandomVariable forwardRate = riskFactorModel.getForwardRate(time,riskFactorForwardRate.getPeriodStart(), riskFactorForwardRate.getPeriodEnd());
 
 			if(!riskFactorIdentifyer.getName().equals(baseModel)) {
 				final MonteCarloProcessFromProcessModel riskFactorModelFX = fxModels.get(riskFactorIdentifyer.getName());

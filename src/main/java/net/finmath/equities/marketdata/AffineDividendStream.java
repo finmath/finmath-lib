@@ -19,15 +19,15 @@ public class AffineDividendStream {
 	public AffineDividendStream(
 			final AffineDividend[] dividendStream)
 	{
-		var diviList = Arrays.asList(dividendStream);
+		final var diviList = Arrays.asList(dividendStream);
 		diviList.sort(Comparator.comparing(pt -> pt.getDate()));
 		this.dividendStream = diviList.toArray(new AffineDividend[0]);
-	};
+	}
 
 	public ArrayList<LocalDate> getDividendDates()
 	{
-		var dates = new ArrayList<LocalDate>();
-		for (AffineDividend divi : dividendStream) {
+		final var dates = new ArrayList<LocalDate>();
+		for (final AffineDividend divi : dividendStream) {
 			dates.add(divi.getDate());
 		}
 		return dates;
@@ -37,7 +37,7 @@ public class AffineDividendStream {
 			final LocalDate date,
 			final double stockPrice)
 	{
-		for (AffineDividend divi : dividendStream)
+		for (final AffineDividend divi : dividendStream)
 		{
 			if (divi.getDate() == date) {
 				return divi.getDividend(stockPrice);
@@ -49,7 +49,7 @@ public class AffineDividendStream {
 	public double getProportionalDividendFactor(
 			final LocalDate date)
 	{
-		for (AffineDividend divi : dividendStream)
+		for (final AffineDividend divi : dividendStream)
 		{
 			if (divi.getDate() == date) {
 				return divi.getProportionalDividendFactor();
@@ -61,7 +61,7 @@ public class AffineDividendStream {
 	public double getCashDividend(
 			final LocalDate date)
 	{
-		for (AffineDividend divi : dividendStream)
+		for (final AffineDividend divi : dividendStream)
 		{
 			if (divi.getDate() == date) {
 				return divi.getCashDividend();
@@ -86,27 +86,27 @@ public class AffineDividendStream {
 		// a part to a proportional dividend (the further away the dividend, the higher the proportional part
 		// and the lower the cash part.
 
-		var dates = cashDividends.getDividendDates();
+		final var dates = cashDividends.getDividendDates();
 
-		var affineDividends = new ArrayList<AffineDividend>();
+		final var affineDividends = new ArrayList<AffineDividend>();
 
-		for (var date : dates)
+		for (final var date : dates)
 		{
 			if (date.isBefore(valDate)) {
 				continue;
 			}
 			assert cashDividends.getProportionalDividendFactor(date) == 0.0 :
 				"Proportional dividend different from zero for date " + date;
-			var cashDividend = cashDividends.getCashDividend(date);
+			final var cashDividend = cashDividends.getCashDividend(date);
 			var fwd = spot;
-			for (var otherDate : dates)
+			for (final var otherDate : dates)
 			{
 				if (otherDate.isBefore(date) && !otherDate.isBefore(valDate)) {
 					fwd -= cashDividends.getCashDividend(otherDate)
 							* repoCurve.getForwardDiscountFactor(valDate, otherDate);
 				}
 			}
-			var q = transformationFactors.get(date) * cashDividend
+			final var q = transformationFactors.get(date) * cashDividend
 					* repoCurve.getForwardDiscountFactor(valDate, date)
 					/ fwd;
 			affineDividends.add(

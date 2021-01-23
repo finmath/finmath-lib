@@ -446,7 +446,7 @@ public interface RandomVariable extends Serializable {
 	 */
 	default RandomVariable variance()
 	{
-		RandomVariable meanDeviation = this.sub(average());
+		final RandomVariable meanDeviation = this.sub(average());
 		return meanDeviation.squared().average();
 	}
 

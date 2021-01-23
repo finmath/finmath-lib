@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
 /**
  * Implementation of a Monte-Carlo valuation of a swaption valuation being compatible with AAD.
  *
- * The valuation internally uses an analytic valuation of a swap such that the {@link #getValue(double, LIBORModelMonteCarloSimulationModel)} method
+ * The valuation internally uses an analytic valuation of a swap such that the {@link #getValue(double, TermStructureMonteCarloSimulationModel)} method
  * returns an valuation being \( \mathcal{F}_{t} \}-measurable where \( t \) is the evaluationTime argument.
  *
  * @author Christian Fries
@@ -65,7 +65,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model)
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model)
 			throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
@@ -115,7 +115,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 		 */
 
 		// Use analytic formula to calculate the options black/bachelier implied vol using the MC price from above:
-		final double atmSwaprate 	= Swap.getForwardSwapRate(scheduleFixedLeg, scheduleFloatLeg, model.getModel().getForwardRateCurve(), model.getModel().getAnalyticModel());
+		final double atmSwaprate 	= net.finmath.marketdata.products.Swap.getForwardSwapRate(scheduleFixedLeg, scheduleFloatLeg, model.getModel().getForwardRateCurve(), model.getModel().getAnalyticModel());
 		final double forward = atmSwaprate;
 		final double optionStrike = swaprate;
 		final double optionMaturity = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDate);
@@ -175,13 +175,13 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 	 * @param evaluationTime The time \( t \) conditional to which the value is calculated.
 	 * @param model The model implmeneting LIBORModelMonteCarloSimulationModel.
 	 * @param schedule The schedule of the leg.
-	 * @param paysFloatingRate If true, the leg will pay {@link LIBORModelMonteCarloSimulationModel#getLIBOR(double, double, double)}
+	 * @param paysFloatingRate If true, the leg will pay {@link LIBORModelMonteCarloSimulationModel#getForwardRate(double, double, double)}
 	 * @param fixRate The fixed rate (if any)
 	 * @param notional The notional
 	 * @return The time \( t \)-measurable value
 	 * @throws CalculationException Thrown is model failed to provide the required quantities.
 	 */
-	public static RandomVariable getValueOfLegAnalytic(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model, final Schedule schedule, final boolean paysFloatingRate, final double fixRate, final double notional) throws CalculationException {
+	public static RandomVariable getValueOfLegAnalytic(final double evaluationTime, final TermStructureMonteCarloSimulationModel model, final Schedule schedule, final boolean paysFloatingRate, final double fixRate, final double notional) throws CalculationException {
 
 		LocalDate modelReferenceDate = null;
 		try {
@@ -204,7 +204,7 @@ public class SwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct im
 			 */
 			final RandomVariable discountBond = model.getModel().getForwardDiscountBond(model.getProcess(), evaluationTime, paymentTime);
 			if(paysFloatingRate) {
-				final RandomVariable libor	= model.getLIBOR(evaluationTime, fixingTime, paymentTime);
+				final RandomVariable libor	= model.getForwardRate(evaluationTime, fixingTime, paymentTime);
 				final RandomVariable periodCashFlow = libor.mult(periodLength).mult(notional);
 				discountedCashflowFloatingLeg = discountedCashflowFloatingLeg.add(periodCashFlow.mult(discountBond));
 			}

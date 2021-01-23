@@ -69,7 +69,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 		this.useStickyStrike = useStickyStrike;
 		this.volShift = volShift;
 
-		var sortedSmiles = Arrays.asList(smiles);
+		final var sortedSmiles = Arrays.asList(smiles);
 		sortedSmiles.sort(Comparator.comparing(pt -> pt.getSmileDate()));
 		smileTimes = new double[sortedSmiles.size() + 1];
 		smileTimes[0] = 0.0;
@@ -116,7 +116,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			LocalDate expiryDate,
 			EquityForwardStructure currentForwardStructure)
 	{
-		var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+		final var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 		return 	getVolatility(strike, timeToMaturity, currentForwardStructure);
 	}
 
@@ -146,8 +146,8 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			double timeShift)
 	{
 		assert isCalibrated : "Surface is not calibrated yet";
-	var logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
-	var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+	final var logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
+	final var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 	return getLocalVolatility(logStrike, timeToMaturity, currentForwardStructure, strikeShift, timeShift);
 	}
 
@@ -165,7 +165,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 	// to log-strike w.r.t. forward structure prevailing during surface calbration
 	if (useStickyStrike)
 	{
-		var expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
+		final var expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
 				valuationDate, currentForwardStructure.getValuationDate());
 		logStrike += Math.log(currentForwardStructure.getForward(timeToMaturity)
 				/ forwardStructure.getForward(expiryTimeAsofCalib));
@@ -173,13 +173,13 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 
 	if (timeToMaturity >= 1e-16)
 	{
-		var f = interpolateTotalVariance(logStrike, timeToMaturity);
+		final var f = interpolateTotalVariance(logStrike, timeToMaturity);
 		var f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);
 		f_t = (f_t - f) / timeShift;
-		var f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
-		var f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
-		var f_x = 0.5 * (f_plu - f_min) / strikeShift;
-		var f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
+		final var f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
+		final var f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
+		final var f_x = 0.5 * (f_plu - f_min) / strikeShift;
+		final var f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
 		var lv = 0.5 * f_x * logStrike / f - 1.0;
 		lv *= lv;
 		lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;
@@ -205,8 +205,8 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 
 	private double interpolateTotalVariance(double logStrike, double timeToMaturity)
 	{
-		var len = smileTimes.length;
-		var totalVariances = new double[len];
+		final var len = smileTimes.length;
+		final var totalVariances = new double[len];
 		totalVariances[0] = 0.0;
 		for (int i = 1; i< len; i++) {
 			totalVariances[i] = smiles[i-1].getTotalVariance(logStrike);
@@ -217,7 +217,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 				totalVariances,
 				RationalFunctionInterpolation.InterpolationMethod.LINEAR,
 				RationalFunctionInterpolation.ExtrapolationMethod.LINEAR);
-		var totalVariance = interpolator.getValue(timeToMaturity);
+		final var totalVariance = interpolator.getValue(timeToMaturity);
 
 		if (volShift == 0.0) {
 			return totalVariance;
@@ -242,23 +242,23 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 		assert volShift == 0.0 : "A shifted SVI surface cannot be calibrated";
 		setForwardStructure(forwardStructure);
 
-		var groupedPoints =
+		final var groupedPoints =
 				volaPoints.stream().collect(Collectors.groupingBy(VolatilityPoint::getDate));
-		var sortedSmileDates = Arrays.asList(groupedPoints.keySet().toArray(new LocalDate[0]));
+		final var sortedSmileDates = Arrays.asList(groupedPoints.keySet().toArray(new LocalDate[0]));
 		sortedSmileDates.sort(Comparator.comparing(pt -> pt));
 		smileTimes = new double[sortedSmileDates.size() + 1];
 		smileTimes[0] = 0.0;
 		smiles = new SviVolatilitySmile[sortedSmileDates.size()];
 		for (int i = 0; i < sortedSmileDates.size(); i++)
 		{
-			var date = sortedSmileDates.get(i);
-			var thisPoints = groupedPoints.get(date);
+			final var date = sortedSmileDates.get(i);
+			final var thisPoints = groupedPoints.get(date);
 			thisPoints.sort(Comparator.comparing(pt -> pt.getStrike()));
-			var forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;
-			var ttm = dayCounter.getDaycountFraction(valuationDate, date);
-			var logStrikes = new ArrayList<Double>();
-			var totalVariances = new ArrayList<Double>();
-			for (var pt : thisPoints)
+			final var forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;
+			final var ttm = dayCounter.getDaycountFraction(valuationDate, date);
+			final var logStrikes = new ArrayList<Double>();
+			final var totalVariances = new ArrayList<Double>();
+			for (final var pt : thisPoints)
 			{
 				totalVariances.add(ttm * pt.getVolatility() * pt.getVolatility());
 				logStrikes.add(Math.log(forwardStructure.getDividendAdjustedStrike(pt.getStrike(), date) / forward));
@@ -269,7 +269,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			{
 				thisSviParams = calibrateSviSmile(ttm, logStrikes, totalVariances);
 			}
-			catch (SolverException se)
+			catch (final SolverException se)
 			{
 				continue;
 			}
@@ -299,9 +299,9 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 				}
 			}
 		};
-		var initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
-		var weights = new double[logStrikes.size()];
-		var targetValues = new double[logStrikes.size()];
+		final var initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
+		final var weights = new double[logStrikes.size()];
+		final var targetValues = new double[logStrikes.size()];
 		for (int i = 0; i < logStrikes.size(); i++)
 		{
 			weights[i] = 1.0;

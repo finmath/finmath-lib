@@ -18,7 +18,7 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.TermStructureModel;
-import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
 import net.finmath.montecarlo.model.AbstractProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
@@ -86,7 +86,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 	private final RandomVariableFactory	randomVariableFactory = new RandomVariableFromArrayFactory();
 
-	private TermStructureCovarianceModelInterface	covarianceModel;
+	private TermStructureCovarianceModel	covarianceModel;
 
 	// Cache for the numeraires, needs to be invalidated if process changes
 	private final ConcurrentHashMap<Integer, RandomVariable>	numeraires;
@@ -143,7 +143,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 			final AnalyticModel				analyticModel,
 			final ForwardCurve				forwardRateCurve,
 			final DiscountCurve				discountCurve,
-			final TermStructureCovarianceModelInterface	covarianceModel,
+			final TermStructureCovarianceModel	covarianceModel,
 			final CalibrationProduct[]					calibrationProducts,
 			final Map<String, ?>						properties
 			) throws CalculationException {
@@ -243,7 +243,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 				final double periodStart	= liborPeriodDiscretizations[0].getTime(timeIndex-1);
 				final double periodEnd	= liborPeriodDiscretizations[0].getTime(timeIndex);
-				final RandomVariable libor = getLIBOR(process, periodStart, periodStart, periodEnd);
+				final RandomVariable libor = getForwardRate(process, periodStart, periodStart, periodEnd);
 
 				numeraire = numeraire.accrue(libor, periodEnd-periodStart);
 			}
@@ -655,7 +655,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 
 	@Override
-	public RandomVariable getLIBOR(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) {
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) {
 		int timeIndex = process.getTimeIndex(time);
 		// @TODO Improve interpolation in simulation time here, if required.
 		if(timeIndex < 0) {
@@ -728,9 +728,9 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 		final CalibrationProduct[] calibrationItems = null;
 		final Map<String, ?> properties = null;
 
-		TermStructureCovarianceModelInterface covarianceModel = this.covarianceModel;
+		TermStructureCovarianceModel covarianceModel = this.covarianceModel;
 		if(dataModified.containsKey("covarianceModel")) {
-			covarianceModel = (TermStructureCovarianceModelInterface)dataModified.get("covarianceModel");
+			covarianceModel = (TermStructureCovarianceModel)dataModified.get("covarianceModel");
 		}
 
 		return new LIBORMarketModelWithTenorRefinement(liborPeriodDiscretizations, numberOfDiscretizationIntervalls, curveModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
@@ -741,7 +741,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	 *
 	 * @return the term structure covariance model.
 	 */
-	public TermStructureCovarianceModelInterface getCovarianceModel() {
+	public TermStructureCovarianceModel getCovarianceModel() {
 		return covarianceModel;
 	}
 }

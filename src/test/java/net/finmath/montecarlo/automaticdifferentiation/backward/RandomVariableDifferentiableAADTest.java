@@ -71,10 +71,10 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.add(x);
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.add(x);
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(2.0, dydx.doubleValue(), 1E-15);
 	}
@@ -89,15 +89,15 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
-		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x0.add(x1);
+		final RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		final RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x0.add(x1);
 
-		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		final RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
 
 		Assert.assertEquals("dydx0", 1.0, dydx0.doubleValue(), 1E-15);
 
-		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		final RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
 
 		Assert.assertEquals("dydx1", 1.0, dydx1.doubleValue(), 1E-15);
 	}
@@ -112,10 +112,10 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.sub(x);
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.sub(x);
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(0.0, dydx.doubleValue(), 1E-15);
 	}
@@ -130,15 +130,15 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
-		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x0.sub(x1);
+		final RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		final RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x0.sub(x1);
 
-		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		final RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
 
 		Assert.assertEquals("dydx0", 1.0, dydx0.doubleValue(), 1E-15);
 
-		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		final RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
 
 		Assert.assertEquals("dydx1", -1.0, dydx1.doubleValue(), 1E-15);
 	}
@@ -153,10 +153,10 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.mult(x);
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.mult(x);
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(2.0 * x.doubleValue(), dydx.doubleValue(), 1E-15);
 	}
@@ -171,15 +171,15 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
-		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x0.mult(x1);
+		final RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		final RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x0.mult(x1);
 
-		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		final RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
 
 		Assert.assertEquals("dydx0", x1.doubleValue(), dydx0.doubleValue(), 1E-15);
 
-		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		final RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
 
 		Assert.assertEquals("dydx1", x0.doubleValue(), dydx1.doubleValue(), 1E-15);
 	}
@@ -194,10 +194,10 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.div(x);
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.div(x);
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(0.0, dydx.doubleValue(), 1E-15);
 	}
@@ -212,15 +212,15 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
-		RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x0.div(x1);
+		final RandomVariable x0 = randomVariableFactory.createRandomVariable(6.0);
+		final RandomVariable x1 = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x0.div(x1);
 
-		RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
+		final RandomVariable dydx0 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x0).getID());
 
 		Assert.assertEquals("dydx0", x1.invert().doubleValue(), dydx0.doubleValue(), 1E-15);
 
-		RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
+		final RandomVariable dydx1 = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x1).getID());
 
 		Assert.assertEquals("dydx1", x0.div(x1.squared()).mult(-1).doubleValue(), dydx1.doubleValue(), 1E-15);
 	}
@@ -235,10 +235,10 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.exp();
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.exp();
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(y.doubleValue(), dydx.doubleValue(), 1E-15);
 	}
@@ -253,12 +253,61 @@ public class RandomVariableDifferentiableAADTest {
 				new RandomVariableFromArrayFactory(), properties);
 
 
-		RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
-		RandomVariable y = x.log();
+		final RandomVariable x = randomVariableFactory.createRandomVariable(2.0);
+		final RandomVariable y = x.log();
 
-		RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
 
 		Assert.assertEquals(x.invert().doubleValue(), dydx.doubleValue(), 1E-15);
 	}
 
+	@Test
+	public void testExpectation() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+
+		final RandomVariable x = randomVariableFactory.createRandomVariable(0.0, new double[] { 0.0, 2.0, 1.0, -2.0, -1.0 });
+		final RandomVariable a = randomVariableFactory.createRandomVariable(0.0, new double[] { 3.0, 3.0, 3.0, 3.0, 3.0 });
+
+		final RandomVariable y = a.mult(x.expectation());
+
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+
+		// Finite Difference
+		final double epsilon = 1E-8;
+		final RandomVariable dydxFD = a.mult(x.add(epsilon).expectation()).sub(a.mult(x.add(-epsilon).expectation())).div(2*epsilon);
+
+		// We do not expect that the derivative agrees point-wise, but the expectation should agree.
+		Assert.assertEquals(dydx.expectation().doubleValue(), dydxFD.expectation().doubleValue(), 1E-7);
+	}
+
+	@Test
+	public void testVariance() {
+
+		final Map<String, Object> properties = new HashMap<>();
+		properties.put("isGradientRetainsLeafNodesOnly", false);
+
+		final RandomVariableFactory randomVariableFactory = new RandomVariableDifferentiableAADFactory(
+				new RandomVariableFromArrayFactory(), properties);
+
+
+		final RandomVariable x = randomVariableFactory.createRandomVariable(0.0, new double[] { 0.0, 2.0, 1.0, -2.0, -1.0 });
+		final RandomVariable a = randomVariableFactory.createRandomVariable(0.0, new double[] { 3.0, 3.0, 3.0, 3.0, 3.0 });
+
+		final RandomVariable y = a.mult(x.variance());
+
+		final RandomVariable dydx = ((RandomVariableDifferentiable)y).getGradient().get(((RandomVariableDifferentiable)x).getID());
+
+		// Finite Difference
+		final double epsilon = 1E-8;
+		final RandomVariable dydxFD = a.mult(x.add(epsilon).variance()).sub(a.mult(x.add(-epsilon).variance())).div(2*epsilon);
+
+		// We do not expect that the derivative agrees point-wise, but the expectation should agree.
+		Assert.assertEquals(dydx.expectation().doubleValue(), dydxFD.expectation().doubleValue(), 1E-7);
+	}
 }

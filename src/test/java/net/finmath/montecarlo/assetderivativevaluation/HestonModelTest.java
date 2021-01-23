@@ -95,11 +95,11 @@ public class HestonModelTest {
 
 		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 2 /* numberOfFactors */, numberOfPaths, seed);
 
-		AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloBlackScholesModel = getMonteCarloSimulationFromModel(
 				new BlackScholesModel(initialValue, riskFreeRate, volatility),
 				new BrownianMotionView(brownianMotion, new Integer[] { 0 }));
 
-		AssetModelMonteCarloSimulationModel monteCarloHestonModel = getMonteCarloSimulationFromModel(
+		final AssetModelMonteCarloSimulationModel monteCarloHestonModel = getMonteCarloSimulationFromModel(
 				new HestonModel(initialValue, riskFreeRate, volatility, theta, kappa, xi, rho, scheme),
 				brownianMotion);
 

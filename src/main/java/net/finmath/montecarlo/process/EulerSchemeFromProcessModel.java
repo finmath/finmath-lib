@@ -373,7 +373,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			newStochasticDriver = stochasticDriver;
 		}
 
-		Scheme newScheme = (Scheme) dataModified.getOrDefault("scheme", scheme);
+		final Scheme newScheme = (Scheme) dataModified.getOrDefault("scheme", scheme);
 
 		return new EulerSchemeFromProcessModel(newModel, newStochasticDriver, newScheme);
 	}

@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -61,7 +61,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Allocate accumulator for values
 		RandomVariable values = new RandomVariableFromDoubleArray(0.0);
@@ -85,7 +85,7 @@ public class FlexiCap extends AbstractLIBORMonteCarloProduct {
 			final double periodLength	= paymentDate - fixingDate;
 
 			// Get random variables
-			final RandomVariable	libor					= model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			final RandomVariable	libor					= model.getForwardRate(fixingDate, fixingDate, paymentDate);
 			final RandomVariable	numeraire				= model.getNumeraire(paymentDate);
 			final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));
 

@@ -248,7 +248,7 @@ public class HullWhiteModelWithConstantCoeff extends AbstractProcessModel implem
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return getZeroCouponBond(process, time, periodStart).div(getZeroCouponBond(process, time, periodEnd)).sub(1.0).div(periodEnd-periodStart);
 	}

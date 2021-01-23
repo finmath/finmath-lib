@@ -141,8 +141,8 @@ public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements Hybr
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException {
-		return liborSimulation.getLIBOR(time, periodStart, periodEnd);
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException {
+		return liborSimulation.getForwardRate(time, periodStart, periodEnd);
 	}
 
 	@Override

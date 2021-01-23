@@ -15,6 +15,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
@@ -82,7 +83,7 @@ public class Choice extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// >=?
 		if(evaluationTime > exerciseDate) {
@@ -137,7 +138,7 @@ public class Choice extends AbstractProductComponent {
 		final RandomVariable triggerValues = valueUnderlying1.sub(valueUnderlying2);
 
 		// Remove foresight through conditional expectation
-		final MonteCarloConditionalExpectationRegression conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, model));
+		final MonteCarloConditionalExpectationRegression conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, (LIBORModelMonteCarloSimulationModel) model));
 
 		// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
 		final RandomVariable triggerExpectedValues = triggerValues.getConditionalExpectation(conditionalExpectationOperator);
@@ -182,7 +183,7 @@ public class Choice extends AbstractProductComponent {
 		liborPeriodIndexEnd = liborPeriodIndex+1;
 		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
-		rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+		rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 		basisFunction = basisFunction.discount(rate, periodLength1);
 		basisFunctions.add(basisFunction);
 
@@ -197,7 +198,7 @@ public class Choice extends AbstractProductComponent {
 		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength2 != periodLength1) {
-			rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 			basisFunction = basisFunction.discount(rate, periodLength2);
 			basisFunctions.add(basisFunction);
 
@@ -216,7 +217,7 @@ public class Choice extends AbstractProductComponent {
 		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength3 != periodLength1 && periodLength3 != periodLength2) {
-			rate = model.getLIBOR(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 			basisFunction = basisFunction.discount(rate, periodLength3);
 			basisFunctions.add(basisFunction);
 

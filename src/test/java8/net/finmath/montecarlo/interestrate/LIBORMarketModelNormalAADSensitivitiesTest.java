@@ -855,7 +855,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				final String riskFactorName = "FORWARD(5.0,5.5)";
 				final double sensitivityAAD = modelDeltas.get(riskFactorName);
 
-				final double forward = liborMarketModel.getLIBOR(0.0, 5.0, 5.5).getAverage();
+				final double forward = liborMarketModel.getForwardRate(0.0, 5.0, 5.5).getAverage();
 
 				final double optionMaturity = 5.0;
 				final double optionStrike = forward;
@@ -883,7 +883,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 				final String riskFactorName = "FORWARD(10.0,10.5)";
 				final double sensitivityAAD = modelDeltas.get(riskFactorName);
 
-				final double forward = liborMarketModel.getLIBOR(0.0, 10.0, 10.5).getAverage();
+				final double forward = liborMarketModel.getForwardRate(0.0, 10.0, 10.5).getAverage();
 
 				final double optionMaturity = 10.0;
 				final double optionStrike = forward;

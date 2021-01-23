@@ -6,8 +6,6 @@
 package net.finmath.montecarlo.interestrate;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -17,12 +15,7 @@ import net.finmath.time.TimeDiscretization;
  * @author Christian Fries
  * @version 1.0
  */
-public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteCarloSimulationModel, IndependentModelParameterProvider {
-
-	/**
-	 * @return Returns the numberOfFactors.
-	 */
-	int getNumberOfFactors();
+public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteCarloSimulationModel {
 
 	/**
 	 * Returns the libor period discretization as time discretization representing start and end dates of periods.
@@ -70,31 +63,4 @@ public interface LIBORModelMonteCarloSimulationModel extends TermStructureMonteC
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	RandomVariable[] getLIBORs(int timeIndex) throws CalculationException;
-
-	/**
-	 * Returns the Brownian motion used to simulate the curve.
-	 *
-	 * @return The Brownian motion used to simulate the curve.
-	 */
-	BrownianMotion getBrownianMotion();
-
-	/**
-	 * Returns the underlying model.
-	 *
-	 * The model specifies the measure, the initial value, the drift, the factor loadings (covariance model), etc.
-	 *
-	 * @return The underlying model
-	 */
-	@Override
-	TermStructureModel getModel();
-
-	/**
-	 * Return a clone of this model with a modified Brownian motion using a different seed.
-	 *
-	 * @param seed The seed
-	 * @return Clone of this object, but having a different seed.
-	 * @deprecated
-	 */
-	@Deprecated
-	Object getCloneWithModifiedSeed(int seed);
 }

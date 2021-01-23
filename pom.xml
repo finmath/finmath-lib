@@ -37,11 +37,11 @@
 		<maven.javadoc-plugin.version>3.2.0</maven.javadoc-plugin.version>
 		<maven.jar-plugin.version>3.2.0</maven.jar-plugin.version>
 		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
-		<maven.site-plugin.version>3.9.0</maven.site-plugin.version>
+		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 		<clover-plugin.version>4.4.1</clover-plugin.version>
 		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
-		<maven-scm-publish-plugin.version>3.0.0</maven-scm-publish-plugin.version>
+		<maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
 	</properties>
 

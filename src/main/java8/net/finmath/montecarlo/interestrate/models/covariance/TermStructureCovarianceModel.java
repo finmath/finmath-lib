@@ -12,5 +12,5 @@ package net.finmath.montecarlo.interestrate.models.covariance;
  * @author Christian Fries
  * @version 1.0
  */
-public interface TermStructureCovarianceModelInterface extends TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelInterface {
+public interface TermStructureCovarianceModel extends TermStructureTenorTimeScaling, TermStructureFactorLoadingsModel {
 }

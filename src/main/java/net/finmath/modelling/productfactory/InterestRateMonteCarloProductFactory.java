@@ -13,7 +13,7 @@ import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
@@ -173,7 +173,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+		public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 			RandomVariable value = new RandomVariableFromDoubleArray(0);
 			if(legPayer != null) {
 				value = value.add(legReceiver.getValue(evaluationTime, model));
@@ -232,7 +232,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 		}
 
 		@Override
-		public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model)
+		public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model)
 				throws CalculationException {
 			return swaption.getValue(evaluationTime, model);
 		}

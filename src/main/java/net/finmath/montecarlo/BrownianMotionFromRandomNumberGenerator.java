@@ -84,7 +84,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 
 		Validate.notNull(timeDiscretization);
 		Validate.notNull(randomNumberGenerator);
-		int requiredDimension = numberOfFactors*timeDiscretization.getNumberOfTimeSteps();
+		final int requiredDimension = numberOfFactors*timeDiscretization.getNumberOfTimeSteps();
 		Validate.isTrue(randomNumberGenerator.getDimension() >= requiredDimension, "Dimension of RandomNumberGenerator required to be at least %d.", requiredDimension);
 	}
 

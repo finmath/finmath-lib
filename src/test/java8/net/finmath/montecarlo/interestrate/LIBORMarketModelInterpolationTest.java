@@ -145,12 +145,12 @@ public class LIBORMarketModelInterpolationTest {
 	@Test
 	public void testInterpolatedLastLIBOR() throws CalculationException
 	{
-		final RandomVariable longLastLIBOR       = liborMarketModel.getLIBOR(18.0, 18.0, 20.0);
+		final RandomVariable longLastLIBOR       = liborMarketModel.getForwardRate(18.0, 18.0, 20.0);
 		//RandomVariable longLastLIBORAtZero = liborMarketModel.getLIBOR(0.0, 18.0, 20.0);
 		final double longLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
 				liborMarketModel.getModel().getAnalyticModel(), 18.0, 2.0);
 
-		final RandomVariable interpolatedLastLIBOR = liborMarketModel.getLIBOR(18.0, 19.0, 20.0);
+		final RandomVariable interpolatedLastLIBOR = liborMarketModel.getForwardRate(18.0, 19.0, 20.0);
 		//RandomVariable interpolatedLastLIBORAtZero = liborMarketModel.getLIBOR(0.0, 19.0, 20.0);
 		final double interpolatedLastForwardAtZero  =liborMarketModel.getModel().getForwardRateCurve().getForward(
 				liborMarketModel.getModel().getAnalyticModel(), 19.0, 1.0);

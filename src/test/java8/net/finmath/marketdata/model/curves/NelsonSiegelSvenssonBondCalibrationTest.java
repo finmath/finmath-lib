@@ -43,13 +43,13 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 	@Test
 	public void testBondNSSCurveCalibration() throws SolverException {
 		// maturities in years.
-		double[] maturity = new double[]{ 0.1, 0.3, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 20.0, 30.0 };
+		final double[] maturity = new double[]{ 0.1, 0.3, 1.0, 2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 20.0, 30.0 };
 		// coupon rates of bonds, 1.5% for all of them
-		double[] rates = new double[]{ 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015 };
+		final double[] rates = new double[]{ 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015, 0.015 };
 		// current prices of bonds, current price for face value of 1.0. (i.e. 0.99 means that the bond is sold with a discount)
-		double[] prices = new double[]{ 0.99, 0.998, 1.010, 1.015, 1.020, 1.028, 1.030, 1.038, 1.039, 1.040, 1.042 };
+		final double[] prices = new double[]{ 0.99, 0.998, 1.010, 1.015, 1.020, 1.028, 1.030, 1.038, 1.039, 1.040, 1.042 };
 		// yield to maturity
-		double[] actualYields = new double[maturity.length];
+		final double[] actualYields = new double[maturity.length];
 		for(int i = 0; i < maturity.length; i++) {
 			actualYields[i] = getYieldToMaturity(prices[i], 1.0, rates[i], maturity[i]);
 		}
@@ -60,7 +60,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		parameters.put("rates", rates);
 		parameters.put("prices", prices);
 
-		double[] nssParameters = calibrateNSSCurve(parameters);
+		final double[] nssParameters = calibrateNSSCurve(parameters);
 
 		final DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", LocalDate.now(), nssParameters, 1.0);
 		System.out.println("Calibrated parameters: " + Arrays.toString(nssParameters));
@@ -93,9 +93,9 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 		final double[] initialParameters = new double[]{0.025, -0.015, -0.025, 0.03, 1.5, 10};
 
-		DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson(DISCOUNT_CURVE_NAME, REFERENCE_DAY, initialParameters, 1.0);
+		final DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson(DISCOUNT_CURVE_NAME, REFERENCE_DAY, initialParameters, 1.0);
 
-		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[]{discountCurve});
+		final AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[]{discountCurve});
 
 		// Create a collection of objective functions (calibration products)
 		final Vector<AnalyticProduct> calibrationProducts = new Vector<>();
@@ -103,9 +103,9 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		for(int i = 0; i < rates.length; i++) {
 			final BusinessdayCalendarExcludingTARGETHolidays businessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
 
-			LocalDate spotDate = businessdayCalendar.getRolledDate(REFERENCE_DAY, spotOffsetDays);
-			LocalDate startDate = businessdayCalendar.getDateFromDateAndOffsetCode(spotDate, forwardStartPeriod);
-			LocalDate maturityDate = LocalDate.now().plus(Math.round(365 * maturities[i]), ChronoUnit.DAYS);
+			final LocalDate spotDate = businessdayCalendar.getRolledDate(REFERENCE_DAY, spotOffsetDays);
+			final LocalDate startDate = businessdayCalendar.getDateFromDateAndOffsetCode(spotDate, forwardStartPeriod);
+			final LocalDate maturityDate = LocalDate.now().plus(Math.round(365 * maturities[i]), ChronoUnit.DAYS);
 
 			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(REFERENCE_DAY, startDate, maturityDate, ANNUAL, ACT_365, "first", "following", businessdayCalendar, -2, 0);
 
@@ -129,9 +129,9 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 		System.out.println(String.format("%8s\t%8s\t%8s\t", "model", "target", "error"));
 
 		for(int i = 0; i < calibrationProducts.size(); i++) {
-			double valueModel = calibrationProducts.get(i).getValue(0.0, calibratedModel);
-			double valueTarget = prices[i];
-			double error = valueModel-valueTarget;
+			final double valueModel = calibrationProducts.get(i).getValue(0.0, calibratedModel);
+			final double valueTarget = prices[i];
+			final double error = valueModel-valueTarget;
 			System.out.println(String.format("%8.5f\t%8.5f\t%8.5f\t", valueModel, valueTarget, error));
 
 			Assertions.assertEquals(valueTarget, valueModel, 0.01, "bond value");

@@ -8,6 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -41,15 +42,15 @@ public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// This is on the Libor discretization
-		final int		liborIndex		= model.getLiborPeriodIndex(maturity);
-		final double	paymentDate		= model.getLiborPeriod(liborIndex+1);
+		final int		liborIndex		= ((LIBORModelMonteCarloSimulationModel) model).getLiborPeriodIndex(maturity);
+		final double	paymentDate		= ((LIBORModelMonteCarloSimulationModel) model).getLiborPeriod(liborIndex+1);
 		final double	periodLength	= paymentDate - maturity;
 
 		// Get random variables
-		final RandomVariable	libor						= model.getLIBOR(maturity, maturity, paymentDate);
+		final RandomVariable	libor						= model.getForwardRate(maturity, maturity, paymentDate);
 
 		// Set up payoff on path
 		final double[] payoff = new double[model.getNumberOfPaths()];

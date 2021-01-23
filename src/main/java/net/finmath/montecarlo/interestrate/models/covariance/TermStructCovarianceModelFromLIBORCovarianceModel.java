@@ -16,7 +16,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * @version 1.0
  */
-public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermStructureFactorLoadingsModelInterface {
+public class TermStructCovarianceModelFromLIBORCovarianceModel implements TermStructureFactorLoadingsModel {
 
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
 

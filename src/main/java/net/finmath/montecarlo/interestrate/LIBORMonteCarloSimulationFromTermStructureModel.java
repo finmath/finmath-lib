@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
@@ -100,11 +99,6 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 	}
 
 	@Override
-	public BrownianMotion getBrownianMotion() {
-		return (BrownianMotion)process.getStochasticDriver();
-	}
-
-	@Override
 	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
 		throw new UnsupportedOperationException();
 	}
@@ -115,7 +109,7 @@ public class LIBORMonteCarloSimulationFromTermStructureModel implements LIBORMod
 	}
 
 	@Override
-	public RandomVariable getLIBOR(final double time, final double periodStart, final double periodEnd) throws CalculationException
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException
 	{
 		return model.getLIBOR(process, time, periodStart, periodEnd);
 	}

@@ -16,6 +16,7 @@ import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -87,7 +88,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	}
 
 	@Override
-	public Map<String, Object> getValues(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public Map<String, Object> getValues(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// After the last period the product has value zero: Initialize values to zero.
 		RandomVariable values				= model.getRandomVariableForConstant(0.0);
@@ -105,7 +106,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 			final double swaprate		= swaprates[period];
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			final RandomVariable	libor					= model.getLIBOR(fixingDate, fixingDate, fixingDate+periodLength);
+			final RandomVariable	libor					= model.getForwardRate(fixingDate, fixingDate, fixingDate+periodLength);
 
 			// foreach(path) values[path] += notional * (libor.get(path) - swaprate) * periodLength / numeraire.get(path) * monteCarloProbabilities.get(path);
 			RandomVariable payoff = libor.sub(swaprate).mult(periodLength).mult(notional);
@@ -166,7 +167,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		return (RandomVariable) getValues(evaluationTime, model).get("value");
 	}
 
@@ -178,7 +179,7 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 	 * @return The conditional expectation estimator suitable for this product
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double fixingDate, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double fixingDate, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		final RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(fixingDate, model) : getBasisFunctions(fixingDate, model);
 		final MonteCarloConditionalExpectationRegression condExpEstimator = new MonteCarloConditionalExpectationRegression(regressionBasisFunctions);
 
@@ -228,14 +229,14 @@ public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements 
 		}
 
 		// forward rate to the next period
-		final RandomVariable rateShort = model.getLIBOR(fixingDate, fixingDate, paymentDates[fixingDateIndex]);
+		final RandomVariable rateShort = model.getForwardRate(fixingDate, fixingDate, paymentDates[fixingDateIndex]);
 		final RandomVariable discountShort = rateShort.mult(paymentDates[fixingDateIndex]-fixingDate).add(1.0).invert();
 		basisFunctions.add(discountShort);
 		basisFunctions.add(discountShort.pow(2.0));
 		//		basisFunctions.add(rateShort.pow(3.0));
 
 		// forward rate to the end of the product
-		final RandomVariable rateLong = model.getLIBOR(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
+		final RandomVariable rateLong = model.getForwardRate(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);
 		final RandomVariable discountLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();
 		basisFunctions.add(discountLong);
 		basisFunctions.add(discountLong.pow(2.0));

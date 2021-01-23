@@ -13,7 +13,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
@@ -75,7 +75,7 @@ public class LIBORIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Check if model provides this index
 		if(getName() != null && model.getModel().getForwardRateCurve().getName() != null) {
@@ -98,7 +98,7 @@ public class LIBORIndex extends AbstractIndex {
 		/*
 		 * Fetch forward rate from model
 		 */
-		RandomVariable forwardRate = model.getLIBOR(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
+		RandomVariable forwardRate = model.getForwardRate(evaluationTime, evaluationTime+periodStartOffset, evaluationTime+periodStartOffset+periodLength);
 
 		if(getName() != null && !model.getModel().getForwardRateCurve().getName().equals(getName())) {
 			// Perform a multiplicative adjustment on the forward bonds
@@ -124,7 +124,7 @@ public class LIBORIndex extends AbstractIndex {
 		return periodStartOffset;
 	}
 
-	public double getPeriodLength(final LIBORModelMonteCarloSimulationModel model, final double fixingTime) {
+	public double getPeriodLength(final TermStructureMonteCarloSimulationModel model, final double fixingTime) {
 		if(paymentOffsetCode != null) {
 			final LocalDateTime referenceDate = model.getReferenceDate();
 			final LocalDateTime fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);
