@@ -880,6 +880,29 @@ public class AnalyticFormulas {
 	}
 
 	/**
+	 * Calculate the implied volatility of a caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param value The value of the caplet.
+	 * @return Returns the value of a caplet under the Black'76 model
+	 */
+	public static double blackModelCapletImpliedVolatility(
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double periodLength,
+			final double discountFactor,
+			final double value)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+		return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, periodLength * discountFactor, value);
+	}
+
+	/**
 	 * Calculate the value of a digital caplet assuming the Black'76 model.
 	 *
 	 * @param forward The forward (spot).
@@ -928,7 +951,7 @@ public class AnalyticFormulas {
 	/**
 	 * Calculate the value of a digital caplet assuming the Black'76 model.
 	 *
-	 * This method exists for backward compatiblitiy due to a typo in an earlier version.
+	 * This method exists for backward compatibility due to a typo in an earlier version.
 	 *
 	 * @param forward The forward (spot).
 	 * @param volatility The Black'76 volatility.
