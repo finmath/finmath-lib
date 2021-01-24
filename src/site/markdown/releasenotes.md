@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 5.1.0 (xx.xx.xxxx)
+## 5.1.0 (24.01.2021)
 
 ## Monte-Carlo Interest Rate Models
 
