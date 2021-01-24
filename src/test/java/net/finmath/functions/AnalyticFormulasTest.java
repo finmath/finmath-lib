@@ -27,6 +27,24 @@ public class AnalyticFormulasTest {
 	private final boolean isPrintOutVerbose = false;
 
 	@Test
+	public void testBlackModelCapletImpliedVol() {
+		double forward = 0.04;
+		double volatility = 0.30;
+		double optionMaturity = 4.0;
+		double optionStrike = 0.045;
+		double periodLength = 0.5;
+		double discountFactor = 0.9;
+		
+		double optionValue = AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, optionStrike, periodLength, discountFactor);
+		
+		final double impliedVol1 = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, discountFactor, optionValue/periodLength);
+		final double impliedVol2 = AnalyticFormulas.blackModelCapletImpliedVolatility(forward, optionMaturity, optionStrike, periodLength, discountFactor, optionValue);
+
+		Assertions.assertEquals(volatility, impliedVol1, 1E-12, "Implied Volatility");
+		Assertions.assertEquals(volatility, impliedVol2, 1E-12, "Implied Volatility");
+	}
+
+	@Test
 	public void testBlackModelDigitalCapletDelta() {
 
 		final double forward = 0.05;
