@@ -146,20 +146,22 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 			/*
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
-			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
 			final double optionMaturity = maturity-evaluationTime;
 			final double optionStrike = strike;
-			final double payoffUnit = daycountFraction;
+			final double payoffUnit = daycountFraction * discountFactor;
 			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
 		}
 		else if(valueUnit == ValueUnit.NORMALVOLATILITY) {
 			/*
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
-			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
+			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
 			final double optionMaturity = maturity-evaluationTime;
 			final double optionStrike = strike;
-			final double payoffUnit = daycountFraction;
+			final double payoffUnit = daycountFraction * discountFactor;
 			return model.getRandomVariableForConstant(AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));
 		}
 		else {
