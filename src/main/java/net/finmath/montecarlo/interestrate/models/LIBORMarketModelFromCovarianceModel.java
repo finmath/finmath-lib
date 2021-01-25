@@ -125,6 +125,17 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * 				</li>
  *			</ul>
  *		</li>
+ *		<li>
+ *			<code>simulationTimeInterpolationMethod</code>: Possible values:
+ * 			<ul>
+ * 				<li>
+ * 					<code>ROUND_DOWN</code>: \( L(S,T;t) \) is mapped to \( L(S,T,t_{j}) \) with \( t_{j} \) being the largest time in the time discretization such that \( t_{j} \leq t \).
+ * 				</li>
+ * 				<li>
+ * 					<code>ROUND_NEAREST</code>: \( L(S,T;t) \) is mapped to \( L(S,T,t_{j}) \) with \( t_{j} \) being the nearest time in the time discretization.
+ * 				</li>
+ *			</ul>
+ *		</li>
  * 		<li>
  * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
  * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
@@ -154,6 +165,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public enum StateSpace			{ NORMAL, LOGNORMAL }
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 	public enum InterpolationMethod	{ LINEAR, LOG_LINEAR_UNCORRECTED, LOG_LINEAR_CORRECTED }
+	public enum SimulationTimeInterpolationMethod { ROUND_DOWN, ROUND_NEAREST }
 
 	private final TimeDiscretization		liborPeriodDiscretization;
 
@@ -172,7 +184,10 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private final Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
 	private Measure				measure						= Measure.SPOT;
 	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
-	private InterpolationMethod interpolationMethod			= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
+
+	private SimulationTimeInterpolationMethod	simulationTimeInterpolationMethod		= SimulationTimeInterpolationMethod.ROUND_NEAREST;
+	private InterpolationMethod					interpolationMethod						= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
+
 	private double				liborCap					= 1E5;
 
 	// This is a cache of the integrated covariance.
@@ -185,97 +200,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactorForwardRates = new ConcurrentHashMap<>();
 	private transient ConcurrentHashMap<Double, RandomVariable>		numeraireDiscountFactors = new ConcurrentHashMap<>();
 	private transient Vector<RandomVariable>						interpolationDriftAdjustmentsTerminal = new Vector<>();
-
-	/**
-	 * Creates a LIBOR Market Model for given covariance.
-	 *
-	 * The map <code>properties</code> allows to configure the model. The following keys may be used:
-	 * <ul>
-	 * 		<li>
-	 * 			<code>measure</code>: Possible values:
-	 * 			<ul>
-	 * 				<li>
-	 * 					<code>SPOT</code> (<code>String</code>): Simulate under spot measure.
-	 * 				</li>
-	 * 				<li>
-	 * 					<code>TERMINAL</code> (<code>String</code>): Simulate under terminal measure.
-	 * 				</li>
-	 *			</ul>
-	 *		</li>
-	 * 		<li>
-	 * 			<code>stateSpace</code>: Possible values:
-	 * 			<ul>
-	 * 				<li>
-	 * 					<code>LOGNORMAL</code> (<code>String</code>): Simulate <i>L = exp(Y)</i>.
-	 * 				</li>
-	 * 				<li>
-	 * 					<code>NORMAL</code> (<code>String</code>): Simulate <i>L = Y</i>.
-	 * 				</li>
-	 *			</ul>
-	 *		</li>
-	 * 		<li>
-	 * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
-	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
-	 * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
-	 *		</li>
-	 * 		<li>
-	 * 			<code>calibrationParameters</code>: Possible values:
-	 * 			<ul>
-	 * 				<li>
-	 * 					<code>Map&lt;String,Object&gt;</code> a parameter map with the following key/value pairs:
-	 * 					<ul>
-	 *				 		<li>
-	 * 							<code>accuracy</code>: <code>Double</code> specifying the required solver accuracy.
-	 * 						</li>
-	 *				 		<li>
-	 * 							<code>maxIterations</code>: <code>Integer</code> specifying the maximum iterations for the solver.
-	 * 						</li>
-	 *					</ul>
-	 *				</li>
-	 *			</ul>
-	 *		</li>
-	 * </ul>
-	 *
-	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
-	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
-	 * @param forwardRateCurve The initial values for the forward rates.
-	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
-	 * @param randomVariableFactory The random variable factory used to create the initial values of the model.
-	 * @param covarianceModel The covariance model to use.
-	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
-	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
-	 */
-	public LIBORMarketModelFromCovarianceModel(
-			final TimeDiscretization	liborPeriodDiscretization,
-			final AnalyticModel			analyticModel,
-			final ForwardCurve			forwardRateCurve,
-			final DiscountCurve			discountCurve,
-			final RandomVariableFactory	randomVariableFactory,
-			final LIBORCovarianceModel	covarianceModel,
-			final Map<String, ?>		properties
-			) throws CalculationException {
-
-		// Set some properties
-		if(properties != null && properties.containsKey("measure")) {
-			measure		= Measure.valueOf(((String)properties.get("measure")).toUpperCase());
-		}
-		if(properties != null && properties.containsKey("stateSpace")) {
-			stateSpace	= StateSpace.valueOf(((String)properties.get("stateSpace")).toUpperCase());
-		}
-		if(properties != null && properties.containsKey("interpolationMethod")) {
-			interpolationMethod	= InterpolationMethod.valueOf(((String)properties.get("interpolationMethod")).toUpperCase());
-		}
-		if(properties != null && properties.containsKey("liborCap")) {
-			liborCap	= (Double)properties.get("liborCap");
-		}
-
-		this.liborPeriodDiscretization	= liborPeriodDiscretization;
-		curveModel					= analyticModel;
-		this.forwardRateCurve		= forwardRateCurve;
-		this.discountCurve			= discountCurve;
-		this.randomVariableFactory	= randomVariableFactory;
-		this.covarianceModel	= covarianceModel;
-	}
 
 	/**
 	 * Creates a LIBOR Market Model for given covariance with a calibration (if calibration items are given).
@@ -305,6 +229,17 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * 				</li>
 	 * 				<li>
 	 * 					<code>NORMAL</code> (<code>String</code>): Simulate <i>L = Y</i>.
+	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 *		<li>
+	 *			<code>simulationTimeInterpolationMethod</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>ROUND_DOWN</code>: \( L(S,T;t) \) is mapped to \( L(S,T,t_{j}) \) with \( t_{j} \) being the largest time in the time discretization such that \( t_{j} \leq t \).
+	 * 				</li>
+	 * 				<li>
+	 * 					<code>ROUND_NEAREST</code>: \( L(S,T;t) \) is mapped to \( L(S,T,t_{j}) \) with \( t_{j} \) being the nearest time in the time discretization.
 	 * 				</li>
 	 *			</ul>
 	 *		</li>
@@ -466,6 +401,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(properties != null && properties.containsKey("interpolationMethod")) {
 			interpolationMethod	= InterpolationMethod.valueOf(((String)properties.get("interpolationMethod")).toUpperCase());
 		}
+		if(properties != null && properties.containsKey("simulationTimeInterpolationMethod")) {
+			simulationTimeInterpolationMethod	= SimulationTimeInterpolationMethod.valueOf(((String)properties.get("simulationTimeInterpolationMethod")).toUpperCase());
+		}
 		if(properties != null && properties.containsKey("liborCap")) {
 			liborCap	= (Double)properties.get("liborCap");
 		}
@@ -496,6 +434,77 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		else {
 			this.covarianceModel	= covarianceModel;
 		}
+	}
+
+	/**
+	 * Creates a LIBOR Market Model for given covariance.
+	 *
+	 * The map <code>properties</code> allows to configure the model. The following keys may be used:
+	 * <ul>
+	 * 		<li>
+	 * 			<code>measure</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>SPOT</code> (<code>String</code>): Simulate under spot measure.
+	 * 				</li>
+	 * 				<li>
+	 * 					<code>TERMINAL</code> (<code>String</code>): Simulate under terminal measure.
+	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 * 		<li>
+	 * 			<code>stateSpace</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>LOGNORMAL</code> (<code>String</code>): Simulate <i>L = exp(Y)</i>.
+	 * 				</li>
+	 * 				<li>
+	 * 					<code>NORMAL</code> (<code>String</code>): Simulate <i>L = Y</i>.
+	 * 				</li>
+	 *			</ul>
+	 *		</li>
+	 * 		<li>
+	 * 			<code>liborCap</code>: An optional <code>Double</code> value applied as a cap to the LIBOR rates.
+	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+	 * 			numerical problems. To disable the cap, set <code>liborCap</code> to <code>Double.POSITIVE_INFINITY</code>.
+	 *		</li>
+	 * 		<li>
+	 * 			<code>calibrationParameters</code>: Possible values:
+	 * 			<ul>
+	 * 				<li>
+	 * 					<code>Map&lt;String,Object&gt;</code> a parameter map with the following key/value pairs:
+	 * 					<ul>
+	 *				 		<li>
+	 * 							<code>accuracy</code>: <code>Double</code> specifying the required solver accuracy.
+	 * 						</li>
+	 *				 		<li>
+	 * 							<code>maxIterations</code>: <code>Integer</code> specifying the maximum iterations for the solver.
+	 * 						</li>
+	 *					</ul>
+	 *				</li>
+	 *			</ul>
+	 *		</li>
+	 * </ul>
+	 *
+	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
+	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
+	 * @param forwardRateCurve The initial values for the forward rates.
+	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
+	 * @param randomVariableFactory The random variable factory used to create the initial values of the model.
+	 * @param covarianceModel The covariance model to use.
+	 * @param properties Key value map specifying properties like <code>measure</code> and <code>stateSpace</code>.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
+	 */
+	public LIBORMarketModelFromCovarianceModel(
+			final TimeDiscretization	liborPeriodDiscretization,
+			final AnalyticModel			analyticModel,
+			final ForwardCurve			forwardRateCurve,
+			final DiscountCurve			discountCurve,
+			final RandomVariableFactory	randomVariableFactory,
+			final LIBORCovarianceModel	covarianceModel,
+			final Map<String, ?>		properties
+			) throws CalculationException {
+		this(liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, randomVariableFactory, covarianceModel, null, properties);
 	}
 
 	/**
@@ -1233,7 +1242,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		// If time is not part of the discretization, use the nearest available point.
 		if(timeIndex < 0) {
 			timeIndex = -timeIndex-2;
-			if(time-process.getTime(timeIndex) > process.getTime(timeIndex+1)-time) {
+			if(simulationTimeInterpolationMethod == SimulationTimeInterpolationMethod.ROUND_NEAREST && time-process.getTime(timeIndex) > process.getTime(timeIndex+1)-time) {
 				timeIndex++;
 			}
 		}

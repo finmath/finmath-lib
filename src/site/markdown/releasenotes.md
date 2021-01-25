@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 5.1.1 (24.01.2021)
+
+## Monte-Carlo Interest Rate Models
+
+ - Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
+
+
 ## 5.1.0 (24.01.2021)
 
 ## Monte-Carlo Interest Rate Models
