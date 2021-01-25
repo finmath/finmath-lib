@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    
+    
+    <link rel="SHORTCUT ICON" href="../../../../../../img/clover.ico" />
+
+    <link rel="stylesheet" href="../../../../../../aui/css/aui.min.css" media="all"/>
+    <link rel="stylesheet" href="../../../../../../aui/css/aui-experimental.min.css" media="all"/>
+    <!--[if IE 9]><link rel="stylesheet" href="../../../../../../aui/css/aui-ie9.min.css" media="all"/><![endif]-->
+
+    <style type="text/css" media="all">
+        @import url('../../../../../../style.css');
+        @import url('../../../../../../tree.css');
+        
+    </style>
+
+    <script src="../../../../../../jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../../../../../../aui/js/aui.min.js" type="text/javascript"></script>
+    <script src="../../../../../../aui/js/aui-experimental.min.js" type="text/javascript"></script>
+    <script src="../../../../../../aui/js/aui-soy.min.js" type="text/javascript"></script>
+
+    <script src="../../../../../../package-nodes-tree.js" type="text/javascript"></script>
+    <script src="../../../../../../clover-tree.js" type="text/javascript"></script>
+    <script src="../../../../../../clover.js" type="text/javascript"></script>
+    <script src="../../../../../../clover-descriptions.js" type="text/javascript"></script>
+    <script src="../../../../../../cloud.js" type="text/javascript"></script>
+
+            <title>finmath lib 5.1.0</title>
+    </head>
+
+<body  onload="onLoad('finmath lib 5.1.0: net.finmath.montecarlo.interestrate.products.indices.ConstantMaturitySwaprate.java')">
+    <div id="page">
+        
+        
+
+
+<header id="header" role="banner">
+    <nav class="aui-header aui-dropdown2-trigger-group" role="navigation">
+        <div class="aui-header-inner">
+            <div class="aui-header-primary">
+                <h1 id="logo" class="aui-header-logo aui-header-logo-clover">
+                    <a href="http://openclover.org" title="Visit OpenClover home page"><span class="aui-header-logo-device">OpenClover</span></a>
+                </h1>
+                            </div>
+            <div class="aui-header-secondary">
+                <ul class="aui-nav">
+                    <li id="system-help-menu">
+                        <a class="aui-nav-link" title="Open online documentation" target="_blank"
+                           href="http://openclover.org/documentation">
+                            <span class="aui-icon aui-icon-small aui-iconfont-help">&#160;Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+        
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <div class="aui-page-panel-nav aui-page-panel-nav-clover">
+                    
+
+<div class="aui-page-header-inner" style="margin-bottom: 20px;">
+    <div class="aui-page-header-image">
+                    <a href="http://www.finmath.net/finmath-lib" target="_top">
+                <div class="aui-avatar aui-avatar-large aui-avatar-project">
+            <div class="aui-avatar-inner">
+                                    <img src="../../../../../../img/clover_logo_large.png" alt="Clover icon"/>
+                            </div>
+        </div>
+                    </a>
+            </div>
+    <div class="aui-page-header-main" >
+        <h1>
+                            <a href="http://www.finmath.net/finmath-lib" target="_top">
+                                        finmath lib 5.1.0
+                                        </a>
+                    </h1>
+    </div>
+</div>
+
+<nav class="aui-navgroup aui-navgroup-vertical">
+    <div class="aui-navgroup-inner">
+                                            <ul class="aui-nav">
+                <li class="">
+                    <a href="../../../../../../dashboard.html">Project overview</a>
+                </li>
+            </ul>
+        
+                <div class="aui-nav-heading packages-nav-heading">
+            <strong>Packages</strong>
+        </div>
+        <div class="aui-nav project-packages">
+            <form method="get" action="#" class="aui package-filter-container">
+                <input type="text" autocomplete="off" class="package-filter text"
+                       placeholder="Type to filter packages..." name="package-filter" id="package-filter"
+                       title="Start typing package name (or part of the name) to search through the tree. Use arrow keys and the Enter key to navigate."/>
+            </form>
+            <p class="package-filter-no-results-message hidden">
+                <small>No results found.</small>
+            </p>
+                                                <div class="packages-tree-wrapper" data-root-relative="../../../../../../" data-package-name="net.finmath.montecarlo.interestrate.products.indices">
+                <div class="packages-tree-container"></div>
+                <div class="clover-packages-lozenges"></div>
+            </div>
+        </div>
+        
+            </div>
+</nav>                </div>
+                <section class="aui-page-panel-content">
+                    <div class="aui-page-panel-content-clover">
+
+                    
+                    <ol class="aui-nav aui-nav-breadcrumbs">
+            
+        <li><a href="../../../../../../dashboard.html">Project Clover database Mon Jan 25 2021 01:44:33 CET</a></li> 
+        <li><a href="pkg-summary.html">        Package net.finmath.montecarlo.interestrate.products.indices</a></li> 
+    </ol>
+    
+<h1 class="aui-h2-clover">
+            File ConstantMaturitySwaprate.java
+    </h1>
+
+
+
+
+
+
+
+
+    
+<div class="aui-tabs horizontal-tabs" id="tabs-file">
+            <div class="tabs-pane aui-tabs-pane-100-pcnt active-pane" id="tabs-file-source">
+        <div>&#160;</div>
+
+        
+                <div style="display: table; width: 100%">
+                            <div class="clover-histogram-table-cell">
+                                <div class="dashboard-widget">
+            <header class="dashboard-widget-header">
+                <h3>Coverage histogram</h3>
+            </header>
+            <div class="dashboard-widget-content">
+                <div class="aui-item clover-aui-item-histogram">
+                    <img src="../../../../../../img/srcFileCovDistChart7.png" alt="../../../../../../img/srcFileCovDistChart7.png"
+                         usemap="#srcFileCovDistChart7.png" class="clover-histogram-img"/>
+                    <map id="srcFileCovDistChart7.png" name="srcFileCovDistChart7.png">
+<area shape="rect" coords="100,51,107,66" title="53 files have 91-100% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="91,54,98,66" title="42 files have 81-90% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="82,47,89,66" title="66 files have 71-80% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="73,52,80,66" title="48 files have 61-70% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="64,54,71,65" title="40 files have 51-60% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="56,60,63,66" title="22 files have 41-50% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="47,61,54,66" title="19 files have 31-40% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="38,63,45,65" title="10 files have 21-30% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="29,66,36,67" title="1 file has 11-20% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="20,66,27,67" title="1 file has 1-10% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="11,8,18,65" title="195 files have 0% coverage" alt="" nohref="nohref"/>
+</map><br />
+                    <span class="subtle"><strong>32% </strong>of files have more coverage</span>
+                </div>
+            </div>
+        </div>
+                    </div>
+                        <div style="display: table-cell; width: 67%;">
+                    <div class="dashboard-widget">
+        <header class="dashboard-widget-header">
+            <h3>Code metrics</h3>
+        </header>
+        <div class="dashboard-widget-content">
+                        
+
+<div id="td-header-stats" class="aui-item" style="display: ">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">6</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">33</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">9</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">145</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">70</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.36</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">3.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">9</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.33</div>
+    </div>
+</div>
+
+</div>
+                        
+
+<div id="td-filtered-header-stats" class="aui-item" style="display: none">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">6</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">33</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">9</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">145</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">70</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.36</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">3.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">9</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.33</div>
+    </div>
+</div>
+
+</div>        </div>
+    </div>
+            </div>
+        </div>
+
+        
+        
+
+
+    <h2>Classes</h2>
+
+        <table class="aui aui-table-sortable">
+        <thead>
+                        <tr>     <th>Class</th>
+    <th>Line #</th>
+
+            
+        <th class="">
+            <label  title="The total number of statements.">Total Statements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The percentage of elements that have been filtered from this report.">% Filtered</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label>
+        </th>
+        
+    
+            <th>Actions</th>
+    </tr>         </thead>
+        <tbody>
+                              <tr> <td id="ConstantMaturitySwaprate">
+        <span><a href="#22" title="ConstantMaturitySwaprate" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '22');">ConstantMaturitySwaprate</a></span>
+</td>
+<td>22<a name="sl-22"></a></td>
+    <td class="">33</td>
+    <td class="">0%</td>
+    <td class="">12</td>
+    <td class="">16</td>
+    <td class=""><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.6666667</span>66.7%</div><div style="display: table-cell">
+ <div title="66.7% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:66.7%"></div></div></div></div></td>
+    <td><button data-dialog-id="dialog-ConstantMaturitySwaprate" class="aui-button aui-button-link dialog-show-button">Show methods</button></td>
+</tr>                      </tbody>
+    </table>
+
+    
+     
+        <section role="dialog" id="dialog-ConstantMaturitySwaprate" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+            
+            <header class="aui-dialog2-header">
+                <h1 class="aui-dialog2-header-main">Class ConstantMaturitySwaprate</h1>
+                <div class="aui-dialog2-header-secondary">
+                    <input id="dialog-ConstantMaturitySwaprate-method-filter" class="test-filter text" type="text" name="method-filter"
+                           placeholder="Type to filter methods..." autocomplete="off"
+                           onkeyup="filterMethods('dialog-ConstantMaturitySwaprate-methods-body', 'dialog-ConstantMaturitySwaprate-method-filter');"/>
+                </div>
+            </header>
+
+            
+            <div class="aui-dialog2-content">
+
+                
+
+                <table class="aui aui-table-sortable">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                    <thead>
+                                                 <tr> <th id="ConstantMaturitySwaprate">
+    Class<br/>    <span><a href="#22" title="ConstantMaturitySwaprate" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '22');">ConstantMaturitySwaprate</a></span>
+</th>
+<th>Line #<br/>22<a name="sl-22"></a></th>
+    <th class=""><label  title="The total number of statements.">Total Statements</label><br/>33</th>
+    <th class=""><label  title="The percentage of elements that have been filtered from this report.">% Filtered</label><br/>0%</th>
+    <th class=""><label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label><br/>12</th>
+    <th class=""><label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label><br/>16</th>
+    <th class=""><label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label><br/><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.6666667</span>66.7%</div><div style="display: table-cell">
+ <div title="66.7% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:66.7%"></div></div></div></div></th>
+</tr>                     </thead>
+                    <tbody id="dialog-ConstantMaturitySwaprate-methods-body">
+                                                                                                            <tr id="ConstantMaturitySwaprate-1">
+<td id="summary-37-2">
+ <span class="sortValue">ConstantMaturitySwaprate(String,String,double,double[])</span>
+&#160;&#160;<a href="?line=29#37" title="ConstantMaturitySwaprate(String,String,double,double[])" name="sl-37" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '37');">ConstantMaturitySwaprate(String,String,double,double[])</a>
+</td>
+<td align="right"><span class="sortValue">37</span>37</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-2">
+<td id="summary-49-2">
+ <span class="sortValue">ConstantMaturitySwaprate(double,double[])</span>
+&#160;&#160;<a href="?line=29#49" title="ConstantMaturitySwaprate(double,double[])" name="sl-49" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '49');">ConstantMaturitySwaprate(double,double[])</a>
+</td>
+<td align="right"><span class="sortValue">49</span>49</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-3">
+<td id="summary-58-2">
+ <span class="sortValue">ConstantMaturitySwaprate(double[])</span>
+&#160;&#160;<a href="?line=29#58" title="ConstantMaturitySwaprate(double[])" name="sl-58" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '58');">ConstantMaturitySwaprate(double[])</a>
+</td>
+<td align="right"><span class="sortValue">58</span>58</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-4">
+<td id="summary-72-2">
+ <span class="sortValue">ConstantMaturitySwaprate(String,String,double,double,double)</span>
+&#160;&#160;<a href="?line=29#72" title="ConstantMaturitySwaprate(String,String,double,double,double)" name="sl-72" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '72');">ConstantMaturitySwaprate(String,String,double,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">72</span>72</td>
+<td class="" align="right"><span class="sortValue">7.0</span>7</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">0.7777778</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.7777778</span>77.8%</div><div style="display: table-cell">
+ <div title="77.8% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:77.8%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-5">
+<td id="summary-92-2">
+ <span class="sortValue">ConstantMaturitySwaprate(double,double,double)</span>
+&#160;&#160;<a href="?line=29#92" title="ConstantMaturitySwaprate(double,double,double)" name="sl-92" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '92');">ConstantMaturitySwaprate(double,double,double)</a>
+</td>
+<td align="right"><span class="sortValue">92</span>92</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-6">
+<td id="summary-102-2">
+ <span class="sortValue">ConstantMaturitySwaprate(double,double)</span>
+&#160;&#160;<a href="?line=29#102" title="ConstantMaturitySwaprate(double,double)" name="sl-102" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '102');">ConstantMaturitySwaprate(double,double)</a>
+</td>
+<td align="right"><span class="sortValue">102</span>102</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-7">
+<td id="summary-106-2">
+ <span class="sortValue">getValue(double,TermStructureMonteCarloSimulationModel)&#160;:&#160;RandomVariable</span>
+&#160;&#160;<a href="?line=29#106" title="getValue(double,TermStructureMonteCarloSimulationModel)&#160;:&#160;RandomVariable" name="sl-106" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '106');">getValue(double,TermStructureMonteCarloSimulationModel)&#160;:&#160;RandomVariable</a>
+</td>
+<td align="right"><span class="sortValue">106</span>106</td>
+<td class="" align="right"><span class="sortValue">15.0</span>15</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-8">
+<td id="summary-133-2">
+ <span class="sortValue">queryUnderlyings()&#160;:&#160;Set&lt;String&gt;</span>
+&#160;&#160;<a href="?line=29#133" title="queryUnderlyings()&#160;:&#160;Set&lt;String&gt;" name="sl-133" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '133');">queryUnderlyings()&#160;:&#160;Set&lt;String&gt;</a>
+</td>
+<td align="right"><span class="sortValue">133</span>133</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="ConstantMaturitySwaprate-9">
+<td id="summary-140-2">
+ <span class="sortValue">toString()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#140" title="toString()&#160;:&#160;String" name="sl-140" onclick="closeDialogAndScrollTo('dialog-ConstantMaturitySwaprate', '140');">toString()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">140</span>140</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                         </tbody>
+                </table>
+
+                <div>&#160;</div>
+                
+
+            </div>
+
+            
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button class="aui-button aui-button-primary dialog-close-button"
+                            data-dialog-id="dialog-ConstantMaturitySwaprate">Close</button>
+                </div>
+                <div class="aui-dialog2-footer-hint">Click on a class or a method name to jump to source.</div>
+            </footer>
+        </section>
+
+     
+ 
+        
+        <div>&#160;</div>
+
+<h2>Contributing tests</h2>
+
+    <div>
+                This file is covered by 3 tests.
+        <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-link dialog-show-button">
+            Select tests to highlight the test coverage
+        </button>.
+    </div>
+
+<section role="dialog" id="contr-tests-dialog" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+    
+    <header class="aui-dialog2-header">
+        <h1 class="aui-dialog2-header-main">Contributing tests</h1>
+        <div class="aui-dialog2-header-secondary">
+            <input id="test-filter" class="test-filter text" type="text" name="test-filter"
+                   placeholder="Type to filter tests..." autocomplete="off"
+                   onkeyup="filterTests('tests-body', 'test-filter', 3);"/>
+        </div>
+    </header>
+
+    
+    <div class="aui-dialog2-content">
+    
+
+        <p class="aui-buttons">
+            <button title="Selects all tests for this file, highlighting their coverage."
+                    class="aui-button" id="selectalltests">Select all</button>
+        </p>
+
+        <table class="aui aui-table-sortable">
+            <thead id="tests-head">
+            <tr id="testHeaderRow">
+                <th class="aui-table-column-unsortable"></th>
+                <th>
+                    <label title="The percentage of coverage contributed by each single test.">Test contribution</label>
+                </th>
+                <th>
+                    <label title="The test (or test iteration) which was executed.">Test</label>
+                </th>
+                <th>
+                    <label>Result</label>
+                </th>
+                <th class="aui-table-column-unsortable">
+                    <label>Actions</label>
+                </th>
+            </tr>
+            </thead>
+            <tbody id="tests-body">
+
+<tr id="test-273">
+<td><a name="testA-273"></a><input type="checkbox" id="cb-273" value="273" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSFloatLeg_7l.html';">
+<span class="sortValue">0.6666667</span>
+<div>
+<div title="66.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:66.7%"></div></div></div></td>
+<td id="tc-273">  <span class="sortValue">net.finmath.montecarlo.interestrate.products.SwapLegTest.testCMSFloatLeg</span><a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSFloatLeg_7l.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.products.SwapLegTest.testCMSFloatLeg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest.html?line=173#src-173" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSFloatLeg_7l.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-98">
+<td><a name="testA-98"></a><input type="checkbox" id="cb-98" value="98" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../../../net/finmath/montecarlo/interestrate/HullWhiteModelTest_testZeroCMSSwap_2q.html';">
+<span class="sortValue">0.6666667</span>
+<div>
+<div title="66.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:66.7%"></div></div></div></td>
+<td id="tc-98">  <span class="sortValue">net.finmath.montecarlo.interestrate.HullWhiteModelTest.testZeroCMSSwap</span><a href="../../../../../../net/finmath/montecarlo/interestrate/HullWhiteModelTest_testZeroCMSSwap_2q.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.HullWhiteModelTest.testZeroCMSSwap</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../../../net/finmath/montecarlo/interestrate/HullWhiteModelTest.html?line=777#src-777" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../../../net/finmath/montecarlo/interestrate/HullWhiteModelTest_testZeroCMSSwap_2q.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-297">
+<td><a name="testA-297"></a><input type="checkbox" id="cb-297" value="297" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSSpreadLeg_89.html';">
+<span class="sortValue">0.6666667</span>
+<div>
+<div title="66.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:66.7%"></div></div></div></td>
+<td id="tc-297">  <span class="sortValue">net.finmath.montecarlo.interestrate.products.SwapLegTest.testCMSSpreadLeg</span><a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSSpreadLeg_89.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.products.SwapLegTest.testCMSSpreadLeg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest.html?line=237#src-237" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../../../../net/finmath/montecarlo/interestrate/products/SwapLegTest_testCMSSpreadLeg_89.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+
+            </tbody>
+        </table>
+
+        
+        <div>&#160;</div>
+
+    
+    </div>
+
+    
+    <footer class="aui-dialog2-footer">
+        <div class="aui-dialog2-footer-actions">
+            <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-primary dialog-close-button">Apply</button>
+        </div>
+        <div class="aui-dialog2-footer-hint">Select tests to highlight code covered by them in the source view.</div>
+    </footer>
+</section>
+
+ 
+        
+        
+
+
+
+
+
+<h2>Source view</h2>
+
+
+<div style="display: table; width: 100%;">
+    <div style="display: table-cell">
+        <button class="aui-button aui-button-link"
+                title="Toggles all methods in the source to be either expanded or collapsed."
+                onclick="toggleAllInlineMethods(this); return false;" id="method-expander">
+            Collapse all methods
+        </button>
+    </div>
+    <div style="display: table-cell">
+        <div style="text-align: right; margin-bottom: 10px">
+            <button class="aui-button aui-button-subtle" id="popupHelp">
+    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>&#160;Show legend
+</button>
+<script>
+    AJS.InlineDialog(AJS.$("#popupHelp"), "helpDialog",
+            function(content, trigger, showPopup) {
+                content.css({"padding":"20px"}).html(SRC_FILE_LEGEND_TEXT);
+                showPopup();
+                return false;
+            },
+            {
+                width: 700, hideDelay: 60000
+            }
+    );
+</script>        </div>
+    </div>
+</div>
+
+<table cellspacing="0" cellpadding="0" class="srcView" width="100%">
+
+    
+<tbody> <tr id="l1">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=1#src-1">1</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-1" class="srcLine"><span class="comment">/*</span></span></td>
+</tr>
+ <tr id="l2">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=2#src-2">2</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-2" class="srcLine"><span class="comment"> * Created on 15.09.2006</span></span></td>
+</tr>
+ <tr id="l3">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=3#src-3">3</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-3" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l4">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=4#src-4">4</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-4" class="srcLine"><span class="comment"> * (c) Copyright Christian P. Fries, Germany. Contact: email</span><span class="comment">@christian-fries.de.</span></span></td>
+</tr>
+ <tr id="l5">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=5#src-5">5</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-5" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+ <tr id="l6">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=6#src-6">6</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-6" class="srcLine"><span class="keyword">package</span> net.finmath.<a href="../../../../montecarlo/pkg-summary.html">montecarlo</a>.<a href="../../../interestrate/pkg-summary.html">interestrate</a>.<a href="../../products/pkg-summary.html">products</a>.<a href="../indices/pkg-summary.html">indices</a>;</span></td>
+</tr>
+ <tr id="l7">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=7#src-7">7</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-7" class="srcLine"></span></td>
+</tr>
+ <tr id="l8">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=8#src-8">8</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-8" class="srcLine"><span class="keyword">import</span> java.util.Arrays;</span></td>
+</tr>
+ <tr id="l9">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=9#src-9">9</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-9" class="srcLine"><span class="keyword">import</span> java.util.HashSet;</span></td>
+</tr>
+ <tr id="l10">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=10#src-10">10</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-10" class="srcLine"><span class="keyword">import</span> java.util.Set;</span></td>
+</tr>
+ <tr id="l11">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=11#src-11">11</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-11" class="srcLine"></span></td>
+</tr>
+ <tr id="l12">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=12#src-12">12</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-12" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../../exception/pkg-summary.html">exception</a>.<a href="../../../../../../net/finmath/exception/CalculationException.html#CalculationException">CalculationException</a>;</span></td>
+</tr>
+ <tr id="l13">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=13#src-13">13</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-13" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../../montecarlo/pkg-summary.html">montecarlo</a>.<a href="../../../interestrate/pkg-summary.html">interestrate</a>.<a href="../../../../../../net/finmath/montecarlo/interestrate/TermStructureMonteCarloSimulationModel.html#TermStructureMonteCarloSimulationModel">TermStructureMonteCarloSimulationModel</a>;</span></td>
+</tr>
+ <tr id="l14">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=14#src-14">14</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-14" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../../stochastic/pkg-summary.html">stochastic</a>.<a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a>;</span></td>
+</tr>
+ <tr id="l15">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=15#src-15">15</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-15" class="srcLine"></span></td>
+</tr>
+ <tr id="l16">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=16#src-16">16</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-16" class="srcLine"><span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l17">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=17#src-17">17</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-17" class="srcLine"><span class="comment"> * An idealized (single curve) CMS index with given maturity and given period length.</span></span></td>
+</tr>
+ <tr id="l18">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=18#src-18">18</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-18" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l19">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=19#src-19">19</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-19" class="srcLine"><span class="comment"> * </span><span class="javadoc">@author</span><span class="comment"> Christian Fries</span></span></td>
+</tr>
+ <tr id="l20">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=20#src-20">20</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-20" class="srcLine"><span class="comment"> * </span><span class="javadoc">@version</span><span class="comment"> 1.0</span></span></td>
+</tr>
+ <tr id="l21">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=21#src-21">21</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-21" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="22" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-22' onclick="toggleInlineStats(this, 'inlinestats-22');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-22" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-22'), 'inlinestats-22');return true;">
+                <td><div>
+<div title="66.7% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:66.7%"></div></div></div></td><td>66.7%</td>
+                <td class="inlineStat">Uncovered Elements: 16 (48)</td>
+                <td class="inlineStat">Complexity: 12</td>
+                <td class="inlineStat">Complexity Density: 0.36</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l22">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=22#src-22">22</a></td>
+<td align="right" class="coverageCount NoHilight "   onclick="return showTestsForLine(this, 22, 'Tests that hit ConstantMaturitySwaprate');" >&#160;&#160;</td>
+<td class=" srcCell" id="id-22"><span class="spacer"></span><span id="src-22" class="srcLine"><span class="keyword">public</span> <span class="keyword">class</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a> <span class="keyword">extends</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/AbstractIndex.html#AbstractIndex">AbstractIndex</a> {</span></td>
+</tr>
+ <tr id="l23">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=23#src-23">23</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-23" class="srcLine"></span></td>
+</tr>
+ <tr id="l24">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=24#src-24">24</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-24" class="srcLine">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -5353191308059733179L;</span></td>
+</tr>
+ <tr id="l25">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=25#src-25">25</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-25" class="srcLine"></span></td>
+</tr>
+ <tr id="l26">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=26#src-26">26</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-26" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span>    fixingOffset;</span></td>
+</tr>
+ <tr id="l27">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=27#src-27">27</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-27" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span>[]    periodLengths;</span></td>
+</tr>
+ <tr id="l28">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=28#src-28">28</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-28" class="srcLine"></span></td>
+</tr>
+ <tr id="l29">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=29#src-29">29</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-29" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l30">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=30#src-30">30</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-30" class="srcLine"><span class="comment">     * Create a CMS index with given fixing offset and given period lengths.</span></span></td>
+</tr>
+ <tr id="l31">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=31#src-31">31</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-31" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l32">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=32#src-32">32</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-32" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> name The name of the underlying index.</span></span></td>
+</tr>
+ <tr id="l33">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=33#src-33">33</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-33" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> currency The currency of the underlying index, if any.</span></span></td>
+</tr>
+ <tr id="l34">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=34#src-34">34</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-34" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fixingOffset Fixing offset of this index.</span></span></td>
+</tr>
+ <tr id="l35">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=35#src-35">35</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-35" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLengths Period length of underlying swap, used for the swap annuity calculation.</span></span></td>
+</tr>
+ <tr id="l36">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=36#src-36">36</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-36" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="37" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-37' onclick="toggleInlineStats(this, 'inlinestats-37');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-37" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-37'), 'inlinestats-37');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 3 (3)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.33</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l37">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=37#src-37">37</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 37, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-37"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 37,41);" id="img-37" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-37" class="srcLineHilight"><span class="nolink" title="Line 37, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> String currency, <span class="keyword">final</span> <span class="keyword">double</span> fixingOffset, <span class="keyword">final</span> <span class="keyword">double</span>[] periodLengths) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-37'), 37,41);" id="e37" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l38">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=38#src-38">38</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 38, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-38" class="srcLineHilight"><span class="nolink" title="Line 38, Col 3: statement not executed.">        <span class="keyword">super</span>(name, currency);</span></span></td>
+</tr>
+ <tr id="l39">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=39#src-39">39</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 39, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-39" class="srcLineHilight"><span class="nolink" title="Line 39, Col 3: statement not executed.">        <span class="keyword">this</span>.fixingOffset = fixingOffset;</span></span></td>
+</tr>
+ <tr id="l40">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=40#src-40">40</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 40, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-40" class="srcLineHilight"><span class="nolink" title="Line 40, Col 3: statement not executed.">        <span class="keyword">this</span>.periodLengths = periodLengths;</span></span></td>
+</tr>
+ <tr id="l41">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=41#src-41">41</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-41" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l42">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=42#src-42">42</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-42" class="srcLine"></span></td>
+</tr>
+ <tr id="l43">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=43#src-43">43</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-43" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l44">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=44#src-44">44</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-44" class="srcLine"><span class="comment">     * Create a CMS index with given fixing offset and given period lengths.</span></span></td>
+</tr>
+ <tr id="l45">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=45#src-45">45</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-45" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l46">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=46#src-46">46</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-46" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fixingOffset Fixing offset of this index.</span></span></td>
+</tr>
+ <tr id="l47">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=47#src-47">47</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-47" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLengths Period length of underlying swap, used for the swap annuity calculation.</span></span></td>
+</tr>
+ <tr id="l48">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=48#src-48">48</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-48" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="49" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-49' onclick="toggleInlineStats(this, 'inlinestats-49');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-49" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-49'), 'inlinestats-49');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l49">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=49#src-49">49</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 49, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-49"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 49,51);" id="img-49" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-49" class="srcLineHilight"><span class="nolink" title="Line 49, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> <span class="keyword">double</span> fixingOffset, <span class="keyword">final</span> <span class="keyword">double</span>[] periodLengths) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-49'), 49,51);" id="e49" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l50">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=50#src-50">50</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 50, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-50" class="srcLineHilight"><span class="nolink" title="Line 50, Col 3: statement not executed.">        <span class="keyword">this</span>(<span class="keyword">null</span>, <span class="keyword">null</span>, fixingOffset, periodLengths);</span></span></td>
+</tr>
+ <tr id="l51">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=51#src-51">51</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-51" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l52">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=52#src-52">52</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-52" class="srcLine"></span></td>
+</tr>
+ <tr id="l53">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=53#src-53">53</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-53" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l54">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=54#src-54">54</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-54" class="srcLine"><span class="comment">     * Create a CMS index with given period lengths.</span></span></td>
+</tr>
+ <tr id="l55">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=55#src-55">55</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-55" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l56">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=56#src-56">56</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-56" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLengths Period length of underlying swap, used for the swap annuity calculation.</span></span></td>
+</tr>
+ <tr id="l57">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=57#src-57">57</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-57" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="58" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-58' onclick="toggleInlineStats(this, 'inlinestats-58');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-58" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-58'), 'inlinestats-58');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l58">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=58#src-58">58</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 58, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-58"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 58,60);" id="img-58" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-58" class="srcLineHilight"><span class="nolink" title="Line 58, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> <span class="keyword">double</span>[] periodLengths) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-58'), 58,60);" id="e58" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l59">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=59#src-59">59</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 59, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-59" class="srcLineHilight"><span class="nolink" title="Line 59, Col 3: statement not executed.">        <span class="keyword">this</span>(0.0, periodLengths);</span></span></td>
+</tr>
+ <tr id="l60">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=60#src-60">60</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-60" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l61">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=61#src-61">61</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-61" class="srcLine"></span></td>
+</tr>
+ <tr id="l62">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=62#src-62">62</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-62" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l63">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=63#src-63">63</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-63" class="srcLine"><span class="comment">     * Create a CMS index with given fixing offset and given maturity and given period length.</span></span></td>
+</tr>
+ <tr id="l64">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=64#src-64">64</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-64" class="srcLine"><span class="comment">     * Note that maturity must be a multiple of the period length.</span></span></td>
+</tr>
+ <tr id="l65">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=65#src-65">65</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-65" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l66">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=66#src-66">66</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-66" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> name The name of the underlying index.</span></span></td>
+</tr>
+ <tr id="l67">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=67#src-67">67</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-67" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> currency The currency of the underlying index, if any.</span></span></td>
+</tr>
+ <tr id="l68">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=68#src-68">68</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-68" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fixingOffset Fixing offset of this index.</span></span></td>
+</tr>
+ <tr id="l69">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=69#src-69">69</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-69" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> maturity The maturity.</span></span></td>
+</tr>
+ <tr id="l70">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=70#src-70">70</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-70" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLength Period length of underlying swap, used for the swap annuity calculation.</span></span></td>
+</tr>
+ <tr id="l71">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=71#src-71">71</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-71" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="72" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-72' onclick="toggleInlineStats(this, 'inlinestats-72');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-72" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-72'), 'inlinestats-72');return true;">
+                <td><div>
+<div title="77.8% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:77.8%"></div></div></div></td><td>77.8%</td>
+                <td class="inlineStat">Uncovered Elements: 2 (9)</td>
+                <td class="inlineStat">Complexity: 2</td>
+                <td class="inlineStat">Complexity Density: 0.29</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l72">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=72#src-72">72</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 72, 'Tests that hit ConstantMaturitySwaprate(String,String,double,double,double)');" ><span title="Line 72, Col 2: method entered 13 times." class="nolink">&#160;13</span></td>
+<td class=" methodStart  srcCell" id="id-72"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 72,82);" id="img-72" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-72" class="srcLine"><span class="nolink" title="Line 72, Col 2: method entered 13 times.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> String currency, <span class="keyword">final</span> <span class="keyword">double</span> fixingOffset, <span class="keyword">final</span> <span class="keyword">double</span> maturity, <span class="keyword">final</span> <span class="keyword">double</span> periodLength) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-72'), 72,82);" id="e72" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l73">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=73#src-73">73</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 73, 'Tests that hit line # 73');" ><span title="Line 73, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-73" class="srcLine"><span class="nolink" title="Line 73, Col 3: statement executed 13 times.">        <span class="keyword">super</span>(name, currency);</span></span></td>
+</tr>
+ <tr id="l74">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=74#src-74">74</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 74, 'Tests that hit line # 74');" ><span title="Line 74, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-74" class="srcLine"><span class="nolink" title="Line 74, Col 3: statement executed 13 times.">        <span class="keyword">this</span>.fixingOffset = fixingOffset;</span></span></td>
+</tr>
+ <tr id="l75">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=75#src-75">75</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-75" class="srcLine"></span></td>
+</tr>
+ <tr id="l76">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=76#src-76">76</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 76, 'Tests that hit line # 76');" ><span title="Line 76, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-76" class="srcLine"><span class="nolink" title="Line 76, Col 3: statement executed 13 times.">        <span class="keyword">final</span> <span class="keyword">int</span> numberOfPeriods = (<span class="keyword">int</span>) (maturity / periodLength + 0.5);</span></span></td>
+</tr>
+ <tr id="l77">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=77#src-77">77</a></td>
+<td align="right" class="coverageCount Bad hitByTest"   onclick="return showTestsForLine(this, 77, 'Tests that hit line # 77');" ><span title="Line 77, Col 5: true branch executed 0 times, false branch executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-77" class="srcLineHilight"><span class="nolink" title="Line 77, Col 5: true branch executed 0 times, false branch executed 13 times.">        <span class="keyword">if</span>(numberOfPeriods * periodLength != maturity) {</span></span></td>
+</tr>
+ <tr id="l78">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=78#src-78">78</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 78, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-78" class="srcLineHilight"><span class="nolink" title="Line 78, Col 4: statement not executed.">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;matruity not divisible by periodLength&quot;</span>);</span></span></td>
+</tr>
+ <tr id="l79">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=79#src-79">79</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-79" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l80">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=80#src-80">80</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 80, 'Tests that hit line # 80');" ><span title="Line 80, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-80" class="srcLine"><span class="nolink" title="Line 80, Col 3: statement executed 13 times.">        periodLengths = <span class="keyword">new</span> <span class="keyword">double</span>[numberOfPeriods];</span></span></td>
+</tr>
+ <tr id="l81">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=81#src-81">81</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 81, 'Tests that hit line # 81');" ><span title="Line 81, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-81" class="srcLine"><span class="nolink" title="Line 81, Col 3: statement executed 13 times.">        Arrays.fill(periodLengths,periodLength);</span></span></td>
+</tr>
+ <tr id="l82">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=82#src-82">82</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-82" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l83">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=83#src-83">83</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-83" class="srcLine"></span></td>
+</tr>
+ <tr id="l84">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=84#src-84">84</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-84" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l85">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=85#src-85">85</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-85" class="srcLine"><span class="comment">     * Create a CMS index with given fixing offset and given maturity and given period length.</span></span></td>
+</tr>
+ <tr id="l86">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=86#src-86">86</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-86" class="srcLine"><span class="comment">     * Note that maturity must be a multiple of the period length.</span></span></td>
+</tr>
+ <tr id="l87">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=87#src-87">87</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-87" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l88">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=88#src-88">88</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-88" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fixingOffset Fixing offset of this index.</span></span></td>
+</tr>
+ <tr id="l89">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=89#src-89">89</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-89" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> maturity The maturity.</span></span></td>
+</tr>
+ <tr id="l90">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=90#src-90">90</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-90" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLength Period length of underlying swap, used for the swap annuity calculation.</span></span></td>
+</tr>
+ <tr id="l91">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=91#src-91">91</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-91" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="92" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-92' onclick="toggleInlineStats(this, 'inlinestats-92');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-92" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-92'), 'inlinestats-92');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l92">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=92#src-92">92</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 92, 'Tests that hit ConstantMaturitySwaprate(double,double,double)');" ><span title="Line 92, Col 2: method entered 13 times." class="nolink">&#160;13</span></td>
+<td class=" methodStart  srcCell" id="id-92"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 92,94);" id="img-92" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-92" class="srcLine"><span class="nolink" title="Line 92, Col 2: method entered 13 times.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> <span class="keyword">double</span> fixingOffset, <span class="keyword">final</span> <span class="keyword">double</span> maturity, <span class="keyword">final</span> <span class="keyword">double</span> periodLength) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-92'), 92,94);" id="e92" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l93">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=93#src-93">93</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 93, 'Tests that hit line # 93');" ><span title="Line 93, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-93" class="srcLine"><span class="nolink" title="Line 93, Col 3: statement executed 13 times.">        <span class="keyword">this</span>(<span class="keyword">null</span>, <span class="keyword">null</span>, fixingOffset, maturity, periodLength);</span></span></td>
+</tr>
+ <tr id="l94">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=94#src-94">94</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-94" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l95">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=95#src-95">95</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-95" class="srcLine"></span></td>
+</tr>
+ <tr id="l96">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=96#src-96">96</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-96" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l97">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=97#src-97">97</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-97" class="srcLine"><span class="comment">     * Create a CMS index with given maturity and given period length. Note that maturity must be a multiple of the period length.</span></span></td>
+</tr>
+ <tr id="l98">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=98#src-98">98</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-98" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l99">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=99#src-99">99</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-99" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> maturity Maturity of the swap rate.</span></span></td>
+</tr>
+ <tr id="l100">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=100#src-100">100</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-100" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> periodLength Period length of the fixed size (determines the swap annuity used)</span></span></td>
+</tr>
+ <tr id="l101">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=101#src-101">101</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-101" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="102" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-102' onclick="toggleInlineStats(this, 'inlinestats-102');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-102" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-102'), 'inlinestats-102');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l102">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=102#src-102">102</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 102, 'Tests that hit ConstantMaturitySwaprate(double,double)');" ><span title="Line 102, Col 2: method entered 13 times." class="nolink">&#160;13</span></td>
+<td class=" methodStart  srcCell" id="id-102"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 102,104);" id="img-102" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-102" class="srcLine"><span class="nolink" title="Line 102, Col 2: method entered 13 times.">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate">ConstantMaturitySwaprate</a>(<span class="keyword">final</span> <span class="keyword">double</span> maturity, <span class="keyword">final</span> <span class="keyword">double</span> periodLength) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-102'), 102,104);" id="e102" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l103">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=103#src-103">103</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 103, 'Tests that hit line # 103');" ><span title="Line 103, Col 3: statement executed 13 times." class="nolink">&#160;13</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-103" class="srcLine"><span class="nolink" title="Line 103, Col 3: statement executed 13 times.">        <span class="keyword">this</span>(0.0, maturity, periodLength);</span></span></td>
+</tr>
+ <tr id="l104">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=104#src-104">104</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-104" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l105">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=105#src-105">105</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-105" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="106" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-106' onclick="toggleInlineStats(this, 'inlinestats-106');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-106" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-106'), 'inlinestats-106');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (19)</td>
+                <td class="inlineStat">Complexity: 3</td>
+                <td class="inlineStat">Complexity Density: 0.2</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l106">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=106#src-106">106</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 106, 'Tests that hit getValue(double,TermStructureMonteCarloSimulationModel)&#160;:&#160;RandomVariable');" ><span title="Line 106, Col 2: method entered 320 times." class="nolink">&#160;320</span></td>
+<td class=" methodStart  srcCell" id="id-106"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 106,131);" id="img-106" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-106" class="srcLine"><span class="nolink" title="Line 106, Col 2: method entered 320 times.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-106'), 106,131);" id="e106" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l107">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=107#src-107">107</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-107" class="srcLine">    <span class="keyword">public</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> getValue(<span class="keyword">final</span> <span class="keyword">double</span> evaluationTime, <span class="keyword">final</span> <a href="../../../../../../net/finmath/montecarlo/interestrate/TermStructureMonteCarloSimulationModel.html#TermStructureMonteCarloSimulationModel">TermStructureMonteCarloSimulationModel</a> model) <span class="keyword">throws</span> <a href="../../../../../../net/finmath/exception/CalculationException.html#CalculationException">CalculationException</a> {</span></td>
+</tr>
+ <tr id="l108">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=108#src-108">108</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-108" class="srcLine"></span></td>
+</tr>
+ <tr id="l109">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=109#src-109">109</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-109" class="srcLine">        <span class="comment">// Fetch curve</span></span></td>
+</tr>
+ <tr id="l110">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=110#src-110">110</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 110, 'Tests that hit line # 110');" ><span title="Line 110, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-110" class="srcLine"><span class="nolink" title="Line 110, Col 3: statement executed 320 times.">        <span class="keyword">final</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a>[] forwardRates = <span class="keyword">new</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a>[periodLengths.length];</span></span></td>
+</tr>
+ <tr id="l111">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=111#src-111">111</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 111, 'Tests that hit line # 111');" ><span title="Line 111, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-111" class="srcLine"><span class="nolink" title="Line 111, Col 3: statement executed 320 times.">        <span class="keyword">double</span> periodStart = evaluationTime+fixingOffset;</span></span></td>
+</tr>
+ <tr id="l112">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=112#src-112">112</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 112, 'Tests that hit line # 112');" ><span title="Line 112, Col 27: true branch executed 5,760 times, false branch executed 320 times." class="nolink">&#160;6080</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-112" class="srcLine"><span class="nolink" title="Line 112, Col 27: true branch executed 5,760 times, false branch executed 320 times.">        <span class="keyword">for</span>(<span class="keyword">int</span> periodIndex = 0; periodIndex &lt; periodLengths.length; periodIndex++) {</span></span></td>
+</tr>
+ <tr id="l113">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=113#src-113">113</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 113, 'Tests that hit line # 113');" ><span title="Line 113, Col 4: statement executed 5,760 times." class="nolink">&#160;5760</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-113" class="srcLine"><span class="nolink" title="Line 113, Col 4: statement executed 5,760 times.">            forwardRates[periodIndex] = model.getForwardRate(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);</span></span></td>
+</tr>
+ <tr id="l114">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=114#src-114">114</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 114, 'Tests that hit line # 114');" ><span title="Line 114, Col 4: statement executed 5,760 times." class="nolink">&#160;5760</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-114" class="srcLine"><span class="nolink" title="Line 114, Col 4: statement executed 5,760 times.">            periodStart += periodLengths[periodIndex];</span></span></td>
+</tr>
+ <tr id="l115">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=115#src-115">115</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-115" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l116">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=116#src-116">116</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-116" class="srcLine"></span></td>
+</tr>
+ <tr id="l117">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=117#src-117">117</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-117" class="srcLine">        <span class="comment">// Calculate float leg value (single curve/classical) and annuity.</span></span></td>
+</tr>
+ <tr id="l118">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=118#src-118">118</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 118, 'Tests that hit line # 118');" ><span title="Line 118, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-118" class="srcLine"><span class="nolink" title="Line 118, Col 3: statement executed 320 times.">        <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> forwardBondInverse           = model.getRandomVariableForConstant(1.0);</span></span></td>
+</tr>
+ <tr id="l119">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=119#src-119">119</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 119, 'Tests that hit line # 119');" ><span title="Line 119, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-119" class="srcLine"><span class="nolink" title="Line 119, Col 3: statement executed 320 times.">        <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> forwardAnnuityInverse        = model.getRandomVariableForConstant(periodLengths[periodLengths.length-1]);</span></span></td>
+</tr>
+ <tr id="l120">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=120#src-120">120</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 120, 'Tests that hit line # 120');" ><span title="Line 120, Col 48: true branch executed 5,440 times, false branch executed 320 times." class="nolink">&#160;5760</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-120" class="srcLine"><span class="nolink" title="Line 120, Col 48: true branch executed 5,440 times, false branch executed 320 times.">        <span class="keyword">for</span>(<span class="keyword">int</span> periodIndex = periodLengths.length-1; periodIndex&gt;= 1; periodIndex--) {</span></span></td>
+</tr>
+ <tr id="l121">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=121#src-121">121</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 121, 'Tests that hit line # 121');" ><span title="Line 121, Col 4: statement executed 5,440 times." class="nolink">&#160;5440</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-121" class="srcLine"><span class="nolink" title="Line 121, Col 4: statement executed 5,440 times.">            <span class="keyword">final</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);</span></span></td>
+</tr>
+ <tr id="l122">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=122#src-122">122</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 122, 'Tests that hit line # 122');" ><span title="Line 122, Col 4: statement executed 5,440 times." class="nolink">&#160;5440</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-122" class="srcLine"><span class="nolink" title="Line 122, Col 4: statement executed 5,440 times.">            forwardBondInverse        = forwardBondInverse.mult(forwardBondOnePeriodInverse);</span></span></td>
+</tr>
+ <tr id="l123">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=123#src-123">123</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 123, 'Tests that hit line # 123');" ><span title="Line 123, Col 4: statement executed 5,440 times." class="nolink">&#160;5440</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-123" class="srcLine"><span class="nolink" title="Line 123, Col 4: statement executed 5,440 times.">            forwardAnnuityInverse    = forwardAnnuityInverse.addProduct(forwardBondInverse, periodLengths[periodIndex]);</span></span></td>
+</tr>
+ <tr id="l124">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=124#src-124">124</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-124" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l125">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=125#src-125">125</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 125, 'Tests that hit line # 125');" ><span title="Line 125, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-125" class="srcLine"><span class="nolink" title="Line 125, Col 3: statement executed 320 times.">        <span class="keyword">final</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> forwardBondOnePeriodInverse  = (forwardRates[0]).mult(periodLengths[0]).add(1.0);</span></span></td>
+</tr>
+ <tr id="l126">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=126#src-126">126</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 126, 'Tests that hit line # 126');" ><span title="Line 126, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-126" class="srcLine"><span class="nolink" title="Line 126, Col 3: statement executed 320 times.">        forwardBondInverse = forwardBondInverse.mult(forwardBondOnePeriodInverse);</span></span></td>
+</tr>
+ <tr id="l127">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=127#src-127">127</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-127" class="srcLine"></span></td>
+</tr>
+ <tr id="l128">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=128#src-128">128</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 128, 'Tests that hit line # 128');" ><span title="Line 128, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-128" class="srcLine"><span class="nolink" title="Line 128, Col 3: statement executed 320 times.">        <span class="keyword">final</span> <a href="../../../../../../net/finmath/stochastic/RandomVariable.html#RandomVariable">RandomVariable</a> swaprate = forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);</span></span></td>
+</tr>
+ <tr id="l129">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=129#src-129">129</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-129" class="srcLine"></span></td>
+</tr>
+ <tr id="l130">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=130#src-130">130</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 130, 'Tests that hit line # 130');" ><span title="Line 130, Col 3: statement executed 320 times." class="nolink">&#160;320</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-130" class="srcLine"><span class="nolink" title="Line 130, Col 3: statement executed 320 times.">        <span class="keyword">return</span> swaprate;</span></span></td>
+</tr>
+ <tr id="l131">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=131#src-131">131</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-131" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l132">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=132#src-132">132</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-132" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="133" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-133' onclick="toggleInlineStats(this, 'inlinestats-133');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-133" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-133'), 'inlinestats-133');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 3 (3)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.33</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l133">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=133#src-133">133</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 133, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-133"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 133,138);" id="img-133" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-133" class="srcLineHilight"><span class="nolink" title="Line 133, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-133'), 133,138);" id="e133" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l134">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=134#src-134">134</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-134" class="srcLine">    <span class="keyword">public</span> Set&lt;String&gt; queryUnderlyings() {</span></td>
+</tr>
+ <tr id="l135">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=135#src-135">135</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 135, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-135" class="srcLineHilight"><span class="nolink" title="Line 135, Col 3: statement not executed.">        <span class="keyword">final</span> Set&lt;String&gt; underlyingNames = <span class="keyword">new</span> HashSet&lt;&gt;();</span></span></td>
+</tr>
+ <tr id="l136">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=136#src-136">136</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 136, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-136" class="srcLineHilight"><span class="nolink" title="Line 136, Col 3: statement not executed.">        underlyingNames.add(getName());</span></span></td>
+</tr>
+ <tr id="l137">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=137#src-137">137</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 137, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-137" class="srcLineHilight"><span class="nolink" title="Line 137, Col 3: statement not executed.">        <span class="keyword">return</span> underlyingNames;</span></span></td>
+</tr>
+ <tr id="l138">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=138#src-138">138</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-138" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l139">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=139#src-139">139</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-139" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="140" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-140' onclick="toggleInlineStats(this, 'inlinestats-140');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-140" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-140'), 'inlinestats-140');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l140">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=140#src-140">140</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 140, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-140"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 140,144);" id="img-140" src="../../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-140" class="srcLineHilight"><span class="nolink" title="Line 140, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-140'), 140,144);" id="e140" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l141">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=141#src-141">141</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-141" class="srcLine">    <span class="keyword">public</span> String toString() {</span></td>
+</tr>
+ <tr id="l142">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=142#src-142">142</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 142, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-142" class="srcLineHilight"><span class="nolink" title="Line 142, Col 3: statement not executed.">        <span class="keyword">return</span> <span class="string">&quot;ConstantMaturitySwaprate [fixingOffset=&quot;</span> + fixingOffset</span></span></td>
+</tr>
+ <tr id="l143">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=143#src-143">143</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-143" class="srcLine">                + <span class="string">&quot;, periodLengths=&quot;</span> + Arrays.toString(periodLengths) + <span class="string">&quot;]&quot;</span>;</span></td>
+</tr>
+ <tr id="l144">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=144#src-144">144</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-144" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l145">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=145#src-145">145</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-145" class="srcLine">}</span></td>
+</tr>
+ 
+    </tbody></table>    </div>
+</div><!-- .aui-tabs -->
+
+<script type="text/javascript"> 
+    var ol_bgclass = "overBG";
+    var ol_fgclass = "overFG";
+    var ol_cgclass = "overCaption";
+    var ol_captionfontclass= "overCaption";
+    var ol_closefontclass = "closeFont";
+    var ol_closeclick = 1;
+    var ol_close = 'X';
+    var ol_wrap = 1;
+    var rootRelPath = '../../../../../../';
+    var testsPerFile = -1;
+</script>
+<script src="ConstantMaturitySwaprate.js" type="text/javascript"></script>
+
+                        </div> <!-- class="aui-page-panel-content-clover" -->
+                    <footer id="footer" role="contentinfo">
+    <section class="footer-body">
+        <ul>
+            <li>
+                Report generated by <a target="_new" href="http://openclover.org">OpenClover</a> v 4.4.1
+                on Mon Jan 25 2021 08:02:23 CET using coverage data from Mon Jan 25 2021 07:35:09 CET.
+            </li>
+        </ul>
+        <ul>
+            <li>OpenClover is free and open-source software. </li>
+        </ul>
+    </section>
+</footer>                </section> <!-- class="aui-page-panel-content" -->
+            </div> <!-- class="aui-page-panel-inner" -->
+        </div> <!-- class="aui-page-panel" -->
+    </div> <!-- id="page" -->
+</body>
+</html>
