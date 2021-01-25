@@ -6,6 +6,17 @@ finmath lib Release Notes
 # Release Notes
 
 
+## 5.0.10 (24.01-2021)
+
+### Analytic Formulas
+
+ - Some minor additions to the analytic formulas.
+
+### Monte-Carlo Interest Rate Models
+
+ - Fixed a bug in the volatility return type (ValueUnit) of the Caplet.
+
+
 ## 5.0.9 (26.12-2020)
 
 ### Analytic Formulas
