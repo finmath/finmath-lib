@@ -1,6 +1,6 @@
-var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"","data":{
-    "$area":37660.0,"$color":42.118958,"title":
-    " 37660 Elements, 42.1% Coverage"},"children":[{"id":
+var treeMapJson = {"id":"Clover database Mon Jan 25 2021 21:12:08 CET0","name":"","data":{
+    "$area":37641.0,"$color":42.08177,"title":
+    " 37641 Elements, 42.1% Coverage"},"children":[{"id":
       "net.finmath.montecarlo.interestrate20178","name":
       "net.finmath.montecarlo.interestrate","data":{"$area":253.0,"$color":
         26.877472,"title":
@@ -89,54 +89,54 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/montecarlo/automaticdifferentiation/RandomVariableDifferentiableFactory.html#RandomVariableDifferentiableFactory",
             "title":
             "RandomVariableDifferentiableFactory 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.rootfinder31552","name":
+          "children":[]}]},{"id":"net.finmath.rootfinder31533","name":
       "net.finmath.rootfinder","data":{"$area":219.0,"$color":69.40639,
         "title":"net.finmath.rootfinder 219 Elements, 69.4% Coverage"},
-      "children":[{"id":"AbstractRootFinder31552","name":
+      "children":[{"id":"AbstractRootFinder31533","name":
           "AbstractRootFinder","data":{"$area":2.0,"$color":0.0,"path":
             "net/finmath/rootfinder/AbstractRootFinder.html#AbstractRootFinder",
             "title":"AbstractRootFinder 2 Elements, 0% Coverage"},"children":
-          []},{"id":"BisectionSearch31554","name":"BisectionSearch","data":{
+          []},{"id":"BisectionSearch31535","name":"BisectionSearch","data":{
             "$area":40.0,"$color":95.0,"path":
             "net/finmath/rootfinder/BisectionSearch.html#BisectionSearch",
             "title":"BisectionSearch 40 Elements, 95% Coverage"},"children":[]},
-        {"id":"NewtonsMethod31594","name":"NewtonsMethod","data":{"$area":
+        {"id":"NewtonsMethod31575","name":"NewtonsMethod","data":{"$area":
             21.0,"$color":100.0,"path":
             "net/finmath/rootfinder/NewtonsMethod.html#NewtonsMethod",
             "title":"NewtonsMethod 21 Elements, 100% Coverage"},"children":[]},
-        {"id":"RiddersMethod31615","name":"RiddersMethod","data":{"$area":
+        {"id":"RiddersMethod31596","name":"RiddersMethod","data":{"$area":
             101.0,"$color":72.27723,"path":
             "net/finmath/rootfinder/RiddersMethod.html#RiddersMethod",
             "title":"RiddersMethod 101 Elements, 72.3% Coverage"},"children":
-          []},{"id":"RootFinder31716","name":"RootFinder","data":{"$area":
+          []},{"id":"RootFinder31697","name":"RootFinder","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/rootfinder/RootFinder.html#RootFinder","title":
             "RootFinder 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "RootFinderWithDerivative31716","name":
+          "RootFinderWithDerivative31697","name":
           "RootFinderWithDerivative","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/rootfinder/RootFinderWithDerivative.html#RootFinderWithDerivative",
             "title":"RootFinderWithDerivative 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"SecantMethod31716","name":"SecantMethod",
+          "children":[]},{"id":"SecantMethod31697","name":"SecantMethod",
           "data":{"$area":20.0,"$color":100.0,"path":
             "net/finmath/rootfinder/SecantMethod.html#SecantMethod","title":
             "SecantMethod 20 Elements, 100% Coverage"},"children":[]},{"id":
-          "StochasticNewtonMethod31736","name":"StochasticNewtonMethod",
+          "StochasticNewtonMethod31717","name":"StochasticNewtonMethod",
           "data":{"$area":35.0,"$color":0.0,"path":
             "net/finmath/rootfinder/StochasticNewtonMethod.html#StochasticNewtonMethod",
             "title":"StochasticNewtonMethod 35 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "StochasticNewtonMethod.MethodForAccuracy31736","name":
+          "StochasticNewtonMethod.MethodForAccuracy31717","name":
           "StochasticNewtonMethod.MethodForAccuracy","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/rootfinder/StochasticNewtonMethod.html#StochasticNewtonMethod.MethodForAccuracy",
             "title":
             "StochasticNewtonMethod.MethodForAccuracy 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"StochasticRootFinder31771","name":
+          "children":[]},{"id":"StochasticRootFinder31752","name":
           "StochasticRootFinder","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/rootfinder/StochasticRootFinder.html#StochasticRootFinder",
             "title":"StochasticRootFinder 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"StochasticRootFinderUsingDerivative31771",
+          "children":[]},{"id":"StochasticRootFinderUsingDerivative31752",
           "name":"StochasticRootFinderUsingDerivative","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/rootfinder/StochasticRootFinderUsingDerivative.html#StochasticRootFinderUsingDerivative",
@@ -189,11 +189,11 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "path":
             "net/finmath/montecarlo/hybridassetinterestrate/products/WorstOfExpressCertificate.html#WorstOfExpressCertificate",
             "title":"WorstOfExpressCertificate 40 Elements, 0% Coverage"},
-          "children":[]}]},{"id":"net.finmath.montecarlo.products29726",
+          "children":[]}]},{"id":"net.finmath.montecarlo.products29707",
       "name":"net.finmath.montecarlo.products","data":{"$area":44.0,"$color":
         0.0,"title":
         "net.finmath.montecarlo.products 44 Elements, 0% Coverage"},
-      "children":[{"id":"PortfolioMonteCarloProduct29726","name":
+      "children":[{"id":"PortfolioMonteCarloProduct29707","name":
           "PortfolioMonteCarloProduct","data":{"$area":44.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/products/PortfolioMonteCarloProduct.html#PortfolioMonteCarloProduct",
@@ -254,99 +254,99 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             64.8855,"path":
             "net/finmath/marketdata/products/SwapLeg.html#SwapLeg","title":
             "SwapLeg 131 Elements, 64.9% Coverage"},"children":[]}]},{"id":
-      "net.finmath.singleswaprate.annuitymapping31871","name":
+      "net.finmath.singleswaprate.annuitymapping31852","name":
       "net.finmath.singleswaprate.annuitymapping","data":{"$area":300.0,
         "$color":89.0,"title":
         "net.finmath.singleswaprate.annuitymapping 300 Elements, 89% Coverage"},
-      "children":[{"id":"AnnuityMapping31871","name":"AnnuityMapping","data":
+      "children":[{"id":"AnnuityMapping31852","name":"AnnuityMapping","data":
           {"$area":0.0,"$color":-100.0,"path":
             "net/finmath/singleswaprate/annuitymapping/AnnuityMapping.html#AnnuityMapping",
             "title":"AnnuityMapping 0 Elements,  -  Coverage"},"children":[]},
-        {"id":"AnnuityMapping.AnnuityMappingType31871","name":
+        {"id":"AnnuityMapping.AnnuityMappingType31852","name":
           "AnnuityMapping.AnnuityMappingType","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/singleswaprate/annuitymapping/AnnuityMapping.html#AnnuityMapping.AnnuityMappingType",
             "title":
             "AnnuityMapping.AnnuityMappingType 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"AnnuityMappingFactory31871","name":
+          "children":[]},{"id":"AnnuityMappingFactory31852","name":
           "AnnuityMappingFactory","data":{"$area":46.0,"$color":76.08696,
             "path":
             "net/finmath/singleswaprate/annuitymapping/AnnuityMappingFactory.html#AnnuityMappingFactory",
             "title":"AnnuityMappingFactory 46 Elements, 76.1% Coverage"},
-          "children":[]},{"id":"BasicPiterbargAnnuityMapping31917","name":
+          "children":[]},{"id":"BasicPiterbargAnnuityMapping31898","name":
           "BasicPiterbargAnnuityMapping","data":{"$area":164.0,"$color":
             100.0,"path":
             "net/finmath/singleswaprate/annuitymapping/BasicPiterbargAnnuityMapping.html#BasicPiterbargAnnuityMapping",
             "title":
             "BasicPiterbargAnnuityMapping 164 Elements, 100% Coverage"},
-          "children":[]},{"id":"ConstantNormalizer32081","name":
+          "children":[]},{"id":"ConstantNormalizer32062","name":
           "ConstantNormalizer","data":{"$area":6.0,"$color":0.0,"path":
             "net/finmath/singleswaprate/annuitymapping/ConstantNormalizer.html#ConstantNormalizer",
             "title":"ConstantNormalizer 6 Elements, 0% Coverage"},"children":
-          []},{"id":"ExponentialNormalizer32087","name":
+          []},{"id":"ExponentialNormalizer32068","name":
           "ExponentialNormalizer","data":{"$area":19.0,"$color":100.0,"path":
             
             "net/finmath/singleswaprate/annuitymapping/ExponentialNormalizer.html#ExponentialNormalizer",
             "title":"ExponentialNormalizer 19 Elements, 100% Coverage"},
-          "children":[]},{"id":"MultiPiterbargAnnuityMapping32106","name":
+          "children":[]},{"id":"MultiPiterbargAnnuityMapping32087","name":
           "MultiPiterbargAnnuityMapping","data":{"$area":28.0,"$color":
             92.85714,"path":
             "net/finmath/singleswaprate/annuitymapping/MultiPiterbargAnnuityMapping.html#MultiPiterbargAnnuityMapping",
             "title":
             "MultiPiterbargAnnuityMapping 28 Elements, 92.9% Coverage"},
-          "children":[]},{"id":"NormalizingFunction32134","name":
+          "children":[]},{"id":"NormalizingFunction32115","name":
           "NormalizingFunction","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/singleswaprate/annuitymapping/NormalizingFunction.html#NormalizingFunction",
             "title":"NormalizingFunction 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"SimplifiedLinearAnnuityMapping32134","name":
+          "children":[]},{"id":"SimplifiedLinearAnnuityMapping32115","name":
           "SimplifiedLinearAnnuityMapping","data":{"$area":37.0,"$color":
             62.162163,"path":
             "net/finmath/singleswaprate/annuitymapping/SimplifiedLinearAnnuityMapping.html#SimplifiedLinearAnnuityMapping",
             "title":
             "SimplifiedLinearAnnuityMapping 37 Elements, 62.2% Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.singleswaprate.products34226","name":
+      "net.finmath.singleswaprate.products34207","name":
       "net.finmath.singleswaprate.products","data":{"$area":290.0,"$color":
         91.37931,"title":
         "net.finmath.singleswaprate.products 290 Elements, 91.4% Coverage"},
-      "children":[{"id":"AbstractAnalyticVolatilityCubeProduct34226","name":
+      "children":[{"id":"AbstractAnalyticVolatilityCubeProduct34207","name":
           "AbstractAnalyticVolatilityCubeProduct","data":{"$area":6.0,
             "$color":0.0,"path":
             "net/finmath/singleswaprate/products/AbstractAnalyticVolatilityCubeProduct.html#AbstractAnalyticVolatilityCubeProduct",
             "title":
             "AbstractAnalyticVolatilityCubeProduct 6 Elements, 0% Coverage"},
-          "children":[]},{"id":"AbstractSingleSwapRateProduct34232","name":
+          "children":[]},{"id":"AbstractSingleSwapRateProduct34213","name":
           "AbstractSingleSwapRateProduct","data":{"$area":70.0,"$color":
             92.85714,"path":
             "net/finmath/singleswaprate/products/AbstractSingleSwapRateProduct.html#AbstractSingleSwapRateProduct",
             "title":
             "AbstractSingleSwapRateProduct 70 Elements, 92.9% Coverage"},
-          "children":[]},{"id":"AnalyticVolatilityCubeProduct34302","name":
+          "children":[]},{"id":"AnalyticVolatilityCubeProduct34283","name":
           "AnalyticVolatilityCubeProduct","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/singleswaprate/products/AnalyticVolatilityCubeProduct.html#AnalyticVolatilityCubeProduct",
             "title":
             "AnalyticVolatilityCubeProduct 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"AnnuityDummyProduct34302","name":
+          "children":[]},{"id":"AnnuityDummyProduct34283","name":
           "AnnuityDummyProduct","data":{"$area":21.0,"$color":100.0,"path":
             "net/finmath/singleswaprate/products/AnnuityDummyProduct.html#AnnuityDummyProduct",
             "title":"AnnuityDummyProduct 21 Elements, 100% Coverage"},
-          "children":[]},{"id":"CashSettledPayerSwaption34323","name":
+          "children":[]},{"id":"CashSettledPayerSwaption34304","name":
           "CashSettledPayerSwaption","data":{"$area":82.0,"$color":
             91.46342,"path":
             "net/finmath/singleswaprate/products/CashSettledPayerSwaption.html#CashSettledPayerSwaption",
             "title":"CashSettledPayerSwaption 82 Elements, 91.5% Coverage"},
-          "children":[]},{"id":"CashSettledReceiverSwaption34405","name":
+          "children":[]},{"id":"CashSettledReceiverSwaption34386","name":
           "CashSettledReceiverSwaption","data":{"$area":82.0,"$color":
             91.46342,"path":
             "net/finmath/singleswaprate/products/CashSettledReceiverSwaption.html#CashSettledReceiverSwaption",
             "title":
             "CashSettledReceiverSwaption 82 Elements, 91.5% Coverage"},
-          "children":[]},{"id":"ConstantMaturitySwap34487","name":
+          "children":[]},{"id":"ConstantMaturitySwap34468","name":
           "ConstantMaturitySwap","data":{"$area":18.0,"$color":100.0,"path":
             "net/finmath/singleswaprate/products/ConstantMaturitySwap.html#ConstantMaturitySwap",
             "title":"ConstantMaturitySwap 18 Elements, 100% Coverage"},
-          "children":[]},{"id":"NormalizingDummyProduct34505","name":
+          "children":[]},{"id":"NormalizingDummyProduct34486","name":
           "NormalizingDummyProduct","data":{"$area":11.0,"$color":100.0,
             "path":
             "net/finmath/singleswaprate/products/NormalizingDummyProduct.html#NormalizingDummyProduct",
@@ -561,122 +561,122 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
           "data":{"$area":4.0,"$color":0.0,"path":
             "net/finmath/fouriermethod/calibration/Unconstrained.html#Unconstrained",
             "title":"Unconstrained 4 Elements, 0% Coverage"},"children":[]}]},
-    {"id":"net.finmath.time35110","name":"net.finmath.time","data":{"$area":
+    {"id":"net.finmath.time35091","name":"net.finmath.time","data":{"$area":
         668.0,"$color":56.886227,"title":
         "net.finmath.time 668 Elements, 56.9% Coverage"},"children":[{"id":
-          "FloatingpointDate35110","name":"FloatingpointDate","data":{
+          "FloatingpointDate35091","name":"FloatingpointDate","data":{
             "$area":19.0,"$color":84.210526,"path":
             "net/finmath/time/FloatingpointDate.html#FloatingpointDate",
             "title":"FloatingpointDate 19 Elements, 84.2% Coverage"},
-          "children":[]},{"id":"Period35129","name":"Period","data":{"$area":
+          "children":[]},{"id":"Period35110","name":"Period","data":{"$area":
             86.0,"$color":45.34884,"path":
             "net/finmath/time/Period.html#Period","title":
             "Period 86 Elements, 45.3% Coverage"},"children":[]},{"id":
-          "RegularSchedule35215","name":"RegularSchedule","data":{"$area":
+          "RegularSchedule35196","name":"RegularSchedule","data":{"$area":
             29.0,"$color":55.172413,"path":
             "net/finmath/time/RegularSchedule.html#RegularSchedule","title":
             "RegularSchedule 29 Elements, 55.2% Coverage"},"children":[]},{
-          "id":"Schedule35244","name":"Schedule","data":{"$area":0.0,
+          "id":"Schedule35225","name":"Schedule","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/time/Schedule.html#Schedule","title":
             "Schedule 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "ScheduleFromPeriods35244","name":"ScheduleFromPeriods","data":{
+          "ScheduleFromPeriods35225","name":"ScheduleFromPeriods","data":{
             "$area":69.0,"$color":73.91304,"path":
             "net/finmath/time/ScheduleFromPeriods.html#ScheduleFromPeriods",
             "title":"ScheduleFromPeriods 69 Elements, 73.9% Coverage"},
-          "children":[]},{"id":"ScheduleGenerator35313","name":
+          "children":[]},{"id":"ScheduleGenerator35294","name":
           "ScheduleGenerator","data":{"$area":164.0,"$color":59.7561,"path":
             "net/finmath/time/ScheduleGenerator.html#ScheduleGenerator",
             "title":"ScheduleGenerator 164 Elements, 59.8% Coverage"},
-          "children":[]},{"id":"ScheduleGenerator.Frequency35313","name":
+          "children":[]},{"id":"ScheduleGenerator.Frequency35294","name":
           "ScheduleGenerator.Frequency","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/time/ScheduleGenerator.html#ScheduleGenerator.Frequency",
             "title":"ScheduleGenerator.Frequency 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"ScheduleGenerator.DaycountConvention35313",
+          "children":[]},{"id":"ScheduleGenerator.DaycountConvention35294",
           "name":"ScheduleGenerator.DaycountConvention","data":{"$area":
             50.0,"$color":56.0,"path":
             "net/finmath/time/ScheduleGenerator.html#ScheduleGenerator.DaycountConvention",
             "title":
             "ScheduleGenerator.DaycountConvention 50 Elements, 56% Coverage"},
           "children":[]},{"id":
-          "ScheduleGenerator.ShortPeriodConvention35363","name":
+          "ScheduleGenerator.ShortPeriodConvention35344","name":
           "ScheduleGenerator.ShortPeriodConvention","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/time/ScheduleGenerator.html#ScheduleGenerator.ShortPeriodConvention",
             "title":
             "ScheduleGenerator.ShortPeriodConvention 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"ScheduleMetaData35527","name":
+          "children":[]},{"id":"ScheduleMetaData35508","name":
           "ScheduleMetaData","data":{"$area":2.0,"$color":0.0,"path":
             "net/finmath/time/ScheduleMetaData.html#ScheduleMetaData",
             "title":"ScheduleMetaData 2 Elements, 0% Coverage"},"children":[]},
-        {"id":"SchedulePrototype35529","name":"SchedulePrototype","data":{
+        {"id":"SchedulePrototype35510","name":"SchedulePrototype","data":{
             "$area":82.0,"$color":47.560974,"path":
             "net/finmath/time/SchedulePrototype.html#SchedulePrototype",
             "title":"SchedulePrototype 82 Elements, 47.6% Coverage"},
-          "children":[]},{"id":"SchedulePrototype.OffsetUnit35529","name":
+          "children":[]},{"id":"SchedulePrototype.OffsetUnit35510","name":
           "SchedulePrototype.OffsetUnit","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/time/SchedulePrototype.html#SchedulePrototype.OffsetUnit",
             "title":
             "SchedulePrototype.OffsetUnit 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"Tenor35611","name":"Tenor","data":{"$area":
+          "children":[]},{"id":"Tenor35592","name":"Tenor","data":{"$area":
             0.0,"$color":-100.0,"path":"net/finmath/time/Tenor.html#Tenor",
             "title":"Tenor 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "TenorFromArray35611","name":"TenorFromArray","data":{"$area":
+          "TenorFromArray35592","name":"TenorFromArray","data":{"$area":
             35.0,"$color":0.0,"path":
             "net/finmath/time/TenorFromArray.html#TenorFromArray","title":
             "TenorFromArray 35 Elements, 0% Coverage"},"children":[]},{"id":
-          "TimeDiscretization35646","name":"TimeDiscretization","data":{
+          "TimeDiscretization35627","name":"TimeDiscretization","data":{
             "$area":2.0,"$color":0.0,"path":
             "net/finmath/time/TimeDiscretization.html#TimeDiscretization",
             "title":"TimeDiscretization 2 Elements, 0% Coverage"},"children":
-          []},{"id":"TimeDiscretizationFromArray35648","name":
+          []},{"id":"TimeDiscretizationFromArray35629","name":
           "TimeDiscretizationFromArray","data":{"$area":130.0,"$color":
             71.53846,"path":
             "net/finmath/time/TimeDiscretizationFromArray.html#TimeDiscretizationFromArray",
             "title":
             "TimeDiscretizationFromArray 130 Elements, 71.5% Coverage"},
           "children":[]},{"id":
-          "TimeDiscretizationFromArray.ShortPeriodLocation35648","name":
+          "TimeDiscretizationFromArray.ShortPeriodLocation35629","name":
           "TimeDiscretizationFromArray.ShortPeriodLocation","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/time/TimeDiscretizationFromArray.html#TimeDiscretizationFromArray.ShortPeriodLocation",
             "title":
             "TimeDiscretizationFromArray.ShortPeriodLocation 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.stochastic34516","name":
+          "children":[]}]},{"id":"net.finmath.stochastic34497","name":
       "net.finmath.stochastic","data":{"$area":483.0,"$color":24.430641,
         "title":"net.finmath.stochastic 483 Elements, 24.4% Coverage"},
-      "children":[{"id":"ConditionalExpectationEstimator34516","name":
+      "children":[{"id":"ConditionalExpectationEstimator34497","name":
           "ConditionalExpectationEstimator","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/stochastic/ConditionalExpectationEstimator.html#ConditionalExpectationEstimator",
             "title":
             "ConditionalExpectationEstimator 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"RandomOperator34516","name":
+          "children":[]},{"id":"RandomOperator34497","name":
           "RandomOperator","data":{"$area":8.0,"$color":0.0,"path":
             "net/finmath/stochastic/RandomOperator.html#RandomOperator",
             "title":"RandomOperator 8 Elements, 0% Coverage"},"children":[]},
-        {"id":"RandomVariable34524","name":"RandomVariable","data":{"$area":
+        {"id":"RandomVariable34505","name":"RandomVariable","data":{"$area":
             33.0,"$color":48.484848,"path":
             "net/finmath/stochastic/RandomVariable.html#RandomVariable",
             "title":"RandomVariable 33 Elements, 48.5% Coverage"},"children":
-          []},{"id":"RandomVariableAccumulator34557","name":
+          []},{"id":"RandomVariableAccumulator34538","name":
           "RandomVariableAccumulator","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/stochastic/RandomVariableAccumulator.html#RandomVariableAccumulator",
             "title":"RandomVariableAccumulator 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"RandomVariableArray34557","name":
+          "children":[]},{"id":"RandomVariableArray34538","name":
           "RandomVariableArray","data":{"$area":27.0,"$color":0.0,"path":
             "net/finmath/stochastic/RandomVariableArray.html#RandomVariableArray",
             "title":"RandomVariableArray 27 Elements, 0% Coverage"},
-          "children":[]},{"id":"RandomVariableArrayImplementation34584",
+          "children":[]},{"id":"RandomVariableArrayImplementation34565",
           "name":"RandomVariableArrayImplementation","data":{"$area":265.0,
             "$color":0.0,"path":
             "net/finmath/stochastic/RandomVariableArrayImplementation.html#RandomVariableArrayImplementation",
             "title":
             "RandomVariableArrayImplementation 265 Elements, 0% Coverage"},
-          "children":[]},{"id":"Scalar34849","name":"Scalar","data":{"$area":
+          "children":[]},{"id":"Scalar34830","name":"Scalar","data":{"$area":
             150.0,"$color":68.0,"path":
             "net/finmath/stochastic/Scalar.html#Scalar","title":
             "Scalar 150 Elements, 68% Coverage"},"children":[]}]},{"id":
@@ -954,42 +954,42 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/montecarlo/automaticdifferentiation/backward/RandomVariableDifferentiableAADFactory.html#RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod",
             "title":
             "RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.randomnumbers31442","name":
+          "children":[]}]},{"id":"net.finmath.randomnumbers31423","name":
       "net.finmath.randomnumbers","data":{"$area":110.0,"$color":50.90909,
         "title":"net.finmath.randomnumbers 110 Elements, 50.9% Coverage"},
-      "children":[{"id":"AcceptanceRejectionRandomNumberGenerator31442",
+      "children":[{"id":"AcceptanceRejectionRandomNumberGenerator31423",
           "name":"AcceptanceRejectionRandomNumberGenerator","data":{"$area":
             20.0,"$color":90.0,"path":
             "net/finmath/randomnumbers/AcceptanceRejectionRandomNumberGenerator.html#AcceptanceRejectionRandomNumberGenerator",
             "title":
             "AcceptanceRejectionRandomNumberGenerator 20 Elements, 90% Coverage"},
-          "children":[]},{"id":"HaltonSequence31462","name":
+          "children":[]},{"id":"HaltonSequence31443","name":
           "HaltonSequence","data":{"$area":33.0,"$color":87.878784,"path":
             "net/finmath/randomnumbers/HaltonSequence.html#HaltonSequence",
             "title":"HaltonSequence 33 Elements, 87.9% Coverage"},"children":
-          []},{"id":"MersenneTwister31495","name":"MersenneTwister","data":{
+          []},{"id":"MersenneTwister31476","name":"MersenneTwister","data":{
             "$area":9.0,"$color":77.77778,"path":
             "net/finmath/randomnumbers/MersenneTwister.html#MersenneTwister",
             "title":"MersenneTwister 9 Elements, 77.8% Coverage"},"children":
-          []},{"id":"RandomNumberGenerator31504","name":
+          []},{"id":"RandomNumberGenerator31485","name":
           "RandomNumberGenerator","data":{"$area":0.0,"$color":-100.0,"path":
             
             "net/finmath/randomnumbers/RandomNumberGenerator.html#RandomNumberGenerator",
             "title":"RandomNumberGenerator 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"RandomNumberGenerator1D31504","name":
+          "children":[]},{"id":"RandomNumberGenerator1D31485","name":
           "RandomNumberGenerator1D","data":{"$area":8.0,"$color":25.0,"path":
             
             "net/finmath/randomnumbers/RandomNumberGenerator1D.html#RandomNumberGenerator1D",
             "title":"RandomNumberGenerator1D 8 Elements, 25% Coverage"},
-          "children":[]},{"id":"SobolSequence31512","name":"SobolSequence",
+          "children":[]},{"id":"SobolSequence31493","name":"SobolSequence",
           "data":{"$area":8.0,"$color":0.0,"path":
             "net/finmath/randomnumbers/SobolSequence.html#SobolSequence",
             "title":"SobolSequence 8 Elements, 0% Coverage"},"children":[]},{
-          "id":"SobolSequence1D31520","name":"SobolSequence1D","data":{
+          "id":"SobolSequence1D31501","name":"SobolSequence1D","data":{
             "$area":5.0,"$color":0.0,"path":
             "net/finmath/randomnumbers/SobolSequence1D.html#SobolSequence1D",
             "title":"SobolSequence1D 5 Elements, 0% Coverage"},"children":[]},
-        {"id":"VanDerCorputSequence31525","name":"VanDerCorputSequence",
+        {"id":"VanDerCorputSequence31506","name":"VanDerCorputSequence",
           "data":{"$area":27.0,"$color":0.0,"path":
             "net/finmath/randomnumbers/VanDerCorputSequence.html#VanDerCorputSequence",
             "title":"VanDerCorputSequence 27 Elements, 0% Coverage"},
@@ -1148,87 +1148,87 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/marketdata/model/curves/SeasonalCurve.html#SeasonalCurve.Builder",
             "title":"SeasonalCurve.Builder 8 Elements, 0% Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.montecarlo.interestrate.products.components28130","name":
+      "net.finmath.montecarlo.interestrate.products.components28111","name":
       "net.finmath.montecarlo.interestrate.products.components","data":{
         "$area":772.0,"$color":39.896374,"title":
         "net.finmath.montecarlo.interestrate.products.components 772 Elements, 39.9% Coverage"},
-      "children":[{"id":"AbstractPeriod28130","name":"AbstractPeriod","data":
+      "children":[{"id":"AbstractPeriod28111","name":"AbstractPeriod","data":
           {"$area":36.0,"$color":72.22222,"path":
             "net/finmath/montecarlo/interestrate/products/components/AbstractPeriod.html#AbstractPeriod",
             "title":"AbstractPeriod 36 Elements, 72.2% Coverage"},"children":
-          []},{"id":"AbstractProductComponent28166","name":
+          []},{"id":"AbstractProductComponent28147","name":
           "AbstractProductComponent","data":{"$area":15.0,"$color":
             66.66667,"path":
             "net/finmath/montecarlo/interestrate/products/components/AbstractProductComponent.html#AbstractProductComponent",
             "title":"AbstractProductComponent 15 Elements, 66.7% Coverage"},
-          "children":[]},{"id":"AccrualAccount28181","name":
+          "children":[]},{"id":"AccrualAccount28162","name":
           "AccrualAccount","data":{"$area":20.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/AccrualAccount.html#AccrualAccount",
             "title":"AccrualAccount 20 Elements, 0% Coverage"},"children":[]},
-        {"id":"AccruingNotional28201","name":"AccruingNotional","data":{
+        {"id":"AccruingNotional28182","name":"AccruingNotional","data":{
             "$area":16.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/AccruingNotional.html#AccruingNotional",
             "title":"AccruingNotional 16 Elements, 0% Coverage"},"children":[]},
-        {"id":"Cashflow28217","name":"Cashflow","data":{"$area":28.0,
+        {"id":"Cashflow28198","name":"Cashflow","data":{"$area":28.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/Cashflow.html#Cashflow",
             "title":"Cashflow 28 Elements, 0% Coverage"},"children":[]},{
-          "id":"Choice28245","name":"Choice","data":{"$area":99.0,"$color":
+          "id":"Choice28226","name":"Choice","data":{"$area":99.0,"$color":
             0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/Choice.html#Choice",
             "title":"Choice 99 Elements, 0% Coverage"},"children":[]},{"id":
-          "ExpectedTailLoss28344","name":"ExpectedTailLoss","data":{"$area":
+          "ExpectedTailLoss28325","name":"ExpectedTailLoss","data":{"$area":
             71.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/ExpectedTailLoss.html#ExpectedTailLoss",
             "title":"ExpectedTailLoss 71 Elements, 0% Coverage"},"children":[]},
-        {"id":"ExposureEstimator28415","name":"ExposureEstimator","data":{
+        {"id":"ExposureEstimator28396","name":"ExposureEstimator","data":{
             "$area":88.0,"$color":88.63636,"path":
             "net/finmath/montecarlo/interestrate/products/components/ExposureEstimator.html#ExposureEstimator",
             "title":"ExposureEstimator 88 Elements, 88.6% Coverage"},
-          "children":[]},{"id":"IndexedValue28503","name":"IndexedValue",
+          "children":[]},{"id":"IndexedValue28484","name":"IndexedValue",
           "data":{"$area":79.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/IndexedValue.html#IndexedValue",
             "title":"IndexedValue 79 Elements, 0% Coverage"},"children":[]},{
-          "id":"Notional28582","name":"Notional","data":{"$area":0.0,
+          "id":"Notional28563","name":"Notional","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/Notional.html#Notional",
             "title":"Notional 0 Elements,  -  Coverage"},"children":[]},{
-          "id":"NotionalFromComponent28582","name":"NotionalFromComponent",
+          "id":"NotionalFromComponent28563","name":"NotionalFromComponent",
           "data":{"$area":17.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/NotionalFromComponent.html#NotionalFromComponent",
             "title":"NotionalFromComponent 17 Elements, 0% Coverage"},
-          "children":[]},{"id":"NotionalFromConstant28599","name":
+          "children":[]},{"id":"NotionalFromConstant28580","name":
           "NotionalFromConstant","data":{"$area":14.0,"$color":71.42857,
             "path":
             "net/finmath/montecarlo/interestrate/products/components/NotionalFromConstant.html#NotionalFromConstant",
             "title":"NotionalFromConstant 14 Elements, 71.4% Coverage"},
-          "children":[]},{"id":"Numeraire28613","name":"Numeraire","data":{
+          "children":[]},{"id":"Numeraire28594","name":"Numeraire","data":{
             "$area":6.0,"$color":66.66667,"path":
             "net/finmath/montecarlo/interestrate/products/components/Numeraire.html#Numeraire",
             "title":"Numeraire 6 Elements, 66.7% Coverage"},"children":[]},{
-          "id":"Option28619","name":"Option","data":{"$area":154.0,"$color":
+          "id":"Option28600","name":"Option","data":{"$area":154.0,"$color":
             67.53247,"path":
             "net/finmath/montecarlo/interestrate/products/components/Option.html#Option",
             "title":"Option 154 Elements, 67.5% Coverage"},"children":[]},{
-          "id":"Period28773","name":"Period","data":{"$area":66.0,"$color":
+          "id":"Period28754","name":"Period","data":{"$area":66.0,"$color":
             87.878784,"path":
             "net/finmath/montecarlo/interestrate/products/components/Period.html#Period",
             "title":"Period 66 Elements, 87.9% Coverage"},"children":[]},{
-          "id":"ProductCollection28839","name":"ProductCollection","data":{
+          "id":"ProductCollection28820","name":"ProductCollection","data":{
             "$area":51.0,"$color":35.294117,"path":
             "net/finmath/montecarlo/interestrate/products/components/ProductCollection.html#ProductCollection",
             "title":"ProductCollection 51 Elements, 35.3% Coverage"},
-          "children":[]},{"id":"Selector28890","name":"Selector","data":{
+          "children":[]},{"id":"Selector28871","name":"Selector","data":{
             "$area":12.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/components/Selector.html#Selector",
             "title":"Selector 12 Elements, 0% Coverage"},"children":[]}]},{
       "id":
-      "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation29923",
+      "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation29904",
       "name":
       "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation",
       "data":{"$area":50.0,"$color":0.0,"title":
         "net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation 50 Elements, 0% Coverage"},
-      "children":[{"id":"MonteCarloBlackScholesModel229923","name":
+      "children":[{"id":"MonteCarloBlackScholesModel229904","name":
           "MonteCarloBlackScholesModel2","data":{"$area":50.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/templatemethoddesign/assetderivativevaluation/MonteCarloBlackScholesModel2.html#MonteCarloBlackScholesModel2",
@@ -1257,10 +1257,10 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "path":
             "net/finmath/fouriermethod/products/FourierTransformProduct.html#FourierTransformProduct",
             "title":"FourierTransformProduct 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.swing34999","name":
+          "children":[]}]},{"id":"net.finmath.swing34980","name":
       "net.finmath.swing","data":{"$area":111.0,"$color":0.0,"title":
         "net.finmath.swing 111 Elements, 0% Coverage"},"children":[{"id":
-          "JNumberField34999","name":"JNumberField","data":{"$area":111.0,
+          "JNumberField34980","name":"JNumberField","data":{"$area":111.0,
             "$color":0.0,"path":
             "net/finmath/swing/JNumberField.html#JNumberField","title":
             "JNumberField 111 Elements, 0% Coverage"},"children":[]}]},{"id":
@@ -1407,26 +1407,26 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "title":
             "SingleAssetMonteCarloProductFactory.DigitalOptionMonteCarlo 5 Elements, 60% Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.montecarlo.process.component.barrier29726","name":
+      "net.finmath.montecarlo.process.component.barrier29707","name":
       "net.finmath.montecarlo.process.component.barrier","data":{"$area":
         0.0,"$color":-100.0,"title":
         "net.finmath.montecarlo.process.component.barrier 0 Elements,  -  Coverage"},
-      "children":[{"id":"Barrier29726","name":"Barrier","data":{"$area":
+      "children":[{"id":"Barrier29707","name":"Barrier","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/process/component/barrier/Barrier.html#Barrier",
             "title":"Barrier 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "ProcessWithBarrier29726","name":"ProcessWithBarrier","data":{
+          "ProcessWithBarrier29707","name":"ProcessWithBarrier","data":{
             "$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/process/component/barrier/ProcessWithBarrier.html#ProcessWithBarrier",
             "title":"ProcessWithBarrier 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.parser31170","name":
+          "children":[]}]},{"id":"net.finmath.parser31151","name":
       "net.finmath.parser","data":{"$area":272.0,"$color":0.0,"title":
         "net.finmath.parser 272 Elements, 0% Coverage"},"children":[{"id":
-          "CSVCurveParser31170","name":"CSVCurveParser","data":{"$area":
+          "CSVCurveParser31151","name":"CSVCurveParser","data":{"$area":
             64.0,"$color":0.0,"path":
             "net/finmath/parser/CSVCurveParser.html#CSVCurveParser","title":
             "CSVCurveParser 64 Elements, 0% Coverage"},"children":[]},{"id":
-          "CSVSwaptionParser31234","name":"CSVSwaptionParser","data":{
+          "CSVSwaptionParser31215","name":"CSVSwaptionParser","data":{
             "$area":208.0,"$color":0.0,"path":
             "net/finmath/parser/CSVSwaptionParser.html#CSVSwaptionParser",
             "title":"CSVSwaptionParser 208 Elements, 0% Coverage"},
@@ -1478,59 +1478,59 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
           "CDS.DirtyCleanPrice","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/marketdata/model/cds/CDS.html#CDS.DirtyCleanPrice",
             "title":"CDS.DirtyCleanPrice 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.singleswaprate.data32963",
+          "children":[]}]},{"id":"net.finmath.singleswaprate.data32944",
       "name":"net.finmath.singleswaprate.data","data":{"$area":819.0,
         "$color":49.45055,"title":
         "net.finmath.singleswaprate.data 819 Elements, 49.5% Coverage"},
-      "children":[{"id":"DataTable32963","name":"DataTable","data":{"$area":
+      "children":[{"id":"DataTable32944","name":"DataTable","data":{"$area":
             18.0,"$color":0.0,"path":
             "net/finmath/singleswaprate/data/DataTable.html#DataTable",
             "title":"DataTable 18 Elements, 0% Coverage"},"children":[]},{
-          "id":"DataTable.TableConvention32963","name":
+          "id":"DataTable.TableConvention32944","name":
           "DataTable.TableConvention","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/singleswaprate/data/DataTable.html#DataTable.TableConvention",
             "title":"DataTable.TableConvention 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"DataTableBasic32981","name":
+          "children":[]},{"id":"DataTableBasic32962","name":
           "DataTableBasic","data":{"$area":131.0,"$color":83.96947,"path":
             "net/finmath/singleswaprate/data/DataTableBasic.html#DataTableBasic",
             "title":"DataTableBasic 131 Elements, 84% Coverage"},"children":[]},
-        {"id":"DataTableBasic.DoubleKey33112","name":
+        {"id":"DataTableBasic.DoubleKey33093","name":
           "DataTableBasic.DoubleKey","data":{"$area":49.0,"$color":
             61.22449,"path":
             "net/finmath/singleswaprate/data/DataTableBasic.html#DataTableBasic.DoubleKey",
             "title":"DataTableBasic.DoubleKey 49 Elements, 61.2% Coverage"},
-          "children":[]},{"id":"DataTableExtrapolated33161","name":
+          "children":[]},{"id":"DataTableExtrapolated33142","name":
           "DataTableExtrapolated","data":{"$area":54.0,"$color":0.0,"path":
             "net/finmath/singleswaprate/data/DataTableExtrapolated.html#DataTableExtrapolated",
             "title":"DataTableExtrapolated 54 Elements, 0% Coverage"},
-          "children":[]},{"id":"DataTableInterpolated33215","name":
+          "children":[]},{"id":"DataTableInterpolated33196","name":
           "DataTableInterpolated","data":{"$area":102.0,"$color":85.29411,
             "path":
             "net/finmath/singleswaprate/data/DataTableInterpolated.html#DataTableInterpolated",
             "title":"DataTableInterpolated 102 Elements, 85.3% Coverage"},
-          "children":[]},{"id":"DataTableLight33317","name":
+          "children":[]},{"id":"DataTableLight33298","name":
           "DataTableLight","data":{"$area":119.0,"$color":61.34454,"path":
             "net/finmath/singleswaprate/data/DataTableLight.html#DataTableLight",
             "title":"DataTableLight 119 Elements, 61.3% Coverage"},
-          "children":[]},{"id":"DataTableLight.DataKey33428","name":
+          "children":[]},{"id":"DataTableLight.DataKey33409","name":
           "DataTableLight.DataKey","data":{"$area":25.0,"$color":76.0,"path":
             
             "net/finmath/singleswaprate/data/DataTableLight.html#DataTableLight.DataKey",
             "title":"DataTableLight.DataKey 25 Elements, 76% Coverage"},
-          "children":[]},{"id":"DataTableLinear33461","name":
+          "children":[]},{"id":"DataTableLinear33442","name":
           "DataTableLinear","data":{"$area":108.0,"$color":79.62963,"path":
             "net/finmath/singleswaprate/data/DataTableLinear.html#DataTableLinear",
             "title":"DataTableLinear 108 Elements, 79.6% Coverage"},
-          "children":[]},{"id":"ErrorEstimation33569","name":
+          "children":[]},{"id":"ErrorEstimation33550","name":
           "ErrorEstimation","data":{"$area":213.0,"$color":0.0,"path":
             "net/finmath/singleswaprate/data/ErrorEstimation.html#ErrorEstimation",
             "title":"ErrorEstimation 213 Elements, 0% Coverage"},"children":[]}]},
-    {"id":"net.finmath.singleswaprate.model.curves33817","name":
+    {"id":"net.finmath.singleswaprate.model.curves33798","name":
       "net.finmath.singleswaprate.model.curves","data":{"$area":16.0,
         "$color":50.0,"title":
         "net.finmath.singleswaprate.model.curves 16 Elements, 50% Coverage"},
-      "children":[{"id":"ExponentialCorrelationCurve33817","name":
+      "children":[{"id":"ExponentialCorrelationCurve33798","name":
           "ExponentialCorrelationCurve","data":{"$area":16.0,"$color":50.0,
             "path":
             "net/finmath/singleswaprate/model/curves/ExponentialCorrelationCurve.html#ExponentialCorrelationCurve",
@@ -1615,24 +1615,24 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/marketdata2/interpolation/RationalFunctionInterpolation.html#RationalFunctionInterpolation.RationalFunction",
             "title":
             "RationalFunctionInterpolation.RationalFunction 28 Elements, 53.6% Coverage"},
-          "children":[]}]},{"id":"net.finmath.singleswaprate31771","name":
+          "children":[]}]},{"id":"net.finmath.singleswaprate31752","name":
       "net.finmath.singleswaprate","data":{"$area":100.0,"$color":72.0,
         "title":"net.finmath.singleswaprate 100 Elements, 72% Coverage"},
-      "children":[{"id":"Utils31771","name":"Utils","data":{"$area":100.0,
+      "children":[{"id":"Utils31752","name":"Utils","data":{"$area":100.0,
             "$color":72.0,"path":
             "net/finmath/singleswaprate/Utils.html#Utils","title":
             "Utils 100 Elements, 72% Coverage"},"children":[]}]},{"id":
-      "net.finmath.singleswaprate.model33782","name":
+      "net.finmath.singleswaprate.model33763","name":
       "net.finmath.singleswaprate.model","data":{"$area":35.0,"$color":
         71.42857,"title":
         "net.finmath.singleswaprate.model 35 Elements, 71.4% Coverage"},
-      "children":[{"id":"AnalyticModelWithVolatilityCubes33782","name":
+      "children":[{"id":"AnalyticModelWithVolatilityCubes33763","name":
           "AnalyticModelWithVolatilityCubes","data":{"$area":35.0,"$color":
             71.42857,"path":
             "net/finmath/singleswaprate/model/AnalyticModelWithVolatilityCubes.html#AnalyticModelWithVolatilityCubes",
             "title":
             "AnalyticModelWithVolatilityCubes 35 Elements, 71.4% Coverage"},
-          "children":[]},{"id":"VolatilityCubeModel33817","name":
+          "children":[]},{"id":"VolatilityCubeModel33798","name":
           "VolatilityCubeModel","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/singleswaprate/model/VolatilityCubeModel.html#VolatilityCubeModel",
             "title":"VolatilityCubeModel 0 Elements,  -  Coverage"},
@@ -1662,44 +1662,44 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "path":
             "net/finmath/marketdata/model/volatility/caplet/CapletVolatilitySurface.html#CapletVolatilitySurface",
             "title":"CapletVolatilitySurface 128 Elements, 0% Coverage"},
-          "children":[]}]},{"id":"net.finmath.montecarlo.process29490",
+          "children":[]}]},{"id":"net.finmath.montecarlo.process29471",
       "name":"net.finmath.montecarlo.process","data":{"$area":236.0,"$color":
         68.64407,"title":
         "net.finmath.montecarlo.process 236 Elements, 68.6% Coverage"},
-      "children":[{"id":"EulerSchemeFromProcessModel29490","name":
+      "children":[{"id":"EulerSchemeFromProcessModel29471","name":
           "EulerSchemeFromProcessModel","data":{"$area":157.0,"$color":
             80.89172,"path":
             "net/finmath/montecarlo/process/EulerSchemeFromProcessModel.html#EulerSchemeFromProcessModel",
             "title":
             "EulerSchemeFromProcessModel 157 Elements, 80.9% Coverage"},
-          "children":[]},{"id":"EulerSchemeFromProcessModel.Scheme29492",
+          "children":[]},{"id":"EulerSchemeFromProcessModel.Scheme29473",
           "name":"EulerSchemeFromProcessModel.Scheme","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/process/EulerSchemeFromProcessModel.html#EulerSchemeFromProcessModel.Scheme",
             "title":
             "EulerSchemeFromProcessModel.Scheme 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "LinearInterpolatedTimeDiscreteProcess29647","name":
+          "LinearInterpolatedTimeDiscreteProcess29628","name":
           "LinearInterpolatedTimeDiscreteProcess","data":{"$area":42.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/process/LinearInterpolatedTimeDiscreteProcess.html#LinearInterpolatedTimeDiscreteProcess",
             "title":
             "LinearInterpolatedTimeDiscreteProcess 42 Elements, 0% Coverage"},
-          "children":[]},{"id":"MonteCarloProcess29689","name":
+          "children":[]},{"id":"MonteCarloProcess29670","name":
           "MonteCarloProcess","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/process/MonteCarloProcess.html#MonteCarloProcess",
             "title":"MonteCarloProcess 0 Elements,  -  Coverage"},"children":
-          []},{"id":"MonteCarloProcessFromProcessModel29689","name":
+          []},{"id":"MonteCarloProcessFromProcessModel29670","name":
           "MonteCarloProcessFromProcessModel","data":{"$area":28.0,"$color":
             100.0,"path":
             "net/finmath/montecarlo/process/MonteCarloProcessFromProcessModel.html#MonteCarloProcessFromProcessModel",
             "title":
             "MonteCarloProcessFromProcessModel 28 Elements, 100% Coverage"},
-          "children":[]},{"id":"Process29717","name":"Process","data":{
+          "children":[]},{"id":"Process29698","name":"Process","data":{
             "$area":9.0,"$color":77.77778,"path":
             "net/finmath/montecarlo/process/Process.html#Process","title":
             "Process 9 Elements, 77.8% Coverage"},"children":[]},{"id":
-          "ProcessTimeDiscretizationProvider29726","name":
+          "ProcessTimeDiscretizationProvider29707","name":
           "ProcessTimeDiscretizationProvider","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/montecarlo/process/ProcessTimeDiscretizationProvider.html#ProcessTimeDiscretizationProvider",
@@ -1779,60 +1779,60 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/montecarlo/conditionalexpectation/RegressionBasisFunctionsProvider.html#RegressionBasisFunctionsProvider",
             "title":
             "RegressionBasisFunctionsProvider 0 Elements,  -  Coverage"},
-          "children":[]}]},{"id":"net.finmath.util37641","name":
+          "children":[]}]},{"id":"net.finmath.util37622","name":
       "net.finmath.util","data":{"$area":19.0,"$color":0.0,"title":
         "net.finmath.util 19 Elements, 0% Coverage"},"children":[{"id":
-          "FileUtilities37641","name":"FileUtilities","data":{"$area":19.0,
+          "FileUtilities37622","name":"FileUtilities","data":{"$area":19.0,
             "$color":0.0,"path":
             "net/finmath/util/FileUtilities.html#FileUtilities","title":
             "FileUtilities 19 Elements, 0% Coverage"},"children":[]}]},{"id":
-      "net.finmath.singleswaprate.calibration32171","name":
+      "net.finmath.singleswaprate.calibration32152","name":
       "net.finmath.singleswaprate.calibration","data":{"$area":792.0,
         "$color":74.621216,"title":
         "net.finmath.singleswaprate.calibration 792 Elements, 74.6% Coverage"},
-      "children":[{"id":"AbstractCubeCalibration32171","name":
+      "children":[{"id":"AbstractCubeCalibration32152","name":
           "AbstractCubeCalibration","data":{"$area":127.0,"$color":
             84.25197,"path":
             "net/finmath/singleswaprate/calibration/AbstractCubeCalibration.html#AbstractCubeCalibration",
             "title":"AbstractCubeCalibration 127 Elements, 84.3% Coverage"},
-          "children":[]},{"id":"AbstractCubeCalibration.SwaptionInfo32298",
+          "children":[]},{"id":"AbstractCubeCalibration.SwaptionInfo32279",
           "name":"AbstractCubeCalibration.SwaptionInfo","data":{"$area":
             27.0,"$color":22.222223,"path":
             "net/finmath/singleswaprate/calibration/AbstractCubeCalibration.html#AbstractCubeCalibration.SwaptionInfo",
             "title":
             "AbstractCubeCalibration.SwaptionInfo 27 Elements, 22.2% Coverage"},
-          "children":[]},{"id":"SABRCubeCalibration32325","name":
+          "children":[]},{"id":"SABRCubeCalibration32306","name":
           "SABRCubeCalibration","data":{"$area":289.0,"$color":74.04844,
             "path":
             "net/finmath/singleswaprate/calibration/SABRCubeCalibration.html#SABRCubeCalibration",
             "title":"SABRCubeCalibration 289 Elements, 74% Coverage"},
-          "children":[]},{"id":"SABRCubeCalibration.SwaptionInfo32614",
+          "children":[]},{"id":"SABRCubeCalibration.SwaptionInfo32595",
           "name":"SABRCubeCalibration.SwaptionInfo","data":{"$area":27.0,
             "$color":22.222223,"path":
             "net/finmath/singleswaprate/calibration/SABRCubeCalibration.html#SABRCubeCalibration.SwaptionInfo",
             "title":
             "SABRCubeCalibration.SwaptionInfo 27 Elements, 22.2% Coverage"},
-          "children":[]},{"id":"SABRCubeParallelCalibration32641","name":
+          "children":[]},{"id":"SABRCubeParallelCalibration32622","name":
           "SABRCubeParallelCalibration","data":{"$area":36.0,"$color":
             33.333336,"path":
             "net/finmath/singleswaprate/calibration/SABRCubeParallelCalibration.html#SABRCubeParallelCalibration",
             "title":
             "SABRCubeParallelCalibration 36 Elements, 33.3% Coverage"},
-          "children":[]},{"id":"SABRShiftedSmileCalibration32677","name":
+          "children":[]},{"id":"SABRShiftedSmileCalibration32658","name":
           "SABRShiftedSmileCalibration","data":{"$area":270.0,"$color":
             86.666664,"path":
             "net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibration.html#SABRShiftedSmileCalibration",
             "title":
             "SABRShiftedSmileCalibration 270 Elements, 86.7% Coverage"},
-          "children":[]},{"id":"StaticCubeCalibration32947","name":
+          "children":[]},{"id":"StaticCubeCalibration32928","name":
           "StaticCubeCalibration","data":{"$area":16.0,"$color":75.0,"path":
             "net/finmath/singleswaprate/calibration/StaticCubeCalibration.html#StaticCubeCalibration",
             "title":"StaticCubeCalibration 16 Elements, 75% Coverage"},
           "children":[]}]},{"id":
       "net.finmath.montecarlo.interestrate.models20431","name":
-      "net.finmath.montecarlo.interestrate.models","data":{"$area":2912.0,
-        "$color":35.199177,"title":
-        "net.finmath.montecarlo.interestrate.models 2912 Elements, 35.2% Coverage"},
+      "net.finmath.montecarlo.interestrate.models","data":{"$area":2893.0,
+        "$color":34.669895,"title":
+        "net.finmath.montecarlo.interestrate.models 2893 Elements, 34.7% Coverage"},
       "children":[{"id":"FundingCapacity20431","name":"FundingCapacity",
           "data":{"$area":83.0,"$color":39.759037,"path":
             "net/finmath/montecarlo/interestrate/models/FundingCapacity.html#FundingCapacity",
@@ -1874,10 +1874,10 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "HullWhiteModelWithShiftExtension.DriftFormula 0 Elements,  -  Coverage"},
           "children":[]},{"id":"LIBORMarketModelFromCovarianceModel21794",
           "name":"LIBORMarketModelFromCovarianceModel","data":{"$area":
-            740.0,"$color":78.10811,"path":
+            721.0,"$color":77.11512,"path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelFromCovarianceModel.html#LIBORMarketModelFromCovarianceModel",
             "title":
-            "LIBORMarketModelFromCovarianceModel 740 Elements, 78.1% Coverage"},
+            "LIBORMarketModelFromCovarianceModel 721 Elements, 77.1% Coverage"},
           "children":[]},{"id":
           "LIBORMarketModelFromCovarianceModel.Measure21794","name":
           "LIBORMarketModelFromCovarianceModel.Measure","data":{"$area":
@@ -1906,106 +1906,114 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelFromCovarianceModel.html#LIBORMarketModelFromCovarianceModel.InterpolationMethod",
             "title":
             "LIBORMarketModelFromCovarianceModel.InterpolationMethod 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"LIBORMarketModelStandard22534","name":
+          "children":[]},{"id":
+          "LIBORMarketModelFromCovarianceModel.SimulationTimeInterpolationMethod21794",
+          "name":
+          "LIBORMarketModelFromCovarianceModel.SimulationTimeInterpolationMethod",
+          "data":{"$area":0.0,"$color":-100.0,"path":
+            "net/finmath/montecarlo/interestrate/models/LIBORMarketModelFromCovarianceModel.html#LIBORMarketModelFromCovarianceModel.SimulationTimeInterpolationMethod",
+            "title":
+            "LIBORMarketModelFromCovarianceModel.SimulationTimeInterpolationMethod 0 Elements,  -  Coverage"},
+          "children":[]},{"id":"LIBORMarketModelStandard22515","name":
           "LIBORMarketModelStandard","data":{"$area":440.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelStandard.html#LIBORMarketModelStandard",
             "title":"LIBORMarketModelStandard 440 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "LIBORMarketModelStandard.Driftapproximation22536","name":
+          "LIBORMarketModelStandard.Driftapproximation22517","name":
           "LIBORMarketModelStandard.Driftapproximation","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelStandard.html#LIBORMarketModelStandard.Driftapproximation",
             "title":
             "LIBORMarketModelStandard.Driftapproximation 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"LIBORMarketModelStandard.Measure22536",
+          "children":[]},{"id":"LIBORMarketModelStandard.Measure22517",
           "name":"LIBORMarketModelStandard.Measure","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelStandard.html#LIBORMarketModelStandard.Measure",
             "title":
             "LIBORMarketModelStandard.Measure 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"LIBORMarketModelWithTenorRefinement22974",
+          "children":[]},{"id":"LIBORMarketModelWithTenorRefinement22955",
           "name":"LIBORMarketModelWithTenorRefinement","data":{"$area":
             369.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelWithTenorRefinement.html#LIBORMarketModelWithTenorRefinement",
             "title":
             "LIBORMarketModelWithTenorRefinement 369 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "LIBORMarketModelWithTenorRefinement.Driftapproximation22974",
+          "LIBORMarketModelWithTenorRefinement.Driftapproximation22955",
           "name":"LIBORMarketModelWithTenorRefinement.Driftapproximation",
           "data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/LIBORMarketModelWithTenorRefinement.html#LIBORMarketModelWithTenorRefinement.Driftapproximation",
             "title":
             "LIBORMarketModelWithTenorRefinement.Driftapproximation 0 Elements,  -  Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.time.businessdaycalendar35778","name":
+      "net.finmath.time.businessdaycalendar35759","name":
       "net.finmath.time.businessdaycalendar","data":{"$area":314.0,"$color":
         57.961784,"title":
         "net.finmath.time.businessdaycalendar 314 Elements, 58% Coverage"},
-      "children":[{"id":"AbstractBusinessdayCalendar35778","name":
+      "children":[{"id":"AbstractBusinessdayCalendar35759","name":
           "AbstractBusinessdayCalendar","data":{"$area":178.0,"$color":
             43.258427,"path":
             "net/finmath/time/businessdaycalendar/AbstractBusinessdayCalendar.html#AbstractBusinessdayCalendar",
             "title":
             "AbstractBusinessdayCalendar 178 Elements, 43.3% Coverage"},
-          "children":[]},{"id":"BusinessdayCalendar35956","name":
+          "children":[]},{"id":"BusinessdayCalendar35937","name":
           "BusinessdayCalendar","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendar.html#BusinessdayCalendar",
             "title":"BusinessdayCalendar 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"BusinessdayCalendar.DateOffsetUnit35956",
+          "children":[]},{"id":"BusinessdayCalendar.DateOffsetUnit35937",
           "name":"BusinessdayCalendar.DateOffsetUnit","data":{"$area":27.0,
             "$color":85.18519,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendar.html#BusinessdayCalendar.DateOffsetUnit",
             "title":
             "BusinessdayCalendar.DateOffsetUnit 27 Elements, 85.2% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendar.DateRollConvention35983","name":
+          "BusinessdayCalendar.DateRollConvention35964","name":
           "BusinessdayCalendar.DateRollConvention","data":{"$area":23.0,
             "$color":65.21739,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendar.html#BusinessdayCalendar.DateRollConvention",
             "title":
             "BusinessdayCalendar.DateRollConvention 23 Elements, 65.2% Coverage"},
-          "children":[]},{"id":"BusinessdayCalendarAny36006","name":
+          "children":[]},{"id":"BusinessdayCalendarAny35987","name":
           "BusinessdayCalendarAny","data":{"$area":5.0,"$color":60.000004,
             "path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarAny.html#BusinessdayCalendarAny",
             "title":"BusinessdayCalendarAny 5 Elements, 60% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendarExcludingGivenHolidays36011","name":
+          "BusinessdayCalendarExcludingGivenHolidays35992","name":
           "BusinessdayCalendarExcludingGivenHolidays","data":{"$area":15.0,
             "$color":60.000004,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingGivenHolidays.html#BusinessdayCalendarExcludingGivenHolidays",
             "title":
             "BusinessdayCalendarExcludingGivenHolidays 15 Elements, 60% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendarExcludingGivenSetOfHolidays36026","name":
+          "BusinessdayCalendarExcludingGivenSetOfHolidays36007","name":
           "BusinessdayCalendarExcludingGivenSetOfHolidays","data":{"$area":
             7.0,"$color":0.0,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingGivenSetOfHolidays.html#BusinessdayCalendarExcludingGivenSetOfHolidays",
             "title":
             "BusinessdayCalendarExcludingGivenSetOfHolidays 7 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendarExcludingLONHolidays36033","name":
+          "BusinessdayCalendarExcludingLONHolidays36014","name":
           "BusinessdayCalendarExcludingLONHolidays","data":{"$area":12.0,
             "$color":100.0,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingLONHolidays.html#BusinessdayCalendarExcludingLONHolidays",
             "title":
             "BusinessdayCalendarExcludingLONHolidays 12 Elements, 100% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendarExcludingNYCHolidays36045","name":
+          "BusinessdayCalendarExcludingNYCHolidays36026","name":
           "BusinessdayCalendarExcludingNYCHolidays","data":{"$area":12.0,
             "$color":100.0,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingNYCHolidays.html#BusinessdayCalendarExcludingNYCHolidays",
             "title":
             "BusinessdayCalendarExcludingNYCHolidays 12 Elements, 100% Coverage"},
           "children":[]},{"id":
-          "BusinessdayCalendarExcludingTARGETHolidays36057","name":
+          "BusinessdayCalendarExcludingTARGETHolidays36038","name":
           "BusinessdayCalendarExcludingTARGETHolidays","data":{"$area":
             28.0,"$color":100.0,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingTARGETHolidays.html#BusinessdayCalendarExcludingTARGETHolidays",
             "title":
             "BusinessdayCalendarExcludingTARGETHolidays 28 Elements, 100% Coverage"},
-          "children":[]},{"id":"BusinessdayCalendarExcludingWeekends36085",
+          "children":[]},{"id":"BusinessdayCalendarExcludingWeekends36066",
           "name":"BusinessdayCalendarExcludingWeekends","data":{"$area":
             7.0,"$color":42.857143,"path":
             "net/finmath/time/businessdaycalendar/BusinessdayCalendarExcludingWeekends.html#BusinessdayCalendarExcludingWeekends",
@@ -2102,32 +2110,32 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
           "data":{"$area":81.0,"$color":0.0,"path":
             "net/finmath/finitedifference/experimental/BlackScholesTheta.html#BlackScholesTheta",
             "title":"BlackScholesTheta 81 Elements, 0% Coverage"},"children":
-          []}]},{"id":"net.finmath.timeseries36451","name":
+          []}]},{"id":"net.finmath.timeseries36432","name":
       "net.finmath.timeseries","data":{"$area":45.0,"$color":0.0,"title":
         "net.finmath.timeseries 45 Elements, 0% Coverage"},"children":[{"id":
-          "HistoricalSimulationModel36451","name":
+          "HistoricalSimulationModel36432","name":
           "HistoricalSimulationModel","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/timeseries/HistoricalSimulationModel.html#HistoricalSimulationModel",
             "title":"HistoricalSimulationModel 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"MarketData36451","name":"MarketData","data":{
+          "children":[]},{"id":"MarketData36432","name":"MarketData","data":{
             "$area":8.0,"$color":0.0,"path":
             "net/finmath/timeseries/MarketData.html#MarketData","title":
             "MarketData 8 Elements, 0% Coverage"},"children":[]},{"id":
-          "TimeSeries36459","name":"TimeSeries","data":{"$area":0.0,"$color":
+          "TimeSeries36440","name":"TimeSeries","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/timeseries/TimeSeries.html#TimeSeries","title":
             "TimeSeries 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "TimeSeriesFromArray36459","name":"TimeSeriesFromArray","data":{
+          "TimeSeriesFromArray36440","name":"TimeSeriesFromArray","data":{
             "$area":18.0,"$color":0.0,"path":
             "net/finmath/timeseries/TimeSeriesFromArray.html#TimeSeriesFromArray",
             "title":"TimeSeriesFromArray 18 Elements, 0% Coverage"},
-          "children":[]},{"id":"TimeSeriesModelParametric36477","name":
+          "children":[]},{"id":"TimeSeriesModelParametric36458","name":
           "TimeSeriesModelParametric","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/timeseries/TimeSeriesModelParametric.html#TimeSeriesModelParametric",
             "title":"TimeSeriesModelParametric 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"TimeSeriesView36477","name":
+          "children":[]},{"id":"TimeSeriesView36458","name":
           "TimeSeriesView","data":{"$area":19.0,"$color":0.0,"path":
             "net/finmath/timeseries/TimeSeriesView.html#TimeSeriesView",
             "title":"TimeSeriesView 19 Elements, 0% Coverage"},"children":[]}]},
@@ -2416,258 +2424,258 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "net/finmath/montecarlo/assetderivativevaluation/models/VarianceGammaModel.html#VarianceGammaModel",
             "title":"VarianceGammaModel 107 Elements, 54.2% Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.singleswaprate.model.volatilities33833","name":
+      "net.finmath.singleswaprate.model.volatilities33814","name":
       "net.finmath.singleswaprate.model.volatilities","data":{"$area":
         393.0,"$color":68.95674,"title":
         "net.finmath.singleswaprate.model.volatilities 393 Elements, 69% Coverage"},
-      "children":[{"id":"SABRVolatilityCube33833","name":
+      "children":[{"id":"SABRVolatilityCube33814","name":
           "SABRVolatilityCube","data":{"$area":59.0,"$color":93.220345,
             "path":
             "net/finmath/singleswaprate/model/volatilities/SABRVolatilityCube.html#SABRVolatilityCube",
             "title":"SABRVolatilityCube 59 Elements, 93.2% Coverage"},
-          "children":[]},{"id":"SABRVolatilityCubeParallel33892","name":
+          "children":[]},{"id":"SABRVolatilityCubeParallel33873","name":
           "SABRVolatilityCubeParallel","data":{"$area":49.0,"$color":
             87.755104,"path":
             "net/finmath/singleswaprate/model/volatilities/SABRVolatilityCubeParallel.html#SABRVolatilityCubeParallel",
             "title":
             "SABRVolatilityCubeParallel 49 Elements, 87.8% Coverage"},
-          "children":[]},{"id":"SABRVolatilityCubeParallelFactory33941",
+          "children":[]},{"id":"SABRVolatilityCubeParallelFactory33922",
           "name":"SABRVolatilityCubeParallelFactory","data":{"$area":61.0,
             "$color":100.0,"path":
             "net/finmath/singleswaprate/model/volatilities/SABRVolatilityCubeParallelFactory.html#SABRVolatilityCubeParallelFactory",
             "title":
             "SABRVolatilityCubeParallelFactory 61 Elements, 100% Coverage"},
-          "children":[]},{"id":"SABRVolatilityCubeSingleSmile34002","name":
+          "children":[]},{"id":"SABRVolatilityCubeSingleSmile33983","name":
           "SABRVolatilityCubeSingleSmile","data":{"$area":69.0,"$color":
             34.782608,"path":
             "net/finmath/singleswaprate/model/volatilities/SABRVolatilityCubeSingleSmile.html#SABRVolatilityCubeSingleSmile",
             "title":
             "SABRVolatilityCubeSingleSmile 69 Elements, 34.8% Coverage"},
-          "children":[]},{"id":"ScaledVolatilityCube34071","name":
+          "children":[]},{"id":"ScaledVolatilityCube34052","name":
           "ScaledVolatilityCube","data":{"$area":32.0,"$color":62.5,"path":
             "net/finmath/singleswaprate/model/volatilities/ScaledVolatilityCube.html#ScaledVolatilityCube",
             "title":"ScaledVolatilityCube 32 Elements, 62.5% Coverage"},
-          "children":[]},{"id":"StaticVolatilityCube34103","name":
+          "children":[]},{"id":"StaticVolatilityCube34084","name":
           "StaticVolatilityCube","data":{"$area":31.0,"$color":87.09677,
             "path":
             "net/finmath/singleswaprate/model/volatilities/StaticVolatilityCube.html#StaticVolatilityCube",
             "title":"StaticVolatilityCube 31 Elements, 87.1% Coverage"},
-          "children":[]},{"id":"VolVolCube34134","name":"VolVolCube","data":{
+          "children":[]},{"id":"VolVolCube34115","name":"VolVolCube","data":{
             "$area":44.0,"$color":59.090908,"path":
             "net/finmath/singleswaprate/model/volatilities/VolVolCube.html#VolVolCube",
             "title":"VolVolCube 44 Elements, 59.1% Coverage"},"children":[]},
-        {"id":"VolatilityCube34178","name":"VolatilityCube","data":{"$area":
+        {"id":"VolatilityCube34159","name":"VolatilityCube","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/singleswaprate/model/volatilities/VolatilityCube.html#VolatilityCube",
             "title":"VolatilityCube 0 Elements,  -  Coverage"},"children":[]},
-        {"id":"VolatilityCubeFactory34178","name":"VolatilityCubeFactory",
+        {"id":"VolatilityCubeFactory34159","name":"VolatilityCubeFactory",
           "data":{"$area":48.0,"$color":31.25,"path":
             "net/finmath/singleswaprate/model/volatilities/VolatilityCubeFactory.html#VolatilityCubeFactory",
             "title":"VolatilityCubeFactory 48 Elements, 31.2% Coverage"},
-          "children":[]}]},{"id":"net.finmath.optimizer29973","name":
+          "children":[]}]},{"id":"net.finmath.optimizer29954","name":
       "net.finmath.optimizer","data":{"$area":1197.0,"$color":66.08187,
         "title":"net.finmath.optimizer 1197 Elements, 66.1% Coverage"},
-      "children":[{"id":"GoldenSectionSearch29973","name":
+      "children":[{"id":"GoldenSectionSearch29954","name":
           "GoldenSectionSearch","data":{"$area":105.0,"$color":63.809525,
             "path":
             "net/finmath/optimizer/GoldenSectionSearch.html#GoldenSectionSearch",
             "title":"GoldenSectionSearch 105 Elements, 63.8% Coverage"},
-          "children":[]},{"id":"LevenbergMarquardt30078","name":
+          "children":[]},{"id":"LevenbergMarquardt30059","name":
           "LevenbergMarquardt","data":{"$area":320.0,"$color":75.0,"path":
             "net/finmath/optimizer/LevenbergMarquardt.html#LevenbergMarquardt",
             "title":"LevenbergMarquardt 320 Elements, 75% Coverage"},
           "children":[]},{"id":
-          "LevenbergMarquardt.RegularizationMethod30078","name":
+          "LevenbergMarquardt.RegularizationMethod30059","name":
           "LevenbergMarquardt.RegularizationMethod","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/optimizer/LevenbergMarquardt.html#LevenbergMarquardt.RegularizationMethod",
             "title":
             "LevenbergMarquardt.RegularizationMethod 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"Optimizer30398","name":"Optimizer","data":{
+          "children":[]},{"id":"Optimizer30379","name":"Optimizer","data":{
             "$area":0.0,"$color":-100.0,"path":
             "net/finmath/optimizer/Optimizer.html#Optimizer","title":
             "Optimizer 0 Elements,  -  Coverage"},"children":[]},{"id":
-          "Optimizer.ObjectiveFunction30398","name":
+          "Optimizer.ObjectiveFunction30379","name":
           "Optimizer.ObjectiveFunction","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/optimizer/Optimizer.html#Optimizer.ObjectiveFunction",
             "title":"Optimizer.ObjectiveFunction 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"OptimizerFactory30398","name":
+          "children":[]},{"id":"OptimizerFactory30379","name":
           "OptimizerFactory","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/optimizer/OptimizerFactory.html#OptimizerFactory",
             "title":"OptimizerFactory 0 Elements,  -  Coverage"},"children":[]},
-        {"id":"OptimizerFactoryCMAES30398","name":"OptimizerFactoryCMAES",
+        {"id":"OptimizerFactoryCMAES30379","name":"OptimizerFactoryCMAES",
           "data":{"$area":66.0,"$color":63.636364,"path":
             "net/finmath/optimizer/OptimizerFactoryCMAES.html#OptimizerFactoryCMAES",
             "title":"OptimizerFactoryCMAES 66 Elements, 63.6% Coverage"},
-          "children":[]},{"id":"OptimizerFactoryLevenbergMarquardt30464",
+          "children":[]},{"id":"OptimizerFactoryLevenbergMarquardt30445",
           "name":"OptimizerFactoryLevenbergMarquardt","data":{"$area":21.0,
             "$color":90.47619,"path":
             "net/finmath/optimizer/OptimizerFactoryLevenbergMarquardt.html#OptimizerFactoryLevenbergMarquardt",
             "title":
             "OptimizerFactoryLevenbergMarquardt 21 Elements, 90.5% Coverage"},
-          "children":[]},{"id":"SolverException30485","name":
+          "children":[]},{"id":"SolverException30466","name":
           "SolverException","data":{"$area":6.0,"$color":0.0,"path":
             "net/finmath/optimizer/SolverException.html#SolverException",
             "title":"SolverException 6 Elements, 0% Coverage"},"children":[]},
-        {"id":"StochasticLevenbergMarquardt30491","name":
+        {"id":"StochasticLevenbergMarquardt30472","name":
           "StochasticLevenbergMarquardt","data":{"$area":247.0,"$color":
             59.91903,"path":
             "net/finmath/optimizer/StochasticLevenbergMarquardt.html#StochasticLevenbergMarquardt",
             "title":
             "StochasticLevenbergMarquardt 247 Elements, 59.9% Coverage"},
           "children":[]},{"id":
-          "StochasticLevenbergMarquardt.RegularizationMethod30491","name":
+          "StochasticLevenbergMarquardt.RegularizationMethod30472","name":
           "StochasticLevenbergMarquardt.RegularizationMethod","data":{
             "$area":0.0,"$color":-100.0,"path":
             "net/finmath/optimizer/StochasticLevenbergMarquardt.html#StochasticLevenbergMarquardt.RegularizationMethod",
             "title":
             "StochasticLevenbergMarquardt.RegularizationMethod 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"StochasticLevenbergMarquardtAD30738","name":
+          "children":[]},{"id":"StochasticLevenbergMarquardtAD30719","name":
           "StochasticLevenbergMarquardtAD","data":{"$area":60.0,"$color":
             90.0,"path":
             "net/finmath/optimizer/StochasticLevenbergMarquardtAD.html#StochasticLevenbergMarquardtAD",
             "title":
             "StochasticLevenbergMarquardtAD 60 Elements, 90% Coverage"},
-          "children":[]},{"id":"StochasticOptimizer30798","name":
+          "children":[]},{"id":"StochasticOptimizer30779","name":
           "StochasticOptimizer","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/optimizer/StochasticOptimizer.html#StochasticOptimizer",
             "title":"StochasticOptimizer 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "StochasticOptimizer.ObjectiveFunction30798","name":
+          "StochasticOptimizer.ObjectiveFunction30779","name":
           "StochasticOptimizer.ObjectiveFunction","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/optimizer/StochasticOptimizer.html#StochasticOptimizer.ObjectiveFunction",
             "title":
             "StochasticOptimizer.ObjectiveFunction 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"StochasticOptimizerFactory30798","name":
+          "children":[]},{"id":"StochasticOptimizerFactory30779","name":
           "StochasticOptimizerFactory","data":{"$area":4.0,"$color":0.0,
             "path":
             "net/finmath/optimizer/StochasticOptimizerFactory.html#StochasticOptimizerFactory",
             "title":"StochasticOptimizerFactory 4 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "StochasticOptimizerFactoryLevenbergMarquardt30802","name":
+          "StochasticOptimizerFactoryLevenbergMarquardt30783","name":
           "StochasticOptimizerFactoryLevenbergMarquardt","data":{"$area":
             14.0,"$color":0.0,"path":
             "net/finmath/optimizer/StochasticOptimizerFactoryLevenbergMarquardt.html#StochasticOptimizerFactoryLevenbergMarquardt",
             "title":
             "StochasticOptimizerFactoryLevenbergMarquardt 14 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "StochasticOptimizerFactoryLevenbergMarquardtAD30816","name":
+          "StochasticOptimizerFactoryLevenbergMarquardtAD30797","name":
           "StochasticOptimizerFactoryLevenbergMarquardtAD","data":{"$area":
             11.0,"$color":0.0,"path":
             "net/finmath/optimizer/StochasticOptimizerFactoryLevenbergMarquardtAD.html#StochasticOptimizerFactoryLevenbergMarquardtAD",
             "title":
             "StochasticOptimizerFactoryLevenbergMarquardtAD 11 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD30827",
+          "StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD30808",
           "name":"StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD",
           "data":{"$area":15.0,"$color":0.0,"path":
             "net/finmath/optimizer/StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD.html#StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD",
             "title":
             "StochasticOptimizerFactoryPathwiseLevenbergMarquardtAD 15 Elements, 0% Coverage"},
-          "children":[]},{"id":"StochasticPathwiseLevenbergMarquardt30842",
+          "children":[]},{"id":"StochasticPathwiseLevenbergMarquardt30823",
           "name":"StochasticPathwiseLevenbergMarquardt","data":{"$area":
             274.0,"$color":65.693436,"path":
             "net/finmath/optimizer/StochasticPathwiseLevenbergMarquardt.html#StochasticPathwiseLevenbergMarquardt",
             "title":
             "StochasticPathwiseLevenbergMarquardt 274 Elements, 65.7% Coverage"},
           "children":[]},{"id":
-          "StochasticPathwiseLevenbergMarquardtAD31116","name":
+          "StochasticPathwiseLevenbergMarquardtAD31097","name":
           "StochasticPathwiseLevenbergMarquardtAD","data":{"$area":39.0,
             "$color":76.92308,"path":
             "net/finmath/optimizer/StochasticPathwiseLevenbergMarquardtAD.html#StochasticPathwiseLevenbergMarquardtAD",
             "title":
             "StochasticPathwiseLevenbergMarquardtAD 39 Elements, 76.9% Coverage"},
           "children":[]},{"id":
-          "StochasticPathwiseOptimizerFactoryLevenbergMarquardt31155","name":
+          "StochasticPathwiseOptimizerFactoryLevenbergMarquardt31136","name":
           "StochasticPathwiseOptimizerFactoryLevenbergMarquardt","data":{
             "$area":15.0,"$color":73.333336,"path":
             "net/finmath/optimizer/StochasticPathwiseOptimizerFactoryLevenbergMarquardt.html#StochasticPathwiseOptimizerFactoryLevenbergMarquardt",
             "title":
             "StochasticPathwiseOptimizerFactoryLevenbergMarquardt 15 Elements, 73.3% Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.montecarlo.process.component.factortransform29726","name":
+      "net.finmath.montecarlo.process.component.factortransform29707","name":
       "net.finmath.montecarlo.process.component.factortransform","data":{
         "$area":0.0,"$color":-100.0,"title":
         "net.finmath.montecarlo.process.component.factortransform 0 Elements,  -  Coverage"},
-      "children":[{"id":"FactorTransform29726","name":"FactorTransform",
+      "children":[{"id":"FactorTransform29707","name":"FactorTransform",
           "data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/process/component/factortransform/FactorTransform.html#FactorTransform",
             "title":"FactorTransform 0 Elements,  -  Coverage"},"children":[]}]},
-    {"id":"net.finmath.timeseries.models.parametric36496","name":
+    {"id":"net.finmath.timeseries.models.parametric36477","name":
       "net.finmath.timeseries.models.parametric","data":{"$area":1145.0,
         "$color":0.0,"title":
         "net.finmath.timeseries.models.parametric 1145 Elements, 0% Coverage"},
-      "children":[{"id":"ARMAGARCH36496","name":"ARMAGARCH","data":{"$area":
+      "children":[{"id":"ARMAGARCH36477","name":"ARMAGARCH","data":{"$area":
             200.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/ARMAGARCH.html#ARMAGARCH",
             "title":"ARMAGARCH 200 Elements, 0% Coverage"},"children":[]},{
-          "id":"ARMAGARCH.GARCHMaxLikelihoodFunction36619","name":
+          "id":"ARMAGARCH.GARCHMaxLikelihoodFunction36600","name":
           "ARMAGARCH.GARCHMaxLikelihoodFunction","data":{"$area":14.0,
             "$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/ARMAGARCH.html#ARMAGARCH.GARCHMaxLikelihoodFunction",
             "title":
             "ARMAGARCH.GARCHMaxLikelihoodFunction 14 Elements, 0% Coverage"},
-          "children":[]},{"id":"DisplacedLognormal36710","name":
+          "children":[]},{"id":"DisplacedLognormal36691","name":
           "DisplacedLognormal","data":{"$area":163.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormal.html#DisplacedLognormal",
             "title":"DisplacedLognormal 163 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "DisplacedLognormal.GARCHMaxLikelihoodFunction36818","name":
+          "DisplacedLognormal.GARCHMaxLikelihoodFunction36799","name":
           "DisplacedLognormal.GARCHMaxLikelihoodFunction","data":{"$area":
             17.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormal.html#DisplacedLognormal.GARCHMaxLikelihoodFunction",
             "title":
             "DisplacedLognormal.GARCHMaxLikelihoodFunction 17 Elements, 0% Coverage"},
-          "children":[]},{"id":"DisplacedLognormalARMAGARCH36890","name":
+          "children":[]},{"id":"DisplacedLognormalARMAGARCH36871","name":
           "DisplacedLognormalARMAGARCH","data":{"$area":167.0,"$color":0.0,
             "path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalARMAGARCH.html#DisplacedLognormalARMAGARCH",
             "title":
             "DisplacedLognormalARMAGARCH 167 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction36986",
+          "DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction36967",
           "name":"DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction",
           "data":{"$area":14.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalARMAGARCH.html#DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction",
             "title":
             "DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction 14 Elements, 0% Coverage"},
-          "children":[]},{"id":"DisplacedLognormalGARCH37071","name":
+          "children":[]},{"id":"DisplacedLognormalGARCH37052","name":
           "DisplacedLognormalGARCH","data":{"$area":169.0,"$color":0.0,
             "path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalGARCH.html#DisplacedLognormalGARCH",
             "title":"DisplacedLognormalGARCH 169 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "DisplacedLognormalGARCH.GARCHMaxLikelihoodFunction37174","name":
+          "DisplacedLognormalGARCH.GARCHMaxLikelihoodFunction37155","name":
           "DisplacedLognormalGARCH.GARCHMaxLikelihoodFunction","data":{
             "$area":17.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalGARCH.html#DisplacedLognormalGARCH.GARCHMaxLikelihoodFunction",
             "title":
             "DisplacedLognormalGARCH.GARCHMaxLikelihoodFunction 17 Elements, 0% Coverage"},
-          "children":[]},{"id":"DisplacedLognormalGJRGARCH37257","name":
+          "children":[]},{"id":"DisplacedLognormalGJRGARCH37238","name":
           "DisplacedLognormalGJRGARCH","data":{"$area":173.0,"$color":0.0,
             "path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalGJRGARCH.html#DisplacedLognormalGJRGARCH",
             "title":"DisplacedLognormalGJRGARCH 173 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "DisplacedLognormalGJRGARCH.GARCHMaxLikelihoodFunction37359",
+          "DisplacedLognormalGJRGARCH.GARCHMaxLikelihoodFunction37340",
           "name":"DisplacedLognormalGJRGARCH.GARCHMaxLikelihoodFunction",
           "data":{"$area":14.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/DisplacedLognormalGJRGARCH.html#DisplacedLognormalGJRGARCH.GARCHMaxLikelihoodFunction",
             "title":
             "DisplacedLognormalGJRGARCH.GARCHMaxLikelihoodFunction 14 Elements, 0% Coverage"},
-          "children":[]},{"id":"GARCH37444","name":"GARCH","data":{"$area":
+          "children":[]},{"id":"GARCH37425","name":"GARCH","data":{"$area":
             126.0,"$color":0.0,"path":
             "net/finmath/timeseries/models/parametric/GARCH.html#GARCH",
             "title":"GARCH 126 Elements, 0% Coverage"},"children":[]},{"id":
-          "GARCH.GARCHMaxLikelihoodFunction37511","name":
+          "GARCH.GARCHMaxLikelihoodFunction37492","name":
           "GARCH.GARCHMaxLikelihoodFunction","data":{"$area":13.0,"$color":
             0.0,"path":
             "net/finmath/timeseries/models/parametric/GARCH.html#GARCH.GARCHMaxLikelihoodFunction",
             "title":
             "GARCH.GARCHMaxLikelihoodFunction 13 Elements, 0% Coverage"},
-          "children":[]},{"id":"SimpleHistroricalSimulation37583","name":
+          "children":[]},{"id":"SimpleHistroricalSimulation37564","name":
           "SimpleHistroricalSimulation","data":{"$area":58.0,"$color":0.0,
             "path":
             "net/finmath/timeseries/models/parametric/SimpleHistroricalSimulation.html#SimpleHistroricalSimulation",
@@ -2679,94 +2687,94 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "$area":7.0,"$color":0.0,"path":
             "net/finmath/exception/CalculationException.html#CalculationException",
             "title":"CalculationException 7 Elements, 0% Coverage"},
-          "children":[]}]},{"id":"net.finmath.time.daycount36092","name":
+          "children":[]}]},{"id":"net.finmath.time.daycount36073","name":
       "net.finmath.time.daycount","data":{"$area":359.0,"$color":34.818943,
         "title":"net.finmath.time.daycount 359 Elements, 34.8% Coverage"},
-      "children":[{"id":"DayCountConvention36092","name":
+      "children":[{"id":"DayCountConvention36073","name":
           "DayCountConvention","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/time/daycount/DayCountConvention.html#DayCountConvention",
             "title":"DayCountConvention 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"DayCountConventionFactory36092","name":
+          "children":[]},{"id":"DayCountConventionFactory36073","name":
           "DayCountConventionFactory","data":{"$area":37.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConventionFactory.html#DayCountConventionFactory",
             "title":"DayCountConventionFactory 37 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_30E_36036129","name":
+          "children":[]},{"id":"DayCountConvention_30E_36036110","name":
           "DayCountConvention_30E_360","data":{"$area":23.0,"$color":
             82.608696,"path":
             "net/finmath/time/daycount/DayCountConvention_30E_360.html#DayCountConvention_30E_360",
             "title":
             "DayCountConvention_30E_360 23 Elements, 82.6% Coverage"},
-          "children":[]},{"id":"DayCountConvention_30E_360_ISDA36152","name":
+          "children":[]},{"id":"DayCountConvention_30E_360_ISDA36133","name":
           "DayCountConvention_30E_360_ISDA","data":{"$area":28.0,"$color":
             85.71429,"path":
             "net/finmath/time/daycount/DayCountConvention_30E_360_ISDA.html#DayCountConvention_30E_360_ISDA",
             "title":
             "DayCountConvention_30E_360_ISDA 28 Elements, 85.7% Coverage"},
-          "children":[]},{"id":"DayCountConvention_30U_36036180","name":
+          "children":[]},{"id":"DayCountConvention_30U_36036161","name":
           "DayCountConvention_30U_360","data":{"$area":30.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_30U_360.html#DayCountConvention_30U_360",
             "title":"DayCountConvention_30U_360 30 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT36210","name":
+          "children":[]},{"id":"DayCountConvention_ACT36191","name":
           "DayCountConvention_ACT","data":{"$area":9.0,"$color":77.77778,
             "path":
             "net/finmath/time/daycount/DayCountConvention_ACT.html#DayCountConvention_ACT",
             "title":"DayCountConvention_ACT 9 Elements, 77.8% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_36036219","name":
+          "children":[]},{"id":"DayCountConvention_ACT_36036200","name":
           "DayCountConvention_ACT_360","data":{"$area":8.0,"$color":75.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_ACT_360.html#DayCountConvention_ACT_360",
             "title":"DayCountConvention_ACT_360 8 Elements, 75% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_36536227","name":
+          "children":[]},{"id":"DayCountConvention_ACT_36536208","name":
           "DayCountConvention_ACT_365","data":{"$area":8.0,"$color":100.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_ACT_365.html#DayCountConvention_ACT_365",
             "title":"DayCountConvention_ACT_365 8 Elements, 100% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_365A36235","name":
+          "children":[]},{"id":"DayCountConvention_ACT_365A36216","name":
           "DayCountConvention_ACT_365A","data":{"$area":32.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_ACT_365A.html#DayCountConvention_ACT_365A",
             "title":"DayCountConvention_ACT_365A 32 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_365L36267","name":
+          "children":[]},{"id":"DayCountConvention_ACT_365L36248","name":
           "DayCountConvention_ACT_365L","data":{"$area":13.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_ACT_365L.html#DayCountConvention_ACT_365L",
             "title":"DayCountConvention_ACT_365L 13 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_ACT_AFB36280","name":
+          "children":[]},{"id":"DayCountConvention_ACT_ACT_AFB36261","name":
           "DayCountConvention_ACT_ACT_AFB","data":{"$area":41.0,"$color":
             0.0,"path":
             "net/finmath/time/daycount/DayCountConvention_ACT_ACT_AFB.html#DayCountConvention_ACT_ACT_AFB",
             "title":
             "DayCountConvention_ACT_ACT_AFB 41 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_ACT_ICMA36321","name":
+          "children":[]},{"id":"DayCountConvention_ACT_ACT_ICMA36302","name":
           "DayCountConvention_ACT_ACT_ICMA","data":{"$area":24.0,"$color":
             79.16667,"path":
             "net/finmath/time/daycount/DayCountConvention_ACT_ACT_ICMA.html#DayCountConvention_ACT_ACT_ICMA",
             "title":
             "DayCountConvention_ACT_ACT_ICMA 24 Elements, 79.2% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_ACT_ISDA36345","name":
+          "children":[]},{"id":"DayCountConvention_ACT_ACT_ISDA36326","name":
           "DayCountConvention_ACT_ACT_ISDA","data":{"$area":26.0,"$color":
             69.230774,"path":
             "net/finmath/time/daycount/DayCountConvention_ACT_ACT_ISDA.html#DayCountConvention_ACT_ACT_ISDA",
             "title":
             "DayCountConvention_ACT_ACT_ISDA 26 Elements, 69.2% Coverage"},
-          "children":[]},{"id":"DayCountConvention_ACT_ACT_YEARFRAC36371",
+          "children":[]},{"id":"DayCountConvention_ACT_ACT_YEARFRAC36352",
           "name":"DayCountConvention_ACT_ACT_YEARFRAC","data":{"$area":
             37.0,"$color":64.86486,"path":
             "net/finmath/time/daycount/DayCountConvention_ACT_ACT_YEARFRAC.html#DayCountConvention_ACT_ACT_YEARFRAC",
             "title":
             "DayCountConvention_ACT_ACT_YEARFRAC 37 Elements, 64.9% Coverage"},
-          "children":[]},{"id":"DayCountConvention_NL_36536408","name":
+          "children":[]},{"id":"DayCountConvention_NL_36536389","name":
           "DayCountConvention_NL_365","data":{"$area":30.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_NL_365.html#DayCountConvention_NL_365",
             "title":"DayCountConvention_NL_365 30 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_NONE36438","name":
+          "children":[]},{"id":"DayCountConvention_NONE36419","name":
           "DayCountConvention_NONE","data":{"$area":5.0,"$color":0.0,"path":
             "net/finmath/time/daycount/DayCountConvention_NONE.html#DayCountConvention_NONE",
             "title":"DayCountConvention_NONE 5 Elements, 0% Coverage"},
-          "children":[]},{"id":"DayCountConvention_UNKNOWN36443","name":
+          "children":[]},{"id":"DayCountConvention_UNKNOWN36424","name":
           "DayCountConvention_UNKNOWN","data":{"$area":8.0,"$color":0.0,
             "path":
             "net/finmath/time/daycount/DayCountConvention_UNKNOWN.html#DayCountConvention_UNKNOWN",
@@ -2815,310 +2823,310 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "$area":13.0,"$color":38.46154,"path":
             "net/finmath/concurrency/FutureWrapper.html#FutureWrapper",
             "title":"FutureWrapper 13 Elements, 38.5% Coverage"},"children":[]}]},
-    {"id":"net.finmath.montecarlo.interestrate.products26050","name":
+    {"id":"net.finmath.montecarlo.interestrate.products26031","name":
       "net.finmath.montecarlo.interestrate.products","data":{"$area":
         2080.0,"$color":48.365383,"title":
         "net.finmath.montecarlo.interestrate.products 2080 Elements, 48.4% Coverage"},
-      "children":[{"id":"AbstractLIBORMonteCarloProduct26050","name":
+      "children":[{"id":"AbstractLIBORMonteCarloProduct26031","name":
           "AbstractLIBORMonteCarloProduct","data":{"$area":20.0,"$color":
             70.0,"path":
             "net/finmath/montecarlo/interestrate/products/AbstractLIBORMonteCarloProduct.html#AbstractLIBORMonteCarloProduct",
             "title":
             "AbstractLIBORMonteCarloProduct 20 Elements, 70% Coverage"},
-          "children":[]},{"id":"BermudanSwaption26070","name":
+          "children":[]},{"id":"BermudanSwaption26051","name":
           "BermudanSwaption","data":{"$area":135.0,"$color":60.000004,"path":
             
             "net/finmath/montecarlo/interestrate/products/BermudanSwaption.html#BermudanSwaption",
             "title":"BermudanSwaption 135 Elements, 60% Coverage"},
-          "children":[]},{"id":"BermudanSwaptionFromSwapSchedules26205",
+          "children":[]},{"id":"BermudanSwaptionFromSwapSchedules26186",
           "name":"BermudanSwaptionFromSwapSchedules","data":{"$area":244.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/BermudanSwaptionFromSwapSchedules.html#BermudanSwaptionFromSwapSchedules",
             "title":
             "BermudanSwaptionFromSwapSchedules 244 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "BermudanSwaptionFromSwapSchedules.SwaptionType26205","name":
+          "BermudanSwaptionFromSwapSchedules.SwaptionType26186","name":
           "BermudanSwaptionFromSwapSchedules.SwaptionType","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/BermudanSwaptionFromSwapSchedules.html#BermudanSwaptionFromSwapSchedules.SwaptionType",
             "title":
             "BermudanSwaptionFromSwapSchedules.SwaptionType 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"Bond26449","name":"Bond","data":{"$area":
+          "children":[]},{"id":"Bond26430","name":"Bond","data":{"$area":
             28.0,"$color":85.71429,"path":
             "net/finmath/montecarlo/interestrate/products/Bond.html#Bond",
             "title":"Bond 28 Elements, 85.7% Coverage"},"children":[]},{"id":
-          "CMSOption26477","name":"CMSOption","data":{"$area":51.0,"$color":
+          "CMSOption26458","name":"CMSOption","data":{"$area":51.0,"$color":
             90.196075,"path":
             "net/finmath/montecarlo/interestrate/products/CMSOption.html#CMSOption",
             "title":"CMSOption 51 Elements, 90.2% Coverage"},"children":[]},{
-          "id":"CancelableSwap26528","name":"CancelableSwap","data":{"$area":
+          "id":"CancelableSwap26509","name":"CancelableSwap","data":{"$area":
             66.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/CancelableSwap.html#CancelableSwap",
             "title":"CancelableSwap 66 Elements, 0% Coverage"},"children":[]},
-        {"id":"Caplet26594","name":"Caplet","data":{"$area":50.0,"$color":
+        {"id":"Caplet26575","name":"Caplet","data":{"$area":50.0,"$color":
             56.0,"path":
             "net/finmath/montecarlo/interestrate/products/Caplet.html#Caplet",
             "title":"Caplet 50 Elements, 56% Coverage"},"children":[]},{"id":
-          "Caplet.ValueUnit26594","name":"Caplet.ValueUnit","data":{"$area":
+          "Caplet.ValueUnit26575","name":"Caplet.ValueUnit","data":{"$area":
             0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/Caplet.html#Caplet.ValueUnit",
             "title":"Caplet.ValueUnit 0 Elements,  -  Coverage"},"children":[]},
-        {"id":"DigitalCaplet26644","name":"DigitalCaplet","data":{"$area":
+        {"id":"DigitalCaplet26625","name":"DigitalCaplet","data":{"$area":
             27.0,"$color":70.37037,"path":
             "net/finmath/montecarlo/interestrate/products/DigitalCaplet.html#DigitalCaplet",
             "title":"DigitalCaplet 27 Elements, 70.4% Coverage"},"children":[]},
-        {"id":"DigitalFloorlet26671","name":"DigitalFloorlet","data":{
+        {"id":"DigitalFloorlet26652","name":"DigitalFloorlet","data":{
             "$area":27.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/DigitalFloorlet.html#DigitalFloorlet",
             "title":"DigitalFloorlet 27 Elements, 0% Coverage"},"children":[]},
-        {"id":"FlexiCap26698","name":"FlexiCap","data":{"$area":35.0,
+        {"id":"FlexiCap26679","name":"FlexiCap","data":{"$area":35.0,
             "$color":88.57143,"path":
             "net/finmath/montecarlo/interestrate/products/FlexiCap.html#FlexiCap",
             "title":"FlexiCap 35 Elements, 88.6% Coverage"},"children":[]},{
-          "id":"ForwardRateVolatilitySurfaceCurvature26733","name":
+          "id":"ForwardRateVolatilitySurfaceCurvature26714","name":
           "ForwardRateVolatilitySurfaceCurvature","data":{"$area":51.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/ForwardRateVolatilitySurfaceCurvature.html#ForwardRateVolatilitySurfaceCurvature",
             "title":
             "ForwardRateVolatilitySurfaceCurvature 51 Elements, 0% Coverage"},
-          "children":[]},{"id":"LIBORBond26784","name":"LIBORBond","data":{
+          "children":[]},{"id":"LIBORBond26765","name":"LIBORBond","data":{
             "$area":13.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/LIBORBond.html#LIBORBond",
             "title":"LIBORBond 13 Elements, 0% Coverage"},"children":[]},{
-          "id":"MoneyMarketAccount26797","name":"MoneyMarketAccount","data":{
+          "id":"MoneyMarketAccount26778","name":"MoneyMarketAccount","data":{
             "$area":26.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/MoneyMarketAccount.html#MoneyMarketAccount",
             "title":"MoneyMarketAccount 26 Elements, 0% Coverage"},
-          "children":[]},{"id":"Portfolio26823","name":"Portfolio","data":{
+          "children":[]},{"id":"Portfolio26804","name":"Portfolio","data":{
             "$area":58.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/Portfolio.html#Portfolio",
             "title":"Portfolio 58 Elements, 0% Coverage"},"children":[]},{
-          "id":"SimpleCappedFlooredFloatingRateBond26881","name":
+          "id":"SimpleCappedFlooredFloatingRateBond26862","name":
           "SimpleCappedFlooredFloatingRateBond","data":{"$area":41.0,
             "$color":85.36585,"path":
             "net/finmath/montecarlo/interestrate/products/SimpleCappedFlooredFloatingRateBond.html#SimpleCappedFlooredFloatingRateBond",
             "title":
             "SimpleCappedFlooredFloatingRateBond 41 Elements, 85.4% Coverage"},
-          "children":[]},{"id":"SimpleSwap26922","name":"SimpleSwap","data":{
+          "children":[]},{"id":"SimpleSwap26903","name":"SimpleSwap","data":{
             "$area":66.0,"$color":53.0303,"path":
             "net/finmath/montecarlo/interestrate/products/SimpleSwap.html#SimpleSwap",
             "title":"SimpleSwap 66 Elements, 53% Coverage"},"children":[]},{
-          "id":"SimpleZeroSwap26988","name":"SimpleZeroSwap","data":{"$area":
+          "id":"SimpleZeroSwap26969","name":"SimpleZeroSwap","data":{"$area":
             42.0,"$color":78.57143,"path":
             "net/finmath/montecarlo/interestrate/products/SimpleZeroSwap.html#SimpleZeroSwap",
             "title":"SimpleZeroSwap 42 Elements, 78.6% Coverage"},"children":
-          []},{"id":"Swap27030","name":"Swap","data":{"$area":21.0,"$color":
+          []},{"id":"Swap27011","name":"Swap","data":{"$area":21.0,"$color":
             71.42857,"path":
             "net/finmath/montecarlo/interestrate/products/Swap.html#Swap",
             "title":"Swap 21 Elements, 71.4% Coverage"},"children":[]},{"id":
-          "SwapLeg27051","name":"SwapLeg","data":{"$area":70.0,"$color":
+          "SwapLeg27032","name":"SwapLeg","data":{"$area":70.0,"$color":
             85.71429,"path":
             "net/finmath/montecarlo/interestrate/products/SwapLeg.html#SwapLeg",
             "title":"SwapLeg 70 Elements, 85.7% Coverage"},"children":[]},{
-          "id":"SwapLegWithFundingProvider27121","name":
+          "id":"SwapLegWithFundingProvider27102","name":
           "SwapLegWithFundingProvider","data":{"$area":44.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/SwapLegWithFundingProvider.html#SwapLegWithFundingProvider",
             "title":"SwapLegWithFundingProvider 44 Elements, 0% Coverage"},
-          "children":[]},{"id":"SwapWithComponents27165","name":
+          "children":[]},{"id":"SwapWithComponents27146","name":
           "SwapWithComponents","data":{"$area":27.0,"$color":100.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwapWithComponents.html#SwapWithComponents",
             "title":"SwapWithComponents 27 Elements, 100% Coverage"},
           "children":[]},{"id":
-          "SwaprateCovarianceAnalyticApproximation27192","name":
+          "SwaprateCovarianceAnalyticApproximation27173","name":
           "SwaprateCovarianceAnalyticApproximation","data":{"$area":33.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaprateCovarianceAnalyticApproximation.html#SwaprateCovarianceAnalyticApproximation",
             "title":
             "SwaprateCovarianceAnalyticApproximation 33 Elements, 0% Coverage"},
-          "children":[]},{"id":"Swaption27225","name":"Swaption","data":{
+          "children":[]},{"id":"Swaption27206","name":"Swaption","data":{
             "$area":94.0,"$color":80.85107,"path":
             "net/finmath/montecarlo/interestrate/products/Swaption.html#Swaption",
             "title":"Swaption 94 Elements, 80.9% Coverage"},"children":[]},{
-          "id":"SwaptionATM27319","name":"SwaptionATM","data":{"$area":
+          "id":"SwaptionATM27300","name":"SwaptionATM","data":{"$area":
             28.0,"$color":75.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionATM.html#SwaptionATM",
             "title":"SwaptionATM 28 Elements, 75% Coverage"},"children":[]},{
-          "id":"SwaptionAnalyticApproximation27347","name":
+          "id":"SwaptionAnalyticApproximation27328","name":
           "SwaptionAnalyticApproximation","data":{"$area":118.0,"$color":
             93.220345,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionAnalyticApproximation.html#SwaptionAnalyticApproximation",
             "title":
             "SwaptionAnalyticApproximation 118 Elements, 93.2% Coverage"},
           "children":[]},{"id":
-          "SwaptionAnalyticApproximationRebonato27465","name":
+          "SwaptionAnalyticApproximationRebonato27446","name":
           "SwaptionAnalyticApproximationRebonato","data":{"$area":106.0,
             "$color":87.73585,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionAnalyticApproximationRebonato.html#SwaptionAnalyticApproximationRebonato",
             "title":
             "SwaptionAnalyticApproximationRebonato 106 Elements, 87.7% Coverage"},
-          "children":[]},{"id":"SwaptionFactory27571","name":
+          "children":[]},{"id":"SwaptionFactory27552","name":
           "SwaptionFactory","data":{"$area":18.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionFactory.html#SwaptionFactory",
             "title":"SwaptionFactory 18 Elements, 0% Coverage"},"children":[]},
-        {"id":"SwaptionFromSwapSchedules27589","name":
+        {"id":"SwaptionFromSwapSchedules27570","name":
           "SwaptionFromSwapSchedules","data":{"$area":108.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/SwaptionFromSwapSchedules.html#SwaptionFromSwapSchedules",
             "title":"SwaptionFromSwapSchedules 108 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "SwaptionFromSwapSchedules.SwaptionType27589","name":
+          "SwaptionFromSwapSchedules.SwaptionType27570","name":
           "SwaptionFromSwapSchedules.SwaptionType","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionFromSwapSchedules.html#SwaptionFromSwapSchedules.SwaptionType",
             "title":
             "SwaptionFromSwapSchedules.SwaptionType 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "SwaptionGeneralizedAnalyticApproximation27697","name":
+          "SwaptionGeneralizedAnalyticApproximation27678","name":
           "SwaptionGeneralizedAnalyticApproximation","data":{"$area":190.0,
             "$color":57.894737,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionGeneralizedAnalyticApproximation.html#SwaptionGeneralizedAnalyticApproximation",
             "title":
             "SwaptionGeneralizedAnalyticApproximation 190 Elements, 57.9% Coverage"},
           "children":[]},{"id":
-          "SwaptionGeneralizedAnalyticApproximation.StateSpace27697","name":
+          "SwaptionGeneralizedAnalyticApproximation.StateSpace27678","name":
           "SwaptionGeneralizedAnalyticApproximation.StateSpace","data":{
             "$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionGeneralizedAnalyticApproximation.html#SwaptionGeneralizedAnalyticApproximation.StateSpace",
             "title":
             "SwaptionGeneralizedAnalyticApproximation.StateSpace 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "SwaptionGeneralizedAnalyticApproximation.ValueUnit27697","name":
+          "SwaptionGeneralizedAnalyticApproximation.ValueUnit27678","name":
           "SwaptionGeneralizedAnalyticApproximation.ValueUnit","data":{
             "$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionGeneralizedAnalyticApproximation.html#SwaptionGeneralizedAnalyticApproximation.ValueUnit",
             "title":
             "SwaptionGeneralizedAnalyticApproximation.ValueUnit 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"SwaptionSimple27887","name":
+          "children":[]},{"id":"SwaptionSimple27868","name":
           "SwaptionSimple","data":{"$area":47.0,"$color":70.21276,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionSimple.html#SwaptionSimple",
             "title":"SwaptionSimple 47 Elements, 70.2% Coverage"},"children":
-          []},{"id":"SwaptionSingleCurve27934","name":
+          []},{"id":"SwaptionSingleCurve27915","name":
           "SwaptionSingleCurve","data":{"$area":71.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionSingleCurve.html#SwaptionSingleCurve",
             "title":"SwaptionSingleCurve 71 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "SwaptionSingleCurveAnalyticApproximation28005","name":
+          "SwaptionSingleCurveAnalyticApproximation27986","name":
           "SwaptionSingleCurveAnalyticApproximation","data":{"$area":97.0,
             "$color":89.69072,"path":
             "net/finmath/montecarlo/interestrate/products/SwaptionSingleCurveAnalyticApproximation.html#SwaptionSingleCurveAnalyticApproximation",
             "title":
             "SwaptionSingleCurveAnalyticApproximation 97 Elements, 89.7% Coverage"},
-          "children":[]},{"id":"SwaptionWithComponents28102","name":
+          "children":[]},{"id":"SwaptionWithComponents28083","name":
           "SwaptionWithComponents","data":{"$area":28.0,"$color":100.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/SwaptionWithComponents.html#SwaptionWithComponents",
             "title":"SwaptionWithComponents 28 Elements, 100% Coverage"},
-          "children":[]},{"id":"TermStructureMonteCarloProduct28130","name":
+          "children":[]},{"id":"TermStructureMonteCarloProduct28111","name":
           "TermStructureMonteCarloProduct","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/montecarlo/interestrate/products/TermStructureMonteCarloProduct.html#TermStructureMonteCarloProduct",
             "title":
             "TermStructureMonteCarloProduct 0 Elements,  -  Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.montecarlo.interestrate.products.indices28902","name":
+      "net.finmath.montecarlo.interestrate.products.indices28883","name":
       "net.finmath.montecarlo.interestrate.products.indices","data":{"$area":
         576.0,"$color":21.354168,"title":
         "net.finmath.montecarlo.interestrate.products.indices 576 Elements, 21.4% Coverage"},
-      "children":[{"id":"AbstractIndex28902","name":"AbstractIndex","data":{
+      "children":[{"id":"AbstractIndex28883","name":"AbstractIndex","data":{
             "$area":9.0,"$color":77.77778,"path":
             "net/finmath/montecarlo/interestrate/products/indices/AbstractIndex.html#AbstractIndex",
             "title":"AbstractIndex 9 Elements, 77.8% Coverage"},"children":[]},
-        {"id":"AccruedInterest28911","name":"AccruedInterest","data":{
+        {"id":"AccruedInterest28892","name":"AccruedInterest","data":{
             "$area":22.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/AccruedInterest.html#AccruedInterest",
             "title":"AccruedInterest 22 Elements, 0% Coverage"},"children":[]},
-        {"id":"AnalyticModelForwardCurveIndex28933","name":
+        {"id":"AnalyticModelForwardCurveIndex28914","name":
           "AnalyticModelForwardCurveIndex","data":{"$area":26.0,"$color":
             0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/AnalyticModelForwardCurveIndex.html#AnalyticModelForwardCurveIndex",
             "title":
             "AnalyticModelForwardCurveIndex 26 Elements, 0% Coverage"},
-          "children":[]},{"id":"AnalyticModelIndex28959","name":
+          "children":[]},{"id":"AnalyticModelIndex28940","name":
           "AnalyticModelIndex","data":{"$area":25.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/AnalyticModelIndex.html#AnalyticModelIndex",
             "title":"AnalyticModelIndex 25 Elements, 0% Coverage"},
-          "children":[]},{"id":"CappedFlooredIndex28984","name":
+          "children":[]},{"id":"CappedFlooredIndex28965","name":
           "CappedFlooredIndex","data":{"$area":45.0,"$color":31.111113,
             "path":
             "net/finmath/montecarlo/interestrate/products/indices/CappedFlooredIndex.html#CappedFlooredIndex",
             "title":"CappedFlooredIndex 45 Elements, 31.1% Coverage"},
-          "children":[]},{"id":"ConstantMaturitySwaprate29029","name":
+          "children":[]},{"id":"ConstantMaturitySwaprate29010","name":
           "ConstantMaturitySwaprate","data":{"$area":48.0,"$color":
             66.66667,"path":
             "net/finmath/montecarlo/interestrate/products/indices/ConstantMaturitySwaprate.html#ConstantMaturitySwaprate",
             "title":"ConstantMaturitySwaprate 48 Elements, 66.7% Coverage"},
-          "children":[]},{"id":"DateIndex29077","name":"DateIndex","data":{
+          "children":[]},{"id":"DateIndex29058","name":"DateIndex","data":{
             "$area":27.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/DateIndex.html#DateIndex",
             "title":"DateIndex 27 Elements, 0% Coverage"},"children":[]},{
-          "id":"DateIndex.DateIndexType29077","name":
+          "id":"DateIndex.DateIndexType29058","name":
           "DateIndex.DateIndexType","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/indices/DateIndex.html#DateIndex.DateIndexType",
             "title":"DateIndex.DateIndexType 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"FixedCoupon29104","name":"FixedCoupon",
+          "children":[]},{"id":"FixedCoupon29085","name":"FixedCoupon",
           "data":{"$area":11.0,"$color":45.454548,"path":
             "net/finmath/montecarlo/interestrate/products/indices/FixedCoupon.html#FixedCoupon",
             "title":"FixedCoupon 11 Elements, 45.5% Coverage"},"children":[]},
-        {"id":"ForwardCurveIndex29115","name":"ForwardCurveIndex","data":{
+        {"id":"ForwardCurveIndex29096","name":"ForwardCurveIndex","data":{
             "$area":9.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/ForwardCurveIndex.html#ForwardCurveIndex",
             "title":"ForwardCurveIndex 9 Elements, 0% Coverage"},"children":[]},
-        {"id":"LIBORIndex29124","name":"LIBORIndex","data":{"$area":63.0,
+        {"id":"LIBORIndex29105","name":"LIBORIndex","data":{"$area":63.0,
             "$color":74.60318,"path":
             "net/finmath/montecarlo/interestrate/products/indices/LIBORIndex.html#LIBORIndex",
             "title":"LIBORIndex 63 Elements, 74.6% Coverage"},"children":[]},
-        {"id":"LaggedIndex29187","name":"LaggedIndex","data":{"$area":22.0,
+        {"id":"LaggedIndex29168","name":"LaggedIndex","data":{"$area":22.0,
             "$color":45.454548,"path":
             "net/finmath/montecarlo/interestrate/products/indices/LaggedIndex.html#LaggedIndex",
             "title":"LaggedIndex 22 Elements, 45.5% Coverage"},"children":[]},
-        {"id":"LinearCombinationIndex29209","name":
+        {"id":"LinearCombinationIndex29190","name":
           "LinearCombinationIndex","data":{"$area":30.0,"$color":26.666668,
             "path":
             "net/finmath/montecarlo/interestrate/products/indices/LinearCombinationIndex.html#LinearCombinationIndex",
             "title":"LinearCombinationIndex 30 Elements, 26.7% Coverage"},
-          "children":[]},{"id":"MaxIndex29239","name":"MaxIndex","data":{
+          "children":[]},{"id":"MaxIndex29220","name":"MaxIndex","data":{
             "$area":27.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/MaxIndex.html#MaxIndex",
             "title":"MaxIndex 27 Elements, 0% Coverage"},"children":[]},{
-          "id":"MinIndex29266","name":"MinIndex","data":{"$area":27.0,
+          "id":"MinIndex29247","name":"MinIndex","data":{"$area":27.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/MinIndex.html#MinIndex",
             "title":"MinIndex 27 Elements, 0% Coverage"},"children":[]},{
-          "id":"NumerairePerformanceIndex29293","name":
+          "id":"NumerairePerformanceIndex29274","name":
           "NumerairePerformanceIndex","data":{"$area":34.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/indices/NumerairePerformanceIndex.html#NumerairePerformanceIndex",
             "title":"NumerairePerformanceIndex 34 Elements, 0% Coverage"},
-          "children":[]},{"id":"NumerairePerformanceOnScheduleIndex29327",
+          "children":[]},{"id":"NumerairePerformanceOnScheduleIndex29308",
           "name":"NumerairePerformanceOnScheduleIndex","data":{"$area":
             37.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/NumerairePerformanceOnScheduleIndex.html#NumerairePerformanceOnScheduleIndex",
             "title":
             "NumerairePerformanceOnScheduleIndex 37 Elements, 0% Coverage"},
-          "children":[]},{"id":"PerformanceIndex29364","name":
+          "children":[]},{"id":"PerformanceIndex29345","name":
           "PerformanceIndex","data":{"$area":22.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/PerformanceIndex.html#PerformanceIndex",
             "title":"PerformanceIndex 22 Elements, 0% Coverage"},"children":[]},
-        {"id":"PowIndex29386","name":"PowIndex","data":{"$area":10.0,
+        {"id":"PowIndex29367","name":"PowIndex","data":{"$area":10.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/PowIndex.html#PowIndex",
             "title":"PowIndex 10 Elements, 0% Coverage"},"children":[]},{
-          "id":"ProductIndex29396","name":"ProductIndex","data":{"$area":
+          "id":"ProductIndex29377","name":"ProductIndex","data":{"$area":
             18.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/ProductIndex.html#ProductIndex",
             "title":"ProductIndex 18 Elements, 0% Coverage"},"children":[]},{
-          "id":"TimeDiscreteEndOfMonthIndex29414","name":
+          "id":"TimeDiscreteEndOfMonthIndex29395","name":
           "TimeDiscreteEndOfMonthIndex","data":{"$area":15.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/products/indices/TimeDiscreteEndOfMonthIndex.html#TimeDiscreteEndOfMonthIndex",
             "title":"TimeDiscreteEndOfMonthIndex 15 Elements, 0% Coverage"},
-          "children":[]},{"id":"TriggerIndex29429","name":"TriggerIndex",
+          "children":[]},{"id":"TriggerIndex29410","name":"TriggerIndex",
           "data":{"$area":33.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/TriggerIndex.html#TriggerIndex",
             "title":"TriggerIndex 33 Elements, 0% Coverage"},"children":[]},{
-          "id":"UnsupportedIndex29462","name":"UnsupportedIndex","data":{
+          "id":"UnsupportedIndex29443","name":"UnsupportedIndex","data":{
             "$area":16.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/products/indices/UnsupportedIndex.html#UnsupportedIndex",
             "title":"UnsupportedIndex 16 Elements, 0% Coverage"},"children":[]}]},
@@ -3706,14 +3714,14 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "path":
             "net/finmath/montecarlo/VarianceGammaProcess.html#VarianceGammaProcess",
             "title":"VarianceGammaProcess 54 Elements, 81.5% Coverage"},
-          "children":[]}]},{"id":"net.finmath.montecarlo.model29478","name":
+          "children":[]}]},{"id":"net.finmath.montecarlo.model29459","name":
       "net.finmath.montecarlo.model","data":{"$area":12.0,"$color":0.0,
         "title":"net.finmath.montecarlo.model 12 Elements, 0% Coverage"},
-      "children":[{"id":"AbstractProcessModel29478","name":
+      "children":[{"id":"AbstractProcessModel29459","name":
           "AbstractProcessModel","data":{"$area":10.0,"$color":0.0,"path":
             "net/finmath/montecarlo/model/AbstractProcessModel.html#AbstractProcessModel",
             "title":"AbstractProcessModel 10 Elements, 0% Coverage"},
-          "children":[]},{"id":"ProcessModel29488","name":"ProcessModel",
+          "children":[]},{"id":"ProcessModel29469","name":"ProcessModel",
           "data":{"$area":2.0,"$color":0.0,"path":
             "net/finmath/montecarlo/model/ProcessModel.html#ProcessModel",
             "title":"ProcessModel 2 Elements, 0% Coverage"},"children":[]}]},
@@ -3790,15 +3798,15 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "$area":33.0,"$color":0.0,"path":
             "net/finmath/functions/SABRModel.html#SABRModel","title":
             "SABRModel 33 Elements, 0% Coverage"},"children":[]}]},{"id":
-      "net.finmath.montecarlo.templatemethoddesign29770","name":
+      "net.finmath.montecarlo.templatemethoddesign29751","name":
       "net.finmath.montecarlo.templatemethoddesign","data":{"$area":153.0,
         "$color":0.0,"title":
         "net.finmath.montecarlo.templatemethoddesign 153 Elements, 0% Coverage"},
-      "children":[{"id":"LogNormalProcess29770","name":"LogNormalProcess",
+      "children":[{"id":"LogNormalProcess29751","name":"LogNormalProcess",
           "data":{"$area":153.0,"$color":0.0,"path":
             "net/finmath/montecarlo/templatemethoddesign/LogNormalProcess.html#LogNormalProcess",
             "title":"LogNormalProcess 153 Elements, 0% Coverage"},"children":
-          []},{"id":"LogNormalProcess.Scheme29770","name":
+          []},{"id":"LogNormalProcess.Scheme29751","name":
           "LogNormalProcess.Scheme","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/montecarlo/templatemethoddesign/LogNormalProcess.html#LogNormalProcess.Scheme",
@@ -3840,164 +3848,164 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "title":
             "VolatilitySurface.QuotingConvention 0 Elements,  -  Coverage"},
           "children":[]}]},{"id":
-      "net.finmath.montecarlo.interestrate.models.covariance23343","name":
+      "net.finmath.montecarlo.interestrate.models.covariance23324","name":
       "net.finmath.montecarlo.interestrate.models.covariance","data":{
         "$area":2707.0,"$color":40.857037,"title":
         "net.finmath.montecarlo.interestrate.models.covariance 2707 Elements, 40.9% Coverage"},
-      "children":[{"id":"AbstractLIBORCovarianceModel23343","name":
+      "children":[{"id":"AbstractLIBORCovarianceModel23324","name":
           "AbstractLIBORCovarianceModel","data":{"$area":41.0,"$color":
             95.12195,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModel.html#AbstractLIBORCovarianceModel",
             "title":
             "AbstractLIBORCovarianceModel 41 Elements, 95.1% Coverage"},
           "children":[]},{"id":
-          "AbstractLIBORCovarianceModelParametric23384","name":
+          "AbstractLIBORCovarianceModelParametric23365","name":
           "AbstractLIBORCovarianceModelParametric","data":{"$area":219.0,
             "$color":73.059364,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModelParametric.html#AbstractLIBORCovarianceModelParametric",
             "title":
             "AbstractLIBORCovarianceModelParametric 219 Elements, 73.1% Coverage"},
           "children":[]},{"id":
-          "AbstractLIBORCovarianceModelParametric.FutureTaskWithPriority23491",
+          "AbstractLIBORCovarianceModelParametric.FutureTaskWithPriority23472",
           "name":
           "AbstractLIBORCovarianceModelParametric.FutureTaskWithPriority",
           "data":{"$area":11.0,"$color":81.818184,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/AbstractLIBORCovarianceModelParametric.html#AbstractLIBORCovarianceModelParametric.FutureTaskWithPriority",
             "title":
             "AbstractLIBORCovarianceModelParametric.FutureTaskWithPriority 11 Elements, 81.8% Coverage"},
-          "children":[]},{"id":"AbstractShortRateVolatilityModel23614",
+          "children":[]},{"id":"AbstractShortRateVolatilityModel23595",
           "name":"AbstractShortRateVolatilityModel","data":{"$area":5.0,
             "$color":100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/AbstractShortRateVolatilityModel.html#AbstractShortRateVolatilityModel",
             "title":
             "AbstractShortRateVolatilityModel 5 Elements, 100% Coverage"},
           "children":[]},{"id":
-          "AbstractShortRateVolatilityModelParametric23619","name":
+          "AbstractShortRateVolatilityModelParametric23600","name":
           "AbstractShortRateVolatilityModelParametric","data":{"$area":
             123.0,"$color":68.29269,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/AbstractShortRateVolatilityModelParametric.html#AbstractShortRateVolatilityModelParametric",
             "title":
             "AbstractShortRateVolatilityModelParametric 123 Elements, 68.3% Coverage"},
-          "children":[]},{"id":"BlendedLocalVolatilityModel23742","name":
+          "children":[]},{"id":"BlendedLocalVolatilityModel23723","name":
           "BlendedLocalVolatilityModel","data":{"$area":107.0,"$color":
             41.121494,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/BlendedLocalVolatilityModel.html#BlendedLocalVolatilityModel",
             "title":
             "BlendedLocalVolatilityModel 107 Elements, 41.1% Coverage"},
-          "children":[]},{"id":"DisplacedLocalVolatilityModel23849","name":
+          "children":[]},{"id":"DisplacedLocalVolatilityModel23830","name":
           "DisplacedLocalVolatilityModel","data":{"$area":97.0,"$color":
             42.26804,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/DisplacedLocalVolatilityModel.html#DisplacedLocalVolatilityModel",
             "title":
             "DisplacedLocalVolatilityModel 97 Elements, 42.3% Coverage"},
-          "children":[]},{"id":"ExponentialDecayLocalVolatilityModel23946",
+          "children":[]},{"id":"ExponentialDecayLocalVolatilityModel23927",
           "name":"ExponentialDecayLocalVolatilityModel","data":{"$area":
             102.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/ExponentialDecayLocalVolatilityModel.html#ExponentialDecayLocalVolatilityModel",
             "title":
             "ExponentialDecayLocalVolatilityModel 102 Elements, 0% Coverage"},
-          "children":[]},{"id":"HullWhiteLocalVolatilityModel24048","name":
+          "children":[]},{"id":"HullWhiteLocalVolatilityModel24029","name":
           "HullWhiteLocalVolatilityModel","data":{"$area":39.0,"$color":
             38.46154,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/HullWhiteLocalVolatilityModel.html#HullWhiteLocalVolatilityModel",
             "title":
             "HullWhiteLocalVolatilityModel 39 Elements, 38.5% Coverage"},
-          "children":[]},{"id":"LIBORCorrelationModel24087","name":
+          "children":[]},{"id":"LIBORCorrelationModel24068","name":
           "LIBORCorrelationModel","data":{"$area":10.0,"$color":60.000004,
             "path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModel.html#LIBORCorrelationModel",
             "title":"LIBORCorrelationModel 10 Elements, 60% Coverage"},
           "children":[]},{"id":
-          "LIBORCorrelationModelExponentialDecay24097","name":
+          "LIBORCorrelationModelExponentialDecay24078","name":
           "LIBORCorrelationModelExponentialDecay","data":{"$area":75.0,
             "$color":62.666668,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModelExponentialDecay.html#LIBORCorrelationModelExponentialDecay",
             "title":
             "LIBORCorrelationModelExponentialDecay 75 Elements, 62.7% Coverage"},
           "children":[]},{"id":
-          "LIBORCorrelationModelThreeParameterExponentialDecay24172","name":
+          "LIBORCorrelationModelThreeParameterExponentialDecay24153","name":
           "LIBORCorrelationModelThreeParameterExponentialDecay","data":{
             "$area":97.0,"$color":49.484535,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCorrelationModelThreeParameterExponentialDecay.html#LIBORCorrelationModelThreeParameterExponentialDecay",
             "title":
             "LIBORCorrelationModelThreeParameterExponentialDecay 97 Elements, 49.5% Coverage"},
-          "children":[]},{"id":"LIBORCovarianceModel24269","name":
+          "children":[]},{"id":"LIBORCovarianceModel24250","name":
           "LIBORCovarianceModel","data":{"$area":0.0,"$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModel.html#LIBORCovarianceModel",
             "title":"LIBORCovarianceModel 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"LIBORCovarianceModelBH24269","name":
+          "children":[]},{"id":"LIBORCovarianceModelBH24250","name":
           "LIBORCovarianceModelBH","data":{"$area":47.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelBH.html#LIBORCovarianceModelBH",
             "title":"LIBORCovarianceModelBH 47 Elements, 0% Coverage"},
-          "children":[]},{"id":"LIBORCovarianceModelCalibrateable24316",
+          "children":[]},{"id":"LIBORCovarianceModelCalibrateable24297",
           "name":"LIBORCovarianceModelCalibrateable","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelCalibrateable.html#LIBORCovarianceModelCalibrateable",
             "title":
             "LIBORCovarianceModelCalibrateable 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "LIBORCovarianceModelExponentialForm5Param24316","name":
+          "LIBORCovarianceModelExponentialForm5Param24297","name":
           "LIBORCovarianceModelExponentialForm5Param","data":{"$area":79.0,
             "$color":56.962025,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelExponentialForm5Param.html#LIBORCovarianceModelExponentialForm5Param",
             "title":
             "LIBORCovarianceModelExponentialForm5Param 79 Elements, 57% Coverage"},
           "children":[]},{"id":
-          "LIBORCovarianceModelExponentialForm7Param24395","name":
+          "LIBORCovarianceModelExponentialForm7Param24376","name":
           "LIBORCovarianceModelExponentialForm7Param","data":{"$area":54.0,
             "$color":74.07407,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelExponentialForm7Param.html#LIBORCovarianceModelExponentialForm7Param",
             "title":
             "LIBORCovarianceModelExponentialForm7Param 54 Elements, 74.1% Coverage"},
           "children":[]},{"id":
-          "LIBORCovarianceModelFromVolatilityAndCorrelation24449","name":
+          "LIBORCovarianceModelFromVolatilityAndCorrelation24430","name":
           "LIBORCovarianceModelFromVolatilityAndCorrelation","data":{"$area":
             120.0,"$color":51.666664,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelFromVolatilityAndCorrelation.html#LIBORCovarianceModelFromVolatilityAndCorrelation",
             "title":
             "LIBORCovarianceModelFromVolatilityAndCorrelation 120 Elements, 51.7% Coverage"},
           "children":[]},{"id":
-          "LIBORCovarianceModelStochasticHestonVolatility24569","name":
+          "LIBORCovarianceModelStochasticHestonVolatility24550","name":
           "LIBORCovarianceModelStochasticHestonVolatility","data":{"$area":
             164.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelStochasticHestonVolatility.html#LIBORCovarianceModelStochasticHestonVolatility",
             "title":
             "LIBORCovarianceModelStochasticHestonVolatility 164 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "LIBORCovarianceModelStochasticVolatility24733","name":
+          "LIBORCovarianceModelStochasticVolatility24714","name":
           "LIBORCovarianceModelStochasticVolatility","data":{"$area":149.0,
             "$color":56.37584,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORCovarianceModelStochasticVolatility.html#LIBORCovarianceModelStochasticVolatility",
             "title":
             "LIBORCovarianceModelStochasticVolatility 149 Elements, 56.4% Coverage"},
-          "children":[]},{"id":"LIBORVolatilityModel24882","name":
+          "children":[]},{"id":"LIBORVolatilityModel24863","name":
           "LIBORVolatilityModel","data":{"$area":11.0,"$color":72.72727,
             "path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModel.html#LIBORVolatilityModel",
             "title":"LIBORVolatilityModel 11 Elements, 72.7% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelFourParameterExponentialForm24893","name":
+          "LIBORVolatilityModelFourParameterExponentialForm24874","name":
           "LIBORVolatilityModelFourParameterExponentialForm","data":{"$area":
             97.0,"$color":41.237114,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelFourParameterExponentialForm.html#LIBORVolatilityModelFourParameterExponentialForm",
             "title":
             "LIBORVolatilityModelFourParameterExponentialForm 97 Elements, 41.2% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelFourParameterExponentialFormIntegrated24990",
+          "LIBORVolatilityModelFourParameterExponentialFormIntegrated24971",
           "name":
           "LIBORVolatilityModelFourParameterExponentialFormIntegrated",
           "data":{"$area":157.0,"$color":38.21656,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelFourParameterExponentialFormIntegrated.html#LIBORVolatilityModelFourParameterExponentialFormIntegrated",
             "title":
             "LIBORVolatilityModelFourParameterExponentialFormIntegrated 157 Elements, 38.2% Coverage"},
-          "children":[]},{"id":"LIBORVolatilityModelFromGivenMatrix25147",
+          "children":[]},{"id":"LIBORVolatilityModelFromGivenMatrix25128",
           "name":"LIBORVolatilityModelFromGivenMatrix","data":{"$area":
             82.0,"$color":42.682926,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelFromGivenMatrix.html#LIBORVolatilityModelFromGivenMatrix",
             "title":
             "LIBORVolatilityModelFromGivenMatrix 82 Elements, 42.7% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelMaturityDependentFourParameterExponentialForm25229",
+          "LIBORVolatilityModelMaturityDependentFourParameterExponentialForm25210",
           "name":
           "LIBORVolatilityModelMaturityDependentFourParameterExponentialForm",
           "data":{"$area":111.0,"$color":19.81982,"path":
@@ -4005,112 +4013,112 @@ var treeMapJson = {"id":"Clover database Mon Jan 25 2021 01:44:33 CET0","name":"
             "title":
             "LIBORVolatilityModelMaturityDependentFourParameterExponentialForm 111 Elements, 19.8% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelPiecewiseConstant25340","name":
+          "LIBORVolatilityModelPiecewiseConstant25321","name":
           "LIBORVolatilityModelPiecewiseConstant","data":{"$area":182.0,
             "$color":51.0989,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelPiecewiseConstant.html#LIBORVolatilityModelPiecewiseConstant",
             "title":
             "LIBORVolatilityModelPiecewiseConstant 182 Elements, 51.1% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelTimeHomogenousPiecewiseConstant25522","name":
+          "LIBORVolatilityModelTimeHomogenousPiecewiseConstant25503","name":
           "LIBORVolatilityModelTimeHomogenousPiecewiseConstant","data":{
             "$area":62.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelTimeHomogenousPiecewiseConstant.html#LIBORVolatilityModelTimeHomogenousPiecewiseConstant",
             "title":
             "LIBORVolatilityModelTimeHomogenousPiecewiseConstant 62 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "LIBORVolatilityModelTwoParameterExponentialForm25584","name":
+          "LIBORVolatilityModelTwoParameterExponentialForm25565","name":
           "LIBORVolatilityModelTwoParameterExponentialForm","data":{"$area":
             49.0,"$color":61.22449,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/LIBORVolatilityModelTwoParameterExponentialForm.html#LIBORVolatilityModelTwoParameterExponentialForm",
             "title":
             "LIBORVolatilityModelTwoParameterExponentialForm 49 Elements, 61.2% Coverage"},
-          "children":[]},{"id":"ShortRateVolatilityModel25633","name":
+          "children":[]},{"id":"ShortRateVolatilityModel25614","name":
           "ShortRateVolatilityModel","data":{"$area":0.0,"$color":-100.0,
             "path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModel.html#ShortRateVolatilityModel",
             "title":"ShortRateVolatilityModel 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"ShortRateVolatilityModelAsGiven25633","name":
+          "children":[]},{"id":"ShortRateVolatilityModelAsGiven25614","name":
           "ShortRateVolatilityModelAsGiven","data":{"$area":11.0,"$color":
             100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelAsGiven.html#ShortRateVolatilityModelAsGiven",
             "title":
             "ShortRateVolatilityModelAsGiven 11 Elements, 100% Coverage"},
           "children":[]},{"id":
-          "ShortRateVolatilityModelCalibrateable25644","name":
+          "ShortRateVolatilityModelCalibrateable25625","name":
           "ShortRateVolatilityModelCalibrateable","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelCalibrateable.html#ShortRateVolatilityModelCalibrateable",
             "title":
             "ShortRateVolatilityModelCalibrateable 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"ShortRateVolatilityModelHoLee25644","name":
+          "children":[]},{"id":"ShortRateVolatilityModelHoLee25625","name":
           "ShortRateVolatilityModelHoLee","data":{"$area":9.0,"$color":0.0,
             "path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelHoLee.html#ShortRateVolatilityModelHoLee",
             "title":
             "ShortRateVolatilityModelHoLee 9 Elements, 0% Coverage"},
-          "children":[]},{"id":"ShortRateVolatilityModelParametric25653",
+          "children":[]},{"id":"ShortRateVolatilityModelParametric25634",
           "name":"ShortRateVolatilityModelParametric","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelParametric.html#ShortRateVolatilityModelParametric",
             "title":
             "ShortRateVolatilityModelParametric 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "ShortRateVolatilityModelPiecewiseConstant25653","name":
+          "ShortRateVolatilityModelPiecewiseConstant25634","name":
           "ShortRateVolatilityModelPiecewiseConstant","data":{"$area":
             136.0,"$color":57.352943,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/ShortRateVolatilityModelPiecewiseConstant.html#ShortRateVolatilityModelPiecewiseConstant",
             "title":
             "ShortRateVolatilityModelPiecewiseConstant 136 Elements, 57.4% Coverage"},
           "children":[]},{"id":
-          "TermStructCovarianceModelFromLIBORCovarianceModel25789","name":
+          "TermStructCovarianceModelFromLIBORCovarianceModel25770","name":
           "TermStructCovarianceModelFromLIBORCovarianceModel","data":{
             "$area":39.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructCovarianceModelFromLIBORCovarianceModel.html#TermStructCovarianceModelFromLIBORCovarianceModel",
             "title":
             "TermStructCovarianceModelFromLIBORCovarianceModel 39 Elements, 0% Coverage"},
           "children":[]},{"id":
-          "TermStructCovarianceModelFromLIBORCovarianceModelParametric25828",
+          "TermStructCovarianceModelFromLIBORCovarianceModelParametric25809",
           "name":
           "TermStructCovarianceModelFromLIBORCovarianceModelParametric",
           "data":{"$area":74.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructCovarianceModelFromLIBORCovarianceModelParametric.html#TermStructCovarianceModelFromLIBORCovarianceModelParametric",
             "title":
             "TermStructCovarianceModelFromLIBORCovarianceModelParametric 74 Elements, 0% Coverage"},
-          "children":[]},{"id":"TermStructureCovarianceModel25902","name":
+          "children":[]},{"id":"TermStructureCovarianceModel25883","name":
           "TermStructureCovarianceModel","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureCovarianceModel.html#TermStructureCovarianceModel",
             "title":
             "TermStructureCovarianceModel 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "TermStructureCovarianceModelParametric25902","name":
+          "TermStructureCovarianceModelParametric25883","name":
           "TermStructureCovarianceModelParametric","data":{"$area":110.0,
             "$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureCovarianceModelParametric.html#TermStructureCovarianceModelParametric",
             "title":
             "TermStructureCovarianceModelParametric 110 Elements, 0% Coverage"},
-          "children":[]},{"id":"TermStructureFactorLoadingsModel26012",
+          "children":[]},{"id":"TermStructureFactorLoadingsModel25993",
           "name":"TermStructureFactorLoadingsModel","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureFactorLoadingsModel.html#TermStructureFactorLoadingsModel",
             "title":
             "TermStructureFactorLoadingsModel 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "TermStructureFactorLoadingsModelParametric26012","name":
+          "TermStructureFactorLoadingsModelParametric25993","name":
           "TermStructureFactorLoadingsModelParametric","data":{"$area":0.0,
             "$color":-100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureFactorLoadingsModelParametric.html#TermStructureFactorLoadingsModelParametric",
             "title":
             "TermStructureFactorLoadingsModelParametric 0 Elements,  -  Coverage"},
-          "children":[]},{"id":"TermStructureTenorTimeScaling26012","name":
+          "children":[]},{"id":"TermStructureTenorTimeScaling25993","name":
           "TermStructureTenorTimeScaling","data":{"$area":0.0,"$color":
             -100.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureTenorTimeScaling.html#TermStructureTenorTimeScaling",
             "title":
             "TermStructureTenorTimeScaling 0 Elements,  -  Coverage"},
           "children":[]},{"id":
-          "TermStructureTenorTimeScalingPicewiseConstant26012","name":
+          "TermStructureTenorTimeScalingPicewiseConstant25993","name":
           "TermStructureTenorTimeScalingPicewiseConstant","data":{"$area":
             38.0,"$color":0.0,"path":
             "net/finmath/montecarlo/interestrate/models/covariance/TermStructureTenorTimeScalingPicewiseConstant.html#TermStructureTenorTimeScalingPicewiseConstant",

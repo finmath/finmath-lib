@@ -827,7 +827,7 @@ var Packages = {
     "text": "models",
     "package": "net.finmath.montecarlo.interestrate.models",
     "url": "net/finmath/montecarlo/interestrate/models/pkg-summary.html",
-            "coverage": "35.2%",
+            "coverage": "34.7%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/montecarlo/interestrate/models/pkg-summary.html"},
