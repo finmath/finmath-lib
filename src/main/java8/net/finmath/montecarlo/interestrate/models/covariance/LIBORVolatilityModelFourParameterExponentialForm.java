@@ -44,7 +44,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	private static final long serialVersionUID = -7371483471144264848L;
 
-	private final RandomVariableFactory	abstractRandomVariableFactory;
+	private final RandomVariableFactory	randomVariableFactory;
 
 	private final RandomVariable a;
 	private final RandomVariable b;
@@ -60,7 +60,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -69,9 +69,9 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialForm(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final RandomVariable a, final RandomVariable b, final RandomVariable c, final RandomVariable d, final boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialForm(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final RandomVariable a, final RandomVariable b, final RandomVariable c, final RandomVariable d, final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -97,7 +97,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	/**
 	 * Creates the volatility model &sigma;<sub>i</sub>(t<sub>j</sub>) = ( a + b * (T<sub>i</sub>-t<sub>j</sub>) ) * exp(-c (T<sub>i</sub>-t<sub>j</sub>)) + d
 	 *
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -106,13 +106,13 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 * @param isCalibrateable Set this to true, if the parameters are available for calibration.
 	 */
-	public LIBORVolatilityModelFourParameterExponentialForm(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final double a, final double b, final double c, final double d, final boolean isCalibrateable) {
+	public LIBORVolatilityModelFourParameterExponentialForm(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final double a, final double b, final double c, final double d, final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
-		this.a = abstractRandomVariableFactory.createRandomVariable(a);
-		this.b = abstractRandomVariableFactory.createRandomVariable(b);
-		this.c = abstractRandomVariableFactory.createRandomVariable(c);
-		this.d = abstractRandomVariableFactory.createRandomVariable(d);
+		this.randomVariableFactory = randomVariableFactory;
+		this.a = randomVariableFactory.createRandomVariable(a);
+		this.b = randomVariableFactory.createRandomVariable(b);
+		this.c = randomVariableFactory.createRandomVariable(c);
+		this.d = randomVariableFactory.createRandomVariable(d);
 		this.isCalibrateable = isCalibrateable;
 	}
 
@@ -153,7 +153,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 		}
 
 		return new LIBORVolatilityModelFourParameterExponentialForm(
-				abstractRandomVariableFactory,
+				randomVariableFactory,
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),
 				parameter[0],
@@ -180,7 +180,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 				RandomVariable volatilityInstanteaneous;
 				if(timeToMaturity <= 0)
 				{
-					volatilityInstanteaneous = abstractRandomVariableFactory.createRandomVariable(0.0);   // This forward rate is already fixed, no volatility
+					volatilityInstanteaneous = randomVariableFactory.createRandomVariable(0.0);   // This forward rate is already fixed, no volatility
 				}
 				else
 				{
@@ -197,7 +197,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 	@Override
 	public Object clone() {
 		return new LIBORVolatilityModelFourParameterExponentialForm(
-				abstractRandomVariableFactory,
+				randomVariableFactory,
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
 				a,
@@ -210,7 +210,7 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 	@Override
 	public LIBORVolatilityModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
-		RandomVariableFactory abstractRandomVariableFactory = this.abstractRandomVariableFactory;
+		RandomVariableFactory randomVariableFactory = this.randomVariableFactory;
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		RandomVariable a = this.a;
@@ -221,34 +221,34 @@ public class LIBORVolatilityModelFourParameterExponentialForm extends LIBORVolat
 
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
-			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
+			randomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 			isCalibrateable = (boolean)dataModified.getOrDefault("isCalibrateable", isCalibrateable);
 
 			if(dataModified.getOrDefault("a", a) instanceof RandomVariable) {
-				a = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("a", a)).doubleValue());
+				a = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("a", a)).doubleValue());
 			}else {
-				a = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("a"));
+				a = randomVariableFactory.createRandomVariable((double)dataModified.get("a"));
 			}
 			if(dataModified.getOrDefault("b", b) instanceof RandomVariable) {
-				b = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("b", b)).doubleValue());
+				b = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("b", b)).doubleValue());
 			}else {
-				b = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("b"));
+				b = randomVariableFactory.createRandomVariable((double)dataModified.get("b"));
 			}
 			if(dataModified.getOrDefault("c", c) instanceof RandomVariable) {
-				c = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("c", c)).doubleValue());
+				c = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("c", c)).doubleValue());
 			}else {
-				c = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("c"));
+				c = randomVariableFactory.createRandomVariable((double)dataModified.get("c"));
 			}
 			if(dataModified.getOrDefault("d", d) instanceof RandomVariable) {
-				d = abstractRandomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("d", d)).doubleValue());
+				d = randomVariableFactory.createRandomVariable(((RandomVariable)dataModified.getOrDefault("d", d)).doubleValue());
 			}else {
-				d = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("d"));
+				d = randomVariableFactory.createRandomVariable((double)dataModified.get("d"));
 			}
 		}
 
-		final LIBORVolatilityModel newModel = new LIBORVolatilityModelFourParameterExponentialForm(abstractRandomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
+		final LIBORVolatilityModel newModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d, isCalibrateable);
 		return newModel;
 	}
 

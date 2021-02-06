@@ -25,7 +25,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 
 	private static final long serialVersionUID = -1942151065049237807L;
 
-	private final RandomVariableFactory	abstractRandomVariableFactory;
+	private final RandomVariableFactory	randomVariableFactory;
 
 	private final TimeDiscretization timeToMaturityDiscretization;
 	private final RandomVariable[] volatility;
@@ -35,13 +35,13 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	 * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
 	 * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
 	 *
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param timeToMaturityDiscretization The discretization \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \)  of the piecewise constant volatility function.
 	 * @param volatility The values \( \sigma_{0}, \sigma_{1}, \ldots, \sigma_{n-1} \) of the piecewise constant volatility function.
 	 */
-	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final TimeDiscretization timeToMaturityDiscretization, final RandomVariable[] volatility) {
+	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final TimeDiscretization timeToMaturityDiscretization, final RandomVariable[] volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		if(timeToMaturityDiscretization.getTime(0) != 0) {
@@ -51,7 +51,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 			throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimes() .");
 		}
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
 		this.volatility = volatility;
 	}
@@ -75,13 +75,13 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	 * \( \sigma(t,T) = sigma_{i} \) where \( i = \max \{ j : \tau_{j} \leq T-t \} \) and
 	 * \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \) is a given time discretization.
 	 *
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param timeToMaturityDiscretization The discretization \( \tau_{0}, \tau_{1}, \ldots, \tau_{n-1} \)  of the piecewise constant volatility function.
 	 * @param volatility The values \( \sigma_{0}, \sigma_{1}, \ldots, \sigma_{n-1} \) of the piecewise constant volatility function.
 	 */
-	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final TimeDiscretization timeToMaturityDiscretization, final double[] volatility) {
+	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final TimeDiscretization timeToMaturityDiscretization, final double[] volatility) {
 		super(timeDiscretization, liborPeriodDiscretization);
 
 		if(timeToMaturityDiscretization.getTime(0) != 0) {
@@ -91,9 +91,9 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 			throw new IllegalArgumentException("volatility.length should equal timeToMaturityDiscretization.getNumberOfTimes() .");
 		}
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.timeToMaturityDiscretization = timeToMaturityDiscretization;
-		this.volatility = abstractRandomVariableFactory.createRandomVariableArray(volatility);
+		this.volatility = randomVariableFactory.createRandomVariableArray(volatility);
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class LIBORVolatilityModelTimeHomogenousPiecewiseConstant extends LIBORVo
 	@Override
 	public LIBORVolatilityModelTimeHomogenousPiecewiseConstant getCloneWithModifiedParameter(final RandomVariable[] parameter) {
 		return new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(
-				abstractRandomVariableFactory,
+				randomVariableFactory,
 				super.getTimeDiscretization(),
 				super.getLiborPeriodDiscretization(),
 				timeToMaturityDiscretization,

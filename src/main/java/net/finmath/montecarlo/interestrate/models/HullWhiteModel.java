@@ -153,7 +153,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
-	 * @param abstractRandomVariableFactory The factory to be used to construct random variables.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -162,7 +162,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @param properties A map specifying model properties.
 	 */
 	public HullWhiteModel(
-			final RandomVariableFactory		abstractRandomVariableFactory,
+			final RandomVariableFactory		randomVariableFactory,
 			final TimeDiscretization			liborPeriodDiscretization,
 			final AnalyticModel				analyticModel,
 			final ForwardCurve				forwardRateCurve,
@@ -171,7 +171,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			final Map<String, Object>			properties
 			) {
 
-		this.randomVariableFactory		= abstractRandomVariableFactory;
+		this.randomVariableFactory		= randomVariableFactory;
 		this.liborPeriodDiscretization	= liborPeriodDiscretization;
 		this.analyticModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
@@ -219,7 +219,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	/**
 	 * Creates a Hull-White model which implements <code>LIBORMarketModel</code>.
 	 *
-	 * @param abstractRandomVariableFactory The randomVariableFactory
+	 * @param randomVariableFactory The randomVariableFactory
 	 * @param liborPeriodDiscretization The forward rate discretization to be used in the <code>getLIBOR</code> method.
 	 * @param analyticModel The analytic model to be used (currently not used, may be null).
 	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
@@ -231,7 +231,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 	 * @throws CalculationException Thrown if calibration fails.
 	 */
 	public static HullWhiteModel of(
-			final RandomVariableFactory		abstractRandomVariableFactory,
+			final RandomVariableFactory		randomVariableFactory,
 			final TimeDiscretization			liborPeriodDiscretization,
 			final AnalyticModel				analyticModel,
 			final ForwardCurve				forwardRateCurve,
@@ -241,7 +241,7 @@ public class HullWhiteModel extends AbstractProcessModel implements ShortRateMod
 			final Map<String, Object>					properties
 			) throws CalculationException {
 
-		final HullWhiteModel model = new HullWhiteModel(abstractRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
+		final HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);
 
 		// Perform calibration, if data is given
 		if(calibrationProducts != null && calibrationProducts.length > 0) {

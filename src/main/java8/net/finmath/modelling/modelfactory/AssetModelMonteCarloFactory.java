@@ -120,17 +120,17 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		 * Create the described model.
 		 *
 		 * @param descriptor The descriptor of the model.
-		 * @param abstractRandomVariableFactory The factory to be used by the models to construct random variables.
+		 * @param randomVariableFactory The factory to be used by the models to construct random variables.
 		 * @param stochasticDriver The stochastic driver of the process.
 		 */
-		private BlackScholesModelMonteCarlo(final BlackScholesModelDescriptor descriptor, final RandomVariableFactory abstractRandomVariableFactory,
+		private BlackScholesModelMonteCarlo(final BlackScholesModelDescriptor descriptor, final RandomVariableFactory randomVariableFactory,
 				final IndependentIncrements stochasticDriver) {
 			super(new BlackScholesModelWithCurves(
 					descriptor.getInitialValue(),
 					descriptor.getDiscountCurveForForwardRate(),
 					descriptor.getVolatility(),
 					descriptor.getDiscountCurveForDiscountRate(),
-					abstractRandomVariableFactory),
+					randomVariableFactory),
 					stochasticDriver);
 			this.descriptor 	= descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
@@ -165,12 +165,12 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 		 *
 		 * @param descriptor The descriptor of the model.
 		 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients.
-		 * @param abstractRandomVariableFactory The factory to be used by the models to construct random variables.
+		 * @param randomVariableFactory The factory to be used by the models to construct random variables.
 		 * @param stochasticDriver The stochastic driver of the process.
 		 */
-		private HestonModelMonteCarlo(final HestonModelDescriptor descriptor, final Scheme scheme, final RandomVariableFactory abstractRandomVariableFactory,
+		private HestonModelMonteCarlo(final HestonModelDescriptor descriptor, final Scheme scheme, final RandomVariableFactory randomVariableFactory,
 				final IndependentIncrements stochasticDriver) {
-			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, abstractRandomVariableFactory),
+			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, randomVariableFactory),
 					stochasticDriver);
 			this.descriptor 	= descriptor;
 			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());
@@ -199,7 +199,7 @@ public class AssetModelMonteCarloFactory implements ModelFactory<AssetModelDescr
 
 		private final SingleAssetMonteCarloProductFactory productFactory;
 
-		private MertonModelMonteCarlo(final MertonModelDescriptor descriptor, final RandomVariableFactory abstractRandomVariableFactory,
+		private MertonModelMonteCarlo(final MertonModelDescriptor descriptor, final RandomVariableFactory randomVariableFactory,
 				final IndependentIncrements stochasticDriver) {
 			super(new net.finmath.montecarlo.assetderivativevaluation.models.MertonModel(descriptor),
 					stochasticDriver);

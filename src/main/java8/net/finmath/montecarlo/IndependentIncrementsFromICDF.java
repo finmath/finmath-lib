@@ -52,7 +52,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariable[][]	increments;
 	private	transient	Object						incrementsLazyInitLock = new Object();
@@ -87,7 +87,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 * @param inverseCumulativeDistributionFunctions A map from the timeIndices to a map from the from the factors to the corresponding inverse cumulative distribution function.
-	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
+	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public IndependentIncrementsFromICDF(
 			final TimeDiscretization timeDiscretization,
@@ -95,7 +95,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			final int numberOfPaths,
 			final int seed,
 			final IntFunction<IntFunction<DoubleUnaryOperator>> inverseCumulativeDistributionFunctions,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
@@ -103,7 +103,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 		this.seed				= seed;
 
 		this.inverseCumulativeDistributionFunctions = inverseCumulativeDistributionFunctions;
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		increments	= null; 	// Lazy initialization
 	}
@@ -143,12 +143,12 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 
 	@Override
 	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
-		return new IndependentIncrementsFromICDF(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
+		return new IndependentIncrementsFromICDF(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, inverseCumulativeDistributionFunctions, randomVariableFactory);
 	}
 
 	@Override
 	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, abstractRandomVariableFactory);
+		return new IndependentIncrementsFromICDF(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), inverseCumulativeDistributionFunctions, randomVariableFactory);
 	}
 
 	@Override
@@ -214,7 +214,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				increments[timeIndex][factor] =
-						abstractRandomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -236,7 +236,7 @@ public class IndependentIncrementsFromICDF implements IndependentIncrements, Ser
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/**

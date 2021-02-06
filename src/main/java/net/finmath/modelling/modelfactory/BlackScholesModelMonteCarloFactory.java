@@ -27,13 +27,13 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
  */
 public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackScholesModelDescriptor> {
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 	private final IndependentIncrements brownianMotion;
 
 
-	public BlackScholesModelMonteCarloFactory(final RandomVariableFactory abstractRandomVariableFactory, final IndependentIncrements brownianMotion) {
+	public BlackScholesModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory, final IndependentIncrements brownianMotion) {
 		super();
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.brownianMotion = brownianMotion;
 	}
 
@@ -52,7 +52,7 @@ public class BlackScholesModelMonteCarloFactory implements ModelFactory<BlackSch
 				modelDescriptor.getDiscountCurveForForwardRate(),
 				modelDescriptor.getVolatility(),
 				modelDescriptor.getDiscountCurveForDiscountRate(),
-				abstractRandomVariableFactory
+				randomVariableFactory
 				);
 
 		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel<BlackScholesModelDescriptor> {

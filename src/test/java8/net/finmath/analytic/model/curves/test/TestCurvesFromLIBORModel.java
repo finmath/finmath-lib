@@ -58,17 +58,17 @@ public class TestCurvesFromLIBORModel {
 	 */
 	public void testStochasticCurves() throws CalculationException{
 		// Create Random Variable Factory
-		final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+		final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
 
 		final int maturityInYears = 5;
 		final int forwardStartTimeInYears = 0;
 		// Create Analytic Swap
 		final AbstractAnalyticProduct swapAnalytic = createSwapAnalytic(maturityInYears,forwardStartTimeInYears);
 		// Create Monte Carlo Swap
-		final TermStructureMonteCarloProduct swapMonteCarlo = createSwap(maturityInYears,forwardStartTimeInYears,abstractRandomVariableFactory);
+		final TermStructureMonteCarloProduct swapMonteCarlo = createSwap(maturityInYears,forwardStartTimeInYears,randomVariableFactory);
 
 		// Create a Libor market model
-		final LIBORModelMonteCarloSimulationModel liborMarketModel = createLIBORMarketModel(abstractRandomVariableFactory,
+		final LIBORModelMonteCarloSimulationModel liborMarketModel = createLIBORMarketModel(randomVariableFactory,
 				numberOfPaths,
 				numberOfFactors,
 				//(ForwardCurve)curves.getModel().getForwardCurve("forwardCurve"),
@@ -100,7 +100,7 @@ public class TestCurvesFromLIBORModel {
 		final net.finmath.marketdata2.model.curves.DiscountCurveInterface discountCurve = new net.finmath.marketdata2.model.curves.DiscountCurveFromForwardCurve(net.finmath.marketdata2.model.curves.ForwardCurveInterpolation.createForwardCurveFromMonteCarloLiborModel(forwardCurveInterpolation.getName(), liborMarketModel, 0));
 		//net.finmath.analytic.model.curves.DiscountCurveInterpolation.createDiscountCurveFromMonteCarloLiborModel("forwardCurve",liborMarketModel, evaluationTime);
 
-		final double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModelFromCurvesAndVols(abstractRandomVariableFactory, new Curve[]{forwardCurveInterpolation,discountCurve})).getAverage();
+		final double valueWithCurves = swapAnalytic.getValue(0.0, new AnalyticModelFromCurvesAndVols(randomVariableFactory, new Curve[]{forwardCurveInterpolation,discountCurve})).getAverage();
 
 		System.out.println("" + valueMonteCarlo + "\t" + valueWithCurves);
 
@@ -121,7 +121,7 @@ public class TestCurvesFromLIBORModel {
 
 
 	public static  LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
-			final RandomVariableFactory abstractRandomVariableFactory,
+			final RandomVariableFactory randomVariableFactory,
 			final int numberOfPaths, final int numberOfFactors, /*ForwardCurve forwardCurve,*/ final double correlationDecayParam) throws CalculationException {
 
 		/*
@@ -162,12 +162,12 @@ public class TestCurvesFromLIBORModel {
 		 */
 		final double a = 0.0 / 20.0, b = 0.0, c = 0.25, d = 0.3 / 20.0 / 2.0;
 		//LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelFourParameterExponentialFormIntegrated(timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false);
-		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(abstractRandomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false);
+		volatilityModel = new LIBORVolatilityModelFourParameterExponentialForm(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, a, b, c, d, false);
 		final double[][] volatilityMatrix = new double[timeDiscretizationFromArray.getNumberOfTimeSteps()][liborPeriodDiscretization.getNumberOfTimeSteps()];
 		for(int timeIndex=0; timeIndex<timeDiscretizationFromArray.getNumberOfTimeSteps(); timeIndex++) {
 			Arrays.fill(volatilityMatrix[timeIndex], d);
 		}
-		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(abstractRandomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, volatilityMatrix);
+		volatilityModel = new LIBORVolatilityModelFromGivenMatrix(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, volatilityMatrix);
 
 		/*
 		 * Create a correlation model rho_{i,j} = exp(-a * abs(T_i-T_j))
@@ -199,7 +199,7 @@ public class TestCurvesFromLIBORModel {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols(new net.finmath.marketdata.model.curves.Curve[]{forwardCurve, discountCurveInterpolation}), forwardCurve, discountCurveInterpolation, abstractRandomVariableFactory, covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, new net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols(new net.finmath.marketdata.model.curves.Curve[]{forwardCurve, discountCurveInterpolation}), forwardCurve, discountCurveInterpolation, randomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

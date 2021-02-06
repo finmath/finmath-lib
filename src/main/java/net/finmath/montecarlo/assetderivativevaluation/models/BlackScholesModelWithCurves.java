@@ -60,19 +60,19 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
 	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
-	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
 			final RandomVariable initialValue,
 			final DiscountCurve discountCurveForForwardRate,
 			final RandomVariable volatility,
 			final DiscountCurve discountCurveForDiscountRate,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.discountCurveForForwardRate = discountCurveForForwardRate;
 		this.discountCurveForDiscountRate = discountCurveForDiscountRate;
-		this.randomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		initialState = new RandomVariable[] { initialValue.log() };
 		driftAdjustment = volatility.squared().div(-2.0);
@@ -86,15 +86,15 @@ public class BlackScholesModelWithCurves extends AbstractProcessModel {
 	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
 	 * @param volatility The log volatility.
 	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
-	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModelWithCurves(
 			final Double initialValue,
 			final DiscountCurve discountCurveForForwardRate,
 			final Double volatility,
 			final DiscountCurve discountCurveForDiscountRate,
-			final RandomVariableFactory abstractRandomVariableFactory) {
-		this(abstractRandomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, abstractRandomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, abstractRandomVariableFactory);
+			final RandomVariableFactory randomVariableFactory) {
+		this(randomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, randomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, randomVariableFactory);
 	}
 
 	@Override
