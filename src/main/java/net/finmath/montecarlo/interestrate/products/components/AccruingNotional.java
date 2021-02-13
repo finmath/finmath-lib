@@ -7,7 +7,7 @@
 package net.finmath.montecarlo.interestrate.products.components;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
@@ -40,7 +40,7 @@ public class AccruingNotional implements Notional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		double productToModelTimeOffset = 0;
 		try {
 			if(previousPeriod.getReferenceDate() != null) {
@@ -55,7 +55,7 @@ public class AccruingNotional implements Notional {
 	}
 
 	@Override
-	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		return getNotionalAtPeriodStart(period, model);
 	}
 }

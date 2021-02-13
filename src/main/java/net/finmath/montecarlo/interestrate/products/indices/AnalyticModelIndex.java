@@ -11,7 +11,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -42,7 +42,7 @@ public class AnalyticModelIndex extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		final AnalyticModel analyticModel = model.getModel().getAnalyticModel();
 		if(analyticModel == null) {

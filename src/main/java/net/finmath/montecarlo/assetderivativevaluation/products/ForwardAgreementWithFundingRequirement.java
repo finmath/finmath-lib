@@ -103,7 +103,7 @@ public class ForwardAgreementWithFundingRequirement extends AbstractAssetMonteCa
 		// The payoff: values = underlying - strike = V(T) = S(T)-K
 		RandomVariable values = underlyingAtMaturity.sub(forwardValue);
 
-		RandomVariable defaultCompensation = fundingCapacity.getDefaultFactors(maturity, values).getDefaultCompensation();
+		final RandomVariable defaultCompensation = fundingCapacity.getDefaultFactors(maturity, values).getDefaultCompensation();
 		values = values.mult(defaultCompensation);
 
 		// Discounting...

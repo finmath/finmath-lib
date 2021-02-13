@@ -74,7 +74,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
-		int timeIndex = getTimeIndex(time);
+		final int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			throw new IllegalArgumentException("The model does not provide an interpolation of simulation time (time given was " + time + ").");
 		}

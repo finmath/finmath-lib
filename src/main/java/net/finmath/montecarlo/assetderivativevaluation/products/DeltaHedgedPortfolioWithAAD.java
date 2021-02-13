@@ -80,7 +80,11 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 		final long timingValuationStart = System.currentTimeMillis();
 
-		final RandomVariableDifferentiable value = (RandomVariableDifferentiable) productToReplicate.getValue(model.getTime(0), model);
+		final RandomVariable value = productToReplicate.getValue(model.getTime(0), model);
+		if(!(value instanceof RandomVariableDifferentiable)) {
+			throw new IllegalArgumentException("The product's getValue method, when used with the specified model, does not return a RandomVariableDifferentiable. Please check, if the model uses an appropriate RandomVariableFactory.");
+		}
+
 		RandomVariable exerciseTime = null;
 		if(productToReplicate instanceof BermudanOption) {
 			exerciseTime = ((BermudanOption) productToReplicate).getLastValuationExerciseTime();
@@ -100,7 +104,7 @@ public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct 
 
 		// Delta of option to replicate
 		final long timingDerivativeStart = System.currentTimeMillis();
-		final Map<Long, RandomVariable> gradient = value.getGradient();
+		final Map<Long, RandomVariable> gradient = ((RandomVariableDifferentiable)value).getGradient();
 		final long timingDerivativeEnd = System.currentTimeMillis();
 
 		lastOperationTimingValuation = (timingValuationEnd-timingValuationStart) / 1000.0;

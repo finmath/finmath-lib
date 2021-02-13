@@ -12,7 +12,8 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.AbstractMonteCarloProduct;
 import net.finmath.montecarlo.MonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.process.component.factordrift.FactorDrift;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.process.component.factortransform.FactorTransform;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -38,7 +39,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	}
 
 	@Override
-	public abstract RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
+	public abstract RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
 
 	public RandomVariable getValueForModifiedData(final double evaluationTime, final MonteCarloSimulationModel monteCarloSimulationModel, final Map<String, Object> dataModified) throws CalculationException
 	{
@@ -46,7 +47,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	}
 
 	@Override
-	public Map<String, Object> getValues(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public Map<String, Object> getValues(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		final RandomVariable value = getValue(evaluationTime, model);
 		final Map<String, Object> result = new HashMap<>();
 		result.put("value", value.getAverage());
@@ -68,7 +69,7 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractMonteCarloP
 	}
 
 	@Override
-	public FactorDrift getFactorDrift(final LIBORModelMonteCarloSimulationModel referenceScheme, final LIBORModelMonteCarloSimulationModel targetScheme) {
+	public FactorTransform getFactorDrift(final LIBORModelMonteCarloSimulationModel referenceScheme, final LIBORModelMonteCarloSimulationModel targetScheme) {
 		throw new UnsupportedOperationException("Method not implemented.");
 	}
 }

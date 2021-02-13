@@ -10,7 +10,7 @@ import java.util.function.IntToDoubleFunction;
 import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -134,7 +134,7 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		RandomVariable values						= model.getRandomVariableForConstant(0.0);
 
 		for(int period=0; period<fixingDates.length; period++)
@@ -149,8 +149,8 @@ public class SimpleSwap extends AbstractLIBORMonteCarloProduct {
 			}
 
 			// Get random variables
-			final RandomVariable libor	= model.getLIBOR(fixingDate, fixingDate, paymentDate);
-			RandomVariable payoff	= libor.sub(swaprate).mult(periodLength).mult(notional[period]);
+			final RandomVariable forwardRate	= model.getForwardRate(fixingDate, fixingDate, paymentDate);
+			RandomVariable payoff	= forwardRate.sub(swaprate).mult(periodLength).mult(notional[period]);
 			if(!isPayFix) {
 				payoff = payoff.mult(-1.0);
 			}

@@ -11,6 +11,7 @@ import java.util.Set;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
@@ -75,7 +76,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		final RandomVariable one	= model.getRandomVariableForConstant(1.0);
 		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);
@@ -99,7 +100,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 			// Filter values and regressionBasisFunctions
 			values = values.mult(filter);
 
-			final RandomVariable[] regressionBasisFunctions			= getRegressionBasisFunctions(evaluationTime, model);
+			final RandomVariable[] regressionBasisFunctions			= getRegressionBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationModel) model);
 			final RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];
 			for(int i=0; i<regressionBasisFunctions.length; i++) {
 				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);
@@ -147,7 +148,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 		liborPeriodIndexEnd = liborPeriodIndex+1;
 		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
-		rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+		rate = model.getForwardRate(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 		basisFunction = basisFunction.discount(rate, periodLength1);
 		basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 
@@ -165,7 +166,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength2 != periodLength1) {
-			rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+			rate = model.getForwardRate(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 			basisFunction = basisFunction.discount(rate, periodLength2);
 			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 
@@ -187,7 +188,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);
 
 		if(periodLength3 != periodLength1 && periodLength3 != periodLength2) {
-			rate = model.getLIBOR(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
+			rate = model.getForwardRate(evaluationTime, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));
 			basisFunction = basisFunction.discount(rate, periodLength3);
 			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
 

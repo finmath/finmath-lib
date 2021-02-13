@@ -81,7 +81,7 @@ public class TestCurvesFromLIBORModel {
 		final int firstLiborIndex = liborMarketModel.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(evaluationTime);
 		final double firstLiborTime = liborMarketModel.getLiborPeriodDiscretization().getTime(firstLiborIndex);
 		if(firstLiborTime>evaluationTime) {
-			liborsAtTimeIndex.add(liborMarketModel.getLIBOR(evaluationTime, evaluationTime, firstLiborTime));
+			liborsAtTimeIndex.add(liborMarketModel.getForwardRate(evaluationTime, evaluationTime, firstLiborTime));
 		}
 		for(int i=firstLiborIndex;i<liborMarketModel.getNumberOfLibors();i++) {
 			liborsAtTimeIndex.add(liborMarketModel.getLIBOR(timeIndex,i));

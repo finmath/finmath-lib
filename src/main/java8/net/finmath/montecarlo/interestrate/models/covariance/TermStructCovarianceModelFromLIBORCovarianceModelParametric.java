@@ -17,14 +17,14 @@ import net.finmath.time.TimeDiscretization;
  */
 public class TermStructCovarianceModelFromLIBORCovarianceModelParametric extends TermStructureCovarianceModelParametric {
 
-	private final TermStructureTenorTimeScalingInterface tenorTimeScalingModel;
+	private final TermStructureTenorTimeScaling tenorTimeScalingModel;
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
 
 	/**
 	 * @param tenorTimeScalingModel The model used for the tenor time re-scaling (providing the scaling coefficients).
 	 * @param covarianceModel The model implementing AbstractLIBORCovarianceModelParametric.
 	 */
-	public TermStructCovarianceModelFromLIBORCovarianceModelParametric(final TermStructureTenorTimeScalingInterface tenorTimeScalingModel, final AbstractLIBORCovarianceModelParametric covarianceModel) {
+	public TermStructCovarianceModelFromLIBORCovarianceModelParametric(final TermStructureTenorTimeScaling tenorTimeScalingModel, final AbstractLIBORCovarianceModelParametric covarianceModel) {
 		this.tenorTimeScalingModel = tenorTimeScalingModel;
 		this.covarianceModel = covarianceModel;
 	}

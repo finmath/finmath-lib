@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -28,7 +28,7 @@ import net.finmath.stochastic.Scalar;
  * 	</dt>
  * 	<dd>
  * 		\[ \frac{1}{x} \int_{a}^{a+x} q(\xi) \mathrm{d}\xi \],
- * 
+ *
  * 		where a denotes the current level of fund provided by this capacity, and
  * 	</dd>
  * 	<dt>
@@ -42,7 +42,7 @@ import net.finmath.stochastic.Scalar;
  * Important: since the class keeps track of past fundings
  * used, it is mandatory that the factors are calculated in
  * time-sequential order.
- * 
+ *
  * @author Christian Fries
  */
 public class FundingCapacity extends AbstractProductComponent {
@@ -55,8 +55,8 @@ public class FundingCapacity extends AbstractProductComponent {
 	private RandomVariable		currentCapacity;
 
 	public class DefaultFactors {
-		private RandomVariable survivalProbability;
-		private RandomVariable defaultCompensation;
+		private final RandomVariable survivalProbability;
+		private final RandomVariable defaultCompensation;
 
 		public DefaultFactors(RandomVariable survivalProbability, RandomVariable defaultCompensation) {
 			this.survivalProbability = survivalProbability;
@@ -131,7 +131,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		}
 
 		// The cap is used to map to avoid 0*infty to zero.
-		RandomVariable oneOverFundingAmount = fundingIntervallRight.sub(fundingIntervallLeft).invert().cap(Double.MAX_VALUE);
+		final RandomVariable oneOverFundingAmount = fundingIntervallRight.sub(fundingIntervallLeft).invert().cap(Double.MAX_VALUE);
 		integratedSurvivalProbability = integratedSurvivalProbability.mult(oneOverFundingAmount);
 		integratedDefaultCompensation = integratedDefaultCompensation.mult(oneOverFundingAmount);
 
@@ -160,7 +160,7 @@ public class FundingCapacity extends AbstractProductComponent {
 
 		RandomVariable integratedSurvivalProbability = new Scalar(0.0);
 		double previousFundingLevel = -Double.MAX_VALUE;
-		double previousProvidedLevel = -Double.MAX_VALUE;
+		final double previousProvidedLevel = -Double.MAX_VALUE;
 		for(final Map.Entry<Double, Double> entry : instantaneousSurvivalProbability.entrySet()) {
 			final double fundingLevel = entry.getKey();
 			final double survivalProbability = entry.getValue();
@@ -230,7 +230,7 @@ public class FundingCapacity extends AbstractProductComponent {
 	}
 
 	@Override
-	public RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		throw new UnsupportedOperationException();
 	}
 }

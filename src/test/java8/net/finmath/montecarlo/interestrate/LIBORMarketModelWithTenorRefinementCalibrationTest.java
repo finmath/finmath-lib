@@ -60,7 +60,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatility
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelAsGiven;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructCovarianceModelFromLIBORCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
-import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingInterface;
+import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScaling;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingPicewiseConstant;
 import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
@@ -268,7 +268,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		}
 
 		final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
-		final LIBORMonteCarloSimulationFromTermStructureModel simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
+		final TermStructureMonteCarloSimulationFromTermStructureModel simulationCalibrated = new TermStructureMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 
 		System.out.println("\nValuation on calibrated model:");
 		double deviationSum			= 0.0;
@@ -419,7 +419,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		//		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionCudaWithRandomVariableCuda(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
 
 		final int test = 0;			// 0 LMM with refinment, 1 LMMM, 2 HW 1 mr param, 3 HW with vector mr
-		LIBORModelMonteCarloSimulationModel simulationCalibrated = null;
+		TermStructureMonteCarloSimulationModel simulationCalibrated = null;
 		if(test == 0) {
 			final TimeDiscretization optionMaturityDiscretization = new TimeDiscretizationFromArray(0.0, 0.25, 0.50, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0);
 
@@ -448,7 +448,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			final TimeDiscretization tenorTimeScalingDiscretization = new TimeDiscretizationFromArray(0.0, 40.0, 0.25, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 			final double[] tenorTimeScalings = new double[tenorTimeScalingDiscretization.getNumberOfTimes()];
 			Arrays.fill(tenorTimeScalings, 0.0);
-			final TermStructureTenorTimeScalingInterface tenorTimeScalingModel = new TermStructureTenorTimeScalingPicewiseConstant(tenorTimeScalingDiscretization, tenorTimeScalings);
+			final TermStructureTenorTimeScaling tenorTimeScalingModel = new TermStructureTenorTimeScalingPicewiseConstant(tenorTimeScalingDiscretization, tenorTimeScalings);
 
 			// Create blended local volatility model with fixed parameter 0.0 (that is "lognormal").
 			final AbstractLIBORCovarianceModelParametric covarianceModelBlended = new BlendedLocalVolatilityModel(covarianceModelParametric, 0.0, false);
@@ -522,7 +522,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				bestParameters = param;
 
 				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
-				simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
+				simulationCalibrated = new TermStructureMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 			}
 		}
 		if(test == 1) {
@@ -583,7 +583,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			}
 
 			final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(liborMarketModelCalibrated, brownianMotion);
-			simulationCalibrated = new LIBORMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
+			simulationCalibrated = new TermStructureMonteCarloSimulationFromTermStructureModel(liborMarketModelCalibrated, process);
 		}
 		else if(test == 2) {
 			final TimeDiscretization shortRateVolTimeDis = new TimeDiscretizationFromArray(0.00, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00, 35.00, 40.00, 45.00 );

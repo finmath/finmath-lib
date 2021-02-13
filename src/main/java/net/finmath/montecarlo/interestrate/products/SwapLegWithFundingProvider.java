@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.FundingCapacity;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
@@ -56,7 +56,7 @@ public class SwapLegWithFundingProvider extends AbstractLIBORMonteCarloProduct {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		final LocalDateTime referenceDate = LocalDateTime.of(legSchedule.getReferenceDate(), LocalTime.of(0, 0));
 
@@ -97,7 +97,7 @@ public class SwapLegWithFundingProvider extends AbstractLIBORMonteCarloProduct {
 			RandomVariable payoff = index.getValue(productToModelTimeOffset + fixingDate, model).add(spreads[periodIndex]).mult(periodLength);
 			payoff = payoff.mult(notionalAtPeriodStart);
 
-			RandomVariable survivalProbility = fundingCapacity.getDefaultFactors(productToModelTimeOffset + periodEnd, payoff).getSurvivalProbability();
+			final RandomVariable survivalProbility = fundingCapacity.getDefaultFactors(productToModelTimeOffset + periodEnd, payoff).getSurvivalProbability();
 			payoff = payoff.mult(survivalProbility);
 
 			payoff = payoff.div(numeraire);

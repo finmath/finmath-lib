@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
@@ -129,7 +129,7 @@ public class Period extends AbstractPeriod {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		double productToModelTimeOffset = 0;
 		try {
@@ -194,7 +194,7 @@ public class Period extends AbstractPeriod {
 	}
 
 	@Override
-	public RandomVariable getCoupon(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getCoupon(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		// Calculate percentage value of coupon (not multiplied with notional, not discounted)
 		RandomVariable values = getIndex().getValue(evaluationTime, model);
 

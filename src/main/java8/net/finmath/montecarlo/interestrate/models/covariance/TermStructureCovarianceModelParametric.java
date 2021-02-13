@@ -20,8 +20,8 @@ import java.util.logging.Logger;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
-import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromTermStructureModel;
 import net.finmath.montecarlo.interestrate.TermStructureModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationFromTermStructureModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.Optimizer.ObjectiveFunction;
@@ -36,7 +36,7 @@ import net.finmath.optimizer.SolverException;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModelInterface, TermStructureTenorTimeScalingInterface, TermStructureFactorLoadingsModelParametricInterface {
+public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModel, TermStructureTenorTimeScaling, TermStructureFactorLoadingsModelParametric {
 
 	private static final Logger logger = Logger.getLogger("net.finmath");
 
@@ -133,7 +133,7 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 					throw new SolverException(e);
 				}
 				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
-				final LIBORMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new LIBORMonteCarloSimulationFromTermStructureModel(model, process);
+				final TermStructureMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new TermStructureMonteCarloSimulationFromTermStructureModel(model, process);
 
 				final ArrayList<Future<Double>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {

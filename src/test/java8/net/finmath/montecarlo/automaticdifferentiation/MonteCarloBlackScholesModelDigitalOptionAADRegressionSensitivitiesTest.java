@@ -105,19 +105,19 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 	 * Create a Monte-Carlo simulation of a Black-Scholes model using a specified Brownian motion
 	 * and random variable factory. The random variable factory will control the use of AAD (by means of dependency injection).
 	 *
-	 * @param abstractRandomVariableFactory The random variable factory to be used.
+	 * @param randomVariableFactory The random variable factory to be used.
 	 * @param brownianMotion The Brownian motion used to drive the model.
 	 * @return A Monte-Carlo simulation of a Black-Scholes model.
 	 */
-	public MonteCarloAssetModel getModel(final RandomVariableFactory abstractRandomVariableFactory, final BrownianMotion brownianMotion) {
+	public MonteCarloAssetModel getMonteCarloBlackScholesModel(final RandomVariableFactory randomVariableFactory, final BrownianMotion brownianMotion) {
 		// Create a model
-		final AbstractProcessModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, abstractRandomVariableFactory);
+		final AbstractProcessModel model = new BlackScholesModel(modelInitialValue, modelRiskFreeRate, modelVolatility, randomVariableFactory);
 
 		// Create a corresponding MC process
 		final MonteCarloProcessFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
 
 		// Using the process (Euler scheme), create an MC simulation of a Black-Scholes model
-		return new MonteCarloAssetModel(model, process);
+		return new MonteCarloAssetModel(process);
 	}
 
 	public Map<String, Object> getSensitivityApproximations(final double width, final int seed, final boolean isDirectRegression) throws CalculationException {
@@ -143,7 +143,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			/*
 			 * Create Model
 			 */
-			final MonteCarloAssetModel monteCarloBlackScholesModel = getModel(randomVariableFactory, brownianMotion);
+			final MonteCarloAssetModel monteCarloBlackScholesModel = getMonteCarloBlackScholesModel(randomVariableFactory, brownianMotion);
 
 
 			final RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
@@ -168,7 +168,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			/*
 			 * Create Model
 			 */
-			final MonteCarloAssetModel monteCarloBlackScholesModel = getModel(randomVariableFactoryRegression, brownianMotion);
+			final MonteCarloAssetModel monteCarloBlackScholesModel = getMonteCarloBlackScholesModel(randomVariableFactoryRegression, brownianMotion);
 
 			final RandomVariable value = option.getValue(0.0, monteCarloBlackScholesModel);
 			final Map<Long, RandomVariable> derivative = ((RandomVariableDifferentiable)value).getGradient();
@@ -189,7 +189,7 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 		/*
 		 * Other Methods
 		 */
-		final MonteCarloAssetModel monteCarloBlackScholesModel = getModel(new RandomVariableFromArrayFactory(), brownianMotion);
+		final MonteCarloAssetModel monteCarloBlackScholesModel = getMonteCarloBlackScholesModel(new RandomVariableFromArrayFactory(), brownianMotion);
 		final RandomVariable X = monteCarloBlackScholesModel.getAssetValue(optionMaturity, assetIndex).sub(optionStrike);
 
 		/*
@@ -238,8 +238,8 @@ public class MonteCarloBlackScholesModelDigitalOptionAADRegressionSensitivitiesT
 			randomVariablePropsInftyWidth.put("diracDeltaApproximationWidthPerStdDev", Double.POSITIVE_INFINITY);
 			final RandomVariableDifferentiableAADFactory randomVariableFactoryInftyWidth = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory(), randomVariablePropsInftyWidth);
 
-			final MonteCarloAssetModel monteCarloBlackScholesModelZeroWidth = getModel(randomVariableFactoryZeroWidth, brownianMotion);
-			final MonteCarloAssetModel monteCarloBlackScholesModelInftyWidth = getModel(randomVariableFactoryInftyWidth, brownianMotion);
+			final MonteCarloAssetModel monteCarloBlackScholesModelZeroWidth = getMonteCarloBlackScholesModel(randomVariableFactoryZeroWidth, brownianMotion);
+			final MonteCarloAssetModel monteCarloBlackScholesModelInftyWidth = getMonteCarloBlackScholesModel(randomVariableFactoryInftyWidth, brownianMotion);
 
 			final RandomVariableDifferentiable initialValueZeroWidth = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModelZeroWidth.getModel()).getInitialValue(monteCarloBlackScholesModelZeroWidth.getProcess())[0];
 			final RandomVariableDifferentiable initialValueInftyWidth = (RandomVariableDifferentiable)((BlackScholesModel)monteCarloBlackScholesModelInftyWidth.getModel()).getInitialValue(monteCarloBlackScholesModelInftyWidth.getProcess())[0];

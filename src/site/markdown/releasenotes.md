@@ -5,6 +5,75 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 5.1.1 (24.01.2021)
+
+## Monte-Carlo Interest Rate Models
+
+ - Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
+
+
+## 5.1.0 (24.01.2021)
+
+## Monte-Carlo Interest Rate Models
+
+### Refactorings
+
+ - The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
+ - The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.
+ - Interest rate Monte-Carlo simulations implement the slightly weaker interface `TermStructureMonteCarloSimulationModel`. The class `TermStructureMonteCarloSimulationFromTermStructureModel` implements the weaker interface `TermStructureMonteCarloSimulationFromTermStructureModel`. This is used in valuation of interest rate products. This interface does not provide the methods related to forward rate period discretizations - `getLIBORPeriodDiscretization`. In case it is needed, there is still a `LIBORMonteCarloSimulationFromTermStructureModel` implementing `LIBORModelMonteCarloSimulationModel` for backward compatibility (however, here the corresponding methods thrown an exception). (This was the case in the previous version). As before, the class `LIBORMonteCarloSimulationFromLIBORModel` implements `LIBORModelMonteCarloSimulationModel` and provides a getLIBORPeriodDiscretization(). 
+ - Refactor rename TermStructureFactorLoadingsModelInterface to TermStructureFactorLoadingsModel
+ - Refactor rename TermStructureFactorLoadingsModelParametricnterface to TermStructureFactorLoadingsModelParametric
+ - Refactor rename TermStructureCovarianceModelInterface to TermStructureCovarianceModel
+ - Refactor rename TermStructureTenorTimeScalingInterface to TermStructureTenorTimeScaling
+
+
+## 5.0.10 (24.01-2021)
+
+### Analytic Formulas
+
+ - Some minor additions to the analytic formulas.
+
+### Monte-Carlo Interest Rate Models
+
+ - Fixed a bug in the volatility return type (ValueUnit) of the Caplet.
+
+
+## 5.0.9 (26.12-2020)
+
+### Analytic Formulas
+
+ - Some minor additions to the analytic formulas.
+
+### Bond curves and Bond valuation
+
+ - Bonds can be valued on a single discount curve
+ (instead a set of three curves consisting of (separate risk free curve, basis curve, survival prob. curve)).
+ 
+### Algorithmic Differentiation / Automatic Differentiation
+
+ - Added unit tests.
+
+### Java 8
+
+ - Backporting fixes from 5.0.6 to the Java 8 branch.
+
+
+## 5.0.6 (03.10-2020)
+
+### General
+
+ - Improved exceptions.
+ 
+### Algorithmic Differentiation / Automatic Differentiation
+
+ - Improvement to AAD for indicators.
+ - Fixed an issue where (in a very special non-default setting), an algorithmic differentiation of an indicator function did not carry out the inner derivative.
+ 
+### Monte-Carlo Single Asset Model
+
+ - Monte-Carlo Merton model supports use of RandomVariableFactory. (Hence:)
+ - Monte-Carlo Merton model supports AAD.
+ 
 
 ## 5.0.5 (16.08-2020)
 

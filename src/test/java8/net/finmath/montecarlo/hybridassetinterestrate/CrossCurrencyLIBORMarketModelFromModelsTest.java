@@ -60,7 +60,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign Forward Rate (1)/(2).....: " + foreignForward);
 		System.out.println("Analytic Foreign Forward.........: " + foreignForwardAnalytic);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign Forward", foreignForwardAnalytic, foreignForward, 1E-2);
 	}
@@ -86,7 +86,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Forein Bond valued in foreign model..: " + valueForeign);
 		System.out.println("Domestic Bond in Domestic Currency...: " + valueCcyDom);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign Bond", valueCcyFor, valueForeign, 1E-2);
 	}
@@ -109,7 +109,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign FRA in ccy model......: " + fraCcy);
 		System.out.println("Foreign FRA in foreign model..: " + fraFor);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign FRA", fraFor, fraCcy, 1E-2);
 	}
@@ -148,7 +148,7 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		System.out.println("Foreign Caplet in ccy model......: " + capletCcy);
 		System.out.println("Foreign Caplet in foreign model..: " + capletFor);
 
-		System.out.println("_______________________________________\n");
+		System.out.println("_______________________________________________________________________________"+"\n");
 
 		Assert.assertEquals("Foreign FRA", capletFor, capletCcy, 1E-2);
 	}
@@ -186,18 +186,18 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		 * This map specifies that USD model and FX model have a common Brownian driver dW0 <-> dW0.
 		 * Hence, it will trigger a convexity adjustment.
 		 */
-		final Map<Integer,Integer> factorLoadingMapUSD = new HashMap();
+		final Map<Integer,Integer> factorLoadingMapUSD = new HashMap<Integer, Integer>();
 		factorLoadingMapUSD.put(0, 0);
 
 		if(currency.length == 2 && currency[0] == "EUR" && currency[1] == "USD") {
 			final LIBORMonteCarloSimulationFromLIBORModel modelDomestic = getInterestRateModel(0.05, brownianMotionDom, fxMartingaleModel, factorLoadingMapEUR);
 			final LIBORMonteCarloSimulationFromLIBORModel modelForeign = getInterestRateModel(0.10, brownianMotionFor, fxMartingaleModel, factorLoadingMapUSD);
 
-			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap();
+			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap<String, LIBORModelMonteCarloSimulationModel>();
 			interestRateModels.put("EUR", modelDomestic	/* EUR model */);
 			interestRateModels.put("USD", modelForeign	/* EUR model */);
 
-			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap();
+			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap<String, MonteCarloProcessFromProcessModel>();
 			fxModels.put("USD", fxMartingaleModel /* Conversion from USD to base (EUR) */);
 
 			return new CrossCurrencyLIBORMarketModelFromModels(
@@ -207,10 +207,10 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		else if(currency.length == 1 && currency[0] == "EUR") {
 			final LIBORMonteCarloSimulationFromLIBORModel modelDomestic = getInterestRateModel(0.05, brownianMotionDom, fxMartingaleModel, factorLoadingMapEUR);
 
-			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap();
+			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap<String, LIBORModelMonteCarloSimulationModel>();
 			interestRateModels.put("EUR", modelDomestic	/* EUR model */);
 
-			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap();
+			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap<String, MonteCarloProcessFromProcessModel>();
 
 			return new CrossCurrencyLIBORMarketModelFromModels(
 					"EUR"	/* base model */,
@@ -219,10 +219,10 @@ public class CrossCurrencyLIBORMarketModelFromModelsTest {
 		else if(currency.length == 1 && currency[0] == "USD") {
 			final LIBORMonteCarloSimulationFromLIBORModel modelForeign = getInterestRateModel(0.10, brownianMotionFor, fxMartingaleModel, factorLoadingMapEUR);
 
-			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap();
+			final Map<String, LIBORModelMonteCarloSimulationModel> interestRateModels = new HashMap<String, LIBORModelMonteCarloSimulationModel>();
 			interestRateModels.put("USD", modelForeign	/* EUR model */);
 
-			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap();
+			final Map<String, MonteCarloProcessFromProcessModel> fxModels = new HashMap<String, MonteCarloProcessFromProcessModel>();
 
 			return new CrossCurrencyLIBORMarketModelFromModels(
 					"USD"	/* base model */,

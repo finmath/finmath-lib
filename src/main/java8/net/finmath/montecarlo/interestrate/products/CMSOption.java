@@ -11,7 +11,7 @@ import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -63,7 +63,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 		/*
 		 * Calculate value of the swap at exercise date on each path (beware of perfect forsight - all rates are simulationTime=exerciseDate)
 		 */
@@ -79,7 +79,7 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 			final double periodLength	= periodLengths != null ? periodLengths[period] : paymentDate - fixingDate;
 
 			// Get random variables - note that this is the rate at simulation time = exerciseDate
-			final RandomVariable libor	= model.getLIBOR(exerciseDate, fixingDate, paymentDate);
+			final RandomVariable libor	= model.getForwardRate(exerciseDate, fixingDate, paymentDate);
 
 			// Add payment received at end of period
 			final RandomVariable payoff = new RandomVariableFromDoubleArray(paymentDate, 1.0 * periodLength);
@@ -94,13 +94,13 @@ public class CMSOption extends AbstractLIBORMonteCarloProduct {
 		final RandomVariable parSwapRate = valueFloatLeg.div(valueFixLeg);
 
 		RandomVariable payoffUnit	= new RandomVariableFromDoubleArray(paymentDates[0], periodLengths[0]);
-		payoffUnit = payoffUnit.discount(model.getLIBOR(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
+		payoffUnit = payoffUnit.discount(model.getForwardRate(exerciseDate, fixingDates[0], paymentDates[0]),paymentDates[0]-fixingDates[0]);
 
 		RandomVariable value = parSwapRate.sub(strike).floor(0.0).mult(payoffUnit);
 
 		// If the exercise date is not the first periods start date, then discount back to the exercise date (calculate the forward starting swap)
 		if(fixingDates[0] != exerciseDate) {
-			final RandomVariable libor	= model.getLIBOR(exerciseDate, exerciseDate, fixingDates[0]);
+			final RandomVariable libor	= model.getForwardRate(exerciseDate, exerciseDate, fixingDates[0]);
 			final double periodLength	= fixingDates[0] - exerciseDate;
 
 			// Discount back to beginning of period

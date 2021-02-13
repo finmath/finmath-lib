@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products.indices;
 import java.util.Set;
 
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -34,7 +34,7 @@ public class FixedCoupon extends AbstractIndex {
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) {
 		return coupon;
 	}
 

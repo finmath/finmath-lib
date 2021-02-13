@@ -294,7 +294,7 @@ public final class Black76Model {
 
 		// Efficient implementation of Black derivatives
 		// We have b(x) = b0, db(x)/dx = b1, d^2b(x)/dx^2 = b2 * b1, d^3b(x)/dx^3 = b3 * b1
-		Function<Double, Double[]> BlackFunctionDerivatives = sigma -> {
+		final Function<Double, Double[]> BlackFunctionDerivatives = sigma -> {
 			final double d1 = x / sigma;
 			final double d2 = 0.5 * sigma;
 			final double d1Square = d1 * d1;
@@ -308,7 +308,7 @@ public final class Black76Model {
 
 		if (beta <= bLower)
 		{
-			Function<Double, Double> HouseholderStep = sigma ->
+			final Function<Double, Double> HouseholderStep = sigma ->
 			{
 				final Double[] derivatives = BlackFunctionDerivatives.apply(sigma);
 				final double b0 = derivatives[0];
@@ -329,7 +329,7 @@ public final class Black76Model {
 		}
 		else if (beta <= bTildeUpper)
 		{
-			Function<Double, Double> HouseholderStep = sigma ->
+			final Function<Double, Double> HouseholderStep = sigma ->
 			{
 				final Double[] deriv = BlackFunctionDerivatives.apply(sigma);
 				final double b0 = deriv[0] - beta;
@@ -346,7 +346,7 @@ public final class Black76Model {
 		}
 		else
 		{
-			Function<Double, Double> HouseholderStep = sigma ->
+			final Function<Double, Double> HouseholderStep = sigma ->
 			{
 				final Double[] deriv = BlackFunctionDerivatives.apply(sigma);
 				final double b0 = deriv[0];

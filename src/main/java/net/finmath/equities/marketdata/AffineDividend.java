@@ -26,7 +26,7 @@ public class AffineDividend {
 		this.date = date;
 		this.cashDividend = cashDividend;
 		this.propDividendFactor = propDividendFactor;
-	};
+	}
 
 	public LocalDate getDate()
 	{

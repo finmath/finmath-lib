@@ -16,7 +16,7 @@ import java.util.concurrent.RejectedExecutionException;
 import net.finmath.concurrency.FutureWrapper;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.MonteCarloProduct;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -95,7 +95,7 @@ public class ProductCollection extends AbstractProductComponent {
 	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
 	 */
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Ignite asynchronous calculation if possible
 		final ArrayList< Future<RandomVariable> > results = new ArrayList< >();

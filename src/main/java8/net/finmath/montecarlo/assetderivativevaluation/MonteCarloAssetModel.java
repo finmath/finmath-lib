@@ -47,7 +47,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	/**
 	 * Convenient constructor being the same as this(new EulerSchemeFromProcessModel(model, stochasticDriver))
-	 * 
+	 *
 	 * @param model The model to use for the EulerSchemeFromProcessModel.
 	 * @param stochasticDriver The stochatic driver to use.
 	 */
@@ -62,6 +62,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	 * @param process The numerical scheme to be used.
 	 * @deprecated May be made private in future releases.
 	 */
+	@Deprecated
 	public MonteCarloAssetModel(
 			final ProcessModel model,
 			final MonteCarloProcess process) {
@@ -73,7 +74,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 
 	@Override
 	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
-		int timeIndex = getTimeIndex(time);
+		final int timeIndex = getTimeIndex(time);
 		if(timeIndex < 0) {
 			throw new IllegalArgumentException("The model does not provide an interpolation of simulation time (time given was " + time + ").");
 		}
@@ -133,7 +134,7 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 			newProcess = process.getCloneWithModifiedModel(newModel);
 		}
 
-		return new MonteCarloAssetModel(newModel, newProcess);
+		return new MonteCarloAssetModel(newProcess);
 	}
 
 	/**

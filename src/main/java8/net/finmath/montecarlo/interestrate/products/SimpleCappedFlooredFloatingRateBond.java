@@ -7,7 +7,7 @@
 package net.finmath.montecarlo.interestrate.products;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -35,7 +35,7 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 	}
 
 	@Override
-	public RandomVariable getValue(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
 		// Accumulating values in the random variable
 		RandomVariable value = model.getRandomVariableForConstant(0.0);
@@ -46,7 +46,7 @@ public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarlo
 			final double periodLength = paymentDate-fixingDate;
 
 			// Get floating rate for coupon
-			RandomVariable coupon = model.getLIBOR(fixingDate, fixingDate, paymentDate);
+			RandomVariable coupon = model.getForwardRate(fixingDate, fixingDate, paymentDate);
 
 			// Apply spread, if any
 			if(spreads != null) {
