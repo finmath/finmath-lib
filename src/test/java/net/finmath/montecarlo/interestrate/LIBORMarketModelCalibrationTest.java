@@ -51,6 +51,7 @@ import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
@@ -127,7 +128,7 @@ public class LIBORMarketModelCalibrationTest {
 	/**
 	 * Brute force Monte-Carlo calibration of swaptions.
 	 *
-	 * The test also performs a test on the serialization of the LMM. It serialized the calibrated model into a byte array,
+	 * The test also performs a test on the serialization of the LMM. It serializes the calibrated model into a byte array,
 	 * reads the model back and compares a simulation using the serialized model with the original one.
 	 *
 	 * @throws CalculationException Thrown if the model fails to calibrate.
@@ -274,7 +275,7 @@ public class LIBORMarketModelCalibrationTest {
 		/*
 		 * Create Brownian motions
 		 */
-		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
+		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
 		//final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionCudaWithHostRandomVariable(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
 		//final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionCudaWithRandomVariableCuda(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 31415 /* seed */);
 
