@@ -587,6 +587,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					try {
 						setValues(parametersNew, derivative);
 					} catch (final Exception e) {
+						logger.severe("Valuation failed with exaption " + e.getMessage() + "\n" + e.getStackTrace());
 						// We signal an exception to calculate the derivative as NaN
 						Arrays.fill(derivative, Double.NaN);
 					}
