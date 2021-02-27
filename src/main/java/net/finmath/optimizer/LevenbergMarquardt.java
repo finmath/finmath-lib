@@ -762,7 +762,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 		while (hessianInvalid) {
 			hessianInvalid = false;
-			// Build matrix H (hessian approximation)
+			// Build matrix H (Hessian approximation)
 			for (int i = 0; i < parameterCurrent.length; i++) {
 				for (int j = i; j < parameterCurrent.length; j++) {
 					double alphaElement = 0.0;
