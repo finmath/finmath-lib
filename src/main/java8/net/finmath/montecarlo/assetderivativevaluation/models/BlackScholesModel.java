@@ -58,19 +58,19 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
 			final RandomVariable initialValue,
 			final RandomVariable riskFreeRate,
 			final RandomVariable volatility,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		super();
 
 		this.initialValue = initialValue;
 		this.volatility = volatility;
 		this.riskFreeRate	= riskFreeRate;
-		this.randomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		// Cache
 		initialState = new RandomVariable[] { initialValue.log() };
@@ -84,14 +84,14 @@ public class BlackScholesModel extends AbstractProcessModel {
 	 * @param initialValue Spot value.
 	 * @param riskFreeRate The risk free rate.
 	 * @param volatility The log volatility.
-	 * @param abstractRandomVariableFactory The random variable factory used to create random variables from constants.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
 	 */
 	public BlackScholesModel(
 			final double initialValue,
 			final double riskFreeRate,
 			final double volatility,
-			final RandomVariableFactory abstractRandomVariableFactory) {
-		this(abstractRandomVariableFactory.createRandomVariable(initialValue), abstractRandomVariableFactory.createRandomVariable(riskFreeRate), abstractRandomVariableFactory.createRandomVariable(volatility), abstractRandomVariableFactory);
+			final RandomVariableFactory randomVariableFactory) {
+		this(randomVariableFactory.createRandomVariable(initialValue), randomVariableFactory.createRandomVariable(riskFreeRate), randomVariableFactory.createRandomVariable(volatility), randomVariableFactory);
 	}
 
 	/**
@@ -196,7 +196,7 @@ public class BlackScholesModel extends AbstractProcessModel {
 	@Override
 	public String toString() {
 		return "BlackScholesModel [initialValue=" + initialValue + ", riskFreeRate=" + riskFreeRate + ", volatility="
-				+ volatility + ", abstractRandomVariableFactory=" + randomVariableFactory + ", initialState="
+				+ volatility + ", randomVariableFactory=" + randomVariableFactory + ", initialState="
 				+ Arrays.toString(initialState) + ", drift=" + Arrays.toString(drift) + ", factorLoadings="
 				+ Arrays.toString(factorLoadings) + "]";
 	}

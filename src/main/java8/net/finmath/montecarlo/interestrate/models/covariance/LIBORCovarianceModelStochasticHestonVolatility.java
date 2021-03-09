@@ -269,14 +269,14 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 		RandomVariable theta = this.theta;
 		RandomVariable xi = this.xi;
 		boolean isCalibrateable = this.isCalibrateable;
-		RandomVariableFactory abstractRandomVariableFactory = null;
+		RandomVariableFactory randomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
-				kappa = abstractRandomVariableFactory.createRandomVariable(kappa.doubleValue());
-				theta = abstractRandomVariableFactory.createRandomVariable(theta.doubleValue());
-				xi = abstractRandomVariableFactory.createRandomVariable(xi.doubleValue());
+				randomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				kappa = randomVariableFactory.createRandomVariable(kappa.doubleValue());
+				theta = randomVariableFactory.createRandomVariable(theta.doubleValue());
+				xi = randomVariableFactory.createRandomVariable(xi.doubleValue());
 			}
 			if(!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -289,24 +289,24 @@ public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBO
 
 			if(dataModified.getOrDefault("kappa", kappa) instanceof RandomVariable) {
 				kappa = (RandomVariable)dataModified.getOrDefault("kappa", kappa);
-			}else if(abstractRandomVariableFactory==null){
+			}else if(randomVariableFactory==null){
 				kappa = new Scalar((double)dataModified.get("kappa"));
 			}else {
-				kappa = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("kappa"));
+				kappa = randomVariableFactory.createRandomVariable((double)dataModified.get("kappa"));
 			}
 			if(dataModified.getOrDefault("theta", theta) instanceof RandomVariable) {
 				theta = (RandomVariable)dataModified.getOrDefault("rho", theta);
-			}else if(abstractRandomVariableFactory==null){
+			}else if(randomVariableFactory==null){
 				theta = new Scalar((double)dataModified.get("theta"));
 			}else {
-				theta = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("theta"));
+				theta = randomVariableFactory.createRandomVariable((double)dataModified.get("theta"));
 			}
 			if(dataModified.getOrDefault("xi", xi) instanceof RandomVariable) {
 				xi = (RandomVariable)dataModified.getOrDefault("xi", xi);
-			}else if(abstractRandomVariableFactory==null){
+			}else if(randomVariableFactory==null){
 				xi = new Scalar((double)dataModified.get("xi"));
 			}else {
-				xi = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
+				xi = randomVariableFactory.createRandomVariable((double)dataModified.get("xi"));
 			}
 		}
 

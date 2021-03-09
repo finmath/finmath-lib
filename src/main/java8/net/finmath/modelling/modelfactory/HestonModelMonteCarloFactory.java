@@ -29,15 +29,15 @@ import net.finmath.montecarlo.process.MonteCarloProcess;
 public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDescriptor> {
 
 	private final net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme scheme;
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 	private final IndependentIncrements brownianMotion;
 
 
-	public HestonModelMonteCarloFactory(final Scheme scheme, final RandomVariableFactory abstractRandomVariableFactory,
+	public HestonModelMonteCarloFactory(final Scheme scheme, final RandomVariableFactory randomVariableFactory,
 			final IndependentIncrements brownianMotion) {
 		super();
 		this.scheme = scheme;
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.brownianMotion = brownianMotion;
 	}
 
@@ -73,7 +73,7 @@ public class HestonModelMonteCarloFactory implements ModelFactory<HestonModelDes
 			}
 		}
 
-		final HestonModel model = new HestonModel(modelDescriptor, scheme, abstractRandomVariableFactory);
+		final HestonModel model = new HestonModel(modelDescriptor, scheme, randomVariableFactory);
 
 		return new HestonMonteCarloModel(
 				model,

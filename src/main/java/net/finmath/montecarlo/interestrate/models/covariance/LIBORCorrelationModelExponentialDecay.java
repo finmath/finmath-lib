@@ -32,7 +32,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	private static final long serialVersionUID = -8218022418731667531L;
 
 	private final	int			numberOfFactors;
-	private final 		double		a;
+	private final 	double		a;
 	private final	boolean		isCalibrateable;
 
 	private double[][]	correlationMatrix;

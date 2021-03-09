@@ -53,7 +53,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	gammaIncrements;
 
@@ -177,7 +177,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				gammaIncrements[timeIndex][factor] =
-						abstractRandomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -199,7 +199,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/**

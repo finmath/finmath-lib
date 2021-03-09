@@ -154,22 +154,22 @@ public class LIBORMarketModelCalibrationAADTest {
 
 		System.out.println("\n" + solverType + " - " + optimizerType + " - " + derivativeType + "\n");
 
-		RandomVariableFactory abstractRandomVariableFactory;
+		RandomVariableFactory randomVariableFactory;
 		switch(derivativeType) {
 		case FINITE_DIFFERENCES:
-			abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+			randomVariableFactory = new RandomVariableFromArrayFactory();
 			break;
 		case ADJOINT_AUTOMATIC_DIFFERENTIATION:
-			abstractRandomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
+			randomVariableFactory = new RandomVariableDifferentiableAADFactory(new RandomVariableFromArrayFactory());
 			break;
 		default:
-			abstractRandomVariableFactory = null;
+			randomVariableFactory = null;
 		}
 
 
 		testProperties = new HashMap<>();
 
-		testProperties.put("RandomVariableFactory", abstractRandomVariableFactory);
+		testProperties.put("RandomVariableFactory", randomVariableFactory);
 		testProperties.put("OptimizerType", 		optimizerType);
 		testProperties.put("DerivativeType", 		derivativeType);
 		testProperties.put("SolverType", 			solverType);
@@ -200,7 +200,7 @@ public class LIBORMarketModelCalibrationAADTest {
 
 		final long startMillis	= System.currentTimeMillis();
 
-		final RandomVariableFactory abstractRandomVariableFactory = (RandomVariableFactory) testProperties.getOrDefault("RandomVariableFactory", new RandomVariableFromArrayFactory());
+		final RandomVariableFactory randomVariableFactory = (RandomVariableFactory) testProperties.getOrDefault("RandomVariableFactory", new RandomVariableFromArrayFactory());
 		final ValueUnit valueUnit 						= (ValueUnit) 		testProperties.getOrDefault(	"ValueUnit", ValueUnit.VOLATILITYNORMAL);
 		final OptimizerType optimizerType 				= (OptimizerType) 	testProperties.getOrDefault(	"OptimizerType", OptimizerType.STOCHASTIC_LEVENBERG_MARQUARDT);
 		final OptimizerDerivativeType derivativeType 	= (OptimizerDerivativeType) testProperties.getOrDefault(	"DerivativeType", OptimizerDerivativeType.FINITE_DIFFERENCES);
@@ -260,7 +260,7 @@ public class LIBORMarketModelCalibrationAADTest {
 
 				final RandomVariable[] initialParametersRV = new RandomVariable[initialParameters.length];
 				for(int i=0; i<initialParameters.length; i++) {
-					initialParametersRV[i] = abstractRandomVariableFactory.createRandomVariable(initialParameters[i].doubleValue());
+					initialParametersRV[i] = randomVariableFactory.createRandomVariable(initialParameters[i].doubleValue());
 				}
 
 				final RandomVariable[] parameterSteps = null;
@@ -412,7 +412,7 @@ public class LIBORMarketModelCalibrationAADTest {
 			 */
 			final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, seed);
 
-			final AbstractLIBORCovarianceModelParametric covarianceModelParametric = createInitialCovarianceModel(abstractRandomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors);
+			final AbstractLIBORCovarianceModelParametric covarianceModelParametric = createInitialCovarianceModel(randomVariableFactory, timeDiscretizationFromArray, liborPeriodDiscretization, numberOfFactors);
 
 			// Set model properties
 			final Map<String, Object> calibrtionProperties = new HashMap<>();
@@ -459,7 +459,7 @@ public class LIBORMarketModelCalibrationAADTest {
 					liborPeriodDiscretization,
 					curveModel,
 					forwardCurve, new DiscountCurveFromForwardCurve(forwardCurve),
-					abstractRandomVariableFactory,
+					randomVariableFactory,
 					covarianceModelParametric,
 					calibrationItemsLMM,
 					calibrtionProperties);
@@ -779,10 +779,10 @@ public class LIBORMarketModelCalibrationAADTest {
 	}
 
 
-	private static AbstractLIBORCovarianceModelParametric createInitialCovarianceModel(final RandomVariableFactory abstractRandomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
+	private static AbstractLIBORCovarianceModelParametric createInitialCovarianceModel(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
 		/* volatility model from piecewise constant interpolated matrix */
 		final TimeDiscretization volatilitySurfaceDiscretization = new TimeDiscretizationFromArray(0.00, 1.0, 2.0, 5.0, 10.0, 20.0, 30.0, 40.0);
-		final RandomVariable[] initialVolatility = new RandomVariable[] { abstractRandomVariableFactory.createRandomVariable(0.50 / 100) };
+		final RandomVariable[] initialVolatility = new RandomVariable[] { randomVariableFactory.createRandomVariable(0.50 / 100) };
 		final LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelPiecewiseConstant(timeDiscretization, liborPeriodDiscretization, volatilitySurfaceDiscretization, volatilitySurfaceDiscretization, initialVolatility, true);
 
 		//		/* volatility model from given matrix */
@@ -798,7 +798,7 @@ public class LIBORMarketModelCalibrationAADTest {
 		final AbstractLIBORCovarianceModelParametric covarianceModelParametric = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretization, liborPeriodDiscretization, volatilityModel, correlationModel);
 
 		// Create blended local volatility model with fixed parameter (0=lognormal, > 1 = almost a normal model).
-		final AbstractLIBORCovarianceModelParametric covarianceModelDisplaced = new DisplacedLocalVolatilityModel(covarianceModelParametric, abstractRandomVariableFactory.createRandomVariable(1.0/0.25), false /* isCalibrateable */);
+		final AbstractLIBORCovarianceModelParametric covarianceModelDisplaced = new DisplacedLocalVolatilityModel(covarianceModelParametric, randomVariableFactory.createRandomVariable(1.0/0.25), false /* isCalibrateable */);
 
 		return covarianceModelDisplaced;
 	}

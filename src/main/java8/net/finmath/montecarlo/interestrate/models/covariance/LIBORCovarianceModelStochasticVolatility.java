@@ -267,13 +267,13 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 		RandomVariable rho = this.rho;
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
-		RandomVariableFactory abstractRandomVariableFactory = null;
+		RandomVariableFactory randomVariableFactory = null;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {
-				abstractRandomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
-				nu = abstractRandomVariableFactory.createRandomVariable(nu.doubleValue());
-				rho = abstractRandomVariableFactory.createRandomVariable(rho.doubleValue());
+				randomVariableFactory = (RandomVariableFactory)dataModified.get("randomVariableFactory");
+				nu = randomVariableFactory.createRandomVariable(nu.doubleValue());
+				rho = randomVariableFactory.createRandomVariable(rho.doubleValue());
 			}
 			if (!dataModified.containsKey("covarianceModel")) {
 				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);
@@ -286,17 +286,17 @@ public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovar
 
 			if(dataModified.getOrDefault("nu", nu) instanceof RandomVariable) {
 				nu = (RandomVariable)dataModified.getOrDefault("nu", nu);
-			}else if(abstractRandomVariableFactory == null){
+			}else if(randomVariableFactory == null){
 				nu = new Scalar((double)dataModified.get("nu"));
 			}else {
-				nu = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("nu"));
+				nu = randomVariableFactory.createRandomVariable((double)dataModified.get("nu"));
 			}
 			if(dataModified.getOrDefault("rho", rho) instanceof RandomVariable) {
 				rho = (RandomVariable)dataModified.getOrDefault("rho", rho);
-			}else if(abstractRandomVariableFactory == null){
+			}else if(randomVariableFactory == null){
 				rho = new Scalar((double)dataModified.get("rho"));
 			}else {
-				rho = abstractRandomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
+				rho = randomVariableFactory.createRandomVariable((double)dataModified.get("rho"));
 			}
 		}
 

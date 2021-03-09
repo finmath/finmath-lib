@@ -39,7 +39,7 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 	private GammaProcess myGammaProcess;
 	private BrownianMotion myBrownianMotion;
 
-	private final RandomVariableFactory abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
 
 	private transient RandomVariable[][]	varianceGammaIncrements;
 
@@ -162,7 +162,7 @@ public class VarianceGammaProcess implements IndependentIncrements, Serializable
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

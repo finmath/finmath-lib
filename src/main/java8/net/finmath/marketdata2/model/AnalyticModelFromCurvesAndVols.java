@@ -37,7 +37,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 *
 	 */
 	private static final long serialVersionUID = -1551367852009541732L;
-	private final RandomVariableFactory			abstractRandomVariableFactory;
+	private final RandomVariableFactory			randomVariableFactory;
 	private final Map<String, Curve>			curvesMap					= new HashMap<>();
 	private final Map<String, VolatilitySurface>	volatilitySurfaceMap	= new HashMap<>();
 
@@ -45,16 +45,16 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	 * Create an empty analytic model.
 	 */
 	public AnalyticModelFromCurvesAndVols() {
-		abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+		randomVariableFactory = new RandomVariableFromArrayFactory();
 	}
 
 	/**
 	 * Create an empty analytic model using a given AbstractRandomVariableFactory for construction of result types.
 	 *
-	 * @param abstractRandomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 */
-	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory abstractRandomVariableFactory) {
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory randomVariableFactory) {
+		this.randomVariableFactory = randomVariableFactory;
 	}
 
 	/**
@@ -72,11 +72,11 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 	/**
 	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
 	 *
-	 * @param abstractRandomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
 	 * @param curves The vector of curves.
 	 */
-	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory abstractRandomVariableFactory, final Curve[] curves) {
-		this(abstractRandomVariableFactory);
+	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory randomVariableFactory, final Curve[] curves) {
+		this(randomVariableFactory);
 		for (final Curve curve : curves) {
 			curvesMap.put(curve.getName(), curve);
 		}
@@ -96,7 +96,7 @@ public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializab
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

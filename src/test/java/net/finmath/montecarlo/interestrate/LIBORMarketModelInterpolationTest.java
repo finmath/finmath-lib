@@ -67,7 +67,7 @@ public class LIBORMarketModelInterpolationTest {
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(
 			final LIBORMarketModelFromCovarianceModel.InterpolationMethod interpolationMethod,
-			final RandomVariableFactory abstractRandomVariableFactory, final int numberOfPaths, final int numberOfFactors, final double correlationDecayParam) throws CalculationException {
+			final RandomVariableFactory randomVariableFactory, final int numberOfPaths, final int numberOfFactors, final double correlationDecayParam) throws CalculationException {
 
 		/*
 		 * Create the libor tenor structure and the initial values
@@ -133,7 +133,7 @@ public class LIBORMarketModelInterpolationTest {
 		/*
 		 * Create corresponding LIBOR Market Model
 		 */
-		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), abstractRandomVariableFactory, covarianceModel, calibrationItems, properties);
+		final LIBORMarketModel liborMarketModel = new LIBORMarketModelFromCovarianceModel(liborPeriodDiscretization, null /* analyticModel */, forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation), randomVariableFactory, covarianceModel, calibrationItems, properties);
 
 		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors, numberOfPaths, 3141 /* seed */);
 

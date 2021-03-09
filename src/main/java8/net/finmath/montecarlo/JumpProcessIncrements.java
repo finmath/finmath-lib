@@ -44,7 +44,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	private final double[]		jumpIntensities;
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariable[][]	increments;
 	private	transient	Object						incrementsLazyInitLock = new Object();
@@ -61,21 +61,21 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	 * @param jumpIntensities The jump intensities, one for each factor.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
-	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
+	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public JumpProcessIncrements(
 			final TimeDiscretization timeDiscretization,
 			final double[] jumpIntensities,
 			final int numberOfPaths,
 			final int seed,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.jumpIntensities	= jumpIntensities;
 		this.numberOfPaths		= numberOfPaths;
 		this.seed				= seed;
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		increments	= null; 	// Lazy initialization
 	}
@@ -172,7 +172,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<jumpIntensities.length; factor++) {
 				increments[timeIndex][factor] =
-						abstractRandomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -194,7 +194,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class JumpProcessIncrements implements IndependentIncrements, Serializabl
 	public String toString() {
 		return "JumpProcessIncrements [timeDiscretizationFromArray=" + timeDiscretization + ", numberOfPaths=" + numberOfPaths
 				+ ", seed=" + seed + ", jumpIntensities=" + Arrays.toString(jumpIntensities)
-				+ ", randomVariableFactory=" + abstractRandomVariableFactory + "]";
+				+ ", randomVariableFactory=" + randomVariableFactory + "]";
 	}
 
 	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
