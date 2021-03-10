@@ -5,18 +5,26 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 5.1.2 (11.03.2021)
+
+### General
+
+ - Performance improvements for the LIBOR Market Model / Discrete Term Structure Model.
+ - Added log messages to Levenberg Marquardt algortihm.
+
+
 ## 5.1.1 (24.01.2021)
 
-## Monte-Carlo Interest Rate Models
+### Monte-Carlo Interest Rate Models
 
  - Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
 
 
 ## 5.1.0 (24.01.2021)
 
-## Monte-Carlo Interest Rate Models
+### Monte-Carlo Interest Rate Models
 
-### Refactorings
+#### Refactorings
 
  - The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
  - The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.
