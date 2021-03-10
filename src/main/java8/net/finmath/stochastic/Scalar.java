@@ -295,9 +295,6 @@ public class Scalar implements RandomVariable {
 
 	@Override
 	public RandomVariable vid(final RandomVariable randomVariable) {
-		if(value == 0) {
-			return new Scalar(Double.NaN);
-		}
 		return randomVariable.div(value);
 	}
 

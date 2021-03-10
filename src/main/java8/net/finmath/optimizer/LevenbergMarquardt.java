@@ -587,6 +587,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					try {
 						setValues(parametersNew, derivative);
 					} catch (final Exception e) {
+						logger.severe("Valuation failed with exaption " + e.getMessage() + "\n" + e.getStackTrace());
 						// We signal an exception to calculate the derivative as NaN
 						Arrays.fill(derivative, Double.NaN);
 					}
@@ -762,7 +763,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 		while (hessianInvalid) {
 			hessianInvalid = false;
-			// Build matrix H (hessian approximation)
+			// Build matrix H (Hessian approximation)
 			for (int i = 0; i < parameterCurrent.length; i++) {
 				for (int j = i; j < parameterCurrent.length; j++) {
 					double alphaElement = 0.0;
