@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":370,"id":36871,"methods":[{"el":63,"sc":2,"sl":61},{"el":76,"sc":2,"sl":65},{"el":90,"sc":2,"sl":78},{"el":129,"sc":2,"sl":92},{"el":155,"sc":2,"sl":131},{"el":187,"sc":2,"sl":157},{"el":192,"sc":2,"sl":189},{"el":252,"sc":4,"sl":249},{"el":274,"sc":5,"sl":271},{"el":283,"sc":5,"sl":279},{"el":291,"sc":5,"sl":288},{"el":299,"sc":5,"sl":296},{"el":307,"sc":5,"sl":304},{"el":343,"sc":2,"sl":197},{"el":349,"sc":2,"sl":345},{"el":354,"sc":2,"sl":351},{"el":359,"sc":2,"sl":356},{"el":364,"sc":2,"sl":361},{"el":369,"sc":2,"sl":366}],"name":"DisplacedLognormalARMAGARCH","sl":43},{"el":227,"id":36967,"methods":[{"el":225,"sc":4,"sl":205}],"name":"DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction","sl":201}]}
+clover.pageData = {"classes":[{"el":370,"id":36902,"methods":[{"el":63,"sc":2,"sl":61},{"el":76,"sc":2,"sl":65},{"el":90,"sc":2,"sl":78},{"el":129,"sc":2,"sl":92},{"el":155,"sc":2,"sl":131},{"el":187,"sc":2,"sl":157},{"el":192,"sc":2,"sl":189},{"el":252,"sc":4,"sl":249},{"el":274,"sc":5,"sl":271},{"el":283,"sc":5,"sl":279},{"el":291,"sc":5,"sl":288},{"el":299,"sc":5,"sl":296},{"el":307,"sc":5,"sl":304},{"el":343,"sc":2,"sl":197},{"el":349,"sc":2,"sl":345},{"el":354,"sc":2,"sl":351},{"el":359,"sc":2,"sl":356},{"el":364,"sc":2,"sl":361},{"el":369,"sc":2,"sl":366}],"name":"DisplacedLognormalARMAGARCH","sl":43},{"el":227,"id":36998,"methods":[{"el":225,"sc":4,"sl":205}],"name":"DisplacedLognormalARMAGARCH.GARCHMaxLikelihoodFunction","sl":201}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}

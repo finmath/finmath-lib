@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":304,"id":37425,"methods":[{"el":54,"sc":2,"sl":50},{"el":67,"sc":2,"sl":63},{"el":72,"sc":2,"sl":69},{"el":99,"sc":2,"sl":82},{"el":118,"sc":2,"sl":109},{"el":135,"sc":2,"sl":120},{"el":160,"sc":2,"sl":137},{"el":168,"sc":2,"sl":165},{"el":242,"sc":4,"sl":239},{"el":297,"sc":2,"sl":173},{"el":303,"sc":2,"sl":299}],"name":"GARCH","sl":38},{"el":206,"id":37492,"methods":[{"el":204,"sc":4,"sl":181}],"name":"GARCH.GARCHMaxLikelihoodFunction","sl":177}]}
+clover.pageData = {"classes":[{"el":304,"id":37456,"methods":[{"el":54,"sc":2,"sl":50},{"el":67,"sc":2,"sl":63},{"el":72,"sc":2,"sl":69},{"el":99,"sc":2,"sl":82},{"el":118,"sc":2,"sl":109},{"el":135,"sc":2,"sl":120},{"el":160,"sc":2,"sl":137},{"el":168,"sc":2,"sl":165},{"el":242,"sc":4,"sl":239},{"el":297,"sc":2,"sl":173},{"el":303,"sc":2,"sl":299}],"name":"GARCH","sl":38},{"el":206,"id":37523,"methods":[{"el":204,"sc":4,"sl":181}],"name":"GARCH.GARCHMaxLikelihoodFunction","sl":177}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}

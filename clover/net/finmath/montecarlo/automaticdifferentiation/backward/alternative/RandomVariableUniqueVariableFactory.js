@@ -1,7 +1,7 @@
 var clover = new Object();
 
 // JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
-clover.pageData = {"classes":[{"el":112,"id":19035,"methods":[{"el":33,"sc":2,"sl":31},{"el":56,"sc":2,"sl":46},{"el":64,"sc":2,"sl":58},{"el":72,"sc":2,"sl":66},{"el":76,"sc":2,"sl":74},{"el":84,"sc":2,"sl":81},{"el":93,"sc":2,"sl":89},{"el":103,"sc":2,"sl":101},{"el":111,"sc":2,"sl":108}],"name":"RandomVariableUniqueVariableFactory","sl":13}]}
+clover.pageData = {"classes":[{"el":112,"id":19069,"methods":[{"el":33,"sc":2,"sl":31},{"el":56,"sc":2,"sl":46},{"el":64,"sc":2,"sl":58},{"el":72,"sc":2,"sl":66},{"el":76,"sc":2,"sl":74},{"el":84,"sc":2,"sl":81},{"el":93,"sc":2,"sl":89},{"el":103,"sc":2,"sl":101},{"el":111,"sc":2,"sl":108}],"name":"RandomVariableUniqueVariableFactory","sl":13}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
 clover.testTargets = {}
