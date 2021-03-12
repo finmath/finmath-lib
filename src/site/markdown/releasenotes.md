@@ -17,7 +17,7 @@ finmath lib Release Notes
 ### General
 
  - Performance improvements for the LIBOR Market Model / Discrete Term Structure Model.
- - Added log messages to Levenberg Marquardt algortihm.
+ - Added log messages to Levenberg Marquardt algorithm.
 
 
 ## 5.1.1 (24.01.2021)
