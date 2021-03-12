@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 5.1.3 (12.03.2021)
+
+### RandomVariableFactory
+
+ - Fixed issue where default value is used if value is of type RandomVariable. (The bug was not relevant in the current implementation of the models, since models used the method with type Double).
+
+
 ## 5.1.2 (11.03.2021)
 
 ### General
