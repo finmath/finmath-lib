@@ -201,6 +201,16 @@ For documentation please check out
     cover some selected topics with demo spreadsheets and uml diagrams.
     Some topics come with additional documentations (technical papers).
 
+Other Projects
+-------
+	<ul>
+		<li>
+			[finmath lib opencl extensions](https://finmath.net/finmath-lib-opencl-extensions)
+		</li>
+		<li>
+			[finmath lib cuda extensions](https://finmath.net/finmath-lib-cuda-extensions)
+		</li>
+	</ul>
 
 License
 -------
