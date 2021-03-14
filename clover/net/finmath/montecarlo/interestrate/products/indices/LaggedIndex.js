@@ -4,7 +4,7 @@ var clover = new Object();
 clover.pageData = {"classes":[{"el":75,"id":29202,"methods":[{"el":41,"sc":2,"sl":35},{"el":55,"sc":2,"sl":49},{"el":60,"sc":2,"sl":57},{"el":74,"sc":2,"sl":62}],"name":"LaggedIndex","sl":24}]}
 
 // JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
-clover.testTargets = {"test_290":{"methods":[{"sl":49}],"name":"testLIBORInArrearsFloatLeg","pass":true,"statements":[{"sl":50},{"sl":51},{"sl":52},{"sl":53},{"sl":54}]},"test_632":{"methods":[{"sl":49},{"sl":62}],"name":"testLIBORInArrearsFloatLeg","pass":true,"statements":[{"sl":50},{"sl":51},{"sl":52},{"sl":53},{"sl":54},{"sl":64},{"sl":72}]}}
+clover.testTargets = {"test_10":{"methods":[{"sl":49},{"sl":62}],"name":"testLIBORInArrearsFloatLeg","pass":true,"statements":[{"sl":50},{"sl":51},{"sl":52},{"sl":53},{"sl":54},{"sl":64},{"sl":72}]},"test_514":{"methods":[{"sl":49}],"name":"testLIBORInArrearsFloatLeg","pass":true,"statements":[{"sl":50},{"sl":51},{"sl":52},{"sl":53},{"sl":54}]}}
 
 // JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
-clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [290, 632], [290, 632], [290, 632], [290, 632], [290, 632], [290, 632], [], [], [], [], [], [], [], [632], [], [632], [], [], [], [], [], [], [], [632], [], [], []]
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [514, 10], [514, 10], [514, 10], [514, 10], [514, 10], [514, 10], [], [], [], [], [], [], [], [10], [], [10], [], [], [], [], [], [], [], [10], [], [], []]
