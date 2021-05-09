@@ -192,34 +192,34 @@ public class RationalFunctionInterpolation  {
 			return values[pointIndex];
 		}
 
-		int intervallIndex = -pointIndex-2;
+		int intervalIndex = -pointIndex-2;
 
 		// Check for extrapolation
-		if(intervallIndex < 0) {
+		if(intervalIndex < 0) {
 			// Extrapolation
 			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[0];
 			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[0].add((values[1].sub(values[0])).div(points[1]-points[0]).mult(x-points[0]));
 			} else {
-				intervallIndex = 0;
+				intervalIndex = 0;
 			}
 		}
-		else if(intervallIndex > points.length-2) {
+		else if(intervalIndex > points.length-2) {
 			// Extrapolation
 			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[points.length-1];
 			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[points.length-1].add((values[points.length-2].sub(values[points.length-1])).div(points[points.length-2]-points[points.length-1]).mult(x-points[points.length-1]));
 			} else {
-				intervallIndex = points.length-2;
+				intervalIndex = points.length-2;
 			}
 		}
 
-		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
+		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervalIndex];
 
 		// Calculate interpolating value
-		return rationalFunction.getValue(x-points[intervallIndex]);
+		return rationalFunction.getValue(x-points[intervalIndex]);
 	}
 
 	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {

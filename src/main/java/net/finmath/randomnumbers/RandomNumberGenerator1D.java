@@ -10,7 +10,7 @@ import java.util.function.DoubleSupplier;
  * @author Christian Fries
  * @version 1.0
  */
-public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSupplier, Serializable {
+public interface RandomNumberGenerator1D extends RandomNumberGenerator, DoubleSupplier {
 
 	/**
 	 * Thread safe implementation returning the next double value of
