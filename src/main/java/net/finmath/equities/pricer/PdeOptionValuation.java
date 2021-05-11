@@ -401,7 +401,8 @@ public class PdeOptionValuation implements OptionValuation
 					* dFdS / dFdX;
 			final var gamma = discountFactor * (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1)
 			- 2 * prices.getEntry(spotIndex)) / spaceStepSq * dFdS * dFdS / dFdX / dFdX;
-			final var theta = (discountFactor * lastAtmPrice - price) / dt;
+			final var discountFactorTheta = discountCurve.getDiscountFactor(expiryTime - dt);
+			final var theta = (discountFactorTheta * lastAtmPrice - price) / dt;
 			return new double[] {price, delta, gamma, theta};
 		}
 		else

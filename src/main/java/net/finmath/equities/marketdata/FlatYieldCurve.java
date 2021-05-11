@@ -25,6 +25,11 @@ public class FlatYieldCurve {
 		this.rate = rate;
 		this.dayCounter = dayCounter;
 	}
+	
+	public FlatYieldCurve rollToDate(LocalDate date) 
+	{
+		return new FlatYieldCurve(date, rate, dayCounter);
+	}
 
 	public double getRate(double maturity)
 	{

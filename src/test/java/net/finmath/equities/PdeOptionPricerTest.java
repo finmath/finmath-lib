@@ -345,7 +345,7 @@ public class PdeOptionPricerTest {
 			assertEquals("Pde Vega deviates to much from analytic value for "  + (isCall ? "Call" : "Put"),
 					0.0, pdeVega/anaVega - 1.0, 0.02);
 			assertEquals("Pde Theta deviates to much from analytic value for "  + (isCall ? "Call" : "Put"),
-					0.0, pdeSensis[3]/anaTheta - 1.0, 0.02);
+					0.0, pdeSensis[3]/anaTheta - 1.0, 0.04);
 		}
 	}
 

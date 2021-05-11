@@ -58,8 +58,7 @@ public class AnalyticOptionValuation implements OptionValuation
 		final var ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);
 		final var forward = forwardStructure.getForward(expiryDate);
 		final var discountFactor = discountCurve.getDiscountFactor(expiryDate);
-		//var repoRate = forwardStructure.getRepoCurve().getRate(expiryDate);
-		final var repoRate = discountCurve.getRate(expiryDate);
+		final var discountRate = discountCurve.getRate(expiryDate);
 		final var adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);
 		final var adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);
 		final var volatility = volaSurface.getVolatility(
@@ -111,14 +110,7 @@ public class AnalyticOptionValuation implements OptionValuation
 					volatility,
 					option.isCallOption(),
 					discountFactor * adjustedForward,
-					repoRate)
-					- repoRate * Black76Model.optionPrice(
-							1.0,
-							adjustedStrike / adjustedForward,
-							ttm,
-							volatility,
-							option.isCallOption(),
-							discountFactor * adjustedForward);
+					discountRate);
 		default:
 			throw new NotImplementedException("Calculation for " + calcType + " not implemented yet.");
 		}
