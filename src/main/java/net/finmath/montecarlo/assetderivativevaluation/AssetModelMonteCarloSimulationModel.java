@@ -28,7 +28,7 @@ public interface AssetModelMonteCarloSimulationModel extends MonteCarloSimulatio
 	 *
 	 * @return The number of asset price processes
 	 */
-	int					getNumberOfAssets();
+	int getNumberOfAssets();
 
 	/**
 	 * Returns the random variable representing the asset's value at a given time for a given asset.
