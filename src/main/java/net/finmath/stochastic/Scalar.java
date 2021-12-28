@@ -16,13 +16,17 @@ import net.finmath.functions.DoubleTernaryOperator;
  * A scalar value implementing the RandomVariable.
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.0.1
  */
 public class Scalar implements RandomVariable {
 
 	private static final long serialVersionUID = -729437972787062992L;
 
 	private final double value;
+
+	public static Scalar of(final double value) {
+		return new Scalar(value);
+	}
 
 	public Scalar(final double value) {
 		super();
@@ -365,5 +369,11 @@ public class Scalar implements RandomVariable {
 	@Override
 	public RandomVariable isNaN() {
 		return new Scalar(Double.isNaN(value) ? 1.0 : 0.0);
+	}
+
+	@Override
+	public String toString() {
+		return "Scalar [value=" + value + ", filtrationTime=" + getFiltrationTime() + ", typePriority()="
+				+ getTypePriority() + "]";
 	}
 }

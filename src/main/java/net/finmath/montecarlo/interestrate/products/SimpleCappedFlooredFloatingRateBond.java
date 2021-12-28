@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariable;
  *
  * @version 1.0
  */
-public class SimpleCappedFlooredFloatingRateBond extends AbstractLIBORMonteCarloProduct {
+public class SimpleCappedFlooredFloatingRateBond extends AbstractTermStructureMonteCarloProduct {
 
 	private final double[]	fixingDates;	// Vector of fixing dates
 	private final double[]	paymentDates;	// Vector of payment dates (same length as fixing dates)

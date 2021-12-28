@@ -22,7 +22,7 @@ import net.finmath.stochastic.Scalar;
  * @author Christian Fries
  * @version 1.0
  */
-public class FlexiCap extends AbstractLIBORMonteCarloProduct {
+public class FlexiCap extends AbstractTermStructureMonteCarloProduct {
 
 	private final double[]	fixingDates;					// Vector of fixing dates (must be sorted)
 	private final double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)

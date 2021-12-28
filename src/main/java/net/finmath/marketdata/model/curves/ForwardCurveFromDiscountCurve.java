@@ -183,6 +183,7 @@ public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implemen
 						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime+paymentOffset)
 						)
 				: paymentOffset) * daycountScaling;
+
 		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;
 	}
 

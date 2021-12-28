@@ -74,7 +74,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 	private final IndependentIncrements stochasticDriver;
 
-	private Scheme		scheme = Scheme.EULER_FUNCTIONAL;
+	private final Scheme scheme;
 
 	// Used locally for multi-threadded calculation.
 	private ExecutorService executor;
@@ -108,6 +108,18 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization(), model);
 		this.stochasticDriver = stochasticDriver;
+		
+		Scheme scheme = Scheme.EULER_FUNCTIONAL; // Default, unless applyStateSpaceTransformInverse is not provided
+		try {
+			model.applyStateSpaceTransformInverse(null, 0, 0, null);
+		}
+		catch(UnsupportedOperationException e) {
+			// If the inverse is not specified we cannot perform the function EULER
+			scheme = Scheme.EULER;
+		}
+		catch(Exception e) {};
+
+		this.scheme = scheme;
 	}
 
 	/**
@@ -233,11 +245,11 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 						// Apply drift
 						if(driftOfComponent != null) {
-							currentState[componentIndex] = currentState[componentIndex].addProduct(driftOfComponent, deltaT);
+							currentState[componentIndex] = currentState[componentIndex].addProduct(driftOfComponent, deltaT); // mu DeltaT
 						}
 
 						// Apply diffusion
-						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement);
+						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement); // sigma DeltaW
 
 						// Transform the state space to the value space and return it.
 						return applyStateSpaceTransform(timeIndex, componentIndex, currentState[componentIndex]);

@@ -49,7 +49,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovari
 import net.finmath.montecarlo.interestrate.models.covariance.BlendedLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelExponentialForm5Param;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelStochasticVolatility;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionGeneralizedAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -113,7 +113,7 @@ public class LIBORMarketModelCalibrationSmileTest {
 		}
 
 
-		AbstractLIBORMonteCarloProduct product;
+		AbstractTermStructureMonteCarloProduct product;
 		switch(productType) {
 		case "MONTECARLO":
 			product = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
@@ -311,7 +311,7 @@ public class LIBORMarketModelCalibrationSmileTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();

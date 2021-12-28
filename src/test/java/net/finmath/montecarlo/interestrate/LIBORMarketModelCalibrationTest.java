@@ -62,7 +62,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationMod
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelPiecewiseConstant;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionGeneralizedAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -369,8 +369,8 @@ public class LIBORMarketModelCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
-			final AbstractLIBORMonteCarloProduct calibrationBenchmark = calibrationBenchmarks.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationBenchmark = calibrationBenchmarks.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueBenchmarkModel = calibrationBenchmark.getValue(simulationCalibrated);
@@ -423,7 +423,7 @@ public class LIBORMarketModelCalibrationTest {
 
 			System.out.println("\nComparing deserialized model with original model (deviation).");
 			for (int i = 0; i < calibrationProducts.size(); i++) {
-				final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+				final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 				try {
 					final double valueFromCalibratedModel = calibrationProduct.getValue(simulationCalibrated);
 					final double valueFromSerializedModel = calibrationProduct.getValue(simulationFromSerialization);
@@ -489,7 +489,7 @@ public class LIBORMarketModelCalibrationTest {
 		}
 
 
-		AbstractLIBORMonteCarloProduct product;
+		AbstractTermStructureMonteCarloProduct product;
 		switch(calibrationProductType) {
 		case MONTECARLO:
 			product = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
