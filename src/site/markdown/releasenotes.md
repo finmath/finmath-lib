@@ -5,6 +5,15 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.0 (30.12.2021)
+
+### General
+
+ In version 6.0.x several small refactorings will be done. This may take place over multiple patch versions x.
+ 
+ - Refactor rename: AbstractLIBORMonteCarloProduct to AbstractTermStructureMonteCarloProduct
+ 
+
 ## 5.1.3 (12.03.2021)
 
 ### RandomVariableFactory
