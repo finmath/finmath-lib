@@ -1,5 +1,5 @@
-var treeMapJson = {"id":"Clover database Sat Mar 13 2021 23:11:05 CET0","name":"","data":{
-    "$area":37672.0,"$color":42.055107,"title":
+var treeMapJson = {"id":"Clover database Thu Dec 30 2021 22:15:39 CET0","name":"","data":{
+    "$area":37672.0,"$color":42.060417,"title":
     " 37672 Elements, 42.1% Coverage"},"children":[{"id":
       "net.finmath.montecarlo.interestrate20212","name":
       "net.finmath.montecarlo.interestrate","data":{"$area":253.0,"$color":
@@ -995,8 +995,8 @@ var treeMapJson = {"id":"Clover database Sat Mar 13 2021 23:11:05 CET0","name":"
             "title":"VanDerCorputSequence 27 Elements, 0% Coverage"},
           "children":[]}]},{"id":"net.finmath.marketdata.model.curves3970",
       "name":"net.finmath.marketdata.model.curves","data":{"$area":1166.0,
-        "$color":43.310463,"title":
-        "net.finmath.marketdata.model.curves 1166 Elements, 43.3% Coverage"},
+        "$color":43.48199,"title":
+        "net.finmath.marketdata.model.curves 1166 Elements, 43.5% Coverage"},
       "children":[{"id":"AbstractCurve3970","name":"AbstractCurve","data":{
             "$area":23.0,"$color":60.869564,"path":
             "net/finmath/marketdata/model/curves/AbstractCurve.html#AbstractCurve",
@@ -1083,10 +1083,10 @@ var treeMapJson = {"id":"Clover database Sat Mar 13 2021 23:11:05 CET0","name":"
             "DiscountCurveInterpolation 110 Elements, 64.5% Coverage"},
           "children":[]},{"id":"DiscountCurveNelsonSiegelSvensson4637",
           "name":"DiscountCurveNelsonSiegelSvensson","data":{"$area":65.0,
-            "$color":58.46154,"path":
+            "$color":61.538464,"path":
             "net/finmath/marketdata/model/curves/DiscountCurveNelsonSiegelSvensson.html#DiscountCurveNelsonSiegelSvensson",
             "title":
-            "DiscountCurveNelsonSiegelSvensson 65 Elements, 58.5% Coverage"},
+            "DiscountCurveNelsonSiegelSvensson 65 Elements, 61.5% Coverage"},
           "children":[]},{"id":"DiscountCurveRenormalized4702","name":
           "DiscountCurveRenormalized","data":{"$area":32.0,"$color":0.0,
             "path":

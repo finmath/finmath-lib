@@ -351,7 +351,7 @@ var Packages = {
     "text": "curves",
     "package": "net.finmath.marketdata.model.curves",
     "url": "net/finmath/marketdata/model/curves/pkg-summary.html",
-            "coverage": "58.6%",
+            "coverage": "58.7%",
         "icon": "aui-icon aui-icon-small aui-iconfont-devtools-folder-closed",
             "li_attr": {"data-is-link": "true"},
         "a_attr": {"href": "net/finmath/marketdata/model/curves/pkg-summary.html"},

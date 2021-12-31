@@ -1,5 +1,5 @@
-var treeMapJson = {"id":"Clover database Sat Mar 13 2021 23:11:05 CET0","name":"","data":{
-    "$area":37672.0,"$color":42.055107,"title":
+var treeMapJson = {"id":"Clover database Thu Dec 30 2021 22:15:39 CET0","name":"","data":{
+    "$area":37672.0,"$color":42.060417,"title":
     " 37672 Elements, 42.1% Coverage"},"children":[{"id":
       "net.finmath.montecarlo.interestrate20212","name":
       "net.finmath.montecarlo.interestrate","data":{"$area":253.0,"$color":
@@ -96,8 +96,8 @@ var treeMapJson = {"id":"Clover database Sat Mar 13 2021 23:11:05 CET0","name":"
         "title":"net.finmath.randomnumbers 110 Elements, 50.9% Coverage"},
       "children":[]},{"id":"net.finmath.marketdata.model.curves3970","name":
       "net.finmath.marketdata.model.curves","data":{"$area":1166.0,"$color":
-        43.310463,"title":
-        "net.finmath.marketdata.model.curves 1166 Elements, 43.3% Coverage"},
+        43.48199,"title":
+        "net.finmath.marketdata.model.curves 1166 Elements, 43.5% Coverage"},
       "children":[]},{"id":
       "net.finmath.montecarlo.interestrate.products.components28145","name":
       "net.finmath.montecarlo.interestrate.products.components","data":{
