@@ -524,13 +524,6 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		return Math.sqrt(errorMeanSquaredCurrent);
 	}
 
-	/**
-	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
-	 */
-	private void setErrorMeanSquaredCurrent(final double errorMeanSquaredCurrent) {
-		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;
-	}
-
 	@Override
 	public int getIterations() {
 		return iteration;
@@ -587,7 +580,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 					try {
 						setValues(parametersNew, derivative);
 					} catch (final Exception e) {
-						logger.severe("Valuation failed with exaption " + e.getMessage() + "\n" + e.getStackTrace());
+						logger.severe("Valuation failed with exeption " + e.getMessage() + "\n" + e.getStackTrace());
 						// We signal an exception to calculate the derivative as NaN
 						Arrays.fill(derivative, Double.NaN);
 					}
