@@ -677,7 +677,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 				/*
 				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
-				 * That is: NaN is consider as a rejected point.
+				 * That is: NaN is considered as a rejected point.
 				 */
 				if(errorMeanSquaredTest < errorMeanSquaredCurrent) {
 					errorRootMeanSquaredChange = Math.sqrt(errorMeanSquaredCurrent) - Math.sqrt(errorMeanSquaredTest);
@@ -752,39 +752,43 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 			isParameterCurrentDerivativeValid = true;
 		}
 
+		/*
+		 * We solve H \Delta x = b,
+		 * where H = J^T J is the Hessian approximation and b = J^T (y-f(x)) and \Delta x is the parameterIncrement
+		 */
 		boolean hessianInvalid = true;
-
 		while (hessianInvalid) {
 			hessianInvalid = false;
-			// Build matrix H (Hessian approximation)
+			// Build matrix H (Hessian approximation), that is H = J^T J
 			for (int i = 0; i < parameterCurrent.length; i++) {
 				for (int j = i; j < parameterCurrent.length; j++) {
-					double alphaElement = 0.0;
+					double hessianElement = 0.0;
 					for (int valueIndex = 0; valueIndex < valueCurrent.length; valueIndex++) {
-						alphaElement += weights[valueIndex] * derivativeCurrent[i][valueIndex] * derivativeCurrent[j][valueIndex];
+						hessianElement += weights[valueIndex] * derivativeCurrent[i][valueIndex] * derivativeCurrent[j][valueIndex];
 					}
 					if (i == j) {
 						if(regularizationMethod == RegularizationMethod.LEVENBERG) {
 							// RegularizationMethod.LEVENBERG - Regularization with a constant lambda
-							alphaElement += lambda;
+							hessianElement += lambda;
 						}
 						else {
-							// RegularizationMethod.LEVENBERG_MARQUARDT - Regularization with a lambda time the diagonal of JTJ
-							if (alphaElement == 0.0) {
-								alphaElement = lambda;
+							// RegularizationMethod.LEVENBERG_MARQUARDT - Regularization with a lambda time the diagonal of J^T J
+							if (hessianElement == 0.0) {
+								hessianElement = lambda;
 							}
 							else {
-								alphaElement *= 1 + lambda;
+								hessianElement *= 1 + lambda;
 							}
 						}
 					}
 
-					hessianMatrix[i][j] = alphaElement;
-					hessianMatrix[j][i] = alphaElement;
+					// The matrix is symmetric
+					hessianMatrix[i][j] = hessianElement;
+					hessianMatrix[j][i] = hessianElement;
 				}
 			}
 
-			// Build beta (Newton step)
+			// Build right hand side beta - gradient decent step: beta = J^T (y-f(x))
 			for (int i = 0; i < parameterCurrent.length; i++) {
 				double betaElement = 0.0;
 				final double[] derivativeCurrentSingleParam = derivativeCurrent[i];
@@ -796,9 +800,9 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			try {
 				// Calculate new increment
-				//				parameterIncrement = LinearAlgebra.solveLinearEquationLeastSquare(hessianMatrix, beta);
 				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 			} catch (final Exception e) {
+				// Matrix not invertable, increase lambda
 				hessianInvalid	= true;
 				lambda			*= 16;
 			}
