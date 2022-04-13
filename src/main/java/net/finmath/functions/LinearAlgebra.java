@@ -474,8 +474,22 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public double[][] exp(final double[][] matrix) {
+	public static double[][] exp(final double[][] matrix) {
 		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
+	}
+
+	/**
+	 * Calculate the power of a matrix
+	 *
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 *
+	 * @param matrix The given matrix.
+	 * @param exponent The exponent
+	 * @return The pow(matrix, exponent).
+	 */
+	public static double[][] pow(final double[][] matrix, double exponent) {
+		return org.jblas.MatrixFunctions.expm(org.jblas.MatrixFunctions.log(new org.jblas.DoubleMatrix(matrix).mul(exponent))).toArray2();
 	}
 
 	/**
@@ -487,7 +501,7 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public RealMatrix exp(final RealMatrix matrix) {
+	public static RealMatrix exp(final RealMatrix matrix) {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 
@@ -561,5 +575,16 @@ public class LinearAlgebra {
 	 */
 	public static double[][] multMatrices(final double[][] left, final double[][] right){
 		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
+	}
+
+	/**
+	 * Multiplication of matrix and vector. The vector array is interpreted as column vector.
+	 *
+	 * @param matrix The matrix A.
+	 * @param vector The vector v
+	 * @return product The matrix product of A*v (if suitable)
+	 */
+	public static double[] multMatrixVector(final double[][] matrix, final double[] vector){
+		return new Array2DRowRealMatrix(matrix).multiply(new Array2DRowRealMatrix(vector)).getColumn(0);
 	}
 }
