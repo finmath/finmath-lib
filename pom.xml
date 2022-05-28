@@ -190,6 +190,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler-plugin.version}</version>
+				<configuration>
+					<fork>true</fork>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -522,6 +525,7 @@
 							<source>11</source>
 							<target>11</target>
 							<compilerVersion>11</compilerVersion>
+					<fork>true</fork>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -548,6 +552,7 @@
 							<source>1.8</source>
 							<target>1.8</target>
 							<compilerVersion>1.8</compilerVersion>
+					<fork>true</fork>
 						</configuration>
 					</plugin>
 				</plugins>
