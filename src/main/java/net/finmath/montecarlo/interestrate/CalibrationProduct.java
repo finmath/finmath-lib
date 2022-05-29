@@ -5,7 +5,7 @@
  */
 package net.finmath.montecarlo.interestrate;
 
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -17,13 +17,13 @@ import net.finmath.stochastic.Scalar;
 public class CalibrationProduct {
 
 	private final String 	name;
-	private final AbstractLIBORMonteCarloProduct		product;
+	private final AbstractTermStructureMonteCarloProduct		product;
 	private final RandomVariable						targetValue;
 	private final double								weight;
 	private final Integer								priority;
 
 	/**
-	 * Construct a calibration product. A calibration product consists of a product implementing {@link AbstractLIBORMonteCarloProduct}, a target value
+	 * Construct a calibration product. A calibration product consists of a product implementing {@link AbstractTermStructureMonteCarloProduct}, a target value
 	 * given as {@link RandomVariable} and a weight. In addition you may give a short name which may be printed by the logger.
 	 *
 	 * @param name A short name (for example a "SYMBOL" representing the product.
@@ -32,7 +32,7 @@ public class CalibrationProduct {
 	 * @param weight The calibration weight.
 	 * @param priority The priority (may be used when submitting the product for calculation)
 	 */
-	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight, final int priority) {
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight, final int priority) {
 		super();
 		this.name			= name;
 		this.product		= product;
@@ -41,19 +41,19 @@ public class CalibrationProduct {
 		this.priority		= priority;
 	}
 
-	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
 		this(name, product, targetValue, weight, 0);
 	}
 
-	public CalibrationProduct(final String name, final AbstractLIBORMonteCarloProduct product, final double targetValue, final double weight) {
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final double targetValue, final double weight) {
 		this(name, product, new Scalar(targetValue), weight);
 	}
 
-	public CalibrationProduct(final AbstractLIBORMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
+	public CalibrationProduct(final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
 		this(null, product, targetValue, weight);
 	}
 
-	public CalibrationProduct(final AbstractLIBORMonteCarloProduct product, final double targetValue, final double weight) {
+	public CalibrationProduct(final AbstractTermStructureMonteCarloProduct product, final double targetValue, final double weight) {
 		this(product, new Scalar(targetValue), weight);
 	}
 
@@ -73,7 +73,7 @@ public class CalibrationProduct {
 	/**
 	 * @return the product.
 	 */
-	public AbstractLIBORMonteCarloProduct getProduct() {
+	public AbstractTermStructureMonteCarloProduct getProduct() {
 		return product;
 	}
 

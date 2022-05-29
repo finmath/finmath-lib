@@ -76,7 +76,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 
 	private final TimeDiscretization[]		liborPeriodDiscretizations;
-	private final Integer[]							numberOfDiscretizationIntervalls;
+	private final Integer[]							numberOfDiscretizationIntervals;
 
 	private String							forwardCurveName;
 	private final AnalyticModel			curveModel;
@@ -128,7 +128,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	 * </ul>
 	 *
 	 * @param liborPeriodDiscretizations A vector of tenor discretizations of the interest rate curve into forward rates (tenor structure), finest first.
-	 * @param numberOfDiscretizationIntervalls A vector of number of periods to be taken from the liborPeriodDiscretizations.
+	 * @param numberOfDiscretizationIntervals A vector of number of periods to be taken from the liborPeriodDiscretizations.
 	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
 	 * @param forwardRateCurve The initial values for the forward rates.
 	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
@@ -139,7 +139,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	 */
 	public LIBORMarketModelWithTenorRefinement(
 			final TimeDiscretization[]		liborPeriodDiscretizations,
-			final Integer[]							numberOfDiscretizationIntervalls,
+			final Integer[]							numberOfDiscretizationIntervals,
 			final AnalyticModel				analyticModel,
 			final ForwardCurve				forwardRateCurve,
 			final DiscountCurve				discountCurve,
@@ -154,7 +154,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 		}
 
 		this.liborPeriodDiscretizations	= liborPeriodDiscretizations;
-		this.numberOfDiscretizationIntervalls = numberOfDiscretizationIntervalls;
+		this.numberOfDiscretizationIntervals = numberOfDiscretizationIntervals;
 		curveModel					= analyticModel;
 		this.forwardRateCurve	= forwardRateCurve;
 		this.discountCurve		= discountCurve;
@@ -535,12 +535,12 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 		double lastTime		= firstTime;
 		tenorTimes.add(firstTime);
 		for(int discretizationLevelIndex = 0; discretizationLevelIndex<liborPeriodDiscretizations.length; discretizationLevelIndex++) {
-			final int tentorIntervallStartIndex = liborPeriodDiscretizations[discretizationLevelIndex].getTimeIndexNearestLessOrEqual(lastTime)+1;
-			for(int tenorIntervall=0; tenorIntervall<numberOfDiscretizationIntervalls[discretizationLevelIndex]; tenorIntervall++) {
-				if(tentorIntervallStartIndex+tenorIntervall >= liborPeriodDiscretizations[discretizationLevelIndex].getNumberOfTimes()) {
+			final int tentorIntervalStartIndex = liborPeriodDiscretizations[discretizationLevelIndex].getTimeIndexNearestLessOrEqual(lastTime)+1;
+			for(int tenorInterval=0; tenorInterval<numberOfDiscretizationIntervals[discretizationLevelIndex]; tenorInterval++) {
+				if(tentorIntervalStartIndex+tenorInterval >= liborPeriodDiscretizations[discretizationLevelIndex].getNumberOfTimes()) {
 					break;
 				}
-				lastTime = liborPeriodDiscretizations[discretizationLevelIndex].getTime(tentorIntervallStartIndex+tenorIntervall);
+				lastTime = liborPeriodDiscretizations[discretizationLevelIndex].getTime(tentorIntervalStartIndex+tenorInterval);
 				// round to liborPeriodDiscretizations[0]
 				lastTime = liborPeriodDiscretizations[0].getTime(liborPeriodDiscretizations[0].getTimeIndexNearestLessOrEqual(lastTime));
 				tenorTimes.add(lastTime);
@@ -733,7 +733,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 			covarianceModel = (TermStructureCovarianceModel)dataModified.get("covarianceModel");
 		}
 
-		return new LIBORMarketModelWithTenorRefinement(liborPeriodDiscretizations, numberOfDiscretizationIntervalls, curveModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
+		return new LIBORMarketModelWithTenorRefinement(liborPeriodDiscretizations, numberOfDiscretizationIntervals, curveModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);
 	}
 
 	/**

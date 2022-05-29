@@ -22,7 +22,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Christian Fries
  * @version 1.1
  */
-public class CMSOption extends AbstractLIBORMonteCarloProduct {
+public class CMSOption extends AbstractTermStructureMonteCarloProduct {
 	private final double		exerciseDate;	// Exercise date
 	private final double[]	fixingDates;    // Vector of fixing dates (must be sorted)
 	private final double[]	paymentDates;	// Vector of payment dates (same length as fixing dates)

@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.Validate;
 
+import net.finmath.functions.NormalDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -28,7 +29,7 @@ import net.finmath.time.TimeDiscretization;
  * use a different number of factors to generate Ito processes of different
  * dimension.
  *
- * The quadruppel (time discretization, number of factors, number of paths, seed)
+ * The quadruple (time discretization, number of factors, number of paths, seed)
  * defines the state of an object of this class, i.e., BrownianMotionLazyInit for which
  * there parameters agree, generate the same random numbers.
  *
@@ -166,8 +167,10 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 				final double sqrtDeltaT = sqrtOfTimeStep[timeIndex];
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
+					// Get uniform random number
 					final double uniformIncrement = mersenneTwister.nextDoubleFast();
-					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
+					// Transform uniform to normal using ICDF method
+					brownianIncrementsArray[timeIndex][factor][path] = NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
 				}
 			}
 		}

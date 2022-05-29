@@ -22,7 +22,7 @@ import net.finmath.stochastic.Scalar;
  * @author Christian Fries
  * @version 1.1
  */
-public class DigitalCaplet extends AbstractLIBORMonteCarloProduct {
+public class DigitalCaplet extends AbstractTermStructureMonteCarloProduct {
 	private final double	optionMaturity;
 	private final double	periodStart;
 	private final double	periodEnd;

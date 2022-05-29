@@ -23,7 +23,7 @@ import net.finmath.time.Schedule;
  *
  * @version 1.0
  */
-public class SwapLegWithFundingProvider extends AbstractLIBORMonteCarloProduct {
+public class SwapLegWithFundingProvider extends AbstractTermStructureMonteCarloProduct {
 
 	private final Schedule legSchedule;
 	private final double[] notionals;

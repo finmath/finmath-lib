@@ -62,7 +62,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.TermStructCovarianc
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScaling;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingPicewiseConstant;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.LevenbergMarquardt;
@@ -274,7 +274,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
@@ -868,7 +868,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();

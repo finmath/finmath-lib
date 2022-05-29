@@ -93,7 +93,7 @@ public class PiecewiseContantDoubleUnaryOperator implements DoubleUnaryOperator,
 		indexLowerOfUpperBound--;
 
 		if(indexLowerOfUpperBound < indexUpperOfLowerBound) {
-			// lower and upper bound fall in the same intervall
+			// lower and upper bound fall in the same interval
 			return operator.applyAsDouble(values[indexUpperOfLowerBound]) * (upperBound-lowerBound);
 		}
 		else {

@@ -1,3 +1,8 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2016
+ */
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;

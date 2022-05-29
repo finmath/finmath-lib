@@ -23,7 +23,7 @@ import net.finmath.stochastic.Scalar;
  * @version 1.2
  * @date 11.03.2006, 31.05.2009
  */
-public class CancelableSwap extends AbstractLIBORMonteCarloProduct {
+public class CancelableSwap extends AbstractTermStructureMonteCarloProduct {
 
 	private final boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
 	private final double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)

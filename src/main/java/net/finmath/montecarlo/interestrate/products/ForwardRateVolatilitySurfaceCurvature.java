@@ -50,7 +50,7 @@ import net.finmath.stochastic.RandomVariable;
  * @date 12.04.2014.
  * @version 1.0
  */
-public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCarloProduct {
+public class ForwardRateVolatilitySurfaceCurvature extends AbstractTermStructureMonteCarloProduct {
 
 	private double tolerance = 0.0;
 
@@ -155,7 +155,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 				integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.add(curvatureSquared.mult(timeStep1));
 			}
 
-			// Empty intervall - skip
+			// Empty interval - skip
 			if(timeEnd == 0) {
 				continue;
 			}

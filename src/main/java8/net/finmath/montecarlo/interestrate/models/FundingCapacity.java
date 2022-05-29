@@ -84,7 +84,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		/*
 		 * Determine integral bounds (synchronized for thread safety)
 		 */
-		RandomVariable fundingIntervallLeft, fundingIntervallRight;
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
 		synchronized (currentTime) {
 			if(time < currentTime) {
 				throw new IllegalStateException("The method getSurvivalProbabilityRequiredFunding must be called in successive order.");
@@ -97,8 +97,8 @@ public class FundingCapacity extends AbstractProductComponent {
 			 * The integral calculated is always positive, since we require only the factor.
 			 */
 			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);
-			fundingIntervallLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
-			fundingIntervallRight		= currentCapacity.floor(newCapacity);	// max(current,new)
+			fundingIntervalLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
+			fundingIntervalRight		= currentCapacity.floor(newCapacity);	// max(current,new)
 			currentCapacity = newCapacity;
 		}
 
@@ -114,14 +114,14 @@ public class FundingCapacity extends AbstractProductComponent {
 			final double providedLevel = Math.max(previousProvidedLevel,0) + (fundingLevel-Math.max(previousFundingLevel,0)) * survivalProbability;
 
 			integratedDefaultCompensation = integratedDefaultCompensation.add(
-					fundingIntervallRight.cap(providedLevel)
-					.sub(fundingIntervallLeft.floor(previousProvidedLevel))
+					fundingIntervalRight.cap(providedLevel)
+					.sub(fundingIntervalLeft.floor(previousProvidedLevel))
 					.floor(0.0)
 					.div(survivalProbability));
 
 			integratedSurvivalProbability = integratedSurvivalProbability.add(
-					fundingIntervallRight.cap(fundingLevel)
-					.sub(fundingIntervallLeft.floor(previousFundingLevel))
+					fundingIntervalRight.cap(fundingLevel)
+					.sub(fundingIntervalLeft.floor(previousFundingLevel))
 					.floor(0.0)
 					.mult(survivalProbability));
 
@@ -131,7 +131,7 @@ public class FundingCapacity extends AbstractProductComponent {
 		}
 
 		// The cap is used to map to avoid 0*infty to zero.
-		final RandomVariable oneOverFundingAmount = fundingIntervallRight.sub(fundingIntervallLeft).invert().cap(Double.MAX_VALUE);
+		final RandomVariable oneOverFundingAmount = fundingIntervalRight.sub(fundingIntervalLeft).invert().cap(Double.MAX_VALUE);
 		integratedSurvivalProbability = integratedSurvivalProbability.mult(oneOverFundingAmount);
 		integratedDefaultCompensation = integratedDefaultCompensation.mult(oneOverFundingAmount);
 
@@ -140,7 +140,7 @@ public class FundingCapacity extends AbstractProductComponent {
 
 	public RandomVariable getDefaultCompensationForRequiredFunding(double time, RandomVariable fundingRequirement) {
 
-		RandomVariable fundingIntervallLeft, fundingIntervallRight;
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
 		synchronized (currentTime) {
 			if(time < currentTime) {
 				throw new IllegalStateException("The method getSurvivalProbabilityRequiredFunding must be called in successive order.");
@@ -153,8 +153,8 @@ public class FundingCapacity extends AbstractProductComponent {
 			 * The integral calculated is always positive, the correct sign of the integral will be checked later.
 			 */
 			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);
-			fundingIntervallLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
-			fundingIntervallRight		= currentCapacity.floor(newCapacity);	// max(current,new)
+			fundingIntervalLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
+			fundingIntervalRight		= currentCapacity.floor(newCapacity);	// max(current,new)
 			currentCapacity = newCapacity;
 		}
 
@@ -168,13 +168,13 @@ public class FundingCapacity extends AbstractProductComponent {
 			final double providedLevel = Math.max(previousProvidedLevel,0) + (fundingLevel-Math.max(previousFundingLevel,0)) * survivalProbability;
 
 			integratedSurvivalProbability = integratedSurvivalProbability.add(
-					fundingIntervallRight.cap(providedLevel)
-					.sub(fundingIntervallLeft.floor(previousProvidedLevel))
+					fundingIntervalRight.cap(providedLevel)
+					.sub(fundingIntervalLeft.floor(previousProvidedLevel))
 					.floor(0.0)
 					.div(survivalProbability));
 			previousFundingLevel = fundingLevel;
 		}
-		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervallRight.sub(fundingIntervallLeft));
+		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervalRight.sub(fundingIntervalLeft));
 
 
 		return integratedSurvivalProbability;
@@ -182,7 +182,7 @@ public class FundingCapacity extends AbstractProductComponent {
 
 	public RandomVariable getSurvivalProbabilityRequiredFunding(double time, RandomVariable fundingRequirement) {
 
-		RandomVariable fundingIntervallLeft, fundingIntervallRight;
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
 		synchronized (currentTime) {
 			if(time < currentTime) {
 				throw new IllegalStateException("The method getSurvivalProbabilityRequiredFunding must be called in successive order.");
@@ -196,8 +196,8 @@ public class FundingCapacity extends AbstractProductComponent {
 			 * The integral calculated is always positive, the correct sign of the integral will be checked later.
 			 */
 			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);
-			fundingIntervallLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
-			fundingIntervallRight		= currentCapacity.floor(newCapacity);	// max(current,new)
+			fundingIntervalLeft		= currentCapacity.cap(newCapacity);		// min(current,new)
+			fundingIntervalRight		= currentCapacity.floor(newCapacity);	// max(current,new)
 			currentCapacity = newCapacity;
 		}
 
@@ -208,13 +208,13 @@ public class FundingCapacity extends AbstractProductComponent {
 			final double survivalProbability = entry.getValue();
 
 			integratedSurvivalProbability = integratedSurvivalProbability.add(
-					fundingIntervallRight.cap(fundingLevel)
-					.sub(fundingIntervallLeft.floor(previousFundingLevel))
+					fundingIntervalRight.cap(fundingLevel)
+					.sub(fundingIntervalLeft.floor(previousFundingLevel))
 					.floor(0.0)
 					.mult(survivalProbability));
 			previousFundingLevel = fundingLevel;
 		}
-		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervallRight.sub(fundingIntervallLeft));
+		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervalRight.sub(fundingIntervalLeft));
 
 
 		return integratedSurvivalProbability;

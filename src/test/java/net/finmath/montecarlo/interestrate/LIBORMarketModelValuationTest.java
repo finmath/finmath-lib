@@ -40,7 +40,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceMode
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFourParameterExponentialForm;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.DigitalCaplet;
 import net.finmath.montecarlo.interestrate.products.SimpleSwap;
@@ -791,7 +791,7 @@ public class LIBORMarketModelValuationTest {
 		double deviationSum = 0.0;
 		double deviationSquaredSum = 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 			final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
 			deviationSum += (valueModel-valueTarget);

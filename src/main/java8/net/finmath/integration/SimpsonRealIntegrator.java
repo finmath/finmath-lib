@@ -54,23 +54,23 @@ public class SimpsonRealIntegrator extends AbstractRealIntegral{
 		final double	upperBound			= getUpperBound();
 		final double	range				= upperBound-lowerBound;
 
-		final int		numberOfDoubleSizeIntervalls	= (int) ((numberOfEvaluationPoints-1) / 2.0);
+		final int		numberOfDoubleSizeIntervals	= (int) ((numberOfEvaluationPoints-1) / 2.0);
 
-		final double doubleIntervall = range / numberOfDoubleSizeIntervalls;
-		final double singleIntervall = 0.5 * doubleIntervall;
+		final double doubleInterval = range / numberOfDoubleSizeIntervals;
+		final double singleInterval = 0.5 * doubleInterval;
 
-		IntStream intervals = IntStream.range(1, numberOfDoubleSizeIntervalls);
+		IntStream intervals = IntStream.range(1, numberOfDoubleSizeIntervals);
 
 		if(useParallelEvaluation) {
 			intervals = intervals.parallel();
 		}
 
 		double sum = intervals.mapToDouble(
-				i -> integrand.applyAsDouble(lowerBound + i * doubleIntervall) + 2 * integrand.applyAsDouble(lowerBound + i * doubleIntervall + singleIntervall)
+				i -> integrand.applyAsDouble(lowerBound + i * doubleInterval) + 2 * integrand.applyAsDouble(lowerBound + i * doubleInterval + singleInterval)
 				).sum();
 
-		sum += 2.0 * integrand.applyAsDouble(lowerBound + singleIntervall);
+		sum += 2.0 * integrand.applyAsDouble(lowerBound + singleInterval);
 
-		return (integrand.applyAsDouble(lowerBound) + 2.0 * sum + integrand.applyAsDouble(upperBound)) / 3.0 * singleIntervall;
+		return (integrand.applyAsDouble(lowerBound) + 2.0 * sum + integrand.applyAsDouble(upperBound)) / 3.0 * singleInterval;
 	}
 }
