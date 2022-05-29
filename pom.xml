@@ -34,7 +34,7 @@
 		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
 		<maven.surefire-plugin.version>3.0.0-M5</maven.surefire-plugin.version>
 		<maven.surefire-report-plugin.version>3.0.0-M5</maven.surefire-report-plugin.version>
-		<maven.javadoc-plugin.version>3.2.0</maven.javadoc-plugin.version>
+		<maven.javadoc-plugin.version>3.3.2</maven.javadoc-plugin.version>
 		<maven.jar-plugin.version>3.2.0</maven.jar-plugin.version>
 		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
 		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
@@ -396,12 +396,14 @@
 						<header>
 				   			<![CDATA[
 							<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
-							<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-				   			]]>
+							<script type="text/javascript" id="MathJax-script"
+							  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+							</script>
+  				   			]]>
 						</header>
 						<footer>
 				   			<![CDATA[
-							<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
+							<i>Copyright &copy; 2022 finmath.net.</i>
 				   			]]>
 						</footer>
 						<tags>
@@ -454,6 +456,9 @@
 								<packages>net.finmath.finitedifference.*</packages>
 							</group>
 						</groups>
+						<nohelp>true</nohelp>
+						<noindex>true</noindex>
+						<noqualifier>true</noqualifier>
 					</configuration>
 					<executions>
 						<execution>
