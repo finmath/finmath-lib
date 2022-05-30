@@ -1,1 +1,0 @@
-moduleSearchIndex = [{"l":"net.finmath.lib"}]
