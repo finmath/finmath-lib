@@ -45,12 +45,7 @@ import net.finmath.time.TimeDiscretization;
  */
 public class BrownianBridge implements BrownianMotion {
 
-	private final TimeDiscretization						timeDiscretization;
-
-	private final int	numberOfFactors;
-	private final int	numberOfPaths;
-	private final int	seed;
-
+	private final BrownianMotion generator;
 	private final RandomVariable[] start;
 	private final RandomVariable[] end;
 
@@ -59,6 +54,11 @@ public class BrownianBridge implements BrownianMotion {
 	private transient RandomVariable[][]	brownianIncrements;
 	private transient Object							brownianIncrementsLazyInitLock = new Object();
 
+	public BrownianBridge(final BrownianMotion generator, final RandomVariable[] start, final RandomVariable[] end) {
+		this.generator = generator;
+		this.start = start;
+		this.end = end;
+	}
 	/**
 	 * Construct a Brownian bridge, bridging from a given start to a given end.
 	 *
@@ -69,13 +69,7 @@ public class BrownianBridge implements BrownianMotion {
 	 * @param end End value of the Brownian bridge.
 	 */
 	public BrownianBridge(final TimeDiscretization timeDiscretization, final int numberOfPaths, final int seed, final RandomVariable[] start, final RandomVariable[] end) {
-		super();
-		this.timeDiscretization = timeDiscretization;
-		numberOfFactors = start.length;
-		this.numberOfPaths = numberOfPaths;
-		this.seed = seed;
-		this.start = start;
-		this.end = end;
+		this(new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, start.length, numberOfPaths, seed), start, end);
 	}
 
 	/**
@@ -116,8 +110,6 @@ public class BrownianBridge implements BrownianMotion {
 			return;	// Nothing to do
 		}
 
-		final BrownianMotion generator = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed);
-
 		// Allocate memory
 		brownianIncrements = new RandomVariable[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
 
@@ -149,7 +141,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public TimeDiscretization getTimeDiscretization() {
-		return timeDiscretization;
+		return generator.getTimeDiscretization();
 	}
 
 	/* (non-Javadoc)
@@ -157,7 +149,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public int getNumberOfFactors() {
-		return numberOfFactors;
+		return generator.getNumberOfFactors();
 	}
 
 	/* (non-Javadoc)
@@ -165,7 +157,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public int getNumberOfPaths() {
-		return numberOfPaths;
+		return generator.getNumberOfPaths();
 	}
 
 	@Override
@@ -178,7 +170,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
-		return new BrownianBridge(timeDiscretization, numberOfPaths, seed, start, end);
+		return new BrownianBridge(getTimeDiscretization(), getNumberOfPaths(), seed, start, end);
 	}
 
 	/* (non-Javadoc)
@@ -186,7 +178,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
-		return new BrownianBridge(newTimeDiscretization, getNumberOfFactors(), seed, start, end);
+		return new BrownianBridge(generator.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), start, end);
 	}
 
 	@Override
@@ -211,9 +203,7 @@ public class BrownianBridge implements BrownianMotion {
 	 */
 	@Override
 	public String toString() {
-		return "BrownianBridge [timeDiscretizationFromArray=" + timeDiscretization
-				+ ", numberOfFactors=" + numberOfFactors + ", numberOfPaths="
-				+ numberOfPaths + ", seed=" + seed + ", start="
+		return "BrownianBridge [generator=" + generator
 				+ Arrays.toString(start) + ", end=" + Arrays.toString(end)
 				+ "]";
 	}
