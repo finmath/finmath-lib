@@ -8,12 +8,12 @@ import java.util.function.BiFunction;
  * 	(t, Y) \mapsto E(t,Y)
  * \)
  * where Y is the GDP.
- * 
+ *
  * Note: The emissions is in GtCO2 / year.
- * 
+ *
  * Note: The function depends on the time step size
  * TODO Change parameter to per year.
- * 
+ *
  * @author Christian Fries
  */
 public class EmissionFunction implements BiFunction<Double, Double, Double> {
@@ -38,9 +38,9 @@ public class EmissionFunction implements BiFunction<Double, Double, Double> {
 
 	@Override
 	public Double apply(Double time, Double economicOutput) {
-		double emissionPerEconomicOutput = emissionIntensityFunction.apply(time);
+		final double emissionPerEconomicOutput = emissionIntensityFunction.apply(time);
 		// The parameter externalEmissionsDecay is formulated for a 5 year period
-		double externalEmissions = externalEmissionsInitial * Math.pow(1-externalEmissionsDecay, time*timeStep/5.0);
+		final double externalEmissions = externalEmissionsInitial * Math.pow(1-externalEmissionsDecay, time*timeStep/5.0);
 
 		return timeStep * (emissionPerEconomicOutput * economicOutput + externalEmissions);
 	}

@@ -4,9 +4,9 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * The function \( T \mapsto \Omega(T) \) with \( T \) being the temperature above baseline, i.e., \( Omega(0) = 0 \).
- * 
+ *
  * The function is a second order polynomial.
- * 
+ *
  * @author Christian Fries
  */
 public class DamageFromTemperature implements DoubleUnaryOperator {
@@ -14,13 +14,13 @@ public class DamageFromTemperature implements DoubleUnaryOperator {
 	private final double tempToDamage0;
 	private final double tempToDamage1;
 	private final double tempToDamage2;
-	
+
 	/**
 	 * Create the damage function
 	 * \( T \mapsto \Omega(T) = D(T) / (1+D(T)) \), with
 	 * \( D(T) = a_{0} + a_{1} T + a_{2} T^{2} \), with
 	 * \( T \) being temperature above pre-industrial.
-	 * 
+	 *
 	 * @param tempToDamage0 The constant term.
 	 * @param tempToDamage1 The coefficient of the linear term.
 	 * @param tempToDamage2 The coefficient of the quadratic term.
@@ -47,7 +47,7 @@ public class DamageFromTemperature implements DoubleUnaryOperator {
 	 */
 	@Override
 	public double applyAsDouble(double temperature) {
-		double damage = tempToDamage0 + tempToDamage1 * temperature + tempToDamage2 * temperature * temperature;
+		final double damage = tempToDamage0 + tempToDamage1 * temperature + tempToDamage2 * temperature * temperature;
 
 		return damage / (1+damage);
 	}

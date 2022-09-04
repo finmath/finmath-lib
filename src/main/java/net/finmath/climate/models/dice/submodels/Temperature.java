@@ -2,14 +2,14 @@ package net.finmath.climate.models.dice.submodels;
 
 /**
  * State vector representing temperature above pre-industrial level.
- * 
+ *
  * @author Christian Fries
  */
 public class Temperature {
 
 	private final double temperatureOfAtmosphere;
 	private final double temperatureOfLandAndOcean;
-	
+
 	public Temperature(double temperatureOfAtmosphere, double temperatureOfLandAndOcean) {
 		super();
 		this.temperatureOfAtmosphere = temperatureOfAtmosphere;

@@ -2,7 +2,7 @@ package net.finmath.climate.models.dice.submodels;
 
 /**
  * State vector representing carbon concentration.
- * 
+ *
  * @author Christian Fries
  */
 public class CarbonConcentration {
@@ -26,7 +26,7 @@ public class CarbonConcentration {
 		this(851, 460, 1740);		// GtC
 	}
 
-	
+
 	public double getCarbonConcentrationInAtmosphere() {
 		return carbonConcentrationInAtmosphere;
 	}

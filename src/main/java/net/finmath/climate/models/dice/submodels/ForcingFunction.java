@@ -4,13 +4,13 @@ import java.util.function.BiFunction;
 
 /**
  * The function that maps CarbonConcentration (in GtC) and external forcing (in W/m^2) to forcing (in W/m^2).
- * 
+ *
  * @author Christian Fries
  */
 public class ForcingFunction implements BiFunction<CarbonConcentration, Double, Double> {
 
-	private double carbonConcentrationBase = 580;
-	private double forcingPerCarbonDoubling = 3.6813;
+	private final double carbonConcentrationBase = 580;
+	private final double forcingPerCarbonDoubling = 3.6813;
 
 	@Override
 	public Double apply(CarbonConcentration carbonConcentration, Double forcingExternal) {

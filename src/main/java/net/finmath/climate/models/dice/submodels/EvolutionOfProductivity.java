@@ -7,10 +7,10 @@ import java.util.function.Function;
  * \(
  * 	A(t_{i+1}) = A(t_{i}) / (1-ga * \exp(- deltaA * t))
  * \)
- * 
+ *
  * Note: The function depends on the time step size
  * TODO Fix time stepping
- * 
+ *
  * @author Christian Fries
  */
 public class EvolutionOfProductivity implements Function<Double, Function<Double, Double>> {
@@ -36,6 +36,6 @@ public class EvolutionOfProductivity implements Function<Double, Function<Double
 	public Function<Double, Double> apply(Double time) {
 		return (Double productivity) -> {
 			return productivity / (1 - productivityGrowthRate * Math.exp(-productivityGrowthRateDecayRate * timeStep * time));
-		};		
+		};
 	}
 }

@@ -7,10 +7,10 @@ import java.util.function.Function;
  * \(
  * 	L(t_{i+1}) = L(t_{i}) * (L(\infty)/L(t_{i})^{g}
  * \)
- * 
+ *
  * Note: The function depends on the time step size
  * TODO Fix time stepping
- * 
+ *
  * @author Christian Fries
  */
 public class EvolutionOfPopulation implements Function<Double, Function<Double, Double>> {
@@ -36,6 +36,6 @@ public class EvolutionOfPopulation implements Function<Double, Function<Double, 
 	public Function<Double, Double> apply(Double time) {
 		return (Double population) -> {
 			return population * Math.pow(populationAsymptotic/population,populationGrowth);
-		};		
+		};
 	}
 }
