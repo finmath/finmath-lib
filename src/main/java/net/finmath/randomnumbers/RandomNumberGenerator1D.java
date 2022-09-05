@@ -1,6 +1,5 @@
 package net.finmath.randomnumbers;
 
-import java.io.Serializable;
 import java.util.function.DoubleSupplier;
 
 /**

@@ -6,7 +6,6 @@ package net.finmath.montecarlo.interestrate.simple;
 import java.util.Arrays;
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotionLazyInit;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
