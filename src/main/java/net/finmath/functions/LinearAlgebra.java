@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -60,6 +61,20 @@ public class LinearAlgebra {
 			isSolverUseApacheCommonsMath = true;
 		}
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
+	}
+
+	/**
+	 * Create a Cholesky decomposition of a symmetric matrix.
+	 * 
+	 * @param symmetricMatrix The input matrix.
+	 * @return A lower triangle matrix representing the CholeskyDecomposition.
+	 */
+	public static double[][] getCholeskyDecomposition(double[][] symmetricMatrix) {
+		CholeskyDecomposition decomposition = new CholeskyDecomposition(new Array2DRowRealMatrix(symmetricMatrix));
+
+		double[][] choleskyDecomposition = decomposition.getL().getData();
+
+		return choleskyDecomposition;
 	}
 
 	/**
