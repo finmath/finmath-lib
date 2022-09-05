@@ -114,7 +114,7 @@ public class BrownianBridge implements BrownianMotion {
 		brownianIncrements = new RandomVariable[generator.getTimeDiscretization().getNumberOfTimeSteps()][generator.getNumberOfFactors()];
 
 		final double endTime 		= getTimeDiscretization().getTime(getTimeDiscretization().getNumberOfTimeSteps());
-		for(int factor=0; factor<generator.getNumberOfFactors(); factor++) {
+		for(int factor=0; factor<start.length; factor++) {
 			// The end point
 			final RandomVariable endOfFactor		= end[factor];
 			// Initialized the bridge to the start point
