@@ -5,6 +5,26 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.2 (06.09.2022)
+
+### General
+
+ - Improved JavaDoc documentation
+ 
+### Analytic Formulas / Linear Algebra
+
+ - Fixed a bug in the definition / calculation of Theta (opposite to the sign).
+ - Added a wrapper to perform a Cholesky decomposition on `double[][]`-matrix.
+
+### Monte-Carlo
+
+ - Added a more general version of a Brownian bridge.
+ 
+### Climate Models (IAM)
+
+ - Added a version of the DICE model
+
+
 ## 6.0.0 (30.12.2021)
 
 ### General
