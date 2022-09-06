@@ -52,7 +52,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
 	 * to the given time, being less or equal (i.e. max(i : timeDiscretizationFromArray[i] &le; time
-	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]).
+	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
 	 * @return Returns a time index
@@ -62,7 +62,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
 	 * to the given time, being greater or equal (i.e. min(i : timeDiscretizationFromArray[i] &ge; time
-	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]).
+	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
 	 * @return Returns a time index
