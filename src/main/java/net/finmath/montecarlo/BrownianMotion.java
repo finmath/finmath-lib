@@ -51,6 +51,11 @@ public interface BrownianMotion extends IndependentIncrements {
 		return getBrownianIncrement(getTimeDiscretization().getTimeIndex(time), factor);
 	}
 
+	@Override
+	default RandomVariable getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
+	}
+
 	/**
 	 * Returns the time discretization used for this set of time-discrete Brownian increments.
 	 *
