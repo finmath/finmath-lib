@@ -81,6 +81,7 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Bermudan options / multi-callables upper bound via dual method
 - **Hedge Simulation**
 - **Margin Valuation Adjustments** (MVA) though forward ISDA SIMM simulation (this is currently a separate project at https://github.com/finmath ).
+- **Integrated Assessment Models** / DICE Model. A version of the DICE model is part of the package net.finmath.climate.
 
 Languages and Build
 --------------------------------------
