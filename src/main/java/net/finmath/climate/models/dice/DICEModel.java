@@ -16,8 +16,8 @@ import net.finmath.climate.models.dice.submodels.EvolutionOfTemperature;
 import net.finmath.climate.models.dice.submodels.ForcingFunction;
 import net.finmath.climate.models.dice.submodels.Temperature;
 
-/*
- * Experiment related to the DICE model.
+/**
+ * A simulation of a simplified DICE model.
  * 
  * Note: The code makes some small simplification: it uses a constant savings rate and a constant external forcings.
  * It may still be useful for illustration.
