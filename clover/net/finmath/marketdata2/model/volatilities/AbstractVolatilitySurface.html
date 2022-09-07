@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    
+    
+    <link rel="SHORTCUT ICON" href="../../../../../img/clover.ico" />
+
+    <link rel="stylesheet" href="../../../../../aui/css/aui.min.css" media="all"/>
+    <link rel="stylesheet" href="../../../../../aui/css/aui-experimental.min.css" media="all"/>
+    <!--[if IE 9]><link rel="stylesheet" href="../../../../../aui/css/aui-ie9.min.css" media="all"/><![endif]-->
+
+    <style type="text/css" media="all">
+        @import url('../../../../../style.css');
+        @import url('../../../../../tree.css');
+        
+    </style>
+
+    <script src="../../../../../jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../../../../../aui/js/aui.min.js" type="text/javascript"></script>
+    <script src="../../../../../aui/js/aui-experimental.min.js" type="text/javascript"></script>
+    <script src="../../../../../aui/js/aui-soy.min.js" type="text/javascript"></script>
+
+    <script src="../../../../../package-nodes-tree.js" type="text/javascript"></script>
+    <script src="../../../../../clover-tree.js" type="text/javascript"></script>
+    <script src="../../../../../clover.js" type="text/javascript"></script>
+    <script src="../../../../../clover-descriptions.js" type="text/javascript"></script>
+    <script src="../../../../../cloud.js" type="text/javascript"></script>
+
+            <title>finmath lib 6.0.2</title>
+    </head>
+
+<body  onload="onLoad('finmath lib 6.0.2: net.finmath.marketdata2.model.volatilities.AbstractVolatilitySurface.java')">
+    <div id="page">
+        
+        
+
+
+<header id="header" role="banner">
+    <nav class="aui-header aui-dropdown2-trigger-group" role="navigation">
+        <div class="aui-header-inner">
+            <div class="aui-header-primary">
+                <h1 id="logo" class="aui-header-logo aui-header-logo-clover">
+                    <a href="http://openclover.org" title="Visit OpenClover home page"><span class="aui-header-logo-device">OpenClover</span></a>
+                </h1>
+                            </div>
+            <div class="aui-header-secondary">
+                <ul class="aui-nav">
+                    <li id="system-help-menu">
+                        <a class="aui-nav-link" title="Open online documentation" target="_blank"
+                           href="http://openclover.org/documentation">
+                            <span class="aui-icon aui-icon-small aui-iconfont-help">&#160;Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+        
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <div class="aui-page-panel-nav aui-page-panel-nav-clover">
+                    
+
+<div class="aui-page-header-inner" style="margin-bottom: 20px;">
+    <div class="aui-page-header-image">
+                    <a href="http://www.finmath.net/finmath-lib" target="_top">
+                <div class="aui-avatar aui-avatar-large aui-avatar-project">
+            <div class="aui-avatar-inner">
+                                    <img src="../../../../../img/clover_logo_large.png" alt="Clover icon"/>
+                            </div>
+        </div>
+                    </a>
+            </div>
+    <div class="aui-page-header-main" >
+        <h1>
+                            <a href="http://www.finmath.net/finmath-lib" target="_top">
+                                        finmath lib 6.0.2
+                                        </a>
+                    </h1>
+    </div>
+</div>
+
+<nav class="aui-navgroup aui-navgroup-vertical">
+    <div class="aui-navgroup-inner">
+                                            <ul class="aui-nav">
+                <li class="">
+                    <a href="../../../../../dashboard.html">Project overview</a>
+                </li>
+            </ul>
+        
+                <div class="aui-nav-heading packages-nav-heading">
+            <strong>Packages</strong>
+        </div>
+        <div class="aui-nav project-packages">
+            <form method="get" action="#" class="aui package-filter-container">
+                <input type="text" autocomplete="off" class="package-filter text"
+                       placeholder="Type to filter packages..." name="package-filter" id="package-filter"
+                       title="Start typing package name (or part of the name) to search through the tree. Use arrow keys and the Enter key to navigate."/>
+            </form>
+            <p class="package-filter-no-results-message hidden">
+                <small>No results found.</small>
+            </p>
+                                                <div class="packages-tree-wrapper" data-root-relative="../../../../../" data-package-name="net.finmath.marketdata2.model.volatilities">
+                <div class="packages-tree-container"></div>
+                <div class="clover-packages-lozenges"></div>
+            </div>
+        </div>
+        
+            </div>
+</nav>                </div>
+                <section class="aui-page-panel-content">
+                    <div class="aui-page-panel-content-clover">
+
+                    
+                    <ol class="aui-nav aui-nav-breadcrumbs">
+            
+        <li><a href="../../../../../dashboard.html">Project Clover database Tue Sep 6 2022 11:11:08 CEST</a></li> 
+        <li><a href="pkg-summary.html">        Package net.finmath.marketdata2.model.volatilities</a></li> 
+    </ol>
+    
+<h1 class="aui-h2-clover">
+            File AbstractVolatilitySurface.java
+    </h1>
+
+
+
+
+
+
+
+
+    
+<div class="aui-tabs horizontal-tabs" id="tabs-file">
+            <div class="tabs-pane aui-tabs-pane-100-pcnt active-pane" id="tabs-file-source">
+        <div>&#160;</div>
+
+        
+                <div style="display: table; width: 100%">
+                            <div class="clover-histogram-table-cell">
+                                <div class="dashboard-widget">
+            <header class="dashboard-widget-header">
+                <h3>Coverage histogram</h3>
+            </header>
+            <div class="dashboard-widget-content">
+                <div class="aui-item clover-aui-item-histogram">
+                    <img src="../../../../../img/srcFileCovDistChart0.png" alt="../../../../../img/srcFileCovDistChart0.png"
+                         usemap="#srcFileCovDistChart0.png" class="clover-histogram-img"/>
+                    <map id="srcFileCovDistChart0.png" name="srcFileCovDistChart0.png">
+<area shape="rect" coords="100,51,107,66" title="53 files have 91-100% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="91,54,98,66" title="42 files have 81-90% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="82,47,89,66" title="66 files have 71-80% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="73,52,80,66" title="49 files have 61-70% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="64,55,71,66" title="39 files have 51-60% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="56,60,63,66" title="22 files have 41-50% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="47,61,54,66" title="19 files have 31-40% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="38,63,45,65" title="10 files have 21-30% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="29,66,36,67" title="1 file has 11-20% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="20,66,27,67" title="1 file has 1-10% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="11,8,18,65" title="197 files have 0% coverage" alt="" nohref="nohref"/>
+</map><br />
+                    <span class="subtle"><strong>60% </strong>of files have more coverage</span>
+                </div>
+            </div>
+        </div>
+                    </div>
+                        <div style="display: table-cell; width: 67%;">
+                    <div class="dashboard-widget">
+        <header class="dashboard-widget-header">
+            <h3>Code metrics</h3>
+        </header>
+        <div class="dashboard-widget-content">
+                        
+
+<div id="td-header-stats" class="aui-item" style="display: ">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">16</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">44</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">158</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">101</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">24</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.55</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">3.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+</div>
+
+</div>
+                        
+
+<div id="td-filtered-header-stats" class="aui-item" style="display: none">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">16</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">44</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">158</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">101</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">24</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.55</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">3.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">12</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+</div>
+
+</div>        </div>
+    </div>
+            </div>
+        </div>
+
+        
+        
+
+
+    <h2>Classes</h2>
+
+        <table class="aui aui-table-sortable">
+        <thead>
+                        <tr>     <th>Class</th>
+    <th>Line #</th>
+
+            
+        <th class="">
+            <label  title="The total number of statements.">Total Statements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The percentage of elements that have been filtered from this report.">% Filtered</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label>
+        </th>
+        
+    
+            <th>Actions</th>
+    </tr>         </thead>
+        <tbody>
+                              <tr> <td id="AbstractVolatilitySurface">
+        <span><a href="#23" title="AbstractVolatilitySurface" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '23');">AbstractVolatilitySurface</a></span>
+</td>
+<td>23<a name="sl-23"></a></td>
+    <td class="">44</td>
+    <td class="">0%</td>
+    <td class="">24</td>
+    <td class="">72</td>
+    <td class=""><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+    <td><button data-dialog-id="dialog-AbstractVolatilitySurface" class="aui-button aui-button-link dialog-show-button">Show methods</button></td>
+</tr>                      </tbody>
+    </table>
+
+    
+     
+        <section role="dialog" id="dialog-AbstractVolatilitySurface" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+            
+            <header class="aui-dialog2-header">
+                <h1 class="aui-dialog2-header-main">Class AbstractVolatilitySurface</h1>
+                <div class="aui-dialog2-header-secondary">
+                    <input id="dialog-AbstractVolatilitySurface-method-filter" class="test-filter text" type="text" name="method-filter"
+                           placeholder="Type to filter methods..." autocomplete="off"
+                           onkeyup="filterMethods('dialog-AbstractVolatilitySurface-methods-body', 'dialog-AbstractVolatilitySurface-method-filter');"/>
+                </div>
+            </header>
+
+            
+            <div class="aui-dialog2-content">
+
+                
+
+                <table class="aui aui-table-sortable">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+                    <thead>
+                                                 <tr> <th id="AbstractVolatilitySurface">
+    Class<br/>    <span><a href="#23" title="AbstractVolatilitySurface" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '23');">AbstractVolatilitySurface</a></span>
+</th>
+<th>Line #<br/>23<a name="sl-23"></a></th>
+    <th class=""><label  title="The total number of statements.">Total Statements</label><br/>44</th>
+    <th class=""><label  title="The percentage of elements that have been filtered from this report.">% Filtered</label><br/>0%</th>
+    <th class=""><label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label><br/>24</th>
+    <th class=""><label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label><br/>72</th>
+    <th class=""><label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label><br/><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></th>
+</tr>                     </thead>
+                    <tbody id="dialog-AbstractVolatilitySurface-methods-body">
+                                                                                                            <tr id="AbstractVolatilitySurface-1">
+<td id="summary-33-2">
+ <span class="sortValue">AbstractVolatilitySurface(String,LocalDate,ForwardCurve,DiscountCurve,QuotingConvention,DayCountConvention)</span>
+&#160;&#160;<a href="?line=29#33" title="AbstractVolatilitySurface(String,LocalDate,ForwardCurve,DiscountCurve,QuotingConvention,DayCountConvention)" name="sl-33" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '33');">AbstractVolatilitySurface(String,LocalDate,ForwardCurve,DiscountCurve,QuotingConvention,DayCountConvention)</a>
+</td>
+<td align="right"><span class="sortValue">33</span>33</td>
+<td class="" align="right"><span class="sortValue">7.0</span>7</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">7.0</span>7</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-2">
+<td id="summary-44-2">
+ <span class="sortValue">AbstractVolatilitySurface(String,LocalDate)</span>
+&#160;&#160;<a href="?line=29#44" title="AbstractVolatilitySurface(String,LocalDate)" name="sl-44" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '44');">AbstractVolatilitySurface(String,LocalDate)</a>
+</td>
+<td align="right"><span class="sortValue">44</span>44</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">3.0</span>3</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-3">
+<td id="summary-50-2">
+ <span class="sortValue">getName()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#50" title="getName()&#160;:&#160;String" name="sl-50" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '50');">getName()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">50</span>50</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-4">
+<td id="summary-55-2">
+ <span class="sortValue">getReferenceDate()&#160;:&#160;LocalDate</span>
+&#160;&#160;<a href="?line=29#55" title="getReferenceDate()&#160;:&#160;LocalDate" name="sl-55" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '55');">getReferenceDate()&#160;:&#160;LocalDate</a>
+</td>
+<td align="right"><span class="sortValue">55</span>55</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-5">
+<td id="summary-60-2">
+ <span class="sortValue">toString()&#160;:&#160;String</span>
+&#160;&#160;<a href="?line=29#60" title="toString()&#160;:&#160;String" name="sl-60" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '60');">toString()&#160;:&#160;String</a>
+</td>
+<td align="right"><span class="sortValue">60</span>60</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-6">
+<td id="summary-65-2">
+ <span class="sortValue">clone()&#160;:&#160;Object</span>
+&#160;&#160;<a href="?line=29#65" title="clone()&#160;:&#160;Object" name="sl-65" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '65');">clone()&#160;:&#160;Object</a>
+</td>
+<td align="right"><span class="sortValue">65</span>65</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-7">
+<td id="summary-70-2">
+ <span class="sortValue">getQuotingConvention()&#160;:&#160;QuotingConvention</span>
+&#160;&#160;<a href="?line=29#70" title="getQuotingConvention()&#160;:&#160;QuotingConvention" name="sl-70" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '70');">getQuotingConvention()&#160;:&#160;QuotingConvention</a>
+</td>
+<td align="right"><span class="sortValue">70</span>70</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-8">
+<td id="summary-86-2">
+ <span class="sortValue">convertFromTo(AnalyticModel,double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#86" title="convertFromTo(AnalyticModel,double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double" name="sl-86" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '86');">convertFromTo(AnalyticModel,double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">86</span>86</td>
+<td class="" align="right"><span class="sortValue">25.0</span>25</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">13.0</span>13</td>
+<td class="" align="right"><span class="sortValue">41.0</span>41</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-9">
+<td id="summary-143-2">
+ <span class="sortValue">convertFromTo(double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#143" title="convertFromTo(double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double" name="sl-143" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '143');">convertFromTo(double,double,double,QuotingConvention,QuotingConvention)&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">143</span>143</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-10">
+<td id="summary-147-2">
+ <span class="sortValue">getForwardCurve()&#160;:&#160;ForwardCurve</span>
+&#160;&#160;<a href="?line=29#147" title="getForwardCurve()&#160;:&#160;ForwardCurve" name="sl-147" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '147');">getForwardCurve()&#160;:&#160;ForwardCurve</a>
+</td>
+<td align="right"><span class="sortValue">147</span>147</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-11">
+<td id="summary-151-2">
+ <span class="sortValue">getDiscountCurve()&#160;:&#160;DiscountCurve</span>
+&#160;&#160;<a href="?line=29#151" title="getDiscountCurve()&#160;:&#160;DiscountCurve" name="sl-151" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '151');">getDiscountCurve()&#160;:&#160;DiscountCurve</a>
+</td>
+<td align="right"><span class="sortValue">151</span>151</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="AbstractVolatilitySurface-12">
+<td id="summary-155-2">
+ <span class="sortValue">getDaycountConvention()&#160;:&#160;DayCountConvention</span>
+&#160;&#160;<a href="?line=29#155" title="getDaycountConvention()&#160;:&#160;DayCountConvention" name="sl-155" onclick="closeDialogAndScrollTo('dialog-AbstractVolatilitySurface', '155');">getDaycountConvention()&#160;:&#160;DayCountConvention</a>
+</td>
+<td align="right"><span class="sortValue">155</span>155</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">0.0</span>0%</div><div style="display: table-cell">
+ <div title="0% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:0%"></div></div></div></div></td>
+ </tr>                                                                         </tbody>
+                </table>
+
+                <div>&#160;</div>
+                
+
+            </div>
+
+            
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button class="aui-button aui-button-primary dialog-close-button"
+                            data-dialog-id="dialog-AbstractVolatilitySurface">Close</button>
+                </div>
+                <div class="aui-dialog2-footer-hint">Click on a class or a method name to jump to source.</div>
+            </footer>
+        </section>
+
+     
+ 
+        
+        <div>&#160;</div>
+
+<h2>Contributing tests</h2>
+
+    <div class="aui-message">
+        <p>No tests hitting this source file were found.</p>
+    </div>
+ 
+        
+        
+
+
+
+
+
+<h2>Source view</h2>
+
+
+<div style="display: table; width: 100%;">
+    <div style="display: table-cell">
+        <button class="aui-button aui-button-link"
+                title="Toggles all methods in the source to be either expanded or collapsed."
+                onclick="toggleAllInlineMethods(this); return false;" id="method-expander">
+            Collapse all methods
+        </button>
+    </div>
+    <div style="display: table-cell">
+        <div style="text-align: right; margin-bottom: 10px">
+            <button class="aui-button aui-button-subtle" id="popupHelp">
+    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>&#160;Show legend
+</button>
+<script>
+    AJS.InlineDialog(AJS.$("#popupHelp"), "helpDialog",
+            function(content, trigger, showPopup) {
+                content.css({"padding":"20px"}).html(SRC_FILE_LEGEND_TEXT);
+                showPopup();
+                return false;
+            },
+            {
+                width: 700, hideDelay: 60000
+            }
+    );
+</script>        </div>
+    </div>
+</div>
+
+<table cellspacing="0" cellpadding="0" class="srcView" width="100%">
+
+    
+<tbody> <tr id="l1">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=1#src-1">1</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-1" class="srcLine"><span class="comment">/*</span></span></td>
+</tr>
+ <tr id="l2">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=2#src-2">2</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-2" class="srcLine"><span class="comment"> * (c) Copyright Christian P. Fries, Germany. Contact: email</span><span class="comment">@christian-fries.de.</span></span></td>
+</tr>
+ <tr id="l3">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=3#src-3">3</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-3" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l4">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=4#src-4">4</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-4" class="srcLine"><span class="comment"> * Created on 17.02.2013</span></span></td>
+</tr>
+ <tr id="l5">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=5#src-5">5</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-5" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+ <tr id="l6">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=6#src-6">6</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-6" class="srcLine"><span class="keyword">package</span> net.finmath.<a href="../../../marketdata2/testsrc-pkg-summary.html">marketdata2</a>.<a href="../../model/pkg-summary.html">model</a>.<a href="../volatilities/pkg-summary.html">volatilities</a>;</span></td>
+</tr>
+ <tr id="l7">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=7#src-7">7</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-7" class="srcLine"></span></td>
+</tr>
+ <tr id="l8">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=8#src-8">8</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-8" class="srcLine"><span class="keyword">import</span> java.time.LocalDate;</span></td>
+</tr>
+ <tr id="l9">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=9#src-9">9</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-9" class="srcLine"></span></td>
+</tr>
+ <tr id="l10">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=10#src-10">10</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-10" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../functions/pkg-summary.html">functions</a>.<a href="../../../../../net/finmath/functions/AnalyticFormulas.html#AnalyticFormulas">AnalyticFormulas</a>;</span></td>
+</tr>
+ <tr id="l11">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=11#src-11">11</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-11" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../marketdata/pkg-summary.html">marketdata</a>.<a href="../../../marketdata/model/pkg-summary.html">model</a>.<a href="../../../../../net/finmath/marketdata/model/AnalyticModel.html#AnalyticModel">AnalyticModel</a>;</span></td>
+</tr>
+ <tr id="l12">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=12#src-12">12</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-12" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../marketdata/pkg-summary.html">marketdata</a>.<a href="../../../marketdata/model/pkg-summary.html">model</a>.<a href="../../../marketdata/model/curves/pkg-summary.html">curves</a>.<a href="../../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a>;</span></td>
+</tr>
+ <tr id="l13">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=13#src-13">13</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-13" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../marketdata/pkg-summary.html">marketdata</a>.<a href="../../../marketdata/model/pkg-summary.html">model</a>.<a href="../../../marketdata/model/curves/pkg-summary.html">curves</a>.<a href="../../../../../net/finmath/marketdata/model/curves/ForwardCurve.html#ForwardCurve">ForwardCurve</a>;</span></td>
+</tr>
+ <tr id="l14">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=14#src-14">14</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-14" class="srcLine"><span class="keyword">import</span> net.finmath.<a href="../../../time/pkg-summary.html">time</a>.<a href="../../../time/daycount/pkg-summary.html">daycount</a>.<a href="../../../../../net/finmath/time/daycount/DayCountConvention.html#DayCountConvention">DayCountConvention</a>;</span></td>
+</tr>
+ <tr id="l15">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=15#src-15">15</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-15" class="srcLine"></span></td>
+</tr>
+ <tr id="l16">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=16#src-16">16</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-16" class="srcLine"><span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l17">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=17#src-17">17</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-17" class="srcLine"><span class="comment"> * Abstract base class for a volatility surface. It stores the name of the surface and</span></span></td>
+</tr>
+ <tr id="l18">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=18#src-18">18</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-18" class="srcLine"><span class="comment"> * provides some convenient way of getting values.</span></span></td>
+</tr>
+ <tr id="l19">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=19#src-19">19</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-19" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l20">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=20#src-20">20</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-20" class="srcLine"><span class="comment"> * </span><span class="javadoc">@author</span><span class="comment"> Christian Fries</span></span></td>
+</tr>
+ <tr id="l21">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=21#src-21">21</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-21" class="srcLine"><span class="comment"> * </span><span class="javadoc">@version</span><span class="comment"> 1.0</span></span></td>
+</tr>
+ <tr id="l22">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=22#src-22">22</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-22" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="23" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-23' onclick="toggleInlineStats(this, 'inlinestats-23');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-23" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-23'), 'inlinestats-23');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 72 (72)</td>
+                <td class="inlineStat">Complexity: 24</td>
+                <td class="inlineStat">Complexity Density: 0.55</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l23">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=23#src-23">23</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" id="id-23"><span class="spacer"></span><span id="src-23" class="srcLine"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <a href="../../../../../net/finmath/marketdata2/model/volatilities/AbstractVolatilitySurface.html#AbstractVolatilitySurface">AbstractVolatilitySurface</a> <span class="keyword">implements</span> <a href="../../../../../net/finmath/marketdata2/model/volatilities/VolatilitySurface.html#VolatilitySurface">VolatilitySurface</a>, Cloneable {</span></td>
+</tr>
+ <tr id="l24">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=24#src-24">24</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-24" class="srcLine"></span></td>
+</tr>
+ <tr id="l25">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=25#src-25">25</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-25" class="srcLine">    <span class="keyword">private</span>    <span class="keyword">final</span>    LocalDate    referenceDate;</span></td>
+</tr>
+ <tr id="l26">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=26#src-26">26</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-26" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span>    String        name;</span></td>
+</tr>
+ <tr id="l27">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=27#src-27">27</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-27" class="srcLine"></span></td>
+</tr>
+ <tr id="l28">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=28#src-28">28</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-28" class="srcLine">    <span class="keyword">private</span> <a href="../../../../../net/finmath/marketdata/model/curves/ForwardCurve.html#ForwardCurve">ForwardCurve</a> forwardCurve;</span></td>
+</tr>
+ <tr id="l29">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=29#src-29">29</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-29" class="srcLine">    <span class="keyword">private</span> <a href="../../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurve;</span></td>
+</tr>
+ <tr id="l30">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=30#src-30">30</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-30" class="srcLine">    <span class="keyword">private</span> QuotingConvention quotingConvention;</span></td>
+</tr>
+ <tr id="l31">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=31#src-31">31</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-31" class="srcLine">    <span class="keyword">private</span> <a href="../../../../../net/finmath/time/daycount/DayCountConvention.html#DayCountConvention">DayCountConvention</a> daycountConvention;</span></td>
+</tr>
+ <tr id="l32">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=32#src-32">32</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-32" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="33" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-33' onclick="toggleInlineStats(this, 'inlinestats-33');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-33" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-33'), 'inlinestats-33');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 7 (7)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.14</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l33">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=33#src-33">33</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 33, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-33"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 33,42);" id="img-33" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-33" class="srcLineHilight"><span class="nolink" title="Line 33, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../net/finmath/marketdata2/model/volatilities/AbstractVolatilitySurface.html#AbstractVolatilitySurface">AbstractVolatilitySurface</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> LocalDate referenceDate, <span class="keyword">final</span> <a href="../../../../../net/finmath/marketdata/model/curves/ForwardCurve.html#ForwardCurve">ForwardCurve</a> forwardCurve,</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-33'), 33,42);" id="e33" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l34">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=34#src-34">34</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-34" class="srcLine">            <span class="keyword">final</span> <a href="../../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> discountCurve, <span class="keyword">final</span> QuotingConvention quotingConvention, <span class="keyword">final</span> <a href="../../../../../net/finmath/time/daycount/DayCountConvention.html#DayCountConvention">DayCountConvention</a> daycountConvention) {</span></td>
+</tr>
+ <tr id="l35">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=35#src-35">35</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 35, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-35" class="srcLineHilight"><span class="nolink" title="Line 35, Col 3: statement not executed.">        <span class="keyword">super</span>();</span></span></td>
+</tr>
+ <tr id="l36">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=36#src-36">36</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 36, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-36" class="srcLineHilight"><span class="nolink" title="Line 36, Col 3: statement not executed.">        <span class="keyword">this</span>.name = name;</span></span></td>
+</tr>
+ <tr id="l37">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=37#src-37">37</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 37, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-37" class="srcLineHilight"><span class="nolink" title="Line 37, Col 3: statement not executed.">        <span class="keyword">this</span>.referenceDate = referenceDate;</span></span></td>
+</tr>
+ <tr id="l38">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=38#src-38">38</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 38, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-38" class="srcLineHilight"><span class="nolink" title="Line 38, Col 3: statement not executed.">        <span class="keyword">this</span>.forwardCurve = forwardCurve;</span></span></td>
+</tr>
+ <tr id="l39">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=39#src-39">39</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 39, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-39" class="srcLineHilight"><span class="nolink" title="Line 39, Col 3: statement not executed.">        <span class="keyword">this</span>.discountCurve = discountCurve;</span></span></td>
+</tr>
+ <tr id="l40">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=40#src-40">40</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 40, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-40" class="srcLineHilight"><span class="nolink" title="Line 40, Col 3: statement not executed.">        <span class="keyword">this</span>.quotingConvention = quotingConvention;</span></span></td>
+</tr>
+ <tr id="l41">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=41#src-41">41</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 41, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-41" class="srcLineHilight"><span class="nolink" title="Line 41, Col 3: statement not executed.">        <span class="keyword">this</span>.daycountConvention = daycountConvention;</span></span></td>
+</tr>
+ <tr id="l42">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=42#src-42">42</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-42" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l43">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=43#src-43">43</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-43" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="44" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-44' onclick="toggleInlineStats(this, 'inlinestats-44');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-44" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-44'), 'inlinestats-44');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 3 (3)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.33</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l44">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=44#src-44">44</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 44, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-44"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 44,48);" id="img-44" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-44" class="srcLineHilight"><span class="nolink" title="Line 44, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../net/finmath/marketdata2/model/volatilities/AbstractVolatilitySurface.html#AbstractVolatilitySurface">AbstractVolatilitySurface</a>(<span class="keyword">final</span> String name, <span class="keyword">final</span> LocalDate referenceDate) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-44'), 44,48);" id="e44" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l45">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=45#src-45">45</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 45, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-45" class="srcLineHilight"><span class="nolink" title="Line 45, Col 3: statement not executed.">        <span class="keyword">super</span>();</span></span></td>
+</tr>
+ <tr id="l46">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=46#src-46">46</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 46, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-46" class="srcLineHilight"><span class="nolink" title="Line 46, Col 3: statement not executed.">        <span class="keyword">this</span>.name = name;</span></span></td>
+</tr>
+ <tr id="l47">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=47#src-47">47</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 47, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-47" class="srcLineHilight"><span class="nolink" title="Line 47, Col 3: statement not executed.">        <span class="keyword">this</span>.referenceDate = referenceDate;</span></span></td>
+</tr>
+ <tr id="l48">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=48#src-48">48</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-48" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l49">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=49#src-49">49</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-49" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="50" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-50' onclick="toggleInlineStats(this, 'inlinestats-50');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-50" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-50'), 'inlinestats-50');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l50">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=50#src-50">50</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 50, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-50"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 50,53);" id="img-50" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-50" class="srcLineHilight"><span class="nolink" title="Line 50, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-50'), 50,53);" id="e50" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l51">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=51#src-51">51</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-51" class="srcLine">    <span class="keyword">public</span> String getName() {</span></td>
+</tr>
+ <tr id="l52">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=52#src-52">52</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 52, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-52" class="srcLineHilight"><span class="nolink" title="Line 52, Col 3: statement not executed.">        <span class="keyword">return</span> name;</span></span></td>
+</tr>
+ <tr id="l53">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=53#src-53">53</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-53" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l54">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=54#src-54">54</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-54" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="55" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-55' onclick="toggleInlineStats(this, 'inlinestats-55');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-55" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-55'), 'inlinestats-55');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l55">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=55#src-55">55</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 55, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-55"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 55,58);" id="img-55" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-55" class="srcLineHilight"><span class="nolink" title="Line 55, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-55'), 55,58);" id="e55" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l56">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=56#src-56">56</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-56" class="srcLine">    <span class="keyword">public</span> LocalDate getReferenceDate() {</span></td>
+</tr>
+ <tr id="l57">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=57#src-57">57</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 57, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-57" class="srcLineHilight"><span class="nolink" title="Line 57, Col 3: statement not executed.">        <span class="keyword">return</span> referenceDate;</span></span></td>
+</tr>
+ <tr id="l58">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=58#src-58">58</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-58" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l59">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=59#src-59">59</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-59" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="60" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-60' onclick="toggleInlineStats(this, 'inlinestats-60');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-60" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-60'), 'inlinestats-60');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l60">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=60#src-60">60</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 60, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-60"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 60,63);" id="img-60" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-60" class="srcLineHilight"><span class="nolink" title="Line 60, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-60'), 60,63);" id="e60" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l61">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=61#src-61">61</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-61" class="srcLine">    <span class="keyword">public</span> String toString() {</span></td>
+</tr>
+ <tr id="l62">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=62#src-62">62</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 62, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-62" class="srcLineHilight"><span class="nolink" title="Line 62, Col 3: statement not executed.">        <span class="keyword">return</span> <span class="keyword">super</span>.toString() + <span class="string">&quot;\n\&quot;&quot;</span> + <span class="keyword">this</span>.getName() + <span class="string">&quot;\&quot;&quot;</span>;</span></span></td>
+</tr>
+ <tr id="l63">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=63#src-63">63</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-63" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l64">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=64#src-64">64</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-64" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="65" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-65' onclick="toggleInlineStats(this, 'inlinestats-65');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-65" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-65'), 'inlinestats-65');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l65">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=65#src-65">65</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 65, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-65"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 65,68);" id="img-65" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-65" class="srcLineHilight"><span class="nolink" title="Line 65, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-65'), 65,68);" id="e65" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l66">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=66#src-66">66</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-66" class="srcLine">    <span class="keyword">public</span> Object clone() <span class="keyword">throws</span> CloneNotSupportedException {</span></td>
+</tr>
+ <tr id="l67">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=67#src-67">67</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 67, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-67" class="srcLineHilight"><span class="nolink" title="Line 67, Col 3: statement not executed.">        <span class="keyword">return</span> <span class="keyword">super</span>.clone();</span></span></td>
+</tr>
+ <tr id="l68">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=68#src-68">68</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-68" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l69">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=69#src-69">69</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-69" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="70" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-70' onclick="toggleInlineStats(this, 'inlinestats-70');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-70" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-70'), 'inlinestats-70');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l70">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=70#src-70">70</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 70, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-70"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 70,73);" id="img-70" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-70" class="srcLineHilight"><span class="nolink" title="Line 70, Col 2: method not entered.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-70'), 70,73);" id="e70" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l71">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=71#src-71">71</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-71" class="srcLine">    <span class="keyword">public</span> QuotingConvention getQuotingConvention() {</span></td>
+</tr>
+ <tr id="l72">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=72#src-72">72</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 72, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-72" class="srcLineHilight"><span class="nolink" title="Line 72, Col 3: statement not executed.">        <span class="keyword">return</span> quotingConvention;</span></span></td>
+</tr>
+ <tr id="l73">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=73#src-73">73</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-73" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l74">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=74#src-74">74</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-74" class="srcLine"></span></td>
+</tr>
+ <tr id="l75">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=75#src-75">75</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-75" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l76">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=76#src-76">76</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-76" class="srcLine"><span class="comment">     * Convert the value of a caplet from one quoting convention to another quoting convention.</span></span></td>
+</tr>
+ <tr id="l77">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=77#src-77">77</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-77" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l78">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=78#src-78">78</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-78" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> model An analytic model providing the context when fetching required market date.</span></span></td>
+</tr>
+ <tr id="l79">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=79#src-79">79</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-79" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> optionMaturity Option maturity of the caplet.</span></span></td>
+</tr>
+ <tr id="l80">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=80#src-80">80</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-80" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> optionStrike Option strike of the caplet.</span></span></td>
+</tr>
+ <tr id="l81">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=81#src-81">81</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-81" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> value Value of the caplet given in the form of &lt;code&gt;fromQuotingConvention&lt;/code&gt;.</span></span></td>
+</tr>
+ <tr id="l82">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=82#src-82">82</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-82" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fromQuotingConvention The quoting convention of the given value.</span></span></td>
+</tr>
+ <tr id="l83">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=83#src-83">83</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-83" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> toQuotingConvention The quoting convention requested.</span></span></td>
+</tr>
+ <tr id="l84">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=84#src-84">84</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-84" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> Value of the caplet given in the form of &lt;code&gt;toQuotingConvention&lt;/code&gt;.</span></span></td>
+</tr>
+ <tr id="l85">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=85#src-85">85</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-85" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="86" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-86' onclick="toggleInlineStats(this, 'inlinestats-86');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-86" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-86'), 'inlinestats-86');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 41 (41)</td>
+                <td class="inlineStat">Complexity: 13</td>
+                <td class="inlineStat">Complexity Density: 0.52</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l86">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=86#src-86">86</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 86, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-86"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 86,131);" id="img-86" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-86" class="srcLineHilight"><span class="nolink" title="Line 86, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> convertFromTo(<span class="keyword">final</span> <a href="../../../../../net/finmath/marketdata/model/AnalyticModel.html#AnalyticModel">AnalyticModel</a> model, <span class="keyword">final</span> <span class="keyword">double</span> optionMaturity, <span class="keyword">final</span> <span class="keyword">double</span> optionStrike, <span class="keyword">final</span> <span class="keyword">double</span> value, <span class="keyword">final</span> QuotingConvention fromQuotingConvention, <span class="keyword">final</span> QuotingConvention toQuotingConvention) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-86'), 86,131);" id="e86" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l87">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=87#src-87">87</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-87" class="srcLine"></span></td>
+</tr>
+ <tr id="l88">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=88#src-88">88</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 88, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-88" class="srcLineHilight"><span class="nolink" title="Line 88, Col 3: statement not executed.">        <span class="keyword">if</span>(fromQuotingConvention.equals(toQuotingConvention)) {</span></span></td>
+</tr>
+ <tr id="l89">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=89#src-89">89</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 89, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-89" class="srcLineHilight"><span class="nolink" title="Line 89, Col 4: statement not executed.">            <span class="keyword">return</span> value;</span></span></td>
+</tr>
+ <tr id="l90">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=90#src-90">90</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-90" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l91">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=91#src-91">91</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-91" class="srcLine"></span></td>
+</tr>
+ <tr id="l92">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=92#src-92">92</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 92, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-92" class="srcLineHilight"><span class="nolink" title="Line 92, Col 3: statement not executed.">        <span class="keyword">if</span>(getDiscountCurve() == <span class="keyword">null</span>) {</span></span></td>
+</tr>
+ <tr id="l93">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=93#src-93">93</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 93, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-93" class="srcLineHilight"><span class="nolink" title="Line 93, Col 4: statement not executed.">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;</span>);</span></span></td>
+</tr>
+ <tr id="l94">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=94#src-94">94</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-94" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l95">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=95#src-95">95</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 95, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-95" class="srcLineHilight"><span class="nolink" title="Line 95, Col 3: statement not executed.">        <span class="keyword">if</span>(getForwardCurve() == <span class="keyword">null</span>) {</span></span></td>
+</tr>
+ <tr id="l96">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=96#src-96">96</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 96, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-96" class="srcLineHilight"><span class="nolink" title="Line 96, Col 4: statement not executed.">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;</span>);</span></span></td>
+</tr>
+ <tr id="l97">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=97#src-97">97</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-97" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l98">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=98#src-98">98</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-98" class="srcLine"></span></td>
+</tr>
+ <tr id="l99">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=99#src-99">99</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 99, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-99" class="srcLineHilight"><span class="nolink" title="Line 99, Col 3: statement not executed.">        <span class="keyword">final</span> <span class="keyword">double</span> periodStart = optionMaturity;</span></span></td>
+</tr>
+ <tr id="l100">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=100#src-100">100</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 100, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-100" class="srcLineHilight"><span class="nolink" title="Line 100, Col 3: statement not executed.">        <span class="keyword">final</span> <span class="keyword">double</span> periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);</span></span></td>
+</tr>
+ <tr id="l101">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=101#src-101">101</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-101" class="srcLine"></span></td>
+</tr>
+ <tr id="l102">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=102#src-102">102</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 102, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-102" class="srcLineHilight"><span class="nolink" title="Line 102, Col 3: statement not executed.">        <span class="keyword">final</span> <span class="keyword">double</span> forward = getForwardCurve().getForward(model, periodStart);</span></span></td>
+</tr>
+ <tr id="l103">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=103#src-103">103</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-103" class="srcLine"></span></td>
+</tr>
+ <tr id="l104">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=104#src-104">104</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 104, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-104" class="srcLineHilight"><span class="nolink" title="Line 104, Col 3: statement not executed.">        <span class="keyword">double</span> daycountFraction;</span></span></td>
+</tr>
+ <tr id="l105">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=105#src-105">105</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 105, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-105" class="srcLineHilight"><span class="nolink" title="Line 105, Col 3: statement not executed.">        <span class="keyword">if</span>(getDaycountConvention() != <span class="keyword">null</span>) {</span></span></td>
+</tr>
+ <tr id="l106">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=106#src-106">106</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 106, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-106" class="srcLineHilight"><span class="nolink" title="Line 106, Col 4: statement not executed.">            <span class="keyword">final</span> LocalDate startDate = referenceDate.plusDays((<span class="keyword">int</span>)Math.round(periodStart*365));</span></span></td>
+</tr>
+ <tr id="l107">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=107#src-107">107</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 107, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-107" class="srcLineHilight"><span class="nolink" title="Line 107, Col 4: statement not executed.">            <span class="keyword">final</span> LocalDate endDate   = referenceDate.plusDays((<span class="keyword">int</span>)Math.round(periodEnd*365));</span></span></td>
+</tr>
+ <tr id="l108">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=108#src-108">108</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 108, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-108" class="srcLineHilight"><span class="nolink" title="Line 108, Col 4: statement not executed.">            daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);</span></span></td>
+</tr>
+ <tr id="l109">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=109#src-109">109</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-109" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l110">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=110#src-110">110</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-110" class="srcLine">        <span class="keyword">else</span> {</span></td>
+</tr>
+ <tr id="l111">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=111#src-111">111</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 111, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-111" class="srcLineHilight"><span class="nolink" title="Line 111, Col 4: statement not executed.">            daycountFraction = getForwardCurve().getPaymentOffset(periodStart);</span></span></td>
+</tr>
+ <tr id="l112">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=112#src-112">112</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-112" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l113">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=113#src-113">113</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-113" class="srcLine"></span></td>
+</tr>
+ <tr id="l114">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=114#src-114">114</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 114, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-114" class="srcLineHilight"><span class="nolink" title="Line 114, Col 3: statement not executed.">        <span class="keyword">final</span> <span class="keyword">double</span> payoffUnit = getDiscountCurve().getDiscountFactor(optionMaturity+getForwardCurve().getPaymentOffset(optionMaturity)) * daycountFraction;</span></span></td>
+</tr>
+ <tr id="l115">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=115#src-115">115</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-115" class="srcLine"></span></td>
+</tr>
+ <tr id="l116">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=116#src-116">116</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 116, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-116" class="srcLineHilight"><span class="nolink" title="Line 116, Col 3: statement not executed.">        <span class="keyword">if</span>(toQuotingConvention.equals(QuotingConvention.PRICE) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {</span></span></td>
+</tr>
+ <tr id="l117">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=117#src-117">117</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 117, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-117" class="srcLineHilight"><span class="nolink" title="Line 117, Col 4: statement not executed.">            <span class="keyword">return</span> <a href="../../../../../net/finmath/functions/AnalyticFormulas.html#AnalyticFormulas">AnalyticFormulas</a>.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);</span></span></td>
+</tr>
+ <tr id="l118">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=118#src-118">118</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-118" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l119">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=119#src-119">119</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 119, Col 8: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-119" class="srcLineHilight"><span class="nolink" title="Line 119, Col 8: statement not executed.">        <span class="keyword">else</span> <span class="keyword">if</span>(toQuotingConvention.equals(QuotingConvention.PRICE) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {</span></span></td>
+</tr>
+ <tr id="l120">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=120#src-120">120</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 120, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-120" class="srcLineHilight"><span class="nolink" title="Line 120, Col 4: statement not executed.">            <span class="keyword">return</span> <a href="../../../../../net/finmath/functions/AnalyticFormulas.html#AnalyticFormulas">AnalyticFormulas</a>.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);</span></span></td>
+</tr>
+ <tr id="l121">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=121#src-121">121</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-121" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l122">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=122#src-122">122</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 122, Col 8: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-122" class="srcLineHilight"><span class="nolink" title="Line 122, Col 8: statement not executed.">        <span class="keyword">else</span> <span class="keyword">if</span>(toQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.PRICE)) {</span></span></td>
+</tr>
+ <tr id="l123">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=123#src-123">123</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 123, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-123" class="srcLineHilight"><span class="nolink" title="Line 123, Col 4: statement not executed.">            <span class="keyword">return</span> <a href="../../../../../net/finmath/functions/AnalyticFormulas.html#AnalyticFormulas">AnalyticFormulas</a>.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);</span></span></td>
+</tr>
+ <tr id="l124">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=124#src-124">124</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-124" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l125">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=125#src-125">125</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 125, Col 8: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-125" class="srcLineHilight"><span class="nolink" title="Line 125, Col 8: statement not executed.">        <span class="keyword">else</span> <span class="keyword">if</span>(toQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.PRICE)) {</span></span></td>
+</tr>
+ <tr id="l126">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=126#src-126">126</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 126, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-126" class="srcLineHilight"><span class="nolink" title="Line 126, Col 4: statement not executed.">            <span class="keyword">return</span> <a href="../../../../../net/finmath/functions/AnalyticFormulas.html#AnalyticFormulas">AnalyticFormulas</a>.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);</span></span></td>
+</tr>
+ <tr id="l127">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=127#src-127">127</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-127" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l128">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=128#src-128">128</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-128" class="srcLine">        <span class="keyword">else</span> {</span></td>
+</tr>
+ <tr id="l129">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=129#src-129">129</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 129, Col 4: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-129" class="srcLineHilight"><span class="nolink" title="Line 129, Col 4: statement not executed.">            <span class="keyword">return</span> convertFromTo(model, optionMaturity, optionStrike, convertFromTo(model, optionMaturity, optionStrike, value, fromQuotingConvention, QuotingConvention.PRICE), QuotingConvention.PRICE, toQuotingConvention);</span></span></td>
+</tr>
+ <tr id="l130">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=130#src-130">130</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-130" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l131">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=131#src-131">131</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-131" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l132">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=132#src-132">132</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-132" class="srcLine"></span></td>
+</tr>
+ <tr id="l133">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=133#src-133">133</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-133" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l134">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=134#src-134">134</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-134" class="srcLine"><span class="comment">     * Convert the value of a caplet from one quoting convention to another quoting convention.</span></span></td>
+</tr>
+ <tr id="l135">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=135#src-135">135</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-135" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l136">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=136#src-136">136</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-136" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> optionMaturity Option maturity of the caplet.</span></span></td>
+</tr>
+ <tr id="l137">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=137#src-137">137</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-137" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> optionStrike Option strike of the caplet.</span></span></td>
+</tr>
+ <tr id="l138">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=138#src-138">138</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-138" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> value Value of the caplet given in the form of &lt;code&gt;fromQuotingConvention&lt;/code&gt;.</span></span></td>
+</tr>
+ <tr id="l139">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=139#src-139">139</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-139" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> fromQuotingConvention The quoting convention of the given value.</span></span></td>
+</tr>
+ <tr id="l140">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=140#src-140">140</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-140" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> toQuotingConvention The quoting convention requested.</span></span></td>
+</tr>
+ <tr id="l141">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=141#src-141">141</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-141" class="srcLine"><span class="comment">     * </span><span class="javadoc">@return</span><span class="comment"> Value of the caplet given in the form of &lt;code&gt;toQuotingConvention&lt;/code&gt;.</span></span></td>
+</tr>
+ <tr id="l142">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=142#src-142">142</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-142" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="143" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-143' onclick="toggleInlineStats(this, 'inlinestats-143');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-143" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-143'), 'inlinestats-143');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l143">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=143#src-143">143</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 143, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-143"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 143,145);" id="img-143" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-143" class="srcLineHilight"><span class="nolink" title="Line 143, Col 2: method not entered.">    <span class="keyword">public</span> <span class="keyword">double</span> convertFromTo(<span class="keyword">final</span> <span class="keyword">double</span> optionMaturity, <span class="keyword">final</span> <span class="keyword">double</span> optionStrike, <span class="keyword">final</span> <span class="keyword">double</span> value, <span class="keyword">final</span> QuotingConvention fromQuotingConvention, <span class="keyword">final</span> QuotingConvention toQuotingConvention) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-143'), 143,145);" id="e143" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l144">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=144#src-144">144</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 144, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-144" class="srcLineHilight"><span class="nolink" title="Line 144, Col 3: statement not executed.">        <span class="keyword">return</span> convertFromTo(<span class="keyword">null</span>, optionMaturity, optionStrike, value, fromQuotingConvention, toQuotingConvention);</span></span></td>
+</tr>
+ <tr id="l145">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=145#src-145">145</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-145" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l146">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=146#src-146">146</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-146" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="147" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-147' onclick="toggleInlineStats(this, 'inlinestats-147');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-147" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-147'), 'inlinestats-147');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l147">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=147#src-147">147</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 147, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-147"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 147,149);" id="img-147" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-147" class="srcLineHilight"><span class="nolink" title="Line 147, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../net/finmath/marketdata/model/curves/ForwardCurve.html#ForwardCurve">ForwardCurve</a> getForwardCurve() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-147'), 147,149);" id="e147" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l148">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=148#src-148">148</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 148, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-148" class="srcLineHilight"><span class="nolink" title="Line 148, Col 3: statement not executed.">        <span class="keyword">return</span> forwardCurve;</span></span></td>
+</tr>
+ <tr id="l149">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=149#src-149">149</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-149" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l150">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=150#src-150">150</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-150" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="151" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-151' onclick="toggleInlineStats(this, 'inlinestats-151');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-151" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-151'), 'inlinestats-151');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l151">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=151#src-151">151</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 151, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-151"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 151,153);" id="img-151" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-151" class="srcLineHilight"><span class="nolink" title="Line 151, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../net/finmath/marketdata/model/curves/DiscountCurve.html#DiscountCurve">DiscountCurve</a> getDiscountCurve() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-151'), 151,153);" id="e151" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l152">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=152#src-152">152</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 152, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-152" class="srcLineHilight"><span class="nolink" title="Line 152, Col 3: statement not executed.">        <span class="keyword">return</span> discountCurve;</span></span></td>
+</tr>
+ <tr id="l153">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=153#src-153">153</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-153" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l154">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=154#src-154">154</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-154" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="155" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-155' onclick="toggleInlineStats(this, 'inlinestats-155');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-155" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-155'), 'inlinestats-155');return true;">
+                <td><div>
+<div title="0% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:0%"></div></div></div></td><td>0%</td>
+                <td class="inlineStat">Uncovered Elements: 1 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l155">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=155#src-155">155</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 155, Col 2: method not entered." class="nolink">&#160;0</span></td>
+<td class=" methodStart  srcCell" id="id-155"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 155,157);" id="img-155" src="../../../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-155" class="srcLineHilight"><span class="nolink" title="Line 155, Col 2: method not entered.">    <span class="keyword">public</span> <a href="../../../../../net/finmath/time/daycount/DayCountConvention.html#DayCountConvention">DayCountConvention</a> getDaycountConvention() {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-155'), 155,157);" id="e155" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l156">
+<td align="right" class="lineCount Bad"><a class="lineNumHref" href="?line=156#src-156">156</a></td>
+<td align="right" class="coverageCount Bad missedByTest"   ><span title="Line 156, Col 3: statement not executed." class="nolink">&#160;0</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-156" class="srcLineHilight"><span class="nolink" title="Line 156, Col 3: statement not executed.">        <span class="keyword">return</span> daycountConvention;</span></span></td>
+</tr>
+ <tr id="l157">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=157#src-157">157</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-157" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l158">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=158#src-158">158</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-158" class="srcLine">}</span></td>
+</tr>
+ 
+    </tbody></table>    </div>
+</div><!-- .aui-tabs -->
+
+<script type="text/javascript"> 
+    var ol_bgclass = "overBG";
+    var ol_fgclass = "overFG";
+    var ol_cgclass = "overCaption";
+    var ol_captionfontclass= "overCaption";
+    var ol_closefontclass = "closeFont";
+    var ol_closeclick = 1;
+    var ol_close = 'X';
+    var ol_wrap = 1;
+    var rootRelPath = '../../../../../';
+    var testsPerFile = -1;
+</script>
+<script src="AbstractVolatilitySurface.js" type="text/javascript"></script>
+
+                        </div> <!-- class="aui-page-panel-content-clover" -->
+                    <footer id="footer" role="contentinfo">
+    <section class="footer-body">
+        <ul>
+            <li>
+                Report generated by <a target="_new" href="http://openclover.org">OpenClover</a> v 4.4.1
+                on Wed Sep 7 2022 17:12:15 CEST using coverage data from Tue Sep 6 2022 20:00:55 CEST.
+            </li>
+        </ul>
+        <ul>
+            <li>OpenClover is free and open-source software. </li>
+        </ul>
+    </section>
+</footer>                </section> <!-- class="aui-page-panel-content" -->
+            </div> <!-- class="aui-page-panel-inner" -->
+        </div> <!-- class="aui-page-panel" -->
+    </div> <!-- id="page" -->
+</body>
+</html>
