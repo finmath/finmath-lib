@@ -109,7 +109,7 @@ public class FPMLParser implements XMLParser {
 
 		if(Objects.isNull(trade)) throw new IllegalArgumentException("<trade> node is missing.");
 
-		if("SAWP".equals(tradeName)) {
+		if("SWAP".equals(tradeName)) {
 			return getSwapProductDescriptor(trade);
 		}
 		else {
