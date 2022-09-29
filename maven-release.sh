@@ -65,4 +65,3 @@ mvn clean verify javadoc:jar source:jar gpg:sign deploy:deploy -P java-11 -D ski
 
 echo Turn to http://oss.sonatype.org to release the artifact.
 echo Then release the new site.
-wq
