@@ -1,18 +1,5 @@
 package net.finmath.modelling.descriptor.xmlparser;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
@@ -24,6 +11,18 @@ import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
 import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Class for parsing trades saved in FpML to product descriptors.
@@ -35,6 +34,7 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 public class FPMLParser implements XMLParser {
 
 	private final String homePartyId;
+	private final String forwardCurveName;
 	private final String discountCurveName;
 
 	private final AbstractBusinessdayCalendar abstractBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();
@@ -44,12 +44,24 @@ public class FPMLParser implements XMLParser {
 	 * Construct the parser.
 	 *
 	 * @param homePartyId Id of the agent doing the valuation.
+	 * @param forwardCurveName Name of the forward curve to be given to the descriptors.
+	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
+	 */
+	public FPMLParser(final String homePartyId, final String forwardCurveName, final String discountCurveName) {
+		super();
+		this.homePartyId = homePartyId;
+		this.forwardCurveName = forwardCurveName;
+		this.discountCurveName = discountCurveName;
+	}
+
+	/**
+	 * Construct the parser.
+	 *
+	 * @param homePartyId Id of the agent doing the valuation.
 	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
 	 */
 	public FPMLParser(final String homePartyId, final String discountCurveName) {
-		super();
-		this.homePartyId = homePartyId;
-		this.discountCurveName = discountCurveName;
+		this(homePartyId, null, discountCurveName);
 	}
 
 	@Override
@@ -58,20 +70,31 @@ public class FPMLParser implements XMLParser {
 		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
 		doc.getDocumentElement().normalize();
 
+		return getProductDescriptor(doc);
+	}
+
+	/**
+	 * Generates a product descriptor from an already existing Document.
+	 *
+	 * @return ProductDescriptor
+	 * @throws IllegalArgumentException Thrown id the document is not an FpML 5 document.
+	 */
+	public ProductDescriptor getProductDescriptor(Node node) {
+
 		//Check compatibility and assign proper parser
-		if(! doc.getDocumentElement().getNodeName().equalsIgnoreCase("dataDocument")) {
-			throw new IllegalArgumentException("This parser is meant for XML of type dataDocument, according to FpML 5, but file is "+doc.getDocumentElement().getNodeName()+".");
+		if (!node.getNodeName().equalsIgnoreCase("dataDocument")) {
+			throw new IllegalArgumentException("This parser is meant for XML of type dataDocument, according to FpML 5, but file is " + node.getNodeName() + ".");
 		}
 
-		if(! doc.getDocumentElement().getAttribute("fpmlVersion").split("-")[0].equals("5")) {
-			throw new IllegalArgumentException("This parser is meant for FpML of version 5.*, file is version "+ doc.getDocumentElement().getAttribute("fpmlVersion"));
+		if (!node.getAttributes().getNamedItem("fpmlVersion").getNodeValue().split("-")[0].equals("5")) {
+			throw new IllegalArgumentException("This parser is meant for FpML of version 5.*, file is version " + node.getAttributes().getNamedItem("fpmlVersion"));
 		}
 
 		//Isolate trade node
 		Element trade = null;
 		String tradeName = null;
 
-		final NodeList tradeWrapper = doc.getElementsByTagName("trade").item(0).getChildNodes();
+		final NodeList tradeWrapper = node.getOwnerDocument().getElementsByTagName("trade").item(0).getChildNodes();
 		for(int index = 0; index < tradeWrapper.getLength(); index++) {
 			if(tradeWrapper.item(index).getNodeType() != Node.ELEMENT_NODE) {
 				continue;
@@ -84,11 +107,12 @@ public class FPMLParser implements XMLParser {
 			break;
 		}
 
+		if(Objects.isNull(trade)) throw new IllegalArgumentException("<trade> node is missing.");
 
-		switch (tradeName) {
-		case "SWAP" :
+		if("SAWP".equals(tradeName)) {
 			return getSwapProductDescriptor(trade);
-		default:
+		}
+		else {
 			throw new IllegalArgumentException("This FpML parser is not set up to process trades of type "+tradeName+".");
 		}
 
@@ -164,12 +188,13 @@ public class FPMLParser implements XMLParser {
 		case "Y" : if(multiplier == 1) {frequency = Frequency.ANNUAL;} break;
 		case "M" :
 			switch(multiplier) {
-			case 1 : frequency = Frequency.MONTHLY;
-			case 3 : frequency = Frequency.QUARTERLY;
-			case 6 : frequency = Frequency.SEMIANNUAL;
+			case 1 : frequency = Frequency.MONTHLY; break;
+			case 3 : frequency = Frequency.QUARTERLY; break;
+			case 6 : frequency = Frequency.SEMIANNUAL; break;
 			default:
-				throw new IllegalArgumentException("Unknown period "+calcNode.getElementsByTagName("period").item(0).getTextContent()+".");
+				throw new IllegalArgumentException("Unknown periodMultiplier "+calcNode.getElementsByTagName("periodMultiplier").item(0).getTextContent()+".");
 			}
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown period "+calcNode.getElementsByTagName("period").item(0).getTextContent()+".");
 		}
@@ -187,7 +212,8 @@ public class FPMLParser implements XMLParser {
 		if(isFixed) {
 			spread = Double.parseDouble(((Element) leg.getElementsByTagName("fixedRateSchedule").item(0)).getElementsByTagName("initialValue").item(0).getTextContent());
 		} else {
-			forwardCurveName = leg.getElementsByTagName("floatingRateIndex").item(0).getTextContent();
+			// The forward curve in the product is overwritten if the parser has a set forward curve
+			forwardCurveName = Objects.isNull(this.forwardCurveName) ? leg.getElementsByTagName("floatingRateIndex").item(0).getTextContent() : this.forwardCurveName;
 		}
 
 		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notional, spread, false);
