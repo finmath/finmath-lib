@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.0.5 (29.09.2022)
+## 6.0.4 (29.09.2022)
 
 ### FPML Parsing
 
