@@ -1,0 +1,16 @@
+    name: finmath lib
+
+    on: [push]
+
+    jobs:
+      build:
+        name: Java 17 build and unit testing
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+          - name: Set up Java
+            uses: actions/setup-java@v1
+            with:
+              java-version: 17
+          - name: Build with Maven
+            run: mvn -B package --file pom.xml
