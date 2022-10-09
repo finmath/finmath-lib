@@ -16,8 +16,6 @@ import java.util.function.Function;
  */
 public class EmissionIntensityFunction implements Function<Double, Double> {
 
-	private static double timeStep = 5.0;	// time step in the original model (should become a parameter)
-
 	private static double e0 = 35.85;					// Initial emissions
 	private static double q0 = 105.5;					// Initial global output
 	private static double sigma0 = e0/q0;				// Calculated initial emissions intensity, the 1/(1-mu0) is outside
@@ -43,8 +41,8 @@ public class EmissionIntensityFunction implements Function<Double, Double> {
 
 	@Override
 	public Double apply(Double time) {
-		final double emissionIntensityRate = emissionIntensityRateInitial * Math.pow(1-emissionIntensityRateDecay, time * timeStep);
-		final double emissionIntensity = emissionIntensityInitial * Math.exp(-emissionIntensityRate * time * timeStep);
+		final double emissionIntensityRate = emissionIntensityRateInitial * Math.pow(1-emissionIntensityRateDecay, time);
+		final double emissionIntensity = emissionIntensityInitial * Math.exp(-emissionIntensityRate * time);
 
 		return emissionIntensity;
 	}

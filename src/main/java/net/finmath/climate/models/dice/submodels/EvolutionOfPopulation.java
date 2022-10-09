@@ -16,7 +16,6 @@ import java.util.function.Function;
 public class EvolutionOfPopulation implements Function<Double, Function<Double, Double>> {
 
 	private final double timeStep;	// time step in the original model (should become a parameter)
-
 	private final double populationAsymptotic;	 // Asymptotic population (La)
 	private final double populationGrowth;		 // Population growth (lg) (in the original model this a per-5Y)
 
@@ -27,15 +26,14 @@ public class EvolutionOfPopulation implements Function<Double, Function<Double, 
 		this.populationGrowth = populationGrowth;
 	}
 
-	public EvolutionOfPopulation() {
-		// Parameters from original model: population growth per 5 year
-		this(5.0, 11500, 0.134);
+	public EvolutionOfPopulation(double timeStep) {
+		this(timeStep, 11500, 0.134/5); //original parameter is per 5 year time step, we rescale to 1Y
 	}
 
 	@Override
 	public Function<Double, Double> apply(Double time) {
 		return (Double population) -> {
-			return population * Math.pow(populationAsymptotic/population,populationGrowth);
+			return population * Math.pow(populationAsymptotic/population,populationGrowth*timeStep);
 		};
 	}
 }

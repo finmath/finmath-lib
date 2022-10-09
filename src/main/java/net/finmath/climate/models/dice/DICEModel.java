@@ -15,6 +15,7 @@ import net.finmath.climate.models.dice.submodels.EvolutionOfProductivity;
 import net.finmath.climate.models.dice.submodels.EvolutionOfTemperature;
 import net.finmath.climate.models.dice.submodels.ForcingFunction;
 import net.finmath.climate.models.dice.submodels.Temperature;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A simulation of a simplified DICE model.
@@ -24,37 +25,57 @@ import net.finmath.climate.models.dice.submodels.Temperature;
  */
 public class DICEModel {
 
-	public static int numberOfTimes = 100;
-
 	/*
 	 * Input to this class
 	 */
-	private final double discountRate;
+	private final TimeDiscretization timeDiscretization;
 	private final UnaryOperator<Double> abatementFunction;
 	private final UnaryOperator<Double> savingsRateFunction;
+	private final double discountRate;
 
 	/*
 	 * Simulated values - stored for plotting ande analysis
 	 */
-	private Temperature[] temperature = new Temperature[numberOfTimes];
-	private CarbonConcentration[] carbonConcentration = new CarbonConcentration[numberOfTimes];
-	private double[] gdp = new double[numberOfTimes];
-	private double[] emission = new double[numberOfTimes];
-	private double[] abatement = new double[numberOfTimes];
-	private double[] damage = new double[numberOfTimes];
-	private double[] capital = new double[numberOfTimes];
-	private double[] population = new double[numberOfTimes];
-	private double[] productivity = new double[numberOfTimes];
-	private double[] welfare = new double[numberOfTimes];
-	private double[] value = new double[numberOfTimes];
+	private Temperature[] temperature;
+	private CarbonConcentration[] carbonConcentration;
+	private double[] gdp;
+	private double[] emission;
+	private double[] abatement;
+	private double[] damage;
+	private double[] capital;
+	private double[] population;
+	private double[] productivity;
+	private double[] welfare;
+	private double[] value;
 
-	public DICEModel(double discountRate, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction) {
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction, double discountRate) {
 		super();
-		this.discountRate = discountRate;
+		this.timeDiscretization = timeDiscretization;
 		this.abatementFunction = abatementFunction;
 		this.savingsRateFunction = savingsRateFunction;
+		this.discountRate = discountRate;
+
+		int numberOfTimes = this.timeDiscretization.getNumberOfTimes();
+
+		temperature = new Temperature[numberOfTimes];
+		carbonConcentration = new CarbonConcentration[numberOfTimes];
+		gdp = new double[numberOfTimes];
+		emission = new double[numberOfTimes];
+		abatement = new double[numberOfTimes];
+		damage = new double[numberOfTimes];
+		capital = new double[numberOfTimes];
+		population = new double[numberOfTimes];
+		productivity = new double[numberOfTimes];
+		welfare = new double[numberOfTimes];
+		value = new double[numberOfTimes];
+
+		this.init();
 	}
-	
+
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction) {
+		this(timeDiscretization, abatementFunction, t -> 0.259029014481802, 0.03);
+	}
+
 	public double[] getValues() {
 		synchronized (welfare) {
 			this.init();
@@ -65,16 +86,18 @@ public class DICEModel {
 	public double getValue() {
 		synchronized (value) {
 			this.init();
-			return value[numberOfTimes-1];
+			return value[value.length-1];
 		}
 	}
 
 	private void init() {
+		// TODO Assuming that the time steps are constant.
+		final double timeStep = timeDiscretization.getTimeStep(0);
 
 		/*
 		 * Building the model by composing the different functions
 		 */
-		
+
 		/*
 		 * Note: Calling default constructors for the sub-models will initialise the default parameters.
 		 */
@@ -82,46 +105,46 @@ public class DICEModel {
 		/*
 		 * State vectors initial values
 		 */
-		Temperature temperatureInitial = new Temperature(0.85, 0.0068);	
-		CarbonConcentration carbonConcentrationInitial = new CarbonConcentration(851, 460, 1740);	// Level of Carbon (GtC)
+		final Temperature temperatureInitial = new Temperature(0.85, 0.0068);
+		final CarbonConcentration carbonConcentrationInitial = new CarbonConcentration(851, 460, 1740);	// Level of Carbon (GtC)
 
 		/*
 		 * Sub-Modules: functional dependencies and evolution
 		 */
 
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
-		DoubleUnaryOperator damageFunction = new DamageFromTemperature();
+		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature();
+		final EmissionIntensityFunction emissionIntensityFunction = new EmissionIntensityFunction();
+		final EmissionFunction emissionFunction = new EmissionFunction(timeStep, emissionIntensityFunction);
 
-		EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration();
+		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeStep);
 
-		ForcingFunction forcingFunction = new ForcingFunction();
-		Double forcingExternal = 1.0;
+		final ForcingFunction forcingFunction = new ForcingFunction();
+		final double forcingExternal = 1.0/5.0;
 
-		EmissionIntensityFunction emissionIntensityFunction = new EmissionIntensityFunction();
-		EmissionFunction emissionFunction = new EmissionFunction(emissionIntensityFunction);
+		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeStep);
 
 		// Abatement
-		AbatementCostFunction abatementCostFunction = new AbatementCostFunction();
+		final AbatementCostFunction abatementCostFunction = new AbatementCostFunction();
 
 		/*
 		 * GDP
 		 */
-		double K0 = 223;		// Initial Capital
-		double L0 = 7403;		// Initial Population
-		double A0 = 5.115;		// Initial Total Factor of Productivity 
-		double gamma = 0.3;		// Capital Elasticity in Production Function
-		double gdpInitial = A0*Math.pow(K0,gamma)*Math.pow(L0/1000,1-gamma);
+		final double K0 = 223;		// Initial Capital
+		final double L0 = 7403;		// Initial Population
+		final double A0 = 5.115;		// Initial Total Factor of Productivity
+		final double gamma = 0.3;		// Capital Elasticity in Production Function
+		final double gdpInitial = A0*Math.pow(K0,gamma)*Math.pow(L0/1000,1-gamma);
 
 		// Capital
-		EvolutionOfCapital evolutionOfCapital = new EvolutionOfCapital();
-		
+		final EvolutionOfCapital evolutionOfCapital = new EvolutionOfCapital(timeStep);
+
 		// Population
-		EvolutionOfPopulation evolutionOfPopulation = new EvolutionOfPopulation();
+		final EvolutionOfPopulation evolutionOfPopulation = new EvolutionOfPopulation(timeStep);
 
 		// Productivity
-		EvolutionOfProductivity evolutionOfProductivity = new EvolutionOfProductivity();
+		final EvolutionOfProductivity evolutionOfProductivity = new EvolutionOfProductivity(timeStep);
 
 		/*
 		 * Set initial values
@@ -137,20 +160,15 @@ public class DICEModel {
 		/*
 		 * Evolve
 		 */
-		for(int i=0; i<numberOfTimes-1; i++) {
+		for(int i=0; i<timeDiscretization.getNumberOfTimeSteps(); i++) {
+
+			final double time = timeDiscretization.getTime(i);
 
 			/*
-			 * We are stepping in 5 years (the models are currently hardcoded to dT = 5 year.
-			 * The time parameter is currently just the index. (Need to rework this).
-			 */
-			double time = i;
-			double timeStep = 5.0;
-
-			/*
-			 * Evolve geo-physical quantities i -> i+1 (as a function of gdb[i])
+			 * Evolve geo-physical quantities i -> i+1 (as a function of gdp[i])
 			 */
 
-			double forcing = forcingFunction.apply(carbonConcentration[i], forcingExternal);
+			final double forcing = forcingFunction.apply(carbonConcentration[i], forcingExternal);
 			temperature[i+1] = evolutionOfTemperature.apply(temperature[i], forcing);
 
 			abatement[i] = abatementFunction.apply(time);
@@ -206,11 +224,39 @@ public class DICEModel {
 			/*
 			 * Discounted utility
 			 */
-			double discountFactor = Math.exp(- discountRate * (time*timeStep));
+			double discountFactor = Math.exp(- discountRate * time);
 			welfare[i] = utility*discountFactor;
 
 			utilityDiscountedSum = utilityDiscountedSum + utility*discountFactor;
 			value[i+1] = utilityDiscountedSum;
 		}
+	}
+
+	/**
+	 * @return the damage
+	 */
+	public double[] getDamage() {
+		return damage;
+	}
+
+	/**
+	 * @return the carbonConcentration
+	 */
+	public CarbonConcentration[] getCarbonConcentration() {
+		return carbonConcentration;
+	}
+
+	/**
+	 * @return the temperature
+	 */
+	public Temperature[] getTemperature() {
+		return temperature;
+	}
+
+	/**
+	 * @return the abatement
+	 */
+	public double[] getAbatement() {
+		return abatement;
 	}
 }

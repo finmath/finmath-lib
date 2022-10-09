@@ -18,30 +18,31 @@ import java.util.function.BiFunction;
  */
 public class EmissionFunction implements BiFunction<Double, Double, Double> {
 
-	private static double timeStep = 5.0;	// time step in the original model (should become a parameter)
-
+	private final double timeStep;
 	private final EmissionIntensityFunction emissionIntensityFunction;
 	private final double externalEmissionsInitial;
 	private final double externalEmissionsDecay;	// per 5Y
 
-	public EmissionFunction(EmissionIntensityFunction emissionIntensityFunction, double externalEmissionsInitial, double externalEmissionsDecay) {
+	private static double annualizedExternalEmissionsDecay = 1-Math.pow(1-0.115, 1/5); //0.115 for 5 years, thus 1-5th_root(1-0.115)
+
+	public EmissionFunction(double timeStep, EmissionIntensityFunction emissionIntensityFunction, double externalEmissionsInitial, double externalEmissionsDecay) {
 		super();
+		this.timeStep = timeStep;
 		this.emissionIntensityFunction = emissionIntensityFunction;
 		this.externalEmissionsInitial = externalEmissionsInitial;
 		this.externalEmissionsDecay = externalEmissionsDecay;
 	}
 
-	public EmissionFunction(EmissionIntensityFunction emissionIntensityFunction) {
-		// Parameters from original model
-		this(emissionIntensityFunction, 2.6, 0.115);
+	public EmissionFunction(double timeStep, EmissionIntensityFunction emissionIntensityFunction) {
+		// Parameters from original model - the externalEmissionsInitial is per 5Y in the original model.
+		this(timeStep, emissionIntensityFunction, 2.6/5, annualizedExternalEmissionsDecay);
 	}
 
 	@Override
 	public Double apply(Double time, Double economicOutput) {
 		final double emissionPerEconomicOutput = emissionIntensityFunction.apply(time);
-		// The parameter externalEmissionsDecay is formulated for a 5 year period
-		final double externalEmissions = externalEmissionsInitial * Math.pow(1-externalEmissionsDecay, time*timeStep/5.0);
+		final double externalEmissions = externalEmissionsInitial * Math.pow(1-externalEmissionsDecay, time);
 
-		return timeStep * (emissionPerEconomicOutput * economicOutput + externalEmissions);
+		return (emissionPerEconomicOutput * economicOutput + externalEmissions);
 	}
 }

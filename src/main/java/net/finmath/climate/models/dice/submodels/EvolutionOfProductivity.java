@@ -15,8 +15,7 @@ import java.util.function.Function;
  */
 public class EvolutionOfProductivity implements Function<Double, Function<Double, Double>> {
 
-	private final double timeStep;	// time step in the original model (should become a parameter)
-
+	private final double timeStep;
 	private final double productivityGrowthRate;        	// ga: Initial TFP rate
 	private final double productivityGrowthRateDecayRate;	// deltaA: TFP increase rate
 
@@ -27,15 +26,17 @@ public class EvolutionOfProductivity implements Function<Double, Function<Double
 		this.productivityGrowthRateDecayRate = productivityGrowthRateDecayRate;
 	}
 
-	public EvolutionOfProductivity() {
-		// Parameters from original model: population growth per 5 year
-		this(5.0, 0.076, 0.005);
+	public EvolutionOfProductivity(double timeStep) {
+		// Parameters from original model: initial productivity growth 0.076, decaying with 0.005 per 5 years, thus 0.001 per 1 year
+		// TODO reparametrization to timeStep only approximately correct
+		//		this(0.076, 0.001);  // TODO eearlier version missed the /5 - check impact
+		this(timeStep, 1-Math.pow(1-0.076,1/5), 0.001);
 	}
 
 	@Override
 	public Function<Double, Double> apply(Double time) {
 		return (Double productivity) -> {
-			return productivity / (1 - productivityGrowthRate * Math.exp(-productivityGrowthRateDecayRate * timeStep * time));
+			return productivity / Math.pow(1 - productivityGrowthRate * Math.exp(-productivityGrowthRateDecayRate * time), timeStep);
 		};
 	}
 }

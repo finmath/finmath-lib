@@ -1,6 +1,7 @@
 package net.finmath.climate.models.dice.submodels;
 
 import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 
 import net.finmath.functions.LinearAlgebra;
 
@@ -15,7 +16,7 @@ import net.finmath.functions.LinearAlgebra;
  * Unit conversions
  * <ul>
  * 	<li>1 t Carbon = 3.666 t CO2</li>
- * </lui>
+ * </ul>
  *
  * Note: The function depends on the time step size.
  * TODO Fix time stepping
@@ -34,7 +35,7 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 		final double mueq = 360;
 		final double mleq = 1720;
 
-		final double zeta11 = 1 - b12;
+		final double zeta11 = 1 - b12;  //b11
 		final double zeta21 = b12;
 		final double zeta12 = (mateq/mueq)*zeta21;
 		final double zeta22 = 1 - zeta12 - b23;
@@ -45,18 +46,18 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 		transitionMatrixDefault = new double[][] { new double[] { zeta11, zeta12, 0.0 }, new double[] { zeta21, zeta22, zeta23 }, new double[] { 0.0, zeta32, zeta33 } };
 	}
 
-	private final double timeStepSize;				// time step in the original model (should become a parameter)
+	private final double timeStep;
 	private final double[][] transitionMatrix;		// phi in [i][j] (i = row, j = column)
 
-	public EvolutionOfCarbonConcentration(double timeStepSize, double[][] transitionMatrix) {
+	public EvolutionOfCarbonConcentration(double timeStep, double[][] transitionMatrix) {
 		super();
-		this.timeStepSize = timeStepSize;
+		this.timeStep = timeStep;
 		this.transitionMatrix = transitionMatrix;
 	}
 
-	public EvolutionOfCarbonConcentration() {
+	public EvolutionOfCarbonConcentration(double timeStepSize) {
 		// Parameters from original model
-		this(5.0, transitionMatrixDefault);
+		this(timeStepSize, transitionMatrixDefault);
 	}
 
 	@Override
@@ -67,11 +68,15 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 	 * @param emissions The emissions in GtCO2 / year.
 	 */
 	public CarbonConcentration apply(CarbonConcentration carbonConcentration, Double emissions) {
+		// TODO The parameters are calibrated to a 5 year time step. Should be a proper root here
 		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrix, carbonConcentration.getAsDoubleArray());
 
-		// Add emissions
-		carbonConcentrationNext[0] += emissions * timeStepSize * conversionGtCarbonperGtCO2;
+		// TODO - matrix need rescaled from 5Y to 1Y
+		final double[] carbonConcentrationNextScaled = IntStream.range(0, carbonConcentrationNext.length).mapToDouble(i -> carbonConcentration.getAsDoubleArray()[i] + timeStep/5.0 * (carbonConcentrationNext[i]-carbonConcentration.getAsDoubleArray()[i])).toArray();
 
-		return new CarbonConcentration(carbonConcentrationNext);
+		// Add emissions
+		carbonConcentrationNextScaled[0] += emissions * timeStep * conversionGtCarbonperGtCO2;
+
+		return new CarbonConcentration(carbonConcentrationNextScaled);
 	}
 }

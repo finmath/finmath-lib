@@ -9,32 +9,28 @@ import java.util.function.Function;
  * 	K(t_{i+1}) = (1-delta) K(t_{i}) + investment
  * \)
  *
- * Note: The function depends on the time step size
- * TODO Fix time stepping
- *
  * @author Christian Fries
  */
 public class EvolutionOfCapital implements Function<Double, BiFunction<Double, Double, Double>> {
 
-	private static double timeStep = 5.0;	// time step in the original model (should become a parameter)
-
+	private final double timeStep;
 	private final double capitalDeprecation;
 
-	public EvolutionOfCapital(double capitalDeprecation) {
+	public EvolutionOfCapital(double timeStep, double capitalDeprecation) {
 		super();
+		this.timeStep = timeStep;
 		this.capitalDeprecation = capitalDeprecation;
 	}
 
-	public EvolutionOfCapital() {
-		// Parameters from original model: capital deprecation per 5 year: 10%
-		this(0.1);
+	public EvolutionOfCapital(double timeStep) {
+		// capital deprecation per 1 year: 5th root of (1-0.1) per 5 years
+		this(timeStep, 1-Math.pow(1-0.1, 1/5));
 	}
 
 	@Override
 	public BiFunction<Double, Double, Double> apply(Double time) {
 		return (Double capital, Double investment) -> {
-			return (1.0-capitalDeprecation) * capital + investment * timeStep;
+			return Math.pow(1.0-capitalDeprecation, timeStep) * capital + investment * timeStep;
 		};
 	}
-
 }
