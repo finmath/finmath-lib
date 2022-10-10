@@ -7,13 +7,13 @@ import java.util.function.BiFunction;
  *
  * @author Christian Fries
  */
-public class ForcingFunction implements BiFunction<CarbonConcentration, Double, Double> {
+public class ForcingFunction implements BiFunction<CarbonConcentration3DScalar, Double, Double> {
 
 	private final double carbonConcentrationBase = 580;
 	private final double forcingPerCarbonDoubling = 3.6813/5;			// Parameter in original model was per 5 year
 
 	@Override
-	public Double apply(CarbonConcentration carbonConcentration, Double forcingExternal) {
-		return forcingPerCarbonDoubling * Math.log(carbonConcentration.getCarbonConcentrationInAtmosphere() / carbonConcentrationBase ) / Math.log(2) + forcingExternal;
+	public Double apply(CarbonConcentration3DScalar carbonConcentration, Double forcingExternal) {
+		return forcingPerCarbonDoubling * Math.log(carbonConcentration.getExpectedCarbonConcentrationInAtmosphere() / carbonConcentrationBase ) / Math.log(2) + forcingExternal;
 	}
 }

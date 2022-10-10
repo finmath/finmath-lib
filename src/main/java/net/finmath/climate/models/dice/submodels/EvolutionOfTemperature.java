@@ -14,7 +14,7 @@ import net.finmath.functions.LinearAlgebra;
  *
  * @author Christian Fries
  */
-public class EvolutionOfTemperature implements BiFunction<Temperature, Double, Temperature> {
+public class EvolutionOfTemperature implements BiFunction<Temperature2DScalar, Double, Temperature2DScalar> {
 
 	private static double c1 = 0.1005;		// sometimes called xi1
 
@@ -54,14 +54,14 @@ public class EvolutionOfTemperature implements BiFunction<Temperature, Double, T
 	}
 
 	@Override
-	public Temperature apply(Temperature temperature, Double forcing) {
+	public Temperature2DScalar apply(Temperature2DScalar temperature, Double forcing) {
 		// This is a bit clumsy code. We have to convert the row vector to a column vector, multiply it, then convert it back to a row.
 		final double[] temperatureNext = LinearAlgebra.multMatrixVector(transitionMatrix, temperature.getAsDoubleArray());
 		
 		// TODO - matrix need rescaled from 5Y to 1Y
 		final double[] temperatureNextScaled = IntStream.range(0, temperatureNext.length).mapToDouble(i -> temperature.getAsDoubleArray()[i] + timeStep/5.0 * (temperatureNext[i]-temperature.getAsDoubleArray()[i])).toArray();
 		temperatureNextScaled[0] += forcingToTemp * forcing * timeStep;
-		return new Temperature(temperatureNextScaled);
+		return new Temperature2DScalar(temperatureNextScaled);
 	}
 
 }

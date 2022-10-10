@@ -1,34 +1,43 @@
 package net.finmath.climate.models.dice.submodels;
 
+import net.finmath.climate.models.CarbonConcentration;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
 /**
  * State vector representing carbon concentration.
  *
  * @author Christian Fries
  */
-public class CarbonConcentration {
+public class CarbonConcentration3DScalar implements CarbonConcentration {
 
 	private final double carbonConcentrationInAtmosphere;
 	private final double carbonConcentrationInShallowOcean;
 	private final double carbonConcentrationInLowerOcean;
 
-	public CarbonConcentration(double carbonConcentrationInAtmosphere, double carbonConcentrationInShallowOcean, double carbonConcentrationInLowerOcean) {
+	public CarbonConcentration3DScalar(double carbonConcentrationInAtmosphere, double carbonConcentrationInShallowOcean, double carbonConcentrationInLowerOcean) {
 		super();
 		this.carbonConcentrationInAtmosphere = carbonConcentrationInAtmosphere;
 		this.carbonConcentrationInShallowOcean = carbonConcentrationInShallowOcean;
 		this.carbonConcentrationInLowerOcean = carbonConcentrationInLowerOcean;
 	}
 
-	public CarbonConcentration(double[] carbonConcentration) {
+	public CarbonConcentration3DScalar(double[] carbonConcentration) {
 		this(carbonConcentration[0], carbonConcentration[1], carbonConcentration[2]);
 	}
 
-	public CarbonConcentration() {
+	public CarbonConcentration3DScalar() {
 		this(851, 460, 1740);		// GtC
 	}
 
-
-	public double getCarbonConcentrationInAtmosphere() {
+	@Override
+	public Double getExpectedCarbonConcentrationInAtmosphere() {
 		return carbonConcentrationInAtmosphere;
+	}
+
+	@Override
+	public RandomVariable getCarbonConcentrationInAtmosphere() {
+		return Scalar.of(carbonConcentrationInAtmosphere);
 	}
 
 	public double getCarbonConcentrationInShallowOcean() {

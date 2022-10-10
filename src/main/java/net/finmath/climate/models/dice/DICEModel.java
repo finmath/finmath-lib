@@ -1,10 +1,12 @@
 package net.finmath.climate.models.dice;
 
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
 
+import net.finmath.climate.models.ClimateModel;
 import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
-import net.finmath.climate.models.dice.submodels.CarbonConcentration;
+import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
 import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
 import net.finmath.climate.models.dice.submodels.EmissionFunction;
 import net.finmath.climate.models.dice.submodels.EmissionIntensityFunction;
@@ -14,7 +16,9 @@ import net.finmath.climate.models.dice.submodels.EvolutionOfPopulation;
 import net.finmath.climate.models.dice.submodels.EvolutionOfProductivity;
 import net.finmath.climate.models.dice.submodels.EvolutionOfTemperature;
 import net.finmath.climate.models.dice.submodels.ForcingFunction;
-import net.finmath.climate.models.dice.submodels.Temperature;
+import net.finmath.climate.models.dice.submodels.Temperature2DScalar;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
@@ -23,7 +27,7 @@ import net.finmath.time.TimeDiscretization;
  * Note: The code makes some small simplification: it uses a constant savings rate and a constant external forcings.
  * It may still be useful for illustration.
  */
-public class DICEModel {
+public class DICEModel implements ClimateModel {
 
 	/*
 	 * Input to this class
@@ -36,8 +40,8 @@ public class DICEModel {
 	/*
 	 * Simulated values - stored for plotting ande analysis
 	 */
-	private Temperature[] temperature;
-	private CarbonConcentration[] carbonConcentration;
+	private Temperature2DScalar[] temperature;
+	private CarbonConcentration3DScalar[] carbonConcentration;
 	private double[] gdp;
 	private double[] emission;
 	private double[] abatement;
@@ -57,8 +61,8 @@ public class DICEModel {
 
 		int numberOfTimes = this.timeDiscretization.getNumberOfTimes();
 
-		temperature = new Temperature[numberOfTimes];
-		carbonConcentration = new CarbonConcentration[numberOfTimes];
+		temperature = new Temperature2DScalar[numberOfTimes];
+		carbonConcentration = new CarbonConcentration3DScalar[numberOfTimes];
 		gdp = new double[numberOfTimes];
 		emission = new double[numberOfTimes];
 		abatement = new double[numberOfTimes];
@@ -76,20 +80,6 @@ public class DICEModel {
 		this(timeDiscretization, abatementFunction, t -> 0.259029014481802, 0.03);
 	}
 
-	public double[] getValues() {
-		synchronized (welfare) {
-			this.init();
-			return welfare;
-		}
-	}
-
-	public double getValue() {
-		synchronized (value) {
-			this.init();
-			return value[value.length-1];
-		}
-	}
-
 	private void init() {
 		// TODO Assuming that the time steps are constant.
 		final double timeStep = timeDiscretization.getTimeStep(0);
@@ -105,8 +95,8 @@ public class DICEModel {
 		/*
 		 * State vectors initial values
 		 */
-		final Temperature temperatureInitial = new Temperature(0.85, 0.0068);
-		final CarbonConcentration carbonConcentrationInitial = new CarbonConcentration(851, 460, 1740);	// Level of Carbon (GtC)
+		final Temperature2DScalar temperatureInitial = new Temperature2DScalar(0.85, 0.0068);
+		final CarbonConcentration3DScalar carbonConcentrationInitial = new CarbonConcentration3DScalar(851, 460, 1740);	// Level of Carbon (GtC)
 
 		/*
 		 * Sub-Modules: functional dependencies and evolution
@@ -132,7 +122,7 @@ public class DICEModel {
 		 * GDP
 		 */
 		final double K0 = 223;		// Initial Capital
-		final double L0 = 7403;		// Initial Population
+		final double L0 = 7403;		// Initial Population (world in million)
 		final double A0 = 5.115;		// Initial Total Factor of Productivity
 		final double gamma = 0.3;		// Capital Elasticity in Production Function
 		final double gdpInitial = A0*Math.pow(K0,gamma)*Math.pow(L0/1000,1-gamma);
@@ -184,7 +174,7 @@ public class DICEModel {
 			 */
 
 			// Apply damage to economy
-			damage[i] = damageFunction.applyAsDouble(temperature[i].getTemperatureOfAtmosphere());
+			damage[i] = damageFunction.applyAsDouble(temperature[i].getExpectedTemperatureOfAtmosphere());
 
 			/*
 			 * Abatement cost
@@ -232,31 +222,53 @@ public class DICEModel {
 		}
 	}
 
-	/**
-	 * @return the damage
-	 */
-	public double[] getDamage() {
-		return damage;
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+		return timeDiscretization;
 	}
 
-	/**
-	 * @return the carbonConcentration
-	 */
-	public CarbonConcentration[] getCarbonConcentration() {
+	@Override
+	public RandomVariable getTemperature(double time) {
+		return Scalar.of(temperature[timeDiscretization.getTimeIndex(time)].getExpectedTemperatureOfAtmosphere());
+	}
+
+	@Override
+	public RandomVariable getValue() {
+		return Scalar.of(value[value.length-1]);
+	}
+
+	@Override
+	public RandomVariable[] getValues() {
+		return Arrays.stream(value).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable[] getAbatement() {
+		return Arrays.stream(abatement).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable[] getEmission() {
+		return Arrays.stream(emission).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public net.finmath.climate.models.CarbonConcentration[] getCarbonConcentration() {
 		return carbonConcentration;
 	}
 
-	/**
-	 * @return the temperature
-	 */
-	public Temperature[] getTemperature() {
+	@Override
+	public net.finmath.climate.models.Temperature[] getTemperature() {
 		return temperature;
 	}
 
-	/**
-	 * @return the abatement
-	 */
-	public double[] getAbatement() {
-		return abatement;
+	@Override
+	public RandomVariable[] getDamage() {
+		return Arrays.stream(damage).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable[] getGDP() {
+		return Arrays.stream(gdp).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
 	}
 }

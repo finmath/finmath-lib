@@ -23,11 +23,12 @@ import net.finmath.functions.LinearAlgebra;
  *
  * @author Christian Fries
  */
-public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentration, Double, CarbonConcentration> {
+public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentration3DScalar, Double, CarbonConcentration3DScalar> {
 
 	private static double conversionGtCarbonperGtCO2 = 3.0/11.0;
 
 	private static double[][] transitionMatrixDefault;
+	// Original transition matrix is a 5Y transition matrix
 	static {
 		final double b12 = 0.12;		// scale
 		final double b23 = 0.007;		// scale
@@ -55,9 +56,9 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 		this.transitionMatrix = transitionMatrix;
 	}
 
-	public EvolutionOfCarbonConcentration(double timeStepSize) {
+	public EvolutionOfCarbonConcentration(double timeStep) {
 		// Parameters from original model
-		this(timeStepSize, transitionMatrixDefault);
+		this(timeStep, transitionMatrixDefault);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 	 * @param carbonConcentration The CarbonConcentration in time \( t_{i} \)
 	 * @param emissions The emissions in GtCO2 / year.
 	 */
-	public CarbonConcentration apply(CarbonConcentration carbonConcentration, Double emissions) {
+	public CarbonConcentration3DScalar apply(CarbonConcentration3DScalar carbonConcentration, Double emissions) {
 		// TODO The parameters are calibrated to a 5 year time step. Should be a proper root here
 		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrix, carbonConcentration.getAsDoubleArray());
 
@@ -77,6 +78,6 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 		// Add emissions
 		carbonConcentrationNextScaled[0] += emissions * timeStep * conversionGtCarbonperGtCO2;
 
-		return new CarbonConcentration(carbonConcentrationNextScaled);
+		return new CarbonConcentration3DScalar(carbonConcentrationNextScaled);
 	}
 }

@@ -1,5 +1,6 @@
 
 module net.finmath.lib {
+	exports net.finmath.climate.models;
 	exports net.finmath.climate.models.dice;
 	exports net.finmath.climate.models.dice.submodels;
 	exports net.finmath.concurrency;
