@@ -5,6 +5,14 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.5 (10.10.2022)
+
+### Climate Models (DICE)
+
+- Interface for more general integrated assessment models (IAM), to allow future extensions, especially with respect to stochastic quantities.
+- For an experiment using the DICE model see finmath-experiments (separate project / repository).
+
+
 ## 6.0.4 (29.09.2022)
 
 ### FPML Parsing
