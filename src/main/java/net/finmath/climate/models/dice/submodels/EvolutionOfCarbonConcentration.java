@@ -3,6 +3,10 @@ package net.finmath.climate.models.dice.submodels;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+
 import net.finmath.functions.LinearAlgebra;
 
 /**
@@ -27,7 +31,8 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 
 	private static double conversionGtCarbonperGtCO2 = 3.0/11.0;
 
-	private static double[][] transitionMatrixDefault;
+	private static double[][] transitionMatrix5YDefault;
+	private static double[][] transitionMatrix1YDefault;
 	// Original transition matrix is a 5Y transition matrix
 	static {
 		final double b12 = 0.12;		// scale
@@ -38,13 +43,19 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 
 		final double zeta11 = 1 - b12;  //b11
 		final double zeta21 = b12;
-		final double zeta12 = (mateq/mueq)*zeta21;
+		final double zeta12 = b12*(mateq/mueq);
 		final double zeta22 = 1 - zeta12 - b23;
 		final double zeta32 = b23;
-		final double zeta23 = zeta32*(mueq/mleq);
-		final double zeta33 = 1 - zeta23;
+		final double zeta23 = b23*(mueq/mleq);
+		final double zeta33 = 1 - b23;
 
-		transitionMatrixDefault = new double[][] { new double[] { zeta11, zeta12, 0.0 }, new double[] { zeta21, zeta22, zeta23 }, new double[] { 0.0, zeta32, zeta33 } };
+		transitionMatrix5YDefault = new double[][] { new double[] { zeta11, zeta12, 0.0 }, new double[] { zeta21, zeta22, zeta23 }, new double[] { 0.0, zeta32, zeta33 } };
+		
+		transitionMatrix1YDefault = new double[][] {
+			new double[] { 0.97221,   0.0278745, 0.0 },
+			new double[] { 0.0455284, 0.95293, 0.0 },
+			new double[] { 0.00145916, 0.000239206, 0.998596 }
+		};
 	}
 
 	private final double timeStep;
@@ -58,7 +69,7 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 
 	public EvolutionOfCarbonConcentration(double timeStep) {
 		// Parameters from original model
-		this(timeStep, transitionMatrixDefault);
+		this(timeStep, timeStep == 5 ? transitionMatrix5YDefault : matrixPow(transitionMatrix5YDefault, timeStep/5.0));
 	}
 
 	@Override
@@ -69,15 +80,38 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 	 * @param emissions The emissions in GtCO2 / year.
 	 */
 	public CarbonConcentration3DScalar apply(CarbonConcentration3DScalar carbonConcentration, Double emissions) {
-		// TODO The parameters are calibrated to a 5 year time step. Should be a proper root here
 		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrix, carbonConcentration.getAsDoubleArray());
 
-		// TODO - matrix need rescaled from 5Y to 1Y
-		final double[] carbonConcentrationNextScaled = IntStream.range(0, carbonConcentrationNext.length).mapToDouble(i -> carbonConcentration.getAsDoubleArray()[i] + timeStep/5.0 * (carbonConcentrationNext[i]-carbonConcentration.getAsDoubleArray()[i])).toArray();
-
 		// Add emissions
-		carbonConcentrationNextScaled[0] += emissions * timeStep * conversionGtCarbonperGtCO2;
+		carbonConcentrationNext[0] += emissions * timeStep * conversionGtCarbonperGtCO2;
 
-		return new CarbonConcentration3DScalar(carbonConcentrationNextScaled);
+		return new CarbonConcentration3DScalar(carbonConcentrationNext);
+	}
+	
+	private static double[][] matrixPow(double[][] matrix, double exponent) {
+		return matrixExp(matrixLog(new Array2DRowRealMatrix(matrix)).scalarMultiply(exponent)).getData();
+	}
+
+	/*
+	 * Thre are better ways doing this - but this here is sufficient for our purpose.
+	 */
+
+	private static RealMatrix matrixExp(RealMatrix matrix) {
+		RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());;
+		double factor = 1.0;
+		for(int k=1; k<10; k++) {
+			factor = factor * k;
+			exp = exp.add(matrix.power(k).scalarMultiply(1.0/factor));
+		}
+		return exp;
+	}
+
+	private static RealMatrix matrixLog(RealMatrix matrix) {
+		RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
+		RealMatrix log = m.copy();
+		for(int k=2; k<10; k++) {
+			log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));
+		}
+		return log;
 	}
 }
