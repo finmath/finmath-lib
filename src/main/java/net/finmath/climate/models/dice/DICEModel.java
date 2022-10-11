@@ -179,7 +179,7 @@ public class DICEModel implements ClimateModel {
 			/*
 			 * Abatement cost
 			 */
-			double abatementCost = abatementCostFunction.apply(time, abatement[i]);
+			double abatementCost = abatementCostFunction.apply(time, abatement[i]) * emissionIntensityFunction.apply(time);
 
 			/*
 			 * Evolve economy to i+1
@@ -209,13 +209,13 @@ public class DICEModel implements ClimateModel {
 			 */
 			double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)
 			double C = consumption;
-			double utility = L*Math.pow(C / (L/1000),1-alpha)/(1-alpha);
+			double utility = L*(Math.pow(C / (L/1000),1-alpha)-1)/(1-alpha);
 
 			/*
 			 * Discounted utility
 			 */
 			double discountFactor = Math.exp(- discountRate * time);
-			welfare[i] = utility*discountFactor;
+			welfare[i] = utility * discountFactor;
 
 			utilityDiscountedSum = utilityDiscountedSum + utility*discountFactor;
 			value[i+1] = utilityDiscountedSum;
