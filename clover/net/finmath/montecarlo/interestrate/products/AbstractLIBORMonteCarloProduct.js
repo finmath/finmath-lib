@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":75,"id":26065,"methods":[{"el":32,"sc":2,"sl":30},{"el":39,"sc":2,"sl":37},{"el":47,"sc":2,"sl":44},{"el":56,"sc":2,"sl":49},{"el":69,"sc":2,"sl":58},{"el":74,"sc":2,"sl":71}],"name":"AbstractLIBORMonteCarloProduct","sl":25}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_1009":{"methods":[{"sl":58}],"name":"testDelta[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]},"test_1097":{"methods":[{"sl":58}],"name":"testVega[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]},"test_1110":{"methods":[{"sl":37},{"sl":58}],"name":"testBermudanSwaption","pass":true,"statements":[{"sl":38},{"sl":61},{"sl":62}]},"test_1155":{"methods":[{"sl":58}],"name":"testVega[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]},"test_309":{"methods":[{"sl":37},{"sl":58}],"name":"testBermudanSwaption","pass":true,"statements":[{"sl":38},{"sl":61},{"sl":62}]},"test_41":{"methods":[{"sl":58}],"name":"testGenericDelta[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]},"test_447":{"methods":[{"sl":58}],"name":"testDelta[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]},"test_599":{"methods":[{"sl":58}],"name":"testGenericDelta[Bermudan Swaption 30.0 in 40.0]","pass":true,"statements":[{"sl":61},{"sl":62}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [1110, 309], [1110, 309], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [41, 1009, 1110, 447, 599, 1097, 1155, 309], [], [], [41, 1009, 1110, 447, 599, 1097, 1155, 309], [41, 1009, 1110, 447, 599, 1097, 1155, 309], [], [], [], [], [], [], [], [], [], [], [], [], []]

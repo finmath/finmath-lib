@@ -1,4 +1,7 @@
 module:net.finmath.lib
+net.finmath.climate.models
+net.finmath.climate.models.dice
+net.finmath.climate.models.dice.submodels
 net.finmath.concurrency
 net.finmath.exception
 net.finmath.finitedifference.experimental

@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    
+    
+    <link rel="SHORTCUT ICON" href="../../../img/clover.ico" />
+
+    <link rel="stylesheet" href="../../../aui/css/aui.min.css" media="all"/>
+    <link rel="stylesheet" href="../../../aui/css/aui-experimental.min.css" media="all"/>
+    <!--[if IE 9]><link rel="stylesheet" href="../../../aui/css/aui-ie9.min.css" media="all"/><![endif]-->
+
+    <style type="text/css" media="all">
+        @import url('../../../style.css');
+        @import url('../../../tree.css');
+        
+    </style>
+
+    <script src="../../../jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../../../aui/js/aui.min.js" type="text/javascript"></script>
+    <script src="../../../aui/js/aui-experimental.min.js" type="text/javascript"></script>
+    <script src="../../../aui/js/aui-soy.min.js" type="text/javascript"></script>
+
+    <script src="../../../package-nodes-tree.js" type="text/javascript"></script>
+    <script src="../../../clover-tree.js" type="text/javascript"></script>
+    <script src="../../../clover.js" type="text/javascript"></script>
+    <script src="../../../clover-descriptions.js" type="text/javascript"></script>
+    <script src="../../../cloud.js" type="text/javascript"></script>
+
+            <title>finmath lib 6.0.5</title>
+    </head>
+
+<body  onload="onLoad('finmath lib 6.0.5: net.finmath.integration.SimpsonRealIntegrator.java')">
+    <div id="page">
+        
+        
+
+
+<header id="header" role="banner">
+    <nav class="aui-header aui-dropdown2-trigger-group" role="navigation">
+        <div class="aui-header-inner">
+            <div class="aui-header-primary">
+                <h1 id="logo" class="aui-header-logo aui-header-logo-clover">
+                    <a href="http://openclover.org" title="Visit OpenClover home page"><span class="aui-header-logo-device">OpenClover</span></a>
+                </h1>
+                            </div>
+            <div class="aui-header-secondary">
+                <ul class="aui-nav">
+                    <li id="system-help-menu">
+                        <a class="aui-nav-link" title="Open online documentation" target="_blank"
+                           href="http://openclover.org/documentation">
+                            <span class="aui-icon aui-icon-small aui-iconfont-help">&#160;Help</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+        
+        <div class="aui-page-panel">
+            <div class="aui-page-panel-inner">
+                <div class="aui-page-panel-nav aui-page-panel-nav-clover">
+                    
+
+<div class="aui-page-header-inner" style="margin-bottom: 20px;">
+    <div class="aui-page-header-image">
+                    <a href="http://www.finmath.net/finmath-lib" target="_top">
+                <div class="aui-avatar aui-avatar-large aui-avatar-project">
+            <div class="aui-avatar-inner">
+                                    <img src="../../../img/clover_logo_large.png" alt="Clover icon"/>
+                            </div>
+        </div>
+                    </a>
+            </div>
+    <div class="aui-page-header-main" >
+        <h1>
+                            <a href="http://www.finmath.net/finmath-lib" target="_top">
+                                        finmath lib 6.0.5
+                                        </a>
+                    </h1>
+    </div>
+</div>
+
+<nav class="aui-navgroup aui-navgroup-vertical">
+    <div class="aui-navgroup-inner">
+                                            <ul class="aui-nav">
+                <li class="">
+                    <a href="../../../dashboard.html">Project overview</a>
+                </li>
+            </ul>
+        
+                <div class="aui-nav-heading packages-nav-heading">
+            <strong>Packages</strong>
+        </div>
+        <div class="aui-nav project-packages">
+            <form method="get" action="#" class="aui package-filter-container">
+                <input type="text" autocomplete="off" class="package-filter text"
+                       placeholder="Type to filter packages..." name="package-filter" id="package-filter"
+                       title="Start typing package name (or part of the name) to search through the tree. Use arrow keys and the Enter key to navigate."/>
+            </form>
+            <p class="package-filter-no-results-message hidden">
+                <small>No results found.</small>
+            </p>
+                                                <div class="packages-tree-wrapper" data-root-relative="../../../" data-package-name="net.finmath.integration">
+                <div class="packages-tree-container"></div>
+                <div class="clover-packages-lozenges"></div>
+            </div>
+        </div>
+        
+            </div>
+</nav>                </div>
+                <section class="aui-page-panel-content">
+                    <div class="aui-page-panel-content-clover">
+
+                    
+                    <ol class="aui-nav aui-nav-breadcrumbs">
+            
+        <li><a href="../../../dashboard.html">Project Clover database Mon Oct 10 2022 11:54:25 CEST</a></li> 
+        <li><a href="pkg-summary.html">        Package net.finmath.integration</a></li> 
+    </ol>
+    
+<h1 class="aui-h2-clover">
+            File SimpsonRealIntegrator.java
+    </h1>
+
+
+
+
+
+
+
+
+    
+<div class="aui-tabs horizontal-tabs" id="tabs-file">
+            <div class="tabs-pane aui-tabs-pane-100-pcnt active-pane" id="tabs-file-source">
+        <div>&#160;</div>
+
+        
+                <div style="display: table; width: 100%">
+                            <div class="clover-histogram-table-cell">
+                                <div class="dashboard-widget">
+            <header class="dashboard-widget-header">
+                <h3>Coverage histogram</h3>
+            </header>
+            <div class="dashboard-widget-content">
+                <div class="aui-item clover-aui-item-histogram">
+                    <img src="../../../img/srcFileCovDistChart10.png" alt="../../../img/srcFileCovDistChart10.png"
+                         usemap="#srcFileCovDistChart10.png" class="clover-histogram-img"/>
+                    <map id="srcFileCovDistChart10.png" name="srcFileCovDistChart10.png">
+<area shape="rect" coords="100,51,107,66" title="53 files have 91-100% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="91,54,98,66" title="42 files have 81-90% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="82,47,89,66" title="66 files have 71-80% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="73,52,80,66" title="48 files have 61-70% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="64,55,71,66" title="40 files have 51-60% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="56,60,63,66" title="22 files have 41-50% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="47,61,54,66" title="19 files have 31-40% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="38,63,45,65" title="10 files have 21-30% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="29,66,36,67" title="1 file has 11-20% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="20,66,27,67" title="1 file has 1-10% coverage" alt="" nohref="nohref"/>
+<area shape="rect" coords="11,8,18,65" title="197 files have 0% coverage" alt="" nohref="nohref"/>
+</map><br />
+                    <span class="subtle"><strong>0% </strong>of files have more coverage</span>
+                </div>
+            </div>
+        </div>
+                    </div>
+                        <div style="display: table-cell; width: 67%;">
+                    <div class="dashboard-widget">
+        <header class="dashboard-widget-header">
+            <h3>Code metrics</h3>
+        </header>
+        <div class="dashboard-widget-content">
+                        
+
+<div id="td-header-stats" class="aui-item" style="display: ">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">17</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">3</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">76</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">35</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">4</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.24</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">5.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">3</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.33</div>
+    </div>
+</div>
+
+</div>
+                        
+
+<div id="td-filtered-header-stats" class="aui-item" style="display: none">
+<div style="display: table">
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of branches in this file">Branches:</label></div>
+        <div class="stats-box-value">2</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of statements in this file">Statements:</label></div>
+        <div class="stats-box-value">17</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of methods in this file">Methods:</label></div>
+        <div class="stats-box-value">3</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of classes in this file">Classes:</label></div>
+        <div class="stats-box-value">1</div>
+    </div>
+            <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of lines of code in this file">LOC:</label></div>
+        <div class="stats-box-value">76</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Total number of non-comment lines of code in this file">NCLOC:</label></div>
+        <div class="stats-box-value">35</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Cyclomatic complexity is the number of paths in this file">Total complexity:</label></div>
+        <div class="stats-box-value">4</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label">
+            <label title="Complexity density is the complexity divided by the number of statements in this file">Complexity density:</label>
+        </div>
+        <div class="stats-box-value">0.24</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of statements per method.">Statements/Method:</label></div>
+        <div class="stats-box-value">5.67</div>
+    </div>
+    <div class="stats-box">
+        <div class="stats-box-label"><label title="Number of methods per class.">Methods/Class:</label></div>
+        <div class="stats-box-value">3</div>
+    </div>
+        <div class="stats-box">
+        <div class="stats-box-label"><label title="Complexity divided by the number of methods in this file">Average method complexity:</label></div>
+        <div class="stats-box-value">1.33</div>
+    </div>
+</div>
+
+</div>        </div>
+    </div>
+            </div>
+        </div>
+
+        
+        
+
+
+    <h2>Classes</h2>
+
+        <table class="aui aui-table-sortable">
+        <thead>
+                        <tr>     <th>Class</th>
+    <th>Line #</th>
+
+            
+        <th class="">
+            <label  title="The total number of statements.">Total Statements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The percentage of elements that have been filtered from this report.">% Filtered</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label>
+        </th>
+        
+            
+        <th class="">
+            <label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label>
+        </th>
+        
+    
+            <th>Actions</th>
+    </tr>         </thead>
+        <tbody>
+                              <tr> <td id="SimpsonRealIntegrator">
+        <span><a href="#19" title="SimpsonRealIntegrator" onclick="closeDialogAndScrollTo('dialog-SimpsonRealIntegrator', '19');">SimpsonRealIntegrator</a></span>
+</td>
+<td>19<a name="sl-19"></a></td>
+    <td class="">17</td>
+    <td class="">0%</td>
+    <td class="">4</td>
+    <td class="">0</td>
+    <td class=""><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+    <td><button data-dialog-id="dialog-SimpsonRealIntegrator" class="aui-button aui-button-link dialog-show-button">Show methods</button></td>
+</tr>                      </tbody>
+    </table>
+
+    
+     
+        <section role="dialog" id="dialog-SimpsonRealIntegrator" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+            
+            <header class="aui-dialog2-header">
+                <h1 class="aui-dialog2-header-main">Class SimpsonRealIntegrator</h1>
+                <div class="aui-dialog2-header-secondary">
+                    <input id="dialog-SimpsonRealIntegrator-method-filter" class="test-filter text" type="text" name="method-filter"
+                           placeholder="Type to filter methods..." autocomplete="off"
+                           onkeyup="filterMethods('dialog-SimpsonRealIntegrator-methods-body', 'dialog-SimpsonRealIntegrator-method-filter');"/>
+                </div>
+            </header>
+
+            
+            <div class="aui-dialog2-content">
+
+                
+
+                <table class="aui aui-table-sortable">
+                                                                                                                                                                                                                                                    
+                    <thead>
+                                                 <tr> <th id="SimpsonRealIntegrator">
+    Class<br/>    <span><a href="#19" title="SimpsonRealIntegrator" onclick="closeDialogAndScrollTo('dialog-SimpsonRealIntegrator', '19');">SimpsonRealIntegrator</a></span>
+</th>
+<th>Line #<br/>19<a name="sl-19"></a></th>
+    <th class=""><label  title="The total number of statements.">Total Statements</label><br/>17</th>
+    <th class=""><label  title="The percentage of elements that have been filtered from this report.">% Filtered</label><br/>0%</th>
+    <th class=""><label  title="Cyclomatic complexity is a measure of the number of paths in your code.">Complexity</label><br/>4</th>
+    <th class=""><label  title="The number of statements and branches that were not covered during testing.">Uncovered Elements</label><br/>0</th>
+    <th class=""><label  title="The amount of code that was hit at least once during testing.">TOTAL Coverage</label><br/><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></th>
+</tr>                     </thead>
+                    <tbody id="dialog-SimpsonRealIntegrator-methods-body">
+                                                                                                            <tr id="SimpsonRealIntegrator-1">
+<td id="summary-33-2">
+ <span class="sortValue">SimpsonRealIntegrator(double,double,int,boolean)</span>
+&#160;&#160;<a href="?line=29#33" title="SimpsonRealIntegrator(double,double,int,boolean)" name="sl-33" onclick="closeDialogAndScrollTo('dialog-SimpsonRealIntegrator', '33');">SimpsonRealIntegrator(double,double,int,boolean)</a>
+</td>
+<td align="right"><span class="sortValue">33</span>33</td>
+<td class="" align="right"><span class="sortValue">4.0</span>4</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="SimpsonRealIntegrator-2">
+<td id="summary-47-2">
+ <span class="sortValue">SimpsonRealIntegrator(double,double,int)</span>
+&#160;&#160;<a href="?line=29#47" title="SimpsonRealIntegrator(double,double,int)" name="sl-47" onclick="closeDialogAndScrollTo('dialog-SimpsonRealIntegrator', '47');">SimpsonRealIntegrator(double,double,int)</a>
+</td>
+<td align="right"><span class="sortValue">47</span>47</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">1.0</span>1</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                                                                <tr id="SimpsonRealIntegrator-3">
+<td id="summary-51-2">
+ <span class="sortValue">integrate(DoubleUnaryOperator)&#160;:&#160;double</span>
+&#160;&#160;<a href="?line=29#51" title="integrate(DoubleUnaryOperator)&#160;:&#160;double" name="sl-51" onclick="closeDialogAndScrollTo('dialog-SimpsonRealIntegrator', '51');">integrate(DoubleUnaryOperator)&#160;:&#160;double</a>
+</td>
+<td align="right"><span class="sortValue">51</span>51</td>
+<td class="" align="right"><span class="sortValue">12.0</span>12</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0%</td>
+<td class="" align="right"><span class="sortValue">2.0</span>2</td>
+<td class="" align="right"><span class="sortValue">0.0</span>0</td>
+<td class="" align="right"><span class="sortValue">1.0</span><div style="display: table; width: 100%">
+<div class="barGraphValue"><span class="sortValue">1.0</span>100%</div><div style="display: table-cell">
+ <div title="100% Covered"  style="min-width:200px;" class="barNegative contribBarNegative "><div class="barPositive contribBarPositive " style="width:100%"></div></div></div></div></td>
+ </tr>                                                                         </tbody>
+                </table>
+
+                <div>&#160;</div>
+                
+
+            </div>
+
+            
+            <footer class="aui-dialog2-footer">
+                <div class="aui-dialog2-footer-actions">
+                    <button class="aui-button aui-button-primary dialog-close-button"
+                            data-dialog-id="dialog-SimpsonRealIntegrator">Close</button>
+                </div>
+                <div class="aui-dialog2-footer-hint">Click on a class or a method name to jump to source.</div>
+            </footer>
+        </section>
+
+     
+ 
+        
+        <div>&#160;</div>
+
+<h2>Contributing tests</h2>
+
+    <div>
+                This file is covered by 66 tests.
+        <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-link dialog-show-button">
+            Select tests to highlight the test coverage
+        </button>.
+    </div>
+
+<section role="dialog" id="contr-tests-dialog" class="aui-layer aui-dialog2 aui-dialog2-xlarge" aria-hidden="true">
+    
+    <header class="aui-dialog2-header">
+        <h1 class="aui-dialog2-header-main">Contributing tests</h1>
+        <div class="aui-dialog2-header-secondary">
+            <input id="test-filter" class="test-filter text" type="text" name="test-filter"
+                   placeholder="Type to filter tests..." autocomplete="off"
+                   onkeyup="filterTests('tests-body', 'test-filter', 3);"/>
+        </div>
+    </header>
+
+    
+    <div class="aui-dialog2-content">
+    
+
+        <p class="aui-buttons">
+            <button title="Selects all tests for this file, highlighting their coverage."
+                    class="aui-button" id="selectalltests">Select all</button>
+        </p>
+
+        <table class="aui aui-table-sortable">
+            <thead id="tests-head">
+            <tr id="testHeaderRow">
+                <th class="aui-table-column-unsortable"></th>
+                <th>
+                    <label title="The percentage of coverage contributed by each single test.">Test contribution</label>
+                </th>
+                <th>
+                    <label title="The test (or test iteration) which was executed.">Test</label>
+                </th>
+                <th>
+                    <label>Result</label>
+                </th>
+                <th class="aui-table-column-unsortable">
+                    <label>Actions</label>
+                </th>
+            </tr>
+            </thead>
+            <tbody id="tests-body">
+
+<tr id="test-754">
+<td><a name="testA-754"></a><input type="checkbox" id="cb-754" value="754" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_ky.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-754">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testMulti</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_ky.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testMulti</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=155#src-155" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_ky.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-974">
+<td><a name="testA-974"></a><input type="checkbox" id="cb-974" value="974" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_r2.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-974">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRCubeParallelCalibrationTest.testCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_r2.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRCubeParallelCalibrationTest.testCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest.html?line=106#src-106" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_r2.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-513">
+<td><a name="testA-513"></a><input type="checkbox" id="cb-513" value="513" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_e9.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-513">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.a_testSimplifiedLinear</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_e9.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.a_testSimplifiedLinear</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=189#src-189" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_e9.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1066">
+<td><a name="testA-1066"></a><input type="checkbox" id="cb-1066" value="1066" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_tm.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1066">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.b_testBasicPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_tm.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.b_testBasicPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=220#src-220" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_tm.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1264">
+<td><a name="testA-1264"></a><input type="checkbox" id="cb-1264" value="1264" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_z4.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1264">  <span class="sortValue">net.finmath.singleswaprate.annuitymapping.NormalizingFunctionTest.testExpectation</span><a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_z4.html" title="View Test Summary Page">net.finmath.singleswaprate.annuitymapping.NormalizingFunctionTest.testExpectation</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest.html?line=138#src-138" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_z4.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-921">
+<td><a name="testA-921"></a><input type="checkbox" id="cb-921" value="921" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_pl.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-921">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testMultiPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_pl.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testMultiPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=209#src-209" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_pl.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-837">
+<td><a name="testA-837"></a><input type="checkbox" id="cb-837" value="837" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_n9.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-837">  <span class="sortValue">net.finmath.singleswaprate.calibration.StaticCubeCalibrationTest.testStaticCubeCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_n9.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.StaticCubeCalibrationTest.testStaticCubeCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest.html?line=100#src-100" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_n9.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-641">
+<td><a name="testA-641"></a><input type="checkbox" id="cb-641" value="641" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_ht.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-641">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRShiftedSmileCalibrationTest.testCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_ht.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRShiftedSmileCalibrationTest.testCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest.html?line=119#src-119" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_ht.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-937">
+<td><a name="testA-937"></a><input type="checkbox" id="cb-937" value="937" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_q1.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-937">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRShiftedSmileCalibrationTest.testCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_q1.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRShiftedSmileCalibrationTest.testCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest.html?line=119#src-119" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRShiftedSmileCalibrationTest_testCalibration_q1.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-652">
+<td><a name="testA-652"></a><input type="checkbox" id="cb-652" value="652" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_i4.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-652">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testSimplifiedLinear</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_i4.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testSimplifiedLinear</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=153#src-153" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_i4.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-721">
+<td><a name="testA-721"></a><input type="checkbox" id="cb-721" value="721" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_k1.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-721">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRCubeCalibrationTest.testSABRCubeCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_k1.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRCubeCalibrationTest.testSABRCubeCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest.html?line=125#src-125" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_k1.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1075">
+<td><a name="testA-1075"></a><input type="checkbox" id="cb-1075" value="1075" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_tv.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1075">  <span class="sortValue">net.finmath.singleswaprate.annuitymapping.NormalizingFunctionTest.testExpectation</span><a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_tv.html" title="View Test Summary Page">net.finmath.singleswaprate.annuitymapping.NormalizingFunctionTest.testExpectation</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest.html?line=138#src-138" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/annuitymapping/NormalizingFunctionTest_testExpectation_tv.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-962">
+<td><a name="testA-962"></a><input type="checkbox" id="cb-962" value="962" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_qq.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-962">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRCubeParallelCalibrationTest.testCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_qq.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRCubeParallelCalibrationTest.testCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest.html?line=106#src-106" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRCubeParallelCalibrationTest_testCalibration_qq.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-979">
+<td><a name="testA-979"></a><input type="checkbox" id="cb-979" value="979" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_r7.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-979">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.b_testBasicPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_r7.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.b_testBasicPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=220#src-220" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_b_testBasicPiterbarg_r7.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1007">
+<td><a name="testA-1007"></a><input type="checkbox" id="cb-1007" value="1007" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_rz.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1007">  <span class="sortValue">net.finmath.integration.TrapezoidalRealIntegratorTest.test</span><a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_rz.html" title="View Test Summary Page">net.finmath.integration.TrapezoidalRealIntegratorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest.html?line=22#src-22" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_rz.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-92">
+<td><a name="testA-92"></a><input type="checkbox" id="cb-92" value="92" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_2k.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-92">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.c_testMultiPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_2k.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.c_testMultiPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=251#src-251" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_2k.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1084">
+<td><a name="testA-1084"></a><input type="checkbox" id="cb-1084" value="1084" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_u4.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1084">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testBasic</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_u4.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testBasic</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=141#src-141" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_u4.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-84">
+<td><a name="testA-84"></a><input type="checkbox" id="cb-84" value="84" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_2c.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-84">  <span class="sortValue">net.finmath.integration.TrapezoidalRealIntegratorTest.test</span><a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_2c.html" title="View Test Summary Page">net.finmath.integration.TrapezoidalRealIntegratorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest.html?line=22#src-22" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/TrapezoidalRealIntegratorTest_test_2c.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-579">
+<td><a name="testA-579"></a><input type="checkbox" id="cb-579" value="579" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_g3.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-579">  <span class="sortValue">net.finmath.singleswaprate.calibration.SABRCubeCalibrationTest.testSABRCubeCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_g3.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.SABRCubeCalibrationTest.testSABRCubeCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest.html?line=125#src-125" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/SABRCubeCalibrationTest_testSABRCubeCalibration_g3.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-486">
+<td><a name="testA-486"></a><input type="checkbox" id="cb-486" value="486" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_di.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-486">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testSimplifiedLinear</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_di.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testSimplifiedLinear</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=153#src-153" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testSimplifiedLinear_di.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-54">
+<td><a name="testA-54"></a><input type="checkbox" id="cb-54" value="54" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_1i.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-54">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testSimplified</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_1i.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testSimplified</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=127#src-127" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_1i.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-124">
+<td><a name="testA-124"></a><input type="checkbox" id="cb-124" value="124" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_3g.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-124">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testBasicPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_3g.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testBasicPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=181#src-181" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_3g.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-373">
+<td><a name="testA-373"></a><input type="checkbox" id="cb-373" value="373" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_ad.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-373">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testBasicPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_ad.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testBasicPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=181#src-181" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testBasicPiterbarg_ad.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-365">
+<td><a name="testA-365"></a><input type="checkbox" id="cb-365" value="365" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_a5.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-365">  <span class="sortValue">net.finmath.singleswaprate.calibration.StaticCubeCalibrationTest.testStaticCubeCalibration</span><a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_a5.html" title="View Test Summary Page">net.finmath.singleswaprate.calibration.StaticCubeCalibrationTest.testStaticCubeCalibration</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest.html?line=100#src-100" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/calibration/StaticCubeCalibrationTest_testStaticCubeCalibration_a5.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-20">
+<td><a name="testA-20"></a><input type="checkbox" id="cb-20" value="20" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_k.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-20">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.a_testSimplifiedLinear</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_k.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.a_testSimplifiedLinear</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=189#src-189" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_a_testSimplifiedLinear_k.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1109">
+<td><a name="testA-1109"></a><input type="checkbox" id="cb-1109" value="1109" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_ut.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1109">  <span class="sortValue">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testMultiPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_ut.html" title="View Test Summary Page">net.finmath.singleswaprate.products.ConstantMaturitySwapTest.testMultiPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest.html?line=209#src-209" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/ConstantMaturitySwapTest_testMultiPiterbarg_ut.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-96">
+<td><a name="testA-96"></a><input type="checkbox" id="cb-96" value="96" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_2o.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-96">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testMulti</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_2o.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testMulti</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=155#src-155" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testMulti_2o.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-776">
+<td><a name="testA-776"></a><input type="checkbox" id="cb-776" value="776" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_lk.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-776">  <span class="sortValue">net.finmath.singleswaprate.products.CashSettledSwaptionTest.c_testMultiPiterbarg</span><a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_lk.html" title="View Test Summary Page">net.finmath.singleswaprate.products.CashSettledSwaptionTest.c_testMultiPiterbarg</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest.html?line=251#src-251" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/CashSettledSwaptionTest_c_testMultiPiterbarg_lk.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1206">
+<td><a name="testA-1206"></a><input type="checkbox" id="cb-1206" value="1206" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_xi.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-1206">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testBasic</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_xi.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testBasic</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=141#src-141" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testBasic_xi.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-460">
+<td><a name="testA-460"></a><input type="checkbox" id="cb-460" value="460" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_cs.html';">
+<span class="sortValue">0.90909094</span>
+<div>
+<div title="90.9% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:90.9%"></div></div></div></td>
+<td id="tc-460">  <span class="sortValue">net.finmath.singleswaprate.products.AnnuityDummyTest.testSimplified</span><a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_cs.html" title="View Test Summary Page">net.finmath.singleswaprate.products.AnnuityDummyTest.testSimplified</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest.html?line=127#src-127" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/singleswaprate/products/AnnuityDummyTest_testSimplified_cs.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-617">
+<td><a name="testA-617"></a><input type="checkbox" id="cb-617" value="617" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_h5.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-617">  <span class="sortValue">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.bsTest</span><a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_h5.html" title="View Test Summary Page">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.bsTest</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest.html?line=58#src-58" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_h5.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-72">
+<td><a name="testA-72"></a><input type="checkbox" id="cb-72" value="72" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_20.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-72">  <span class="sortValue">net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.test</span><a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_20.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.html?line=31#src-31" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_20.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-546">
+<td><a name="testA-546"></a><input type="checkbox" id="cb-546" value="546" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_f6.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-546">  <span class="sortValue">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_f6.html" title="View Test Summary Page">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest.html?line=58#src-58" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_f6.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-573">
+<td><a name="testA-573"></a><input type="checkbox" id="cb-573" value="573" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_fx.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-573">  <span class="sortValue">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.hTest</span><a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_fx.html" title="View Test Summary Page">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.hTest</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest.html?line=159#src-159" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_fx.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-685">
+<td><a name="testA-685"></a><input type="checkbox" id="cb-685" value="685" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_j1.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-685">  <span class="sortValue">net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.test</span><a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_j1.html" title="View Test Summary Page">net.finmath.montecarlo.interestrate.modelplugins.LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest.html?line=31#src-31" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/interestrate/modelplugins/LIBORVolatilityModelFourParameterExponentialFormIntegratedTest_test_j1.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1040">
+<td><a name="testA-1040"></a><input type="checkbox" id="cb-1040" value="1040" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_sw.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1040">  <span class="sortValue">net.finmath.modelling.descriptor.VarianceGammaModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_sw.html" title="View Test Summary Page">net.finmath.modelling.descriptor.VarianceGammaModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest.html?line=52#src-52" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_sw.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1172">
+<td><a name="testA-1172"></a><input type="checkbox" id="cb-1172" value="1172" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_wk.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1172">  <span class="sortValue">net.finmath.modelling.descriptor.HestonModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_wk.html" title="View Test Summary Page">net.finmath.modelling.descriptor.HestonModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest.html?line=64#src-64" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_wk.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1031">
+<td><a name="testA-1031"></a><input type="checkbox" id="cb-1031" value="1031" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_sn.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1031">  <span class="sortValue">net.finmath.modelling.descriptor.AssetBlackScholesModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_sn.html" title="View Test Summary Page">net.finmath.modelling.descriptor.AssetBlackScholesModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest.html?line=60#src-60" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_sn.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-676">
+<td><a name="testA-676"></a><input type="checkbox" id="cb-676" value="676" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_is.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-676">  <span class="sortValue">net.finmath.fouriermethod.BlackScholesCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_is.html" title="View Test Summary Page">net.finmath.fouriermethod.BlackScholesCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest.html?line=35#src-35" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_is.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-489">
+<td><a name="testA-489"></a><input type="checkbox" id="cb-489" value="489" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___dl.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-489">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0.5}]</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___dl.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0.5}]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest.html?line=90#src-90" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___dl.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-732">
+<td><a name="testA-732"></a><input type="checkbox" id="cb-732" value="732" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_kc.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-732">  <span class="sortValue">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.hTest</span><a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_kc.html" title="View Test Summary Page">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.hTest</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest.html?line=159#src-159" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_hTest_kc.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-290">
+<td><a name="testA-290"></a><input type="checkbox" id="cb-290" value="290" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_82.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-290">  <span class="sortValue">net.finmath.modelling.descriptor.HestonModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_82.html" title="View Test Summary Page">net.finmath.modelling.descriptor.HestonModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest.html?line=64#src-64" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/HestonModelDescriptorTest_test_82.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-771">
+<td><a name="testA-771"></a><input type="checkbox" id="cb-771" value="771" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_lf.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-771">  <span class="sortValue">net.finmath.fouriermethod.VarianceGammaCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_lf.html" title="View Test Summary Page">net.finmath.fouriermethod.VarianceGammaCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest.html?line=77#src-77" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_lf.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-811">
+<td><a name="testA-811"></a><input type="checkbox" id="cb-811" value="811" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___mj.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-811">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0}]</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___mj.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0}]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest.html?line=90#src-90" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___mj.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-348">
+<td><a name="testA-348"></a><input type="checkbox" id="cb-348" value="348" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__9o.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-348">  <span class="sortValue">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.DigitalOption@646007f4]</span><a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__9o.html" title="View Test Summary Page">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.DigitalOption@646007f4]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest.html?line=69#src-69" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__9o.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-300">
+<td><a name="testA-300"></a><input type="checkbox" id="cb-300" value="300" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__8c.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-300">  <span class="sortValue">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.EuropeanOption@10a035a0]</span><a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__8c.html" title="View Test Summary Page">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.EuropeanOption@10a035a0]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest.html?line=69#src-69" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__8c.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-170">
+<td><a name="testA-170"></a><input type="checkbox" id="cb-170" value="170" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__4q.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-170">  <span class="sortValue">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.DigitalOption@646007f4]</span><a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__4q.html" title="View Test Summary Page">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.DigitalOption@646007f4]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest.html?line=69#src-69" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_DigitalOption_646007f4__4q.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-719">
+<td><a name="testA-719"></a><input type="checkbox" id="cb-719" value="719" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___jz.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-719">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0}]</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___jz.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0}]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest.html?line=90#src-90" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0___jz.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-475">
+<td><a name="testA-475"></a><input type="checkbox" id="cb-475" value="475" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_d7.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-475">  <span class="sortValue">net.finmath.fouriermethod.BlackScholesCallOptionTest.testDigitalOption</span><a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_d7.html" title="View Test Summary Page">net.finmath.fouriermethod.BlackScholesCallOptionTest.testDigitalOption</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest.html?line=56#src-56" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_d7.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-848">
+<td><a name="testA-848"></a><input type="checkbox" id="cb-848" value="848" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_nk.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-848">  <span class="sortValue">net.finmath.fouriermethod.BlackScholesCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_nk.html" title="View Test Summary Page">net.finmath.fouriermethod.BlackScholesCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest.html?line=35#src-35" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_test_nk.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-965">
+<td><a name="testA-965"></a><input type="checkbox" id="cb-965" value="965" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___qt.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-965">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0.5}]</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___qt.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.HestonModelTest.test[xi=0.5}]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest.html?line=90#src-90" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/HestonModelTest_test_xi_0_5___qt.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1098">
+<td><a name="testA-1098"></a><input type="checkbox" id="cb-1098" value="1098" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__ui.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1098">  <span class="sortValue">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.EuropeanOption@10a035a0]</span><a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__ui.html" title="View Test Summary Page">net.finmath.fouriermethod.HestonModelCallOptionTest.test[net.finmath.fouriermethod.products.EuropeanOption@10a035a0]</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest.html?line=69#src-69" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/HestonModelCallOptionTest_test_net_finmath_fouriermethod_products_EuropeanOption_10a035a0__ui.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-801">
+<td><a name="testA-801"></a><input type="checkbox" id="cb-801" value="801" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_m9.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-801">  <span class="sortValue">net.finmath.fouriermethod.BlackScholesCallOptionTest.testDigitalOption</span><a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_m9.html" title="View Test Summary Page">net.finmath.fouriermethod.BlackScholesCallOptionTest.testDigitalOption</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest.html?line=56#src-56" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/BlackScholesCallOptionTest_testDigitalOption_m9.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-996">
+<td><a name="testA-996"></a><input type="checkbox" id="cb-996" value="996" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_ro.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-996">  <span class="sortValue">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_ro.html" title="View Test Summary Page">net.finmath.modelling.descriptor.MertonModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest.html?line=58#src-58" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/MertonModelDescriptorTest_test_ro.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-841">
+<td><a name="testA-841"></a><input type="checkbox" id="cb-841" value="841" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_nd.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-841">  <span class="sortValue">net.finmath.modelling.descriptor.VarianceGammaModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_nd.html" title="View Test Summary Page">net.finmath.modelling.descriptor.VarianceGammaModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest.html?line=52#src-52" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/VarianceGammaModelDescriptorTest_test_nd.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-35">
+<td><a name="testA-35"></a><input type="checkbox" id="cb-35" value="35" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_z.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-35">  <span class="sortValue">net.finmath.modelling.descriptor.AssetBlackScholesModelDescriptorTest.test</span><a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_z.html" title="View Test Summary Page">net.finmath.modelling.descriptor.AssetBlackScholesModelDescriptorTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest.html?line=60#src-60" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/descriptor/AssetBlackScholesModelDescriptorTest_test_z.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1101">
+<td><a name="testA-1101"></a><input type="checkbox" id="cb-1101" value="1101" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_ul.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1101">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.VarianceGammaModelTest.test</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_ul.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.VarianceGammaModelTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest.html?line=42#src-42" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_ul.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-859">
+<td><a name="testA-859"></a><input type="checkbox" id="cb-859" value="859" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_nv.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-859">  <span class="sortValue">net.finmath.montecarlo.assetderivativevaluation.VarianceGammaModelTest.test</span><a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_nv.html" title="View Test Summary Page">net.finmath.montecarlo.assetderivativevaluation.VarianceGammaModelTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest.html?line=42#src-42" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/montecarlo/assetderivativevaluation/VarianceGammaModelTest_test_nv.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-633">
+<td><a name="testA-633"></a><input type="checkbox" id="cb-633" value="633" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_hl.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-633">  <span class="sortValue">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.bsTest</span><a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_hl.html" title="View Test Summary Page">net.finmath.modelling.productfactory.ModelWithProductFactoryTest.bsTest</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest.html?line=58#src-58" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/modelling/productfactory/ModelWithProductFactoryTest_bsTest_hl.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-926">
+<td><a name="testA-926"></a><input type="checkbox" id="cb-926" value="926" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_pq.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-926">  <span class="sortValue">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_pq.html" title="View Test Summary Page">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest.html?line=81#src-81" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_pq.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1017">
+<td><a name="testA-1017"></a><input type="checkbox" id="cb-1017" value="1017" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_s9.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1017">  <span class="sortValue">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_s9.html" title="View Test Summary Page">net.finmath.fouriermethod.MertonJumpDiffusionCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest.html?line=81#src-81" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/MertonJumpDiffusionCallOptionTest_test_s9.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-1249">
+<td><a name="testA-1249"></a><input type="checkbox" id="cb-1249" value="1249" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_yp.html';">
+<span class="sortValue">0.8636364</span>
+<div>
+<div title="86.4% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:86.4%"></div></div></div></td>
+<td id="tc-1249">  <span class="sortValue">net.finmath.fouriermethod.VarianceGammaCallOptionTest.test</span><a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_yp.html" title="View Test Summary Page">net.finmath.fouriermethod.VarianceGammaCallOptionTest.test</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest.html?line=77#src-77" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/fouriermethod/VarianceGammaCallOptionTest_test_yp.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-294">
+<td><a name="testA-294"></a><input type="checkbox" id="cb-294" value="294" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_86.html';">
+<span class="sortValue">0.6363636</span>
+<div>
+<div title="63.6% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:63.6%"></div></div></div></td>
+<td id="tc-294">  <span class="sortValue">net.finmath.integration.SimpsonRealIntegratorTest.testCos</span><a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_86.html" title="View Test Summary Page">net.finmath.integration.SimpsonRealIntegratorTest.testCos</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/SimpsonRealIntegratorTest.html?line=33#src-33" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_86.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-107">
+<td><a name="testA-107"></a><input type="checkbox" id="cb-107" value="107" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_2z.html';">
+<span class="sortValue">0.6363636</span>
+<div>
+<div title="63.6% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:63.6%"></div></div></div></td>
+<td id="tc-107">  <span class="sortValue">net.finmath.integration.SimpsonRealIntegratorTest.testCos</span><a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_2z.html" title="View Test Summary Page">net.finmath.integration.SimpsonRealIntegratorTest.testCos</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/SimpsonRealIntegratorTest.html?line=33#src-33" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCos_2z.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-879">
+<td><a name="testA-879"></a><input type="checkbox" id="cb-879" value="879" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_of.html';">
+<span class="sortValue">0.6363636</span>
+<div>
+<div title="63.6% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:63.6%"></div></div></div></td>
+<td id="tc-879">  <span class="sortValue">net.finmath.integration.SimpsonRealIntegratorTest.testCubic</span><a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_of.html" title="View Test Summary Page">net.finmath.integration.SimpsonRealIntegratorTest.testCubic</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/SimpsonRealIntegratorTest.html?line=60#src-60" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_of.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+<tr id="test-127">
+<td><a name="testA-127"></a><input type="checkbox" id="cb-127" value="127" name="testMethod" autocomplete="off" title="Check to highlight coverage of this test in the source code"/></td>
+<td style="vertical-align: middle"  class="link" onclick="window.location.href='../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_3j.html';">
+<span class="sortValue">0.6363636</span>
+<div>
+<div title="63.6% Covered" style="min-width:40px;" class="barNegative contribBarNegative contribBarNegative"><div class="barPositive contribBarPositive contribBarPositive" style="width:63.6%"></div></div></div></td>
+<td id="tc-127">  <span class="sortValue">net.finmath.integration.SimpsonRealIntegratorTest.testCubic</span><a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_3j.html" title="View Test Summary Page">net.finmath.integration.SimpsonRealIntegratorTest.testCubic</a>
+</td>
+<td>      <span class="sortValue">1</span><span class="aui-lozenge aui-lozenge-success">PASS</span>
+  </td>
+<td> <a href="../../../net/finmath/integration/SimpsonRealIntegratorTest.html?line=60#src-60" title="View Test Source">
+ <span class="aui-icon aui-icon-small aui-iconfont-file-txt aui-icon-medium-gray"></span>
+</a>
+<a href="../../../net/finmath/integration/SimpsonRealIntegratorTest_testCubic_3j.html" title="View Test Summary Page"><span class="aui-icon aui-icon-small aui-iconfont-file-ppt aui-icon-medium-gray"></span></a>
+</td>
+</tr>
+
+            </tbody>
+        </table>
+
+        
+        <div>&#160;</div>
+
+    
+    </div>
+
+    
+    <footer class="aui-dialog2-footer">
+        <div class="aui-dialog2-footer-actions">
+            <button data-dialog-id="contr-tests-dialog" class="aui-button aui-button-primary dialog-close-button">Apply</button>
+        </div>
+        <div class="aui-dialog2-footer-hint">Select tests to highlight code covered by them in the source view.</div>
+    </footer>
+</section>
+
+ 
+        
+        
+
+
+
+
+
+<h2>Source view</h2>
+
+
+<div style="display: table; width: 100%;">
+    <div style="display: table-cell">
+        <button class="aui-button aui-button-link"
+                title="Toggles all methods in the source to be either expanded or collapsed."
+                onclick="toggleAllInlineMethods(this); return false;" id="method-expander">
+            Collapse all methods
+        </button>
+    </div>
+    <div style="display: table-cell">
+        <div style="text-align: right; margin-bottom: 10px">
+            <button class="aui-button aui-button-subtle" id="popupHelp">
+    <span class="aui-icon aui-icon-small aui-iconfont-help"></span>&#160;Show legend
+</button>
+<script>
+    AJS.InlineDialog(AJS.$("#popupHelp"), "helpDialog",
+            function(content, trigger, showPopup) {
+                content.css({"padding":"20px"}).html(SRC_FILE_LEGEND_TEXT);
+                showPopup();
+                return false;
+            },
+            {
+                width: 700, hideDelay: 60000
+            }
+    );
+</script>        </div>
+    </div>
+</div>
+
+<table cellspacing="0" cellpadding="0" class="srcView" width="100%">
+
+    
+<tbody> <tr id="l1">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=1#src-1">1</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-1" class="srcLine"><span class="keyword">package</span> net.finmath.<a href="../integration/pkg-summary.html">integration</a>;</span></td>
+</tr>
+ <tr id="l2">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=2#src-2">2</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-2" class="srcLine"></span></td>
+</tr>
+ <tr id="l3">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=3#src-3">3</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-3" class="srcLine"><span class="keyword">import</span> java.util.function.DoubleUnaryOperator;</span></td>
+</tr>
+ <tr id="l4">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=4#src-4">4</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-4" class="srcLine"><span class="keyword">import</span> java.util.stream.IntStream;</span></td>
+</tr>
+ <tr id="l5">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=5#src-5">5</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-5" class="srcLine"></span></td>
+</tr>
+ <tr id="l6">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=6#src-6">6</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-6" class="srcLine"><span class="keyword">import</span> org.apache.commons.lang3.Validate;</span></td>
+</tr>
+ <tr id="l7">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=7#src-7">7</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-7" class="srcLine"></span></td>
+</tr>
+ <tr id="l8">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=8#src-8">8</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-8" class="srcLine"></span></td>
+</tr>
+ <tr id="l9">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=9#src-9">9</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-9" class="srcLine"><span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l10">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=10#src-10">10</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-10" class="srcLine"><span class="comment"> * A simple integrator using Simpson's rule.</span></span></td>
+</tr>
+ <tr id="l11">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=11#src-11">11</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-11" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l12">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=12#src-12">12</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-12" class="srcLine"><span class="comment"> * The constructor has an optional argument to allow</span></span></td>
+</tr>
+ <tr id="l13">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=13#src-13">13</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-13" class="srcLine"><span class="comment"> * parallel function evaluation. In that case, the integration rule</span></span></td>
+</tr>
+ <tr id="l14">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=14#src-14">14</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-14" class="srcLine"><span class="comment"> * uses Java 8 parallel streams to evaluate.</span></span></td>
+</tr>
+ <tr id="l15">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=15#src-15">15</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-15" class="srcLine"><span class="comment"> *</span></span></td>
+</tr>
+ <tr id="l16">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=16#src-16">16</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-16" class="srcLine"><span class="comment"> * </span><span class="javadoc">@author</span><span class="comment"> Christian Fries</span></span></td>
+</tr>
+ <tr id="l17">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=17#src-17">17</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-17" class="srcLine"><span class="comment"> * </span><span class="javadoc">@version</span><span class="comment"> 1.0</span></span></td>
+</tr>
+ <tr id="l18">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=18#src-18">18</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-18" class="srcLine"><span class="comment"> */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="19" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-19' onclick="toggleInlineStats(this, 'inlinestats-19');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-19" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-19'), 'inlinestats-19');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (22)</td>
+                <td class="inlineStat">Complexity: 4</td>
+                <td class="inlineStat">Complexity Density: 0.24</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l19">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=19#src-19">19</a></td>
+<td align="right" class="coverageCount NoHilight "   onclick="return showTestsForLine(this, 19, 'Tests that hit SimpsonRealIntegrator');" >&#160;&#160;</td>
+<td class=" srcCell" id="id-19"><span class="spacer"></span><span id="src-19" class="srcLine"><span class="keyword">public</span> <span class="keyword">class</span> <a href="../../../net/finmath/integration/SimpsonRealIntegrator.html#SimpsonRealIntegrator">SimpsonRealIntegrator</a> <span class="keyword">extends</span> <a href="../../../net/finmath/integration/AbstractRealIntegral.html#AbstractRealIntegral">AbstractRealIntegral</a>{</span></td>
+</tr>
+ <tr id="l20">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=20#src-20">20</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-20" class="srcLine"></span></td>
+</tr>
+ <tr id="l21">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=21#src-21">21</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-21" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span>        numberOfEvaluationPoints;</span></td>
+</tr>
+ <tr id="l22">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=22#src-22">22</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-22" class="srcLine">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span>    useParallelEvaluation;</span></td>
+</tr>
+ <tr id="l23">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=23#src-23">23</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-23" class="srcLine"></span></td>
+</tr>
+ <tr id="l24">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=24#src-24">24</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-24" class="srcLine"></span></td>
+</tr>
+ <tr id="l25">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=25#src-25">25</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-25" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l26">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=26#src-26">26</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-26" class="srcLine"><span class="comment">     * Create an integrator using Simpson's rule.</span></span></td>
+</tr>
+ <tr id="l27">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=27#src-27">27</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-27" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l28">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=28#src-28">28</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-28" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> lowerBound Lower bound of the integral.</span></span></td>
+</tr>
+ <tr id="l29">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=29#src-29">29</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-29" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> upperBound Upper bound of the integral.</span></span></td>
+</tr>
+ <tr id="l30">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=30#src-30">30</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-30" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3, should be odd.</span></span></td>
+</tr>
+ <tr id="l31">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=31#src-31">31</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-31" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.</span></span></td>
+</tr>
+ <tr id="l32">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=32#src-32">32</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-32" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="33" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-33' onclick="toggleInlineStats(this, 'inlinestats-33');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-33" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-33'), 'inlinestats-33');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (4)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 0.25</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l33">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=33#src-33">33</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 33, 'Tests that hit SimpsonRealIntegrator(double,double,int,boolean)');" ><span title="Line 33, Col 2: method entered 259,631 times." class="nolink">&#160;259631</span></td>
+<td class=" methodStart  srcCell" id="id-33"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 33,38);" id="img-33" src="../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-33" class="srcLine"><span class="nolink" title="Line 33, Col 2: method entered 259,631 times.">    <span class="keyword">public</span> <a href="../../../net/finmath/integration/SimpsonRealIntegrator.html#SimpsonRealIntegrator">SimpsonRealIntegrator</a>(<span class="keyword">final</span> <span class="keyword">double</span> lowerBound, <span class="keyword">final</span> <span class="keyword">double</span> upperBound, <span class="keyword">final</span> <span class="keyword">int</span> numberOfEvaluationPoints, <span class="keyword">final</span> <span class="keyword">boolean</span> useParallelEvaluation) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-33'), 33,38);" id="e33" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l34">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=34#src-34">34</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 34, 'Tests that hit line # 34');" ><span title="Line 34, Col 3: statement executed 259,618 times." class="nolink">&#160;259618</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-34" class="srcLine"><span class="nolink" title="Line 34, Col 3: statement executed 259,618 times.">        <span class="keyword">super</span>(lowerBound, upperBound);</span></span></td>
+</tr>
+ <tr id="l35">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=35#src-35">35</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 35, 'Tests that hit line # 35');" ><span title="Line 35, Col 3: statement executed 259,632 times." class="nolink">&#160;259632</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-35" class="srcLine"><span class="nolink" title="Line 35, Col 3: statement executed 259,632 times.">        Validate.exclusiveBetween(2, Integer.MAX_VALUE, numberOfEvaluationPoints, <span class="string">&quot;Parameter numberOfEvaluationPoints required to be &gt; 2.&quot;</span>);</span></span></td>
+</tr>
+ <tr id="l36">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=36#src-36">36</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 36, 'Tests that hit line # 36');" ><span title="Line 36, Col 3: statement executed 259,635 times." class="nolink">&#160;259635</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-36" class="srcLine"><span class="nolink" title="Line 36, Col 3: statement executed 259,635 times.">        <span class="keyword">this</span>.numberOfEvaluationPoints = numberOfEvaluationPoints;</span></span></td>
+</tr>
+ <tr id="l37">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=37#src-37">37</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 37, 'Tests that hit line # 37');" ><span title="Line 37, Col 3: statement executed 259,633 times." class="nolink">&#160;259633</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-37" class="srcLine"><span class="nolink" title="Line 37, Col 3: statement executed 259,633 times.">        <span class="keyword">this</span>.useParallelEvaluation = useParallelEvaluation;</span></span></td>
+</tr>
+ <tr id="l38">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=38#src-38">38</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-38" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l39">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=39#src-39">39</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-39" class="srcLine"></span></td>
+</tr>
+ <tr id="l40">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=40#src-40">40</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-40" class="srcLine">    <span class="comment">/**</span></span></td>
+</tr>
+ <tr id="l41">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=41#src-41">41</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-41" class="srcLine"><span class="comment">     * Create an integrator using Simpson's rule.</span></span></td>
+</tr>
+ <tr id="l42">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=42#src-42">42</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-42" class="srcLine"><span class="comment">     *</span></span></td>
+</tr>
+ <tr id="l43">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=43#src-43">43</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-43" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> lowerBound Lower bound of the integral.</span></span></td>
+</tr>
+ <tr id="l44">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=44#src-44">44</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-44" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> upperBound Upper bound of the integral.</span></span></td>
+</tr>
+ <tr id="l45">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=45#src-45">45</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-45" class="srcLine"><span class="comment">     * </span><span class="javadoc">@param</span><span class="comment"> numberOfEvaluationPoints Maximum number of evaluation points to be used.</span></span></td>
+</tr>
+ <tr id="l46">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=46#src-46">46</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-46" class="srcLine"><span class="comment">     */</span></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="47" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-47' onclick="toggleInlineStats(this, 'inlinestats-47');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-47" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-47'), 'inlinestats-47');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (1)</td>
+                <td class="inlineStat">Complexity: 1</td>
+                <td class="inlineStat">Complexity Density: 1</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l47">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=47#src-47">47</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 47, 'Tests that hit SimpsonRealIntegrator(double,double,int)');" ><span title="Line 47, Col 2: method entered 257,471 times." class="nolink">&#160;257471</span></td>
+<td class=" methodStart  srcCell" id="id-47"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 47,49);" id="img-47" src="../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-47" class="srcLine"><span class="nolink" title="Line 47, Col 2: method entered 257,471 times.">    <span class="keyword">public</span> <a href="../../../net/finmath/integration/SimpsonRealIntegrator.html#SimpsonRealIntegrator">SimpsonRealIntegrator</a>(<span class="keyword">final</span> <span class="keyword">double</span> lowerBound, <span class="keyword">final</span> <span class="keyword">double</span> upperBound, <span class="keyword">final</span> <span class="keyword">int</span> numberOfEvaluationPoints) {</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-47'), 47,49);" id="e47" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l48">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=48#src-48">48</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 48, 'Tests that hit line # 48');" ><span title="Line 48, Col 3: statement executed 257,460 times." class="nolink">&#160;257460</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-48" class="srcLine"><span class="nolink" title="Line 48, Col 3: statement executed 257,460 times.">        <span class="keyword">this</span>(lowerBound, upperBound, numberOfEvaluationPoints, <span class="keyword">false</span>);</span></span></td>
+</tr>
+ <tr id="l49">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=49#src-49">49</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-49" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l50">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=50#src-50">50</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-50" class="srcLine"></span></td>
+</tr>
+<tr class="inlineStatsRow" align="right" valign="middle">
+<td class="coverageCount"><a name="51" class="nolink">&#160;</a></td>
+    <td class="coverageCount aui-icon aui-icon-small aui-iconfont-arrows-right" id='inlineStatsToggle-51' onclick="toggleInlineStats(this, 'inlinestats-51');"/>
+    <td align="center" valign="middle">
+        <table id="inlinestats-51" style="display:none;" class="inlineStats" width="100%" cellspacing="1px" cellpadding="1px">
+            <tr onclick="toggleInlineStats(document.getElementById('inlineStatsToggle-51'), 'inlinestats-51');return true;">
+                <td><div>
+<div title="100% Covered" style="min-width:40px;" class="barNegative contribBarNegative barNegative"><div class="barPositive contribBarPositive barPositive" style="width:100%"></div></div></div></td><td>100%</td>
+                <td class="inlineStat">Uncovered Elements: 0 (14)</td>
+                <td class="inlineStat">Complexity: 2</td>
+                <td class="inlineStat">Complexity Density: 0.17</td>
+                            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="l51">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=51#src-51">51</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 51, 'Tests that hit integrate(DoubleUnaryOperator)&#160;:&#160;double');" ><span title="Line 51, Col 2: method entered 259,672 times." class="nolink">&#160;259672</span></td>
+<td class=" methodStart  srcCell" id="id-51"><img title="Method Statistics" onclick="toggleSrcRowVis(this, 51,75);" id="img-51" src="../../../img/collapse.gif"  alt="toggle" class="icon"/><span id="src-51" class="srcLine"><span class="nolink" title="Line 51, Col 2: method entered 259,672 times.">    @Override</span><span class="foldControl" onclick="toggleSrcRowVis(document.getElementById('img-51'), 51,75);" id="e51" style="display:none;border:none;">...</span></span></td>
+</tr>
+ <tr id="l52">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=52#src-52">52</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-52" class="srcLine">    <span class="keyword">public</span> <span class="keyword">double</span> integrate(<span class="keyword">final</span> DoubleUnaryOperator integrand) {</span></td>
+</tr>
+ <tr id="l53">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=53#src-53">53</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 53, 'Tests that hit line # 53');" ><span title="Line 53, Col 3: statement executed 259,677 times." class="nolink">&#160;259677</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-53" class="srcLine"><span class="nolink" title="Line 53, Col 3: statement executed 259,677 times.">        <span class="keyword">final</span> <span class="keyword">double</span>    lowerBound            = getLowerBound();</span></span></td>
+</tr>
+ <tr id="l54">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=54#src-54">54</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 54, 'Tests that hit line # 54');" ><span title="Line 54, Col 3: statement executed 259,675 times." class="nolink">&#160;259675</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-54" class="srcLine"><span class="nolink" title="Line 54, Col 3: statement executed 259,675 times.">        <span class="keyword">final</span> <span class="keyword">double</span>    upperBound            = getUpperBound();</span></span></td>
+</tr>
+ <tr id="l55">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=55#src-55">55</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 55, 'Tests that hit line # 55');" ><span title="Line 55, Col 3: statement executed 259,659 times." class="nolink">&#160;259659</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-55" class="srcLine"><span class="nolink" title="Line 55, Col 3: statement executed 259,659 times.">        <span class="keyword">final</span> <span class="keyword">double</span>    range                = upperBound-lowerBound;</span></span></td>
+</tr>
+ <tr id="l56">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=56#src-56">56</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-56" class="srcLine"></span></td>
+</tr>
+ <tr id="l57">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=57#src-57">57</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 57, 'Tests that hit line # 57');" ><span title="Line 57, Col 3: statement executed 259,661 times." class="nolink">&#160;259661</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-57" class="srcLine"><span class="nolink" title="Line 57, Col 3: statement executed 259,661 times.">        <span class="keyword">final</span> <span class="keyword">int</span>        numberOfDoubleSizeIntervals    = (<span class="keyword">int</span>) ((numberOfEvaluationPoints-1) / 2.0);</span></span></td>
+</tr>
+ <tr id="l58">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=58#src-58">58</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-58" class="srcLine"></span></td>
+</tr>
+ <tr id="l59">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=59#src-59">59</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 59, 'Tests that hit line # 59');" ><span title="Line 59, Col 3: statement executed 259,659 times." class="nolink">&#160;259659</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-59" class="srcLine"><span class="nolink" title="Line 59, Col 3: statement executed 259,659 times.">        <span class="keyword">final</span> <span class="keyword">double</span> doubleInterval = range / numberOfDoubleSizeIntervals;</span></span></td>
+</tr>
+ <tr id="l60">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=60#src-60">60</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 60, 'Tests that hit line # 60');" ><span title="Line 60, Col 3: statement executed 259,659 times." class="nolink">&#160;259659</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-60" class="srcLine"><span class="nolink" title="Line 60, Col 3: statement executed 259,659 times.">        <span class="keyword">final</span> <span class="keyword">double</span> singleInterval = 0.5 * doubleInterval;</span></span></td>
+</tr>
+ <tr id="l61">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=61#src-61">61</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-61" class="srcLine"></span></td>
+</tr>
+ <tr id="l62">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=62#src-62">62</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 62, 'Tests that hit line # 62');" ><span title="Line 62, Col 3: statement executed 259,661 times." class="nolink">&#160;259661</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-62" class="srcLine"><span class="nolink" title="Line 62, Col 3: statement executed 259,661 times.">        IntStream intervals = IntStream.range(1, numberOfDoubleSizeIntervals);</span></span></td>
+</tr>
+ <tr id="l63">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=63#src-63">63</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-63" class="srcLine"></span></td>
+</tr>
+ <tr id="l64">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=64#src-64">64</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 64, 'Tests that hit line # 64');" ><span title="Line 64, Col 5: true branch executed 2,150 times, false branch executed 257,515 times." class="nolink">&#160;259665</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-64" class="srcLine"><span class="nolink" title="Line 64, Col 5: true branch executed 2,150 times, false branch executed 257,515 times.">        <span class="keyword">if</span>(useParallelEvaluation) {</span></span></td>
+</tr>
+ <tr id="l65">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=65#src-65">65</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 65, 'Tests that hit line # 65');" ><span title="Line 65, Col 4: statement executed 2,150 times." class="nolink">&#160;2150</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-65" class="srcLine"><span class="nolink" title="Line 65, Col 4: statement executed 2,150 times.">            intervals = intervals.parallel();</span></span></td>
+</tr>
+ <tr id="l66">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=66#src-66">66</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-66" class="srcLine">        }</span></td>
+</tr>
+ <tr id="l67">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=67#src-67">67</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-67" class="srcLine"></span></td>
+</tr>
+ <tr id="l68">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=68#src-68">68</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 68, 'Tests that hit line # 68');" ><span title="Line 68, Col 3: statement executed 259,676 times." class="nolink">&#160;259676</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-68" class="srcLine"><span class="nolink" title="Line 68, Col 3: statement executed 259,676 times.">        <span class="keyword">double</span> sum = intervals.mapToDouble(</span></span></td>
+</tr>
+ <tr id="l69">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=69#src-69">69</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-69" class="srcLine">                i -&gt; integrand.applyAsDouble(lowerBound + i * doubleInterval) + 2 * integrand.applyAsDouble(lowerBound + i * doubleInterval + singleInterval)</span></td>
+</tr>
+ <tr id="l70">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=70#src-70">70</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-70" class="srcLine">                ).sum();</span></td>
+</tr>
+ <tr id="l71">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=71#src-71">71</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-71" class="srcLine"></span></td>
+</tr>
+ <tr id="l72">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=72#src-72">72</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 72, 'Tests that hit line # 72');" ><span title="Line 72, Col 3: statement executed 259,680 times." class="nolink">&#160;259680</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-72" class="srcLine"><span class="nolink" title="Line 72, Col 3: statement executed 259,680 times.">        sum += 2.0 * integrand.applyAsDouble(lowerBound + singleInterval);</span></span></td>
+</tr>
+ <tr id="l73">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=73#src-73">73</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-73" class="srcLine"></span></td>
+</tr>
+ <tr id="l74">
+<td align="right" class="lineCount Good"><a class="lineNumHref" href="?line=74#src-74">74</a></td>
+<td align="right" class="coverageCount Good hitByTest"   onclick="return showTestsForLine(this, 74, 'Tests that hit line # 74');" ><span title="Line 74, Col 3: statement executed 259,668 times." class="nolink">&#160;259668</span></td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-74" class="srcLine"><span class="nolink" title="Line 74, Col 3: statement executed 259,668 times.">        <span class="keyword">return</span> (integrand.applyAsDouble(lowerBound) + 2.0 * sum + integrand.applyAsDouble(upperBound)) / 3.0 * singleInterval;</span></span></td>
+</tr>
+ <tr id="l75">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=75#src-75">75</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-75" class="srcLine">    }</span></td>
+</tr>
+ <tr id="l76">
+<td align="right" class="lineCount NoHilight"><a class="lineNumHref" href="?line=76#src-76">76</a></td>
+<td align="right" class="coverageCount NoHilight "   >&#160;&#160;</td>
+<td class=" srcCell" ><span class="spacer"></span><span id="src-76" class="srcLine">}</span></td>
+</tr>
+ 
+    </tbody></table>    </div>
+</div><!-- .aui-tabs -->
+
+<script type="text/javascript"> 
+    var ol_bgclass = "overBG";
+    var ol_fgclass = "overFG";
+    var ol_cgclass = "overCaption";
+    var ol_captionfontclass= "overCaption";
+    var ol_closefontclass = "closeFont";
+    var ol_closeclick = 1;
+    var ol_close = 'X';
+    var ol_wrap = 1;
+    var rootRelPath = '../../../';
+    var testsPerFile = -1;
+</script>
+<script src="SimpsonRealIntegrator.js" type="text/javascript"></script>
+
+                        </div> <!-- class="aui-page-panel-content-clover" -->
+                    <footer id="footer" role="contentinfo">
+    <section class="footer-body">
+        <ul>
+            <li>
+                Report generated by <a target="_new" href="http://openclover.org">OpenClover</a> v 4.4.1
+                on Tue Oct 11 2022 05:32:38 CEST using coverage data from Tue Oct 11 2022 05:11:00 CEST.
+            </li>
+        </ul>
+        <ul>
+            <li>OpenClover is free and open-source software. </li>
+        </ul>
+    </section>
+</footer>                </section> <!-- class="aui-page-panel-content" -->
+            </div> <!-- class="aui-page-panel-inner" -->
+        </div> <!-- class="aui-page-panel" -->
+    </div> <!-- id="page" -->
+</body>
+</html>
