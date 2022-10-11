@@ -27,10 +27,10 @@ public class EvolutionOfProductivity implements Function<Double, Function<Double
 	}
 
 	public EvolutionOfProductivity(double timeStep) {
-		// Parameters from original model: initial productivity growth 0.076, decaying with 0.005 per 5 years, thus 0.001 per 1 year
+		// Parameters from original model: initial productivity growth 0.076 per 5 years, decaying with 0.005 per 5 years, thus 0.001 per 1 year
+		// TODO The productivityGrowthRateDecayRate calibration needs to be checkes.
 		// TODO reparametrization to timeStep only approximately correct
-		//		this(0.076, 0.001);  // TODO eearlier version missed the /5 - check impact
-		this(timeStep, 1-Math.pow(1-0.076,1/5), 0.001);
+		this(timeStep, 1-Math.pow(1-0.076,1.0/5.0), 0.005);
 	}
 
 	@Override

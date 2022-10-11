@@ -23,7 +23,7 @@ public class EmissionFunction implements BiFunction<Double, Double, Double> {
 	private final double externalEmissionsInitial;
 	private final double externalEmissionsDecay;	// per 5Y
 
-	private static double annualizedExternalEmissionsDecay = 1-Math.pow(1-0.115, 1/5); //0.115 for 5 years, thus 1-5th_root(1-0.115)
+	private static double annualizedExternalEmissionsDecay = 1-Math.pow(1-0.115, 1.0/5.0); //0.115 for 5 years, thus 1-5th_root(1-0.115)
 
 	public EmissionFunction(double timeStep, EmissionIntensityFunction emissionIntensityFunction, double externalEmissionsInitial, double externalEmissionsDecay) {
 		super();
@@ -34,8 +34,7 @@ public class EmissionFunction implements BiFunction<Double, Double, Double> {
 	}
 
 	public EmissionFunction(double timeStep, EmissionIntensityFunction emissionIntensityFunction) {
-		// Parameters from original model - the externalEmissionsInitial is per 5Y in the original model.
-		this(timeStep, emissionIntensityFunction, 2.6/5, annualizedExternalEmissionsDecay);
+		this(timeStep, emissionIntensityFunction, 2.6, annualizedExternalEmissionsDecay);
 	}
 
 	@Override

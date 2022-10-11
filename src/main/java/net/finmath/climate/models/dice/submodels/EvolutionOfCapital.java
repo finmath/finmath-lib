@@ -24,7 +24,7 @@ public class EvolutionOfCapital implements Function<Double, BiFunction<Double, D
 
 	public EvolutionOfCapital(double timeStep) {
 		// capital deprecation per 1 year: 5th root of (1-0.1) per 5 years
-		this(timeStep, 1-Math.pow(1-0.1, 1/5));
+		this(timeStep, 1-Math.pow(1-0.1, 1.0/5.0));
 	}
 
 	@Override
