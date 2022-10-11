@@ -676,9 +676,10 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		}
 		else if(!isDeterministic() && argument.isDeterministic()) {
 			// Still faster than a parallel stream (2014.04)
+			final double argumentValue = argument.doubleValue();
 			final double[] result = new double[this.size()];
 			for(int i=0; i<result.length; i++) {
-				result[i] = operator.applyAsDouble(realizations[i], argument.doubleValue());
+				result[i] = operator.applyAsDouble(realizations[i], argumentValue);
 			}
 			return new RandomVariableFromDoubleArray(newTime, result);
 		}
