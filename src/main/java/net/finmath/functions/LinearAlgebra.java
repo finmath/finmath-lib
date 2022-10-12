@@ -16,6 +16,7 @@ import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
@@ -601,5 +602,40 @@ public class LinearAlgebra {
 	 */
 	public static double[] multMatrixVector(final double[][] matrix, final double[] vector){
 		return new Array2DRowRealMatrix(matrix).multiply(new Array2DRowRealMatrix(vector)).getColumn(0);
+	}
+
+	public static double[][] matrixPow(double[][] matrix, double exponent) {
+		return matrixExp(matrixLog(new Array2DRowRealMatrix(matrix)).scalarMultiply(exponent)).getData();
+	}
+
+	public static double[][] matrixExp(double[][] matrix) {
+		return matrixExp(new Array2DRowRealMatrix(matrix)).getData();
+	}
+
+	public static double[][] matrixLog(double[][] matrix) {
+		return matrixLog(new Array2DRowRealMatrix(matrix)).getData();
+	}
+
+	/*
+	 * There are better ways doing this - but this here is sufficient for some less crital purposes.
+	 */
+
+	private static RealMatrix matrixExp(RealMatrix matrix) {
+		RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());;
+		double factor = 1.0;
+		for(int k=1; k<15; k++) {
+			factor = factor * k;
+			exp = exp.add(matrix.power(k).scalarMultiply(1.0/factor));
+		}
+		return exp;
+	}
+
+	private static RealMatrix matrixLog(RealMatrix matrix) {
+		RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
+		RealMatrix log = m.copy();
+		for(int k=2; k<15; k++) {
+			log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));
+		}
+		return log;
 	}
 }
