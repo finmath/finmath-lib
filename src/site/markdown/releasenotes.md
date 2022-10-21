@@ -5,6 +5,14 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.7 (21.10.2022)
+
+### Climate Models (DICE)
+
+- Allowing arbitrary time discretization.
+- Value is a time integral (considering timeStep size) to be better comparable among different discretizations.
+
+
 ## 6.0.6 (11.10.2022)
 
 ### Climate Models (DICE)
