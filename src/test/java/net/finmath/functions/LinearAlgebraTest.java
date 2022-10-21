@@ -6,8 +6,10 @@
 
 package net.finmath.functions;
 
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 public class LinearAlgebraTest {
 
@@ -83,5 +85,49 @@ public class LinearAlgebraTest {
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][1], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][2], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][3], 1E-12);
+	}
+
+	@Test
+	public void testMatrixPowerSymmetric() {
+		final double[][] M = new double[][] {
+			{ 1.0, 0.2, 0.0, 0.0 },
+			{ 0.2, 1.2, 0.0, 0.0 },
+			{ 0.0, 0.0, 0.9, 0.1 },
+			{ 0.0, 0.0, 0.1, 1.0 }
+		};
+		
+		int numberOfSteps = 5;
+		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
+		
+		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();
+		for(int i=0; i<numberOfSteps; i++) {
+			testMatrix = LinearAlgebra.multMatrices(testMatrix, A);
+		}
+		
+		for(int i=0; i<M.length; i++) {
+			Assertions.assertArrayEquals(M[i], testMatrix[i], 1E-9);
+		}
+	}
+
+	@Test
+	public void testMatrixPowerNonSymmetric() {
+		final double[][] M = new double[][] {
+			{ 1.0, 0.2, 0.0, 0.0 },
+			{ 0.0, 1.2, 0.0, 0.0 },
+			{ 0.0, 0.0, 0.9, 0.1 },
+			{ 0.0, 0.0, 0.1, 1.0 }
+		};
+		
+		int numberOfSteps = 5;
+		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
+		
+		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();
+		for(int i=0; i<numberOfSteps; i++) {
+			testMatrix = LinearAlgebra.multMatrices(testMatrix, A);
+		}
+		
+		for(int i=0; i<M.length; i++) {
+			Assertions.assertArrayEquals(M[i], testMatrix[i], 1E-9);
+		}
 	}
 }
