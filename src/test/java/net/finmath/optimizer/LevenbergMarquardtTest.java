@@ -8,7 +8,6 @@ package net.finmath.optimizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.LogManager;
 
 import org.junit.Assert;
 import org.junit.Test;

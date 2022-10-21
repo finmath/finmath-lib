@@ -7,38 +7,21 @@ package net.finmath.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.calibration.ParameterObject;
-import net.finmath.marketdata.calibration.Solver;
-import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
-import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
-import net.finmath.marketdata.products.AnalyticProduct;
-import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
@@ -55,11 +38,7 @@ import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.SolverException;
-import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.TimeDiscretizationFromArray;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
  * This class tests the LIBOR market model and products.
