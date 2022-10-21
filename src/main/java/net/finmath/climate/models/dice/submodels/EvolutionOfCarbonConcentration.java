@@ -1,15 +1,11 @@
 package net.finmath.climate.models.dice.submodels;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.functions.LinearAlgebra;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.util.Cached;
+import net.finmath.util.TriFunction;
 
 /**
  * The evolution of the carbon concentration M with a given emission E.
@@ -29,7 +25,7 @@ import net.finmath.util.Cached;
  *
  * @author Christian Fries
  */
-public class EvolutionOfCarbonConcentration {
+public class EvolutionOfCarbonConcentration implements TriFunction<Integer, CarbonConcentration3DScalar, Double, CarbonConcentration3DScalar> {
 
 	private static double conversionGtCarbonperGtCO2 = 3.0/11.0;
 
@@ -65,7 +61,7 @@ public class EvolutionOfCarbonConcentration {
 	public EvolutionOfCarbonConcentration(TimeDiscretization timeDiscretization) {
 		Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
 		this.timeDiscretization = timeDiscretization;
-		transitionMatrices = timeSteps.andThen(Cached.of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : matrixPow(transitionMatrix5YDefault, (Double)timeStep/5.0)));
+		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, (Double)timeStep/5.0)));
 	}
 
 	/**
@@ -83,31 +79,8 @@ public class EvolutionOfCarbonConcentration {
 
 		return new CarbonConcentration3DScalar(carbonConcentrationNext);
 	}
-	
-	private static double[][] matrixPow(double[][] matrix, double exponent) {
-		return matrixExp(matrixLog(new Array2DRowRealMatrix(matrix)).scalarMultiply(exponent)).getData();
-	}
 
-	/*
-	 * Thre are better ways doing this - but this here is sufficient for our purpose.
-	 */
-
-	private static RealMatrix matrixExp(RealMatrix matrix) {
-		RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());;
-		double factor = 1.0;
-		for(int k=1; k<10; k++) {
-			factor = factor * k;
-			exp = exp.add(matrix.power(k).scalarMultiply(1.0/factor));
-		}
-		return exp;
-	}
-
-	private static RealMatrix matrixLog(RealMatrix matrix) {
-		RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
-		RealMatrix log = m.copy();
-		for(int k=2; k<10; k++) {
-			log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));
-		}
-		return log;
+	public TimeDiscretization getTimeDiscretization() {
+		return timeDiscretization;
 	}
 }

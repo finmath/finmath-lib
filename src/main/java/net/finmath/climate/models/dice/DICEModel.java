@@ -5,8 +5,6 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.Validate;
-
 import net.finmath.climate.models.ClimateModel;
 import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
 import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
@@ -117,7 +115,7 @@ public class DICEModel implements ClimateModel {
 		final ForcingFunction forcingFunction = new ForcingFunction();
 		final double forcingExternal = 1.0/5.0;		// per year
 
-		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeStep);
+		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeDiscretization);
 
 		// Abatement
 		final AbatementCostFunction abatementCostFunction = new AbatementCostFunction();
@@ -132,13 +130,13 @@ public class DICEModel implements ClimateModel {
 		final double gdpInitial = A0*Math.pow(K0,gamma)*Math.pow(L0/1000,1-gamma);
 
 		// Capital
-		final EvolutionOfCapital evolutionOfCapital = new EvolutionOfCapital(timeStep);
+		final EvolutionOfCapital evolutionOfCapital = new EvolutionOfCapital(timeDiscretization);
 
 		// Population
-		final EvolutionOfPopulation evolutionOfPopulation = new EvolutionOfPopulation(timeStep);
+		final EvolutionOfPopulation evolutionOfPopulation = new EvolutionOfPopulation(timeDiscretization);
 
 		// Productivity
-		final EvolutionOfProductivity evolutionOfProductivity = new EvolutionOfProductivity(timeStep);
+		final EvolutionOfProductivity evolutionOfProductivity = new EvolutionOfProductivity(timeDiscretization);
 
 		/*
 		 * Set initial values
@@ -155,18 +153,16 @@ public class DICEModel implements ClimateModel {
 		 * Evolve
 		 */
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
-
-			final double time = timeDiscretization.getTime(timeIndex);
-
+			double time = timeDiscretization.getTime(timeIndex);
 
 			/*
 			 * Evolve geo-physical quantities i -> i+1 (as a function of gdp[i])
 			 */
 
 			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex], forcingExternal);
-			temperature[timeIndex+1] = evolutionOfTemperature.apply(temperature[timeIndex], forcing);
+			temperature[timeIndex+1] = evolutionOfTemperature.apply(timeIndex, temperature[timeIndex], forcing);
 
-			abatement[timeIndex] = abatementFunction.apply(time);
+			abatement[timeIndex] = abatementFunction.apply(timeDiscretization.getTime(timeIndex));
 
 			// Note: In the original model the 1/(1-\mu(0)) is part of the emission function. Here we add the factor on the outside
 			
@@ -208,13 +204,13 @@ public class DICEModel implements ClimateModel {
 			double consumption = (1-savingsRate) * gdpNet;
 			double investment = savingsRate * gdpNet;
 
-			capital[timeIndex+1] = evolutionOfCapital.apply(time).apply(capital[timeIndex], investment);
+			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);
 
 			/*
 			 * Evolve population and productivity for next GDP
 			 */
-			population[timeIndex+1] = evolutionOfPopulation.apply(time).apply(population[timeIndex]);
-			productivity[timeIndex+1] = evolutionOfProductivity.apply(time).apply(productivity[timeIndex]);
+			population[timeIndex+1] = evolutionOfPopulation.apply(timeIndex).apply(population[timeIndex]);
+			productivity[timeIndex+1] = evolutionOfProductivity.apply(timeIndex).apply(productivity[timeIndex]);
 
 			double L = population[timeIndex+1];
 			double A = productivity[timeIndex+1];
