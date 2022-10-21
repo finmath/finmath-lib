@@ -33,13 +33,12 @@ public interface DayCountConvention {
 	double getDaycount(LocalDate startDate, LocalDate endDate);
 
 	/**
-	 * Return the daycount fraction corresponding to the period from startDate to endDate given the
-	 * specific daycount convention.
+	 * Return the daycount fraction (year fraction) corresponding to the period from
+	 * startDate to endDate given the specific daycount convention.
 	 *
 	 * @param startDate The start date given as a {@link java.time.LocalDate}.
 	 * @param endDate The end date given as a {@link java.time.LocalDate}.
-	 * @return The daycount fraction corresponding to the given period.
+	 * @return The daycount year fraction corresponding to the given period.
 	 */
 	double getDaycountFraction(LocalDate startDate, LocalDate endDate);
-
 }
