@@ -3,13 +3,10 @@ package net.finmath.climate.models.dice.submodels;
 import java.util.function.Function;
 
 /**
- * the evolution of the productivity (economy)
+ * The evolution of the productivity (economy)
  * \(
- * 	A(t_{i+1}) = A(t_{i}) / (1-ga * \exp(- deltaA * t))
+ * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))
  * \)
- *
- * Note: The function depends on the time step size
- * TODO Fix time stepping
  *
  * @author Christian Fries
  */
@@ -19,6 +16,16 @@ public class EvolutionOfProductivity implements Function<Double, Function<Double
 	private final double productivityGrowthRate;        	// ga: Initial TFP rate
 	private final double productivityGrowthRateDecayRate;	// deltaA: TFP increase rate
 
+	/**
+	 * The evolution of the productivity (economy)
+	 * \(
+	 * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))
+	 * \)
+	 * 
+	 * @param timeStep The size of one timeStep.
+	 * @param productivityGrowthRate The productivity growth rate ga per 1Y.
+	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
+	 */
 	public EvolutionOfProductivity(double timeStep, double productivityGrowthRate, double productivityGrowthRateDecayRate) {
 		super();
 		this.timeStep = timeStep;
@@ -27,9 +34,7 @@ public class EvolutionOfProductivity implements Function<Double, Function<Double
 	}
 
 	public EvolutionOfProductivity(double timeStep) {
-		// Parameters from original model: initial productivity growth 0.076 per 5 years, decaying with 0.005 per 5 years, thus 0.001 per 1 year
-		// TODO The productivityGrowthRateDecayRate calibration needs to be checkes.
-		// TODO reparametrization to timeStep only approximately correct
+		// Parameters from original model: initial productivity growth 0.076 per 5 years, decaying with 0.005 per 1 year.
 		this(timeStep, 1-Math.pow(1-0.076,1.0/5.0), 0.005);
 	}
 

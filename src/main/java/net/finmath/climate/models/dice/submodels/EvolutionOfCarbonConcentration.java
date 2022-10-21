@@ -1,13 +1,15 @@
 package net.finmath.climate.models.dice.submodels;
 
 import java.util.function.BiFunction;
-import java.util.stream.IntStream;
+import java.util.function.Function;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import net.finmath.functions.LinearAlgebra;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.util.Cached;
 
 /**
  * The evolution of the carbon concentration M with a given emission E.
@@ -27,12 +29,11 @@ import net.finmath.functions.LinearAlgebra;
  *
  * @author Christian Fries
  */
-public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentration3DScalar, Double, CarbonConcentration3DScalar> {
+public class EvolutionOfCarbonConcentration {
 
 	private static double conversionGtCarbonperGtCO2 = 3.0/11.0;
 
 	private static double[][] transitionMatrix5YDefault;
-	private static double[][] transitionMatrix1YDefault;
 	// Original transition matrix is a 5Y transition matrix
 	static {
 		final double b12 = 0.12;		// scale
@@ -50,37 +51,32 @@ public class EvolutionOfCarbonConcentration implements BiFunction<CarbonConcentr
 		final double zeta33 = 1 - b23;
 
 		transitionMatrix5YDefault = new double[][] { new double[] { zeta11, zeta12, 0.0 }, new double[] { zeta21, zeta22, zeta23 }, new double[] { 0.0, zeta32, zeta33 } };
-		
-		transitionMatrix1YDefault = new double[][] {
-			new double[] { 0.97221,   0.0278745, 0.0 },
-			new double[] { 0.0455284, 0.95293, 0.0 },
-			new double[] { 0.00145916, 0.000239206, 0.998596 }
-		};
 	}
 
-	private final double timeStep;
-	private final double[][] transitionMatrix;		// phi in [i][j] (i = row, j = column)
+	private final TimeDiscretization timeDiscretization;
+	private final Function<Integer, double[][]> transitionMatrices;		// phi in [i][j] (i = row, j = column)
 
-	public EvolutionOfCarbonConcentration(double timeStep, double[][] transitionMatrix) {
+	public EvolutionOfCarbonConcentration(TimeDiscretization timeDiscretization, Function<Integer, double[][]> transitionMatrices) {
 		super();
-		this.timeStep = timeStep;
-		this.transitionMatrix = transitionMatrix;
+		this.timeDiscretization = timeDiscretization;
+		this.transitionMatrices = transitionMatrices;
 	}
 
-	public EvolutionOfCarbonConcentration(double timeStep) {
-		// Parameters from original model
-		this(timeStep, timeStep == 5 ? transitionMatrix5YDefault : matrixPow(transitionMatrix5YDefault, timeStep/5.0));
+	public EvolutionOfCarbonConcentration(TimeDiscretization timeDiscretization) {
+		Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
+		this.timeDiscretization = timeDiscretization;
+		transitionMatrices = timeSteps.andThen(Cached.of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : matrixPow(transitionMatrix5YDefault, (Double)timeStep/5.0)));
 	}
 
-	@Override
 	/**
 	 * Update CarbonConcentration over one time step with a given emission.
 	 *
 	 * @param carbonConcentration The CarbonConcentration in time \( t_{i} \)
 	 * @param emissions The emissions in GtCO2 / year.
 	 */
-	public CarbonConcentration3DScalar apply(CarbonConcentration3DScalar carbonConcentration, Double emissions) {
-		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrix, carbonConcentration.getAsDoubleArray());
+	public CarbonConcentration3DScalar apply(Integer timeIndex, CarbonConcentration3DScalar carbonConcentration, Double emissions) {
+		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
+		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrices.apply(timeIndex), carbonConcentration.getAsDoubleArray());
 
 		// Add emissions
 		carbonConcentrationNext[0] += emissions * timeStep * conversionGtCarbonperGtCO2;

@@ -3,6 +3,9 @@ package net.finmath.climate.models.dice;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
+
+import org.apache.commons.lang3.Validate;
 
 import net.finmath.climate.models.ClimateModel;
 import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
@@ -29,6 +32,8 @@ import net.finmath.time.TimeDiscretization;
  */
 public class DICEModel implements ClimateModel {
 
+	private static Logger logger = Logger.getLogger("net.finmath.climate");
+	
 	/*
 	 * Input to this class
 	 */
@@ -81,7 +86,6 @@ public class DICEModel implements ClimateModel {
 	}
 
 	private void init() {
-		// TODO Assuming that the time steps are constant.
 		final double timeStep = timeDiscretization.getTimeStep(0);
 
 		/*
@@ -89,7 +93,7 @@ public class DICEModel implements ClimateModel {
 		 */
 
 		/*
-		 * Note: Calling default constructors for the sub-models will initialise the default parameters.
+		 * Note: Calling constructors without additional arguments will use default arguments consistent with the 2016 original model.
 		 */
 
 		/*
@@ -106,12 +110,12 @@ public class DICEModel implements ClimateModel {
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
 		final EmissionIntensityFunction emissionIntensityFunction = new EmissionIntensityFunction();
-		final EmissionFunction emissionFunction = new EmissionFunction(timeStep, emissionIntensityFunction);
+		final EmissionFunction emissionFunction = new EmissionFunction(timeDiscretization, emissionIntensityFunction, 0.0, 0.0);
 
-		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeStep);
+		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
 		final ForcingFunction forcingFunction = new ForcingFunction();
-		final double forcingExternal = 1.0/5.0;
+		final double forcingExternal = 1.0/5.0;		// per year
 
 		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeStep);
 
@@ -150,23 +154,25 @@ public class DICEModel implements ClimateModel {
 		/*
 		 * Evolve
 		 */
-		for(int i=0; i<timeDiscretization.getNumberOfTimeSteps(); i++) {
+		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 
-			final double time = timeDiscretization.getTime(i);
+			final double time = timeDiscretization.getTime(timeIndex);
+
 
 			/*
 			 * Evolve geo-physical quantities i -> i+1 (as a function of gdp[i])
 			 */
 
-			final double forcing = forcingFunction.apply(carbonConcentration[i], forcingExternal);
-			temperature[i+1] = evolutionOfTemperature.apply(temperature[i], forcing);
+			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex], forcingExternal);
+			temperature[timeIndex+1] = evolutionOfTemperature.apply(temperature[timeIndex], forcing);
 
-			abatement[i] = abatementFunction.apply(time);
+			abatement[timeIndex] = abatementFunction.apply(time);
 
 			// Note: In the original model the 1/(1-\mu(0)) is part of the emission function. Here we add the factor on the outside
-			emission[i] = (1 - abatement[i])/(1-abatement[0]) * emissionFunction.apply(time, gdp[i]);
+			
+			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionFunction.apply(timeIndex, gdp[timeIndex]);
 
-			carbonConcentration[i+1] = evolutionOfCarbonConcentration.apply(carbonConcentration[i], emission[i]);
+			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);
 
 
 			/*
@@ -174,35 +180,45 @@ public class DICEModel implements ClimateModel {
 			 */
 
 			// Apply damage to economy
-			damage[i] = damageFunction.applyAsDouble(temperature[i].getExpectedTemperatureOfAtmosphere());
+			damage[timeIndex] = damageFunction.applyAsDouble(temperature[timeIndex].getExpectedTemperatureOfAtmosphere());
+
+			
+			/*
+			 * Cost
+			 */
+			double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];
+			double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionFunction.apply(timeIndex, gdp[timeIndex]);
+			
+			/*
+			 * Remaining gdp
+			 */
+			double gdpNet = gdp[timeIndex] - damageCostAbsolute - abatementCostAbsolute;
 
 			/*
-			 * Abatement cost
+			 * Equivalent (alternative way) to calculate the abatement
 			 */
-			double abatementCost = abatementCostFunction.apply(time, abatement[i]) * emissionIntensityFunction.apply(time);
+			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIntensityFunction.apply(time);
+			double gdpNet2 = gdp[timeIndex] * (1-damage[timeIndex] - abatementCost);
+			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) logger.warning("Calculation of relative and absolute net GDP does not match.");
 
-			/*
-			 * Evolve economy to i+1
-			 */
-			double gdpNet = gdp[i] * (1-damage[i]) * (1 - abatementCost);
-
+		
 			// Constant from the original model - in the original model this is a time varying control variable.
 			double savingsRate = savingsRateFunction.apply(time);	//0.259029014481802;
 
 			double consumption = (1-savingsRate) * gdpNet;
 			double investment = savingsRate * gdpNet;
 
-			capital[i+1] = evolutionOfCapital.apply(time).apply(capital[i], investment);
+			capital[timeIndex+1] = evolutionOfCapital.apply(time).apply(capital[timeIndex], investment);
 
 			/*
 			 * Evolve population and productivity for next GDP
 			 */
-			population[i+1] = evolutionOfPopulation.apply(time).apply(population[i]);
-			productivity[i+1] = evolutionOfProductivity.apply(time).apply(productivity[i]);
+			population[timeIndex+1] = evolutionOfPopulation.apply(time).apply(population[timeIndex]);
+			productivity[timeIndex+1] = evolutionOfProductivity.apply(time).apply(productivity[timeIndex]);
 
-			double L = population[i+1];
-			double A = productivity[i+1];
-			gdp[i+1] = A*Math.pow(capital[i+1],gamma)*Math.pow(L/1000,1-gamma);
+			double L = population[timeIndex+1];
+			double A = productivity[timeIndex+1];
+			gdp[timeIndex+1] = A*Math.pow(capital[timeIndex+1],gamma)*Math.pow(L/1000,1-gamma);
 
 			/*
 			 * Calculate utility
@@ -215,10 +231,10 @@ public class DICEModel implements ClimateModel {
 			 * Discounted utility
 			 */
 			double discountFactor = Math.exp(- discountRate * time);
-			welfare[i] = utility * discountFactor;
+			welfare[timeIndex] = utility * discountFactor;
 
-			utilityDiscountedSum = utilityDiscountedSum + utility*discountFactor;
-			value[i+1] = utilityDiscountedSum;
+			utilityDiscountedSum = utilityDiscountedSum + utility*discountFactor*timeStep;
+			value[timeIndex+1] = utilityDiscountedSum;
 		}
 	}
 
