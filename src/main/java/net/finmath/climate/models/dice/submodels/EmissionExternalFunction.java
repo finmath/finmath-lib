@@ -6,36 +6,33 @@ import java.util.function.Function;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * The function that maps economicOutput to emission at a given time in GtCO2 / year
+ * The function that models external emissions as GtCO2 / year
  * \(
- * 	(t, Y) \mapsto E(t,Y)
+ * 	(t) \mapsto E_{\mathrm{ex}}(t) .
  * \)
- * where Y is the GDP.
- *
- * Note: The emissions is in GtCO2 / year.
- *
- * Note: The function depends on the time step size
- * TODO Change parameter to per year.
  *
  * @author Christian Fries
  */
 public class EmissionExternalFunction implements Function<Double, Double> {
 
-	private final TimeDiscretization timeDiscretization;
 	private final double externalEmissionsInitial;
 	private final double externalEmissionsDecay;	// per 5Y
 
 	private static double annualizedExternalEmissionsDecay = -Math.log(1-0.115)/5.0; //0.115 for 5 years, thus 1-5th_root(1-0.115)
 
-	public EmissionExternalFunction(TimeDiscretization timeDiscretization, double externalEmissionsInitial, double externalEmissionsDecay) {
+	/**
+	 * 
+	 * @param externalEmissionsInitial Initial value for the emissions per year. Unit: GtCO2 / year.
+	 * @param externalEmissionsDecay Exponential decay rate. Unit: 1/year.
+	 */
+	public EmissionExternalFunction(double externalEmissionsInitial, double externalEmissionsDecay) {
 		super();
-		this.timeDiscretization = timeDiscretization;
 		this.externalEmissionsInitial = externalEmissionsInitial;
 		this.externalEmissionsDecay = externalEmissionsDecay;
 	}
 
-	public EmissionExternalFunction(TimeDiscretization timeDiscretization) {
-		this(timeDiscretization, 2.6, annualizedExternalEmissionsDecay);
+	public EmissionExternalFunction() {
+		this(2.6, annualizedExternalEmissionsDecay);
 	}
 
 	@Override
@@ -43,9 +40,5 @@ public class EmissionExternalFunction implements Function<Double, Double> {
 		final double externalEmissions = externalEmissionsInitial * Math.exp(-externalEmissionsDecay * time);
 
 		return externalEmissions;
-	}
-
-	public TimeDiscretization getTimeDiscretization() {
-		return timeDiscretization;
 	}
 }

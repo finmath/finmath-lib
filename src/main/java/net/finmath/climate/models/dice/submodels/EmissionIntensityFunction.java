@@ -3,14 +3,13 @@ package net.finmath.climate.models.dice.submodels;
 import java.util.function.Function;
 
 /**
- * The function that maps time to emission intensity \( \sigma(t) \) (in kgCO2 / USD).
+ * The function that maps time to emission intensity \( \sigma(t) \) (in kgCO2 / USD = GtCO2 / (10^12 USD)).
+ * 
  * The emission intensity is the factor that is applied to the GDP to get the corresponding emissions.
  *
  * The function is modelled as an exponential decay, where the decay rate decays exponentially (double exponential).
  *
  * Note: This is the function \( \sigma(t) \) from the original model, except that the division by \( (1-\mu(0)) \) is missing here.
- *
- * Note: The function depends on the time step size
  *
  * @author Christian Fries
  */
@@ -27,6 +26,12 @@ public class EmissionIntensityFunction implements Function<Double, Double> {
 	private final double emissionIntensityRateInitial;	// = 0.0152;		// -g	// per year
 	private final double emissionIntensityRateDecay;	// = 0.001;			// -d	// per year
 
+	/**
+	 * 
+	 * @param emissionIntensityInitial The initial emission intensity. Unit: GtCO2 / (10^12 USD)
+	 * @param emissionIntensityRateInitial
+	 * @param emissionIntensityRateDecay
+	 */
 	public EmissionIntensityFunction(double emissionIntensityInitial, double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
 		super();
 		this.emissionIntensityInitial = emissionIntensityInitial;

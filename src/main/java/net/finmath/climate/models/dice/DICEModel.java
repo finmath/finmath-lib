@@ -108,7 +108,7 @@ public class DICEModel implements ClimateModel {
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
 		final EmissionIntensityFunction emissionIndustrialIntensityFunction = new EmissionIntensityFunction();
-		final EmissionExternalFunction emissionFunction = new EmissionExternalFunction(timeDiscretization);
+		final EmissionExternalFunction emissionFunction = new EmissionExternalFunction();
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
