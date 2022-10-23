@@ -1,5 +1,6 @@
 package net.finmath.climate.models.dice;
 
+import java.net.NetPermission;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
@@ -23,10 +24,11 @@ import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * A simulation of a simplified DICE model.
+ * A simulation of a simplified DICE model (see {@link net.finmath.climate.models.dice.DICEModelTest} (see src/test/java) for an example usage.
+ * 
+ * The model just composes the sub-models (evolution equations and functions) from the package {@link net.finmath.climate.models.dice.submodels}.
  * 
  * Note: The code makes some small simplification: it uses a constant savings rate and a constant external forcings.
- * It may still be useful for illustration.
  */
 public class DICEModel implements ClimateModel {
 

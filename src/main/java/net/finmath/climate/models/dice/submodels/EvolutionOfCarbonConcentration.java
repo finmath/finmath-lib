@@ -8,20 +8,23 @@ import net.finmath.util.Cached;
 import net.finmath.util.TriFunction;
 
 /**
- * The evolution of the carbon concentration M with a given emission E.
+ * The evolution of the carbon concentration M with a given emission E \( \mathrm{d}M(t) = \left( \Gamma_{M} M(t) + E(t) \right) \mathrm{d}t \).
+ * 
+ * The unit of \( M \) is GtC (Gigatons of Carbon).
+ * 
+ * The evolution is modelled as \( \mathrm{d}M(t) = \left( \Gamma_{M} M(t) + E(t) \right) \mathrm{d}t \right).
+ * With the given {@link TimeDiscretization} it is approximated via an Euler-step
  * \(
- * 	M(t_{i+1}) = \Phi M(t_{i}) + unitConversion * E(t_{i}) \Delta t_{i}
+ * 	M(t_{i+1}) = \Phi M(t_{i}) + unitConversion \cdot E(t_{i}) \Delta t_{i}
  * \)
+ * where \( \Phi = (1 + \Gamma_{M} \Delta t_{i}) \).
  *
- * Note: the emission are in GtCO2/year while the carbon concentration is in GtC.
+ * Note: the emission E are in GtCO2/year while the carbon concentration is in M GtC.
  *
  * Unit conversions
  * <ul>
  * 	<li>1 t Carbon = 3.666 t CO2</li>
  * </ul>
- *
- * Note: The function depends on the time step size.
- * TODO Fix time stepping
  *
  * @author Christian Fries
  */

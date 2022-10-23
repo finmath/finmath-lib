@@ -9,10 +9,16 @@ import net.finmath.util.TriFunction;
 
 /**
  *
- * The evolution of the temperature.
+ * The evolution of the temperature \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + F(t) \right) \mathrm{d}t \).
+ * 
+ * The unit of \( T \) is K (Kelvin).
+ * 
+ * The evolution is modelled as \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + F(t) \right) \mathrm{d}t \).
+ * With the given {@link TimeDiscretization} it is approximated via an Euler-step
  * \(
- * 	T(t_{i+1}) = \Phi T(t_{i}) + (forcingToTemp \cdot (forcing, 0, 0)
+ * 	T(t_{i+1}) = \Phi T(t_{i}) + (forcingToTemp \cdot (forcing, 0, 0) \cdot \Delta t_{i}
  * \)
+ * where \( \Phi = (1 + \Gamma_{T} \Delta t_{i}) \).
  *
  * @author Christian Fries
  */
