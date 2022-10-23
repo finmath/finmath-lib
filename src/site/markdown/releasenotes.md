@@ -5,12 +5,15 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.0.7 (21.10.2022)
+## 6.0.7 (23.10.2022)
 
 ### Climate Models (DICE)
 
-- Allowing arbitrary time discretization.
+- Allowing arbitrary time discretization in DICE model.
 - Value is a time integral (considering timeStep size) to be better comparable among different discretizations.
+- Split emission in industrial and land use. Abatement only applies to industrial emissions.
+- Added unit test.
+- Added documentation on units.
 
 
 ## 6.0.6 (11.10.2022)
