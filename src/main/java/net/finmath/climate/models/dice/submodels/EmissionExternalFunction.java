@@ -1,9 +1,6 @@
 package net.finmath.climate.models.dice.submodels;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import net.finmath.time.TimeDiscretization;
 
 /**
  * The function that models external emissions as GtCO2 / year
