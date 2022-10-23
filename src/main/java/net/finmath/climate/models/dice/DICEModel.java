@@ -109,7 +109,7 @@ public class DICEModel implements ClimateModel {
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
 		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction();
-		final EmissionExternalFunction emissionFunction = new EmissionExternalFunction();
+		final EmissionExternalFunction emissionExternalFunction = new EmissionExternalFunction();
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
@@ -173,7 +173,7 @@ public class DICEModel implements ClimateModel {
 			// Carbon
 
 			double emissionIndustrial = emissionIndustrialIntensityFunction.apply(time) * gdp[timeIndex];
-			double emissionExternal = emissionFunction.apply(time);
+			double emissionExternal = emissionExternalFunction.apply(time);
 			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionIndustrial + emissionExternal;
 			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);
 
