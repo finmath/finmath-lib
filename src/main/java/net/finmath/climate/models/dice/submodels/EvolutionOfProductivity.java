@@ -25,7 +25,7 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 	 * \)
 	 * 
 	 * @param timeDiscretization The time discretization.
-	 * @param productivityGrowthRate The productivity growth rate ga per 1Y.
+	 * @param productivityGrowthRateInitial The initial productivity growth rate ga per 1Y.
 	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
 	 */
 	public EvolutionOfProductivity(TimeDiscretization timeDiscretization, double productivityGrowthRateInitial, double productivityGrowthRateDecayRate) {
