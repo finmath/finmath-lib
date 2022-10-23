@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.0.7 (23.10.2022)
+## 6.0.8 (23.10.2022)
 
 ### Climate Models (DICE)
 
