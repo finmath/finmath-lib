@@ -18,7 +18,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
 public class DICEModelTest {
 
 	@Test
-	void testTimeStep6M() {
+	public void testTimeStep6M() {
 		final double timeStep = 0.5;
 		final double timeHorizon = 500.0;
 		final double savingsRate = 0.259029014481802;
@@ -48,7 +48,7 @@ public class DICEModelTest {
 	}
 
 	@Test
-	void testTimeStep1Y() {
+	public void testTimeStep1Y() {
 		final double timeStep = 1.0;
 		final double timeHorizon = 500.0;
 		final double savingsRate = 0.259029014481802;
@@ -78,7 +78,7 @@ public class DICEModelTest {
 	}
 
 	@Test
-	void testTimeStep5Y() {
+	public void testTimeStep5Y() {
 		final double timeStep = 5.0;
 		final double timeHorizon = 500.0;
 		final double savingsRate = 0.259029014481802;
