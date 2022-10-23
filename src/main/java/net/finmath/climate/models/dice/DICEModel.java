@@ -23,7 +23,7 @@ import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * A simulation of a simplified DICE model (see {@link net.finmath.climate.models.dice.DICEModelTest} (see src/test/java) for an example usage.
+ * A simulation of a simplified DICE model (see <code>net.finmath.climate.models.dice.DICEModelTest</code> in src/test/java) for an example usage.
  * 
  * The model just composes the sub-models (evolution equations and functions) from the package {@link net.finmath.climate.models.dice.submodels}.
  * 

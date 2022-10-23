@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * A simple wrapper, wrapping a Function<K,V> such that all calculations are cached in a ConcurrentHashMap<K, V>.
+ * A simple wrapper, wrapping a Function&lt;K,V&gt; such that all calculations are cached in a ConcurrentHashMap&lt;K,V&gt;
  * 
  * @author Christian Fries
  *

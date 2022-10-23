@@ -24,7 +24,7 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 	 * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))
 	 * \)
 	 * 
-	 * @param timeStep The size of one timeStep.
+	 * @param timeDiscretization The time discretization.
 	 * @param productivityGrowthRate The productivity growth rate ga per 1Y.
 	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
 	 */

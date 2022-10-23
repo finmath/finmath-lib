@@ -46,8 +46,8 @@ public class EvolutionOfTemperature implements TriFunction<Integer, Temperature2
 	private final double forcingToTemp;
 
 	/**
-	 * @param timeStep The time step.
-	 * @param transitionMatrix Transition matrix \( \Phi \)
+	 * @param timeDiscretization The time discretization.
+	 * @param transitionMatrices Transition matrix \( \Phi \) for each time step.
 	 * @param forcingToTemp The scaling coefficient for the external forcing.
 	 */
 	public EvolutionOfTemperature(TimeDiscretization timeDiscretization, Function<Integer, double[][]> transitionMatrices, double forcingToTemp) {
