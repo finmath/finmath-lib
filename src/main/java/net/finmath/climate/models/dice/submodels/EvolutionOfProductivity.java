@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
 public class EvolutionOfProductivity implements Function<Integer, Function<Double, Double>> {
 
 	private final TimeDiscretization timeDiscretization;
-	private final double productivityGrowthRate;        	// ga: Initial TFP rate
+	private final double productivityGrowthRateInitial;        	// ga: Initial TFP rate
 	private final double productivityGrowthRateDecayRate;	// deltaA: TFP increase rate
 
 	/**
@@ -28,10 +28,10 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 	 * @param productivityGrowthRate The productivity growth rate ga per 1Y.
 	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
 	 */
-	public EvolutionOfProductivity(TimeDiscretization timeDiscretization, double productivityGrowthRate, double productivityGrowthRateDecayRate) {
+	public EvolutionOfProductivity(TimeDiscretization timeDiscretization, double productivityGrowthRateInitial, double productivityGrowthRateDecayRate) {
 		super();
 		this.timeDiscretization = timeDiscretization;
-		this.productivityGrowthRate = productivityGrowthRate;
+		this.productivityGrowthRateInitial = productivityGrowthRateInitial;
 		this.productivityGrowthRateDecayRate = productivityGrowthRateDecayRate;
 	}
 
@@ -45,7 +45,8 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 		double time = timeDiscretization.getTime(timeIndex);
 		double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double productivity) -> {
-			return productivity / Math.pow(1 - productivityGrowthRate * Math.exp(-productivityGrowthRateDecayRate * time), timeStep);
+			double productivityGrowthRate = productivityGrowthRateInitial * Math.exp(-productivityGrowthRateDecayRate * time);
+			return productivity * Math.pow(1 - productivityGrowthRate, -timeStep);
 		};
 	}
 }

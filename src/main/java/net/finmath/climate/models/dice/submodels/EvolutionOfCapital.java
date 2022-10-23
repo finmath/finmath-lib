@@ -26,14 +26,14 @@ public class EvolutionOfCapital implements Function<Integer, BiFunction<Double, 
 
 	public EvolutionOfCapital(TimeDiscretization timeDiscretization) {
 		// capital deprecation per 1 year: 5th root of (1-0.1) per 5 years
-		this(timeDiscretization, 1-Math.pow(1-0.1, 1.0/5.0));
+		this(timeDiscretization, -Math.log(1-0.1)/5.0);
 	}
 
 	@Override
 	public BiFunction<Double, Double, Double> apply(Integer timeIndex) {
 		double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double capital, Double investment) -> {
-			return Math.pow(1.0-capitalDeprecation, timeStep) * capital + investment * timeStep;
+			return capital * Math.exp(-capitalDeprecation * timeStep) + investment * timeStep;
 		};
 	}
 }

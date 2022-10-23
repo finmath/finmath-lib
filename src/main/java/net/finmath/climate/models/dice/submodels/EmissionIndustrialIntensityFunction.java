@@ -41,12 +41,12 @@ public class EmissionIndustrialIntensityFunction implements Function<Double, Dou
 
 	public EmissionIndustrialIntensityFunction() {
 		// Parameters from original model
-		this(sigma0, 0.0152, 0.001);
+		this(sigma0, 0.0152, -Math.log(1-0.001));
 	}
 
 	@Override
 	public Double apply(Double time) {
-		final double emissionIntensityRate = emissionIntensityRateInitial * Math.pow(1-emissionIntensityRateDecay, time);
+		final double emissionIntensityRate = emissionIntensityRateInitial * Math.exp(-emissionIntensityRateDecay * time);
 		final double emissionIntensity = emissionIntensityInitial * Math.exp(-emissionIntensityRate * time);
 
 		return emissionIntensity;
