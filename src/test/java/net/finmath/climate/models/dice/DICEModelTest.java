@@ -15,7 +15,7 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
 
-class DICEModelTest {
+public class DICEModelTest {
 
 	@Test
 	void testTimeStep6M() {
