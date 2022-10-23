@@ -9,7 +9,7 @@ import net.finmath.climate.models.ClimateModel;
 import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
 import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
 import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
-import net.finmath.climate.models.dice.submodels.EmissionFunction;
+import net.finmath.climate.models.dice.submodels.EmissionExternalFunction;
 import net.finmath.climate.models.dice.submodels.EmissionIntensityFunction;
 import net.finmath.climate.models.dice.submodels.EvolutionOfCapital;
 import net.finmath.climate.models.dice.submodels.EvolutionOfCarbonConcentration;
@@ -107,8 +107,8 @@ public class DICEModel implements ClimateModel {
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		final EmissionIntensityFunction emissionIntensityFunction = new EmissionIntensityFunction();
-		final EmissionFunction emissionFunction = new EmissionFunction(timeDiscretization, emissionIntensityFunction, 0.0, 0.0);
+		final EmissionIntensityFunction emissionIndustrialIntensityFunction = new EmissionIntensityFunction();
+		final EmissionExternalFunction emissionFunction = new EmissionExternalFunction(timeDiscretization);
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
@@ -159,41 +159,43 @@ public class DICEModel implements ClimateModel {
 			 * Evolve geo-physical quantities i -> i+1 (as a function of gdp[i])
 			 */
 
+			// Temperature
+			
 			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex], forcingExternal);
 			temperature[timeIndex+1] = evolutionOfTemperature.apply(timeIndex, temperature[timeIndex], forcing);
+			
 
+			// Abatement
+			
 			abatement[timeIndex] = abatementFunction.apply(timeDiscretization.getTime(timeIndex));
 
-			// Note: In the original model the 1/(1-\mu(0)) is part of the emission function. Here we add the factor on the outside
-			
-			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionFunction.apply(timeIndex, gdp[timeIndex]);
+			// Carbon
 
+			double emissionIndustrial = emissionIndustrialIntensityFunction.apply(time) * gdp[timeIndex];
+			double emissionExternal = emissionFunction.apply(time);
+			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionIndustrial + emissionExternal;
 			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);
 
+			/*
+			 * Cost
+			 */
+
+			damage[timeIndex] = damageFunction.applyAsDouble(temperature[timeIndex].getExpectedTemperatureOfAtmosphere());
+
+			double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];
+			double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrial;
 
 			/*
 			 * Evolve economy i -> i+1 (as a function of temperature[i])
 			 */
-
-			// Apply damage to economy
-			damage[timeIndex] = damageFunction.applyAsDouble(temperature[timeIndex].getExpectedTemperatureOfAtmosphere());
-
 			
-			/*
-			 * Cost
-			 */
-			double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];
-			double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionFunction.apply(timeIndex, gdp[timeIndex]);
-			
-			/*
-			 * Remaining gdp
-			 */
+			// Remaining gdp
 			double gdpNet = gdp[timeIndex] - damageCostAbsolute - abatementCostAbsolute;
 
 			/*
 			 * Equivalent (alternative way) to calculate the abatement
 			 */
-			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIntensityFunction.apply(time);
+			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrialIntensityFunction.apply(time);
 			double gdpNet2 = gdp[timeIndex] * (1-damage[timeIndex] - abatementCost);
 			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) logger.warning("Calculation of relative and absolute net GDP does not match.");
 

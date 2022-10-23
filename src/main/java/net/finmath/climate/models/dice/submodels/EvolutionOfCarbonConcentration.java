@@ -27,7 +27,7 @@ import net.finmath.util.TriFunction;
  */
 public class EvolutionOfCarbonConcentration implements TriFunction<Integer, CarbonConcentration3DScalar, Double, CarbonConcentration3DScalar> {
 
-	private static double conversionGtCarbonperGtCO2 = 3.0/11.0;
+	private static double conversionGtCperGtCO2 = 3.0/11.0;
 
 	private static double[][] transitionMatrix5YDefault;
 	// Original transition matrix is a 5Y transition matrix
@@ -75,7 +75,7 @@ public class EvolutionOfCarbonConcentration implements TriFunction<Integer, Carb
 		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrices.apply(timeIndex), carbonConcentration.getAsDoubleArray());
 
 		// Add emissions
-		carbonConcentrationNext[0] += emissions * timeStep * conversionGtCarbonperGtCO2;
+		carbonConcentrationNext[0] += emissions * timeStep * conversionGtCperGtCO2;
 
 		return new CarbonConcentration3DScalar(carbonConcentrationNext);
 	}

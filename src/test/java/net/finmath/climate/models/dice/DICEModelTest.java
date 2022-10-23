@@ -38,13 +38,13 @@ class DICEModelTest {
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
 		double value = climateModel.getValue().getAverage();
-		System.out.println("Value.......... " + value);
-
 		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseThrow();
-		System.out.println("Temperature.... " + temperature);
+		System.out.println("\nDice with timeStep=" + timeStep);
+		System.out.println("\tValue.......... " + value);
+		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(523795.50620440766, value, 1E-5, "value");
-		Assertions.assertEquals(2.822087772339707, temperature, 1E-5, "value");
+		Assertions.assertEquals(523781.24195844505, value, 1E-5, "value");
+		Assertions.assertEquals(2.8907990428384087, temperature, 1E-5, "value");
 	}
 
 	@Test
@@ -67,15 +67,14 @@ class DICEModelTest {
 
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
-		System.out.println("Dice with timeStep="+timeStep);
 		double value = climateModel.getValue().getAverage();
-		System.out.println("\tValue.......... " + value);
-
 		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseThrow();
+		System.out.println("\nDice with timeStep=" + timeStep);
+		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(528068.4043327058, value, 1E-5, "value");
-		Assertions.assertEquals(2.8466224366094286, temperature, 1E-5, "value");
+		Assertions.assertEquals(528053.9324187033, value, 1E-5, "value");
+		Assertions.assertEquals(2.9161173964016283, temperature, 1E-5, "value");
 	}
 
 	@Test
@@ -99,12 +98,12 @@ class DICEModelTest {
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
 		double value = climateModel.getValue().getAverage();
-		System.out.println("Value.......... " + value);
-
 		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseThrow();
-		System.out.println("Temperature.... " + temperature);
+		System.out.println("\nDice with timeStep=" + timeStep);
+		System.out.println("\tValue.......... " + value);
+		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(563183.7077803041, value, 1E-5, "value");
-		Assertions.assertEquals(3.0457430613321073, temperature, 1E-5, "value");
+		Assertions.assertEquals(563167.5684517919, value, 1E-5, "value");
+		Assertions.assertEquals(3.121837361062374, temperature, 1E-5, "value");
 	}
 }

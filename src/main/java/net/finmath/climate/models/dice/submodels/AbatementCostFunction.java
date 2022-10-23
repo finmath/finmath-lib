@@ -31,12 +31,12 @@ public class AbatementCostFunction implements BiFunction<Double, Double, Double>
 
 	public AbatementCostFunction() {
 		// Parameters from original paper. Note that the rate is a "per 5 year" rate.
-		this(550.0/1000.0, 1-Math.pow(1-0.025,1.0/5.0), 2.6);
+		this(550.0/1000.0, -Math.log(1-0.025)/5.0, 2.6);
 	}
 
 	@Override
 	public Double apply(Double time, Double abatement) {
-		final double abatementCost = backstopPriceInitial * Math.pow(1-backstopRate, time) * Math.pow(abatement , abatementExponent)/abatementExponent;
+		final double abatementCost = backstopPriceInitial * Math.exp(-backstopRate * time) * Math.pow(abatement , abatementExponent)/abatementExponent;
 
 		return abatementCost;
 	}
