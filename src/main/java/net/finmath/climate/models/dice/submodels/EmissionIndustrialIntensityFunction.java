@@ -13,7 +13,7 @@ import java.util.function.Function;
  *
  * @author Christian Fries
  */
-public class EmissionIntensityFunction implements Function<Double, Double> {
+public class EmissionIndustrialIntensityFunction implements Function<Double, Double> {
 
 	private static double e0 = 35.85;					// Initial emissions
 	private static double q0 = 105.5;					// Initial global output
@@ -32,14 +32,14 @@ public class EmissionIntensityFunction implements Function<Double, Double> {
 	 * @param emissionIntensityRateInitial
 	 * @param emissionIntensityRateDecay
 	 */
-	public EmissionIntensityFunction(double emissionIntensityInitial, double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
+	public EmissionIndustrialIntensityFunction(double emissionIntensityInitial, double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
 		super();
 		this.emissionIntensityInitial = emissionIntensityInitial;
 		this.emissionIntensityRateInitial = emissionIntensityRateInitial;
 		this.emissionIntensityRateDecay = emissionIntensityRateDecay;
 	}
 
-	public EmissionIntensityFunction() {
+	public EmissionIndustrialIntensityFunction() {
 		// Parameters from original model
 		this(sigma0, 0.0152, 0.001);
 	}

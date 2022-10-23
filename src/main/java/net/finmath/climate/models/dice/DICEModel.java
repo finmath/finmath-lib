@@ -10,7 +10,7 @@ import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
 import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
 import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
 import net.finmath.climate.models.dice.submodels.EmissionExternalFunction;
-import net.finmath.climate.models.dice.submodels.EmissionIntensityFunction;
+import net.finmath.climate.models.dice.submodels.EmissionIndustrialIntensityFunction;
 import net.finmath.climate.models.dice.submodels.EvolutionOfCapital;
 import net.finmath.climate.models.dice.submodels.EvolutionOfCarbonConcentration;
 import net.finmath.climate.models.dice.submodels.EvolutionOfPopulation;
@@ -107,7 +107,7 @@ public class DICEModel implements ClimateModel {
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		final EmissionIntensityFunction emissionIndustrialIntensityFunction = new EmissionIntensityFunction();
+		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction();
 		final EmissionExternalFunction emissionFunction = new EmissionExternalFunction();
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
