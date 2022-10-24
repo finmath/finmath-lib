@@ -1,0 +1,10 @@
+var clover = new Object();
+
+// JSON: {classes : [{name, id, sl, el,  methods : [{sl, el}, ...]}, ...]}
+clover.pageData = {"classes":[{"el":50,"id":25648,"methods":[{"el":34,"sc":2,"sl":29},{"el":39,"sc":2,"sl":36},{"el":44,"sc":2,"sl":41},{"el":49,"sc":2,"sl":46}],"name":"ShortRateVolatilityModelAsGiven","sl":21}]}
+
+// JSON: {test_ID : {"methods": [ID1, ID2, ID3...], "name" : "testXXX() void"}, ...};
+clover.testTargets = {"test_113":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testCapletSmile","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_166":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testCaplet","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_189":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testBond","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_257":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testZeroCMSSwap","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_293":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testBermudanSwaption","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_330":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testSwap","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_458":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testPutOnMoneyMarketAccount","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]},"test_59":{"methods":[{"sl":36},{"sl":41},{"sl":46}],"name":"testSwaption","pass":true,"statements":[{"sl":38},{"sl":43},{"sl":48}]}}
+
+// JSON: { lines : [{tests : [testid1, testid2, testid3, ...]}, ...]};
+clover.srcFileLines = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [257, 113, 330, 189, 458, 59, 293, 166], [], [257, 113, 330, 189, 458, 59, 293, 166], [], [], [257, 113, 330, 189, 458, 59, 293, 166], [], [257, 113, 330, 189, 458, 59, 293, 166], [], [], [257, 113, 330, 189, 458, 59, 293, 166], [], [257, 113, 330, 189, 458, 59, 293, 166], [], []]
