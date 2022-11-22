@@ -4,9 +4,21 @@ import java.util.function.BiFunction;
 
 /**
  * The function that maps (relative) abatement coefficient to (relative) cost.
- *
- * Function of (time, abatement)
- * Note: Sigma factor is missing here (moved to the outside)
+ * <ul>
+ * 	<li>
+ * 		The abatement coefficient &mu; is the faction of yearly emissions that are abated.
+ * 	</li>
+ * 	<li>
+ * 		The abatement function gives the price (in 10^12 USD) per GtCO2 for the abatement
+ * 		of the corresponding fraction in the corresponding year.
+ * 	</li>
+ * </ul>
+ * 
+ * Function of (time, abatement).
+ * 
+ * Note: The emission intensity (&sigma;) factor (emission intensity) is missing here (moved to the outside). In the orignal
+ * model the abatement cost are a fraction of the GDP, which we get if we multiply this function with
+ * the &sigma;
  *
  * @author Christian Fries
  */
@@ -18,9 +30,9 @@ public class AbatementCostFunction implements BiFunction<Double, Double, Double>
 
 	/**
 	 *
-	 * @param backstopPriceInitial USD per ton CO2 to abate 100%
+	 * @param backstopPriceInitial USD per ton CO2 to abate 100% per year.
 	 * @param backstopRate Annual rate by which the price declines.
-	 * @param abatementExponent Exponent for mu.
+	 * @param abatementExponent Exponent for &mu;
 	 */
 	public AbatementCostFunction(double backstopPriceInitial, double backstopRate, double abatementExponent) {
 		super();
