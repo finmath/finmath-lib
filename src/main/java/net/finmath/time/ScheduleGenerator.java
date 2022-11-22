@@ -26,6 +26,7 @@ import net.finmath.time.daycount.DayCountConvention_30E_360_ISDA;
 import net.finmath.time.daycount.DayCountConvention_30U_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_360;
 import net.finmath.time.daycount.DayCountConvention_ACT_365;
+import net.finmath.time.daycount.DayCountConvention_ACT_ACT_AFB;
 import net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA;
 
 /**
@@ -83,49 +84,45 @@ public class ScheduleGenerator {
 		ACT_360,
 		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_365 }. **/
 		ACT_365,
+		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_AFB }. **/
+		ACT_ACT_AFB,
 		/** See {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA }. **/
 		ACT_ACT_ISDA,
 		ACT_ACT;
 
-		public static DaycountConvention getEnum(final String string) {
+		public static DaycountConvention getEnum(String string) {
 			if(string == null) {
 				throw new IllegalArgumentException();
 			}
-			if(string.equalsIgnoreCase("30e/360 isda")) {
+			
+			string = string.replace('.', ' ').toLowerCase();
+			
+			switch(string) {
+			case "30e/360 isda":
+			case "e30/360 isda":
 				return E30_360_ISDA;
-			}
-			if(string.equalsIgnoreCase("e30/360 isda")) {
-				return E30_360_ISDA;
-			}
-			if(string.equalsIgnoreCase("30e/360")) {
+			case "30e/360":
+			case "e30/360":
+			case "30/360":
 				return E30_360;
-			}
-			if(string.equalsIgnoreCase("e30/360")) {
-				return E30_360;
-			}
-			if(string.equalsIgnoreCase("30/360")) {
-				return E30_360;
-			}
-			if(string.equalsIgnoreCase("30u/360")) {
+			case "30u/360":
+			case "u30/360":
 				return U30_360;
-			}
-			if(string.equalsIgnoreCase("u30/360")) {
-				return U30_360;
-			}
-			if(string.equalsIgnoreCase("act/360")) {
+			case "act/360":
 				return ACT_360;
-			}
-			if(string.equalsIgnoreCase("act/365")) {
-				return ACT_365;
-			}
-			if(string.equalsIgnoreCase("act/act isda")) {
+			case "act/365":
+			case "act/365 fixed":
+				return ACT_360;
+			case "act/act afb":
+				return ACT_ACT_AFB;
+			case "act/act isda":
 				return ACT_ACT_ISDA;
-			}
-			if(string.equalsIgnoreCase("act/act")) {
+			case "act/act":
 				return ACT_ACT;
+			default:
+				// Check if the string is an enum
+				return DaycountConvention.valueOf(string.toUpperCase());
 			}
-
-			return DaycountConvention.valueOf(string.toUpperCase());
 		}
 	}
 
@@ -204,6 +201,9 @@ public class ScheduleGenerator {
 			break;
 		case ACT_365:
 			daycountConventionObject = new DayCountConvention_ACT_365();
+			break;
+		case ACT_ACT_AFB:
+			daycountConventionObject = new DayCountConvention_ACT_ACT_AFB();
 			break;
 		case ACT_ACT_ISDA:
 		case ACT_ACT:
