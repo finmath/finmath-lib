@@ -32,9 +32,6 @@ public abstract class AbstractCurve implements Curve, Serializable, Cloneable {
 		this.referenceDate = referenceDate;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getName()
-	 */
 	@Override
 	public String getName() {
 		return name;
@@ -45,9 +42,6 @@ public abstract class AbstractCurve implements Curve, Serializable, Cloneable {
 		return referenceDate;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
-	 */
 	@Override
 	public double getValue(final double time) {
 		return getValue(null, time);
