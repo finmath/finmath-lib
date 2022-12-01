@@ -81,7 +81,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -127,7 +127,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -202,7 +202,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -244,7 +244,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -325,7 +325,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b in the least square sense where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -343,7 +343,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A X = B in the least square sense where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[n][m]</li>
 	 * <li>B is an m x k - matrix given as double[m][k],</li>
 	 * <li>X is an n x k - matrix given as double[n][k],</li>
 	 * </ul>

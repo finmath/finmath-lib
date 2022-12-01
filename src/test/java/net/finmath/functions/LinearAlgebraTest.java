@@ -14,7 +14,22 @@ import org.junit.jupiter.api.Assertions;
 public class LinearAlgebraTest {
 
 	@Test
-	public void testSolveLinearEquationLeastSquarePseudoInverse() {
+	public void testSolveLinearEquationLeastSquarePseudoInverse0() {
+		final double[][] A = new double[][] {
+			{ -1.0, 2.0, 2.0 },
+		};
+
+		final double[] b = new double[] { 1.0 };
+
+		final double[] x = LinearAlgebra.solveLinearEquationLeastSquare(A, b);
+
+		Assert.assertEquals("Pseudo inverse", -1.0/9.0, x[0], 1E-12);
+		Assert.assertEquals("Pseudo inverse",  2.0/9.0, x[1], 1E-12);
+		Assert.assertEquals("Pseudo inverse",  2.0/9.0, x[2], 1E-12);
+	}
+
+	@Test
+	public void testSolveLinearEquationLeastSquarePseudoInverse1() {
 		final double[][] A = new double[][] {
 			{ -1.0, 2.0, 2.0 },
 		};
@@ -28,22 +43,6 @@ public class LinearAlgebraTest {
 		Assert.assertEquals("Pseudo inverse", -1.0/9.0, X[0][0], 1E-12);
 		Assert.assertEquals("Pseudo inverse",  2.0/9.0, X[1][0], 1E-12);
 		Assert.assertEquals("Pseudo inverse",  2.0/9.0, X[2][0], 1E-12);
-	}
-
-	@Test
-	public void testSolveLinearEquationLeastSquarePseudoInverse3() {
-		final double[][] matrix = new double[][] {
-			{ 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }
-		};
-
-		final double[][] pseudoInverse = LinearAlgebra.pseudoInverse(matrix);
-
-		final double[][] product = LinearAlgebra.multMatrices(pseudoInverse, matrix);
-
-		Assert.assertEquals("Pseudo inverse", 1.0, product[0][0], 1E-12);
-		Assert.assertEquals("Pseudo inverse", 1.0, product[1][1], 1E-12);
-		Assert.assertEquals("Pseudo inverse", 0.0, product[0][1], 1E-12);
-		Assert.assertEquals("Pseudo inverse", 0.0, product[1][0], 1E-12);
 	}
 
 	@Test
@@ -85,6 +84,22 @@ public class LinearAlgebraTest {
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][1], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][2], 1E-12);
 		Assert.assertEquals("Pseudo inverse", 0.0, X[4][3], 1E-12);
+	}
+
+	@Test
+	public void testSolveLinearEquationLeastSquarePseudoInverse3() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 1.0 }
+		};
+
+		final double[][] pseudoInverse = LinearAlgebra.pseudoInverse(matrix);
+
+		final double[][] product = LinearAlgebra.multMatrices(pseudoInverse, matrix);
+
+		Assert.assertEquals("Pseudo inverse", 1.0, product[0][0], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 1.0, product[1][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, product[0][1], 1E-12);
+		Assert.assertEquals("Pseudo inverse", 0.0, product[1][0], 1E-12);
 	}
 
 	@Test
