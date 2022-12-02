@@ -12,7 +12,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>6.0.9-SNAPSHOT</version>
+	<version>6.0.9</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -650,7 +650,7 @@
 		<url>https://github.com/finmath/finmath-lib</url>
 		<connection>scm:git:https://github.com/finmath/finmath-lib.git</connection>
 		<developerConnection>scm:git:https://github.com/finmath/finmath-lib.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>finmath-lib-6.0.9</tag>
 	</scm>
 
 	<ciManagement>
