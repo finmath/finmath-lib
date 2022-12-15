@@ -1040,9 +1040,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 					 * Due to time < T_{timeIndex+1} loop is needed.
 					 */
 					for (int liborIndex = liborTimeIndex; liborIndex <= liborPeriodDiscretization.getNumberOfTimeSteps() - 1; liborIndex++) {
-						final RandomVariable libor = getLIBOR(process, timeIndex, liborIndex);
+						final RandomVariable forwardRate = getLIBOR(process, timeIndex, liborIndex);
 						final double periodLength = liborPeriodDiscretization.getTimeStep(liborIndex);
-						numeraireUnadjusted = numeraireUnadjusted.discount(libor, periodLength);
+						numeraireUnadjusted = numeraireUnadjusted.discount(forwardRate, periodLength);
 					}
 				}
 				else if (measure == Measure.SPOT) {
@@ -1056,8 +1056,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 						}
 
 						final double periodLength = liborPeriodDiscretization.getTimeStep(liborTimeIndex - 1);
-						final RandomVariable libor = getLIBOR(process, timeIndex, liborTimeIndex - 1);
-						numeraireUnadjusted = getNumerairetUnAdjustedAtLIBORIndex(process, liborTimeIndex - 1).accrue(libor, periodLength);
+						final RandomVariable forwardRate = getLIBOR(process, timeIndex, liborTimeIndex - 1);
+						numeraireUnadjusted = getNumerairetUnAdjustedAtLIBORIndex(process, liborTimeIndex - 1).accrue(forwardRate, periodLength);
 					}
 					else {
 						numeraireUnadjusted = getRandomVariableForConstant(1.0);
