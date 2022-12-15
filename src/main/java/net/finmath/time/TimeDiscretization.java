@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.stream.DoubleStream;
 
 /**
+ * Interface to classes providing time discretization,
+ * i.e. a map \( i \mapsto t_{i} \) for i = 0, 1, 2, ..., n.
+ * 
+ * Classes implementing this interface should provide convenient methods
+ * to transform an index to a time and a time to an index.
+ * 
  * @author Christian Fries
  * @version 1.0
  */
