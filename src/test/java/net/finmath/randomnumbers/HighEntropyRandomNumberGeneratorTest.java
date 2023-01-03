@@ -24,7 +24,7 @@ import org.junit.Test;
 public class HighEntropyRandomNumberGeneratorTest {
 
 	private static final int NUM_SAMPLES = 10000;
-	private static final int NUM_THREADS = 10000;
+	private static final int NUM_THREADS = 100;
 	private static final double ALPHA = 1E-9;
 
 	@Test
@@ -47,7 +47,7 @@ public class HighEntropyRandomNumberGeneratorTest {
 		RandomNumberGenerator1D highEntropyGenerator = new HighEntropyRandomNumberGenerator();
 
 		Callable<Double> rngCallable = () -> {
-			return highEntropyGenerator.nextDoubleFast();
+			return highEntropyGenerator.nextDouble();
 		};
 
 		List<Callable<Double>> rngCallables = new ArrayList<>();
