@@ -20,7 +20,7 @@ import net.finmath.functions.DoubleTernaryOperator;
  *
  * The random variable is immutable, i.e. method calls like add, sub, mult will return
  * a new instance and leave the method receiver random variable unchanged (immutable).
- * This is used to ensure that arguments or ereturn values are not changed.
+ * This is used to ensure that arguments or return values are not changed.
  *
  * @author Christian Fries
  * @version 1.6

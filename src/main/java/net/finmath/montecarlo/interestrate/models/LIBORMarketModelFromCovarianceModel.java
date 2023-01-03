@@ -168,24 +168,27 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	public enum InterpolationMethod	{ LINEAR, LOG_LINEAR_UNCORRECTED, LOG_LINEAR_CORRECTED }
 	public enum SimulationTimeInterpolationMethod { ROUND_DOWN, ROUND_NEAREST }
 
-	private final TimeDiscretization		liborPeriodDiscretization;
+	private final TimeDiscretization	liborPeriodDiscretization;		// tenor discretization T_{0} < T_{1} < ...
 
-	private String							forwardCurveName;
+	// Initial value
+	private String						forwardCurveName;
 	private final AnalyticModel			curveModel;
-
 	private final ForwardCurve			forwardRateCurve;
 	private final DiscountCurve			discountCurve;
 
 	private final RandomVariableFactory	randomVariableFactory;
 
+	// Factor Loadings (covariance - volatility and correlation
 	private LIBORCovarianceModel	covarianceModel;
 
 	private SwaptionMarketData		swaptionMarketData;
 
+	// Measure / Drift (and default values)
 	private final Driftapproximation	driftApproximationMethod	= Driftapproximation.EULER;
-	private Measure				measure						= Measure.SPOT;
-	private StateSpace			stateSpace					= StateSpace.LOGNORMAL;
+	private Measure						measure						= Measure.SPOT;
+	private StateSpace					stateSpace					= StateSpace.LOGNORMAL;
 
+	// Interpolation
 	private SimulationTimeInterpolationMethod	simulationTimeInterpolationMethod		= SimulationTimeInterpolationMethod.ROUND_NEAREST;
 	private InterpolationMethod					interpolationMethod						= InterpolationMethod.LOG_LINEAR_UNCORRECTED;
 
@@ -847,8 +850,8 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * Return the numeraire at a given time.
 	 *
 	 * The numeraire is provided for interpolated points. If requested on points which are not
-	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
-	 * value. See ISBN 0470047224 for details.
+	 * part of the tenor discretization, the numeraire uses the specified interpolation method, e.g.
+	 * linear or log-linear interpolation of the reciprocal value. See ISBN 0470047224 for details.
 	 *
 	 * @param time Time time <i>t</i> for which the numeraire should be returned <i>N(t)</i>.
 	 * @return The numeraire at the specified time as <code>RandomVariable</code>
@@ -965,7 +968,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 
 	protected RandomVariable getNumerairetUnAdjusted(final MonteCarloProcess process, final double time) throws CalculationException {
 		/*
-		 * Check if numeraire is on LIBOR time grid
+		 * Check if numeraire is on tenor time grid
 		 */
 		final int liborTimeIndex = getLiborPeriodIndex(time);
 		RandomVariable numeraireUnadjusted;
@@ -1012,7 +1015,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 	}
 
-	protected RandomVariable getNumerairetUnAdjustedAtLIBORIndex(final MonteCarloProcess process, final int liborTimeIndex) throws CalculationException {
+	private RandomVariable getNumerairetUnAdjustedAtLIBORIndex(final MonteCarloProcess process, final int liborTimeIndex) throws CalculationException {
 		/*
 		 * synchronize lazy init cache
 		 */
