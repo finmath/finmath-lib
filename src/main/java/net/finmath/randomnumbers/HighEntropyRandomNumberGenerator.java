@@ -37,7 +37,7 @@ public class HighEntropyRandomNumberGenerator implements RandomNumberGenerator1D
      * hardware RNG functionality or as a clone constructor. You should supply an
      * object instantiating the extending class that uses the JNI to
      * achieve the desired functionality.
-     * 
+     *
      * @param secureRandomNumberGenerator the object that will be wrapped.
      */
     public HighEntropyRandomNumberGenerator(SecureRandom secureRandomNumberGenerator) {
@@ -65,6 +65,6 @@ public class HighEntropyRandomNumberGenerator implements RandomNumberGenerator1D
 
     @Override
     public String toString() {
-        return "HighEntropyRandomNumberGenrator [algorithm = " + secureRandomNumberGenerator.getAlgorithm() + "]";
+        return "HighEntropyRandomNumberGenerator [algorithm = " + secureRandomNumberGenerator.getAlgorithm() + "]";
     }
 }
