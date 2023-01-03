@@ -35,7 +35,6 @@ public interface BrownianMotion extends IndependentIncrements {
 	 */
 	RandomVariable getBrownianIncrement(int timeIndex, int factor);
 
-
 	/**
 	 * Return the Brownian increment for a given timeIndex.
 	 *
