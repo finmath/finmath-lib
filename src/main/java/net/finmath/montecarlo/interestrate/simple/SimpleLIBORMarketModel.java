@@ -21,6 +21,11 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a basic LIBOR market model with a some drift approximation methods.
+ * 
+ * This is a simpler version. Useful for studying.
+ *
+ * A more flexible / complex version of the model can be created by using {@link net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel}
+ * as an input to an {@link net.finmath.montecarlo.process.EulerSchemeFromProcessModel}.
  *
  * @author Christian Fries
  * @version 0.5

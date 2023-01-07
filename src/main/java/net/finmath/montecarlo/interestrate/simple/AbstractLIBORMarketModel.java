@@ -18,8 +18,11 @@ import net.finmath.time.TimeDiscretization;
  * This class represents an abstract base class for a LIBOR Market Model.
  * Derive from this class and implement initial value, volatility and correlation (via factor loadings).
  *
+ * A more flexible / complex version of the model can be created by using {@link net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel}
+ * as an input to an {@link net.finmath.montecarlo.process.EulerSchemeFromProcessModel}.
+ * 
  * @author Christian Fries
- * @version 0.5
+ * @version 0.6
  * @since finmath-lib 4.1.0
  */
 public abstract class AbstractLIBORMarketModel extends LogNormalProcess implements LIBORModelMonteCarloSimulationModel {
