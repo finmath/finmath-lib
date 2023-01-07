@@ -7,7 +7,7 @@ package net.finmath.montecarlo.interestrate.simple;
 
 import java.time.LocalDateTime;
 
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
@@ -32,8 +32,8 @@ public abstract class AbstractLIBORMarketModel extends LogNormalProcess implemen
 	 * @param brownianMotionLazyInit The Brownian motion (includes the specification of time discretization, number of factors, and number of paths.
 	 */
 	public AbstractLIBORMarketModel(
-			final TimeDiscretization			liborPeriodDiscretization2,
-			final BrownianMotionLazyInit		brownianMotionLazyInit) {
+			final TimeDiscretization	liborPeriodDiscretization2,
+			final BrownianMotion		brownianMotionLazyInit) {
 		super(liborPeriodDiscretization2.getNumberOfTimeSteps(), brownianMotionLazyInit);
 		liborPeriodDiscretization = liborPeriodDiscretization2;
 	}
