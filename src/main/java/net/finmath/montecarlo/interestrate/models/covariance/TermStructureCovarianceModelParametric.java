@@ -169,14 +169,13 @@ public abstract class TermStructureCovarianceModelParametric implements TermStru
 					}
 				}
 
+				// Log error
 				double error = 0.0;
-
 				for (int valueIndex = 0; valueIndex < values.length; valueIndex++) {
 					final double deviation = values[valueIndex];
 					error += deviation * deviation;
 				}
-
-				System.out.println(Math.sqrt(error/values.length));
+				logger.info("Current error: " + Math.sqrt(error/values.length));
 			}
 		};
 
