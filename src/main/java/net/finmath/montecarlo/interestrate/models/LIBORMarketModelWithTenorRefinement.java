@@ -76,11 +76,9 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }
 
 	private final TimeDiscretization[]		liborPeriodDiscretizations;
-	private final Integer[]							numberOfDiscretizationIntervals;
+	private final Integer[]					numberOfDiscretizationIntervals;
 
-	private String							forwardCurveName;
 	private final AnalyticModel			curveModel;
-
 	private final ForwardCurve			forwardRateCurve;
 	private final DiscountCurve			discountCurve;
 
@@ -150,7 +148,9 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 
 		Map<String,Object> calibrationParameters = null;
 		if(properties != null && properties.containsKey("calibrationParameters")) {
-			calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
+			@SuppressWarnings("unchecked")
+			Map<String, Object> calibrationParametersProperty	= (Map<String, Object>)properties.get("calibrationParameters");
+			calibrationParameters = calibrationParametersProperty;
 		}
 
 		this.liborPeriodDiscretizations	= liborPeriodDiscretizations;
@@ -600,7 +600,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 		stateVariable = stateVariable.mult(periodEnd-periodStart).add(Math.log(1+forwardRateCurve.getForward(null, periodStart)*(periodEnd-periodStart)));
 		final RandomVariable libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);
 
-		return null;//libor;
+		return libor;
 	}
 
 	public RandomVariable getStateVariable(final MonteCarloProcess process, final int timeIndex, final double periodStart, final double periodEnd)

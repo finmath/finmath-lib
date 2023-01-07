@@ -171,7 +171,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	private final TimeDiscretization	liborPeriodDiscretization;		// tenor discretization T_{0} < T_{1} < ...
 
 	// Initial value
-	private String						forwardCurveName;
 	private final AnalyticModel			curveModel;
 	private final ForwardCurve			forwardRateCurve;
 	private final DiscountCurve			discountCurve;
@@ -281,7 +280,6 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	 * @return A new instance of LIBORMarketModelFromCovarianceModel, possibly calibrated.
 	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the <code>cause()</code> method.
 	 */
-	@SuppressWarnings("unchecked")
 	public static LIBORMarketModelFromCovarianceModel of(
 			final TimeDiscretization	liborPeriodDiscretization,
 			final AnalyticModel			analyticModel,
@@ -299,7 +297,9 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(calibrationProducts != null && calibrationProducts.length > 0) {
 			Map<String,Object> calibrationParameters = null;
 			if(properties != null && properties.containsKey("calibrationParameters")) {
-				calibrationParameters	= (Map<String,Object>)properties.get("calibrationParameters");
+				@SuppressWarnings("unchecked")
+				Map<String, Object> calibrationParametersProperty	= (Map<String, Object>)properties.get("calibrationParameters");
+				calibrationParameters = calibrationParametersProperty;
 			}
 
 			LIBORCovarianceModelCalibrateable covarianceModelParametric = null;
@@ -1750,8 +1750,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 	@Override
 	public String toString() {
 		return "LIBORMarketModelFromCovarianceModel [liborPeriodDiscretization="
-				+ liborPeriodDiscretization + ", forwardCurveName="
-				+ forwardCurveName + ", curveModel=" + curveModel
+				+ liborPeriodDiscretization + ", curveModel=" + curveModel
 				+ ", forwardRateCurve=" + forwardRateCurve + ", discountCurve="
 				+ discountCurve + ", covarianceModel=" + covarianceModel
 				+ ", driftApproximationMethod=" + driftApproximationMethod
