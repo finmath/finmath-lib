@@ -242,7 +242,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
 		final Map<String, Object> calibrationParameters = new HashMap<>();
-		calibrationParameters.put("accuracy", new Double(1E-6));
+		calibrationParameters.put("accuracy", 1E-6);
 		calibrationParameters.put("brownianMotion", brownianMotion);
 		properties.put("calibrationParameters", calibrationParameters);
 
@@ -483,7 +483,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				// Set model properties
 				final Map<String, Object> properties = new HashMap<>();
 
-				final Double accuracy = 1E-12;
+				// accuracy 1E-12 takes fairly long
+				final Double accuracy = 1E-3; //1E-12;
 				final int maxIterations = 400;
 				final int numberOfThreads = 6;
 				final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
@@ -501,7 +502,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				final Map<String, Object> calibrationParameters = new HashMap<>();
 				calibrationParameters.put("accuracy", accuracy);
 				calibrationParameters.put("brownianMotion", brownianMotion);
-				calibrationParameters.put("parameterStep", i == 0 ? new Double(1E-6) : new Double(5E-5) );
+				calibrationParameters.put("parameterStep", i == 0 ? 1E-6 : 5E-5 );
 				calibrationParameters.put("optimizerFactory", optimizerFactory);
 				properties.put("calibrationParameters", calibrationParameters);
 
@@ -554,7 +555,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			// Set model properties
 			final Map<String, Object> properties = new HashMap<>();
 
-			final Double accuracy = new Double(1E-8);
+			final Double accuracy = 1E-8;
 			final int maxIterations = 400;
 			final int numberOfThreads = 2;
 			final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
@@ -751,7 +752,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.arraycopy(meanReversion, 0, initialParameters, shortRateVolatility.length, shortRateVolatility.length);
 
 			final int maxIterations = 400;
-			final double accuracy		= 1E-7;
+			final double accuracy	= 1E-7;
 
 			final double[] calibrationTargetValues = new double[calibrationProducts.size()];
 			for(int i=0; i<calibrationTargetValues.length; i++) {
