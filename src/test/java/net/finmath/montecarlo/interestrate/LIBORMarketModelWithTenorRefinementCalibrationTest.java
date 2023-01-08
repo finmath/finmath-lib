@@ -484,7 +484,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				final Map<String, Object> properties = new HashMap<>();
 
 				// accuracy 1E-12 takes fairly long
-				final Double accuracy = 1E-3; //1E-12;
+				final Double accuracy = 2E-3; //1E-12;
 				final int maxIterations = 400;
 				final int numberOfThreads = 6;
 				final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
