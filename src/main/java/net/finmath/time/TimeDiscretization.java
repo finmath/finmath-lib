@@ -6,6 +6,7 @@
 package net.finmath.time;
 
 import java.util.ArrayList;
+import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
 /**
@@ -99,13 +100,20 @@ public interface TimeDiscretization extends Iterable<Double> {
 	}
 
 	/**
-	 * Return a new time discretization where all time points have been shifted by
-	 * a given time shift.
-	 *
-	 * @param timeShift A time shift applied to all discretization points.
-	 * @return A new time discretization where all time points have been shifted by the given time shift.
+	 * Returns the smallest time span distinguishable in this time discretization.
+	 * @return A non-negative double containing the tick size.
 	 */
-	TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift);
+	double getTickSize();
+
+	/**
+	 * Create a new <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
+	 * 
+	 * @param timesToKeep True if the time point should belong to the new <code>TimeDiscretization</code>
+	 * @return A <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
+	 */
+	default TimeDiscretization filter(DoublePredicate timesToKeep) {
+		return this.intersect(new TimeDiscretizationFromArray(this.filter(timesToKeep), getTickSize()));
+	}
 
 	/**
 	 * Returns the union of this time discretization with another one. This means that the times of the other time discretization will be added.
@@ -130,8 +138,11 @@ public interface TimeDiscretization extends Iterable<Double> {
 	TimeDiscretization intersect(TimeDiscretization that);
 
 	/**
-	 * Returns the smallest time span distinguishable in this time discretization.
-	 * @return A non-negative double containing the tick size.
+	 * Return a new time discretization where all time points have been shifted by
+	 * a given time shift.
+	 *
+	 * @param timeShift A time shift applied to all discretization points.
+	 * @return A new time discretization where all time points have been shifted by the given time shift.
 	 */
-	double getTickSize();
+	TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift);
 }
