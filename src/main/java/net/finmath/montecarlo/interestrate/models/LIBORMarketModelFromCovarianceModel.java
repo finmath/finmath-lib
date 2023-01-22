@@ -1573,7 +1573,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 							if(getLiborPeriod(componentIndex1) > simulationTimeDiscretization.getTime(timeIndex)) {
 								final RandomVariable[] factorLoadingOfComponent2 = factorLoadings[componentIndex2];
 								for(int factorIndex = 0; factorIndex < factorLoadingOfComponent2.length; factorIndex++) {
-									integratedLIBORCovarianceValue += factorLoadingOfComponent1[factorIndex].get(0) * factorLoadingOfComponent2[factorIndex].get(0) * dt;
+									integratedLIBORCovarianceValue += factorLoadingOfComponent1[factorIndex].doubleValue() * factorLoadingOfComponent2[factorIndex].doubleValue() * dt;
 								}
 							}
 							integratedLIBORCovariance[timeIndex][componentIndex1][componentIndex2] = integratedLIBORCovarianceValue;
