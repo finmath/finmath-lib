@@ -81,10 +81,10 @@ public class LIBORMarketModelValuationTest {
 	private static DecimalFormat formatterMoneyness	= new DecimalFormat(" 000.0%;-000.0%", new DecimalFormatSymbols(Locale.ENGLISH));
 	private static DecimalFormat formatterDeviation	= new DecimalFormat(" 0.00000E00;-0.00000E00", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	public LIBORMarketModelValuationTest(final RandomVariableFactory abstractRandomVariableFactory) throws CalculationException {
+	public LIBORMarketModelValuationTest(final RandomVariableFactory randomVariableFactory) throws CalculationException {
 
 		// Create a libor market model
-		liborMarketModel = createLIBORMarketModel(abstractRandomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
+		liborMarketModel = createLIBORMarketModel(randomVariableFactory, numberOfPaths, numberOfFactors, 0.1 /* Correlation */);
 	}
 
 	public static LIBORModelMonteCarloSimulationModel createLIBORMarketModel(

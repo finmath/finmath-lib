@@ -71,7 +71,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 	 * @param value the value, a constant.
 	 */
 	public RandomVariableFromDoubleArray(final double value) {
-		this(Double.NEGATIVE_INFINITY, value);
+		this(Double.NEGATIVE_INFINITY, value, typePriorityDefault);
 	}
 
 	/**

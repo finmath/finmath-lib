@@ -15,7 +15,7 @@ package net.finmath.rootfinder;
  */
 public class RiddersMethod implements RootFinder {
 
-	// We store the left and right end point of the intervall
+	// We store the left and right end point of the interval
 	private final double[] points = new double[3]; // left, middle, right
 	private final double[] values = new double[3]; // left, middle, right
 

@@ -969,7 +969,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		RandomVariable numeraireUnadjusted;
 		if (liborTimeIndex < 0) {
 			/*
-			 * Interpolation of Numeraire: use already interpolated short Libor
+			 * 
 			 */
 			final int upperIndex = -liborTimeIndex - 1;
 			final int lowerIndex = upperIndex - 1;
@@ -1139,20 +1139,21 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		if(measure == Measure.SPOT) {
 			// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
 			for(int componentIndex=firstLiborIndex; componentIndex<getNumberOfComponents(); componentIndex++) {
-				final double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
-				final RandomVariable		libor			= realizationAtTimeIndex[componentIndex];
-				RandomVariable		oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
+				final double			periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
+				final RandomVariable	forwardRate		= realizationAtTimeIndex[componentIndex];
+				RandomVariable			oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(forwardRate, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) {
 					// The drift has an additional forward rate factor
-					oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
+					oneStepMeasureTransform = oneStepMeasureTransform.mult(forwardRate);
 				}
 
 				final RandomVariable[]	factorLoading   	= getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex);
 				for(int factorIndex=0; factorIndex<factorLoading.length; factorIndex++) {
-					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].add(oneStepMeasureTransform.mult(factorLoading[factorIndex]));
-					drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex], factorLoading[factorIndex]);
+					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].addProduct(oneStepMeasureTransform, factorLoading[factorIndex]);
 				}
+
+				drift[componentIndex] = drift[componentIndex].addSumProduct(covarianceFactorSums, factorLoading);
 			}
 		}
 		else if(measure == Measure.TERMINAL) {
@@ -1160,16 +1161,18 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			for(int componentIndex=getNumberOfComponents()-1; componentIndex>=firstLiborIndex; componentIndex--) {
 				final double					periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);
 				final RandomVariable libor			= realizationAtTimeIndex[componentIndex];
-				RandomVariable oneStepMeasureTransform = getRandomVariableForConstant(periodLength).discount(libor, periodLength);
+				RandomVariable oneStepMeasureTransform = getRandomVariableForConstant(-periodLength).discount(libor, periodLength);
 
 				if(stateSpace == StateSpace.LOGNORMAL) {
 					oneStepMeasureTransform = oneStepMeasureTransform.mult(libor);
 				}
 
 				final RandomVariable[]	factorLoading   	= getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex);
+
+				drift[componentIndex] = drift[componentIndex].addSumProduct(covarianceFactorSums, factorLoading);
+
 				for(int factorIndex=0; factorIndex<factorLoading.length; factorIndex++) {
-					drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex], factorLoading[factorIndex]);
-					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].sub(oneStepMeasureTransform.mult(factorLoading[factorIndex]));
+					covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].addProduct(oneStepMeasureTransform, factorLoading[factorIndex]);
 				}
 			}
 		}
@@ -1286,7 +1289,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// The requested LIBOR is not a model primitive. We need to calculate it (slow!)
-		RandomVariable accrualAccount = randomVariableFactory.createRandomVariable(1.0);
+		RandomVariable accrualAccount = null;
 
 		// Calculate the value of the forward bond
 		for(int periodIndex = periodStartIndex; periodIndex<periodEndIndex; periodIndex++)

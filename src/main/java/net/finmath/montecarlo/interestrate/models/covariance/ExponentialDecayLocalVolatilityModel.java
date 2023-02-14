@@ -35,7 +35,7 @@ import net.finmath.stochastic.Scalar;
 public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
 
 	private static final long serialVersionUID = 4522227972747028512L;
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 	private final AbstractLIBORCovarianceModelParametric covarianceModel;
 	private final RandomVariable decay;
 
@@ -57,14 +57,14 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 * underlying covariance model, i.e., only the decay parameter will be not
 	 * part of the calibration.
 	 *
-	 * @param abstractRandomVariableFactory A random variable factory (used when cloning with modifed parameters).
+	 * @param randomVariableFactory A random variable factory (used when cloning with modifed parameters).
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param decay The decay <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory abstractRandomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final RandomVariable decay, final boolean isCalibrateable) {
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final RandomVariable decay, final boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.covarianceModel	= covarianceModel;
 		this.decay		= decay;
 		this.isCalibrateable	= isCalibrateable;
@@ -86,16 +86,16 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 	 * underlying covariance model, i.e., only the decay parameter will be not
 	 * part of the calibration.
 	 *
-	 * @param abstractRandomVariableFactory A random variable factory (used for the given parameter and when cloning with modifed parameters).
+	 * @param randomVariableFactory A random variable factory (used for the given parameter and when cloning with modifed parameters).
 	 * @param covarianceModel The given covariance model specifying the factor loadings <i>F</i>.
 	 * @param decay The displacement <i>a</i>.
 	 * @param isCalibrateable If true, the parameter <i>a</i> is a free parameter. Note that the covariance model may have its own parameter calibration settings.
 	 */
-	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory abstractRandomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
 		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 		this.covarianceModel = covarianceModel;
-		this.decay = abstractRandomVariableFactory != null ? abstractRandomVariableFactory.createRandomVariable(decay) : new Scalar(decay);
+		this.decay = randomVariableFactory != null ? randomVariableFactory.createRandomVariable(decay) : new Scalar(decay);
 		this.isCalibrateable	= isCalibrateable;
 	}
 
@@ -125,7 +125,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 
 	@Override
 	public Object clone() {
-		return new ExponentialDecayLocalVolatilityModel(abstractRandomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), decay, isCalibrateable);
+		return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), decay, isCalibrateable);
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 		}
 
 		if(!isCalibrateable) {
-			return new ExponentialDecayLocalVolatilityModel(abstractRandomVariableFactory, covarianceModel.getCloneWithModifiedParameters(parameters), decay, isCalibrateable);
+			return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, covarianceModel.getCloneWithModifiedParameters(parameters), decay, isCalibrateable);
 		}
 
 		final RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];
@@ -186,7 +186,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 		final AbstractLIBORCovarianceModelParametric newCovarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);
 		final RandomVariable newDisplacement = parameters[covarianceParameters.length];
 
-		return new ExponentialDecayLocalVolatilityModel(abstractRandomVariableFactory, newCovarianceModel, newDisplacement, isCalibrateable);
+		return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, newCovarianceModel, newDisplacement, isCalibrateable);
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianc
 		boolean isCalibrateable = this.isCalibrateable;
 		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;
 
-		RandomVariableFactory newRandomVariableFactory = abstractRandomVariableFactory;
+		RandomVariableFactory newRandomVariableFactory = randomVariableFactory;
 
 		if(dataModified != null) {
 			if(dataModified.containsKey("randomVariableFactory")) {

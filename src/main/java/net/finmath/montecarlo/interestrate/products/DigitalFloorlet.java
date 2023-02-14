@@ -17,7 +17,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.2
  */
-public class DigitalFloorlet extends AbstractLIBORMonteCarloProduct {
+public class DigitalFloorlet extends AbstractTermStructureMonteCarloProduct {
 	private final double	maturity;
 	private final double	strike;
 

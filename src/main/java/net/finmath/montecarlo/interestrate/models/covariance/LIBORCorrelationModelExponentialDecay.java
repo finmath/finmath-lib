@@ -12,9 +12,8 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
-
 /**
- * Simple correlation model given by R, where R is a factor reduced matrix
+ * Simple 1-parametric correlation model given by R, where R is a factor reduced matrix
  * (see {@link net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
  * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
  * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and \[ \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \]
@@ -32,7 +31,7 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	private static final long serialVersionUID = -8218022418731667531L;
 
 	private final	int			numberOfFactors;
-	private final 		double		a;
+	private final 	double		a;
 	private final	boolean		isCalibrateable;
 
 	private double[][]	correlationMatrix;
@@ -41,11 +40,11 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 	/**
 	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
 	 *
-	 * @param timeDiscretization Simulation time dicretization. Not used.
-	 * @param liborPeriodDiscretization TenorFromArray time discretization, i.e., the \( T_{i} \)'s.
-	 * @param numberOfFactors Number \( n \) of factors to be used.
+	 * @param timeDiscretization Simulation time discretization. Not used in this model.
+	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param numberOfFactors Number \( m \) of factors to be used.
 	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
-	 * @param isCalibrateable If true, the parameter will become a free parameter in a calibration.
+	 * @param isCalibrateable If true, the parameter will become a free parameter in a calibration (i.e., the parameter is available via {@code getParameter()}.
 	 */
 	public LIBORCorrelationModelExponentialDecay(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double a, final boolean isCalibrateable) {
 		super(timeDiscretization, liborPeriodDiscretization);
@@ -57,19 +56,23 @@ public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel
 		initialize(numberOfFactors, a);
 	}
 
+	/**
+	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
+	 * 
+	 * The parameter is fixed (not calibrateable).
+	 *
+	 * @param timeDiscretization Simulation time discretization. Not used in this model.
+	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param numberOfFactors Number \( m \) of factors to be used.
+	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
+	 */
 	public LIBORCorrelationModelExponentialDecay(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double a) {
-		super(timeDiscretization, liborPeriodDiscretization);
-
-		this.numberOfFactors	= numberOfFactors;
-		this.a					= a;
-		isCalibrateable	= false;
-
-		initialize(numberOfFactors, a);
+		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, false);
 	}
 
 	@Override
 	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(final RandomVariable[] parameter) {
-		if(!isCalibrateable) {
+		if(!isCalibrateable || this.a == parameter[0].doubleValue()) {
 			return this;
 		}
 

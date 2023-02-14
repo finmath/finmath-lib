@@ -63,6 +63,5 @@ mvn clean verify javadoc:jar source:jar gpg:sign deploy:deploy -P java-8 -D skip
 # re-deploy the java-11 profile to deploy the right source and javadoc files to Maven central
 mvn clean verify javadoc:jar source:jar gpg:sign deploy:deploy -P java-11 -D skipTests
 
-# deploy site (clover:instrument takes a long time)
-mvn compile clover:instrument -P java-8 -Dmaven.compiler.useIncrementalCompilation=false
-mvn install site site:stage site-deploy -Dmaven.compiler.useIncrementalCompilation=false
+echo Turn to http://oss.sonatype.org to release the artifact.
+echo Then release the new site.

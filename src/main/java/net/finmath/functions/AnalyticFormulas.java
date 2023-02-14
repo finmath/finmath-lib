@@ -613,7 +613,7 @@ public class AnalyticFormulas {
 			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			final double theta = volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue + riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			final double theta = -volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue - riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
 
 			return theta;
 		}

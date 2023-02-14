@@ -7,6 +7,8 @@ package net.finmath.montecarlo;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.random.MersenneTwister;
 import org.junit.Assert;
@@ -28,7 +30,7 @@ import net.finmath.stochastic.RandomVariable;
 @RunWith(Parameterized.class)
 public class RandomVariableTest {
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	@Parameters(name="{0}")
 	public static Collection<Object[]> generateData()
@@ -42,9 +44,9 @@ public class RandomVariableTest {
 		});
 	}
 
-	public RandomVariableTest(final RandomVariableFactory abstractRandomVariableFactory) {
+	public RandomVariableTest(final RandomVariableFactory randomVariableFactory) {
 		super();
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 	}
 
 
@@ -52,7 +54,7 @@ public class RandomVariableTest {
 	public void testRandomVariableDeterministc() {
 
 		// Create a random variable with a constant
-		RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(2.0);
+		RandomVariable randomVariable = randomVariableFactory.createRandomVariable(2.0);
 
 		// Perform some calculations
 		randomVariable = randomVariable.mult(2.0);
@@ -72,7 +74,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStochastic() {
 
 		// Create a stochastic random variable
-		RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
 		// Perform some calculations
@@ -100,7 +102,7 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSqrtPow() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		final RandomVariable check = randomVariable.sqrt().sub(randomVariable.pow(0.5));
@@ -114,7 +116,7 @@ public class RandomVariableTest {
 	public void testRandomVariableArithmeticSquaredPow() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		final RandomVariable check = randomVariable.squared().sub(randomVariable.pow(2.0));
@@ -128,7 +130,7 @@ public class RandomVariableTest {
 	public void testRandomVariableStandardDeviation() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 1.0, 0.0, 2.0, 4.0, 1.0/3.0} );
 
 		final double check = randomVariable.getStandardDeviation() - Math.sqrt(randomVariable.getVariance());
@@ -152,7 +154,7 @@ public class RandomVariableTest {
 			samples[i] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(randomNumber);
 		}
 
-		final RandomVariable normalDistributedRandomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,samples);
+		final RandomVariable normalDistributedRandomVariable = randomVariableFactory.createRandomVariable(0.0,samples);
 
 		final double q00 = normalDistributedRandomVariable.getQuantile(0.0);
 		Assert.assertEquals(normalDistributedRandomVariable.getMin(), q00, 1E-12);
@@ -174,10 +176,10 @@ public class RandomVariableTest {
 	public void testAdd() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0,  2.0, 4.0} );
 
-		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] { 4.0,  2.0, 0.0, -2.0, -4.0} );
 
 		final RandomVariable valueAdd = randomVariable.add(randomVariable2);
@@ -193,10 +195,10 @@ public class RandomVariableTest {
 	public void testCap() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-3.0, -3.0, -3.0, -3.0, -3.0} );
 
 		final RandomVariable valueCapped = randomVariable.cap(randomVariable2);
@@ -212,10 +214,10 @@ public class RandomVariableTest {
 	public void testFloor() {
 
 		// Create a stochastic random variable
-		final RandomVariable randomVariable = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-		final RandomVariable randomVariable2 = abstractRandomVariableFactory.createRandomVariable(0.0,
+		final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 				new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
 
 		final RandomVariable valueFloored = randomVariable.floor(randomVariable2);
@@ -225,5 +227,48 @@ public class RandomVariableTest {
 
 		// The random variable has variance value 0
 		Assert.assertEquals(valueFloored.getVariance(), Math.pow(1.0/5.0,2)*4.0/5.0 + Math.pow(1.0-1.0/5-0,2)*1.0/5.0, 1E-15);
+	}
+
+	@Test
+	public void testApply() {
+
+		try {
+			DoubleUnaryOperator operator = x -> Math.exp(x * 2.0);
+
+			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+			RandomVariable result1 = randomVariable.apply(operator);
+			RandomVariable result2 = randomVariable.mult(2.0).exp();
+
+			RandomVariable diff = result1.sub(result2);
+			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
+		}
+		catch(UnsupportedOperationException e) {
+			// apply is not supported by all implementations. we ignore those.
+		}
+	}
+
+	@Test
+	public void testApply2() {
+
+		try {
+			DoubleBinaryOperator operator = (x,y) -> Math.exp(x * y);
+
+			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+			final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
+
+			RandomVariable result1 = randomVariable.apply(operator, randomVariable2);
+			RandomVariable result2 = randomVariable.mult(randomVariable2).exp();
+
+			RandomVariable diff = result1.sub(result2);
+			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
+		}
+		catch(UnsupportedOperationException e) {
+			// apply is not supported by all implementations. we ignore those.
+		}
 	}
 }

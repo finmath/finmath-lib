@@ -43,7 +43,7 @@ public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, De
 	 * Create a swap which values as <code>legReceiver - legPayer</code>.
 	 *
 	 * @param legReceiver The receiver leg.
-	 * @param legPayer The payler leg.
+	 * @param legPayer The payer leg.
 	 */
 	public Swap(final AnalyticProduct legReceiver, final AnalyticProduct legPayer) {
 		super();

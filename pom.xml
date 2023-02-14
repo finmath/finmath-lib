@@ -12,7 +12,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>5.1.2-SNAPSHOT</version>
+	<version>6.0.13-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -34,7 +34,7 @@
 		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
 		<maven.surefire-plugin.version>3.0.0-M5</maven.surefire-plugin.version>
 		<maven.surefire-report-plugin.version>3.0.0-M5</maven.surefire-report-plugin.version>
-		<maven.javadoc-plugin.version>3.2.0</maven.javadoc-plugin.version>
+		<maven.javadoc-plugin.version>3.3.2</maven.javadoc-plugin.version>
 		<maven.jar-plugin.version>3.2.0</maven.jar-plugin.version>
 		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
 		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
@@ -43,6 +43,7 @@
 		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
 		<maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+		<maven-bnd-plugin.version>5.3.0</maven-bnd-plugin.version>
 	</properties>
 
 	<licenses>
@@ -105,6 +106,11 @@
 		<contributor>
 			<name>Ruben Dias Duarte</name>
 			<email>ruben.diasduarte@gmail.com</email>
+			<timezone>1</timezone>
+		</contributor>
+		<contributor>
+			<name>Andrea Mazzon</name>
+			<email>mazzon@math.lmu.de</email>
 			<timezone>1</timezone>
 		</contributor>
 		<contributor>
@@ -189,6 +195,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven.compiler-plugin.version}</version>
+				<configuration>
+					<fork>true</fork>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -341,7 +350,7 @@
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
 				<artifactId>bnd-maven-plugin</artifactId>
-				<version>4.0.0</version>
+				<version>${maven-bnd-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -376,7 +385,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 
@@ -395,12 +404,13 @@
 						<header>
 				   			<![CDATA[
 							<span class="logo-white">finMath</span><span class="logo-red"> lib</span> documentation
-							<script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
-				   			]]>
+							<script type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+							</script>
+  				   			]]>
 						</header>
 						<footer>
 				   			<![CDATA[
-							<i>Copyright &copy; 2020 Christian&nbsp;P.&nbsp;Fries.</i>
+							<i>Copyright &copy; 2022 finmath.net.</i>
 				   			]]>
 						</footer>
 						<tags>
@@ -453,6 +463,9 @@
 								<packages>net.finmath.finitedifference.*</packages>
 							</group>
 						</groups>
+						<nohelp>true</nohelp>
+						<noindex>true</noindex>
+						<noqualifier>true</noqualifier>
 					</configuration>
 					<executions>
 						<execution>
@@ -521,6 +534,7 @@
 							<source>11</source>
 							<target>11</target>
 							<compilerVersion>11</compilerVersion>
+							<fork>true</fork>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -547,6 +561,7 @@
 							<source>1.8</source>
 							<target>1.8</target>
 							<compilerVersion>1.8</compilerVersion>
+							<fork>true</fork>
 						</configuration>
 					</plugin>
 				</plugins>

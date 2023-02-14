@@ -47,7 +47,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 	private final int			numberOfPaths;
 	private final RandomNumberGenerator randomNumberGenerator;
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariable[][]	brownianIncrements;
 	private transient 	Object				brownianIncrementsLazyInitLock = new Object();
@@ -64,21 +64,21 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param randomNumberGenerator A random number generator for n-dimensional uniform random numbers (n = numberOfTimeSteps*numberOfFactors).
-	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
+	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public BrownianMotionFromRandomNumberGenerator(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfFactors,
 			final int numberOfPaths,
 			final RandomNumberGenerator randomNumberGenerator,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.numberOfFactors	= numberOfFactors;
 		this.numberOfPaths		= numberOfPaths;
 		this.randomNumberGenerator = randomNumberGenerator;
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		brownianIncrements	= null; 	// Lazy initialization
 
@@ -151,8 +151,10 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 		/*
 		 * Generate normal distributed independent increments.
 		 *
-		 * The inner loop goes over time and factors.
-		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
+		 * The inner loop goes over time and factors. Time and factors determine the dimension
+		 * of a vector of independent random variables (i.i.d., apart from the scaling with the sqrt(timeStep) size).
+		 * 
+		 * Since we want to generate samples of that vector, the loop over path is the outer loop.
 		 */
 		for(int path=0; path<numberOfPaths; path++) {
 			final double[] randomNumbers = randomNumberGenerator.getNext();
@@ -174,7 +176,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				brownianIncrements[timeIndex][factor] =
-						abstractRandomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -196,7 +198,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	@Override

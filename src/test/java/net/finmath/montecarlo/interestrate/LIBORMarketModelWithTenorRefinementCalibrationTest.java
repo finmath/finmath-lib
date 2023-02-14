@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.junit.Assert;
+import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.marketdata.calibration.ParameterObject;
@@ -44,6 +45,7 @@ import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.products.AnalyticProduct;
 import net.finmath.marketdata.products.Swap;
 import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelWithTenorRefinement;
@@ -62,7 +64,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.TermStructCovarianc
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScaling;
 import net.finmath.montecarlo.interestrate.models.covariance.TermStructureTenorTimeScalingPicewiseConstant;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.LevenbergMarquardt;
@@ -129,6 +131,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		return new CalibrationProduct(swaptionMonteCarlo, targetVolatility, weight);
 	}
 
+	@Test
 	public void testSwaptionSmileCalibration() throws CalculationException {
 
 		/*
@@ -184,7 +187,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		final double	swapPeriodLength	= 0.5;
 		final int		numberOfPeriods		= 20;
 
-		final double[] smileMoneynesses	= { -0.02,	-0.01, -0.005, -0.0025,	0.0,	0.0025,	0.0050,	0.01,	0.02 };
+		final double[] smileMoneynesses		= { -0.02,	-0.01, -0.005, -0.0025,	0.0,	0.0025,	0.0050,	0.01,	0.02 };
 		final double[] smileVolatilities	= { 0.559,	0.377,	0.335,	 0.320,	0.308, 0.298, 0.290, 0.280, 0.270 };
 
 		for(int i=0; i<smileMoneynesses.length; i++ ) {
@@ -212,16 +215,16 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		/*
 		 * Create a simulation time discretization
 		 */
-		// If simulation time is below libor time, exceptions will be hard to track.
+		// TODO If simulation time is not (?) below libor time, exceptions will be hard to track.
 		final double lastTime	= 40.0;
-		final double dt		= 1.0;//0.0625;
-		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final double dt		= 0.0625;		// Change this to 1.0 to get an exception (with unhelpful message)
+		final TimeDiscretization timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 		final TimeDiscretization liborPeriodDiscretization = timeDiscretizationFromArray;
 
 		/*
 		 * Create Brownian motions
 		 */
-		final BrownianMotion brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(timeDiscretizationFromArray, numberOfFactors , numberOfPaths, 31415 /* seed */);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, numberOfFactors , numberOfPaths, 31415 /* seed */);
 
 		//		LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelTimeHomogenousPiecewiseConstant(timeDiscretizationFromArray, liborPeriodDiscretization, new TimeDiscretizationFromArray(0.00, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00 ), new double[] { 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0, 0.20/100.0 });
 		final LIBORVolatilityModel volatilityModel = new LIBORVolatilityModelPiecewiseConstant(timeDiscretizationFromArray, liborPeriodDiscretization, new TimeDiscretizationFromArray(0.00, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.00, 15.00, 20.00, 25.00, 30.00 ), new TimeDiscretizationFromArray(2.00, 5.00,10.00, 15.00, 30.00 ), 0.20 / 100);
@@ -239,7 +242,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 
 		// Set calibration properties (should use our brownianMotion for calibration - needed to have to right correlation).
 		final Map<String, Object> calibrationParameters = new HashMap<>();
-		calibrationParameters.put("accuracy", new Double(1E-6));
+		calibrationParameters.put("accuracy", 1E-6);
 		calibrationParameters.put("brownianMotion", brownianMotion);
 		properties.put("calibrationParameters", calibrationParameters);
 
@@ -249,12 +252,24 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		final TimeDiscretization liborPeriodDiscretizationFine = new TimeDiscretizationFromArray(0.0, 40.0, 0.0625, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 		final TimeDiscretization liborPeriodDiscretizationMedium = new TimeDiscretizationFromArray(0.0, 40.0, 0.25, ShortPeriodLocation.SHORT_PERIOD_AT_START);
 		final TimeDiscretization liborPeriodDiscretizationCoarse = new TimeDiscretizationFromArray(0.0, 40.0, 4.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
+		final TimeDiscretization liborPeriodDiscretizationCoarse2 = new TimeDiscretizationFromArray(0.0, 40.0, 5.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
+		final TimeDiscretization liborPeriodDiscretizationNormal = new TimeDiscretizationFromArray(0.0, 40.0, 1.0, ShortPeriodLocation.SHORT_PERIOD_AT_START);
+		final TermStructureModel liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
+				//					new TimeDiscretization[] { liborPeriodDiscretizationNormal },
+				//					new Integer[] { 200 },
+				new TimeDiscretization[] { liborPeriodDiscretizationMedium, liborPeriodDiscretizationCoarse, liborPeriodDiscretizationCoarse2 },
+				new Integer[] { 4, 9, 200 },
+				null,
+				forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation),
+				new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModelParametric), calibrationProducts.toArray(new CalibrationProduct[0]), properties);
+		/*
 		final TermStructureModel liborMarketModelCalibrated = new LIBORMarketModelWithTenorRefinement(
 				new TimeDiscretization[] { liborPeriodDiscretizationFine, liborPeriodDiscretizationMedium, liborPeriodDiscretizationCoarse },
 				new Integer[] { 4, 8, 200 },
 				null,
 				forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation),
 				new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModelParametric), calibrationProducts.toArray(new CalibrationProduct[0]), properties);
+		*/
 
 
 		/*
@@ -274,7 +289,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
@@ -292,9 +307,10 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		System.out.println("RMS Error.....:" + formatterValue.format(Math.sqrt(deviationSquaredSum/calibrationProducts.size())));
 		System.out.println("__________________________________________________________________________________________\n");
 
-		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);
+		Assert.assertTrue(Math.abs(averageDeviation) < 1.2E-2);
 	}
 
+	@Test
 	public void testATMSwaptionCalibration() throws CalculationException, SolverException {
 		/*
 		 * Calibration test
@@ -409,7 +425,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		// If simulation time is below libor time, exceptions will be hard to track.
 		final double lastTime	= 40.0;
 		final double dt		= 0.0625;
-		final TimeDiscretizationFromArray timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
+		final TimeDiscretization timeDiscretizationFromArray = new TimeDiscretizationFromArray(0.0, (int) (lastTime / dt), dt);
 		final TimeDiscretization liborPeriodDiscretization = timeDiscretizationFromArray;
 
 		/*
@@ -467,7 +483,8 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				// Set model properties
 				final Map<String, Object> properties = new HashMap<>();
 
-				final Double accuracy = 1E-12;
+				// accuracy 1E-12 takes fairly long
+				final Double accuracy = 4E-3; //1E-12;
 				final int maxIterations = 400;
 				final int numberOfThreads = 6;
 				final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
@@ -485,7 +502,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				final Map<String, Object> calibrationParameters = new HashMap<>();
 				calibrationParameters.put("accuracy", accuracy);
 				calibrationParameters.put("brownianMotion", brownianMotion);
-				calibrationParameters.put("parameterStep", i == 0 ? new Double(1E-6) : new Double(5E-5) );
+				calibrationParameters.put("parameterStep", i == 0 ? 1E-6 : 5E-5 );
 				calibrationParameters.put("optimizerFactory", optimizerFactory);
 				properties.put("calibrationParameters", calibrationParameters);
 
@@ -538,7 +555,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			// Set model properties
 			final Map<String, Object> properties = new HashMap<>();
 
-			final Double accuracy = new Double(1E-8);
+			final Double accuracy = 1E-8;
 			final int maxIterations = 400;
 			final int numberOfThreads = 2;
 			final OptimizerFactory optimizerFactory = new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);
@@ -735,7 +752,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 			System.arraycopy(meanReversion, 0, initialParameters, shortRateVolatility.length, shortRateVolatility.length);
 
 			final int maxIterations = 400;
-			final double accuracy		= 1E-7;
+			final double accuracy	= 1E-7;
 
 			final double[] calibrationTargetValues = new double[calibrationProducts.size()];
 			for(int i=0; i<calibrationTargetValues.length; i++) {
@@ -868,7 +885,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();

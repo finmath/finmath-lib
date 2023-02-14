@@ -11,12 +11,12 @@ import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationMode
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Implements the pricing of a Caplet using a given <code>AbstractLIBORMarketModel</code>.
+ * Implements the pricing of a Caplet using a given <code>TermStructureMonteCarloSimulationModel</code>.
  *
  * @author Christian Fries
  * @version 1.0
  */
-public class Caplet extends AbstractLIBORMonteCarloProduct {
+public class Caplet extends AbstractTermStructureMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,
@@ -117,7 +117,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		final double	paymentDate	= maturity+periodLength;
 
 		// Get random variables
-		final RandomVariable	libor					= model.getForwardRate(maturity, maturity, maturity+periodLength);
+		final RandomVariable	forwardRate				= model.getForwardRate(maturity, maturity, maturity+periodLength);
 		final RandomVariable	numeraire				= model.getNumeraire(paymentDate);
 		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);
 
@@ -126,7 +126,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 		 *    max(L-K,0) * periodLength         for caplet or
 		 *   -min(L-K,0) * periodLength         for floorlet.
 		 */
-		RandomVariable values = libor;
+		RandomVariable values = forwardRate;
 		if(!isFloorlet) {
 			values = values.sub(strike).floor(0.0).mult(daycountFraction);
 		} else {
@@ -147,7 +147,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
 			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
-			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
+			final double forward = forwardRate.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
 			final double optionMaturity = maturity-evaluationTime;
 			final double optionStrike = strike;
 			final double payoffUnit = daycountFraction * discountFactor;
@@ -158,7 +158,7 @@ public class Caplet extends AbstractLIBORMonteCarloProduct {
 			 * This calculation makes sense only if the value is an unconditional one.
 			 */
 			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();
-			final double forward = libor.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
+			final double forward = forwardRate.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;
 			final double optionMaturity = maturity-evaluationTime;
 			final double optionStrike = strike;
 			final double payoffUnit = daycountFraction * discountFactor;

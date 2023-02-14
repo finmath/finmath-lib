@@ -1,3 +1,8 @@
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2016
+ */
 package net.finmath.montecarlo;
 
 import net.finmath.stochastic.RandomVariable;
@@ -29,7 +34,7 @@ public interface RandomVariableFactory {
 			return defaultValue;
 		}
 		else if(value instanceof RandomVariable) {
-			return defaultValue;
+			return (RandomVariable)value;
 		}
 		else if(value instanceof Number) {
 			if(randomVariableFactory == null) {
@@ -67,6 +72,10 @@ public interface RandomVariableFactory {
 	 * @return The <code>RandomVariable</code>.
 	 */
 	RandomVariable createRandomVariable(double time, double[] values);
+
+	default RandomVariable createRandomVariable(double[] values) {
+		return createRandomVariable(0.0, values);
+	}
 
 	/**
 	 * Create an array of (deterministic) random variables from an array of constants.

@@ -6,9 +6,16 @@
 package net.finmath.time;
 
 import java.util.ArrayList;
+import java.util.function.DoublePredicate;
 import java.util.stream.DoubleStream;
 
 /**
+ * Interface to classes providing time discretization,
+ * i.e. a map \( i \mapsto t_{i} \) for i = 0, 1, 2, ..., n.
+ * 
+ * Classes implementing this interface should provide convenient methods
+ * to transform an index to a time and a time to an index.
+ * 
  * @author Christian Fries
  * @version 1.0
  */
@@ -52,7 +59,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
 	 * to the given time, being less or equal (i.e. max(i : timeDiscretizationFromArray[i] &le; time
-	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]).
+	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
 	 * @return Returns a time index
@@ -62,7 +69,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	/**
 	 * Returns the time index for the time in the time discretization which is the nearest
 	 * to the given time, being greater or equal (i.e. min(i : timeDiscretizationFromArray[i] &ge; time
-	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]).
+	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
 	 * @return Returns a time index
@@ -93,13 +100,20 @@ public interface TimeDiscretization extends Iterable<Double> {
 	}
 
 	/**
-	 * Return a new time discretization where all time points have been shifted by
-	 * a given time shift.
-	 *
-	 * @param timeShift A time shift applied to all discretization points.
-	 * @return A new time discretization where all time points have been shifted by the given time shift.
+	 * Returns the smallest time span distinguishable in this time discretization.
+	 * @return A non-negative double containing the tick size.
 	 */
-	TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift);
+	double getTickSize();
+
+	/**
+	 * Create a new <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
+	 * 
+	 * @param timesToKeep True if the time point should belong to the new <code>TimeDiscretization</code>
+	 * @return A <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
+	 */
+	default TimeDiscretization filter(DoublePredicate timesToKeep) {
+		return this.intersect(new TimeDiscretizationFromArray(this.filter(timesToKeep), getTickSize()));
+	}
 
 	/**
 	 * Returns the union of this time discretization with another one. This means that the times of the other time discretization will be added.
@@ -124,8 +138,11 @@ public interface TimeDiscretization extends Iterable<Double> {
 	TimeDiscretization intersect(TimeDiscretization that);
 
 	/**
-	 * Returns the smallest time span distinguishable in this time discretization.
-	 * @return A non-negative double containing the tick size.
+	 * Return a new time discretization where all time points have been shifted by
+	 * a given time shift.
+	 *
+	 * @param timeShift A time shift applied to all discretization points.
+	 * @return A new time discretization where all time points have been shifted by the given time shift.
 	 */
-	double getTickSize();
+	TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift);
 }

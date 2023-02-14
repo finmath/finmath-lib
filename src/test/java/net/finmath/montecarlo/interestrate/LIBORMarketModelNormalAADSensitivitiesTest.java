@@ -39,7 +39,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationMod
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Caplet;
 import net.finmath.montecarlo.interestrate.products.Swaption;
@@ -240,7 +240,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 	}
 
 	private final String productName;
-	private final AbstractLIBORMonteCarloProduct product;
+	private final AbstractTermStructureMonteCarloProduct product;
 	private final Optional<Integer> bucketDeltaLIBORIndex;
 	private final boolean isVerbose;
 
@@ -254,7 +254,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		if(isParalellSensi) {
 			new LIBORMarketModelNormalAADSensitivitiesTest(
 					(String)data[0],
-					(AbstractLIBORMonteCarloProduct)data[1],
+					(AbstractTermStructureMonteCarloProduct)data[1],
 					Optional.empty(),
 					false
 					).testDelta();
@@ -262,7 +262,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		else {
 			new LIBORMarketModelNormalAADSensitivitiesTest(
 					(String)data[0],
-					(AbstractLIBORMonteCarloProduct)data[1],
+					(AbstractTermStructureMonteCarloProduct)data[1],
 					Optional.empty(),
 					false
 					).testDelta();
@@ -270,7 +270,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 			for(int i=0; i<80; i++) {
 				new LIBORMarketModelNormalAADSensitivitiesTest(
 						(String)data[0],
-						(AbstractLIBORMonteCarloProduct)data[1],
+						(AbstractTermStructureMonteCarloProduct)data[1],
 						Optional.of(i), //(int)data[2]
 						false
 						).testDelta();
@@ -278,7 +278,7 @@ public class LIBORMarketModelNormalAADSensitivitiesTest {
 		}
 	}
 
-	public LIBORMarketModelNormalAADSensitivitiesTest(final String productName, final AbstractLIBORMonteCarloProduct product, final Optional<Integer> bucketDeltaLIBORIndex, final boolean isVerbose) {
+	public LIBORMarketModelNormalAADSensitivitiesTest(final String productName, final AbstractTermStructureMonteCarloProduct product, final Optional<Integer> bucketDeltaLIBORIndex, final boolean isVerbose) {
 		this.productName = productName;
 		this.product = product;
 		this.bucketDeltaLIBORIndex = bucketDeltaLIBORIndex;

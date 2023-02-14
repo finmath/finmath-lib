@@ -87,14 +87,14 @@ public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
 			 * Trapezoidal integration on an equi-distant grid.
 			 */
 
-			final double intervall = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);
+			final double interval = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);
 			// Sum of inner points
 			for(int i=1; i<numberOfEvaluationPoints-1; i++) {
-				final double point = lowerBound + i * intervall;
-				sum += integrand.applyAsDouble(point) * intervall;
+				final double point = lowerBound + i * interval;
+				sum += integrand.applyAsDouble(point) * interval;
 			}
 			// Sum of boundary points
-			sum += (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound)) / 2.0 * intervall;
+			sum += (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound)) / 2.0 * interval;
 
 		}
 		return sum;

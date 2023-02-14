@@ -12,9 +12,11 @@ import java.util.List;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
 import org.apache.commons.math3.linear.DecompositionSolver;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
@@ -63,9 +65,23 @@ public class LinearAlgebra {
 	}
 
 	/**
+	 * Create a Cholesky decomposition of a symmetric matrix.
+	 * 
+	 * @param symmetricMatrix The input matrix.
+	 * @return A lower triangle matrix representing the CholeskyDecomposition.
+	 */
+	public static double[][] getCholeskyDecomposition(double[][] symmetricMatrix) {
+		CholeskyDecomposition decomposition = new CholeskyDecomposition(new Array2DRowRealMatrix(symmetricMatrix));
+
+		double[][] choleskyDecomposition = decomposition.getL().getData();
+
+		return choleskyDecomposition;
+	}
+
+	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -111,7 +127,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -186,7 +202,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -228,7 +244,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -309,7 +325,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A x = b in the least square sense where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
@@ -327,7 +343,7 @@ public class LinearAlgebra {
 	/**
 	 * Find a solution of the linear equation A X = B in the least square sense where
 	 * <ul>
-	 * <li>A is an n x m - matrix given as double[n][m]</li>
+	 * <li>A is an m x n - matrix given as double[m][n]</li>
 	 * <li>B is an m x k - matrix given as double[m][k],</li>
 	 * <li>X is an n x k - matrix given as double[n][k],</li>
 	 * </ul>
@@ -474,8 +490,22 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public double[][] exp(final double[][] matrix) {
+	public static double[][] exp(final double[][] matrix) {
 		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();
+	}
+
+	/**
+	 * Calculate the power of a matrix
+	 *
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 *
+	 * @param matrix The given matrix.
+	 * @param exponent The exponent
+	 * @return The pow(matrix, exponent).
+	 */
+	public static double[][] pow(final double[][] matrix, double exponent) {
+		return org.jblas.MatrixFunctions.expm(org.jblas.MatrixFunctions.log(new org.jblas.DoubleMatrix(matrix).mul(exponent))).toArray2();
 	}
 
 	/**
@@ -487,7 +517,7 @@ public class LinearAlgebra {
 	 * @param matrix The given matrix.
 	 * @return The exp(matrix).
 	 */
-	public RealMatrix exp(final RealMatrix matrix) {
+	public static RealMatrix exp(final RealMatrix matrix) {
 		return new Array2DRowRealMatrix(exp(matrix.getData()));
 	}
 
@@ -561,5 +591,88 @@ public class LinearAlgebra {
 	 */
 	public static double[][] multMatrices(final double[][] left, final double[][] right){
 		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();
+	}
+
+	/**
+	 * Multiplication of matrix and vector. The vector array is interpreted as column vector.
+	 *
+	 * @param matrix The matrix A.
+	 * @param vector The vector v
+	 * @return product The matrix product of A*v (if suitable)
+	 */
+	public static double[] multMatrixVector(final double[][] matrix, final double[] vector){
+		return new Array2DRowRealMatrix(matrix).multiply(new Array2DRowRealMatrix(vector)).getColumn(0);
+	}
+
+	/**
+	 * Matrix power. Tries to calculate a matrix A such that M^{exponent} = A.
+	 * 
+	 * @param matrix The matrix M of which we like to have the power.
+	 * @param exponent The exponent.
+	 * @return The exponent-th power of M
+	 */
+	public static double[][] matrixPow(double[][] matrix, double exponent) {
+		return matrixExp(matrixLog(new Array2DRowRealMatrix(matrix)).scalarMultiply(exponent)).getData();
+	}
+
+	/**
+	 * Matrix exponential. Tries to calculate the matrix A such that exp(M) = A.
+	 * 
+	 * @param matrix The matrix M
+	 * @return exp(M)
+	 */
+	public static double[][] matrixExp(double[][] matrix) {
+		return matrixExp(new Array2DRowRealMatrix(matrix)).getData();
+	}
+
+	/**
+	 * Matrix logarithm. Tries to calculate the matrix A such that log(M) = A.
+	 * 
+	 * @param matrix The matrix M
+	 * @return log(M)
+	 */
+	public static double[][] matrixLog(double[][] matrix) {
+		return matrixLog(new Array2DRowRealMatrix(matrix)).getData();
+	}
+
+	/*
+	 * There are better ways doing this - but this here is sufficient for some less crital purposes.
+	 */
+
+	private static RealMatrix matrixExp(RealMatrix matrix) {
+		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {
+			// Symmetric matrix: try to use eigenvalue decomposition.
+			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
+			RealMatrix diag = eigenDecomposition.getD();
+			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));
+			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
+		}
+		else {
+			RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());;
+			double factor = 1.0;
+			for(int k=1; k<15; k++) {
+				factor = factor * k;
+				exp = exp.add(matrix.power(k).scalarMultiply(1.0/factor));
+			}
+			return exp;
+		}
+	}
+
+	private static RealMatrix matrixLog(RealMatrix matrix) {
+		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {
+			// Symmetric matrix: try to use eigenvalue decomposition.
+			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
+			RealMatrix diag = eigenDecomposition.getD();
+			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));
+			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
+		}
+		else {
+			RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
+			RealMatrix log = m.copy();
+			for(int k=2; k<15; k++) {
+				log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));
+			}
+			return log;
+		}
 	}
 }

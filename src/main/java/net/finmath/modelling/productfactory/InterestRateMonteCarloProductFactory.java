@@ -14,7 +14,7 @@ import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
 import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
@@ -153,7 +153,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 * @author Christian Fries
 	 * @author Roland Bachl
 	 */
-	public static class SwapMonteCarlo extends AbstractLIBORMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor> {
+	public static class SwapMonteCarlo extends AbstractTermStructureMonteCarloProduct implements DescribedProduct<InterestRateSwapProductDescriptor> {
 
 		private final TermStructureMonteCarloProduct legReceiver;
 		private final TermStructureMonteCarloProduct legPayer;
@@ -203,7 +203,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 	 * @author Roland Bachl
 	 *
 	 */
-	public static class SwaptionPhysicalMonteCarlo extends AbstractLIBORMonteCarloProduct
+	public static class SwaptionPhysicalMonteCarlo extends AbstractTermStructureMonteCarloProduct
 	implements DescribedProduct<InterestRateSwaptionProductDescriptor> {
 
 		private final InterestRateSwaptionProductDescriptor descriptor;
@@ -220,7 +220,7 @@ public class InterestRateMonteCarloProductFactory implements ProductFactory<Inte
 			super();
 			this.descriptor = descriptor;
 			final double excercise = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getExcerciseDate());
-			final AbstractLIBORMonteCarloProduct swap = (AbstractLIBORMonteCarloProduct)
+			final AbstractTermStructureMonteCarloProduct swap = (AbstractTermStructureMonteCarloProduct)
 					new InterestRateMonteCarloProductFactory(referenceDate).getProductFromDescriptor(descriptor.getUnderlyingSwap());
 			swaption = new Option(excercise, descriptor.getStrikeRate(), swap);
 		}

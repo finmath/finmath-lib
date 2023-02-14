@@ -155,7 +155,7 @@ public class ForwardRateVolatilitySurfaceCurvature extends AbstractLIBORMonteCar
 				integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.add(curvatureSquared.mult(timeStep1));
 			}
 
-			// Empty intervall - skip
+			// Empty interval - skip
 			if(timeEnd == 0) {
 				continue;
 			}

@@ -213,13 +213,22 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 			return buildCurve;
 		}
 
+		/* (non-Javadoc)
+		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
+		 */
+		@Override
+		public Builder addPoint(final double time, final double value, final boolean isParameter) {
+			curveInterpolation.addPoint(time, value, isParameter);
+			return this;
+		}
+
 		/**
 		 * Set the interpolation method of the curve.
 		 *
 		 * @param interpolationMethod The interpolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setInterpolationMethod(final InterpolationMethod interpolationMethod) {
+		public Builder setInterpolationMethod(final InterpolationMethod interpolationMethod) {
 			curveInterpolation.interpolationMethod = interpolationMethod;
 			return this;
 		}
@@ -230,7 +239,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param extrapolationMethod The extrapolation method of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setExtrapolationMethod(final ExtrapolationMethod extrapolationMethod) {
+		public Builder setExtrapolationMethod(final ExtrapolationMethod extrapolationMethod) {
 			curveInterpolation.extrapolationMethod = extrapolationMethod;
 			return this;
 		}
@@ -241,17 +250,8 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 		 * @param interpolationEntity The interpolation entity of the curve.
 		 * @return A self reference to this curve build object.
 		 */
-		public CurveBuilder setInterpolationEntity(final InterpolationEntity interpolationEntity) {
+		public Builder setInterpolationEntity(final InterpolationEntity interpolationEntity) {
 			curveInterpolation.interpolationEntity = interpolationEntity;
-			return this;
-		}
-
-		/* (non-Javadoc)
-		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
-		 */
-		@Override
-		public CurveBuilder addPoint(final double time, final double value, final boolean isParameter) {
-			curveInterpolation.addPoint(time, value, isParameter);
 			return this;
 		}
 	}

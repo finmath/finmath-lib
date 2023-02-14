@@ -44,7 +44,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 06.12.2009
  * @date 07.04.2019
  */
-public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements RegressionBasisFunctionsProvider, ProcessTimeDiscretizationProvider, Swaption {
+public class BermudanSwaptionFromSwapSchedules extends AbstractTermStructureMonteCarloProduct implements RegressionBasisFunctionsProvider, ProcessTimeDiscretizationProvider, Swaption {
 
 	private static Logger logger = Logger.getLogger("net.finmath");
 

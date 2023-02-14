@@ -195,34 +195,34 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 			return values[pointIndex];
 		}
 
-		int intervallIndex = -pointIndex-2;
+		int intervalIndex = -pointIndex-2;
 
 		// Check for extrapolation
-		if(intervallIndex < 0) {
+		if(intervalIndex < 0) {
 			// Extrapolation
 			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[0];
 			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[0]+(values[1]-values[0])/(points[1]-points[0])*(x-points[0]);
 			} else {
-				intervallIndex = 0;
+				intervalIndex = 0;
 			}
 		}
-		else if(intervallIndex > points.length-2) {
+		else if(intervalIndex > points.length-2) {
 			// Extrapolation
 			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
 				return values[points.length-1];
 			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
 				return values[points.length-1]+(values[points.length-2]-values[points.length-1])/(points[points.length-2]-points[points.length-1])*(x-points[points.length-1]);
 			} else {
-				intervallIndex = points.length-2;
+				intervalIndex = points.length-2;
 			}
 		}
 
-		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervallIndex];
+		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervalIndex];
 
 		// Calculate interpolating value
-		return rationalFunction.getValue(x-points[intervallIndex]);
+		return rationalFunction.getValue(x-points[intervalIndex]);
 	}
 
 	private void doCreateRationalFunctions()
@@ -328,13 +328,13 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 		v[0] = 0.0;
 		v[numberOfPoints-1] = 0.0;
 
-		for (int intervallIndex=1; intervallIndex<numberOfPoints-1; intervallIndex++)
+		for (int intervalIndex=1; intervalIndex<numberOfPoints-1; intervalIndex++)
 		{
-			v[intervallIndex] =  6 * ( (values[intervallIndex+1] - values[intervallIndex])/step[intervallIndex] - (values[intervallIndex]-values[intervallIndex-1]) / step[intervallIndex-1]);
+			v[intervalIndex] =  6 * ( (values[intervalIndex+1] - values[intervalIndex])/step[intervalIndex] - (values[intervalIndex]-values[intervalIndex-1]) / step[intervalIndex-1]);
 
-			secondDerivativeMarix[intervallIndex][intervallIndex-1] = step[intervallIndex-1];
-			secondDerivativeMarix[intervallIndex][intervallIndex  ] = 2 * (step[intervallIndex-1] + step[intervallIndex]);
-			secondDerivativeMarix[intervallIndex][intervallIndex+1] = step[intervallIndex];
+			secondDerivativeMarix[intervalIndex][intervalIndex-1] = step[intervalIndex-1];
+			secondDerivativeMarix[intervalIndex][intervalIndex  ] = 2 * (step[intervalIndex-1] + step[intervalIndex]);
+			secondDerivativeMarix[intervalIndex][intervalIndex+1] = step[intervalIndex];
 		}
 		// Making it a symmetric matrix
 		if(numberOfPoints > 1)	{

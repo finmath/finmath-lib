@@ -18,7 +18,7 @@ import net.finmath.time.FloatingpointDate;
  * @author Christian Fries
  * @version 1.1
  */
-public class Bond extends AbstractLIBORMonteCarloProduct {
+public class Bond extends AbstractTermStructureMonteCarloProduct {
 
 	private LocalDateTime referenceDate;
 	private double maturity;

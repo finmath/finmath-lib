@@ -23,7 +23,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 	private static final long serialVersionUID = 1412665163004646789L;
 
-	private final RandomVariableFactory	abstractRandomVariableFactory;
+	private final RandomVariableFactory	randomVariableFactory;
 
 	private final RandomVariable[] a;
 	private final RandomVariable[] b;
@@ -38,7 +38,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 			final RandomVariable[] parameterC,
 			final RandomVariable[] parameterD) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		abstractRandomVariableFactory = new RandomVariableFromArrayFactory();
+		randomVariableFactory = new RandomVariableFromArrayFactory();
 		a = parameterA;
 		b = parameterB;
 		c = parameterC;
@@ -46,7 +46,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 	}
 
 	/**
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -55,20 +55,20 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 */
 	public LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(
-			final RandomVariableFactory abstractRandomVariableFactory,
+			final RandomVariableFactory randomVariableFactory,
 			final TimeDiscretization timeDiscretization,
 			final TimeDiscretization liborPeriodDiscretization,
 			final double[] a, final double[] b, final double[] c, final double[] d) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
-		this.a = abstractRandomVariableFactory.createRandomVariableArray(a);
-		this.b = abstractRandomVariableFactory.createRandomVariableArray(b);
-		this.c = abstractRandomVariableFactory.createRandomVariableArray(c);
-		this.d = abstractRandomVariableFactory.createRandomVariableArray(d);
+		this.randomVariableFactory = randomVariableFactory;
+		this.a = randomVariableFactory.createRandomVariableArray(a);
+		this.b = randomVariableFactory.createRandomVariableArray(b);
+		this.c = randomVariableFactory.createRandomVariableArray(c);
+		this.d = randomVariableFactory.createRandomVariableArray(d);
 	}
 
 	/**
-	 * @param abstractRandomVariableFactory The random variable factor used to construct random variables from the parameters.
+	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization The simulation time discretization t<sub>j</sub>.
 	 * @param liborPeriodDiscretization The period time discretization T<sub>i</sub>.
 	 * @param a The parameter a: an initial volatility level.
@@ -77,16 +77,16 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 	 * @param d The parameter d: if c &gt; 0 this is the very long term volatility level.
 	 */
 	public LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(
-			final RandomVariableFactory abstractRandomVariableFactory,
+			final RandomVariableFactory randomVariableFactory,
 			final TimeDiscretization timeDiscretization,
 			final TimeDiscretization liborPeriodDiscretization,
 			final double a, final double b, final double c, final double d) {
 		super(timeDiscretization, liborPeriodDiscretization);
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
-		this.a = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.a, abstractRandomVariableFactory.createRandomVariable(a));
-		this.b = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.b, abstractRandomVariableFactory.createRandomVariable(b));
-		this.c = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.c, abstractRandomVariableFactory.createRandomVariable(c));
-		this.d = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.d, abstractRandomVariableFactory.createRandomVariable(d));
+		this.randomVariableFactory = randomVariableFactory;
+		this.a = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.a, randomVariableFactory.createRandomVariable(a));
+		this.b = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.b, randomVariableFactory.createRandomVariable(b));
+		this.c = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.c, randomVariableFactory.createRandomVariable(c));
+		this.d = new RandomVariable[liborPeriodDiscretization.getNumberOfTimeSteps()];	Arrays.fill(this.d, randomVariableFactory.createRandomVariable(d));
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 	@Override
 	public LIBORVolatilityModel getCloneWithModifiedData(final Map<String, Object> dataModified) {
-		RandomVariableFactory abstractRandomVariableFactory = this.abstractRandomVariableFactory;
+		RandomVariableFactory randomVariableFactory = this.randomVariableFactory;
 		TimeDiscretization timeDiscretization = this.getTimeDiscretization();
 		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();
 		double[] a = Arrays.stream(this.a).mapToDouble(new ToDoubleFunction<RandomVariable>() {
@@ -215,7 +215,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 
 		if(dataModified != null) {
 			// Explicitly passed covarianceModel has priority
-			abstractRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", abstractRandomVariableFactory);
+			randomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault("randomVariableFactory", randomVariableFactory);
 			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault("timeDiscretization", timeDiscretization);
 			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault("liborPeriodDiscretization", liborPeriodDiscretization);
 
@@ -262,7 +262,7 @@ public class LIBORVolatilityModelMaturityDependentFourParameterExponentialForm e
 			}
 		}
 
-		final LIBORVolatilityModel newModel = new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(abstractRandomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d);
+		final LIBORVolatilityModel newModel = new LIBORVolatilityModelMaturityDependentFourParameterExponentialForm(randomVariableFactory, timeDiscretization, liborPeriodDiscretization, a, b, c, d);
 		return newModel;
 	}
 }

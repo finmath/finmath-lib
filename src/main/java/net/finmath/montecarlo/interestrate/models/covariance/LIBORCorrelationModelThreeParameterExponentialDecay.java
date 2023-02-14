@@ -70,6 +70,7 @@ public class LIBORCorrelationModelThreeParameterExponentialDecay extends LIBORCo
 			return this;
 		}
 
+		// TODO The model does not consider the parameters to be of type RandomVariable. This also breaks AAD w.r.t. these parameters. 
 		return new LIBORCorrelationModelThreeParameterExponentialDecay(
 				getTimeDiscretization(),
 				getLiborPeriodDiscretization(),

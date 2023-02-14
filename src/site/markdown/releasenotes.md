@@ -5,18 +5,97 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.8 (23.10.2022)
+
+### Climate Models (DICE)
+
+- Allowing arbitrary time discretization in DICE model.
+- Value is a time integral (considering timeStep size) to be better comparable among different discretizations.
+- Split emission in industrial and land use. Abatement only applies to industrial emissions.
+- Added unit test.
+- Added documentation on units.
+
+
+## 6.0.6 (11.10.2022)
+
+### Climate Models (DICE)
+
+- Interface for more general integrated assessment models (IAM), to allow future extensions, especially with respect to stochastic quantities.
+- For an experiment using the DICE model see finmath-experiments (separate project / repository).
+- Fixed utility function in DICE model and some parameter calibration issues introduced a day ago.
+
+
+## 6.0.5 (10.10.2022)
+
+### Climate Models (DICE)
+
+- Interface for more general integrated assessment models (IAM), to allow future extensions, especially with respect to stochastic quantities.
+- For an experiment using the DICE model see finmath-experiments (separate project / repository).
+
+
+## 6.0.4 (29.09.2022)
+
+### FPML Parsing
+
+- Improved FPML parser.
+
+
+## 6.0.2 (06.09.2022)
+
+### General
+
+ - Improved JavaDoc documentation
+ 
+### Analytic Formulas / Linear Algebra
+
+ - Fixed a bug in the definition / calculation of Theta (opposite to the sign).
+ - Added a wrapper to perform a Cholesky decomposition on `double[][]`-matrix.
+
+### Monte-Carlo
+
+ - Added a more general version of a Brownian bridge.
+ 
+### Climate Models (IAM)
+
+ - Added a version of the DICE model
+
+
+## 6.0.0 (30.12.2021)
+
+### General
+
+ In version 6.0.x several small refactorings will be done. This may take place over multiple patch versions x.
+ 
+ - Refactor rename: AbstractLIBORMonteCarloProduct to AbstractTermStructureMonteCarloProduct
+ 
+
+## 5.1.3 (12.03.2021)
+
+### RandomVariableFactory
+
+ - Fixed issue where default value is used if value is of type RandomVariable. (The bug was not relevant in the current implementation of the models, since models used the method with type Double).
+
+
+## 5.1.2 (11.03.2021)
+
+### General
+
+ - Performance improvements for the LIBOR Market Model / Discrete Term Structure Model.
+ - Added log messages to Levenberg Marquardt algorithm.
+
+
 ## 5.1.1 (24.01.2021)
 
-## Monte-Carlo Interest Rate Models
+### Monte-Carlo Interest Rate Models
 
  - Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
 
 
 ## 5.1.0 (24.01.2021)
 
-## Monte-Carlo Interest Rate Models
+### Monte-Carlo Interest Rate Models
 
-### Refactorings
+#### Refactorings
 
  - The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
  - The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.

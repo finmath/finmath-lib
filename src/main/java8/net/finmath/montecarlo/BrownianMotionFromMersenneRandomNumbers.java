@@ -47,7 +47,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 	private final int			numberOfPaths;
 	private final int			seed;
 
-	private final RandomVariableFactory abstractRandomVariableFactory;
+	private final RandomVariableFactory randomVariableFactory;
 
 	private transient	RandomVariable[][]	brownianIncrements;
 	private transient 	Object				brownianIncrementsLazyInitLock = new Object();
@@ -64,14 +64,14 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 	 * @param numberOfFactors Number of factors.
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
-	 * @param abstractRandomVariableFactory Factory to be used to create random variable.
+	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
 	public BrownianMotionFromMersenneRandomNumbers(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfFactors,
 			final int numberOfPaths,
 			final int seed,
-			final RandomVariableFactory abstractRandomVariableFactory) {
+			final RandomVariableFactory randomVariableFactory) {
 		super();
 		Validate.isTrue(numberOfFactors > 0, "Number of factors must be greater or equal 1 (given %d).", numberOfFactors);
 		Validate.isTrue(numberOfPaths > 0, "Number of paths must be greater or equal 1 (given %d).", numberOfPaths);
@@ -81,7 +81,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 		this.numberOfPaths		= numberOfPaths;
 		this.seed				= seed;
 
-		this.abstractRandomVariableFactory = abstractRandomVariableFactory;
+		this.randomVariableFactory = randomVariableFactory;
 
 		brownianIncrements	= null; 	// Lazy initialization
 	}
@@ -180,7 +180,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 			final double time = timeDiscretization.getTime(timeIndex+1);
 			for(int factor=0; factor<numberOfFactors; factor++) {
 				brownianIncrements[timeIndex][factor] =
-						abstractRandomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
+						randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);
 			}
 		}
 	}
@@ -202,7 +202,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 
 	@Override
 	public RandomVariable getRandomVariableForConstant(final double value) {
-		return abstractRandomVariableFactory.createRandomVariable(value);
+		return randomVariableFactory.createRandomVariable(value);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 	public String toString() {
 		return getClass().getSimpleName() + " [timeDiscretization=" + timeDiscretization + ", numberOfFactors="
 				+ numberOfFactors + ", numberOfPaths=" + numberOfPaths + ", seed=" + seed
-				+ ", abstractRandomVariableFactory=" + abstractRandomVariableFactory + "]";
+				+ ", randomVariableFactory=" + randomVariableFactory + "]";
 	}
 
 	@Override

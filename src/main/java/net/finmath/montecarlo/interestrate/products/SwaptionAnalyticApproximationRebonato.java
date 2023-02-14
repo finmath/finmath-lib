@@ -57,7 +57,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 17.05.2007.
  * @version 1.0
  */
-public class SwaptionAnalyticApproximationRebonato extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
+public class SwaptionAnalyticApproximationRebonato extends AbstractTermStructureMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final double      swaprate;
 	private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.

@@ -14,7 +14,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
@@ -24,10 +24,10 @@ import net.finmath.stochastic.Scalar;
  * An option.
  *
  * Implements the function <code>max(underlying(t)-strike,0)</code> for any <code>underlying</code> object
- * implementing an {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}.
+ * implementing an {@link net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct}.
  *
  * The strike may be a fixed constant value or an object implementing
- * {@link net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct}
+ * {@link net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct}
  * (resulting in a stochastic strike or exchange option).
  *
  * More precise, the <code>getVaue</code> method returns the value
@@ -46,7 +46,7 @@ import net.finmath.stochastic.Scalar;
  *
  * @author Christian Fries
  * @version 1.2
- * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
+ * @see net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct
  */
 public class Option extends AbstractProductComponent implements RegressionBasisFunctionsProvider {
 
@@ -54,7 +54,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 
 	private final double							exerciseDate;
 	private final double							strikePrice;
-	private final AbstractLIBORMonteCarloProduct	underlying;
+	private final AbstractTermStructureMonteCarloProduct	underlying;
 	private final TermStructureMonteCarloProduct	strikeProduct;
 	private final boolean							isCall;
 
@@ -69,7 +69,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param underlying The underlying.
 	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
-	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractLIBORMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractTermStructureMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		this.strikePrice	= strikePrice;
@@ -88,7 +88,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param underlying The underlying.
 	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
 	 */
-	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractLIBORMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractTermStructureMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
 		super();
 		this.exerciseDate	= exerciseDate;
 		strikePrice	= Double.NaN;
@@ -106,7 +106,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
 	 * @param underlying The underlying.
 	 */
-	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractTermStructureMonteCarloProduct underlying) {
 		this(exerciseDate, isCall, strikeProduct, underlying, null);
 	}
 
@@ -118,7 +118,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param isCall If true, the function implements is underlying(exerciseDate) &ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &lt; strikePrice ? underlying : strikePrice.
 	 * @param underlying The underlying.
 	 */
-	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractTermStructureMonteCarloProduct underlying) {
 		this(exerciseDate, strikePrice, isCall, underlying, null);
 	}
 
@@ -129,7 +129,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param strikePrice The strike price.
 	 * @param underlying The underlying.
 	 */
-	public Option(final double exerciseDate, final double strikePrice, final AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final double strikePrice, final AbstractTermStructureMonteCarloProduct underlying) {
 		this(exerciseDate, strikePrice, true, underlying);
 	}
 
@@ -139,7 +139,7 @@ public class Option extends AbstractProductComponent implements RegressionBasisF
 	 * @param exerciseDate The exercise date of the option (given as a double).
 	 * @param underlying The underlying.
 	 */
-	public Option(final double exerciseDate, final AbstractLIBORMonteCarloProduct underlying) {
+	public Option(final double exerciseDate, final AbstractTermStructureMonteCarloProduct underlying) {
 		this(exerciseDate, 0.0, underlying);
 	}
 
