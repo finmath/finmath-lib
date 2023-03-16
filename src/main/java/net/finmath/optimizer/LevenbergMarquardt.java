@@ -757,7 +757,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 		 * where H = J^T J is the Hessian approximation and b = J^T (y-f(x)) and \Delta x is the parameterIncrement
 		 */
 		boolean hessianInvalid = true;
-		while (hessianInvalid) {
+		while (hessianInvalid && Double.isFinite(lambda)) {
 			hessianInvalid = false;
 			// Build matrix H (Hessian approximation), that is H = J^T J
 			for (int i = 0; i < parameterCurrent.length; i++) {
@@ -800,7 +800,8 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			try {
 				// Calculate new increment
-				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+//				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+				parameterIncrement = LinearAlgebra.solveLinearEquationSVD(hessianMatrix, beta);
 			} catch (final Exception e) {
 				// Matrix not invertable, increase lambda
 				hessianInvalid	= true;
