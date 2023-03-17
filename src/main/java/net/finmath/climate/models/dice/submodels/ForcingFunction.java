@@ -9,8 +9,9 @@ import java.util.function.BiFunction;
  */
 public class ForcingFunction implements BiFunction<CarbonConcentration3DScalar, Double, Double> {
 
+	// Parameters of the orignal model
 	private final double carbonConcentrationBase = 580;
-	private final double forcingPerCarbonDoubling = 3.6813/5;			// Parameter in original model was per 5 year
+	private final double forcingPerCarbonDoubling = 3.6813;
 
 	@Override
 	public Double apply(CarbonConcentration3DScalar carbonConcentration, Double forcingExternal) {

@@ -1,7 +1,11 @@
 package net.finmath.climate.models.dice;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
@@ -56,7 +60,15 @@ public class DICEModel implements ClimateModel {
 	private double[] welfare;
 	private double[] value;
 
-	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction, double discountRate) {
+	/**
+	 * 
+	 * @param timeDiscretization
+	 * @param abatementFunction
+	 * @param savingsRateFunction
+	 * @param discountRate
+	 * @param modelProperties A key value map of optional model properties or parameters.
+	 */
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction, double discountRate, Map<String, Object> modelProperties) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.abatementFunction = abatementFunction;
@@ -77,14 +89,23 @@ public class DICEModel implements ClimateModel {
 		welfare = new double[numberOfTimes];
 		value = new double[numberOfTimes];
 
-		this.init();
+		this.init(modelProperties);
+	}
+
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction, double discountRate) {
+		this(timeDiscretization, abatementFunction, savingsRateFunction, discountRate, Map.of());
 	}
 
 	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction) {
 		this(timeDiscretization, abatementFunction, t -> 0.259029014481802, 0.03);
 	}
 
-	private void init() {
+	private void init(Map<String, Object> modelProperties) {
+
+		Predicate<Integer> isTimeIndexToShift = (Predicate<Integer>) modelProperties.getOrDefault("isTimeIndexToShift", (Predicate<Integer>) i -> true);
+		double initialEmissionShift = (double) modelProperties.getOrDefault("initialEmissionShift", 0.0);
+		double initialConsumptionShift = (double) modelProperties.getOrDefault("initialConsumptionShift", 0.0);
+		
 		final double timeStep = timeDiscretization.getTimeStep(0);
 
 		/*
@@ -109,12 +130,13 @@ public class DICEModel implements ClimateModel {
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
 		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction();
-		final EmissionExternalFunction emissionExternalFunction = new EmissionExternalFunction();
+
+		final Function<Double, Double> emissionExternalFunction = new EmissionExternalFunction();
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
 		final ForcingFunction forcingFunction = new ForcingFunction();
-		final double forcingExternal = 1.0/5.0;		// per year
+		final double forcingExternal = 1.0;			// per year
 
 		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeDiscretization);
 
@@ -175,6 +197,10 @@ public class DICEModel implements ClimateModel {
 			double emissionIndustrial = emissionIndustrialIntensityFunction.apply(time) * gdp[timeIndex];
 			double emissionExternal = emissionExternalFunction.apply(time);
 			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionIndustrial + emissionExternal;
+
+			// Allow for an external shift to the emissions (e.g. to calculate SCC).
+			emission[timeIndex] += isTimeIndexToShift.test(timeIndex) ? initialEmissionShift : 0.0;
+
 			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);
 
 			/*
@@ -204,9 +230,12 @@ public class DICEModel implements ClimateModel {
 			// Constant from the original model - in the original model this is a time varying control variable.
 			double savingsRate = savingsRateFunction.apply(time);	//0.259029014481802;
 
-			double consumption = (1-savingsRate) * gdpNet;
+			double consumption = (1-savingsRate) * gdpNet;			
 			double investment = savingsRate * gdpNet;
 
+			// Allow for an external shift to the emissions (e.g. to calculate SCC).
+			consumption += isTimeIndexToShift.test(timeIndex) ? initialConsumptionShift : 0.0;
+					
 			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);
 
 			/*
@@ -224,7 +253,7 @@ public class DICEModel implements ClimateModel {
 			 */
 			double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)
 			double C = consumption;
-			double utility = L*(Math.pow(C / (L/1000),1-alpha)-1)/(1-alpha);
+			double utility = L*(Math.pow(C / (L/1000),1-alpha))/(1-alpha);
 
 			/*
 			 * Discounted utility
