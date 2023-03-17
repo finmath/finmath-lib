@@ -136,7 +136,7 @@ public class DICEModel implements ClimateModel {
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
 		final ForcingFunction forcingFunction = new ForcingFunction();
-		final double forcingExternal = 1.0;			// per year
+		final double forcingExternal = 1.0;
 
 		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeDiscretization);
 
@@ -253,7 +253,7 @@ public class DICEModel implements ClimateModel {
 			 */
 			double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)
 			double C = consumption;
-			double utility = L*(Math.pow(C / (L/1000),1-alpha))/(1-alpha);
+			double utility = L*(Math.pow(C / (L/1000),1-alpha)-1)/(1-alpha);
 
 			/*
 			 * Discounted utility
