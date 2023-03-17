@@ -5,7 +5,7 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
 /**
- * State vector representing temperature above pre-industrial level.
+ * State vector representing temperature above pre-industrial level in Kelvin (K).
  *
  * @author Christian Fries
  */
@@ -14,6 +14,12 @@ public class Temperature2DScalar implements Temperature {
 	private final double temperatureOfAtmosphere;
 	private final double temperatureOfLandAndOcean;
 
+	/**
+	 * Create a temperature vector.
+	 * 
+	 * @param temperatureOfAtmosphere Temperature over pre-industrial of the atmosphere.
+	 * @param temperatureOfLandAndOcean Temperature over pre-industrial of land and ocean.
+	 */
 	public Temperature2DScalar(double temperatureOfAtmosphere, double temperatureOfLandAndOcean) {
 		super();
 		this.temperatureOfAtmosphere = temperatureOfAtmosphere;

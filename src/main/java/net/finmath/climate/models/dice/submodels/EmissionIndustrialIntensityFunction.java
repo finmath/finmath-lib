@@ -24,7 +24,7 @@ public class EmissionIndustrialIntensityFunction implements Function<Double, Dou
 
 	private final double emissionIntensityInitial;		// sigma0;
 	private final double emissionIntensityRateInitial;	// = 0.0152;		// -g	// per year
-	private final double emissionIntensityRateDecay;	// = 0.001;			// -d	// per year
+	private final double emissionIntensityRateDecay;	// exp decay rate corresponding to annual -0.001;			// -d	// per year
 
 	/**
 	 * 

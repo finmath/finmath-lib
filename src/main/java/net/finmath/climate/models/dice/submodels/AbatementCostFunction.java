@@ -32,7 +32,7 @@ public class AbatementCostFunction implements BiFunction<Double, Double, Double>
 	 *
 	 * @param backstopPriceInitial USD per ton CO2 to abate 100% per year.
 	 * @param backstopRate Annual rate by which the price declines.
-	 * @param abatementExponent Exponent for &mu;
+	 * @param abatementExponent Exponent for &mu; (sometimes called theta_2)
 	 */
 	public AbatementCostFunction(double backstopPriceInitial, double backstopRate, double abatementExponent) {
 		super();
@@ -49,7 +49,7 @@ public class AbatementCostFunction implements BiFunction<Double, Double, Double>
 	@Override
 	public Double apply(Double time, Double abatement) {
 		final double backstopPrice = backstopPriceInitial * Math.exp(-backstopRate * time);
-		final double abatementCost = backstopPrice * Math.pow(abatement , abatementExponent)/abatementExponent;
+		final double abatementCost = backstopPrice * Math.pow(abatement, abatementExponent)/abatementExponent;
 
 		return abatementCost;
 	}
