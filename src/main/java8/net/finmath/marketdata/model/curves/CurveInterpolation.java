@@ -535,6 +535,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 
 		newCurve.points					= new ArrayList<>();
 		newCurve.pointsBeingParameters	= new ArrayList<>();
+		newCurve.rationalFunctionInterpolationLazyInitLock = new Object();
 		newCurve.rationalFunctionInterpolation = null;
 		newCurve.curveCacheReference = null;
 		for(final Point point : points) {
