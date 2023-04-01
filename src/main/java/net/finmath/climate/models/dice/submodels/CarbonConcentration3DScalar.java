@@ -1,5 +1,7 @@
 package net.finmath.climate.models.dice.submodels;
 
+import org.apache.commons.lang3.Validate;
+
 import net.finmath.climate.models.CarbonConcentration;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -17,6 +19,9 @@ public class CarbonConcentration3DScalar implements CarbonConcentration {
 
 	public CarbonConcentration3DScalar(double carbonConcentrationInAtmosphere, double carbonConcentrationInShallowOcean, double carbonConcentrationInLowerOcean) {
 		super();
+		Validate.isTrue(carbonConcentrationInAtmosphere >= 0, "carbonConcentrationInAtmosphere must not be negative.", carbonConcentrationInAtmosphere);
+		Validate.isTrue(carbonConcentrationInShallowOcean >= 0, "carbonConcentrationInShallowOcean must not be negative.", carbonConcentrationInShallowOcean);
+		Validate.isTrue(carbonConcentrationInLowerOcean >= 0, "carbonConcentrationInLowerOcean must not be negative.", carbonConcentrationInLowerOcean);
 		this.carbonConcentrationInAtmosphere = carbonConcentrationInAtmosphere;
 		this.carbonConcentrationInShallowOcean = carbonConcentrationInShallowOcean;
 		this.carbonConcentrationInLowerOcean = carbonConcentrationInLowerOcean;
