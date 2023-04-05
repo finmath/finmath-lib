@@ -133,8 +133,9 @@ public class AnalyticOptionValuationTest {
 			final var anaTheta = pricer.getTheta(option, fwdStructure, discountCurve, flatVol);
 			final var thetaDate = valDate.plusDays(1);
 			final var thetaSpot = fwdStructure.getForward(thetaDate);
+			final var thetaCurve = discountCurve.rollToDate(thetaDate);
 			final var shiftedFwdStructure = fwdStructure.cloneWithNewSpot(thetaSpot).cloneWithNewDate(thetaDate);
-			final var priceTheta = pricer.getPrice(option, shiftedFwdStructure, discountCurve, flatVol);
+			final var priceTheta = pricer.getPrice(option, shiftedFwdStructure, thetaCurve, flatVol);
 			final var fdTheta = (priceTheta - price) / dcc.getDaycountFraction(valDate, thetaDate);
 
 
