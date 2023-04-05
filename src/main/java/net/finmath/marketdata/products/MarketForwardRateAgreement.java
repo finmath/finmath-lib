@@ -64,7 +64,7 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 		final DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);
 
 		DiscountCurve	discountCurveForForward = null;
-		if(forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0) {
+		if(checkForwardCurve(forwardCurve, forwardCurveName)) {
 			// User might like to get forward from discount curve.
 			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);
 
@@ -87,5 +87,9 @@ public class MarketForwardRateAgreement extends AbstractAnalyticProduct implemen
 		final double discountFactor	= maturity > evaluationTime ? discountCurve.getDiscountFactor(model, maturity) : 0.0;
 
 		return payoff * discountFactor / discountCurve.getDiscountFactor(model, evaluationTime);
+	}
+
+	public boolean checkForwardCurve(ForwardCurve forwardCurve, String forwardCurveName){
+		return (forwardCurve == null && forwardCurveName != null && forwardCurveName.length() > 0);
 	}
 }
