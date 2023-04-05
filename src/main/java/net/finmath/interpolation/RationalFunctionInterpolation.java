@@ -181,49 +181,55 @@ public class RationalFunctionInterpolation implements DoubleUnaryOperator, Seria
 	 * @param x The abscissa at which the interpolation should be performed.
 	 * @return The interpolated value (ordinate).
 	 */
-	public double getValue(final double x)
-	{
+	public double getValue(final double x) {
 		synchronized(interpolatingRationalFunctionsLazyInitLock) {
 			if(interpolatingRationalFunctions == null) {
 				doCreateRationalFunctions();
 			}
 		}
-
+	
 		// Get interpolating rational function for the given point x
 		final int pointIndex = java.util.Arrays.binarySearch(points, x);
 		if(pointIndex >= 0) {
 			return values[pointIndex];
 		}
-
+	
 		int intervalIndex = -pointIndex-2;
-
+	
 		// Check for extrapolation
+		Extrapolation extrapolation;
 		if(intervalIndex < 0) {
 			// Extrapolation
-			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
-				return values[0];
-			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
-				return values[0]+(values[1]-values[0])/(points[1]-points[0])*(x-points[0]);
-			} else {
-				intervalIndex = 0;
-			}
-		}
-		else if(intervalIndex > points.length-2) {
+			extrapolation = getExtrapolationMethod();
+			intervalIndex = 0;
+		} else if(intervalIndex > points.length-2) {
 			// Extrapolation
-			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
-				return values[points.length-1];
-			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
-				return values[points.length-1]+(values[points.length-2]-values[points.length-1])/(points[points.length-2]-points[points.length-1])*(x-points[points.length-1]);
-			} else {
-				intervalIndex = points.length-2;
-			}
+			extrapolation = getExtrapolationMethod();
+			intervalIndex = points.length-2;
+		} else {
+			extrapolation = null;
 		}
-
-		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervalIndex];
-
-		// Calculate interpolating value
-		return rationalFunction.getValue(x-points[intervalIndex]);
+	
+		// Calculate interpolating value or use extrapolation
+		if(extrapolation == null) {
+			final RationalFunction rationalFunction = interpolatingRationalFunctions[intervalIndex];
+			return rationalFunction.getValue(x-points[intervalIndex]);
+		} else {
+			return extrapolation.getValue(points, values, x);
+		}
 	}
+	
+	public Extrapolation getExtrapolationMethod() {
+		if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {
+			return new ConstantExtrapolation();
+		} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {
+			return new LinearExtrapolation();
+		} else {
+			return null;
+		}
+	}
+	
+	
 
 	private void doCreateRationalFunctions()
 	{
