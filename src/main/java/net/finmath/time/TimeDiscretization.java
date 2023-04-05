@@ -77,7 +77,27 @@ public interface TimeDiscretization extends Iterable<Double> {
 	int getTimeIndexNearestGreaterOrEqual(double time);
 
 	/**
+	 * Returns the first time in the time discretization.
+	 * 
+	 * @return The first time in the time discretization.
+	 */
+	default double getFirstTime() {
+		return getTime(0);
+	}
+
+	/**
+	 * Returns the last time in the time discretization.
+	 * 
+	 * @return The last time in the time discretization.
+	 */
+	default double getLastTime() {
+		return getTime(getNumberOfTimes()-1);
+	}
+
+	
+	/**
 	 * Return a clone of this time discretization as <code>double[]</code>.
+	 * 
 	 * @return The time discretization as <code>double[]</code>
 	 */
 	double[] getAsDoubleArray();

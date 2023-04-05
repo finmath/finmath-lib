@@ -65,7 +65,7 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 		return new BuehlerDividendForwardStructure(
 				newDate,
 				this.spot,
-				this.repoCurve,
+				this.repoCurve.rollToDate(newDate),
 				this.dividendStream,
 				this.dayCounter);
 	}

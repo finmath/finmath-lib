@@ -105,9 +105,6 @@ public class FDMConstantElasticityOfVarianceModel implements FiniteDifference1DM
 		return numStandardDeviations;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.finitedifference.models.FiniteDifference1DModel#valueOptionWithThetaMethod(net.finmath.finitedifference.products.FDMEuropeanCallOption, double)
-	 */
 	@Override
 	public double[][] getValue(double evaluationTime, double time, DoubleUnaryOperator values, FiniteDifference1DBoundary boundary) {
 		final FDMThetaMethod solver = new FDMThetaMethod(this, boundary, time, center, theta);
