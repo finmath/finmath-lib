@@ -756,13 +756,9 @@ public class CalibratedCurves {
 	 * @return The discount factor curve associated with the given name.
 	 */
 	private DiscountCurve createDiscountCurve(final String discountCurveName) {
-		DiscountCurve discountCurve	= model.getDiscountCurve(discountCurveName);
-		if(discountCurve == null) {
-			discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });
-			model = model.addCurves(discountCurve);
-		}
+		DiscountedAnalyticCurves discountedAnalyticCurves = new DiscountedAnalyticCurves();
 
-		return discountCurve;
+		return discountedAnalyticCurves.createDiscountCurve(discountCurveName, model);
 	}
 
 	/**
