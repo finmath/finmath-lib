@@ -73,35 +73,35 @@ public class ARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulatio
 		double logLikelihood = 0.0;
 
 		final double volScaling	= 1;
-		double evalPrev		= 0.0;
-		double eval			= volScaling * (Math.log((timeSeries.getValue(1))/(timeSeries.getValue(0))));
-		if(Double.isInfinite(eval) || Double.isNaN(eval)) {
-			eval = 0;
+		double evaluationPrev		= 0.0;
+		double evaluation			= volScaling * (Math.log((timeSeries.getValue(1))/(timeSeries.getValue(0))));
+		if(Double.isInfinite(evaluation) || Double.isNaN(evaluation)) {
+			evaluation = 0;
 		}
 		double h			= omega / (1.0 - alpha - beta);
 		double m			= 0.0; // xxx how to init?
 
-		logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(timeSeries.getValue(1)))/volScaling) - eval*eval / h;
+		logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(timeSeries.getValue(1)))/volScaling) - evaluation*evaluation / h;
 
 		final int length = timeSeries.getNumberOfTimePoints();
 		for (int i = 1; i < length-1; i++) {
-			m = -mu -theta * m + eval - phi * evalPrev;
+			m = -mu -theta * m + evaluation - phi * evaluationPrev;
 			h = (omega + alpha * m * m) + beta * h;
 
-			final double value1 = timeSeries.getValue(i);
-			final double value2 = timeSeries.getValue(i+1);
+			final double currentValue = timeSeries.getValue(i);
+			final double nextValue = timeSeries.getValue(i+1);
 
-			double evalNext	= volScaling * (Math.log((value2)/(value1)));
+			double evalNext	= volScaling * (Math.log((nextValue)/(currentValue)));
 			if(Double.isInfinite(evalNext) || Double.isNaN(evalNext)) {
 				evalNext = 0;
 			}
-			final double mNext = -mu - theta * m + evalNext - phi * eval;
+			final double mNext = -mu - theta * m + evalNext - phi * evaluation;
 
 			// We need to take abs here, which corresponds to the assumption that -x is lognormal, given that we encounter a negative values.
-			logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(value2))/volScaling) -  mNext* mNext / h;
+			logLikelihood += - Math.log(h) - 2 * Math.log((Math.abs(nextValue))/volScaling) -  mNext* mNext / h;
 
-			evalPrev = eval;
-			eval = evalNext;
+			evaluationPrev = evaluation;
+			evaluation = evalNext;
 		}
 		logLikelihood += - Math.log(2 * Math.PI) * (length-1);
 		logLikelihood *= 0.5;
