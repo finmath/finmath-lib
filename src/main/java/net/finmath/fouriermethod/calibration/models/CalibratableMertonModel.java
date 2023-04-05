@@ -1,11 +1,13 @@
 package net.finmath.fouriermethod.calibration.models;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
 import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
 import net.finmath.fouriermethod.calibration.Unconstrained;
 import net.finmath.fouriermethod.models.MertonModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.ModelDescriptor;
 import net.finmath.modelling.descriptor.MertonModelDescriptor;
 
@@ -100,10 +102,18 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 
 	@Override
 	public MertonModel getCharacteristicFunctionModel() {
-		return new MertonModel(descriptor.getReferenceDate(),descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),
-				descriptor.getDiscountCurveForDiscountRate(),descriptor.getVolatility(),
-				descriptor.getJumpIntensity(),descriptor.getJumpSizeMean(),descriptor.getJumpSizeStdDev());
-	}
+    final LocalDate referenceDate = descriptor.getReferenceDate();
+    final double initialValue = descriptor.getInitialValue();
+    final DiscountCurve forwardDiscountCurve = descriptor.getDiscountCurveForForwardRate();
+    final DiscountCurve discountCurveForDiscountRate = descriptor.getDiscountCurveForDiscountRate();
+    final double volatility = descriptor.getVolatility();
+    final double jumpIntensity = descriptor.getJumpIntensity();
+    final double jumpSizeMean = descriptor.getJumpSizeMean();
+    final double jumpSizeStdDev = descriptor.getJumpSizeStdDev();
+    
+    return new MertonModel(referenceDate, initialValue, forwardDiscountCurve, discountCurveForDiscountRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStdDev);
+}
+
 
 	@Override
 	public double[] getParameterLowerBounds() {
