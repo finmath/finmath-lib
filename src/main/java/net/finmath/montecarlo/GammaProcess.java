@@ -55,7 +55,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 
 	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();
 
-	private transient RandomVariable[][]	gammaIncrements;
+	private transient RandomVariable[][] gammaIncrements;
 
 	/**
 	 * Construct a Gamma process with a given shape parameter.
@@ -122,12 +122,12 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 				doGenerateGammaIncrements();
 			}
 		}
-
 		/*
 		 *  For performance reasons we return directly the stored data (no defensive copy).
 		 *  We return an immutable object to ensure that the receiver does not alter the data.
 		 */
-		return gammaIncrements[timeIndex][factor];
+		RandomVariableLazyEvaluation randomVariableLazyEvaluation = new RandomVariableLazyEvaluation(null);
+		return randomVariableLazyEvaluation.getIncrement(timeIndex, factor);
 	}
 
 	/**

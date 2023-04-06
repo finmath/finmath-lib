@@ -36,7 +36,10 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	/**
 	 *
 	 */
+
+	
 	private static final long serialVersionUID = 8413020544732461630L;
+	private transient RandomVariable[][] gammaIncrements;
 
 	private final double            time;	                // Time (filtration)
 
@@ -59,6 +62,7 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		realizations = value.isDeterministic() ? null : value::get;
 		size = value.size();
 		valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;
+		gammaIncrements	= null; 	// Lazy initialization
 	}
 
 	/**
@@ -68,8 +72,9 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 	 */
 	public RandomVariableLazyEvaluation(final double value) {
 		this(0.0, value);
-	}
+		gammaIncrements	= null; 	// Lazy initialization
 
+	}
 	/**
 	 * Create a random variable by applying a function to a given other implementation of <code>RandomVariable</code>.
 	 *
@@ -87,6 +92,8 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		};
 		size = value.size();
 		valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;
+		gammaIncrements	= null; 	// Lazy initialization
+
 	}
 
 	/**
@@ -101,6 +108,17 @@ public class RandomVariableLazyEvaluation implements RandomVariable {
 		realizations = null;
 		size = 1;
 		valueIfNonStochastic = value;
+		gammaIncrements	= null; 	// Lazy initialization
+
+	}
+
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+		// Thread safe lazy initialization
+		/*
+		 *  For performance reasons we return directly the stored data (no defensive copy).
+		 *  We return an immutable object to ensure that the receiver does not alter the data.
+		 */
+		return gammaIncrements[timeIndex][factor];
 	}
 
 	/**
