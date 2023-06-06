@@ -200,7 +200,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractTermStructureMont
 		for(int exerciseIndex = exerciseDates.length - 1; exerciseIndex >=0; exerciseIndex--) {
 			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
 
-			final RandomVariable discountedCashflowFixLeg			= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
+			final RandomVariable discountedCashflowFixLeg		= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
 			final RandomVariable discountedCashflowFloatingLeg	= getValueUnderlyingNumeraireRelative(model, floatSchedules[exerciseIndex], true, 0.0, notionals[exerciseIndex]);
 
 			// Distinguish whether the swaption is of type "Payer" or "Receiver":
