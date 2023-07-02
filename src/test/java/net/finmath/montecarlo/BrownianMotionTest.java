@@ -195,7 +195,7 @@ public class BrownianMotionTest {
 		// Test the quality of the Brownian motion
 		final BrownianMotion brownian = new BrownianMotionFromMersenneRandomNumbers(
 				timeDiscretization,
-				2,
+				2,	/* numberOfFactors */
 				numberOfPaths,
 				seed,
 				randomVariableFactory
@@ -205,7 +205,7 @@ public class BrownianMotionTest {
 		System.out.println("Time step size: " + dt + "  Number of path: " + numberOfPaths);
 
 		RandomVariable sumOfSquaredIncrements 	= brownian.getRandomVariableForConstant(0.0);
-		RandomVariable sumOfCrossIncrements	= brownian.getRandomVariableForConstant(0.0);
+		RandomVariable sumOfCrossIncrements		= brownian.getRandomVariableForConstant(0.0);
 		for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 			final RandomVariable brownianIncrement1 = brownian.getBrownianIncrement(timeIndex,0);
 			final RandomVariable brownianIncrement2 = brownian.getBrownianIncrement(timeIndex,1);
