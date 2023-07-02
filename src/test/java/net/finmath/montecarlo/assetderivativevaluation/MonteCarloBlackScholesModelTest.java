@@ -35,11 +35,13 @@ public class MonteCarloBlackScholesModelTest {
 	private final double	volatility     = 0.30;
 
 	// Process discretization properties
-	private final int		numberOfPaths		= 20000;
+	private final double	initialTime			= 0.0;
 	private final int		numberOfTimeSteps	= 10;
 	private final double	deltaT				= 0.5;
 
+	private final int		numberOfPaths		= 20000;
 	private final int		seed				= 31415;
+	private final int		numberOfFactors		= 1;
 
 	// Product properties
 	private final int		assetIndex = 0;
@@ -52,10 +54,10 @@ public class MonteCarloBlackScholesModelTest {
 		final ProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
 		// Create a time discretization
-		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(initialTime, numberOfTimeSteps, deltaT);
 
 		// Create a corresponding MC process
-		final MonteCarloProcess process = new EulerSchemeFromProcessModel(model, new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed), Scheme.EULER);
+		final MonteCarloProcess process = new EulerSchemeFromProcessModel(model, new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed), Scheme.EULER);
 
 		/*
 		 * Value a call option - directly using random variables not using product class.
@@ -78,17 +80,21 @@ public class MonteCarloBlackScholesModelTest {
 	@Test
 	public void testProductImplementation() throws CalculationException {
 		/*
-		 * Model and Numerical Method
+		 * Model
 		 */
 
 		// Create a process model (for the Euler-scheme)
 		final ProcessModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
 
+		/*
+		 * Numerical Method
+		 */
+
 		// Create a time discretization
-		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0 /* initial */, numberOfTimeSteps, deltaT);
+		final TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(initialTime, numberOfTimeSteps, deltaT);
 
 		// Create Brownian motion (and random number generator)
-		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, 1 /* numberOfFactors */, numberOfPaths, seed);
+		final BrownianMotion brownianMotion = new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, numberOfFactors, numberOfPaths, seed);
 
 		// Create a corresponding MC process
 		final MonteCarloProcess process = new EulerSchemeFromProcessModel(model, brownianMotion);
@@ -111,7 +117,6 @@ public class MonteCarloBlackScholesModelTest {
 		 */
 
 		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
-
 
 		System.out.println("value using Monte-Carlo.......: " + value);
 		System.out.println("value using analytic formula..: " + valueAnalytic);
