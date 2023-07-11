@@ -8,6 +8,8 @@ package net.finmath.montecarlo.assetderivativevaluation.products;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.Validate;
+
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
@@ -37,7 +39,7 @@ import net.finmath.stochastic.Scalar;
  *
  *
  * @author Christian Fries
- * @version 1.4
+ * @version 1.5
  */
 public class BermudanOption extends AbstractAssetMonteCarloProduct {
 
@@ -50,12 +52,48 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private final double[]	notionals;
 	private final double[]	strikes;
 
-	private final int			orderOfRegressionPolynomial		= 4;
-	private final boolean		intrinsicValueAsBasisFunction	= false;
+	private final int			numberOfBasisFunctions;
+	private final boolean		intrinsicValueAsBasisFunction;
+
+	private final boolean		useBinning;
 
 	private final ExerciseMethod exerciseMethod;
 
 	private RandomVariable lastValuationExerciseTime;
+
+	/**
+	 * Create a Bermudan option paying
+	 * 		N(i) * (S(T(i)) - K(i)) at T(i),
+	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+	 * and T(i) the exercise date.
+	 *
+	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
+	 * @param notionals The notionals (N(i)) for each exercise date.
+	 * @param strikes The strikes (K(i)) for each exercise date.
+	 * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
+	 * @param numberOfBasisFunctions The number of basis functions (if exerciseMethod == ESTIMATE_COND_EXPECTATION, otherwise ignored)
+	 * @param intrinsicValueAsBasisFunction If true max(S-K,0) is used to build the basis function, otherwise S is used to build the basis function.
+	 * @param useBinning If false, the basis functions are polynomials of increasing order (1, S S^2, ...). If true, the basis functions are bins.
+	 */
+	public BermudanOption(
+			final double[]			exerciseDates,
+			final double[]			notionals,
+			final double[]			strikes,
+			final ExerciseMethod	exerciseMethod,			
+			final int				numberOfBasisFunctions,
+			final boolean			intrinsicValueAsBasisFunction,
+			final boolean			useBinning) {
+		super();
+		Validate.isTrue(numberOfBasisFunctions > 0, "The vaue of numberOfBasisFunctions must be larger or equal 1. %s" , numberOfBasisFunctions);
+		
+		this.exerciseDates = exerciseDates;
+		this.notionals = notionals;
+		this.strikes = strikes;
+		this.exerciseMethod = exerciseMethod;
+		this.numberOfBasisFunctions = numberOfBasisFunctions;
+		this.intrinsicValueAsBasisFunction = intrinsicValueAsBasisFunction;
+		this.useBinning = useBinning;
+	}
 
 	/**
 	 * Create a Bermudan option paying
@@ -73,11 +111,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			final double[] notionals,
 			final double[] strikes,
 			final ExerciseMethod exerciseMethod) {
-		super();
-		this.exerciseDates = exerciseDates;
-		this.notionals = notionals;
-		this.strikes = strikes;
-		this.exerciseMethod = exerciseMethod;
+		this(exerciseDates, notionals, strikes, exerciseMethod, 4, false, false);
 	}
 
 	/**
@@ -127,6 +161,18 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		}
 	}
 
+	/**
+	 * Valuation where the parameter lambda is used as a factor to the martingale used to remove foresight in the upper bond method.
+	 * Used to optimize the value of lambda.
+	 * 
+	 * For {@link ExerciseMethod} being ESTIMATE_COND_EXPECTATION the lambda has no effect.
+	 * 
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @param lambda The parameter lambda used as a factor to the martingale used to remove foresight in the upper bond method.
+	 * @return The random variable representing the value of the product discounted to evaluation time.
+	 * @throws CalculationException
+	 */
 	private RandomVariable getValues(final double evaluationTime, final AssetModelMonteCarloSimulationModel model, final double lambda) throws CalculationException {
 		/*
 		 * We are going backward in time (note that this bears the risk of an foresight bias).
@@ -162,11 +208,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			case ESTIMATE_COND_EXPECTATION:
 				// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 				ArrayList<RandomVariable> basisFunctions;
-				if(intrinsicValueAsBasisFunction) {
-					basisFunctions = getRegressionBasisFunctions(underlyingAtExercise.sub(strike).floor(0.0));
-				} else {
-					basisFunctions = getRegressionBasisFunctions(underlyingAtExercise);
-				}
+				RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise : underlyingAtExercise.sub(strike).floor(0.0);
+				basisFunctions = useBinning ? getRegressionBasisFunctionsBinning(basisFunctionUnderlying) : getRegressionBasisFunctions(basisFunctionUnderlying);
+				
 				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
 
 				// Calculate conditional expectation on numeraire relative quantity.
@@ -223,10 +267,13 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable underlying) {
-		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+		
+		final int orderOfRegressionPolynomial = numberOfBasisFunctions-1;		// Choose maybe something like 4 (numberOfBasisFunctions = 5)
+
 		underlying = new RandomVariableFromDoubleArray(0.0, underlying.getRealizations());
 
 		// Create basis functions - here: 1, S, S^2, S^3, S^4
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial<=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {
 			basisFunctions.add(underlying.pow(powerOfRegressionMonomial));
 		}
@@ -235,12 +282,14 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctionsBinning(RandomVariable underlying) {
-		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
+
+		final int numberOfBins = numberOfBasisFunctions;		// Choose maybe something like 20 (numberOfBasisFunctions = 20)
 
 		underlying = new RandomVariableFromDoubleArray(0.0, underlying.getRealizations());
-		final int numberOfBins = 20;
 		final double[] values = underlying.getRealizations();
 		Arrays.sort(values);
+
+		final ArrayList<RandomVariable> basisFunctions = new ArrayList<>();
 		for(int i = 0; i<numberOfBins; i++) {
 			final double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];
 			final RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));
