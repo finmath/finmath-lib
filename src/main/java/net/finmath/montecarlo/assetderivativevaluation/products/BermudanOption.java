@@ -59,8 +59,14 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 
 	private final ExerciseMethod exerciseMethod;
 
-	private RandomVariable lastValuationExerciseTime;
-
+	/*
+	 * For analysis only
+	 */
+	private RandomVariable		lastValuationExerciseTime;
+	private RandomVariable[]	lastValuationExerciseValueAtExerciseTime;
+	private RandomVariable[]	lastValuationContinuationValueAtExerciseTime;
+	private RandomVariable[]	lastValuationContinuationValueEstimatedAtExerciseTime;	
+	
 	/**
 	 * Create a Bermudan option paying
 	 * 		N(i) * (S(T(i)) - K(i)) at T(i),
@@ -111,7 +117,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			final double[] notionals,
 			final double[] strikes,
 			final ExerciseMethod exerciseMethod) {
-		this(exerciseDates, notionals, strikes, exerciseMethod, 4, false, false);
+		this(exerciseDates, notionals, strikes, exerciseMethod, 5, false, false);
 	}
 
 	/**
@@ -151,13 +157,13 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			final GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);
 			while(!optimizer.isDone()) {
 				final double lambda = optimizer.getNextPoint();
-				final double value = this.getValues(evaluationTime, model, lambda).getAverage();
+				final double value = this.getValue(evaluationTime, model, lambda).getAverage();
 				optimizer.setValue(value);
 			}
-			return getValues(evaluationTime, model, optimizer.getBestPoint());
+			return getValue(evaluationTime, model, optimizer.getBestPoint());
 		}
 		else {
-			return getValues(evaluationTime, model, 0.0);
+			return getValue(evaluationTime, model, 0.0);
 		}
 	}
 
@@ -173,7 +179,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	 * @return The random variable representing the value of the product discounted to evaluation time.
 	 * @throws CalculationException
 	 */
-	private RandomVariable getValues(final double evaluationTime, final AssetModelMonteCarloSimulationModel model, final double lambda) throws CalculationException {
+	private RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model, final double lambda) throws CalculationException {
 		/*
 		 * We are going backward in time (note that this bears the risk of an foresight bias).
 		 * We store the value of the option, if not exercised in a vector. Is is not allowed to used the specific entry in this vector
@@ -184,7 +190,10 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		RandomVariable	value			= model.getRandomVariableForConstant(0.0);
 
 		RandomVariable	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);
-
+		lastValuationExerciseValueAtExerciseTime = new RandomVariable[exerciseDates.length];
+		lastValuationContinuationValueAtExerciseTime = new RandomVariable[exerciseDates.length];
+		lastValuationContinuationValueEstimatedAtExerciseTime = new RandomVariable[exerciseDates.length];
+				
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
 			final double exerciseDate = exerciseDates[exerciseDateIndex];
@@ -208,7 +217,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			case ESTIMATE_COND_EXPECTATION:
 				// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 				ArrayList<RandomVariable> basisFunctions;
-				RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise : underlyingAtExercise.sub(strike).floor(0.0);
+				RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise.sub(strike).floor(0.0) : underlyingAtExercise;
 				basisFunctions = useBinning ? getRegressionBasisFunctionsBinning(basisFunctionUnderlying) : getRegressionBasisFunctions(basisFunctionUnderlying);
 				
 				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
@@ -235,10 +244,14 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			default:
 				throw new IllegalArgumentException("Unknown exerciseMethod " + exerciseMethod + ".");
 			}
+			lastValuationExerciseValueAtExerciseTime[exerciseDateIndex]					= exerciseValue.mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));
+			lastValuationContinuationValueAtExerciseTime[exerciseDateIndex]				= value.mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));
+			lastValuationContinuationValueEstimatedAtExerciseTime[exerciseDateIndex]	= exerciseCriteria.add(exerciseValue).mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));
 
 			// If trigger is positive keep value, otherwise take underlying
 			value			= exerciseCriteria.choose(value, exerciseValue);
 			exerciseTime	= exerciseCriteria.choose(exerciseTime, new Scalar(exerciseDate));
+
 		}
 		lastValuationExerciseTime = exerciseTime;
 
@@ -248,10 +261,6 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		value = value.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);
 
 		return value;
-	}
-
-	public RandomVariable getLastValuationExerciseTime() {
-		return lastValuationExerciseTime;
 	}
 
 	public double[] getExerciseDates() {
@@ -264,6 +273,22 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 
 	public double[] getStrikes() {
 		return strikes;
+	}
+
+	public RandomVariable getLastValuationExerciseTime() {
+		return lastValuationExerciseTime;
+	}
+
+	public RandomVariable[] getLastValuationExerciseValueAtExerciseTime() {
+		return lastValuationExerciseValueAtExerciseTime;
+	}
+
+	public RandomVariable[] getLastValuationContinuationValueAtExerciseTime() {
+		return lastValuationContinuationValueAtExerciseTime;
+	}
+
+	public RandomVariable[] getLastValuationContinuationValueEstimatedAtExerciseTime() {
+		return lastValuationContinuationValueEstimatedAtExerciseTime;
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable underlying) {
