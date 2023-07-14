@@ -68,6 +68,7 @@
 			<timezone>1</timezone>
 		</developer>
 		<developer>
+			<id>gnoatto</id>
 			<name>Alessandro Gnoatto</name>
 			<email>alessandro@alessandrognoatto.com</email>
 			<url>http://www.alessandrognoatto.com</url>
