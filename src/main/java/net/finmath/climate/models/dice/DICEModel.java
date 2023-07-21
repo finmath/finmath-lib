@@ -10,33 +10,22 @@ import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 import net.finmath.climate.models.ClimateModel;
-import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
-import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
-import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
-import net.finmath.climate.models.dice.submodels.EmissionExternalFunction;
-import net.finmath.climate.models.dice.submodels.EmissionIndustrialIntensityFunction;
-import net.finmath.climate.models.dice.submodels.EvolutionOfCapital;
-import net.finmath.climate.models.dice.submodels.EvolutionOfCarbonConcentration;
-import net.finmath.climate.models.dice.submodels.EvolutionOfPopulation;
-import net.finmath.climate.models.dice.submodels.EvolutionOfProductivity;
-import net.finmath.climate.models.dice.submodels.EvolutionOfTemperature;
-import net.finmath.climate.models.dice.submodels.ForcingFunction;
-import net.finmath.climate.models.dice.submodels.Temperature2DScalar;
+import net.finmath.climate.models.dice.submodels.*;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 
 /**
  * A simulation of a simplified DICE model (see <code>net.finmath.climate.models.dice.DICEModelTest</code> in src/test/java) for an example usage.
- * 
+ *
  * The model just composes the sub-models (evolution equations and functions) from the package {@link net.finmath.climate.models.dice.submodels}.
- * 
- * Note: The code makes some small simplification: it uses a constant savings rate and a constant external forcings.
+ *
+ * Note: The code uses exponential discounting.
  */
 public class DICEModel implements ClimateModel {
 
 	private static Logger logger = Logger.getLogger("net.finmath.climate");
-	
+
 	/*
 	 * Input to this class
 	 */
@@ -61,7 +50,7 @@ public class DICEModel implements ClimateModel {
 	private double[] value;
 
 	/**
-	 * 
+	 *
 	 * @param timeDiscretization
 	 * @param abatementFunction
 	 * @param savingsRateFunction
@@ -105,7 +94,7 @@ public class DICEModel implements ClimateModel {
 		Predicate<Integer> isTimeIndexToShift = (Predicate<Integer>) modelProperties.getOrDefault("isTimeIndexToShift", (Predicate<Integer>) i -> true);
 		double initialEmissionShift = (double) modelProperties.getOrDefault("initialEmissionShift", 0.0);
 		double initialConsumptionShift = (double) modelProperties.getOrDefault("initialConsumptionShift", 0.0);
-		
+
 		final double timeStep = timeDiscretization.getTimeStep(0);
 
 		/*
@@ -129,14 +118,14 @@ public class DICEModel implements ClimateModel {
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction();
+		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction(timeStep);
 
 		final Function<Double, Double> emissionExternalFunction = new EmissionExternalFunction();
 
 		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);
 
 		final ForcingFunction forcingFunction = new ForcingFunction();
-		final double forcingExternal = 1.0;
+		final ForcingExternalFunction forcingExternalFunction = new ForcingExternalFunction();
 
 		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeDiscretization);
 
@@ -171,6 +160,8 @@ public class DICEModel implements ClimateModel {
 		population[0] = L0;
 		productivity[0] = A0;
 		double utilityDiscountedSum = 0;
+		//Emission intensity initial value, sigma(0) = e0/q0
+		double emissionIntensity = 35.85/105.5;
 
 		/*
 		 * Evolve
@@ -182,26 +173,23 @@ public class DICEModel implements ClimateModel {
 			 * Evolve geo-physical quantities i -> i+1 (as a function of gdp[i])
 			 */
 
-			// Temperature
-			
-			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex], forcingExternal);
-			temperature[timeIndex+1] = evolutionOfTemperature.apply(timeIndex, temperature[timeIndex], forcing);
-			
-
 			// Abatement
-			
 			abatement[timeIndex] = abatementFunction.apply(timeDiscretization.getTime(timeIndex));
 
 			// Carbon
-
-			double emissionIndustrial = emissionIndustrialIntensityFunction.apply(time) * gdp[timeIndex];
+			double emissionIndustrial = emissionIntensity/(1-abatement[0]) * gdp[timeIndex];
 			double emissionExternal = emissionExternalFunction.apply(time);
-			emission[timeIndex] = (1 - abatement[timeIndex])/(1-abatement[0]) * emissionIndustrial + emissionExternal;
+			emission[timeIndex] = (1 - abatement[timeIndex]) * emissionIndustrial + emissionExternal;
 
 			// Allow for an external shift to the emissions (e.g. to calculate SCC).
 			emission[timeIndex] += isTimeIndexToShift.test(timeIndex) ? initialEmissionShift : 0.0;
 
 			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);
+
+			// Temperature
+			double forcingExternal = forcingExternalFunction.apply(time+timeStep);
+			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex+1], forcingExternal);
+			temperature[timeIndex+1] = evolutionOfTemperature.apply(timeIndex, temperature[timeIndex], forcing);
 
 			/*
 			 * Cost
@@ -215,27 +203,30 @@ public class DICEModel implements ClimateModel {
 			/*
 			 * Evolve economy i -> i+1 (as a function of temperature[i])
 			 */
-			
+
 			// Remaining gdp
 			double gdpNet = gdp[timeIndex] - damageCostAbsolute - abatementCostAbsolute;
 
 			/*
 			 * Equivalent (alternative way) to calculate the abatement
 			 */
-			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrialIntensityFunction.apply(time);
+			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIntensity/(1-abatement[0]);
 			double gdpNet2 = gdp[timeIndex] * (1-damage[timeIndex] - abatementCost);
 			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) logger.warning("Calculation of relative and absolute net GDP does not match.");
 
-		
+			// Evolve emission intensity
+			emissionIntensity = emissionIndustrialIntensityFunction.apply(time, emissionIntensity);
+
+
 			// Constant from the original model - in the original model this is a time varying control variable.
 			double savingsRate = savingsRateFunction.apply(time);	//0.259029014481802;
 
-			double consumption = (1-savingsRate) * gdpNet;			
+			double consumption = (1-savingsRate) * gdpNet;
 			double investment = savingsRate * gdpNet;
 
 			// Allow for an external shift to the emissions (e.g. to calculate SCC).
 			consumption += isTimeIndexToShift.test(timeIndex) ? initialConsumptionShift : 0.0;
-					
+
 			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);
 
 			/*
@@ -253,7 +244,7 @@ public class DICEModel implements ClimateModel {
 			 */
 			double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)
 			double C = consumption;
-			double utility = L*(Math.pow(C / (L/1000),1-alpha)-1)/(1-alpha);
+			double utility = population[timeIndex]*( (Math.pow(1000*C/(population[timeIndex]),1-alpha)-1) /(1-alpha)-1 );
 
 			/*
 			 * Discounted utility

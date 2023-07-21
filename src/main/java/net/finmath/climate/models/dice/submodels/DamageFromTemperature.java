@@ -17,8 +17,7 @@ public class DamageFromTemperature implements DoubleUnaryOperator {
 
 	/**
 	 * Create the damage function
-	 * \( T \mapsto \Omega(T) = D(T) / (1+D(T)) \), with
-	 * \( D(T) = a_{0} + a_{1} T + a_{2} T^{2} \), with
+	 * \( T \mapsto \Omega(T) = a_{0} + a_{1} T + a_{2} T^{2} \), with
 	 * \( T \) being temperature above pre-industrial.
 	 *
 	 * @param tempToDamage0 The constant term.
@@ -33,7 +32,7 @@ public class DamageFromTemperature implements DoubleUnaryOperator {
 	}
 
 	/**
-	 * Create the damage function \( T \mapsto (a_{0} + a_{1} T + a_{2} T^{2})/(1+a_{0} + a_{1} T + a_{2} T^{2}) \), with \( T \) being temperature above pre-industrial,
+	 * Create the damage function \( T \mapsto (a_{0} + a_{1} T + a_{2} T^{2}) \), with \( T \) being temperature above pre-industrial,
 	 * using the default DICE (2016) parameters.
 	 */
 	public DamageFromTemperature() {
@@ -49,7 +48,7 @@ public class DamageFromTemperature implements DoubleUnaryOperator {
 	public double applyAsDouble(double temperature) {
 		final double damage = tempToDamage0 + tempToDamage1 * temperature + tempToDamage2 * temperature * temperature;
 
-		return damage / (1+damage);
+		return damage;
 	}
 
 }

@@ -9,9 +9,9 @@ import net.finmath.util.TriFunction;
 
 /**
  * The evolution of the carbon concentration M with a given emission E \( \mathrm{d}M(t) = \left( \Gamma_{M} M(t) + E(t) \right) \mathrm{d}t \).
- * 
+ *
  * The unit of \( M \) is GtC (Gigatons of Carbon).
- * 
+ *
  * The evolution is modelled as \( \mathrm{d}M(t) = \left( \Gamma_{M} M(t) + E(t) \right) \mathrm{d}t \right).
  * With the given {@link TimeDiscretization} it is approximated via an Euler-step
  * \(
@@ -30,7 +30,7 @@ import net.finmath.util.TriFunction;
  */
 public class EvolutionOfCarbonConcentration implements TriFunction<Integer, CarbonConcentration3DScalar, Double, CarbonConcentration3DScalar> {
 
-	private static double conversionGtCperGtCO2 = 3.0/11.0;
+	private static double conversionGtCperGtCO2 = 1/3.666;
 
 	private static double[][] transitionMatrix5YDefault;
 	// Original transition matrix is a 5Y transition matrix
@@ -47,7 +47,7 @@ public class EvolutionOfCarbonConcentration implements TriFunction<Integer, Carb
 		final double zeta22 = 1 - zeta12 - b23;
 		final double zeta32 = b23;
 		final double zeta23 = b23*(mueq/mleq);
-		final double zeta33 = 1 - b23;
+		final double zeta33 = 1 - zeta23;
 
 		transitionMatrix5YDefault = new double[][] { new double[] { zeta11, zeta12, 0.0 }, new double[] { zeta21, zeta22, zeta23 }, new double[] { 0.0, zeta32, zeta33 } };
 	}
