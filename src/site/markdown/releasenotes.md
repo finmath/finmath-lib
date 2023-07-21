@@ -5,6 +5,27 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.13 (21.07.2023)
+
+Small improvements. Larger extensions ahead.
+
+### General
+
+- Improve JavaDoc.
+- Validating Prameters.
+
+### Climate Models (DICE)
+
+- Moved time-rescaling for forcing to better location.
+
+### TimeDiscretization
+
+- Allow filtering of td.
+
+### Monte-Carlo
+
+- Added a CSRNG (Contributed by Luca Bressan)
+
 ## 6.0.8 (23.10.2022)
 
 ### Climate Models (DICE)
