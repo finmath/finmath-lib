@@ -12,11 +12,12 @@ Small improvements. Larger extensions ahead.
 ### General
 
 - Improve JavaDoc.
-- Validating Prameters.
+- Validating Parameters.
 
 ### Climate Models (DICE)
 
 - Moved time-rescaling for forcing to better location.
+- Added implementation that is consistent with original published model (reproduces results up to very small deviations) (Contributed by Max Singhof).
 
 ### TimeDiscretization
 
