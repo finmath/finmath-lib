@@ -21,9 +21,9 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 	/**
 	 * The evolution of the productivity (economy)
 	 * \(
-	 * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))
+	 * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))^{\frac{\delta t}{5}}
 	 * \)
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization.
 	 * @param productivityGrowthRateInitial The initial productivity growth rate ga per 1Y.
 	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
@@ -36,8 +36,8 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 	}
 
 	public EvolutionOfProductivity(TimeDiscretization timeDiscretization) {
-		// Parameters from original model: initial productivity growth 0.076 per 5 years, decaying with 0.005 per 1 year.
-		this(timeDiscretization, 1-Math.pow(1-0.076,1.0/5.0), 0.005);
+		// Parameters from original model: initial productivity growth 0.076 per 1 year, decaying with 0.005 per 1 year.
+		this(timeDiscretization, 0.076, 0.005);
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 		double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double productivity) -> {
 			double productivityGrowthRate = productivityGrowthRateInitial * Math.exp(-productivityGrowthRateDecayRate * time);
-			return productivity * Math.pow(1 - productivityGrowthRate, -timeStep);
+			return productivity / (Math.exp(Math.log(1 - (productivityGrowthRate))*timeStep/5.0));
 		};
 	}
 }
