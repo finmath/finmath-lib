@@ -57,4 +57,20 @@ public class EvolutionOfEmissionIndustrialIntensity implements BiFunction<Intege
 
 		return emissionIntensity*Math.exp(-emissionIntensityRate*timeStep);
 	}
+
+	public TimeDiscretization getTimeDiscretization() {
+		return timeDiscretization;
+	}
+
+	public double getEmissionIntensityInitial() {
+		return emissionIntensityInitial;
+	}
+
+	public double getEmissionIntensityRateInitial() {
+		return emissionIntensityRateInitial;
+	}
+
+	public double getEmissionIntensityRateDecay() {
+		return emissionIntensityRateDecay;
+	}
 }
