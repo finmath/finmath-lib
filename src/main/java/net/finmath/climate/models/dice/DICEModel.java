@@ -118,7 +118,7 @@ public class DICEModel implements ClimateModel {
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction(timeStep);
+		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction(timeDiscretization);
 
 		final Function<Double, Double> emissionExternalFunction = new EmissionExternalFunction();
 
@@ -215,7 +215,7 @@ public class DICEModel implements ClimateModel {
 			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) logger.warning("Calculation of relative and absolute net GDP does not match.");
 
 			// Evolve emission intensity
-			emissionIntensity = emissionIndustrialIntensityFunction.apply(time, emissionIntensity);
+			emissionIntensity = emissionIndustrialIntensityFunction.apply(timeIndex, emissionIntensity);
 
 
 			// Constant from the original model - in the original model this is a time varying control variable.
