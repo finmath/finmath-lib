@@ -15,7 +15,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * @author Christian Fries
  */
-public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, Double, Double> {
+public class EvolutionOfEmissionIndustrialIntensity implements BiFunction<Integer, Double, Double> {
 
 	private static double e0 = 35.85;					// Initial emissions
 	private static double q0 = 105.5;					// Initial global output
@@ -35,7 +35,7 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 	 * @param emissionIntensityRateInitial
 	 * @param emissionIntensityRateDecay
 	 */
-	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
+	public EvolutionOfEmissionIndustrialIntensity(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
 	                                           double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
 		super();
 		this.timeDiscretization = timeDiscretization;
@@ -44,7 +44,7 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 		this.emissionIntensityRateDecay = emissionIntensityRateDecay;
 	}
 
-	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization) {
+	public EvolutionOfEmissionIndustrialIntensity(TimeDiscretization timeDiscretization) {
 		// Parameters from original model
 		this(timeDiscretization, sigma0, 0.0152, -Math.log(1-0.001));
 	}

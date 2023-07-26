@@ -118,7 +118,7 @@ public class DICEModel implements ClimateModel {
 		// Model that describes the damage on the GBP as a function of the temperature-above-normal
 		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();
 
-		final EmissionIndustrialIntensityFunction emissionIndustrialIntensityFunction = new EmissionIndustrialIntensityFunction(timeDiscretization);
+		final EvolutionOfEmissionIndustrialIntensity emissionIndustrialIntensityFunction = new EvolutionOfEmissionIndustrialIntensity(timeDiscretization);
 
 		final Function<Double, Double> emissionExternalFunction = new EmissionExternalFunction();
 
