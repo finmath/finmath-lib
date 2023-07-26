@@ -43,8 +43,8 @@ public class DICEModelTest {
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(523781.24195844505, value, 1E-5, "value");
-		Assertions.assertEquals(2.8907990428384087, temperature, 1E-5, "value");
+		Assertions.assertEquals(195106.79071818522, value, 1E-5, "value");
+		Assertions.assertEquals(2.7151171241248084, temperature, 1E-5, "value");
 	}
 
 	@Test
@@ -73,8 +73,8 @@ public class DICEModelTest {
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(528053.9324187033, value, 1E-5, "value");
-		Assertions.assertEquals(2.9161173964016283, temperature, 1E-5, "value");
+		Assertions.assertEquals(196629.82410103234, value, 1E-5, "value");
+		Assertions.assertEquals(2.7428623157127094, temperature, 1E-5, "value");
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class DICEModelTest {
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
 
-		Assertions.assertEquals(563167.5684517919, value, 1E-5, "value");
-		Assertions.assertEquals(3.121837361062374, temperature, 1E-5, "value");
+		Assertions.assertEquals(208412.18521737104, value, 1E-5, "value");
+		Assertions.assertEquals(2.9682578537521165, temperature, 1E-5, "value");
 	}
 }
