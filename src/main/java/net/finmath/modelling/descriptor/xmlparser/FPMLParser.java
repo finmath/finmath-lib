@@ -78,6 +78,7 @@ public class FPMLParser implements XMLParser {
 	/**
 	 * Generates a product descriptor from an already existing Document.
 	 *
+	 * @param node The leaf node where the product description starts in the XML.
 	 * @return ProductDescriptor
 	 * @throws IllegalArgumentException Thrown id the document is not an FpML 5 document.
 	 */
