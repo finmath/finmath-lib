@@ -50,11 +50,12 @@ public class DICEModel implements ClimateModel {
 	private double[] value;
 
 	/**
-	 *
-	 * @param timeDiscretization
-	 * @param abatementFunction
-	 * @param savingsRateFunction
-	 * @param discountRate
+	 * Create the model.
+	 * 
+	 * @param timeDiscretization The time discretization to be used.
+	 * @param abatementFunction Abatement function \( t \mapsto \mu(t) \)
+	 * @param savingsRateFunction Savings rate function \( t \mapsto s(t) \)
+	 * @param discountRate Constant exponential disocunt rate r
 	 * @param modelProperties A key value map of optional model properties or parameters.
 	 */
 	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator<Double> abatementFunction, UnaryOperator<Double> savingsRateFunction, double discountRate, Map<String, Object> modelProperties) {

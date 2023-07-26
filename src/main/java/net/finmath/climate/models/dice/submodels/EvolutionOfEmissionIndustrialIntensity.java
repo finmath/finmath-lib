@@ -31,9 +31,10 @@ public class EvolutionOfEmissionIndustrialIntensity implements BiFunction<Intege
 
 	/**
 	 * The evolution of the emission intensity
-	 * @param timeStep The size of one timeStep.
-	 * @param emissionIntensityRateInitial
-	 * @param emissionIntensityRateDecay
+	 * @param timeDiscretization The time discretization used.
+	 * @param emissionIntensityInitial The initial emission intensity. Unit: GtCO2 / (10^12 USD)
+	 * @param emissionIntensityRateInitial Initial value for the exponential decay rate.
+	 * @param emissionIntensityRateDecay Exponential decay rate for the decay rate.
 	 */
 	public EvolutionOfEmissionIndustrialIntensity(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
 	                                           double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
