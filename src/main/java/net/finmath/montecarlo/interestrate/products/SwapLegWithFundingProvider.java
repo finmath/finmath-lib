@@ -11,7 +11,7 @@ import java.time.LocalTime;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.FundingCapacity;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacity;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;

@@ -1,4 +1,4 @@
-package net.finmath.montecarlo.interestrate.models;
+package net.finmath.montecarlo.interestrate.models.funding;
 
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ import net.finmath.stochastic.Scalar;
  *
  * @author Christian Fries
  */
-public class FundingCapacity extends AbstractProductComponent {
+public class FundingCapacityWithoutMemory extends AbstractProductComponent implements FundingCapacity {
 
 	private static final long serialVersionUID = 6863200178588875665L;
 
@@ -69,25 +69,7 @@ public class FundingCapacity extends AbstractProductComponent {
 	private Double				currentTime;
 	private RandomVariable		currentCapacity;
 
-	public class DefaultFactors {
-		private final RandomVariable survivalProbability;
-		private final RandomVariable defaultCompensation;
-
-		public DefaultFactors(RandomVariable survivalProbability, RandomVariable defaultCompensation) {
-			this.survivalProbability = survivalProbability;
-			this.defaultCompensation = defaultCompensation;
-		}
-
-		public RandomVariable getSurvivalProbability() {
-			return survivalProbability;
-		}
-
-		public RandomVariable getDefaultCompensation() {
-			return defaultCompensation;
-		}
-	}
-
-	public FundingCapacity(String currency, RandomVariable intialCapacity, SortedMap<Double, Double> instantaneouseSurvivalProbability) {
+	public FundingCapacityWithoutMemory(String currency, RandomVariable intialCapacity, SortedMap<Double, Double> instantaneouseSurvivalProbability) {
 		super(currency);
 		this.currentTime = 0.0;
 		this.currentCapacity = intialCapacity;
@@ -102,6 +84,7 @@ public class FundingCapacity extends AbstractProductComponent {
 	 * @param fundingRequirement The required funding.
 	 * @return A <code>DefaultFactors</code> that reflects the amount that has to be contracted to secure the funding.
 	 */
+	@Override
 	public DefaultFactors getDefaultFactors(double time, RandomVariable fundingRequirement) {
 
 		/*
