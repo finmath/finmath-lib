@@ -5,6 +5,11 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.0.15 (19.09.2023)
+
+Small fix to non-linear discounting.
+
+
 ## 6.0.13 (21.07.2023)
 
 Small improvements. Larger extensions ahead.
@@ -26,6 +31,7 @@ Small improvements. Larger extensions ahead.
 ### Monte-Carlo
 
 - Added a CSRNG (Contributed by Luca Bressan)
+
 
 ## 6.0.8 (23.10.2022)
 
