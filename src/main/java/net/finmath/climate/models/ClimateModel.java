@@ -1,5 +1,7 @@
 package net.finmath.climate.models;
 
+import java.util.function.Function;
+
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 
@@ -25,14 +27,19 @@ public interface ClimateModel {
 	RandomVariable getTemperature(double time);
 
 	/**
-	 * The value (scenario vector) (discounted)
+	 * The aggregated (discounted) value.
 	 *
-	 * @return The value (scenario vector).
+	 * @return The value (scenario wise).
 	 */
 	RandomVariable getValue();
 
+	/**
+	 * The random vector of un-discounted values (utilities).
+	 * 
+	 * @return random vector of un-discounted values (utilities).
+	 */
 	RandomVariable[] getValues();
-
+	
 	RandomVariable[] getAbatement();
 
 	RandomVariable[] getEmission();
@@ -44,4 +51,21 @@ public interface ClimateModel {
 	RandomVariable[] getDamage();
 
 	RandomVariable[] getGDP();
+
+	RandomVariable[] getConsumptions();
+
+	RandomVariable[] getAbatementCosts();
+
+	RandomVariable getAbatementCost();
+
+	RandomVariable[] getDamageCosts();
+
+	RandomVariable getDamageCost();
+
+	RandomVariable getNumeraire(double time);
+
+	Function<Double, RandomVariable> getAbatementModel();
+	
+	Function<Double, RandomVariable> getSavingsRateModel();
+	
 }

@@ -8,7 +8,9 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
+import net.finmath.climate.models.AbatementModel;
 import net.finmath.climate.models.ClimateModel;
+import net.finmath.climate.models.SavingsRateModel;
 import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
 import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
 import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
@@ -53,10 +55,13 @@ public class DICEModel implements ClimateModel {
 	private double[] gdp;
 	private double[] emission;
 	private double[] abatement;
+	private double[] abatementCosts;
 	private double[] damage;
+	private double[] damageCosts;
 	private double[] capital;
 	private double[] population;
 	private double[] productivity;
+	private double[] consumptions;
 	private double[] welfare;
 	private double[] value;
 
@@ -83,10 +88,13 @@ public class DICEModel implements ClimateModel {
 		gdp = new double[numberOfTimes];
 		emission = new double[numberOfTimes];
 		abatement = new double[numberOfTimes];
+		abatementCosts = new double[numberOfTimes];
 		damage = new double[numberOfTimes];
+		damageCosts = new double[numberOfTimes];
 		capital = new double[numberOfTimes];
 		population = new double[numberOfTimes];
 		productivity = new double[numberOfTimes];
+		consumptions = new double[numberOfTimes];
 		welfare = new double[numberOfTimes];
 		value = new double[numberOfTimes];
 
@@ -210,7 +218,10 @@ public class DICEModel implements ClimateModel {
 			damage[timeIndex] = damageFunction.applyAsDouble(temperature[timeIndex].getExpectedTemperatureOfAtmosphere());
 
 			double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];
+			damageCosts[timeIndex] = damageCostAbsolute;
+			
 			double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrial;
+			abatementCosts[timeIndex] = abatementCostAbsolute;
 
 			/*
 			 * Evolve economy i -> i+1 (as a function of temperature[i])
@@ -235,10 +246,11 @@ public class DICEModel implements ClimateModel {
 
 			double consumption = (1-savingsRate) * gdpNet;
 			double investment = savingsRate * gdpNet;
-
+			
 			// Allow for an external shift to the emissions (e.g. to calculate SCC).
 			consumption += isTimeIndexToShift.test(timeIndex) ? initialConsumptionShift : 0.0;
-
+			consumptions[timeIndex] = consumption;
+			
 			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);
 
 			/*
@@ -317,5 +329,53 @@ public class DICEModel implements ClimateModel {
 	@Override
 	public RandomVariable[] getGDP() {
 		return Arrays.stream(gdp).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable[] getConsumptions() {
+		return Arrays.stream(consumptions).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable[] getAbatementCosts() {
+		return Arrays.stream(abatementCosts).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable getAbatementCost() {
+		double abatementCost = 0.0;
+		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimes(); timeIndex++) {
+			abatementCost += abatementCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));
+		}		
+		return Scalar.of(abatementCost);
+	}
+
+	@Override
+	public RandomVariable[] getDamageCosts() {
+		return Arrays.stream(damageCosts).mapToObj(Scalar::of).toArray(RandomVariable[]::new);
+	}
+
+	@Override
+	public RandomVariable getDamageCost() {
+		double damageCost = 0.0;
+		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimes(); timeIndex++) {
+			damageCost += damageCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));
+		}		
+		return Scalar.of(damageCost);
+	}
+
+	@Override
+	public RandomVariable getNumeraire(double time) {
+		return Scalar.of(Math.exp(- discountRate * time));
+	}
+
+	@Override
+	public AbatementModel getAbatementModel() {
+		return (AbatementModel)abatementFunction.andThen(Scalar::new).andThen(RandomVariable.class::cast);
+	}
+
+	@Override
+	public SavingsRateModel getSavingsRateModel() {
+		return (SavingsRateModel)savingsRateFunction.andThen(Scalar::new).andThen(RandomVariable.class::cast);
 	}
 }
