@@ -5,9 +5,16 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.0.15 (19.09.2023)
+## 6.0.16 (19.09.2023)
 
-Small fix to non-linear discounting.
+### Climate Models (DICE)
+
+- Enlarging the interface ClimateModel.
+- Added AbatementModel and SavingsRateModel as interfaces.
+
+### Monte-Carlo Interest Rate Models
+
+- Small fix to non-linear discounting.
 
 
 ## 6.0.13 (21.07.2023)
