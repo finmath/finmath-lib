@@ -268,6 +268,7 @@ public class DICEModel implements ClimateModel {
 			 */
 			double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)
 			double C = consumption;
+			// U = L * [ ( (1000*C/L)^(1-alpha) - 1)/(1-alpha) - 1 ]
 			double utility = population[timeIndex]*( (Math.pow(1000*C/(population[timeIndex]),1-alpha)-1) /(1-alpha)-1 );
 
 			/*
