@@ -1141,7 +1141,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		}
 
 		// Allocate array (for each k) for the sums of delta_{i}/(1+L_{i} \delta_i) f_{i,k} (+ for spot measure, - for terminal measure)
-		final RandomVariable[]	factorLoadingsSums	= new RandomVariable[process.getNumberOfFactors()];		
+		final RandomVariable[]	factorLoadingsSums	= new RandomVariable[getNumberOfFactors()];
 		Arrays.fill(factorLoadingsSums, zero);
 
 		if(measure == Measure.SPOT) {
