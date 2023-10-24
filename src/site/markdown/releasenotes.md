@@ -5,12 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.0.17 (22.10.2023)
+## 6.0.18 (24.10.2023)
 
 ### Interest Rate Models
 
 - Small change to the internal implementation of LIBORMonteCarloSimulationFromLIBORModel that allows to use this model as a sub-model for hybrid models. The number of factors in the drift calculation is determined from the model. So the process can feature more factors than the factors used. The model always uses the first n factors.
 
+- AbstractLIBORMonteCarloProduct requires a LIBORModelMonteCarloSimulationModel (backward compatiblity in forward initial margin project).
 
 ## 6.0.16 (19.09.2023)
 
