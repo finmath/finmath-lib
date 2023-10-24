@@ -5,6 +5,11 @@
  */
 package net.finmath.montecarlo.interestrate.products;
 
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
 /**
  * For backward compatibility - same as AbstractTermStructureMonteCarloProduct.
  *
@@ -25,5 +30,17 @@ public abstract class AbstractLIBORMonteCarloProduct extends AbstractTermStructu
 	 */
 	public AbstractLIBORMonteCarloProduct() {
 		super(null);
+	}
+
+	public abstract RandomVariable getValue(double evaluationTime, LIBORModelMonteCarloSimulationModel model) throws CalculationException;
+
+	@Override
+	public RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException {
+		if(model instanceof LIBORModelMonteCarloSimulationModel) {
+			return getValue(evaluationTime, (LIBORModelMonteCarloSimulationModel)model);
+		}
+		else {
+			throw new IllegalArgumentException("This product requires a model implementing LIBORModelMonteCarloSimulationModel. Model is " + model.getClass().getSimpleName());
+		}
 	}
 }
