@@ -1,5 +1,6 @@
 package net.finmath.util.config;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ import net.finmath.util.config.nodes.ValueNode;
 public class ConfigTree {
 
 	private final Node root;
-	
+
 	/**
 	 * Construct the tree.
 	 * 
@@ -37,13 +38,18 @@ public class ConfigTree {
 	/**
 	 * Get the configuration for a given specification of the properties (selector).
 	 * 
+	 * The configutation tree is traversed by selecting each route though the value of a specific key in the selector,
+	 * until the lead node is reached. 
+	 * If keys are missing in the selector of if values do not match a predefined route, a default route is used.
+	 * 
 	 * @param selector Maps the name (String) of a property to its value (Object).
 	 * @return The configuration value for the given selector.
 	 */
 	public Object getConfig(Map<String, Object> selector) {
-		
+
 		Node node = this.root;
-		
+
+		// Traverse the tree where each route is selected though the value of a specific key in the selector. 
 		while(node instanceof ConfigNode) {
 			ConfigNode configNode = (ConfigNode)node;
 			if(selector.containsKey(configNode.getKey()) && configNode.getValueToConfig().keySet().contains(selector.get(configNode.getKey()))) {
@@ -53,7 +59,8 @@ public class ConfigTree {
 				node = configNode.getValueToConfig().get(SpecialNodes.DEFAULT_VALUE);
 			}
 		}
-		
+
+		// Having reached the value node, return it.
 		if(node instanceof ValueNode) {
 			ValueNode valueNode = (ValueNode)node;
 			return valueNode.getValue();
@@ -62,7 +69,7 @@ public class ConfigTree {
 			throw new IllegalArgumentException("Unable to resolve configuration from the given properties.");
 		}
 	}
-	
+
 	/**
 	 * Helper for the constructor. Recursive contruction of the tree.
 	 * 
@@ -71,27 +78,29 @@ public class ConfigTree {
 	 * @return Node of the (sub-)tree for the given config key.
 	 */
 	private Node group(List<String> keyOrder, List<Map<String, Object>> configs) {
-		if(keyOrder.size() == 0) {
+		if(keyOrder.size() > 0) {
+			// Group all elements by the first key in keyOrder....
+			String key = keyOrder.get(0);
+			Map<Object, List<Map<String, Object>>> grouped = configs.stream().collect(Collectors.groupingBy(map -> map.get(key)));
+
+			// ...call group (recursive) for all values below this key taking the remainder of keyOrder...
+			List<String> keyOrderRemain = keyOrder.subList(1, keyOrder.size());
+			Map<Object, Node> valueToConfig = grouped.entrySet().stream().collect(Collectors.toMap(
+					Map.Entry::getKey, entry -> group(keyOrderRemain, entry.getValue())));
+
+			// ...create a ConfigNode for this key.
+			return new ConfigNode(key, valueToConfig);
+		}
+		else {
+			// If no keys are left in key order, create the leaf node
 			if(configs.size() == 1) {
 				Map<String, Object> config = configs.get(0);
 				Object value = config.get("value");
 				return new ValueNode( value);
 			}
 			else {
-				throw new IllegalArgumentException("Multiple configs for same values.");
+				throw new IllegalArgumentException("Multiple configs for the same selector values. " + Arrays.deepToString(configs.toArray()));
 			}
 		}
-		
-		// Group all elements by the first key....
-		String key = keyOrder.get(0);
-		Map<Object, List<Map<String, Object>>> grouped = configs.stream().collect(Collectors.groupingBy(map -> map.get(key)));
-
-		// ...call group (recursive) for all values below this key...
-		List<String> keyOrderRemain = keyOrder.subList(1, keyOrder.size());
-		Map<Object, Node> valueToConfig = grouped.entrySet().stream().collect(Collectors.toMap(
-				Map.Entry::getKey, entry -> group(keyOrderRemain, entry.getValue())));
-		
-		// ...create a ConfigNode for this key.
-		return new ConfigNode(key, valueToConfig);
 	}	
 }
