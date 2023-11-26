@@ -3,6 +3,7 @@ package net.finmath.util.config;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.finmath.util.config.nodes.ConfigNode;
@@ -46,7 +47,6 @@ public class ConfigTree {
 	 * @return The configuration value for the given selector.
 	 */
 	public Object getConfig(Map<String, Object> selector) {
-
 		Node node = this.root;
 
 		// Traverse the tree where each route is selected though the value of a specific key in the selector. 
@@ -57,6 +57,9 @@ public class ConfigTree {
 			}
 			else {
 				node = configNode.getValueToConfig().get(SpecialNodes.DEFAULT_VALUE);
+				if(Objects.isNull(node)) {
+					throw new IllegalArgumentException("Neither a value nor a default branch exists in the config tree for " + configNode.getKey() + " at the current location. " + selector);
+				}
 			}
 		}
 
@@ -66,7 +69,7 @@ public class ConfigTree {
 			return valueNode.getValue();
 		}
 		else {
-			throw new IllegalArgumentException("Unable to resolve configuration from the given properties.");
+			throw new IllegalArgumentException("Unable to resolve configuration from the given properties. " + selector);
 		}
 	}
 
