@@ -1,5 +1,5 @@
 /**
- * Provides utility classes.
+ * Some utilities.
  *
  * @author Christian Fries
  */
