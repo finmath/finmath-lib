@@ -1,7 +1,5 @@
 package net.finmath.util.config;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +14,10 @@ import net.finmath.util.config.nodes.SpecialNodes;
  * 
  * @author Christian Fries
  */
-class ConfigTreeTest {
+public class ConfigTreeTest {
 
 	@Test
-	void test() {
+	public void test() {
 
 		/**
 		 * Create a list of map of configs (this is the config file - each map is a row, the keys are the columns)

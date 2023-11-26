@@ -94,6 +94,7 @@ module net.finmath.lib {
 	exports net.finmath.timeseries;
 	exports net.finmath.timeseries.models.parametric;
 	exports net.finmath.util;
+	exports net.finmath.util.config;
 
 	requires java.base;
 	requires java.desktop;
