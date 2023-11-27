@@ -14,11 +14,71 @@ import net.finmath.util.config.nodes.ValueNode;
 /**
  * Config Tree: A tree based representation of configurations that can be selected with a key-value map describing the selector.
  * 
+ * <h2>Selector &mapsto; Configuration</h2>
+ *
+ * <dl>
+ * <dt>configuration</dt>
+ * <dd>
  * A configuration is a value (Object) assigned to a selector (Map&lt;String, Object&gt;).
+ * </dd>
+ * 
+ * <dt>selector</dt>
+ * <dd>
  * A selector is a key-value map where certain properties (String) have certain values (Object).
  * Properties of the selector are checked in a fixed order,
  * such that a tree is formed, where each property corresponds to a level (depth) in the tree.
- * Each level has a special branch for DEFAULT VALUES, if the selector value does not match any value of other nodes.
+ * </dd>
+ * 
+ * <dt>default values</dt>
+ * <dd>
+ * Each level has a special branch for DEFAULT VALUES, if the given selector value does not match any value of other nodes.
+ * </dd>
+ * </dl>
+ * 
+ * <h2>Selector Key Order</h2>
+ * 
+ * The selector is matched against the configurtion list by checking the keys in a certain order. This oder does not matter if there is a unique value
+ * for the given selector, but it may matter if default values have to be assign. See the following example.
+ * 
+ * <h2>Example</h2>
+ * 
+ * The configuration is determied by the value of two properties ("prop1" and "prop2") (the keys). The correspondig configuration value is
+ * 
+ * <p></p>
+
+ * <table border="1">
+ * <tr><th style="text-align: center;">prop1</th><th style="text-align: center;">prop2</th><th style="text-align: center;">value</th></tr>
+ * <tr><td style="text-align: center;">A</td><td style="text-align: center;">1</td><td style="text-align: center;">42.0</td></tr>
+ * <tr><td style="text-align: center;">A</td><td style="text-align: center;">2</td><td style="text-align: center;">3141</td></tr>
+ * <tr><td style="text-align: center;">B</td><td style="text-align: center;">1</td><td style="text-align: center;">1</td></tr>
+ * <tr><td style="text-align: center;">B</td><td style="text-align: center;">2</td><td style="text-align: center;">2</td></tr>
+ * <tr><td style="text-align: center;">A</td><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">12</td></tr>
+ * <tr><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">2</td><td style="text-align: center;">13</td></tr>
+ * <tr><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">66</td></tr>
+ * <caption>The list of maps that defines all configurations.</caption>
+ * </table>
+ * 
+ * <p></p>
+ * 
+ * Initialising the class with this configuration we have:
+ * <ul>
+ * 	<li>
+ * 		If the class is initialized with keyOder = { "prop1" , "prop2" }
+ * 		<ul>
+ * 			<li>The <i>selector</i> { "prop1" = "A", "prop2" = 2 } results in the value 3141.</li>
+ * 			<li>The <i>selector</i> { "prop1" = "C", "prop2" = 2 } results in the value 13 (the default branch for prop1 is selected first, under that branch value 2 for "prop2" exists).</li>
+ * 			<li>The <i>selector</i> { "prop1" = "C", "prop2" = 1 } results in the value 66 (the default branch for prop1 is selected first, under that branch no value 1 for "prop2" exists).</li>
+ * 		</ul>
+ * 	</li>
+ * 	<li>
+ * 		If the class is initialized with keyOder = { "prop2" , "prop1" }
+ * 		<ul>
+ * 			<li>The <i>selector</i> { "prop1" = "A", "prop2" = 2 } results in the value 3141.</li>
+ * 			<li>The <i>selector</i> { "prop1" = "C", "prop2" = 2 } results in the value 13 (the branch "2" for prop2 is selected first, under that branch no value C for "prop1" exists).</li>
+ * 			<li>The <i>selector</i> { "prop1" = "C", "prop2" = 1 } results in an exception that no configuration is found (the branch 1 for prop2 is selected first, under that branch no value C for "prop1" exists).</li>
+ * 		</ul>
+ * 	</li>
+ * </ul>
  * 
  * @author Christian Fries
  */
