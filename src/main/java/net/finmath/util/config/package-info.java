@@ -1,6 +1,6 @@
 /**
- * Node implementation for the {@link net.finmath.util.config.ConfigTree}.
- * 
+ * Utilities to manage configurations.
+ *
  * @author Christian Fries
  */
 package net.finmath.util.config;
