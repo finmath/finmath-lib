@@ -258,7 +258,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 
 
 				/*
-				 * Optional multi-threadding (asyncronous calculation of the components)
+				 * Optional multi-threadding (asynchronous calculation of the components)
 				 */
 				Future<RandomVariable> result = null;
 				try {
