@@ -15,7 +15,7 @@ import org.apache.commons.lang3.Validate;
  * Note that the acceptance rejection methods requires a two dimensional uniform random number sequence with independent components.
  *
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator1D {
 
@@ -28,6 +28,7 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 	private final double acceptanceLevel;
 
 	/**
+	 * Create a random number sequence using the given input sequence and acceptance-rejection sampling.
 	 * 
 	 * @param uniformRandomNumberGenerator A two dimension (at least) uniform number generator (with i.i.d components). The first two components will be used.
 	 * @param targetDensity The density f of the target distribution F.
