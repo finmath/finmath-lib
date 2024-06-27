@@ -14,6 +14,7 @@ import net.finmath.functions.AnalyticFormulas;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
+import net.finmath.montecarlo.assetderivativevaluation.products.AssetMonteCarloProduct;
 import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.montecarlo.model.ProcessModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
@@ -65,20 +66,23 @@ public class MonteCarloBlackScholesModelTest {
 
 		final RandomVariable asset = process.getProcessValue(timeDiscretization.getTimeIndex(optionMaturity), assetIndex);
 		final RandomVariable numeraireAtPayment = model.getNumeraire(process, optionMaturity);
-		final RandomVariable numeraireAtEval = model.getNumeraire(process, 0.0);
+		final RandomVariable numeraireAtEval = model.getNumeraire(process, initialTime);
 
 		final RandomVariable payoff = asset.sub(optionStrike).floor(0.0);
 		final double value = payoff.div(numeraireAtPayment).mult(numeraireAtEval).getAverage();
 
 		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
-		System.out.println("value using Monte-Carlo.......: " + value);
-		System.out.println("value using analytic formula..: " + valueAnalytic);
+
+		System.out.println("Implementation using model " + model.getClass().getSimpleName() + " directly.");
+		System.out.println("\tvalue using Monte-Carlo.......: " + value);
+		System.out.println("\tvalue using analytic formula..: " + valueAnalytic);
 
 		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
 
 	@Test
 	public void testProductImplementation() throws CalculationException {
+		
 		/*
 		 * Model
 		 */
@@ -107,10 +111,10 @@ public class MonteCarloBlackScholesModelTest {
 		 */
 
 		// Create product
-		final EuropeanOption europeanOption = new EuropeanOption(optionMaturity, optionStrike);
+		final AssetMonteCarloProduct europeanOption = new EuropeanOption(optionMaturity, optionStrike);
 
 		// Value product using model
-		final double value = europeanOption.getValue(monteCarloBlackScholesModel);
+		final double value = europeanOption.getValue(initialTime, monteCarloBlackScholesModel).expectation().doubleValue();
 
 		/*
 		 * Analytic value using Black-Scholes formula
@@ -118,8 +122,9 @@ public class MonteCarloBlackScholesModelTest {
 
 		final double valueAnalytic = AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
 
-		System.out.println("value using Monte-Carlo.......: " + value);
-		System.out.println("value using analytic formula..: " + valueAnalytic);
+		System.out.println("\nImplementation using model " + model.getClass().getSimpleName() + " with product " + europeanOption.getClass().getSimpleName());
+		System.out.println("\tvalue using Monte-Carlo.......: " + value);
+		System.out.println("\tvalue using analytic formula..: " + valueAnalytic);
 
 		Assert.assertEquals(valueAnalytic, value, 0.005);
 	}
