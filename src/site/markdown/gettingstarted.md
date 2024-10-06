@@ -11,7 +11,12 @@ You may have a look at [Eclipse](http://www.eclipse.org/downloads/), [IntelliJ I
 
 The finmath lib source code is available from GitHub.
 Visit [finmath-lib on GitHub](https://github.com/finmath/finmath-lib).
-You may directly import the code into your IDE from Git.
+
+If you have git installed, you can checkout finmath lib via
+
+```
+git clone https://github.com/finmath/finmath-lib
+```
 	
 ####  Importing the finmath lib source code into Eclipse
 
@@ -19,14 +24,12 @@ To import the source code into your Eclipse workspace:
 
 The recommended way is to import the project as a maven project. To do so:
 
-* File -> Import… -> Maven -> Checkout Projects from SCM -> SCM: URL
-* Enter the URI https://github.com/finmath/finmath-lib.git
-* "Next" and "Finish".
+* File -> Import… -> Maven -> Existing Maven Projects
+* Select the local git repository folder.
 
-Alternatively you can import the project as "Project from Git" (this works, because 
-an Eclipse .project file is part of the repository):
+If you did not yet checked out the project form git, you may perfom both steps in Eclipse:
 
-* File -> Import… -> Git -> Projects from Git -> Clone URI
+* File -> Import… -> Git -> Projects from Git (with smart import) -> Clone URI
 * Enter the URI https://github.com/finmath/finmath-lib.git
 * Select "Next".
 * Select "master".
