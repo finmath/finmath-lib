@@ -153,7 +153,7 @@ public class DICEModel implements ClimateModel {
 		final AbatementCostFunction abatementCostFunction = new AbatementCostFunction();
 
 		/*
-		 * GDP
+		 * GDP - Economics
 		 */
 		final double K0 = 223;		// Initial Capital
 		final double L0 = 7403;		// Initial Population (world in million)
