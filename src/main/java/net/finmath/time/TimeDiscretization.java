@@ -62,7 +62,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
-	 * @return Returns a time index
+	 * @return Returns a time index or -1, if the given time is smaller than the this.getFirstTime().
 	 */
 	int getTimeIndexNearestLessOrEqual(double time);
 
@@ -72,7 +72,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 	 * where timeDiscretizationFromArray[i] &le; timeDiscretizationFromArray[j]) for i &le; j.
 	 *
 	 * @param time Given time.
-	 * @return Returns a time index
+	 * @return Returns a time index or getNumberOfTimes(), if the given time is smaller than the this.getLastTime().
 	 */
 	int getTimeIndexNearestGreaterOrEqual(double time);
 
