@@ -20,7 +20,7 @@ import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;
 
 /**
- * Tests for the SVI volatility surface implementation.
+ * Tests for the SVI volatility surface implementation
  *
  * @author Andreas Grotz
  */
