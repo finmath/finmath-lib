@@ -14,7 +14,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatility
  * @author Christian Fries
  * @version 1.0
  */
-public interface ShortRateModel {
+public interface ShortRateModel extends TermStructureModel{
 
 	/**
 	 * Create a new object implementing ShortRateModel, using the new volatility model.
