@@ -130,7 +130,7 @@ public interface BusinessdayCalendar extends Serializable {
 	/**
 	 * Find a new date by adding the given number of business days to a given base date.
 	 *
-	 * If baseDate is not a business date and businessDays is zero, the method returns the next business day.
+	 * If businessDays is zero, the method returns the unmodified base date (without adjustment).
 	 *
 	 * @param baseDate The starting date.
 	 * @param businessDays The number of business days from the starting date (negative values are allowed).
