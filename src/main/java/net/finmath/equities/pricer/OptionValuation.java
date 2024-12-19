@@ -1,6 +1,6 @@
 package net.finmath.equities.pricer;
 
-import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.models.EquityForwardStructure;
 import net.finmath.equities.models.VolatilitySurface;
 
@@ -13,9 +13,6 @@ import net.finmath.equities.models.VolatilitySurface;
 
 public interface OptionValuation extends Cloneable {
 
-	EquityValuationResult calculate(
-			EquityValuationRequest request,
-			EquityForwardStructure forwardStructure,
-			FlatYieldCurve discountCurve,
-			VolatilitySurface volSurface);
+    EquityValuationResult calculate(EquityValuationRequest request, EquityForwardStructure forwardStructure,
+            YieldCurve discountCurve, VolatilitySurface volSurface);
 }
