@@ -17,6 +17,10 @@ public class CarbonConcentration3DScalar implements CarbonConcentration {
 	private final double carbonConcentrationInShallowOcean;
 	private final double carbonConcentrationInLowerOcean;
 
+	
+	/**
+	 * Create a state vector representing carbon concentration in units of GtC.
+	 */
 	public CarbonConcentration3DScalar(double carbonConcentrationInAtmosphere, double carbonConcentrationInShallowOcean, double carbonConcentrationInLowerOcean) {
 		super();
 		Validate.isTrue(carbonConcentrationInAtmosphere >= 0, "carbonConcentrationInAtmosphere must not be negative.", carbonConcentrationInAtmosphere);
