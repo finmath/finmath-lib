@@ -25,7 +25,6 @@ import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
-import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.Optimizer.ObjectiveFunction;

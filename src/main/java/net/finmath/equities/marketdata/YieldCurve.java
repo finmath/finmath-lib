@@ -2,6 +2,7 @@ package net.finmath.equities.marketdata;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
