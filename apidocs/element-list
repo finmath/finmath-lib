@@ -54,6 +54,7 @@ net.finmath.montecarlo.hybridassetinterestrate.products
 net.finmath.montecarlo.interestrate
 net.finmath.montecarlo.interestrate.models
 net.finmath.montecarlo.interestrate.models.covariance
+net.finmath.montecarlo.interestrate.models.funding
 net.finmath.montecarlo.interestrate.products
 net.finmath.montecarlo.interestrate.products.components
 net.finmath.montecarlo.interestrate.products.indices
@@ -83,3 +84,4 @@ net.finmath.time.daycount
 net.finmath.timeseries
 net.finmath.timeseries.models.parametric
 net.finmath.util
+net.finmath.util.config

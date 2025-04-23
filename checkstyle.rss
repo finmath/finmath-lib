@@ -23,10 +23,10 @@ under the License.
     <link>http://www.finmath.net/finmath-lib</link>
     <description>finmath lib - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2023 finmath.net</copyright>
+    <copyright>&#169;2025 finmath.net</copyright>
     <item>
-      <title>File: 742,
-             Errors: 44,
+      <title>File: 754,
+             Errors: 720,
              Warnings: 0,
              Infos: 0
       </title>
@@ -153,7 +153,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  1
                 </td>
               </tr>
                           <tr>
@@ -294,6 +294,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.nodes.SpecialNodes.java">net/finmath/util/config/nodes/SpecialNodes.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
                 </td>
               </tr>
                           <tr>
@@ -550,6 +564,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.optimizer.parameter.ParameterTransfrom.java">net/finmath/optimizer/parameter/ParameterTransfrom.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel.java">net/finmath/montecarlo/assetderivativevaluation/MonteCarloBlackScholesModel.java</a>
                 </td>
                 <td>
@@ -671,7 +699,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  297
                 </td>
               </tr>
                           <tr>
@@ -1609,7 +1637,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  81
                 </td>
               </tr>
                           <tr>
@@ -1797,6 +1825,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation.java">net/finmath/fouriermethod/calibration/ScalarParameterInformationImplementation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithStockNumeraire.java">net/finmath/montecarlo/assetderivativevaluation/models/BlackScholesModelWithStockNumeraire.java</a>
                 </td>
                 <td>
                   0
@@ -2048,6 +2090,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.equities.marketdata.YieldCurve.java">net/finmath/equities/marketdata/YieldCurve.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  56
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.optimizer.OptimizerFactoryCMAES.java">net/finmath/optimizer/OptimizerFactoryCMAES.java</a>
                 </td>
                 <td>
@@ -2175,6 +2231,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.montecarlo.assetderivativevaluation.models.DisplacedLognomalModel.java">net/finmath/montecarlo/assetderivativevaluation/models/DisplacedLognomalModel.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.package-info.java">net/finmath/util/config/package-info.java</a>
                 </td>
                 <td>
                   0
@@ -2674,6 +2744,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.optimizer.parameter.ParameterTransfromBoundedSlope.java">net/finmath/optimizer/parameter/ParameterTransfromBoundedSlope.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
                 </td>
               </tr>
                           <tr>
@@ -4521,7 +4605,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  2
                 </td>
               </tr>
                           <tr>
@@ -4760,6 +4844,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.ConfigTree.java">net/finmath/util/config/ConfigTree.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
                 </td>
               </tr>
                           <tr>
@@ -5184,6 +5282,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.nodes.Node.java">net/finmath/util/config/nodes/Node.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.montecarlo.model.ProcessModel.java">net/finmath/montecarlo/model/ProcessModel.java</a>
                 </td>
                 <td>
@@ -5347,7 +5459,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  23
                 </td>
               </tr>
                           <tr>
@@ -5501,7 +5613,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  119
                 </td>
               </tr>
                           <tr>
@@ -5543,7 +5655,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  10
                 </td>
               </tr>
                           <tr>
@@ -6104,6 +6216,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.optimizer.parameter.ParameterTransfromSimpleBounded.java">net/finmath/optimizer/parameter/ParameterTransfromSimpleBounded.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  5
                 </td>
               </tr>
                           <tr>
@@ -8208,6 +8334,20 @@ under the License.
               </tr>
                           <tr>
                 <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.nodes.ValueNode.java">net/finmath/util/config/nodes/ValueNode.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  2
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.montecarlo.interestrate.products.package-info.java">net/finmath/montecarlo/interestrate/products/package-info.java</a>
                 </td>
                 <td>
@@ -8343,7 +8483,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  69
                 </td>
               </tr>
                           <tr>
@@ -8484,6 +8624,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.nodes.ConfigNode.java">net/finmath/util/config/nodes/ConfigNode.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  3
                 </td>
               </tr>
                           <tr>
@@ -10141,6 +10295,20 @@ under the License.
                           <tr>
                 <td>
                   <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.exception.package-info.java">net/finmath/exception/package-info.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://www.finmath.net/finmath-lib/checkstyle.html#net.finmath.util.config.nodes.package-info.java">net/finmath/util/config/nodes/package-info.java</a>
                 </td>
                 <td>
                   0
