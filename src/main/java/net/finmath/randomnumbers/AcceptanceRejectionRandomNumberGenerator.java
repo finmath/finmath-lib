@@ -34,7 +34,7 @@ public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGen
 	 * @param targetDensity The density f of the target distribution F.
 	 * @param referenceDensity The density g.
 	 * @param referenceDistributionICDF The ICDF, i.e. the inverse of G where G' = g.
-	 * @param acceptanceLevel The constant C such that f &le; C g.
+	 * @param acceptanceLevel The constant C such that \( f \leq C g \).
 	 */
 	public AcceptanceRejectionRandomNumberGenerator(final RandomNumberGenerator uniformRandomNumberGenerator,
 			final DoubleUnaryOperator targetDensity,
