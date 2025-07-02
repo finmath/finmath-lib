@@ -2,14 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- For publishing to sonatype / central maven repo -->
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-		<relativePath />
-	</parent>
-
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
 	<version>6.0.21-SNAPSHOT</version>
@@ -40,6 +32,9 @@
 		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
 		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
 		<clover-plugin.version>4.4.1</clover-plugin.version>
+		<maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+		<maven-central-publishing-maven.version>0.8.0</maven-central-publishing-maven.version>
+		<maven-buildnumber-maven-plugin.version>1.4</maven-buildnumber-maven-plugin.version>
 		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
 		<maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
 		<maven-release-plugin.version>2.5.3</maven-release-plugin.version>
@@ -325,9 +320,33 @@
 			</plugin>
 
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>${maven-gpg-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>${maven-central-publishing-maven.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.4</version>
+				<version>${maven-buildnumber-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<phase>validate</phase>
