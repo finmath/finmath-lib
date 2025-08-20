@@ -250,7 +250,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 
 			// If trigger is positive keep value, otherwise take underlying
 			value			= exerciseCriteria.choose(value, exerciseValue);
-			exerciseTime	= exerciseCriteria.choose(exerciseTime, new Scalar(exerciseDate));
+			exerciseTime	= exerciseCriteria.choose(exerciseTime, Scalar.of(exerciseDate));
 
 		}
 		lastValuationExerciseTime = exerciseTime;
