@@ -4,7 +4,7 @@
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>6.0.22</version>
+	<version>6.0.22-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>finmath lib</name>
@@ -20,7 +20,7 @@
 		<src.test.java.dir>src/test/java</src.test.java.dir>
 		<!-- dependencies -->
 		<commons-math.version>3.6.1</commons-math.version>
-		<commons-lang.version>3.18.0</commons-lang.version>
+		<commons-lang.version>3.10</commons-lang.version>
 		<junit.version>5.6.2</junit.version>
 		<!-- maven plugins -->
 		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
@@ -683,7 +683,7 @@
 		<url>https://github.com/finmath/finmath-lib</url>
 		<connection>scm:git:https://github.com/finmath/finmath-lib.git</connection>
 		<developerConnection>scm:git:https://github.com/finmath/finmath-lib.git</developerConnection>
-		<tag>finmath-lib-6.0.22</tag>
+		<tag>finmath-lib-6.0.15</tag>
 	</scm>
 
 	<ciManagement>
