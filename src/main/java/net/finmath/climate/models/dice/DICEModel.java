@@ -367,7 +367,8 @@ public class DICEModel implements ClimateModel {
 
 	@Override
 	public RandomVariable getNumeraire(double time) {
-		return Scalar.of(Math.exp(- discountRate * time));
+		// we choose as numeraire the continuously compounding bank account - discount factor is N(0)/N(t) 
+		return Scalar.of(Math.exp(discountRate * time));
 	}
 
 	@Override
@@ -378,5 +379,9 @@ public class DICEModel implements ClimateModel {
 	@Override
 	public SavingsRateModel getSavingsRateModel() {
 		return (SavingsRateModel)savingsRateFunction.andThen(Scalar::new).andThen(RandomVariable.class::cast);
+	}
+
+	public RandomVariable getDisocuntFactor(double time) {
+		return getNumeraire(0).div(getNumeraire(time));
 	}
 }
