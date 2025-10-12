@@ -1,7 +1,9 @@
 package net.finmath.equities.pricer;
 
 import java.util.HashMap;
+
 import org.apache.commons.lang3.NotImplementedException;
+
 import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.models.Black76Model;
 import net.finmath.equities.models.EquityForwardStructure;

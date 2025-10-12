@@ -8,6 +8,8 @@ package net.finmath.time;
 
 import java.time.LocalDate;
 
+import net.finmath.time.TimeDiscretizationFromArray.ShortPeriodLocation;
+
 /**
  * Implements a time discretization based on dates using a reference
  * date and an daycount convention / year fraction.

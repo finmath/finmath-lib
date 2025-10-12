@@ -2,6 +2,7 @@ package net.finmath.equities.models;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.time.daycount.DayCountConvention;

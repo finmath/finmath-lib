@@ -1,10 +1,13 @@
 package net.finmath.equities;
 
 import static org.junit.Assert.assertEquals;
+
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 import org.junit.Test;
+
 import net.finmath.equities.marketdata.AffineDividend;
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.FlatYieldCurve;
