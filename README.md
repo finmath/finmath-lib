@@ -14,6 +14,19 @@ About finmath lib
 [![Build Status](https://travis-ci.org/finmath/finmath-lib.svg?branch=master)](https://travis-ci.org/finmath/finmath-lib)
 [![javadoc](https://javadoc.io/badge2/net.finmath/finmath-lib/javadoc.svg)](https://javadoc.io/doc/net.finmath/finmath-lib)
 
+---
+
+**Note**: As of October 12, 2025 the master branch has been renamed to main. In case you have an existing clone on master you may consider doing
+
+```
+git fetch origin
+git branch -m master main           # if you still have 'master'
+git branch -u origin/main main
+git remote set-head origin -a
+```
+
+---
+
 **Project home page: http://finmath.net/finmath-lib**
 
 The finmath lib libraries provides (JVM) implementations of methodologies related to mathematical finance, but applicable to other fields. Examples are
