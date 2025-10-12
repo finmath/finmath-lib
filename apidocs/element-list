@@ -46,7 +46,6 @@ net.finmath.montecarlo.assetderivativevaluation.models
 net.finmath.montecarlo.assetderivativevaluation.products
 net.finmath.montecarlo.automaticdifferentiation
 net.finmath.montecarlo.automaticdifferentiation.backward
-net.finmath.montecarlo.automaticdifferentiation.backward.alternative
 net.finmath.montecarlo.automaticdifferentiation.forward
 net.finmath.montecarlo.conditionalexpectation
 net.finmath.montecarlo.crosscurrency
@@ -69,7 +68,6 @@ net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation
 net.finmath.optimizer
 net.finmath.parser
 net.finmath.randomnumbers
-net.finmath.rootfinder
 net.finmath.singleswaprate
 net.finmath.singleswaprate.annuitymapping
 net.finmath.singleswaprate.calibration
