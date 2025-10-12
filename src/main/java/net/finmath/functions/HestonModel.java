@@ -32,19 +32,19 @@ public class HestonModel {
 	enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
 
 	/**
-	 * Calculates the delta of a call option under a Heston model
+	 * Calculates the delta of a call option under a Heston model.
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
-	 * @return The delta of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The delta of the option.
 	 */
 	public static double hestonOptionDelta(
 			final double initialStockValue,
@@ -79,16 +79,16 @@ public class HestonModel {
 	/**
 	 * Calculates the gamma of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The gamma of the option
 	 */
 	public static double hestonOptionGamma(
@@ -123,16 +123,16 @@ public class HestonModel {
 	/**
 	 * Calculates the theta of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The theta of the option
 	 */
 	public static double hestonOptionTheta(
@@ -167,16 +167,16 @@ public class HestonModel {
 	/**
 	 * Calculates the rho of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The rho of the option
 	 */
 	public static double hestonOptionRho(
@@ -211,16 +211,16 @@ public class HestonModel {
 	/**
 	 * Calculates the vega1 of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The vega1 of the option
 	 */
 	public static double hestonOptionVega1(
@@ -255,16 +255,16 @@ public class HestonModel {
 	/**
 	 * Calculates the vanna of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The vanna of the option
 	 */
 	public static double hestonOptionVanna(
@@ -299,16 +299,16 @@ public class HestonModel {
 	/**
 	 * Calculates the volga of a call option under a Heston model
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa, the speed of mean reversion
-	 * @param theta, the long run mean of the volatility
-	 * @param sigma, the volatility of variance
-	 * @param v0, the initial instantaneous variance
-	 * @param rho, correlation between the two Brownian motions
-	 * @param optionMaturity, the maturity of the option
-	 * @param optionStrike, the strike of the option
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @return The volga of the option
 	 */
 	public static double hestonOptionVolga(
@@ -500,16 +500,16 @@ public class HestonModel {
 	/**
 	 * Service method that performs the Fourier inversion according to the FFT algorithm of Carr and Madan
 	 * 
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa
-	 * @param theta
-	 * @param sigma
-	 * @param v0
-	 * @param rho
-	 * @param optionMaturity
-	 * @param optionStrike
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param kappa the speed of mean reversion.
+	 * @param theta the long run mean of the volatility.
+	 * @param sigma the volatility of variance.
+	 * @param v0 the initial instantaneous variance
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @param whichGreek
 	 * @param numberOfPoints
 	 * @param gridSpacing
