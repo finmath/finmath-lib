@@ -1,5 +1,7 @@
 package net.finmath.functions;
 
+import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 import org.apache.commons.math3.complex.Complex;
