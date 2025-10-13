@@ -234,7 +234,40 @@ public class HestonModel {
 	}
 
 	/**
-	 * Calculates the vega1 of a call option under a Heston model
+	 * Calculates the vega of a call option under a Heston model, that is
+	 * \( d/d \sigma \), where \( \sigma = \sqrt{v_0} \) is the square root of the initial variance of the model,
+	 * i.e., the initial volatility.
+	 * 
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The vega of the option
+	 */
+	public static double hestonOptionVega(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double sigma, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		return hestonOptionVega1(initialStockValue, riskFreeRate, dividendYield, sigma, theta, kappa, xi, rho, optionMaturity, optionStrike) * 2 * sigma;
+	}
+
+	/**
+	 * Calculates the vega1 of a call option under a Heston model, that is
+	 * \( d/d v_0 \), where \( v_0 \) is the initial variance of the model.
 	 * 
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
