@@ -463,8 +463,8 @@ public class HestonModel {
 
 		C = firstTerm.add(secondTerm);
 
-		// The characteristic function
-		Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).exp();
+		// The characteristic function (discounted)
+		Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-riskFreeRate * optionMaturity).exp();
 
 
 		// Return depending on the requested Greek
