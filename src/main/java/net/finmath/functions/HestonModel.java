@@ -33,8 +33,8 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
  * The free parameters of this model are:
  * <dl>
  * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
- * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate</dd>
- * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level</dd>
+ * 	<dt>\( r^{\text{c}} \)</dt> <dd>the drift of the stock, equals difference of repo rate and divident yield</dd>
+ * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level (initial variance \( V_{0} = \sigma^{2} \))</dd>
  * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate</dd>
  * 	<dt>\( \xi \)</dt> <dd>the volatility of volatility</dd>
  * 	<dt>\( \theta \)</dt> <dd>the mean reversion level of the stochastic volatility</dd>
@@ -54,14 +54,14 @@ public class HestonModel {
 	final static int numberOfPoints = 4096*2;
 	final static double gridSpacing = 0.4;
 
-	enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
+	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
 
 	/**
 	 * Calculates the delta of a call option under a Heston model.
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -74,7 +74,7 @@ public class HestonModel {
 	public static double hestonOptionDelta(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -88,7 +88,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -105,8 +105,8 @@ public class HestonModel {
 	 * Calculates the gamma of a call option under a Heston model
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -119,7 +119,7 @@ public class HestonModel {
 	public static double hestonOptionGamma(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -132,7 +132,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -149,8 +149,8 @@ public class HestonModel {
 	 * Calculates the theta of a call option under a Heston model
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -163,7 +163,7 @@ public class HestonModel {
 	public static double hestonOptionTheta(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -176,7 +176,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -193,8 +193,8 @@ public class HestonModel {
 	 * Calculates the rho of a call option under a Heston model
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -207,7 +207,7 @@ public class HestonModel {
 	public static double hestonOptionRho(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -220,7 +220,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -239,8 +239,8 @@ public class HestonModel {
 	 * i.e., the initial volatility.
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -253,7 +253,7 @@ public class HestonModel {
 	public static double hestonOptionVega(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -262,7 +262,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		return hestonOptionVega1(initialStockValue, riskFreeRate, dividendYield, sigma, theta, kappa, xi, rho, optionMaturity, optionStrike) * 2 * sigma;
+		return hestonOptionVega1(initialStockValue, riskFreeRate, discountRate, sigma, theta, kappa, xi, rho, optionMaturity, optionStrike) * 2 * sigma;
 	}
 
 	/**
@@ -270,8 +270,8 @@ public class HestonModel {
 	 * \( d/d v_0 \), where \( v_0 \) is the initial variance of the model.
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -284,7 +284,7 @@ public class HestonModel {
 	public static double hestonOptionVega1(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -297,7 +297,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -314,8 +314,8 @@ public class HestonModel {
 	 * Calculates the vanna of a call option under a Heston model
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -328,7 +328,7 @@ public class HestonModel {
 	public static double hestonOptionVanna(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -341,7 +341,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -358,8 +358,8 @@ public class HestonModel {
 	 * Calculates the volga of a call option under a Heston model
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -372,7 +372,7 @@ public class HestonModel {
 	public static double hestonOptionVolga(
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -385,7 +385,7 @@ public class HestonModel {
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
-				dividendYield,
+				discountRate,
 				sigma, 
 				theta, 
 				kappa, 
@@ -405,8 +405,8 @@ public class HestonModel {
 	 * 
 	 * @param zeta The argument of the characteristic function gradient
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -423,7 +423,7 @@ public class HestonModel {
 			final Complex zeta,
 			final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -487,7 +487,7 @@ public class HestonModel {
 				.divide(Complex.ONE.subtract(c));
 
 		// C = (r - q) * i * phi * T + a / sigma^2 * ((b - rho*sigma*i*phi - d) * T - 2.0 * Complex.Log(G))
-		Complex firstTerm = Complex.I.multiply(zeta).multiply((riskFreeRate - dividendYield) * optionMaturity);
+		Complex firstTerm = Complex.I.multiply(zeta).multiply(riskFreeRate * optionMaturity);
 		Complex secondTerm = new Complex(a / (xi * xi), 0.0)
 				.multiply(
 						(bMinusRhoSigmaIphiMinusD.multiply(optionMaturity))
@@ -497,8 +497,7 @@ public class HestonModel {
 		C = firstTerm.add(secondTerm);
 
 		// The characteristic function (discounted)
-		Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-riskFreeRate * optionMaturity).exp();
-
+		Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-discountRate * optionMaturity).exp();
 
 		// Return depending on the requested Greek
 		switch (whichGreek) {
@@ -560,8 +559,8 @@ public class HestonModel {
 	 * Service method that performs the Fourier inversion according to the FFT algorithm of Carr and Madan
 	 * 
 	 * @param initialStockValue Initital value of the stock.
-	 * @param riskFreeRate The risk free rate.
-	 * @param dividendYield The dividend yield.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
 	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
 	 * @param kappa the speed of mean reversion.
@@ -576,7 +575,7 @@ public class HestonModel {
 	 */
 	private static double hestonGreekCalculator(final double initialStockValue,
 			final double riskFreeRate,
-			final double dividendYield,
+			final double discountRate,
 			final double sigma, 
 			final double theta, 
 			final double kappa, 
@@ -606,7 +605,7 @@ public class HestonModel {
 
 			//The characteristic function is already discounted
 			final Complex numerator = hestonCharacteristicFunctionGradient(
-					z.subtract(Complex.I), initialStockValue,riskFreeRate, dividendYield, sigma,theta, kappa,xi, 
+					z.subtract(Complex.I), initialStockValue, riskFreeRate, discountRate, sigma,theta, kappa,xi, 
 					rho,
 					optionMaturity,
 					optionStrike,
