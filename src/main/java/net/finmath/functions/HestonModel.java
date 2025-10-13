@@ -35,10 +35,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -48,10 +48,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -62,10 +62,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -80,10 +80,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -93,10 +93,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -106,10 +106,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -124,10 +124,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -137,10 +137,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -150,10 +150,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -168,10 +168,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -181,10 +181,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -194,10 +194,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -212,10 +212,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -225,10 +225,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -238,10 +238,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -256,10 +256,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -269,10 +269,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -282,10 +282,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -300,10 +300,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -313,10 +313,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -326,10 +326,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				dividendYield,
-				kappa, 
-				theta, 
 				sigma, 
-				v0, 
+				theta, 
+				kappa, 
+				xi, 
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -343,17 +343,17 @@ public class HestonModel {
 	 * Computes the gradient of the (discounted) characteristic function of the Heston model.
 	 * More sensitivies can be added by introducing more cases in the switch statement.
 	 * 
-	 * @param zeta
-	 * @param initialStockValue
-	 * @param riskFreeRate
-	 * @param dividendYield
-	 * @param kappa
-	 * @param theta
-	 * @param sigma
-	 * @param v0
-	 * @param rho
-	 * @param optionMaturity
-	 * @param optionStrike
+	 * @param zeta The argument of the characteristic function gradient
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate.
+	 * @param dividendYield The dividend yield.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
 	 * @param whichGreek
 	 * @param numberOfPoints
 	 * @param gridSpacing
@@ -364,10 +364,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike,
@@ -376,6 +376,7 @@ public class HestonModel {
 			final double gridSpacing) {
 
 		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing);
+		final double v0 = sigma*sigma;
 
 		double x = Math.log(initialStockValue);
 		double a = kappa * theta;
@@ -387,16 +388,16 @@ public class HestonModel {
 		b = new Complex(kappa + lambda, 0.0);
 
 		// Compute d
-		Complex term1 = (Complex.I.multiply(rho * sigma).multiply(zeta)).subtract(b); // (ρσiφ - b)
+		Complex term1 = (Complex.I.multiply(rho * xi).multiply(zeta)).subtract(b); // (ρσiφ - b)
 		Complex powPart = term1.pow(2.0); // (...)
-		Complex term2 = new Complex(sigma * sigma, 0.0)
+		Complex term2 = new Complex(xi * xi, 0.0)
 				.multiply((u.multiply(2.0).multiply(Complex.I).multiply(zeta))
 						.subtract(zeta.multiply(zeta))); // σ²(2u i φ - φ²)
 		d = powPart.subtract(term2).sqrt();
 
 		// Compute g
-		Complex numerator = (b.subtract(Complex.I.multiply(rho * sigma).multiply(zeta))).add(d);
-		Complex denominator = (b.subtract(Complex.I.multiply(rho * sigma).multiply(zeta))).subtract(d);
+		Complex numerator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).add(d);
+		Complex denominator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).subtract(d);
 		g = numerator.divide(denominator);
 
 		// Initialize remaining
@@ -411,11 +412,11 @@ public class HestonModel {
 
 		// Precompute some recurring parts
 		Complex exp_dT = d.multiply(-optionMaturity).exp(); // exp(-d*T)
-		Complex bMinusRhoSigmaIphiMinusD = b.subtract(Complex.I.multiply(rho * sigma).multiply(zeta)).subtract(d);
+		Complex bMinusRhoSigmaIphiMinusD = b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).subtract(d);
 
 		// D = (b - rho*sigma*i*phi - d) / (sigma^2) * ((1 - exp(-d*T)) / (1 - c * exp(-d*T)))
 		D = bMinusRhoSigmaIphiMinusD
-				.divide(sigma * sigma)
+				.divide(xi * xi)
 				.multiply(
 						(Complex.ONE.subtract(exp_dT))
 						.divide(Complex.ONE.subtract(c.multiply(exp_dT)))
@@ -427,7 +428,7 @@ public class HestonModel {
 
 		// C = (r - q) * i * phi * T + a / sigma^2 * ((b - rho*sigma*i*phi - d) * T - 2.0 * Complex.Log(G))
 		Complex firstTerm = Complex.I.multiply(zeta).multiply((riskFreeRate - dividendYield) * optionMaturity);
-		Complex secondTerm = new Complex(a / (sigma * sigma), 0.0)
+		Complex secondTerm = new Complex(a / (xi * xi), 0.0)
 				.multiply(
 						(bMinusRhoSigmaIphiMinusD.multiply(optionMaturity))
 						.subtract(Complex.valueOf(2.0).multiply(G.log()))
@@ -450,13 +451,13 @@ public class HestonModel {
 					.divide(initialStockValue * initialStockValue); 
 		case THETA:
 			Complex numerator_dDdT = d.multiply(exp_dT)
-			.multiply(b.subtract(Complex.I.multiply(rho * sigma).multiply(zeta)).add(d))
+			.multiply(b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
 			.multiply(g.subtract(Complex.ONE));
-			Complex denominator_dDdT = Complex.valueOf(sigma * sigma)
+			Complex denominator_dDdT = Complex.valueOf(xi * xi)
 					.multiply(Complex.ONE.subtract(g.multiply(exp_dT)).pow(2.0));
 			Complex dDdT = numerator_dDdT.divide(denominator_dDdT);
 
-			Complex innerTerm = (b.subtract(Complex.I.multiply(rho * sigma).multiply(zeta)).add(d))
+			Complex innerTerm = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
 					.add(
 							Complex.valueOf(2.0)
 							.multiply(g)
@@ -467,7 +468,7 @@ public class HestonModel {
 
 			Complex dCdT = Complex.I.multiply(zeta).multiply(riskFreeRate)
 					.add(
-							Complex.valueOf(kappa * theta / (sigma * sigma))
+							Complex.valueOf(kappa * theta / (xi * xi))
 							.multiply(innerTerm)
 							);
 
@@ -501,10 +502,10 @@ public class HestonModel {
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate.
 	 * @param dividendYield The dividend yield.
-	 * @param kappa the speed of mean reversion.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
 	 * @param theta the long run mean of the volatility.
-	 * @param sigma the volatility of variance.
-	 * @param v0 the initial instantaneous variance
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
 	 * @param rho correlation between the two Brownian motions
 	 * @param optionMaturity the maturity of the option
 	 * @param optionStrike the strike of the option.
@@ -516,10 +517,10 @@ public class HestonModel {
 	private static double hestonGreekCalculator(final double initialStockValue,
 			final double riskFreeRate,
 			final double dividendYield,
-			final double kappa, 
-			final double theta, 
 			final double sigma, 
-			final double v0, 
+			final double theta, 
+			final double kappa, 
+			final double xi, 
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike,
@@ -532,6 +533,8 @@ public class HestonModel {
 		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing); //Equation 23 Carr and Madan
 		final double upperBound = (numberOfPoints * lambda)/2.0; //Equation 20 Carr and Madan
 
+		final double v0 = sigma*sigma;
+
 		final Complex[] integrandEvaluations = new Complex[numberOfPoints];
 
 		for(int i = 0; i<numberOfPoints; i++) {
@@ -543,7 +546,7 @@ public class HestonModel {
 
 			//The characteristic function is already discounted
 			final Complex numerator = hestonCharacteristicFunctionGradient(
-					z.subtract(Complex.I), initialStockValue,riskFreeRate, dividendYield, kappa,theta, sigma,v0, 
+					z.subtract(Complex.I), initialStockValue,riskFreeRate, dividendYield, v0,theta, kappa,xi, 
 					rho,
 					optionMaturity,
 					optionStrike,
