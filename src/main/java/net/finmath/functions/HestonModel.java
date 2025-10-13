@@ -14,6 +14,33 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
 /**
  * This class implements some functions as static class methods related to the Heston model.
  * The calculation is performed by means of the FFT algorithm of Carr Madan applied to the gradient of the characteristic funtion.
+ * 
+ * The model is
+ * \[
+ * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * \]
+ * \[
+ * 	dW_{1} dW_{2} = \rho dt
+ * \]
+ * \[
+ * 	dN(t) = r^{\text{d}}(t) N(t) dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is a Brownian motion.
+ *
+ * The free parameters of this model are:
+ * <dl>
+ * 	<dt>\( S_{0} \)</dt> <dd>spot - initial value of S</dd>
+ * 	<dt>\( r^{\text{c}} \)</dt> <dd>the risk free rate</dd>
+ * 	<dt>\( \sigma \)</dt> <dd>the initial volatility level</dd>
+ * 	<dt>\( r^{\text{d}} \)</dt> <dd>the discount rate</dd>
+ * 	<dt>\( \xi \)</dt> <dd>the volatility of volatility</dd>
+ * 	<dt>\( \theta \)</dt> <dd>the mean reversion level of the stochastic volatility</dd>
+ * 	<dt>\( \kappa \)</dt> <dd>the mean reversion speed of the stochastic volatility</dd>
+ * 	<dt>\( \rho \)</dt> <dd>the correlation of the Brownian drivers</dd>
+ * </dl>
  *
  * @author Alessandro Gnoatto
  */
