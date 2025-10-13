@@ -573,7 +573,7 @@ public class HestonModel {
 
 			//The characteristic function is already discounted
 			final Complex numerator = hestonCharacteristicFunctionGradient(
-					z.subtract(Complex.I), initialStockValue,riskFreeRate, dividendYield, v0,theta, kappa,xi, 
+					z.subtract(Complex.I), initialStockValue,riskFreeRate, dividendYield, sigma,theta, kappa,xi, 
 					rho,
 					optionMaturity,
 					optionStrike,
