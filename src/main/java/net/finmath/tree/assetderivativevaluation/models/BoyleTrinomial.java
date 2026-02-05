@@ -136,4 +136,27 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 		double time = k * dt;
 		return new RandomVariableFromDoubleArray(time, now);
 	}
+
+	@Override
+	public int getNumberOfBranches(int timeIndex, int stateIndex) {
+		return 3;
+	}
+
+	@Override
+	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		// Convention: 0 = up, 1 = middle, 2 = down
+		switch(branchIndex) {
+			case 0: return pu;
+			case 1: return pm;
+			case 2: return pd;
+			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for trinomial model.");
+		}
+	}
+
+	@Override
+	public int[] getChildStateIndexShift() {
+		// Convention: childIndex = parentIndex + shift[branchIndex]
+		// children at next level correspond to indices stateIndex + {0,1,2} for {up, mid, down}.
+		return new int[] { 0, 1, 2};
+	}
 }

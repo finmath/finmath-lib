@@ -8,14 +8,15 @@ import java.util.function.DoubleUnaryOperator;
  * General interface rappresenting a tree model with all the common methods
  *
  * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
+ * @author Andrea Mazzon
  * @version 1.0
  */
-
 public interface TreeModel extends Model {
 
 	double getTimeStep();
 	int getNumberOfTimes();
-
+	double getLastTime();
 
 	/**
 	 * Returns the spot process at a given time transformed pointwise by a function.
@@ -48,12 +49,67 @@ public interface TreeModel extends Model {
 	 */
 	RandomVariable getSpotAtGivenTimeIndexRV(int timeindex);
 
+	/**
+	 * Returns the number of outgoing branches from a node at time index k.
+	 * <p>
+	 * This method is intentionally defined per node to allow state-dependent branching
+	 * (e.g. for trinomial with pruning, multinomial with barriers, etc.). For standard
+	 * binomial / trinomial recombining trees this is constant (2 / 3) and independent
+	 * of {@code stateIndex}.
+	 *
+	 * @param timeIndex  The time index k (0 ≤ k < n).
+	 * @param stateIndex The node / state index at time k (model-defined).
+	 * @return The number of branches from that node to time k+1.
+	 */
+	default int getNumberOfBranches(int timeIndex, int stateIndex) {
+		throw new UnsupportedOperationException("Transition API not implemented by this TreeModel.");
+	}
 
-	/** Getter */
-	//double getInitialPrice();
-	//double getRiskFreeRate();
-	//double getVolatility();
-	double getLastTime();
+	/**
+	 * Returns the risk-neutral transition probability for a branch.
+	 * Branch indices are model-defined but should be consistent with how the model
+	 * evolves the risk factor (e.g. for binomial: 0=up,1=down; for trinomial: 0=up,1=mid,2=down).
+	 *
+	 * @param timeIndex   The time index k (0 ≤ k < n).
+	 * @param stateIndex  The node / state index at time k (model-defined).
+	 * @param branchIndex The branch index in {@code [0, getNumberOfBranches(k,i))}.
+	 * @return Transition probability to the corresponding child on level k+1.
+	 */
+	default double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		throw new UnsupportedOperationException("Transition API not implemented by this TreeModel.");
+	}
 
+	/**
+	 * One-step discount factor from time k to k+1 (applied when taking the conditional expectation).
+	 * For example, for a constant short rate r and step dt, DF = exp(-r*dt).
+	 *
+	 * @param timeIndex The time index k (0 ≤ k < n).
+	 * @return One-step discount factor DF(k,k+1).
+	 */
+	default double getOneStepDiscountFactor(int timeIndex) {
+		throw new UnsupportedOperationException("Transition API not implemented by this TreeModel.");
+	}
+
+
+	/**
+	* Returns the model's child-index shift convention for recombining state indices.
+	*
+	* Convention: childIndex = parentIndex + shift[branchIndex].
+	*
+	* Examples:
+	*  - Binomial CRR/JR: {0, 1} interpreted as {up, down}
+	*  - Trinomial Boyle: {0, 1, 2} interpreted as {up, mid, down}
+	*
+	* Path-dependent products that build a full non-recombining tree (exponential growth)
+	* can use this to map their parent recombining state index to the child's recombining
+	* state index when querying model spots.
+	*
+	* Default throws: models supporting path-dependent products should override this.
+	*
+	* @return shift array of length = number of branches.
+	*/
+	default int[] getChildStateIndexShift() {
+		throw new UnsupportedOperationException("Child state index shift not implemented by this TreeModel.");
+	}
 
 }

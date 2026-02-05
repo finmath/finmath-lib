@@ -94,7 +94,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	protected RandomVariable conditionalExpectation(RandomVariable vNext, int k) {
 		double[] next = vNext.getRealizations();
 		double[] vK = new double[statesAt(k)];
-		double disc = df();
+		double disc = getOneStepDiscountFactor(k);
 
 		for (int i = 0; i <= k; i++) {
 			vK[i] = disc * (q * next[i] + (1.0 - q) * next[i + 1]);
@@ -102,6 +102,27 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 		return new RandomVariableFromDoubleArray(k * getTimeStep(), vK);
 	}
 
+	@Override
+	public int getNumberOfBranches(int timeIndex, int stateIndex) {
+		return 2;
+	}
+
+	@Override
+	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		// Convention: 0 = up, 1 = down
+		switch(branchIndex) {
+			case 0: return q;
+			case 1: return 1.0 - q;
+			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
+		}
+	}
+
+	@Override
+	public int[] getChildStateIndexShift() {
+		// Convention: childIndex = parentIndex + shift[branchIndex]
+		// For binomial recombining trees: up keeps index, down increases index by 1.
+		return new int[] { 0, 1 };
+	}
 
 	/** Getter */
 	public double getU() { return u; }

@@ -13,8 +13,9 @@ import java.util.function.DoubleUnaryOperator;
  * at maturity (e.g. s -> Math.max(s-K,0) for a call). Early–exercise features
  * (if any) and the backward induction logic are delegated to subclasses via
  * getValues(double, TreeModel).
+ * 
+ * @author Carlo Andrea Tramentozzi
  */
-
 public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduct {
 
 	/** Payoff function f(S) applied at maturity (or when exercised). */

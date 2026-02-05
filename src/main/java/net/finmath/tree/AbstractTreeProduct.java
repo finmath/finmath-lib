@@ -13,8 +13,11 @@ import net.finmath.stochastic.RandomVariable;
  *       0 corresponds to time 0.
  * Subclasses (e.g. European, American, Asian ) implement their
  * payoff logic and early–exercise features within getValues(double, TreeModel).
+ * 
+ * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
+ * @author Andrea Mazzon
  */
-
 public abstract class AbstractTreeProduct implements TreeProduct {
 
 	/** Contract maturity (in model time units). */
@@ -50,15 +53,21 @@ public abstract class AbstractTreeProduct implements TreeProduct {
 	 * The default implementation calls getValues(double, TreeModel) and
 	 * returns the first component (time–level 0). Subclasses should ensure
 	 * their {@link #getValues(double, TreeModel)} respects this convention.
+	 * Internally, the method creates all values from time zero and returns the level
+	 * of interest. While this is inefficient for non-path-dependent products, it ensures
+	 * a correct implementation for path dependent products. The alternative would be to provide as 
+	 * input the current value of the path-dependent functional, which would break the interface.
 	 *
 	 * @param evaluationTime The time at which the value is requested (must be >= 0).
 	 * @param model The tree model to use.
 	 * @return The value at evalutationTime as a random variable on the tree.
 	 * @throws IllegalArgumentException If the inputs are invalid (see validate(double, TreeModel)).
 	 */
-	public RandomVariable getValue(double evaluationTime ,TreeModel model) {
-		RandomVariable[] levels = getValues(evaluationTime,model);
-		return levels[0];
+	public RandomVariable getValue(double evaluationTime, TreeModel model) {
+		RandomVariable[] levels = getValues(0.0,model);
+		//This is dangerous as it assumes a uniform time discretization
+		int index = (int) Math.round(evaluationTime / model.getTimeStep());
+		return levels[index];
 	}
 
 	/**

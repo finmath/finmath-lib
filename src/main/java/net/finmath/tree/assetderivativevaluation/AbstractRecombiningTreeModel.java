@@ -77,7 +77,8 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 
 
 	/** One step discount factor(according to q): continuous */
-	protected final double df() {
+	@Override
+	public double getOneStepDiscountFactor(int timeIndex) {
 		return Math.exp(-riskFreeRate * timeStep);
 	}
 

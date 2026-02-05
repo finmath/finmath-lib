@@ -99,4 +99,27 @@ public class JarrowRuddModel extends AbstractRecombiningTreeModel {
 
 		return new RandomVariableFromDoubleArray(k * dt, res);
 	}
+
+	@Override
+	public int getNumberOfBranches(int timeIndex, int stateIndex) {
+		return 2;
+	}
+
+	@Override
+	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		// Convention: 0 = up, 1 = down (Jarrow-Rudd uses p=0.5)
+		switch(branchIndex) {
+			case 0: return 0.5;
+			case 1: return 0.5;
+			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
+		}
+	}
+
+	@Override
+	public int[] getChildStateIndexShift() {
+		// Convention: childIndex = parentIndex + shift[branchIndex]
+		// For binomial recombining trees: up keeps index, down increases index by 1.
+		return new int[] { 0, 1 };
+	}
+
 }
