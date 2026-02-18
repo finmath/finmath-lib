@@ -82,7 +82,7 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 		return Math.exp(-riskFreeRate * timeStep);
 	}
 
-	
+
 
 	/** Getter */
 	@Override
@@ -91,7 +91,7 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 	public double getRiskFreeRate()   { return riskFreeRate; }
 	@Override
 	public double getVolatility()     { return volatility; }
-	
+
 	public double getTimeStep()       { return timeStep; }
 	public double getLastTime()       { return lastTime; }
 	public int getNumberOfTimes()     { return numberOfTimes; }

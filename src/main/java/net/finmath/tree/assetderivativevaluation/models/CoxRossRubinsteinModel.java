@@ -17,7 +17,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	private final double u;
 	private final double d;
 	private final double q;
-	
+
 	/**
 	 * It constructs an object which represents the approximation of a Black-Scholes model via the Cox Ross
 	 * Rubinstein model.
