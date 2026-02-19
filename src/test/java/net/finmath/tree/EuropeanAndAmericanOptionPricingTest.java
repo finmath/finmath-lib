@@ -7,8 +7,8 @@ import org.junit.Test;
 import net.finmath.tree.assetderivativevaluation.models.BoyleTrinomial;
 import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
 import net.finmath.tree.assetderivativevaluation.models.JarrowRuddModel;
-import net.finmath.tree.assetderivativevaluation.products.EuNonPathDependent;
-import net.finmath.tree.assetderivativevaluation.products.UsNonPathDependent;
+import net.finmath.tree.assetderivativevaluation.products.EuropeanNonPathDependent;
+import net.finmath.tree.assetderivativevaluation.products.AmericanNonPathDependent;
 
 public class EuropeanAndAmericanOptionPricingTest {
 
@@ -29,8 +29,8 @@ public class EuropeanAndAmericanOptionPricingTest {
 
 
 
-		EuNonPathDependent euCall = new EuNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
-		UsNonPathDependent usCall = new UsNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
+		EuropeanNonPathDependent euCall = new EuropeanNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
+		AmericanNonPathDependent usCall = new AmericanNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
 
 
 		double euCRR = euCall.getValue(crr);
@@ -75,8 +75,8 @@ public class EuropeanAndAmericanOptionPricingTest {
 
 
 
-		EuNonPathDependent euPut = new EuNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
-		UsNonPathDependent usPut = new UsNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
+		EuropeanNonPathDependent euPut = new EuropeanNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
+		AmericanNonPathDependent usPut = new AmericanNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
 
 
 		double euCRR = euPut.getValue(0.0, crr).getAverage();

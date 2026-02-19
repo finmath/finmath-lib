@@ -15,8 +15,7 @@ import java.util.function.DoubleUnaryOperator;
  *         Immediate exercise value: f(S_k).
  * The option value is the pointwise maximum of the two (early exercise rule).
  */
-
-public class UsNonPathDependent extends AbstractNonPathDependentProduct {
+public class AmericanNonPathDependent extends AbstractNonPathDependentProduct {
 
 	/**
 	 * Creates an American option with given maturity and payoff.
@@ -24,7 +23,7 @@ public class UsNonPathDependent extends AbstractNonPathDependentProduct {
 	 * @param maturity        Contract maturity (model time units).
 	 * @param payOffFunction  Payoff function f(S) (e.g.,s -> Math.max(K - s, 0.0) for a put).
 	 */
-	public UsNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction) {
+	public AmericanNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction) {
 		super(maturity, payOffFunction);
 	}
 

@@ -11,8 +11,7 @@ import java.util.function.DoubleUnaryOperator;
  * by backward induction using the model’s discounted conditional expectation.
  * pricing uses evaluationTime = 0.0 => k0 = 0.
  */
-
-public class EuNonPathDependent extends AbstractNonPathDependentProduct {
+public class EuropeanNonPathDependent extends AbstractNonPathDependentProduct {
 
 	/**
 	 * Creates a European option with given maturity and payoff.
@@ -21,7 +20,7 @@ public class EuNonPathDependent extends AbstractNonPathDependentProduct {
 	 * @param payOffFunction  Payoff function f(S) applied at T
 	 *                        (e.g., s -> Math.max(s-K,0.0) for a call).
 	 */
-	public EuNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction){
+	public EuropeanNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction){
 		super(maturity,payOffFunction);
 	}
 
