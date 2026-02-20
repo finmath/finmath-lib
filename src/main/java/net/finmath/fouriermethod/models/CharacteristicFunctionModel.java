@@ -6,7 +6,10 @@
 
 package net.finmath.fouriermethod.models;
 
+import java.time.LocalDate;
+
 import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.modelling.Model;
 
 /**
@@ -16,7 +19,6 @@ import net.finmath.modelling.Model;
  * @author Christian Fries
  * @version 1.0
  */
-@FunctionalInterface
 public interface CharacteristicFunctionModel extends Model {
 
 	/**
@@ -26,4 +28,37 @@ public interface CharacteristicFunctionModel extends Model {
 	 * @return The characteristic function of X(t).
 	 */
 	CharacteristicFunction apply(double time);
+
+	/**
+	 * 
+	 * @return the reference date
+	 */
+	public LocalDate getReferenceDate();
+
+	/**
+	 * 
+	 * @return the initial value of the stock
+	 */
+	public double getInitialValue();
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate();
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public double getRiskFreeRate();
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate();
+
+	/**
+	 * @return the discountRate
+	 */
+	public double getDiscountRate();
+
 }

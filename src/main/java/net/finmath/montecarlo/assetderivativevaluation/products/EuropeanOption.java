@@ -145,6 +145,21 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
+		super();
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.callOrPutSign		= callOrPutSign;
+		this.underlyingIndex	= 0;
+		nameOfUnderliyng	= null;		// Use underlyingIndex
+	}
+
+	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.

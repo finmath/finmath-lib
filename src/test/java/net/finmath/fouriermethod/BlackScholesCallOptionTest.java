@@ -16,6 +16,7 @@ import net.finmath.fouriermethod.products.DigitalOption;
 import net.finmath.fouriermethod.products.EuropeanOption;
 import net.finmath.fouriermethod.products.FourierTransformProduct;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.modelling.products.CallOrPut;
 
 /**
  * Test class for the valuation of a call option under Black Scholes
@@ -51,6 +52,27 @@ public class BlackScholesCallOptionTest {
 		System.out.println(product.getClass().getSimpleName() + "\t" + "Result: " + value + ". \tError: " + error + "." + ". \tCalculation time: " + ((endMillis-startMillis)/1000.0) + " sec.");
 
 		Assert.assertEquals("Value", valueAnalytic, value, 1E-7);
+	}
+
+	@Test
+	public void testPutCallParity() throws CalculationException {
+
+		final CharacteristicFunctionModel model = new BlackScholesModel(initialValue, riskFreeRate, volatility);
+
+		final FourierTransformProduct productCall = new EuropeanOption(maturity, strike);
+		final FourierTransformProduct productPut = new EuropeanOption(maturity, strike, CallOrPut.PUT);
+
+
+		final double valueCall			= productCall.getValue(model);
+		final double valuePut			= productPut.getValue(model);
+
+
+		final double rightHandSide	= valueCall - valuePut;
+
+		final double leftHandSide	= initialValue - strike * Math.exp(-riskFreeRate * maturity);
+
+
+		Assert.assertEquals("Value", rightHandSide, leftHandSide, 1E-7);
 	}
 
 	@Test

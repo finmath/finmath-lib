@@ -21,6 +21,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.modelling.products.CallOrPut;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
@@ -199,6 +200,7 @@ public class BlackScholesMonteCarloValuationTest {
 
 		// Test options with different strike
 		System.out.println("Valuation of European Options");
+		System.out.println("Call options");
 		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
 
 		/*
@@ -227,6 +229,28 @@ public class BlackScholesMonteCarloValuationTest {
 					"\t" + numberFormatDeviation.format(valueMonteCarlo-valueAnalytic));
 
 			Assert.assertTrue(Math.abs(valueMonteCarlo-valueAnalytic) < 1E-02);
+		}
+
+		System.out.println("Put options");
+		System.out.println(" Strike \t Monte-Carlo \t Analytic \t Deviation");
+		//Same check for puts
+		for(double optionStrike = 0.60; optionStrike < 1.50; optionStrike += 0.05) {
+
+			// Create a product
+			final EuropeanOption		putOption	= new EuropeanOption(optionMaturity, optionStrike, CallOrPut.PUT);
+			// Value the product with Monte Carlo
+			final double valueMonteCarlo	= putOption.getValue(model);
+
+			// Calculate the analytic value
+			final double valueAnalytic	= net.finmath.functions.AnalyticFormulas.blackScholesOptionValue(initialValue, riskFreeRate, volatility, optionMaturity, optionStrike);
+			final double putFromParity  = valueAnalytic -initialValue + optionStrike * Math.exp(-riskFreeRate * optionMaturity);
+			// Print result
+			System.out.println(numberFormatStrike.format(optionStrike) +
+					"\t" + numberFormatValue.format(valueMonteCarlo) +
+					"\t" + numberFormatValue.format(putFromParity) +
+					"\t" + numberFormatDeviation.format(valueMonteCarlo-putFromParity));
+
+			Assert.assertTrue(Math.abs(valueMonteCarlo-putFromParity) < 1E-02);
 		}
 	}
 
