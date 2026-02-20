@@ -4,10 +4,12 @@ package net.finmath.tree;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.finmath.modelling.products.CallOrPut;
 import net.finmath.tree.assetderivativevaluation.models.BoyleTrinomial;
 import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
 import net.finmath.tree.assetderivativevaluation.models.JarrowRuddModel;
 import net.finmath.tree.assetderivativevaluation.products.EuropeanNonPathDependent;
+import net.finmath.tree.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.tree.assetderivativevaluation.products.AmericanNonPathDependent;
 
 public class EuropeanAndAmericanOptionPricingTest {
@@ -28,8 +30,7 @@ public class EuropeanAndAmericanOptionPricingTest {
 		BoyleTrinomial tri = new BoyleTrinomial(spot,rate,vol,maturity,steps);
 
 
-
-		EuropeanNonPathDependent euCall = new EuropeanNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
+		EuropeanOption euCall = new EuropeanOption(maturity, strike, CallOrPut.CALL);
 		AmericanNonPathDependent usCall = new AmericanNonPathDependent(maturity, s -> Math.max(s - strike, 0.0));
 
 
@@ -75,7 +76,7 @@ public class EuropeanAndAmericanOptionPricingTest {
 
 
 
-		EuropeanNonPathDependent euPut = new EuropeanNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
+		EuropeanOption euPut = new EuropeanOption(maturity, strike, CallOrPut.PUT);
 		AmericanNonPathDependent usPut = new AmericanNonPathDependent(maturity, s -> Math.max(strike - s, 0.0));
 
 

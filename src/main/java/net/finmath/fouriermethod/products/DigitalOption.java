@@ -26,7 +26,7 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 
 	private final double maturity;
 	private final double strike;
-	private final String nameOfUnderlying;
+	private final String underlyingName;
 
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
@@ -37,7 +37,7 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
-		nameOfUnderlying	= null;		// Use asset with index 0
+		underlyingName	= null;		// Use asset with index 0
 	}
 
 	/* (non-Javadoc)
@@ -59,6 +59,14 @@ public class DigitalOption extends AbstractFourierTransformProduct {
 	@Override
 	public double getMaturity() {
 		return maturity;
+	}
+
+	public double getStrike() {
+		return strike;
+	}
+
+	public String getUnderlyingName() {
+		return underlyingName;
 	}
 
 	/* (non-Javadoc)

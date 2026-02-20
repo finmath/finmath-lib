@@ -7,10 +7,10 @@ import org.junit.Test;
 
 import net.finmath.finitedifference.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.models.FiniteDifference1DModel;
-import net.finmath.finitedifference.products.FDMEuropeanCallOption;
-import net.finmath.finitedifference.products.FDMEuropeanPutOption;
+import net.finmath.finitedifference.products.EuropeanOption;
 import net.finmath.finitedifference.products.FiniteDifference1DProduct;
 import net.finmath.functions.AnalyticFormulas;
+import net.finmath.modelling.products.CallOrPut;
 
 public class BlackScholesThetaTest {
 
@@ -36,7 +36,7 @@ public class BlackScholesThetaTest {
 				initialValue,
 				riskFreeRate,
 				volatility);
-		final FiniteDifference1DProduct callOption = new FDMEuropeanCallOption(optionMaturity, optionStrike);
+		final FiniteDifference1DProduct callOption = new EuropeanOption(optionMaturity, optionStrike, CallOrPut.CALL);
 
 		final double[][] valueCallFDM = callOption.getValue(0.0, model);
 		final double[] initialStockPriceForCall = valueCallFDM[0];
@@ -74,7 +74,7 @@ public class BlackScholesThetaTest {
 				initialValue,
 				riskFreeRate,
 				volatility);
-		final FiniteDifference1DProduct putOption = new FDMEuropeanPutOption(optionMaturity, optionStrike);
+		final FiniteDifference1DProduct putOption = new EuropeanOption(optionMaturity, optionStrike, CallOrPut.PUT);
 		final double[][] valuePutFDM = putOption.getValue(0.0, model);
 		final double[] initialStockPriceForPut = valuePutFDM[0];
 		final double[] putOptionValue = valuePutFDM[1];

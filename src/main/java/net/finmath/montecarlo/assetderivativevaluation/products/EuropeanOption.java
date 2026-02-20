@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
+import net.finmath.modelling.products.CallOrPut;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
 
@@ -19,7 +20,7 @@ import net.finmath.stochastic.RandomVariable;
  * Given a model for an asset <i>S</i>, the European option with strike <i>K</i>, maturity <i>T</i>
  * pays
  * <br>
- * 	<i>V(T) = max(S(T) - K , 0)</i> in <i>T</i>.
+ * 	<i>V(T) = max((S(T) - K) * CallOrPut , 0)</i> in <i>T</i>.
  * <br>
  *
  * The <code>getValue</code> method of this class will return the random variable <i>N(t) * V(T) / N(T)</i>,
@@ -34,7 +35,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 	private final double maturity;
 	private final double strike;
-	private final double callOrPutSign;
+	private final CallOrPut callOrPutSign;
 	private final Integer underlyingIndex;
 	private final String nameOfUnderliyng;
 
@@ -46,6 +47,28 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	 * @param callOrPutSign The sign in the payoff.
 	 */
 	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final double callOrPutSign) {
+		super();
+		nameOfUnderliyng	= underlyingName;
+		this.maturity		= maturity;
+		this.strike			= strike;
+		if(callOrPutSign == 1.0) {
+			this.callOrPutSign = CallOrPut.CALL;
+		}else if(callOrPutSign == - 1.0) {
+			this.callOrPutSign = CallOrPut.PUT;
+		}else {
+			throw new IllegalArgumentException("Unknown option type");
+		}
+		underlyingIndex		= 0;
+	}
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(sign * (S(T)-K),0).
+	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final CallOrPut callOrPutSign) {
 		super();
 		nameOfUnderliyng	= underlyingName;
 		this.maturity		= maturity;
@@ -65,7 +88,29 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		super();
 		this.maturity			= maturity;
 		this.strike				= strike;
-		this.callOrPutSign	= callOrPutSign;
+		if(callOrPutSign == 1.0) {
+			this.callOrPutSign = CallOrPut.CALL;
+		}else if(callOrPutSign == - 1.0) {
+			this.callOrPutSign = CallOrPut.PUT;
+		}else {
+			throw new IllegalArgumentException("Unknown option type");
+		}
+		this.underlyingIndex	= underlyingIndex;
+		nameOfUnderliyng	= null;		// Use underlyingIndex
+	}
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign, final int underlyingIndex) {
+		super();
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.callOrPutSign		= callOrPutSign;
 		this.underlyingIndex	= underlyingIndex;
 		nameOfUnderliyng	= null;		// Use underlyingIndex
 	}
@@ -100,6 +145,21 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
+		super();
+		this.maturity			= maturity;
+		this.strike				= strike;
+		this.callOrPutSign		= callOrPutSign;
+		this.underlyingIndex	= 0;
+		nameOfUnderliyng	= null;		// Use underlyingIndex
+	}
+
+	/**
 	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
 	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
 	 * Cashflows prior evaluationTime are not considered.
@@ -117,7 +177,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);
 
 		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
-		RandomVariable values = underlyingAtMaturity.sub(strike).mult(callOrPutSign).floor(0.0);
+		RandomVariable values = underlyingAtMaturity.sub(strike).mult(callOrPutSign.toInteger()).floor(0.0);
 
 		// Discounting...
 		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);
@@ -158,6 +218,10 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 
 	public double getStrike() {
 		return strike;
+	}
+
+	public CallOrPut getCallOrPut() {
+		return callOrPutSign;
 	}
 
 	public Integer getUnderlyingIndex() {

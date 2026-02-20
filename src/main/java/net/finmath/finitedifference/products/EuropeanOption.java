@@ -1,15 +1,9 @@
-/*
- * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
- *
- * Created on 23.03.2014
- */
-package net.finmath.fouriermethod.products;
+package net.finmath.finitedifference.products;
 
-import org.apache.commons.math3.complex.Complex;
-
-import net.finmath.exception.CalculationException;
-import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.finitedifference.models.FiniteDifference1DBoundary;
+import net.finmath.finitedifference.models.FiniteDifference1DModel;
 import net.finmath.modelling.products.CallOrPut;
+
 
 /**
  * Implements valuation of a European option on a single asset.
@@ -24,10 +18,11 @@ import net.finmath.modelling.products.CallOrPut;
  * payoff, i.e., its Fourier transform.
  *
  * @author Christian Fries
+ * @author Ralph Rudd
  * @author Alessandro Gnoatto
  * @version 1.0
  */
-public class EuropeanOption extends AbstractFourierTransformProduct {
+public class EuropeanOption implements FiniteDifference1DProduct, FiniteDifference1DBoundary{
 
 	private final String underlyingName;
 	private final double maturity;
@@ -126,28 +121,41 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 		this(maturity, strike, 1.0);
 	}
 
-
 	@Override
-	public Complex apply(final Complex argument) {
-		final Complex iargument = argument.multiply(Complex.I);
-		final Complex exponent = (iargument).add(1);
-		final Complex numerator = (new Complex(strike)).pow(exponent);
-		final Complex denominator = (argument.multiply(argument)).subtract(iargument);
+	public double[][] getValue(final double evaluationTime, final FiniteDifference1DModel model) {
 
-		return numerator.divide(denominator).negate();
+		/*
+		 * The FDM algorithm requires the boundary conditions of the product.
+		 * This product implements the boundary interface
+		 */
+		final FiniteDifference1DBoundary boundary = this;
+		
+		if(callOrPutSign == CallOrPut.CALL) {
+			return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(assetValue - strike, 0), boundary);
+		}else {
+			return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(strike - assetValue, 0), boundary);
+		}
+	}
+
+	/*
+	 * Implementation of the interface:
+	 * @see net.finmath.finitedifference.products.FiniteDifference1DBoundary#getValueAtLowerBoundary(net.finmath.finitedifference.models.FDMBlackScholesModel, double, double)
+	 */
+	@Override
+	public double getValueAtLowerBoundary(final FiniteDifference1DModel model, final double currentTime, final double stockPrice) {
+		if(callOrPutSign == CallOrPut.CALL) {
+			return 0;
+		}else {
+			return strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
+		}
 	}
 
 	@Override
-	public double getValue(final CharacteristicFunctionModel model) throws CalculationException {
+	public double getValueAtUpperBoundary(final FiniteDifference1DModel model, final double currentTime, final double stockPrice) {
 		if(callOrPutSign == CallOrPut.CALL) {
-			//It is a call, just use the existing implementation
-			return super.getValue(model);
+			return stockPrice - strike * Math.exp(-model.getRiskFreeRate()*(maturity - currentTime));
 		}else {
-			double df = model.getDiscountCurveForDiscountRate() == null ? 
-					Math.exp(- model.getDiscountRate()) 
-					: model.getDiscountCurveForDiscountRate().getDiscountFactor(maturity);
-			//It is a put, use the put call parity
-			return super.getValue(model) - model.getInitialValue() + this.strike * df;
+			return 0.0;
 		}
 		
 	}
@@ -156,7 +164,6 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 		return underlyingName;
 	}
 
-	@Override
 	public double getMaturity() {
 		return maturity;
 	}
@@ -165,14 +172,8 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 		return strike;
 	}
 
-	@Override
-	public double getIntegrationDomainImagLowerBound() {
-		return 0.5;
-	}
-
-	@Override
-	public double getIntegrationDomainImagUpperBound() {
-		return 2.5;
+	public CallOrPut getCallOrPutSign() {
+		return callOrPutSign;
 	}
 
 }

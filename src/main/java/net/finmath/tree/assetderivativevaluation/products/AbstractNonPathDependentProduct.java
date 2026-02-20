@@ -9,29 +9,26 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * Base class for non–path-dependent options priced on a TreeModel.
- * The payoff is fully specified by a DoubleUnaryOperator acting on the spot
- * at maturity (e.g. s -> Math.max(s-K,0) for a call). Early–exercise features
- * (if any) and the backward induction logic are delegated to subclasses via
+ * Early–exercise features(if any) and the backward induction logic are delegated to subclasses via
  * getValues(double, TreeModel).
  * 
+ * The payoff function is protected so that we can define specialized subclasses
+ * for the most important products. This is the approach followed in the class
+ * EuropeanOption
+ * 
  * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
  */
 public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduct {
-
-	/** Payoff function f(S) applied at maturity (or when exercised). */
-	private final DoubleUnaryOperator payOffFunction;
 
 	/**
 	 * Creates a non–path-dependent option with a given maturity and payoff.
 	 *
 	 * @param maturity
 	 *        Contract maturity (model time units), typically T.
-	 * @param payOffFunction
-	 *        Payoff function f(S) (e.g. call/put); must not be null.
 	 */
-	public AbstractNonPathDependentProduct(double maturity, DoubleUnaryOperator payOffFunction ){
+	public AbstractNonPathDependentProduct(double maturity){
 		super(maturity);
-		this.payOffFunction = payOffFunction;
 	}
 
 	/**
@@ -39,9 +36,7 @@ public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduc
 	 *
 	 * @return The payoff function.
 	 */
-	protected DoubleUnaryOperator getPayOffFunction(){
-		return payOffFunction;
-	}
+	public abstract DoubleUnaryOperator getPayOffFunction();
 
 	/**
 	 * Converts a model time to the corresponding lattice time index by rounding
