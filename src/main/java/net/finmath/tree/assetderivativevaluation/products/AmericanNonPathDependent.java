@@ -17,6 +17,8 @@ import java.util.function.DoubleUnaryOperator;
  */
 public class AmericanNonPathDependent extends AbstractNonPathDependentProduct {
 
+	private final DoubleUnaryOperator payOffFunction;
+
 	/**
 	 * Creates an American option with given maturity and payoff.
 	 *
@@ -24,7 +26,8 @@ public class AmericanNonPathDependent extends AbstractNonPathDependentProduct {
 	 * @param payOffFunction  Payoff function f(S) (e.g.,s -> Math.max(K - s, 0.0) for a put).
 	 */
 	public AmericanNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction) {
-		super(maturity, payOffFunction);
+		super(maturity);
+		this.payOffFunction = payOffFunction;
 	}
 
 	/**
@@ -59,6 +62,11 @@ public class AmericanNonPathDependent extends AbstractNonPathDependentProduct {
 
 		return levels;
 
+	}
+
+	@Override
+	public DoubleUnaryOperator getPayOffFunction() {
+		return this.payOffFunction;
 	}
 }
 

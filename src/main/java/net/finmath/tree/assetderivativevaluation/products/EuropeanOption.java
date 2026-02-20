@@ -30,7 +30,7 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
 	 * @param callOrPutSign The sign in the payoff.
 	 */
-	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final double callOrPutSign) {	
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final double callOrPutSign) {
 		super(maturity);
 		this.underlyingName	= underlyingName;
 		this.maturity		= maturity;
@@ -42,12 +42,6 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 		}else {
 			throw new IllegalArgumentException("Unknown option type");
 		}
-		if(this.callOrPutSign == CallOrPut.CALL) {
-			this.payOffFunction = assetValue ->  Math.max(assetValue - strike, 0);
-		}else {
-			this.payOffFunction = assetValue ->  Math.max(strike - assetValue, 0);
-		}
-		
 	}
 
 	/**
@@ -63,12 +57,6 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 		this.maturity		= maturity;
 		this.strike			= strike;
 		this.callOrPutSign	= callOrPutSign;
-		if(this.callOrPutSign == CallOrPut.CALL) {
-			this.payOffFunction = assetValue ->  Math.max(assetValue - strike, 0);
-		}else {
-			this.payOffFunction = assetValue ->  Math.max(strike - assetValue, 0);
-		}
-
 	}
 
 	/**
@@ -90,12 +78,6 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 			throw new IllegalArgumentException("Unknown option type");
 		}
 		this.underlyingName	= null;		// Use underlyingIndex
-		if(this.callOrPutSign == CallOrPut.CALL) {
-			this.payOffFunction = assetValue ->  Math.max(assetValue - strike, 0);
-		}else {
-			this.payOffFunction = assetValue ->  Math.max(strike - assetValue, 0);
-		}
-
 	}
 
 	/**
@@ -111,14 +93,8 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 		this.strike				= strike;
 		this.callOrPutSign		= callOrPutSign;
 		this.underlyingName	= null;		// Use underlyingIndex
-		if(this.callOrPutSign == CallOrPut.CALL) {
-			this.payOffFunction = assetValue ->  Math.max(assetValue - strike, 0);
-		}else {
-			this.payOffFunction = assetValue ->  Math.max(strike - assetValue, 0);
-		}
-
 	}
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param underlyingName Name of the underlying
@@ -140,7 +116,7 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 	}
 
 	@Override
-	protected DoubleUnaryOperator getPayOffFunction(){
+	public DoubleUnaryOperator getPayOffFunction(){
 		if(callOrPutSign == CallOrPut.CALL) {
 			return assetValue ->  Math.max(assetValue - strike, 0);
 		}else {

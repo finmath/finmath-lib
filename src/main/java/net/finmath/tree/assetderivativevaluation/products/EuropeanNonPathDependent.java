@@ -13,6 +13,7 @@ import java.util.function.DoubleUnaryOperator;
  */
 public class EuropeanNonPathDependent extends AbstractNonPathDependentProduct {
 
+	private final DoubleUnaryOperator payOffFunction;
 	/**
 	 * Creates a European option with given maturity and payoff.
 	 *
@@ -21,7 +22,8 @@ public class EuropeanNonPathDependent extends AbstractNonPathDependentProduct {
 	 *                        (e.g., s -> Math.max(s-K,0.0) for a call).
 	 */
 	public EuropeanNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction){
-		super(maturity,payOffFunction);
+		super(maturity);
+		this.payOffFunction = payOffFunction;
 	}
 
 	/**
@@ -45,5 +47,9 @@ public class EuropeanNonPathDependent extends AbstractNonPathDependentProduct {
 		return values;
 	}
 
+	@Override
+	public DoubleUnaryOperator getPayOffFunction() {
+		return this.payOffFunction;
 	}
 
+}
