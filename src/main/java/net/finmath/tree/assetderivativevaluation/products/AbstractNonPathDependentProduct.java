@@ -14,12 +14,17 @@ import java.util.function.DoubleUnaryOperator;
  * (if any) and the backward induction logic are delegated to subclasses via
  * getValues(double, TreeModel).
  * 
+ * The payoff function is protected so that we can define specialized subclasses
+ * for the most important products. This is the approach followed in the class
+ * EuropeanOption
+ * 
  * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
  */
 public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduct {
 
 	/** Payoff function f(S) applied at maturity (or when exercised). */
-	private final DoubleUnaryOperator payOffFunction;
+	protected DoubleUnaryOperator payOffFunction;
 
 	/**
 	 * Creates a non–path-dependent option with a given maturity and payoff.
@@ -32,6 +37,11 @@ public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduc
 	public AbstractNonPathDependentProduct(double maturity, DoubleUnaryOperator payOffFunction ){
 		super(maturity);
 		this.payOffFunction = payOffFunction;
+	}
+	
+	public AbstractNonPathDependentProduct(double maturity){
+		super(maturity);
+		this.payOffFunction = null;
 	}
 
 	/**
