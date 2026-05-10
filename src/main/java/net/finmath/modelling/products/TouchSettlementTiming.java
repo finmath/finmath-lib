@@ -12,12 +12,12 @@ package net.finmath.modelling.products;
  * </ul>
  */
 public enum TouchSettlementTiming {
-    /**
-     * The at expiry.
-     */
-    AT_EXPIRY,
-    /**
-     * The at hit.
-     */
-    AT_HIT
+	/**
+	 * The at expiry.
+	 */
+	AT_EXPIRY,
+	/**
+	 * The at hit.
+	 */
+	AT_HIT
 }

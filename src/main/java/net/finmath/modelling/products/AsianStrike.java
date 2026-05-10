@@ -4,10 +4,10 @@ public enum AsianStrike {
 	/*
 	 * Fixed Strike
 	 */
-    FIXED_STRIKE,
+	FIXED_STRIKE,
 
-    /*
-     * Floating Strike
-     */
-    FLOATING_STRIKE;
+	/*
+	 * Floating Strike
+	 */
+	FLOATING_STRIKE;
 }
