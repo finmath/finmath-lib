@@ -4,11 +4,11 @@ import net.finmath.stochastic.RandomVariable;
 
 public class ParameterTransfromBoundedSlope implements ParameterTransfrom {
 
-	private final RandomVariable parameterLowerBound[];
-	private final RandomVariable parameterUpperBound[];
+	private final RandomVariable[] parameterLowerBound;
+	private final RandomVariable[] parameterUpperBound;
 
-	private final RandomVariable parameterSlopeLowerBound[];
-	private final RandomVariable parameterSlopeUpperBound[];
+	private final RandomVariable[] parameterSlopeLowerBound;
+	private final RandomVariable[] parameterSlopeUpperBound;
 
 	public ParameterTransfromBoundedSlope(RandomVariable[] parameterLowerBound, RandomVariable[] parameterUpperBound,
 			RandomVariable[] parameterSlopeLowerBound, RandomVariable[] parameterSlopeUpperBound) {
