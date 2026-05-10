@@ -5,11 +5,42 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.1.0 (10.05.2026)
+
+### Numerical Methods: Tree Framework (contributed by A. Gnoatto)
+
+- Added a tree framework `net.finmath.tree` with similar package layout as `net.finmath.montecarlo` (models / products).
+
+### Numerical Methods: Finite Difference Framework
+
+- Complete rewrite of fineite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
+
+
+### Algorithmic Differentiation
+
+- Fixed implementation of `getGradient(Set<Long> independentIDs)` in `RandomVariableDifferentiableAAD` to conform with JavaDoc (retain (not filter/remove) the provided IDs). (The current workaround was to use `getGradient()` and perform the desired filtering.
+
+
+## 6.0.28 (13.10.2025)
+
+### Interest Rate Models (analytic)
+
+- Semi analytic Heston greeks (contributed by A. Gnoatto).
+
+
+## 6.0.20 (21.04.2025)
+
+### General
+
+- AAD compatible parameter transform for solvers
+
+
 ## 6.0.18 (24.10.2023)
 
 ### Interest Rate Models
 
 - Small change to the internal implementation of LIBORMonteCarloSimulationFromLIBORModel that allows to use this model as a sub-model for hybrid models. The number of factors in the drift calculation is determined from the model. So the process can feature more factors than the factors used. The model always uses the first n factors.
+
 
 - AbstractLIBORMonteCarloProduct requires a LIBORModelMonteCarloSimulationModel (backward compatiblity in forward initial margin project).
 
