@@ -647,11 +647,12 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	}
 
 	/**
-	 * Returns the gradient of this random variable with respect to all its leaf nodes.
-	 * The method calculated the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes <code>this</code>.
+	 * Returns the gradient of this random variable with respect to the given IDs.
+	 * The method calculates the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes <code>this</code>.
 	 *
 	 * Performs a backward automatic differentiation.
-	 *
+	 * 
+	 * @param independentIDs {@link Set} of IDs of random variables \( v \) with respect to which the gradients \( \frac{d u}{d v} \) will be calculated. If null, derivatives w.r.t. all known independents are returned.
 	 * @return The gradient map.
 	 */
 	@Override
@@ -693,7 +694,8 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 				}
 			}
 
-			if(independentIDs != null && independentIDs.contains(id)) {
+			// Filter out this node, if it is not in independentIDs
+			if(independentIDs != null && !independentIDs.contains(id)) {
 				derivatives.remove(id);
 			}
 		}
