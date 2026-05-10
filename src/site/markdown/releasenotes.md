@@ -15,10 +15,12 @@ finmath lib Release Notes
 
 - Complete rewrite of fineite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
 
-
 ### Algorithmic Differentiation
 
 - Fixed implementation of `getGradient(Set<Long> independentIDs)` in `RandomVariableDifferentiableAAD` to conform with JavaDoc (retain (not filter/remove) the provided IDs). (The current workaround was to use `getGradient()` and perform the desired filtering.
+
+
+---
 
 
 ## 6.0.28 (13.10.2025)
@@ -28,11 +30,22 @@ finmath lib Release Notes
 - Semi analytic Heston greeks (contributed by A. Gnoatto).
 
 
-## 6.0.20 (21.04.2025)
+## 6.0.20 (22.04.2025)
 
 ### General
 
 - AAD compatible parameter transform for solvers
+
+
+## 6.0.19 (24.11.2023)
+
+### General
+
+- Cleanup
+
+### Interest Rate Models
+
+- ShortRateModel extends TermstructureModel / fix short rate calibration
 
 
 ## 6.0.18 (24.10.2023)
