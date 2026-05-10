@@ -67,7 +67,7 @@ public class RandomVariableFromDoubleArrayTest {
 	    assertEquals(5.0, result.get(1), 0.0);
 	    assertEquals(7.0, result.get(2), 0.0);
 	}
-	
+
 	@Test
 	public void testMult() {
 	    double[] values1 = { 1.0, 2.0, 3.0 };
@@ -113,7 +113,7 @@ public class RandomVariableFromDoubleArrayTest {
 	    assertEquals(2.0, result2.get(1), 0.0);
 	    assertEquals(3.0, result2.get(2), 0.0);
 	}
-	
+
 	@Test
 	public void testAverage() {
 	    double[] values = { 1.0, 2.0, 3.0 };

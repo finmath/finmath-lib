@@ -40,7 +40,7 @@ import net.finmath.stochastic.Scalar;
  * </dl>
  *
  * <b>Important:</b>
- * 
+ *
  *  <ul>
  *  	<li>
  *  		Since the class keeps track of past fundings
@@ -79,7 +79,7 @@ public class FundingCapacityWithoutMemory extends AbstractProductComponent imple
 	/**
 	 * Apply a new funding requirement to this funding capacity
 	 * and return the associated <code>DefaultFactors</code>.
-	 * 
+	 *
 	 * @param time The time at which the funding is required.
 	 * @param fundingRequirement The required funding.
 	 * @return A <code>DefaultFactors</code> that reflects the amount that has to be contracted to secure the funding.

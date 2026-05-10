@@ -30,13 +30,13 @@ public interface CharacteristicFunctionModel extends Model {
 	CharacteristicFunction apply(double time);
 
 	/**
-	 * 
+	 *
 	 * @return the reference date
 	 */
 	public LocalDate getReferenceDate();
 
 	/**
-	 * 
+	 *
 	 * @return the initial value of the stock
 	 */
 	public double getInitialValue();

@@ -12,10 +12,10 @@ import java.util.stream.DoubleStream;
 /**
  * Interface to classes providing time discretization,
  * i.e. a map \( i \mapsto t_{i} \) for i = 0, 1, 2, ..., n.
- * 
+ *
  * Classes implementing this interface should provide convenient methods
  * to transform an index to a time and a time to an index.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */
@@ -78,7 +78,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 
 	/**
 	 * Returns the first time in the time discretization.
-	 * 
+	 *
 	 * @return The first time in the time discretization.
 	 */
 	default double getFirstTime() {
@@ -87,17 +87,17 @@ public interface TimeDiscretization extends Iterable<Double> {
 
 	/**
 	 * Returns the last time in the time discretization.
-	 * 
+	 *
 	 * @return The last time in the time discretization.
 	 */
 	default double getLastTime() {
 		return getTime(getNumberOfTimes()-1);
 	}
 
-	
+
 	/**
 	 * Return a clone of this time discretization as <code>double[]</code>.
-	 * 
+	 *
 	 * @return The time discretization as <code>double[]</code>
 	 */
 	double[] getAsDoubleArray();
@@ -127,7 +127,7 @@ public interface TimeDiscretization extends Iterable<Double> {
 
 	/**
 	 * Create a new <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
-	 * 
+	 *
 	 * @param timesToKeep True if the time point should belong to the new <code>TimeDiscretization</code>
 	 * @return A <code>TimeDiscretization</code> with a subset of <code>this</code> time discretization.
 	 */

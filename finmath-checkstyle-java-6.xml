@@ -5,12 +5,12 @@
 	finmath lib checkstyle configuration.
 	Adapted from the sun coding conventions.
 	Currently many checks are disabled as we are slowing adding our own conventions.
-	For updates check the finmath lib project home page. 
+	For updates check the finmath lib project home page.
 -->
 
 <module name="Checker">
-	<!-- If you set the basedir property below, then all reported file names 
-		will be relative to the specified directory. See http://checkstyle.sourceforge.net/5.x/config.html#Checker 
+	<!-- If you set the basedir property below, then all reported file names
+		will be relative to the specified directory. See http://checkstyle.sourceforge.net/5.x/config.html#Checker
 		<property name="basedir" value="${basedir}"/> -->
 
 	<property name="fileExtensions" value="java, properties, xml" />
@@ -29,21 +29,21 @@
 
 	<!-- Checks that property files contain the same keys. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
-	<!-- 
+	<!--
 	<module name="Translation" />
-	--> 
+	-->
 
 	<!-- Checks for Size Violations. -->
 	<!-- See http://checkstyle.sf.net/config_sizes.html -->
-	<!-- 
+	<!--
 	<module name="FileLength" />
-	--> 
+	-->
 
 	<!-- Checks for whitespace -->
 	<!-- See http://checkstyle.sf.net/config_whitespace.html -->
-	<!-- 
+	<!--
 	<module name="FileTabCharacter" />
-	--> 
+	-->
 
 	<!-- Miscellaneous other checks. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html -->
@@ -74,7 +74,7 @@
 		<module name="JavadocType">
 			<property name="scope" value="public"/>
 			<property name="allowUnknownTags" value="true"/>
-			<!--  Add ENUM_DEF, ANNOTATION_DEF in future version. 
+			<!--  Add ENUM_DEF, ANNOTATION_DEF in future version.
 			 -->
 			<property name="tokens" value="INTERFACE_DEF, CLASS_DEF"/>
 		</module>
@@ -87,7 +87,7 @@
 
 		<!-- Checks for Naming Conventions. -->
 		<!-- See http://checkstyle.sf.net/config_naming.html -->
-		<!-- 
+		<!--
 		<module name="ConstantName" />
 		-->
 		<module name="LocalFinalVariableName" />
@@ -162,20 +162,20 @@
 		</module>
 		 -->
 		<module name="EmptyBlock" />
-		<!-- 
+		<!--
 		<module name="LeftCurly"/>
 		-->
-		
+
 		<module name="NeedBraces">
 			<property name="allowSingleLineStatement" value="true"/>
 		</module>
-		<!-- 
+		<!--
 		<module name="RightCurly" />
 		-->
 
 		<!-- Checks for common coding problems -->
 		<!-- See http://checkstyle.sf.net/config_coding.html -->
-		<!-- 
+		<!--
 		<module name="AvoidInlineConditionals" />
 		<module name="EmptyStatement" />
 		<module name="EqualsHashCode" />
@@ -190,7 +190,7 @@
 
 		<!-- Checks for class design -->
 		<!-- See http://checkstyle.sf.net/config_design.html -->
-		<!-- 
+		<!--
 		<module name="DesignForExtension" />
 		<module name="FinalClass" />
 		<module name="HideUtilityClassConstructor" />
@@ -205,7 +205,7 @@
 
 		<!-- Miscellaneous other checks. -->
 		<!-- See http://checkstyle.sf.net/config_misc.html -->
-		<!-- 
+		<!--
 		<module name="ArrayTypeStyle" />
 		<module name="FinalParameters" />
 		<module name="TodoComment" />

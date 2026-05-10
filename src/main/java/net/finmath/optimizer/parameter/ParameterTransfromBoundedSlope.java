@@ -56,7 +56,7 @@ public class ParameterTransfromBoundedSlope implements ParameterTransfrom {
 				}
 				if(parameterSlopeUpperBound != null) {
 					upperBound = upperBound.cap(modelParameters[i-1].add(parameterSlopeUpperBound[i]));
-				}	
+				}
 			}
 
 			optimizerParameters[i] = modelParameters[i].sub(lowerBound).div(upperBound.sub(lowerBound)).log().mult(-1);

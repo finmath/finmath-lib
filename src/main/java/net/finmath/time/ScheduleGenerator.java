@@ -94,9 +94,9 @@ public class ScheduleGenerator {
 			if(string == null) {
 				throw new IllegalArgumentException();
 			}
-			
+
 			string = string.replace('.', ' ').toLowerCase();
-			
+
 			switch(string) {
 			case "30e/360 isda":
 			case "e30/360 isda":

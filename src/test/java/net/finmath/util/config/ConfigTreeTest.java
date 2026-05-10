@@ -11,7 +11,7 @@ import net.finmath.util.config.nodes.SpecialNodes;
 
 /**
  * Configuration Test
- * 
+ *
  * @author Christian Fries
  */
 public class ConfigTreeTest {
@@ -46,8 +46,8 @@ public class ConfigTreeTest {
 		configs.forEach(System.out::println);
 		System.out.println("_".repeat(79));
 
-		// Build configTree			
-		ConfigTree configTree = new ConfigTree(List.of("prop1", "prop2", "prop3"), configs);		
+		// Build configTree
+		ConfigTree configTree = new ConfigTree(List.of("prop1", "prop2", "prop3"), configs);
 
 		// Fetch some stuff
 

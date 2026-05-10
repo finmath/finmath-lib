@@ -441,7 +441,7 @@ public interface RandomVariable extends Serializable {
 	/**
 	 * Returns a random variable which is deterministic and corresponds
 	 * the variance of this random variable.
-	 * 
+	 *
 	 * Note: The default implementation is a biased estimator. Use the factor n/(n-1) to convert to an unbiased estimator.
 	 *
 	 * @return New random variable being the variance of this random variable and the argument.
@@ -457,7 +457,7 @@ public interface RandomVariable extends Serializable {
 	 * the covariance of this random variable and the argument.
 	 *
 	 * Note: The default implementation is a biased estimator. Use the factor n/(n-1) to convert to an unbiased estimator.
-	 * 
+	 *
 	 * @param value The random variable Y to be used in Cov(X,Y) with X being this.
 	 * @return New random variable being the covariance of this random variable and the argument.
 	 */

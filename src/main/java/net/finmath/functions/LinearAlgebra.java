@@ -66,7 +66,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Create a Cholesky decomposition of a symmetric matrix.
-	 * 
+	 *
 	 * @param symmetricMatrix The input matrix.
 	 * @return A lower triangle matrix representing the CholeskyDecomposition.
 	 */
@@ -606,7 +606,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Matrix power. Tries to calculate a matrix A such that M^{exponent} = A.
-	 * 
+	 *
 	 * @param matrix The matrix M of which we like to have the power.
 	 * @param exponent The exponent.
 	 * @return The exponent-th power of M
@@ -617,7 +617,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Matrix exponential. Tries to calculate the matrix A such that exp(M) = A.
-	 * 
+	 *
 	 * @param matrix The matrix M
 	 * @return exp(M)
 	 */
@@ -627,7 +627,7 @@ public class LinearAlgebra {
 
 	/**
 	 * Matrix logarithm. Tries to calculate the matrix A such that log(M) = A.
-	 * 
+	 *
 	 * @param matrix The matrix M
 	 * @return log(M)
 	 */

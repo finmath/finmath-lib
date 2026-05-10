@@ -87,7 +87,7 @@ public class HestonModelGreeksTest {
 		final double xi = 0.4639;
 
 		final double shift = 1E-05;
-		
+
 		final long startMillis	= System.currentTimeMillis();
 
 		final CharacteristicFunctionModel modelBSUp = new BlackScholesModel(initialValue+shift, riskFreeRate, discountRate, volatility);

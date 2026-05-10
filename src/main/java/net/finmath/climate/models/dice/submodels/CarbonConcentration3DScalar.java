@@ -17,7 +17,7 @@ public class CarbonConcentration3DScalar implements CarbonConcentration {
 	private final double carbonConcentrationInShallowOcean;
 	private final double carbonConcentrationInLowerOcean;
 
-	
+
 	/**
 	 * Create a state vector representing carbon concentration in units of GtC.
 	 */

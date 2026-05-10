@@ -16,7 +16,7 @@ public class Temperature2DScalar implements Temperature {
 
 	/**
 	 * Create a temperature vector.
-	 * 
+	 *
 	 * @param temperatureOfAtmosphere Temperature over pre-industrial of the atmosphere.
 	 * @param temperatureOfLandAndOcean Temperature over pre-industrial of land and ocean.
 	 */

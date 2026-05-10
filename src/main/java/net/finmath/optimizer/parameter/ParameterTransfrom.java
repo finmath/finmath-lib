@@ -25,7 +25,7 @@ public interface ParameterTransfrom {
 	 * Transforms a parameter vector x with \( x_{i} \) unbounded
 	 * to a model parameter vector y that lies in the domain of
 	 * admissible parameters.
-	 * 
+	 *
 	 * @param optimizerParameters The given (e.g. unbounded) optimizer parameters.
 	 * @return The (e.g. constrained) model parameters.
 	 */
@@ -35,7 +35,7 @@ public interface ParameterTransfrom {
 	 * Transforms a model parameter vector y to an
 	 * unbounded optimizer parameter x, such that
 	 * <code>y</code> equals <code>getModelParametersFrom(x)</code>.
-	 * 
+	 *
 	 * @param modelParameters The given (e.g. constrained) model parameters.
 	 * @return The (e.g. unbounded) optimizer parameters.
 	 */

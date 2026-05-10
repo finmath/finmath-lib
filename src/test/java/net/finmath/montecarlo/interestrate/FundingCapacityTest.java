@@ -214,7 +214,7 @@ public class FundingCapacityTest {
 			System.out.print(formatterValue.format(priceOfBond) + "          ");
 
 			bond.getValue(maturity, liborMarketModel);
-			
+
 			// Bond price analytic
 			final double priceOfBondAnalytic = liborMarketModel.getModel().getDiscountCurve().getDiscountFactor(maturity);
 

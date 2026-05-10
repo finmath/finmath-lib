@@ -108,7 +108,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
 		super(stochasticDriver.getTimeDiscretization(), model);
 		this.stochasticDriver = stochasticDriver;
-		
+
 		Scheme scheme = Scheme.EULER_FUNCTIONAL; // Default, unless applyStateSpaceTransformInverse is not provided
 		try {
 			model.applyStateSpaceTransformInverse(null, 0, 0, null);

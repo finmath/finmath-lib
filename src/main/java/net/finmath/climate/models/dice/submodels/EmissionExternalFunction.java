@@ -18,7 +18,7 @@ public class EmissionExternalFunction implements Function<Double, Double> {
 	private static double annualizedExternalEmissionsDecay = -Math.log(1-0.115)/5.0; //0.115 for 5 years, thus 1-5th_root(1-0.115)
 
 	/**
-	 * 
+	 *
 	 * @param externalEmissionsInitial Initial value for the emissions per year. Unit: GtCO2 / year.
 	 * @param externalEmissionsDecay Exponential decay rate. Unit: 1/year.
 	 */

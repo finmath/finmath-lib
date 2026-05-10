@@ -321,7 +321,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 	public TimeDiscretization filter(DoublePredicate timesToKeep) {
 		return new TimeDiscretizationFromArray(Arrays.stream(timeDiscretization).filter(timesToKeep), getTickSize());
 	}
-	
+
 	/**
 	 * @param that Another time discretization containing points to add to the time discretization.
 	 * @return A new time discretization containing both the time points of this and the other discretization.

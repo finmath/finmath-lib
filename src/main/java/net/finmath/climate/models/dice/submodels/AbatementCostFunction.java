@@ -13,9 +13,9 @@ import java.util.function.BiFunction;
  * 		of the corresponding fraction in the corresponding year.
  * 	</li>
  * </ul>
- * 
+ *
  * Function of (time, abatement).
- * 
+ *
  * Note: The emission intensity (&sigma;) factor (emission intensity) is missing here (moved to the outside). In the orignal
  * model the abatement cost are a fraction of the GDP, which we get if we multiply this function with
  * the &sigma;

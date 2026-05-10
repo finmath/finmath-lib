@@ -13,7 +13,7 @@ import net.finmath.util.config.nodes.ValueNode;
 
 /**
  * Config Tree: A tree based representation of configurations that can be selected with a key-value map describing the selector.
- * 
+ *
  * <h2>Selector &mapsto; Configuration</h2>
  *
  * <dl>
@@ -21,29 +21,29 @@ import net.finmath.util.config.nodes.ValueNode;
  * <dd>
  * A configuration is a value (Object) assigned to a selector (Map&lt;String, Object&gt;).
  * </dd>
- * 
+ *
  * <dt>selector</dt>
  * <dd>
  * A selector is a key-value map where certain properties (String) have certain values (Object).
  * Properties of the selector are checked in a fixed order,
  * such that a tree is formed, where each property corresponds to a level (depth) in the tree.
  * </dd>
- * 
+ *
  * <dt>default values</dt>
  * <dd>
  * Each level has a special branch for DEFAULT VALUES, if the given selector value does not match any value of other nodes.
  * </dd>
  * </dl>
- * 
+ *
  * <h2>Selector Key Order</h2>
- * 
+ *
  * The selector is matched against the configurtion list by checking the keys in a certain order. This oder does not matter if there is a unique value
  * for the given selector, but it may matter if default values have to be assign. See the following example.
- * 
+ *
  * <h2>Example</h2>
- * 
+ *
  * The configuration is determied by the value of two properties ("prop1" and "prop2") (the keys). The correspondig configuration value is
- * 
+ *
  * <p></p>
 
  * <table border="1">
@@ -57,9 +57,9 @@ import net.finmath.util.config.nodes.ValueNode;
  * <tr><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">DEFAULT_VALUE</td><td style="text-align: center;">66</td></tr>
  * <caption>The list of maps that defines all configurations.</caption>
  * </table>
- * 
+ *
  * <p></p>
- * 
+ *
  * Initialising the class with this configuration we have:
  * <ul>
  * 	<li>
@@ -79,7 +79,7 @@ import net.finmath.util.config.nodes.ValueNode;
  * 		</ul>
  * 	</li>
  * </ul>
- * 
+ *
  * @author Christian Fries
  */
 public class ConfigTree {
@@ -88,7 +88,7 @@ public class ConfigTree {
 
 	/**
 	 * Construct the tree.
-	 * 
+	 *
 	 * @param keyOrder Order in which the string keys of a selector define the levels of the tree.
 	 * @param configs A list, where each element is map of keys to object. The key "value" is interpreted as the configuration value. All other keys are interpreted as configuration properties.
 	 */
@@ -98,18 +98,18 @@ public class ConfigTree {
 
 	/**
 	 * Get the configuration for a given specification of the properties (selector).
-	 * 
+	 *
 	 * The configutation tree is traversed by selecting each route though the value of a specific key in the selector,
-	 * until the lead node is reached. 
+	 * until the lead node is reached.
 	 * If keys are missing in the selector of if values do not match a predefined route, a default route is used.
-	 * 
+	 *
 	 * @param selector Maps the name (String) of a property to its value (Object).
 	 * @return The configuration value for the given selector.
 	 */
 	public Object getConfig(Map<String, Object> selector) {
 		Node node = this.root;
 
-		// Traverse the tree where each route is selected though the value of a specific key in the selector. 
+		// Traverse the tree where each route is selected though the value of a specific key in the selector.
 		while(node instanceof ConfigNode) {
 			ConfigNode configNode = (ConfigNode)node;
 			if(selector.containsKey(configNode.getKey()) && configNode.getValueToConfig().keySet().contains(selector.get(configNode.getKey()))) {
@@ -135,7 +135,7 @@ public class ConfigTree {
 
 	/**
 	 * Helper for the constructor. Recursive contruction of the tree.
-	 * 
+	 *
 	 * @param keyOrder Given key order.
 	 * @param configs List of configs.
 	 * @return Node of the (sub-)tree for the given config key.
@@ -165,5 +165,5 @@ public class ConfigTree {
 				throw new IllegalArgumentException("Multiple configs for the same selector values. " + Arrays.deepToString(configs.toArray()));
 			}
 		}
-	}	
+	}
 }

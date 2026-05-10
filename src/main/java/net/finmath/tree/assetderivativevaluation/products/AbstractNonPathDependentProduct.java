@@ -11,11 +11,11 @@ import java.util.function.DoubleUnaryOperator;
  * Base class for non–path-dependent options priced on a TreeModel.
  * Early–exercise features(if any) and the backward induction logic are delegated to subclasses via
  * getValues(double, TreeModel).
- * 
+ *
  * The payoff function is protected so that we can define specialized subclasses
  * for the most important products. This is the approach followed in the class
  * EuropeanOption
- * 
+ *
  * @author Carlo Andrea Tramentozzi
  * @author Alessandro Gnoatto
  */

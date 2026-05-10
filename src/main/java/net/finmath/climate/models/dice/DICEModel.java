@@ -67,7 +67,7 @@ public class DICEModel implements ClimateModel {
 
 	/**
 	 * Create the model.
-	 * 
+	 *
 	 * @param timeDiscretization The time discretization to be used.
 	 * @param abatementFunction Abatement function \( t \mapsto \mu(t) \)
 	 * @param savingsRateFunction Savings rate function \( t \mapsto s(t) \)
@@ -219,7 +219,7 @@ public class DICEModel implements ClimateModel {
 
 			double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];
 			damageCosts[timeIndex] = damageCostAbsolute;
-			
+
 			double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrial;
 			abatementCosts[timeIndex] = abatementCostAbsolute;
 
@@ -246,11 +246,11 @@ public class DICEModel implements ClimateModel {
 
 			double consumption = (1-savingsRate) * gdpNet;
 			double investment = savingsRate * gdpNet;
-			
+
 			// Allow for an external shift to the emissions (e.g. to calculate SCC).
 			consumption += isTimeIndexToShift.test(timeIndex) ? initialConsumptionShift : 0.0;
 			consumptions[timeIndex] = consumption;
-			
+
 			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);
 
 			/*
@@ -347,7 +347,7 @@ public class DICEModel implements ClimateModel {
 		double abatementCost = 0.0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimes(); timeIndex++) {
 			abatementCost += abatementCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));
-		}		
+		}
 		return Scalar.of(abatementCost);
 	}
 
@@ -361,13 +361,13 @@ public class DICEModel implements ClimateModel {
 		double damageCost = 0.0;
 		for(int timeIndex = 0; timeIndex < timeDiscretization.getNumberOfTimes(); timeIndex++) {
 			damageCost += damageCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));
-		}		
+		}
 		return Scalar.of(damageCost);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(double time) {
-		// we choose as numeraire the continuously compounding bank account - discount factor is N(0)/N(t) 
+		// we choose as numeraire the continuously compounding bank account - discount factor is N(0)/N(t)
 		return Scalar.of(Math.exp(discountRate * time));
 	}
 

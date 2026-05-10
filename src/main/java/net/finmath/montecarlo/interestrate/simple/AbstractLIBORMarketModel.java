@@ -20,7 +20,7 @@ import net.finmath.time.TimeDiscretization;
  *
  * A more flexible / complex version of the model can be created by using {@link net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel}
  * as an input to an {@link net.finmath.montecarlo.process.EulerSchemeFromProcessModel}.
- * 
+ *
  * @author Christian Fries
  * @version 0.6
  * @since finmath-lib 4.1.0

@@ -3,10 +3,10 @@ package net.finmath.util.config.nodes;
 import java.util.Map;
 
 public class ConfigNode implements Node {
-	
+
 	private final String key;
 	private final Map<Object, Node> valueToConfig;
-	
+
 	public ConfigNode(String key, Map<Object, Node> valueToConfig) {
 		super();
 		this.key = key;

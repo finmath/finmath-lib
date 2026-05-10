@@ -5,12 +5,12 @@
 	finmath lib checkstyle configuration.
 	Adapted from the sun coding conventions.
 	Currently many checks are disabled as we are slowing adding our own conventions.
-	For updates check the finmath lib project home page. 
+	For updates check the finmath lib project home page.
 -->
 
 <module name="Checker">
-	<!-- If you set the basedir property below, then all reported file names 
-		will be relative to the specified directory. See http://checkstyle.sourceforge.net/5.x/config.html#Checker 
+	<!-- If you set the basedir property below, then all reported file names
+		will be relative to the specified directory. See http://checkstyle.sourceforge.net/5.x/config.html#Checker
 		<property name="basedir" value="${basedir}"/> -->
 
 	<property name="fileExtensions" value="java, properties, xml" />
@@ -40,7 +40,7 @@
 	<!-- Miscellaneous other checks. -->
 	<!-- See http://checkstyle.sf.net/config_misc.html -->
 	<module name="RegexpSingleline">
-		<!-- Lines should not have trailing whitespace, only exception is a single 
+		<!-- Lines should not have trailing whitespace, only exception is a single
 			empty JavaDoc line -->
 		<property name="format" value="^(?!\s+\* $).*?\s+$" />
 		<property name="minimum" value="0" />
@@ -77,7 +77,7 @@
 		<!-- <module name="LocalFinalVariableName" /> -->
 
 		<!-- THE FOLLOWING WILL BECOME ACTIVE SOON. -->
-		<!-- <module name="LocalVariableName"> <property name="allowOneCharVarInForLoop" 
+		<!-- <module name="LocalVariableName"> <property name="allowOneCharVarInForLoop"
 			value="true"/> </module> -->
 
 		<module name="MemberName" />
@@ -115,10 +115,10 @@
 
 		<!-- Checks for whitespace -->
 		<!-- See http://checkstyle.sf.net/config_whitespace.html -->
-		<!-- <module name="EmptyForIteratorPad" /> <module name="GenericWhitespace" 
-			/> <module name="MethodParamPad" /> <module name="NoWhitespaceAfter" /> <module 
-			name="NoWhitespaceBefore" /> <module name="OperatorWrap" /> <module name="ParenPad" 
-			/> <module name="TypecastParenPad" /> <module name="WhitespaceAfter" /> <module 
+		<!-- <module name="EmptyForIteratorPad" /> <module name="GenericWhitespace"
+			/> <module name="MethodParamPad" /> <module name="NoWhitespaceAfter" /> <module
+			name="NoWhitespaceBefore" /> <module name="OperatorWrap" /> <module name="ParenPad"
+			/> <module name="TypecastParenPad" /> <module name="WhitespaceAfter" /> <module
 			name="WhitespaceAround" /> -->
 
 		<!-- Modifier Checks -->
@@ -146,8 +146,8 @@
 		<!-- <module name="AvoidInlineConditionals" /> -->
 		<module name="EmptyStatement" />
 		<module name="EqualsHashCode" />
-		<!-- <module name="HiddenField"> <property name="ignoreConstructorParameter" 
-			value="true" /> <property name="ignoreSetter" value="true" /> <property name="setterCanReturnItsClass" 
+		<!-- <module name="HiddenField"> <property name="ignoreConstructorParameter"
+			value="true" /> <property name="ignoreSetter" value="true" /> <property name="setterCanReturnItsClass"
 			value="true" /> </module> -->
 		<module name="IllegalInstantiation" />
 		<module name="InnerAssignment" />
@@ -158,8 +158,8 @@
 
 		<!-- Checks for class design -->
 		<!-- See http://checkstyle.sf.net/config_design.html -->
-		<!-- <module name="DesignForExtension" /> <module name="FinalClass" /> 
-			<module name="HideUtilityClassConstructor" /> <module name="InterfaceIsType" 
+		<!-- <module name="DesignForExtension" /> <module name="FinalClass" />
+			<module name="HideUtilityClassConstructor" /> <module name="InterfaceIsType"
 			/> -->
 
 		<module name="VisibilityModifier">

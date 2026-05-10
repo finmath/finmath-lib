@@ -114,7 +114,7 @@ public class EuropeanOption extends AbstractAssetMonteCarloProduct {
 		this.underlyingIndex	= underlyingIndex;
 		nameOfUnderliyng	= null;		// Use underlyingIndex
 	}
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param underlyingName Name of the underlying

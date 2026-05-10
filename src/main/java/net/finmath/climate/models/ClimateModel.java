@@ -13,11 +13,11 @@ import net.finmath.time.TimeDiscretization;
 public interface ClimateModel {
 
 	/**
-	 * 
+	 *
 	 * @return the time discretization associated with this model.
 	 */
 	TimeDiscretization getTimeDiscretization();
-	
+
 	/**
 	 * The temperature (scenario vector) at a given time.
 	 *
@@ -35,11 +35,11 @@ public interface ClimateModel {
 
 	/**
 	 * The random vector of un-discounted values (utilities).
-	 * 
+	 *
 	 * @return random vector of un-discounted values (utilities).
 	 */
 	RandomVariable[] getValues();
-	
+
 	RandomVariable[] getAbatement();
 
 	RandomVariable[] getEmission();
@@ -65,7 +65,7 @@ public interface ClimateModel {
 	RandomVariable getNumeraire(double time);
 
 	Function<Double, RandomVariable> getAbatementModel();
-	
+
 	Function<Double, RandomVariable> getSavingsRateModel();
-	
+
 }
