@@ -37,7 +37,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
-	 * 
+	 *
 	 * The indexing of the matrix <code>volatility</code> is [timeIndex][compnentIndex] where
 	 * timeIndex refers to the simulation time index j of t_j and componentIndex refers to
 	 * the tenor time discretization i for the i-th forward rate.
@@ -70,7 +70,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * timeIndex refers to the simulation time index j of t_j and componentIndex refers to
 	 * the tenor time discretization i for the i-th forward rate.
 	 * In other words, \sigma_i(t_j) is given by volatility[j][i].
-	 * 
+	 *
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
@@ -96,7 +96,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * timeIndex refers to the simulation time index j of t_j and componentIndex refers to
 	 * the tenor time discretization i for the i-th forward rate.
 	 * In other words, \sigma_i(t_j) is given by volatility[j][i].
-	 * 
+	 *
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
 	 * @param volatility Volatility matrix volatility[timeIndex][componentIndex] where timeIndex the index of the start time in timeDiscretizationFromArray and componentIndex from liborPeriodDiscretization
@@ -140,7 +140,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	 * timeIndex refers to the simulation time index j of t_j and componentIndex refers to
 	 * the tenor time discretization i for the i-th forward rate.
 	 * In other words, \sigma_i(t_j) is given by volatility[j][i].
-	 * 
+	 *
 	 * @param randomVariableFactory The random variable factor used to construct random variables from the parameters.
 	 * @param timeDiscretization Discretization of simulation time.
 	 * @param liborPeriodDiscretization Discretization of tenor times.
@@ -157,7 +157,7 @@ public class LIBORVolatilityModelFromGivenMatrix extends LIBORVolatilityModel {
 	/**
 	 * Creates a simple volatility model using given piece-wise constant values on
 	 * a given discretization grid.
-	 * 
+	 *
 	 * The indexing of the matrix <code>volatility</code> is [timeIndex][compnentIndex] where
 	 * timeIndex refers to the simulation time index j of t_j and componentIndex refers to
 	 * the tenor time discretization i for the i-th forward rate.

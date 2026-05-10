@@ -3,7 +3,7 @@ package net.finmath.modelling.products;
 /**
  * Defines once and for all for the library how we
  * treat calls and puts via EuropeanOption classes.
- * 
+ *
  * @author Alessandro Gnoatto
  */
 public enum CallOrPut {

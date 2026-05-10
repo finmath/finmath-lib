@@ -103,7 +103,7 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 		this.callOrPutSign		= callOrPutSign;
 		this.underlyingName	= null;		// Use underlyingIndex
 	}
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param underlyingName Name of the underlying
@@ -141,13 +141,13 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 			//It is a call, just use the existing implementation
 			return super.getValue(model);
 		}else {
-			double df = model.getDiscountCurveForDiscountRate() == null ? 
-					Math.exp(- model.getDiscountRate()) 
+			double df = model.getDiscountCurveForDiscountRate() == null ?
+					Math.exp(- model.getDiscountRate())
 					: model.getDiscountCurveForDiscountRate().getDiscountFactor(maturity);
 			//It is a put, use the put call parity
 			return super.getValue(model) - model.getInitialValue() + this.strike * df;
 		}
-		
+
 	}
 
 	public String getUnderlyingName() {

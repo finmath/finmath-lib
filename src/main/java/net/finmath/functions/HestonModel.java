@@ -14,7 +14,7 @@ import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMeth
 /**
  * This class implements some functions as static class methods related to the Heston model.
  * The calculation is performed by means of the FFT algorithm of Carr Madan applied to the gradient of the characteristic funtion.
- * 
+ *
  * The model is
  * \[
  * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
@@ -49,16 +49,16 @@ public class HestonModel {
 	/*
 	 * Parameters for the FFT calculator
 	 */
-	final static InterpolationMethod intMethod =InterpolationMethod.LINEAR;
-	final static ExtrapolationMethod extMethod = ExtrapolationMethod.CONSTANT;
-	final static int numberOfPoints = 4096*2;
-	final static double gridSpacing = 0.4;
+	static final InterpolationMethod intMethod =InterpolationMethod.LINEAR;
+	static final ExtrapolationMethod extMethod = ExtrapolationMethod.CONSTANT;
+	static final int numberOfPoints = 4096*2;
+	static final double gridSpacing = 0.4;
 
 	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
 
 	/**
 	 * Calculates the delta of a call option under a Heston model.
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -75,10 +75,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -89,10 +89,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -103,7 +103,7 @@ public class HestonModel {
 
 	/**
 	 * Calculates the gamma of a call option under a Heston model
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -120,10 +120,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -133,10 +133,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -147,7 +147,7 @@ public class HestonModel {
 
 	/**
 	 * Calculates the theta of a call option under a Heston model
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -164,10 +164,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -177,10 +177,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -191,7 +191,7 @@ public class HestonModel {
 
 	/**
 	 * Calculates the rho of a call option under a Heston model
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -208,10 +208,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -221,10 +221,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -237,7 +237,7 @@ public class HestonModel {
 	 * Calculates the vega of a call option under a Heston model, that is
 	 * \( d/d \sigma \), where \( \sigma = \sqrt{v_0} \) is the square root of the initial variance of the model,
 	 * i.e., the initial volatility.
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -254,10 +254,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -268,7 +268,7 @@ public class HestonModel {
 	/**
 	 * Calculates the vega1 of a call option under a Heston model, that is
 	 * \( d/d v_0 \), where \( v_0 \) is the initial variance of the model.
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -285,10 +285,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -298,10 +298,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -312,7 +312,7 @@ public class HestonModel {
 
 	/**
 	 * Calculates the vanna of a call option under a Heston model
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -329,10 +329,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -342,10 +342,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -356,7 +356,7 @@ public class HestonModel {
 
 	/**
 	 * Calculates the volga of a call option under a Heston model
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -373,10 +373,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike)
@@ -386,10 +386,10 @@ public class HestonModel {
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
 				discountRate,
-				sigma, 
-				theta, 
-				kappa, 
-				xi, 
+				sigma,
+				theta,
+				kappa,
+				xi,
 				rho,
 				optionMaturity,
 				optionStrike,
@@ -402,7 +402,7 @@ public class HestonModel {
 	/**
 	 * Computes the gradient of the (discounted) characteristic function of the Heston model.
 	 * More sensitivies can be added by introducing more cases in the switch statement.
-	 * 
+	 *
 	 * @param zeta The argument of the characteristic function gradient
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
@@ -424,10 +424,10 @@ public class HestonModel {
 			final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike,
@@ -507,7 +507,7 @@ public class HestonModel {
 			return Complex.I.multiply(zeta)
 					.multiply(f)
 					.multiply(Complex.I.multiply(zeta).subtract(Complex.ONE))
-					.divide(initialStockValue * initialStockValue); 
+					.divide(initialStockValue * initialStockValue);
 		case THETA:
 			Complex numerator_dDdT = d.multiply(exp_dT)
 			.multiply(b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
@@ -538,11 +538,11 @@ public class HestonModel {
 							);
 		case RHO:
 			Complex dCdr = Complex.I.multiply(zeta).multiply(optionMaturity);
-			return f.multiply(dCdr).subtract(f.multiply(optionMaturity)); 
+			return f.multiply(dCdr).subtract(f.multiply(optionMaturity));
 		case VEGA1:
-			return f.multiply(D); 
+			return f.multiply(D);
 		case VANNA:
-			return f.multiply(Complex.I).multiply(zeta).multiply(D).divide(initialStockValue); 
+			return f.multiply(Complex.I).multiply(zeta).multiply(D).divide(initialStockValue);
 		case VOLGA:
 			return Complex.valueOf(2.0)
 					.multiply(D)
@@ -557,7 +557,7 @@ public class HestonModel {
 
 	/**
 	 * Service method that performs the Fourier inversion according to the FFT algorithm of Carr and Madan
-	 * 
+	 *
 	 * @param initialStockValue Initital value of the stock.
 	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
 	 * @param discountRate The discount rate.
@@ -576,10 +576,10 @@ public class HestonModel {
 	private static double hestonGreekCalculator(final double initialStockValue,
 			final double riskFreeRate,
 			final double discountRate,
-			final double sigma, 
-			final double theta, 
-			final double kappa, 
-			final double xi, 
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
 			final double rho,
 			final double optionMaturity,
 			final double optionStrike,
@@ -605,7 +605,7 @@ public class HestonModel {
 
 			//The characteristic function is already discounted
 			final Complex numerator = hestonCharacteristicFunctionGradient(
-					z.subtract(Complex.I), initialStockValue, riskFreeRate, discountRate, sigma,theta, kappa,xi, 
+					z.subtract(Complex.I), initialStockValue, riskFreeRate, discountRate, sigma,theta, kappa,xi,
 					rho,
 					optionMaturity,
 					optionStrike,

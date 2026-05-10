@@ -65,8 +65,8 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	private RandomVariable		lastValuationExerciseTime;
 	private RandomVariable[]	lastValuationExerciseValueAtExerciseTime;
 	private RandomVariable[]	lastValuationContinuationValueAtExerciseTime;
-	private RandomVariable[]	lastValuationContinuationValueEstimatedAtExerciseTime;	
-	
+	private RandomVariable[]	lastValuationContinuationValueEstimatedAtExerciseTime;
+
 	/**
 	 * Create a Bermudan option paying
 	 * 		N(i) * (S(T(i)) - K(i)) at T(i),
@@ -85,13 +85,13 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			final double[]			exerciseDates,
 			final double[]			notionals,
 			final double[]			strikes,
-			final ExerciseMethod	exerciseMethod,			
+			final ExerciseMethod	exerciseMethod,
 			final int				numberOfBasisFunctions,
 			final boolean			intrinsicValueAsBasisFunction,
 			final boolean			useBinning) {
 		super();
 		Validate.isTrue(numberOfBasisFunctions > 0, "The vaue of numberOfBasisFunctions must be larger or equal 1. %s" , numberOfBasisFunctions);
-		
+
 		this.exerciseDates = exerciseDates;
 		this.notionals = notionals;
 		this.strikes = strikes;
@@ -170,9 +170,9 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	/**
 	 * Valuation where the parameter lambda is used as a factor to the martingale used to remove foresight in the upper bond method.
 	 * Used to optimize the value of lambda.
-	 * 
+	 *
 	 * For {@link ExerciseMethod} being ESTIMATE_COND_EXPECTATION the lambda has no effect.
-	 * 
+	 *
 	 * @param evaluationTime The time on which this products value should be observed.
 	 * @param model The model used to price the product.
 	 * @param lambda The parameter lambda used as a factor to the martingale used to remove foresight in the upper bond method.
@@ -193,7 +193,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 		lastValuationExerciseValueAtExerciseTime = new RandomVariable[exerciseDates.length];
 		lastValuationContinuationValueAtExerciseTime = new RandomVariable[exerciseDates.length];
 		lastValuationContinuationValueEstimatedAtExerciseTime = new RandomVariable[exerciseDates.length];
-				
+
 		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex>=0; exerciseDateIndex--)
 		{
 			final double exerciseDate = exerciseDates[exerciseDateIndex];
@@ -219,7 +219,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 				ArrayList<RandomVariable> basisFunctions;
 				RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise.sub(strike).floor(0.0) : underlyingAtExercise;
 				basisFunctions = useBinning ? getRegressionBasisFunctionsBinning(basisFunctionUnderlying) : getRegressionBasisFunctions(basisFunctionUnderlying);
-				
+
 				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));
 
 				// Calculate conditional expectation on numeraire relative quantity.
@@ -292,7 +292,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 	}
 
 	private ArrayList<RandomVariable> getRegressionBasisFunctions(RandomVariable underlying) {
-		
+
 		final int orderOfRegressionPolynomial = numberOfBasisFunctions-1;		// Choose maybe something like 4 (numberOfBasisFunctions = 5)
 
 		underlying = new RandomVariableFromDoubleArray(0.0, underlying.getRealizations());

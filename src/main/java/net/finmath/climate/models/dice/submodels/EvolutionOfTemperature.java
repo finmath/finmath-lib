@@ -10,11 +10,11 @@ import net.finmath.util.TriFunction;
 /**
  *
  * The evolution of the temperature \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + \xi \cdot F(t) \right) \mathrm{d}t \).
- * 
+ *
  * The unit of \( T \) is K (Kelvin).
- * 
+ *
  * This is a function of timeIndex, previous temperature and forcing.
- * 
+ *
  * The evolution is modelled as \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + \xi \cdot F(t) \right) \mathrm{d}t \).
  * With the given {@link TimeDiscretization} it is approximated via an Euler-step
  * \(
@@ -70,7 +70,7 @@ public class EvolutionOfTemperature implements TriFunction<Integer, Temperature2
 	public Temperature2DScalar apply(Integer timeIndex, Temperature2DScalar temperature, Double forcing) {
 		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		final double[] temperatureNext = LinearAlgebra.multMatrixVector(transitionMatrices.apply(timeIndex), temperature.getAsDoubleArray());
-		
+
 		temperatureNext[0] += forcingToTemp * forcing * timeStep;
 		return new Temperature2DScalar(temperatureNext);
 	}

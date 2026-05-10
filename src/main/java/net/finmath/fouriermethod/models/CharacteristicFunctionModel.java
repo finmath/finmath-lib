@@ -30,35 +30,35 @@ public interface CharacteristicFunctionModel extends Model {
 	CharacteristicFunction apply(double time);
 
 	/**
-	 * 
+	 *
 	 * @return the reference date
 	 */
-	public LocalDate getReferenceDate();
+	LocalDate getReferenceDate();
 
 	/**
-	 * 
+	 *
 	 * @return the initial value of the stock
 	 */
-	public double getInitialValue();
+	double getInitialValue();
 
 	/**
 	 * @return the discountCurveForForwardRate
 	 */
-	public DiscountCurve getDiscountCurveForForwardRate();
+	DiscountCurve getDiscountCurveForForwardRate();
 
 	/**
 	 * @return the riskFreeRate
 	 */
-	public double getRiskFreeRate();
+	double getRiskFreeRate();
 
 	/**
 	 * @return the discountCurveForDiscountRate
 	 */
-	public DiscountCurve getDiscountCurveForDiscountRate();
+	DiscountCurve getDiscountCurveForDiscountRate();
 
 	/**
 	 * @return the discountRate
 	 */
-	public double getDiscountRate();
+	double getDiscountRate();
 
 }

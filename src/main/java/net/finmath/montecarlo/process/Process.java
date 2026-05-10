@@ -12,12 +12,12 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * The interface for a (time-discrete) stochastic process <i>X</i>.
- * 
+ *
  * Provides a family of random vectors (vectors of {@link RandomVariable} (via {@link #getProcessValue(int)}
  * and an associated time discretization.
- * 
+ *
  * May be associated with a {@link ProcessModel}.
- * 
+ *
  * @author Christian Fries
  * @version 1.0
  */

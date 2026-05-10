@@ -34,9 +34,9 @@ public class AnalyticFormulasTest {
 		double optionStrike = 0.045;
 		double periodLength = 0.5;
 		double discountFactor = 0.9;
-		
+
 		double optionValue = AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, optionStrike, periodLength, discountFactor);
-		
+
 		final double impliedVol1 = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, discountFactor, optionValue/periodLength);
 		final double impliedVol2 = AnalyticFormulas.blackModelCapletImpliedVolatility(forward, optionMaturity, optionStrike, periodLength, discountFactor, optionValue);
 

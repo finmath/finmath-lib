@@ -26,7 +26,7 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 	/**
 	 * Create a zero coupon bond with maturity T.
 	 * Here T is specified as a double offset to a given reference date \( t = 0 \).
-	 * 
+	 *
 	 * @param referenceDate The date corresponding to \( t = 0 \).
 	 * @param maturity The maturity given as double (following the {@link FloatingpointDate} convention as an offset to referenceDate.
 	 */

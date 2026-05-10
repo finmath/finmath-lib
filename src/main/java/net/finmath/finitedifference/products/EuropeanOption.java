@@ -98,7 +98,7 @@ public class EuropeanOption implements FiniteDifference1DProduct, FiniteDifferen
 		this.callOrPutSign		= callOrPutSign;
 		this.underlyingName	= null;		// Use underlyingIndex
 	}
-	
+
 	/**
 	 * Construct a product representing an European option on an asset S (where S the asset with index <code>underlyingIndex</code> from the model - single asset case).
 	 * @param underlyingName Name of the underlying
@@ -127,7 +127,7 @@ public class EuropeanOption implements FiniteDifference1DProduct, FiniteDifferen
 		 * This product implements the boundary interface
 		 */
 		final FiniteDifference1DBoundary boundary = this;
-		
+
 		if(callOrPutSign == CallOrPut.CALL) {
 			return model.getValue(evaluationTime, maturity, assetValue ->  Math.max(assetValue - strike, 0), boundary);
 		}else {
@@ -155,7 +155,7 @@ public class EuropeanOption implements FiniteDifference1DProduct, FiniteDifferen
 		}else {
 			return 0.0;
 		}
-		
+
 	}
 
 	public String getUnderlyingName() {

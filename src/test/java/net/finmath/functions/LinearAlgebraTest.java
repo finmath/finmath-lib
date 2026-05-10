@@ -110,15 +110,15 @@ public class LinearAlgebraTest {
 			{ 0.0, 0.0, 0.9, 0.1 },
 			{ 0.0, 0.0, 0.1, 1.0 }
 		};
-		
+
 		int numberOfSteps = 5;
 		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
-		
+
 		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();
 		for(int i=0; i<numberOfSteps; i++) {
 			testMatrix = LinearAlgebra.multMatrices(testMatrix, A);
 		}
-		
+
 		for(int i=0; i<M.length; i++) {
 			Assertions.assertArrayEquals(M[i], testMatrix[i], 1E-9);
 		}
@@ -132,15 +132,15 @@ public class LinearAlgebraTest {
 			{ 0.0, 0.0, 0.9, 0.1 },
 			{ 0.0, 0.0, 0.1, 1.0 }
 		};
-		
+
 		int numberOfSteps = 5;
 		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
-		
+
 		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();
 		for(int i=0; i<numberOfSteps; i++) {
 			testMatrix = LinearAlgebra.multMatrices(testMatrix, A);
 		}
-		
+
 		for(int i=0; i<M.length; i++) {
 			Assertions.assertArrayEquals(M[i], testMatrix[i], 1E-9);
 		}

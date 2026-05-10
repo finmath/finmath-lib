@@ -27,7 +27,7 @@ import net.finmath.stochastic.RandomVariable;
  * 	dB = r B dt, \quad B(0) = B_{0},
  * \]
  * however, the model uses \( N = S \) as the numeraire.
- * 
+ *
  * A straight forward calculation shows
  * that this alters the drift of \( S \) from \( r - \frac{1}{2} \sigma^2 \) to \( r + \frac{1}{2} \sigma^2 \)
  * (note that from Itô's Lemma we have d(B/S) = (B/S) (dB/B - dS/S - (dB/B)(dS/S) + (dS/S)(dS/S))).

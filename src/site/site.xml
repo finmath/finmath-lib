@@ -10,7 +10,7 @@
 	<!--
 	<skin>
 		<groupId>lt.velykis.maven.skins</groupId>
-		<artifactId>reflow-maven-skin</artifactId> 
+		<artifactId>reflow-maven-skin</artifactId>
 		<version>1.1.1</version>
 	</skin>
 	-->
@@ -51,7 +51,7 @@
 				<item name="Model and Product Descriptors" href="concepts/separationofproductandmodel/modelandproductdescriptors.html" />
 			</item>
 		</menu>
-		
+
 		<menu name="Usages">
 			<item name="Experiments" href="http://www.finmath.net/finmath-experiments" />
 			<item name="Spreadsheets" href="http://www.finmath.net/finmath-spreadsheets/" />

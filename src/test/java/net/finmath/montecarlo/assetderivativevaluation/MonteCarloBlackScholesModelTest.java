@@ -82,7 +82,7 @@ public class MonteCarloBlackScholesModelTest {
 
 	@Test
 	public void testProductImplementation() throws CalculationException {
-		
+
 		/*
 		 * Model
 		 */

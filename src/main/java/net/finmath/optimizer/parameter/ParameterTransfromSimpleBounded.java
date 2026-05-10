@@ -5,8 +5,8 @@ import net.finmath.stochastic.Scalar;
 
 public class ParameterTransfromSimpleBounded implements ParameterTransfrom {
 
-	private final RandomVariable parameterLowerBound[];
-	private final RandomVariable parameterUpperBound[];
+	private final RandomVariable[] parameterLowerBound;
+	private final RandomVariable[] parameterUpperBound;
 
 	public ParameterTransfromSimpleBounded(RandomVariable[] parameterLowerBound, RandomVariable[] parameterUpperBound) {
 		super();
@@ -28,6 +28,7 @@ public class ParameterTransfromSimpleBounded implements ParameterTransfrom {
 		// If parameter should be monotone
 		for(int i=1; i<optimizerParameters.length; i++) {
 			//			parametersTransformed[i] = parametersTransformed[i-1].add(parametersTransformed[i]);
+			continue;
 		}
 		// From (0,infty) to (a,b)
 		for(int i=0; i<optimizerParameters.length; i++) {
@@ -46,6 +47,7 @@ public class ParameterTransfromSimpleBounded implements ParameterTransfrom {
 		// If parameter should be monotone
 		for(int i=parameters.length-1; i>=1; i--) {
 			//			parameters[i] = parameters[i] - parameters[i-1];
+			continue;
 		}
 		// From (0,infty) to (-infty, infty)
 		for(int i=0; i<parameters.length; i++) {

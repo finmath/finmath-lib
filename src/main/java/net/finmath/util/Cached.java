@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 /**
  * A simple wrapper, wrapping a Function&lt;K,V&gt; such that all calculations are cached in a ConcurrentHashMap&lt;K,V&gt;
- * 
+ *
  * @author Christian Fries
  *
  * @param <K> The type of the cache key.
@@ -25,6 +25,6 @@ public class Cached<K,V> implements Function<K,V> {
 
 	@Override
 	public V apply(K key) {
-		return cache.computeIfAbsent(key, mappingFunction); 
+		return cache.computeIfAbsent(key, mappingFunction);
 	}
 }

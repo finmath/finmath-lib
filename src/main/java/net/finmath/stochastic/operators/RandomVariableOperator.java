@@ -6,21 +6,21 @@ import net.finmath.stochastic.Scalar;
 
 /**
  * A factory for useful {@link RandomOperator}s.
- * 
+ *
  * @author Christian Fries
  */
 public class RandomVariableOperator {
 
 	/**
 	 * The expected short fall operator for a given percentageLevel.
-	 * 
+	 *
 	 * @param percentageLevel The percentage level.
 	 * @return The operator that maps a randomVariable to its expected short fall (wrapped in a random variable).
 	 */
 	static RandomOperator expectedShortFall(final Double percentageLevel) {
 
 		if(percentageLevel < 0 || percentageLevel > 1) throw new IllegalArgumentException("");
-		
+
 		return (RandomVariable x) -> {
 			// Special case: constant will result in that constant
 			if(x.isDeterministic() || x.getVariance() == 0) return x;

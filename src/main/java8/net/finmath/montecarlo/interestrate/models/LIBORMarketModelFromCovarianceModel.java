@@ -969,7 +969,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		RandomVariable numeraireUnadjusted;
 		if (liborTimeIndex < 0) {
 			/*
-			 * 
+			 *
 			 */
 			final int upperIndex = -liborTimeIndex - 1;
 			final int lowerIndex = upperIndex - 1;

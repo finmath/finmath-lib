@@ -7,7 +7,7 @@ import net.finmath.finitedifference.models.FiniteDifference1DModel;
 
 /**
  * Implementation of a European option to be valued by a the finite difference method.
- * 
+ *
  * WARNING!! This class is scheduled for deletion in a future release. Use EuropeanOption.
  *
  * @author Christian Fries
