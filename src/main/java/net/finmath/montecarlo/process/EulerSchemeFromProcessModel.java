@@ -117,7 +117,7 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 			// If the inverse is not specified we cannot perform the function EULER
 			scheme = Scheme.EULER;
 		}
-		catch(Exception e) {};
+		catch(Exception e) {}
 
 		this.scheme = scheme;
 	}

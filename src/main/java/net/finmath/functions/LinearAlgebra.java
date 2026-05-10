@@ -648,7 +648,7 @@ public class LinearAlgebra {
 			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
 		}
 		else {
-			RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());;
+			RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());
 			double factor = 1.0;
 			for(int k=1; k<15; k++) {
 				factor = factor * k;

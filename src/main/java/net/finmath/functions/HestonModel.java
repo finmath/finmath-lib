@@ -49,10 +49,10 @@ public class HestonModel {
 	/*
 	 * Parameters for the FFT calculator
 	 */
-	final static InterpolationMethod intMethod =InterpolationMethod.LINEAR;
-	final static ExtrapolationMethod extMethod = ExtrapolationMethod.CONSTANT;
-	final static int numberOfPoints = 4096*2;
-	final static double gridSpacing = 0.4;
+	static final InterpolationMethod intMethod =InterpolationMethod.LINEAR;
+	static final ExtrapolationMethod extMethod = ExtrapolationMethod.CONSTANT;
+	static final int numberOfPoints = 4096*2;
+	static final double gridSpacing = 0.4;
 
 	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
 
