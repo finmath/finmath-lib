@@ -46,7 +46,7 @@ public class LinearSmileInterpolater implements SmileInterpolationExtrapolationM
 			return volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike];
 		}
 		return ((strike - strikeVector[indexLargestStrikeLeftOfInterpolationStrike])
-				* (volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike + 1]
+			 * (volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike + 1]
 						- volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike])
 				/ (strikeVector[indexLargestStrikeLeftOfInterpolationStrike + 1]
 						- strikeVector[indexLargestStrikeLeftOfInterpolationStrike])

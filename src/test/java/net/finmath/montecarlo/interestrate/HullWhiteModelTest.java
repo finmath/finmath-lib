@@ -214,9 +214,9 @@ public class HullWhiteModelTest {
 					}
 					else {
 						instVolatility = shortRateVolatility * Math.exp(-meanReversion * timeToMaturity)
-								*
+							 *
 								Math.sqrt((Math.exp(2 * meanReversion * deltaTime) - 1)/ (2 * meanReversion * deltaTime))
-								*
+							 *
 								(1-Math.exp(-meanReversion * deltaMaturity))/(meanReversion * deltaMaturity);
 					}
 

@@ -91,33 +91,33 @@ public class BarrierOptions {
 		final double y2 = Math.log(barrierValue / initialStockValue) / volTime + muVolTime;
 
 		final double A = phi  * initialStockValue * Math.exp((dividendYield-riskFreeRate) * optionMaturity)
-				* NormalDistribution.cumulativeDistribution(phi * x1)
+			 * NormalDistribution.cumulativeDistribution(phi * x1)
 				- phi * optionStrike *Math.exp(-riskFreeRate * optionMaturity)
-				* NormalDistribution.cumulativeDistribution(phi* (x1 - volTime));
+			 * NormalDistribution.cumulativeDistribution(phi* (x1 - volTime));
 		final double B = phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
-				* NormalDistribution.cumulativeDistribution(phi * x2)
+			 * NormalDistribution.cumulativeDistribution(phi * x2)
 				- phi * optionStrike * Math.exp(-riskFreeRate *optionMaturity)
-				* NormalDistribution.cumulativeDistribution(phi * (x2 - volTime));
+			 * NormalDistribution.cumulativeDistribution(phi * (x2 - volTime));
 		final double C = phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
-				* Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
-				* NormalDistribution.cumulativeDistribution(eta * y1)
+			 * Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
+			 * NormalDistribution.cumulativeDistribution(eta * y1)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-				* Math.pow(barrierValue / initialStockValue, 2 * mu)
-				* NormalDistribution.cumulativeDistribution(eta * (y1-volTime));
+			 * Math.pow(barrierValue / initialStockValue, 2 * mu)
+			 * NormalDistribution.cumulativeDistribution(eta * (y1-volTime));
 		final double D =  phi * initialStockValue * Math.exp((dividendYield-riskFreeRate)  * optionMaturity)
-				* Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
-				* NormalDistribution.cumulativeDistribution(eta * y2)
+			 * Math.pow(barrierValue / initialStockValue, 2 * (mu+1))
+			 * NormalDistribution.cumulativeDistribution(eta * y2)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-				* Math.pow(barrierValue / initialStockValue, 2 * mu)
-				* NormalDistribution.cumulativeDistribution(eta * (y2-volTime));
+			 * Math.pow(barrierValue / initialStockValue, 2 * mu)
+			 * NormalDistribution.cumulativeDistribution(eta * (y2-volTime));
 		final double E = rebate * Math.exp(-riskFreeRate * optionMaturity)
-				* (NormalDistribution.cumulativeDistribution(eta * (x2-volTime))
+			 * (NormalDistribution.cumulativeDistribution(eta * (x2-volTime))
 						- Math.pow(barrierValue / initialStockValue, 2*mu)
-						* NormalDistribution.cumulativeDistribution(eta * (y2-volTime)));
+					 * NormalDistribution.cumulativeDistribution(eta * (y2-volTime)));
 		final double F = rebate *(Math.pow(barrierValue / initialStockValue, mu + lambda)
-				* NormalDistribution.cumulativeDistribution(eta * z)
+			 * NormalDistribution.cumulativeDistribution(eta * z)
 				+ Math.pow(barrierValue / initialStockValue, mu-lambda)
-				* NormalDistribution.cumulativeDistribution(eta * (z - 2 * lambda * volTime)));
+			 * NormalDistribution.cumulativeDistribution(eta * (z - 2 * lambda * volTime)));
 
 		double optionValue = 0.0;
 
