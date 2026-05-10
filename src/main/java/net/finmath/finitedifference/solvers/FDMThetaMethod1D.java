@@ -478,7 +478,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 				reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
 			} else {
-				nextU = ThomasSolver.solve(lhs.lower, lhs.diag, lhs.upper, rhs);
+				nextU = ThomasSolver.solve(lhs.getLowerDiagonal(), lhs.getMainDiagonal(), lhs.getUpperDiagonal(), rhs);
 
 				if (isExerciseDate && (exercise.isBermudan() || exercise.isAmerican())) {
 					applyExerciseProjection(

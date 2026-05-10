@@ -190,9 +190,9 @@ public class FDMBarrierHestonADI2D extends AbstractADI2D {
 			overwriteBarrierTraceRow(matrix, lineRhs, j, time);
 
 			final double[] solved = ThomasSolver.solve(
-					matrix.lower,
-					matrix.diag,
-					matrix.upper,
+					matrix.getLowerDiagonal(),
+					matrix.getMainDiagonal(),
+					matrix.getUpperDiagonal(),
 					lineRhs
 			);
 

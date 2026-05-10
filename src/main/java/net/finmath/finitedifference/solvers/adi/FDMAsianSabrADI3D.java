@@ -181,7 +181,7 @@ public class FDMAsianSabrADI3D extends AbstractADI3D {
 				overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);
 				overwriteBoundaryRow(m, lineRhs, n0 - 1, upperBoundaryValue);
 
-				final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 				for (int i0 = 0; i0 < n0; i0++) {
 					out[flatten(i0, i1, i2)] = solved[i0];
@@ -226,7 +226,7 @@ public class FDMAsianSabrADI3D extends AbstractADI3D {
 				overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);
 				overwriteBoundaryRow(m, lineRhs, n1 - 1, upperBoundaryValue);
 
-				final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 				for (int i1 = 0; i1 < n1; i1++) {
 					out[flatten(i0, i1, i2)] = solved[i1];
@@ -286,18 +286,18 @@ public class FDMAsianSabrADI3D extends AbstractADI3D {
 					final double dIUp = x2Grid[i2 + 1] - x2Grid[i2];
 					final double lambda = theta * dt * s / dIUp;
 
-					m.lower[i2] = 0.0;
-					m.diag[i2] = 1.0 + lambda;
-					m.upper[i2] = -lambda;
+					m.getLowerDiagonal()[i2] = 0.0;
+					m.getMainDiagonal()[i2] = 1.0 + lambda;
+					m.getUpperDiagonal()[i2] = -lambda;
 				}
 
 				/*
 				 * Last row: default identity, then overwrite only if upper I
 				 * boundary is Dirichlet.
 				 */
-				m.lower[n2 - 1] = 0.0;
-				m.diag[n2 - 1] = 1.0;
-				m.upper[n2 - 1] = 0.0;
+				m.getLowerDiagonal()[n2 - 1] = 0.0;
+				m.getMainDiagonal()[n2 - 1] = 1.0;
+				m.getUpperDiagonal()[n2 - 1] = 0.0;
 
 				/*
 				 * Upper I boundary is the inflow side.
@@ -327,7 +327,7 @@ public class FDMAsianSabrADI3D extends AbstractADI3D {
 					overwriteBoundaryRow(m, lineRhs, 0, lowerConditions[2].getValue());
 				}
 
-				final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 				for (int i2 = 0; i2 < n2; i2++) {
 					out[flatten(i0, i1, i2)] = solved[i2];

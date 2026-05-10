@@ -30,7 +30,7 @@ public class TridiagonalMatrix {
 	 * diagonal in row {@code i}. The value {@code lower[0]} is typically
 	 * unused.
 	 */
-	public final double[] lower;
+	private final double[] lower;
 
 	/**
 	 * The main diagonal of the matrix.
@@ -38,7 +38,7 @@ public class TridiagonalMatrix {
 	 * Entry {@code diag[i]} represents the diagonal coefficient in row {@code
 	 * i}.
 	 */
-	public final double[] diag;
+	private final double[] diag;
 
 	/**
 	 * The upper diagonal of the matrix.
@@ -47,7 +47,7 @@ public class TridiagonalMatrix {
 	 * diagonal in row {@code i}. The value {@code upper[n-1]} is typically
 	 * unused.
 	 */
-	public final double[] upper;
+	private final double[] upper;
 
 	/**
 	 * Creates a tridiagonal matrix representation of dimension {@code n}.
@@ -61,5 +61,17 @@ public class TridiagonalMatrix {
 		this.lower = new double[n];
 		this.diag = new double[n];
 		this.upper = new double[n];
+	}
+
+	public double[] getUpperDiagonal() {
+		return upper;
+	}
+
+	public double[] getMainDiagonal() {
+		return diag;
+	}
+
+	public double[] getLowerDiagonal() {
+		return lower;
 	}
 }

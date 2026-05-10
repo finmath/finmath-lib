@@ -633,7 +633,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 			overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);
 			overwriteBoundaryRow(m, lineRhs, n0 - 1, upperBoundaryValue);
 
-			final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 			for (int i = 0; i < n0; i++) {
 				out[flatten(i, j)] = solved[i];
@@ -664,7 +664,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 			overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);
 			overwriteBoundaryRow(m, lineRhs, n1 - 1, upperBoundaryValue);
 
-			final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 			for (int j = 0; j < n1; j++) {
 				out[flatten(i, j)] = solved[j];
@@ -802,9 +802,9 @@ public abstract class AbstractADI2D implements FDMSolver {
 			final int row,
 			final double value) {
 
-		m.lower[row] = 0.0;
-		m.diag[row] = 1.0;
-		m.upper[row] = 0.0;
+		m.getLowerDiagonal()[row] = 0.0;
+		m.getMainDiagonal()[row] = 1.0;
+		m.getUpperDiagonal()[row] = 0.0;
 		rhs[row] = value;
 	}
 

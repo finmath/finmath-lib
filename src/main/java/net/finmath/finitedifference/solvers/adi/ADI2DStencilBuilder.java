@@ -162,15 +162,15 @@ public class ADI2DStencilBuilder {
 
 		final TridiagonalMatrix m = new TridiagonalMatrix(n0);
 
-		m.diag[0] = 1.0;
-		m.diag[n0 - 1] = 1.0;
+		m.getMainDiagonal()[0] = 1.0;
+		m.getMainDiagonal()[n0 - 1] = 1.0;
 
 		for (int i = 1; i < n0 - 1; i++) {
 			final DirectionalCoefficients c = getFirstDirectionCoefficients(time, i, x1Index);
 
-			m.lower[i] = -theta * dt * c.getLower();
-			m.diag[i]  = 1.0 - theta * dt * c.getDiag();
-			m.upper[i] = -theta * dt * c.getUpper();
+			m.getLowerDiagonal()[i] = -theta * dt * c.getLower();
+			m.getMainDiagonal()[i]  = 1.0 - theta * dt * c.getDiag();
+			m.getUpperDiagonal()[i] = -theta * dt * c.getUpper();
 		}
 
 		return m;
@@ -193,15 +193,15 @@ public class ADI2DStencilBuilder {
 
 		final TridiagonalMatrix m = new TridiagonalMatrix(n1);
 
-		m.diag[0] = 1.0;
-		m.diag[n1 - 1] = 1.0;
+		m.getMainDiagonal()[0] = 1.0;
+		m.getMainDiagonal()[n1 - 1] = 1.0;
 
 		for (int j = 1; j < n1 - 1; j++) {
 			final DirectionalCoefficients c = getSecondDirectionCoefficients(time, x0Index, j);
 
-			m.lower[j] = -theta * dt * c.getLower();
-			m.diag[j]  = 1.0 - theta * dt * c.getDiag();
-			m.upper[j] = -theta * dt * c.getUpper();
+			m.getLowerDiagonal()[j] = -theta * dt * c.getLower();
+			m.getMainDiagonal()[j]  = 1.0 - theta * dt * c.getDiag();
+			m.getUpperDiagonal()[j] = -theta * dt * c.getUpper();
 		}
 
 		return m;

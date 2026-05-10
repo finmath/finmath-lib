@@ -266,9 +266,9 @@ public final class ThetaMethod1DAssembly {
 					localDiscountRate[i]
 			);
 
-			lhs.lower[i] = -alpha * spatial.lower;
-			lhs.diag[i] = 1.0 - alpha * spatial.diag;
-			lhs.upper[i] = -alpha * spatial.upper;
+			lhs.getLowerDiagonal()[i] = -alpha * spatial.lower;
+			lhs.getMainDiagonal()[i] = 1.0 - alpha * spatial.diag;
+			lhs.getUpperDiagonal()[i] = -alpha * spatial.upper;
 		}
 	}
 
@@ -350,9 +350,9 @@ public final class ThetaMethod1DAssembly {
 					localDiscountRate[i]
 			);
 
-			rhsOperator.lower[i] = alpha * spatial.lower;
-			rhsOperator.diag[i] = 1.0 + alpha * spatial.diag;
-			rhsOperator.upper[i] = alpha * spatial.upper;
+			rhsOperator.getLowerDiagonal()[i] = alpha * spatial.lower;
+			rhsOperator.getMainDiagonal()[i] = 1.0 + alpha * spatial.diag;
+			rhsOperator.getUpperDiagonal()[i] = alpha * spatial.upper;
 		}
 	}
 
@@ -368,12 +368,12 @@ public final class ThetaMethod1DAssembly {
 		final double[] result = new double[n];
 
 		for (int i = 0; i < n; i++) {
-			double value = matrix.diag[i] * vector[i];
+			double value = matrix.getMainDiagonal()[i] * vector[i];
 			if (i > 0) {
-				value += matrix.lower[i] * vector[i - 1];
+				value += matrix.getLowerDiagonal()[i] * vector[i - 1];
 			}
 			if (i < n - 1) {
-				value += matrix.upper[i] * vector[i + 1];
+				value += matrix.getUpperDiagonal()[i] * vector[i + 1];
 			}
 			result[i] = value;
 		}
@@ -395,9 +395,9 @@ public final class ThetaMethod1DAssembly {
 			final int row,
 			final double value) {
 
-		matrix.lower[row] = 0.0;
-		matrix.diag[row] = 1.0;
-		matrix.upper[row] = 0.0;
+		matrix.getLowerDiagonal()[row] = 0.0;
+		matrix.getMainDiagonal()[row] = 1.0;
+		matrix.getUpperDiagonal()[row] = 0.0;
 		rhs[row] = value;
 	}
 

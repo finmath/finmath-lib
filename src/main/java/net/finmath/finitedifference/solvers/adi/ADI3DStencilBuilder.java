@@ -134,8 +134,8 @@ public class ADI3DStencilBuilder {
 		/*
 		 * Boundary rows are overwritten by the caller.
 		 */
-		m.diag[0] = 1.0;
-		m.diag[n0 - 1] = 1.0;
+		m.getMainDiagonal()[0] = 1.0;
+		m.getMainDiagonal()[n0 - 1] = 1.0;
 
 		for (int i = 1; i < n0 - 1; i++) {
 			final double x0 = x0Grid[i];
@@ -159,9 +159,9 @@ public class ADI3DStencilBuilder {
 			final double diagA1  = -a00 / dxProd;
 			final double upperA1 =  mu0 / dxSum + a00 / (dxSum * dxUp);
 
-			m.lower[i] = -theta * dt * lowerA1;
-			m.diag[i]  = 1.0 - theta * dt * diagA1;
-			m.upper[i] = -theta * dt * upperA1;
+			m.getLowerDiagonal()[i] = -theta * dt * lowerA1;
+			m.getMainDiagonal()[i]  = 1.0 - theta * dt * diagA1;
+			m.getUpperDiagonal()[i] = -theta * dt * upperA1;
 		}
 
 		return m;
@@ -207,8 +207,8 @@ public class ADI3DStencilBuilder {
 		/*
 		 * Boundary rows are overwritten by the caller.
 		 */
-		m.diag[0] = 1.0;
-		m.diag[n1 - 1] = 1.0;
+		m.getMainDiagonal()[0] = 1.0;
+		m.getMainDiagonal()[n1 - 1] = 1.0;
 
 		for (int j = 1; j < n1 - 1; j++) {
 			final double x1 = x1Grid[j];
@@ -232,9 +232,9 @@ public class ADI3DStencilBuilder {
 			final double diagA2  = -a11 / dxProd;
 			final double upperA2 =  mu1 / dxSum + a11 / (dxSum * dxUp);
 
-			m.lower[j] = -theta * dt * lowerA2;
-			m.diag[j]  = 1.0 - theta * dt * diagA2;
-			m.upper[j] = -theta * dt * upperA2;
+			m.getLowerDiagonal()[j] = -theta * dt * lowerA2;
+			m.getMainDiagonal()[j]  = 1.0 - theta * dt * diagA2;
+			m.getUpperDiagonal()[j] = -theta * dt * upperA2;
 		}
 
 		return m;
@@ -278,8 +278,8 @@ public class ADI3DStencilBuilder {
 		/*
 		 * Boundary rows are overwritten by the caller.
 		 */
-		m.diag[0] = 1.0;
-		m.diag[n2 - 1] = 1.0;
+		m.getMainDiagonal()[0] = 1.0;
+		m.getMainDiagonal()[n2 - 1] = 1.0;
 
 		for (int k = 1; k < n2 - 1; k++) {
 			final double x2 = x2Grid[k];
@@ -303,9 +303,9 @@ public class ADI3DStencilBuilder {
 			final double diagA3  = -a22 / dxProd;
 			final double upperA3 =  mu2 / dxSum + a22 / (dxSum * dxUp);
 
-			m.lower[k] = -theta * dt * lowerA3;
-			m.diag[k]  = 1.0 - theta * dt * diagA3;
-			m.upper[k] = -theta * dt * upperA3;
+			m.getLowerDiagonal()[k] = -theta * dt * lowerA3;
+			m.getMainDiagonal()[k]  = 1.0 - theta * dt * diagA3;
+			m.getUpperDiagonal()[k] = -theta * dt * upperA3;
 		}
 
 		return m;

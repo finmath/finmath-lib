@@ -582,7 +582,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, 0, lowerBoundaryValue);
 		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, n - 1, upperBoundaryValue);
 
-		final double[] next = ThomasSolver.solve(lhs.lower, lhs.diag, lhs.upper, rhs);
+		final double[] next = ThomasSolver.solve(lhs.getLowerDiagonal(), lhs.getMainDiagonal(), lhs.getUpperDiagonal(), rhs);
 		next[0] = lowerBoundaryValue;
 		next[n - 1] = upperBoundaryValue;
 

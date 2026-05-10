@@ -76,9 +76,9 @@ public final class ProjectedTridiagonalSOR {
 			final double tolerance) {
 
 		return solve(
-				matrix.lower,
-				matrix.diag,
-				matrix.upper,
+				matrix.getLowerDiagonal(),
+				matrix.getMainDiagonal(),
+				matrix.getUpperDiagonal(),
 				rhs,
 				obstacle,
 				initialGuess,
@@ -196,9 +196,9 @@ public final class ProjectedTridiagonalSOR {
 			final double[] x) {
 
 		return complementarityResidualInfNorm(
-				matrix.lower,
-				matrix.diag,
-				matrix.upper,
+				matrix.getLowerDiagonal(),
+				matrix.getMainDiagonal(),
+				matrix.getUpperDiagonal(),
 				rhs,
 				obstacle,
 				x);

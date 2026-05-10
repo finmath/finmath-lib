@@ -228,18 +228,18 @@ public class FDMAsianADI2D extends AbstractADI2D {
 				final double dIUp = x1Grid[j + 1] - x1Grid[j];
 				final double lambda = theta * dt * s / dIUp;
 
-				m.lower[j] = 0.0;
-				m.diag[j] = 1.0 + lambda;
-				m.upper[j] = -lambda;
+				m.getLowerDiagonal()[j] = 0.0;
+				m.getMainDiagonal()[j] = 1.0 + lambda;
+				m.getUpperDiagonal()[j] = -lambda;
 			}
 
 			/*
 			 * Last row: default identity, then overwrite only if upper boundary
 			 * is Dirichlet.
 			 */
-			m.lower[n1 - 1] = 0.0;
-			m.diag[n1 - 1] = 1.0;
-			m.upper[n1 - 1] = 0.0;
+			m.getLowerDiagonal()[n1 - 1] = 0.0;
+			m.getMainDiagonal()[n1 - 1] = 1.0;
+			m.getUpperDiagonal()[n1 - 1] = 0.0;
 
 			/*
 			 * Upper I boundary is the inflow side.
@@ -268,7 +268,7 @@ public class FDMAsianADI2D extends AbstractADI2D {
 				overwriteBoundaryRow(m, lineRhs, 0, lowerConditions[1].getValue());
 			}
 
-			final double[] solved = ThomasSolver.solve(m.lower, m.diag, m.upper, lineRhs);
+			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
 			for (int j = 0; j < n1; j++) {
 				out[flatten(i, j)] = solved[j];

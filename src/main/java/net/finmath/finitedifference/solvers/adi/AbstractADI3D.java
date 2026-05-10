@@ -838,9 +838,9 @@ public abstract class AbstractADI3D implements FDMSolver {
 			final int row,
 			final double value) {
 
-		m.lower[row] = 0.0;
-		m.diag[row] = 1.0;
-		m.upper[row] = 0.0;
+		m.getLowerDiagonal()[row] = 0.0;
+		m.getMainDiagonal()[row] = 1.0;
+		m.getUpperDiagonal()[row] = 0.0;
 		rhs[row] = value;
 	}
 
