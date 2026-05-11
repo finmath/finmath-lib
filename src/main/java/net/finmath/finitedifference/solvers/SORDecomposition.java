@@ -26,19 +26,19 @@ public class SORDecomposition {
 	/**
 	 * The d.
 	 */
-	private final RealMatrix D;
+	private final RealMatrix matrixD;
 
 	// Strictly lower triangular part of the matrix A
 	/**
 	 * The l.
 	 */
-	private final RealMatrix L;
+	private final RealMatrix matrixL;
 
 	// Strictly upper triangular part of the matrix A
 	/**
 	 * The u.
 	 */
-	private final RealMatrix U;
+	private final RealMatrix matrixU;
 
 	// Relaxation factor omega
 	/**
@@ -60,9 +60,9 @@ public class SORDecomposition {
 	 */
 	public SORDecomposition(final RealMatrix matrixA) {
 		this.a = matrixA.getData();
-		this.D = MatrixUtils.createRealDiagonalMatrix(getDiagonal(matrixA));
-		this.L = lowerMatrix(matrixA);
-		this.U = upperMatrix(matrixA);
+		this.matrixD = MatrixUtils.createRealDiagonalMatrix(getDiagonal(matrixA));
+		this.matrixL = lowerMatrix(matrixA);
+		this.matrixU = upperMatrix(matrixA);
 		this.omega = 1.0;
 	}
 
@@ -72,7 +72,7 @@ public class SORDecomposition {
 	 * @return The diagonal part of {@code A}.
 	 */
 	public RealMatrix getD() {
-		return D;
+		return matrixD;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class SORDecomposition {
 	 * @return The strictly lower triangular part of {@code A}.
 	 */
 	public RealMatrix getL() {
-		return L;
+		return matrixL;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class SORDecomposition {
 	 * @return The strictly upper triangular part of {@code A}.
 	 */
 	public RealMatrix getU() {
-		return U;
+		return matrixU;
 	}
 
 	private double[] getDiagonal(final RealMatrix matrixM) {

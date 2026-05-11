@@ -39,11 +39,11 @@ public class FiniteDifferenceMatrixBuilder {
 	/**
 	 * The t1.
 	 */
-	private final RealMatrix T1; // Matrix for the first derivative
+	private final RealMatrix matrixT1; // Matrix for the first derivative
 	/**
 	 * The t2.
 	 */
-	private final RealMatrix T2; // Matrix for the second derivative
+	private final RealMatrix matrixT2; // Matrix for the second derivative
 
 	/**
 	 * Constructs a finite difference matrix builder for the given grid.
@@ -55,8 +55,8 @@ public class FiniteDifferenceMatrixBuilder {
 		this.x = x;
 		this.n = x.length;
 
-		T1 = new OpenMapRealMatrix(n, n);
-		T2 = new OpenMapRealMatrix(n, n);
+		matrixT1 = new OpenMapRealMatrix(n, n);
+		matrixT2 = new OpenMapRealMatrix(n, n);
 
 		buildMatrices();
 	}
@@ -81,30 +81,30 @@ public class FiniteDifferenceMatrixBuilder {
 				// First node (forward difference, 2 points)
 				// f'(x0) = [f(x1)-f(x0)]/[x1-x0]
 				final double h1 = x[i + 1] - x[i];
-				T1.setEntry(i, i, -1.0 / h1);
-				T1.setEntry(i, i + 1, 1.0 / h1);
+				matrixT1.setEntry(i, i, -1.0 / h1);
+				matrixT1.setEntry(i, i + 1, 1.0 / h1);
 
 				// f''(x0) = A0*f(x0)+A1*f(x1)
 				// A0 = -2/[(x1-x0)*(x2-x1)]
 				// A1 = 2/[(x1-x0)*((x1-x0)+(x2-x1))]
 				final double h2 = x[i + 2] - x[i + 1];
 
-				T2.setEntry(i, i + 1, 2.0 / (h1 * (h1 + h2)));
-				T2.setEntry(i, i, -2.0 / (h1 * h2));
+				matrixT2.setEntry(i, i + 1, 2.0 / (h1 * (h1 + h2)));
+				matrixT2.setEntry(i, i, -2.0 / (h1 * h2));
 			} else if (i == n - 1) {
 				// Last node (backward difference, 2 points)
 				// f'(xN) = [f(xN)-f(xN-1)]/[xN-xN-1]
 				final double h0 = x[i] - x[i - 1];
-				T1.setEntry(i, i, 1.0 / h0);
-				T1.setEntry(i, i - 1, -1.0 / h0);
+				matrixT1.setEntry(i, i, 1.0 / h0);
+				matrixT1.setEntry(i, i - 1, -1.0 / h0);
 
 				// f''(xN) = B1*f(xN-1)+B2*f(xN)
 				// B1 = 2/[(xN-xN-1)*((xN-1-xN-2)+(xN-xN-1))]
 				// B2 = -2/[(xN-1-xN-2)(xN-xN-1)]
 				final double h3 = x[i - 1] - x[i - 2];
 
-				T2.setEntry(i, i - 1, 2.0 / (h0 * (h0 + h3)));
-				T2.setEntry(i, i, -2.0 / (h3 * h0));
+				matrixT2.setEntry(i, i - 1, 2.0 / (h0 * (h0 + h3)));
+				matrixT2.setEntry(i, i, -2.0 / (h3 * h0));
 			} else {
 				// Internal nodes (central difference, 3 points)
 				final double h0 = x[i] - x[i - 1];
@@ -115,18 +115,18 @@ public class FiniteDifferenceMatrixBuilder {
 				// a = - h1 / (h0*(h1+h0))
 				// b = (h1-h0) / (h1*h0)
 				// c = h0 / (h1*(h0+h1)
-				T1.setEntry(i, i - 1, -h1 / (h0 * (h1 + h0)));
-				T1.setEntry(i, i, (h1 - h0) / (h1 * h0));
-				T1.setEntry(i, i + 1, h0 / (h1 * (h0 + h1)));
+				matrixT1.setEntry(i, i - 1, -h1 / (h0 * (h1 + h0)));
+				matrixT1.setEntry(i, i, (h1 - h0) / (h1 * h0));
+				matrixT1.setEntry(i, i + 1, h0 / (h1 * (h0 + h1)));
 
 				// Second derivative coefficients
 				// f''(xi) = d*f(xi-1)+e*f(xi)+f*f(xi+1)
 				// d = 2 / [h0*(h0+h1)]
 				// e = -2 / (h0*h1)
 				// f = 2 / (h1*(h0+h1))
-				T2.setEntry(i, i - 1, 2.0 / (h0 * (h0 + h1)));
-				T2.setEntry(i, i, -2.0 / (h0 * h1));
-				T2.setEntry(i, i + 1, 2.0 / (h1 * (h0 + h1)));
+				matrixT2.setEntry(i, i - 1, 2.0 / (h0 * (h0 + h1)));
+				matrixT2.setEntry(i, i, -2.0 / (h0 * h1));
+				matrixT2.setEntry(i, i + 1, 2.0 / (h1 * (h0 + h1)));
 			}
 		}
 	}
@@ -137,7 +137,7 @@ public class FiniteDifferenceMatrixBuilder {
 	 * @return The matrix representing the first derivative operator.
 	 */
 	public RealMatrix getFirstDerivativeMatrix() {
-		return T1;
+		return matrixT1;
 	}
 
 	/**
@@ -146,6 +146,6 @@ public class FiniteDifferenceMatrixBuilder {
 	 * @return The matrix representing the second derivative operator.
 	 */
 	public RealMatrix getSecondDerivativeMatrix() {
-		return T2;
+		return matrixT2;
 	}
 }
