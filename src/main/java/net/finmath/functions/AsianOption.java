@@ -278,7 +278,7 @@ public final class AsianOption {
 	 * option.
 	 *
 	 * @param averagingStartTime start of averaging window, measured from
-	 *     valuation time; must satisfy 0 <= averagingStartTime <= maturity
+	 *     valuation time; must satisfy {@code 0 <= averagingStartTime <= maturity}
 	 * @param maturity maturity / exercise time T2 from valuation
 	 * @param currentAverage already accrued arithmetic average if averaging has
 	 *     started; ignored if averagingStartTime == 0
