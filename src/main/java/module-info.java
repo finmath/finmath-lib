@@ -44,6 +44,8 @@ module net.finmath.lib {
 	exports net.finmath.modelling.modelfactory;
 	exports net.finmath.modelling.productfactory;
 	exports net.finmath.modelling.products;
+
+	// Monte-Carlo methods
 	exports net.finmath.montecarlo;
 	exports net.finmath.montecarlo.assetderivativevaluation;
 	exports net.finmath.montecarlo.assetderivativevaluation.models;
@@ -52,6 +54,7 @@ module net.finmath.lib {
 	exports net.finmath.montecarlo.automaticdifferentiation.backward;
 	exports net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
 	exports net.finmath.montecarlo.automaticdifferentiation.forward;
+	exports net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities;
 	exports net.finmath.montecarlo.conditionalexpectation;
 	exports net.finmath.montecarlo.crosscurrency;
 	exports net.finmath.montecarlo.hybridassetinterestrate;
