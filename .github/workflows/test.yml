@@ -4,10 +4,22 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: 🧪 Testing
     runs-on: ubuntu-latest
+
+    outputs:
+      test_suites: ${{ steps.collect-test-summary.outputs.test_suites }}
+      test_total: ${{ steps.collect-test-summary.outputs.test_total }}
+      test_passed: ${{ steps.collect-test-summary.outputs.test_passed }}
+      test_failures: ${{ steps.collect-test-summary.outputs.test_failures }}
+      test_errors: ${{ steps.collect-test-summary.outputs.test_errors }}
+      test_skipped: ${{ steps.collect-test-summary.outputs.test_skipped }}
+
     steps:
       - uses: actions/checkout@v5
 
@@ -21,9 +33,61 @@ jobs:
       - name: Run unit tests
         run: mvn -B -Dcheckstyle.skip=true test
 
+      - name: Collect unit test summary
+        id: collect-test-summary
+        if: always()
+        run: |
+          python3 <<'PY'
+          import glob
+          import os
+          import xml.etree.ElementTree as ET
+
+          suites = 0
+          total = 0
+          failures = 0
+          errors = 0
+          skipped = 0
+
+          for file in glob.glob("**/target/surefire-reports/TEST-*.xml", recursive=True):
+              try:
+                  root = ET.parse(file).getroot()
+              except ET.ParseError:
+                  continue
+
+              if root.tag == "testsuite":
+                  test_suites = [root]
+              elif root.tag == "testsuites":
+                  test_suites = root.findall("testsuite")
+              else:
+                  test_suites = []
+
+              for suite in test_suites:
+                  suites += 1
+                  total += int(float(suite.attrib.get("tests", 0)))
+                  failures += int(float(suite.attrib.get("failures", 0)))
+                  errors += int(float(suite.attrib.get("errors", 0)))
+                  skipped += int(float(suite.attrib.get("skipped", 0)))
+
+          passed = max(total - failures - errors - skipped, 0)
+
+          outputs = {
+              "test_suites": suites,
+              "test_total": total,
+              "test_passed": passed,
+              "test_failures": failures,
+              "test_errors": errors,
+              "test_skipped": skipped,
+          }
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              for key, value in outputs.items():
+                  out.write(f"{key}={value}\n")
+          PY
+
   checkstyle:
     name: 🔍 Checkstyle
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
 
@@ -40,6 +104,7 @@ jobs:
   javadoc:
     name: 📚 JavaDoc
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v5
 
@@ -58,50 +123,51 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, checkstyle, javadoc]
     if: always()
-    steps:
-    - name: Fetch annotations for this job
-      env:
-        GH_TOKEN: ${{ github.token }}
-        REPO: ${{ github.repository }}
-        RUN_ID: ${{ github.run_id }}
-        JOB_NAME: "🧪 Testing"
-      run: |
-        echo "🔎 Getting job info for run $RUN_ID..."
-        # List jobs in the current run
-        JOBS_JSON=$(gh api repos/$REPO/actions/runs/$RUN_ID/jobs)
-  
-        # Extract the job id for this job name
-        JOB_ID=$(echo "$JOBS_JSON" | jq -r --arg JOB_NAME "$JOB_NAME" '.jobs[] | select(.name==$JOB_NAME) | .id')
-  
-        if [ -z "$JOB_ID" ]; then
-          echo "❌ Could not find job ID for $JOB_NAME"
-          exit 1
-        fi
-        echo "✅ Job ID: $JOB_ID"
-  
-        # Retrieve job info (includes check_run_url)
-        JOB_INFO=$(gh api repos/$REPO/actions/jobs/$JOB_ID)
-        CHECK_RUN_URL=$(echo "$JOB_INFO" | jq -r '.check_run_url')
-  
-        if [ -z "$CHECK_RUN_URL" ] || [ "$CHECK_RUN_URL" == "null" ]; then
-          echo "❌ No check_run_url found for job"
-          exit 1
-        fi
-        echo "✅ Check run URL: $CHECK_RUN_URL"
-  
-        # Get the check run and its annotations URL
-        CHECK_RUN=$(gh api "$CHECK_RUN_URL")
-        ANNOTATIONS_URL=$(echo "$CHECK_RUN" | jq -r '.output.annotations_url')
-  
-        if [ -z "$ANNOTATIONS_URL" ] || [ "$ANNOTATIONS_URL" == "null" ]; then
-          echo "❌ No annotations URL found"
-          exit 1
-        fi
-        echo "✅ Annotations URL: $ANNOTATIONS_URL"
-  
-        # Fetch and print annotations
-        echo "📋 Fetching annotations..."
-        RESULT=$(gh api "$ANNOTATIONS_URL" | jq -r '.[] | select(.message | test("Node\\.js 20 actions are deprecated") | not) | "**\(.message)**"')
 
-        echo "### Autograding Summary: " >> $GITHUB_STEP_SUMMARY
-        echo "$RESULT" >> $GITHUB_STEP_SUMMARY
+    steps:
+      - name: Write workflow summary
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          CHECKSTYLE_RESULT: ${{ needs.checkstyle.result }}
+          JAVADOC_RESULT: ${{ needs.javadoc.result }}
+
+          TEST_SUITES: ${{ needs.test.outputs.test_suites }}
+          TEST_TOTAL: ${{ needs.test.outputs.test_total }}
+          TEST_PASSED: ${{ needs.test.outputs.test_passed }}
+          TEST_FAILURES: ${{ needs.test.outputs.test_failures }}
+          TEST_ERRORS: ${{ needs.test.outputs.test_errors }}
+          TEST_SKIPPED: ${{ needs.test.outputs.test_skipped }}
+        run: |
+          status() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              failure) echo "❌ failure" ;;
+              cancelled) echo "🚫 cancelled" ;;
+              skipped) echo "⏭️ skipped" ;;
+              *) echo "$1" ;;
+            esac
+          }
+
+          TEST_SUITES="${TEST_SUITES:-0}"
+          TEST_TOTAL="${TEST_TOTAL:-0}"
+          TEST_PASSED="${TEST_PASSED:-0}"
+          TEST_FAILURES="${TEST_FAILURES:-0}"
+          TEST_ERRORS="${TEST_ERRORS:-0}"
+          TEST_SKIPPED="${TEST_SKIPPED:-0}"
+
+          {
+            echo "### 📊 CI Summary"
+            echo
+            echo "| Job | Result |"
+            echo "|---|---:|"
+            echo "| 🧪 Testing | $(status "$TEST_RESULT") |"
+            echo "| 🔍 Checkstyle | $(status "$CHECKSTYLE_RESULT") |"
+            echo "| 📚 JavaDoc | $(status "$JAVADOC_RESULT") |"
+            echo
+            echo "### 🧪 Unit tests"
+            echo
+            echo "| Test suites | Tests | Passed | Failures | Errors | Skipped |"
+            echo "|---:|---:|---:|---:|---:|---:|"
+            echo "| $TEST_SUITES | $TEST_TOTAL | $TEST_PASSED | $TEST_FAILURES | $TEST_ERRORS | $TEST_SKIPPED |"
+          } >> "$GITHUB_STEP_SUMMARY"
+		  
