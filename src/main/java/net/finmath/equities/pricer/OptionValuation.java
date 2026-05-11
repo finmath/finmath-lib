@@ -13,6 +13,6 @@ import net.finmath.equities.models.VolatilitySurface;
 
 public interface OptionValuation extends Cloneable {
 
-    EquityValuationResult calculate(EquityValuationRequest request, EquityForwardStructure forwardStructure,
-            YieldCurve discountCurve, VolatilitySurface volSurface);
+	EquityValuationResult calculate(EquityValuationRequest request, EquityForwardStructure forwardStructure, YieldCurve discountCurve, VolatilitySurface volSurface);
+
 }
