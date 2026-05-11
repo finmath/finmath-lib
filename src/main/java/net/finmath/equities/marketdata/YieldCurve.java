@@ -51,6 +51,23 @@ public class YieldCurve {
 		this.referenceDate = referenceDate;
 	}
 
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	public LocalDate[] getDiscountDates() {
+		return discountDates;
+	}
+
+	public DayCountConvention getDayCounter() {
+		return dayCounter;
+	}
+
+	public DiscountCurveInterpolation getBaseCurve() {
+		return baseCurve;
+	}
+
+
 	public YieldCurve rollToDate(LocalDate date) {
 		assert date.isAfter(referenceDate) : "can only roll to future dates";
 
