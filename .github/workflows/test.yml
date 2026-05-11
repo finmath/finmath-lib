@@ -64,7 +64,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
         REPO: ${{ github.repository }}
         RUN_ID: ${{ github.run_id }}
-        JOB_NAME: "Autograding"
+        JOB_NAME: "🧪 Testing"
       run: |
         echo "🔎 Getting job info for run $RUN_ID..."
         # List jobs in the current run
