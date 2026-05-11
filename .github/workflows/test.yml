@@ -13,20 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      test_suites: ${{ steps.collect-test-summary.outputs.test_suites }}
-      test_total: ${{ steps.collect-test-summary.outputs.test_total }}
-      test_passed: ${{ steps.collect-test-summary.outputs.test_passed }}
-      test_failures: ${{ steps.collect-test-summary.outputs.test_failures }}
-      test_errors: ${{ steps.collect-test-summary.outputs.test_errors }}
-      test_skipped: ${{ steps.collect-test-summary.outputs.test_skipped }}
+      test_suites: ${{ steps.collect_test_summary.outputs.test_suites }}
+      test_total: ${{ steps.collect_test_summary.outputs.test_total }}
+      test_passed: ${{ steps.collect_test_summary.outputs.test_passed }}
+      test_failures: ${{ steps.collect_test_summary.outputs.test_failures }}
+      test_errors: ${{ steps.collect_test_summary.outputs.test_errors }}
+      test_skipped: ${{ steps.collect_test_summary.outputs.test_skipped }}
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: '17'
           cache: maven
 
@@ -34,8 +35,8 @@ jobs:
         run: mvn -B -Dcheckstyle.skip=true test
 
       - name: Collect unit test summary
-        id: collect-test-summary
-        if: always()
+        id: collect_test_summary
+        if: ${{ always() }}
         run: |
           python3 <<'PY'
           import glob
@@ -70,18 +71,13 @@ jobs:
 
           passed = max(total - failures - errors - skipped, 0)
 
-          outputs = {
-              "test_suites": suites,
-              "test_total": total,
-              "test_passed": passed,
-              "test_failures": failures,
-              "test_errors": errors,
-              "test_skipped": skipped,
-          }
-
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-              for key, value in outputs.items():
-                  out.write(f"{key}={value}\n")
+              out.write(f"test_suites={suites}\n")
+              out.write(f"test_total={total}\n")
+              out.write(f"test_passed={passed}\n")
+              out.write(f"test_failures={failures}\n")
+              out.write(f"test_errors={errors}\n")
+              out.write(f"test_skipped={skipped}\n")
           PY
 
   checkstyle:
@@ -89,12 +85,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: '17'
           cache: maven
 
@@ -106,37 +103,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
-          distribution: 'zulu'
+          distribution: zulu
           java-version: '17'
           cache: maven
 
       - name: Generate JavaDoc
-        run: mvn -B -DskipTests -Dcheckstyle.skip=true -Dadditionalparam='-Xdoclint:none' package javadoc:javadoc
+        run: |
+          mvn -B \
+            -Dmaven.test.skip=true \
+            -DskipTests=true \
+            -Dcheckstyle.skip=true \
+            -Ddoclint=none \
+            package javadoc:javadoc
 
   summary:
     name: 📊 Summary
     runs-on: ubuntu-latest
-    needs: [test, checkstyle, javadoc]
-    if: always()
+    needs:
+      - test
+      - checkstyle
+      - javadoc
+    if: ${{ always() }}
 
     steps:
       - name: Write workflow summary
         env:
-          TEST_RESULT: ${{ needs.test.result }}
-          CHECKSTYLE_RESULT: ${{ needs.checkstyle.result }}
-          JAVADOC_RESULT: ${{ needs.javadoc.result }}
-
-          TEST_SUITES: ${{ needs.test.outputs.test_suites }}
-          TEST_TOTAL: ${{ needs.test.outputs.test_total }}
-          TEST_PASSED: ${{ needs.test.outputs.test_passed }}
-          TEST_FAILURES: ${{ needs.test.outputs.test_failures }}
-          TEST_ERRORS: ${{ needs.test.outputs.test_errors }}
-          TEST_SKIPPED: ${{ needs.test.outputs.test_skipped }}
+          TEST_RESULT: "${{ needs.test.result }}"
+          CHECKSTYLE_RESULT: "${{ needs.checkstyle.result }}"
+          JAVADOC_RESULT: "${{ needs.javadoc.result }}"
+          TEST_SUITES: "${{ needs.test.outputs.test_suites }}"
+          TEST_TOTAL: "${{ needs.test.outputs.test_total }}"
+          TEST_PASSED: "${{ needs.test.outputs.test_passed }}"
+          TEST_FAILURES: "${{ needs.test.outputs.test_failures }}"
+          TEST_ERRORS: "${{ needs.test.outputs.test_errors }}"
+          TEST_SKIPPED: "${{ needs.test.outputs.test_skipped }}"
         run: |
           status() {
             case "$1" in
@@ -144,7 +150,7 @@ jobs:
               failure) echo "❌ failure" ;;
               cancelled) echo "🚫 cancelled" ;;
               skipped) echo "⏭️ skipped" ;;
-              *) echo "$1" ;;
+              *) echo "${1:-unknown}" ;;
             esac
           }
 
@@ -170,4 +176,3 @@ jobs:
             echo "|---:|---:|---:|---:|---:|---:|"
             echo "| $TEST_SUITES | $TEST_TOTAL | $TEST_PASSED | $TEST_FAILURES | $TEST_ERRORS | $TEST_SKIPPED |"
           } >> "$GITHUB_STEP_SUMMARY"
-		  
