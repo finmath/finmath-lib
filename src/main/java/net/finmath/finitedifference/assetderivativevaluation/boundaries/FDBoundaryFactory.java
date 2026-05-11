@@ -46,42 +46,44 @@ public final class FDBoundaryFactory {
 			final FiniteDifferenceModel model,
 			final FiniteDifferenceEquityProduct product) {
 
-		try {
+		final String modelSimpleName = model.getClass().getSimpleName();
+		final String modelCoreName = modelSimpleName.replaceFirst("^FDM", "");
+		final String packageName = FDBoundaryFactory.class.getPackageName();
 
-			final String productSimpleName =
-					product.getClass().getSimpleName();
-			final String modelSimpleName =
-					model.getClass().getSimpleName();
+		Class<?> productClass = product.getClass();
 
-			final String modelCoreName =
-					modelSimpleName.replace("FDM", "");
+		while (productClass != null
+				&& FiniteDifferenceEquityProduct.class.isAssignableFrom(productClass)) {
 
-			final String boundarySimpleName =
-					productSimpleName
-							+ modelCoreName
-							+ "Boundary";
-
-			final String packageName =
-					FDBoundaryFactory.class.getPackageName();
 			final String boundaryClassName =
-					packageName + "." + boundarySimpleName;
+					packageName + "."
+					+ productClass.getSimpleName()
+					+ modelCoreName
+					+ "Boundary";
 
-			final Class<?> boundaryClass =
-					Class.forName(boundaryClassName);
-
-			final var constructor =
-					boundaryClass.getConstructor(model.getClass());
-
-			return (FiniteDifferenceBoundary)
-					constructor.newInstance(model);
-
-		} catch (ReflectiveOperationException e) {
-			throw new IllegalArgumentException(
-					"Cannot create boundary for model type "
-							+ model.getClass()
-							+ " and product type "
-							+ product.getClass(),
-					e);
+			try {
+				final Class<?> boundaryClass = Class.forName(boundaryClassName);
+				final var constructor = boundaryClass.getConstructor(model.getClass());
+				return (FiniteDifferenceBoundary) constructor.newInstance(model);
+			}
+			catch (final ClassNotFoundException ignored) {
+				productClass = productClass.getSuperclass();
+			}
+			catch (final ReflectiveOperationException e) {
+				throw new IllegalArgumentException(
+						"Cannot instantiate boundary " + boundaryClassName
+						+ " for model type " + model.getClass()
+						+ " and product type " + product.getClass(),
+						e
+				);
+			}
 		}
+
+		throw new IllegalArgumentException(
+				"Cannot create boundary for model type "
+				+ model.getClass()
+				+ " and product type "
+				+ product.getClass()
+		);
 	}
 }
