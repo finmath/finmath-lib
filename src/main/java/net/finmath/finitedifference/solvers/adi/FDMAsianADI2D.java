@@ -116,14 +116,14 @@ public class FDMAsianADI2D extends AbstractADI2D {
 	 */
 	@Override
 	protected double[] applyA0Explicit(final double[] u, final double time) {
-		final double[] out = new double[n];
+		final double[] out = new double[getN()];
 
 		final double tSafe = Math.max(time, 1E-10);
-		final double discountFactor = model.getRiskFreeCurve().getDiscountFactor(tSafe);
+		final double discountFactor = getModel().getRiskFreeCurve().getDiscountFactor(tSafe);
 		final double r = -Math.log(discountFactor) / tSafe;
 
-		for (int j = 0; j < n1; j++) {
-			for (int i = 0; i < n0; i++) {
+		for (int j = 0; j < getN1(); j++) {
+			for (int i = 0; i < getN0(); i++) {
 				out[flatten(i, j)] = -r * u[flatten(i, j)];
 			}
 		}
@@ -155,17 +155,17 @@ public class FDMAsianADI2D extends AbstractADI2D {
 	 */
 	@Override
 	protected double[] applyA2Explicit(final double[] u, final double time) {
-		final double[] out = new double[n];
+		final double[] out = new double[getN()];
 
-		for (int i = 0; i < n0; i++) {
-			final double s = x0Grid[i];
+		for (int i = 0; i < getN0(); i++) {
+			final double s = getX0Grid()[i];
 
-			for (int j = 0; j < n1 - 1; j++) {
-				final double dIUp = x1Grid[j + 1] - x1Grid[j];
+			for (int j = 0; j < getN1() - 1; j++) {
+				final double dIUp = getX1Grid()[j + 1] - getX1Grid()[j];
 				out[flatten(i, j)] = s * (u[flatten(i, j + 1)] - u[flatten(i, j)]) / dIUp;
 			}
 
-			out[flatten(i, n1 - 1)] = 0.0;
+			out[flatten(i, getN1() - 1)] = 0.0;
 		}
 
 		return out;
@@ -209,13 +209,13 @@ public class FDMAsianADI2D extends AbstractADI2D {
 
 		final double[] out = rhs.clone();
 
-		for (int i = 0; i < n0; i++) {
-			final double s = x0Grid[i];
+		for (int i = 0; i < getN0(); i++) {
+			final double s = getX0Grid()[i];
 
-			final TridiagonalMatrix m = new TridiagonalMatrix(n1);
-			final double[] lineRhs = new double[n1];
+			final TridiagonalMatrix m = new TridiagonalMatrix(getN1());
+			final double[] lineRhs = new double[getN1()];
 
-			for (int j = 0; j < n1; j++) {
+			for (int j = 0; j < getN1(); j++) {
 				lineRhs[j] = rhs[flatten(i, j)];
 			}
 
@@ -224,9 +224,9 @@ public class FDMAsianADI2D extends AbstractADI2D {
 			 *
 			 * (1 + lambda_j) v_j - lambda_j v_{j+1} = rhs_j
 			 */
-			for (int j = 0; j < n1 - 1; j++) {
-				final double dIUp = x1Grid[j + 1] - x1Grid[j];
-				final double lambda = theta * dt * s / dIUp;
+			for (int j = 0; j < getN1() - 1; j++) {
+				final double dIUp = getX1Grid()[j + 1] - getX1Grid()[j];
+				final double lambda = getTheta() * dt * s / dIUp;
 
 				m.getLowerDiagonal()[j] = 0.0;
 				m.getMainDiagonal()[j] = 1.0 + lambda;
@@ -237,21 +237,21 @@ public class FDMAsianADI2D extends AbstractADI2D {
 			 * Last row: default identity, then overwrite only if upper boundary
 			 * is Dirichlet.
 			 */
-			m.getLowerDiagonal()[n1 - 1] = 0.0;
-			m.getMainDiagonal()[n1 - 1] = 1.0;
-			m.getUpperDiagonal()[n1 - 1] = 0.0;
+			m.getLowerDiagonal()[getN1() - 1] = 0.0;
+			m.getMainDiagonal()[getN1() - 1] = 1.0;
+			m.getUpperDiagonal()[getN1() - 1] = 0.0;
 
 			/*
 			 * Upper I boundary is the inflow side.
 			 */
 			final net.finmath.finitedifference.boundaries.BoundaryCondition[] upperConditions =
-					model.getBoundaryConditionsAtUpperBoundary(product, time, x0Grid[i], x1Grid[n1 - 1]);
+					getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[i], getX1Grid()[getN1() - 1]);
 
 			if (upperConditions != null
 					&& upperConditions.length > 1
 					&& upperConditions[1] != null
 					&& upperConditions[1].isDirichlet()) {
-				overwriteBoundaryRow(m, lineRhs, n1 - 1, upperConditions[1].getValue());
+				overwriteBoundaryRow(m, lineRhs, getN1() - 1, upperConditions[1].getValue());
 			}
 
 			/*
@@ -259,7 +259,7 @@ public class FDMAsianADI2D extends AbstractADI2D {
 			 * For AsianOption it is NONE, so row 0 remains a PDE row.
 			 */
 			final net.finmath.finitedifference.boundaries.BoundaryCondition[] lowerConditions =
-					model.getBoundaryConditionsAtLowerBoundary(product, time, x0Grid[i], x1Grid[0]);
+					getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[i], getX1Grid()[0]);
 
 			if (lowerConditions != null
 					&& lowerConditions.length > 1
@@ -270,7 +270,7 @@ public class FDMAsianADI2D extends AbstractADI2D {
 
 			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
-			for (int j = 0; j < n1; j++) {
+			for (int j = 0; j < getN1(); j++) {
 				out[flatten(i, j)] = solved[j];
 			}
 		}

@@ -141,8 +141,8 @@ public class FDMBatesADI2D extends AbstractADI2D {
 		final double[] localOperator = super.applyFullExplicitOperator(u, time);
 		final double[] jumpContribution = computeExplicitJumpContribution(u, time);
 
-		final double[] out = new double[n];
-		for (int k = 0; k < n; k++) {
+		final double[] out = new double[getN()];
+		for (int k = 0; k < getN(); k++) {
 			out[k] = localOperator[k] + jumpContribution[k];
 		}
 		return out;
@@ -165,20 +165,20 @@ public class FDMBatesADI2D extends AbstractADI2D {
 	 */
 	protected double[] computeExplicitJumpContribution(final double[] u, final double time) {
 
-		final double[] out = new double[n];
+		final double[] out = new double[getN()];
 
-		for (int j = 0; j < n1; j++) {
-			final double variance = x1Grid[j];
+		for (int j = 0; j < getN1(); j++) {
+			final double variance = getX1Grid()[j];
 
-			final double[] slice = new double[n0];
-			for (int i = 0; i < n0; i++) {
+			final double[] slice = new double[getN0()];
+			for (int i = 0; i < getN0(); i++) {
 				slice[i] = u[flatten(i, j)];
 			}
 
-			final double[] firstDerivative = computeFirstDerivative(x0Grid, slice);
+			final double[] firstDerivative = computeFirstDerivative(getX0Grid(), slice);
 
-			for (int i = 0; i < n0; i++) {
-				final double stock = x0Grid[i];
+			for (int i = 0; i < getN0(); i++) {
+				final double stock = getX0Grid()[i];
 				final double lowerBound =
 						jumpComponent.getLowerIntegrationBound(time, stock, variance);
 				final double upperBound =
@@ -302,7 +302,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 			final double y = a + (k + 0.5) * h;
 			final double shiftedStock = stock * Math.exp(y);
 			final double shiftedValue =
-					interpolateLinearWithConstantExtrapolation(x0Grid, slice, shiftedStock);
+					interpolateLinearWithConstantExtrapolation(getX0Grid(), slice, shiftedStock);
 
 			final double levyDensity =
 					jumpComponent.getLevyDensity(time, y, stock, variance);
