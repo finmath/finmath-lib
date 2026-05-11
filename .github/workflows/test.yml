@@ -1,4 +1,4 @@
-name: finmath lib
+name: finmath lib build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    name: 🔍 Testing
+    name: 🧪 Testing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,7 +22,7 @@ jobs:
         run: mvn -B -Dcheckstyle.skip=true test
 
   checkstyle:
-    name: 🔬 Checkstyle
+    name: 🔍 Checkstyle
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
