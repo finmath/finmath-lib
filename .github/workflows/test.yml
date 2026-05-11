@@ -51,7 +51,7 @@ jobs:
           cache: maven
 
       - name: Generate JavaDoc
-        run: mvn -B -DskipTests -Dcheckstyle.skip=true -Dadditionalparam='-Xdoclint:none' javadoc:javadoc
+        run: mvn -B -DskipTests -Dcheckstyle.skip=true -Dadditionalparam='-Xdoclint:none' package javadoc:javadoc
 
   summary:
     name: 📊 Summary
