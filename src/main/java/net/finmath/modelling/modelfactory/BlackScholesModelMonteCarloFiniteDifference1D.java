@@ -53,8 +53,8 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 		final double volatility = modelDescriptor.getVolatility();
 
-		final int numTimesteps = 35;
-		final int numSpacesteps = 120;
+		final int numTimesteps = 100;
+		final int numSpacesteps = 200;
 		final int numStandardDeviations = 5;
 
 		/*
