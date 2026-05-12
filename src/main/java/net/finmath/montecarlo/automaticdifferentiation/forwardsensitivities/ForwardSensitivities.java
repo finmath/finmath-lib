@@ -22,13 +22,13 @@ import net.finmath.stochastic.RandomVariable;
  * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
  *
  * The hedge ratios are represented in a finite solution basis
- *
- *     phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
+ * 
+ *\[ phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l) \text{.} \]
  *
  * Two reduced coefficient criteria are supported:
  *
  * <ul>
- *   <li>{@link ReductionMethod#EMPIRICAL_L2}: minimize the full empirical pathwise residual
+ *   <li>{@link ReductionMethod#L2}: minimize the full empirical pathwise residual
  *       1/N sum_l ||A_l phi_l^r - b_l||^2.</li>
  *   <li>{@link ReductionMethod#PROJECTED_GALERKIN}: impose the projected moment equations
  *       &lt;A phi^r - b, Y_s&gt;_N = 0, where Y_s may differ from the solution basis X_q.</li>
@@ -55,7 +55,7 @@ public class ForwardSensitivities {
 		 * The returned reduced matrix is the normal matrix X^T A^T A X / N,
 		 * and the returned right-hand side is X^T A^T b / N.
 		 */
-		EMPIRICAL_L2,
+		L2,
 
 		/**
 		 * Projected/Galerkin, or Petrov-Galerkin, moment matching:
@@ -133,7 +133,7 @@ public class ForwardSensitivities {
 		 * <ul>
 		 *   <li>PROJECTED_GALERKIN: B with rows (i,s) for test basis Y_s
 		 *       and columns (j,q) for solution basis X_q.</li>
-		 *   <li>EMPIRICAL_L2: normal matrix G = D^T D / N with columns (j,q).</li>
+		 *   <li>L2: normal matrix G = D^T D / N with columns (j,q).</li>
 		 * </ul>
 		 */
 		public double[][] getReducedMatrix() {
@@ -145,7 +145,7 @@ public class ForwardSensitivities {
 		 *
 		 * <ul>
 		 *   <li>PROJECTED_GALERKIN: beta with rows (i,s) for test basis Y_s.</li>
-		 *   <li>EMPIRICAL_L2: h = D^T b / N with columns (j,q).</li>
+		 *   <li>L2: h = D^T b / N with columns (j,q).</li>
 		 * </ul>
 		 */
 		public double[] getReducedRhs() {
@@ -247,7 +247,7 @@ public class ForwardSensitivities {
 				basisFunctions,
 				null,
 				regularizationLambda,
-				ReductionMethod.EMPIRICAL_L2);
+				ReductionMethod.L2);
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class ForwardSensitivities {
 	 * @param hedgePortfolioValues The hedge-instrument values P_j.
 	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
-	 *                           May be null for EMPIRICAL_L2. If null for PROJECTED_GALERKIN,
+	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
 	 *                           the solution basis is used as the test basis.
 	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
@@ -399,7 +399,7 @@ public class ForwardSensitivities {
 					numberOfHedges);
 			break;
 
-		case EMPIRICAL_L2:
+		case L2:
 			reducedSystem = assembleEmpiricalL2NormalSystem(
 					riskFactorNames,
 					productSensitivities,
