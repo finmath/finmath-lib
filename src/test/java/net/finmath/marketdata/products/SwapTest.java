@@ -3,7 +3,10 @@ package net.finmath.marketdata.products;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.util.Random;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import net.finmath.marketdata.model.AnalyticModel;
@@ -23,18 +26,46 @@ import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.TimeDiscretizationFromArray;
 import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
-class SwapTest {
+public class SwapTest {
 	private final LocalDate referenceDate = LocalDate.of(2017, 6, 15);
+	private static double calibrateMilli;
+	
+	/**
+	 * We calibrate a duration that corresponds to a millisecond on an Apple M1 with Java 17.
+	 * 
+	 * This is just to have a rough (large) independend bound for the timings that is roughly
+	 * independend of a system.
+	 */
+	@BeforeAll
+	static void calibrateDuration() {
+
+		long timeStart = System.nanoTime();
+
+		Random random = new Random(3141);
+		double numberOfRuns = 100000;
+		double sum = 0.0;
+		for(int i = 0; i<numberOfRuns; i++) {
+			sum += 2*random.nextDouble();
+		}
+		double average = sum/numberOfRuns;
+		
+		long timeEnd = System.nanoTime();
+		double durationMillis = (double)(timeEnd-timeStart)/1000000;
+		
+		// Approximate 1 ms
+		calibrateMilli = durationMillis / 10;
+		System.out.println("Calibrated millisecond.......: " + calibrateMilli);
+	}
 
 	@Test
 	void testRegularSchedule() {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();
-		int numberOfRuns = 1000000;
-		for(int i=0; i< numberOfRuns; i++) {
+		int numberOfRuns = 100000;
 
-			// Create the forward curve (initial value of the LIBOR market model)
+		for(int i=0; i< numberOfRuns; i++) {
+			// Create the discount curve
 			final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromZeroRates(
 					"discountCurve",
 					referenceDate,
@@ -48,7 +79,7 @@ class SwapTest {
 
 			AnalyticModel curveModel = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurve });
 
-			// Create the forward curve (initial value of the LIBOR market model)
+			// Create the forward curve
 			final ForwardCurve forwardCurve = ForwardCurveInterpolation.createForwardCurveFromForwards(
 					"forwardCurve"								/* name of the curve */,
 					referenceDate,
@@ -71,11 +102,10 @@ class SwapTest {
 		}
 		long timeEnd = System.nanoTime();
 
-		System.out.println(sum / numberOfRuns);
-
-		System.out.println("Valuation......: " + (double)(timeEnd-timeStart)/1000000/numberOfRuns + " ms");
-
-		fail("Not yet implemented");
+		double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
+		System.out.println("Swap valuation required......: " + durationMillis + " ms");
+		
+		Assertions.assertTrue(durationMillis < calibrateMilli);
 	}
 
 	@Test
@@ -83,7 +113,7 @@ class SwapTest {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();
-		int numberOfRuns = 1000000;
+		int numberOfRuns = 100000;
 		for(int i=0; i< numberOfRuns; i++) {
 
 			// Create the forward curve (initial value of the LIBOR market model)
@@ -135,10 +165,9 @@ class SwapTest {
 		}
 		long timeEnd = System.nanoTime();
 
-		System.out.println(sum / numberOfRuns);
+		double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
+		System.out.println("Swap valuation required......: " + durationMillis + " ms");
 
-		System.out.println("Valuation......: " + (double)(timeEnd-timeStart)/1000000/numberOfRuns + " ms");
-
-		fail("Not yet implemented");
+		Assertions.assertTrue(durationMillis < calibrateMilli);
 	}
 }
