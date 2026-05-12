@@ -16,20 +16,60 @@ import net.finmath.montecarlo.RandomVariableFactory;
 import net.finmath.montecarlo.RandomVariableFromArrayFactory;
 import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
-import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
 /**
- * Povides a static method to obtain (projected) hedge ratios \( dV/dP_{i} \) projected on span(U_{1}, \ldots, U_r },
- * where U_{k} denotes a set of basis functions.
- * 
+ * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
+ *
+ * The hedge ratios are represented in a finite basis
+ *
+ *     phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
+ *
+ * Two reduced coefficient criteria are supported:
+ *
+ * <ul>
+ *   <li>{@link ReductionMethod#EMPIRICAL_L2}: minimize the full empirical pathwise residual
+ *       1/N sum_l ||A_l phi_l^r - b_l||^2.</li>
+ *   <li>{@link ReductionMethod#PROJECTED_GALERKIN}: impose the projected moment equations
+ *       &lt;A phi^r - b, X_s&gt;_N = 0.</li>
+ * </ul>
+ *
+ * Here b_l is the pathwise derivative of the derivative value with respect to model
+ * primitives M_i, and A_l is the pathwise derivative of hedge instruments P_j
+ * with respect to the same primitives.
+ *
  * @author Christian Fries
  */
 public class ForwardSensitivities {
 
 	/**
-	 * Result container for the reduced stochastic hedge-ratio system.
+	 * The reduced coefficient criterion used to determine the basis coefficients.
+	 */
+	public enum ReductionMethod {
+
+		/**
+		 * Empirical L2 residual minimization:
+		 *
+		 *     min_xi 1/N sum_l ||A_l phi_l^r - b_l||_2^2 + lambda ||xi||_2^2.
+		 *
+		 * The returned reduced matrix is the normal matrix X^T A^T A X / N,
+		 * and the returned right-hand side is X^T A^T b / N.
+		 */
+		EMPIRICAL_L2,
+
+		/**
+		 * Projected/Galerkin moment matching:
+		 *
+		 *     <(A phi^r - b)_i, X_s>_N = 0.
+		 *
+		 * If the system is not solved exactly, the code solves the reduced least-squares
+		 * problem ||B xi - beta||^2 + lambda ||xi||^2.
+		 */
+		PROJECTED_GALERKIN
+	}
+
+	/**
+	 * Result container for a reduced stochastic hedge-ratio calculation.
 	 *
 	 * hedgeRatios[j] is the reconstructed stochastic hedge ratio phi_j^r(t, omega).
 	 * coefficients[j][q] is xi_j^q.
@@ -38,21 +78,42 @@ public class ForwardSensitivities {
 
 		private final RandomVariable[] hedgeRatios;
 		private final double[][] coefficients;      // [hedgeIndex][basisIndex] = xi_j^q
-		private final double[][] reducedMatrix;     // flattened B
-		private final double[] reducedRhs;          // flattened beta
+		private final double[][] reducedMatrix;     // method-dependent reduced system matrix
+		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
 		private final List<String> riskFactorNames; // row risk factors M_i
+		private final ReductionMethod reductionMethod;
 
+		/**
+		 * Backwards-compatible constructor. The method is assumed to be PROJECTED_GALERKIN.
+		 */
 		public ProjectedHedgeRatioResult(
 				final RandomVariable[] hedgeRatios,
 				final double[][] coefficients,
 				final double[][] reducedMatrix,
 				final double[] reducedRhs,
 				final List<String> riskFactorNames) {
+			this(
+					hedgeRatios,
+					coefficients,
+					reducedMatrix,
+					reducedRhs,
+					riskFactorNames,
+					ReductionMethod.PROJECTED_GALERKIN);
+		}
+
+		public ProjectedHedgeRatioResult(
+				final RandomVariable[] hedgeRatios,
+				final double[][] coefficients,
+				final double[][] reducedMatrix,
+				final double[] reducedRhs,
+				final List<String> riskFactorNames,
+				final ReductionMethod reductionMethod) {
 			this.hedgeRatios = hedgeRatios;
 			this.coefficients = coefficients;
 			this.reducedMatrix = reducedMatrix;
 			this.reducedRhs = reducedRhs;
 			this.riskFactorNames = riskFactorNames;
+			this.reductionMethod = reductionMethod;
 		}
 
 		public RandomVariable[] getHedgeRatios() {
@@ -63,10 +124,26 @@ public class ForwardSensitivities {
 			return coefficients;
 		}
 
+		/**
+		 * Method-dependent reduced system matrix.
+		 *
+		 * <ul>
+		 *   <li>PROJECTED_GALERKIN: B with rows (i,s) and columns (j,q).</li>
+		 *   <li>EMPIRICAL_L2: normal matrix G = D^T D / N with columns (j,q).</li>
+		 * </ul>
+		 */
 		public double[][] getReducedMatrix() {
 			return reducedMatrix;
 		}
 
+		/**
+		 * Method-dependent reduced right-hand side.
+		 *
+		 * <ul>
+		 *   <li>PROJECTED_GALERKIN: beta with rows (i,s).</li>
+		 *   <li>EMPIRICAL_L2: h = D^T b / N with columns (j,q).</li>
+		 * </ul>
+		 */
 		public double[] getReducedRhs() {
 			return reducedRhs;
 		}
@@ -74,34 +151,18 @@ public class ForwardSensitivities {
 		public List<String> getRiskFactorNames() {
 			return riskFactorNames;
 		}
+
+		public ReductionMethod getReductionMethod() {
+			return reductionMethod;
+		}
 	}
 
 	/**
-	 * Projected stochastic hedge-ratio calculation.
+	 * Backwards-compatible projected stochastic hedge-ratio calculation.
 	 *
-	 * It solves
+	 * This solves the projected/Galerkin moment equations
 	 *
-	 *     sum_{j,q} B_{ij}^{sq} xi_j^q = beta_i^s,
-	 *
-	 * where
-	 *
-	 *     B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} X_{l s},
-	 *     beta_i^s    = 1/N sum_l b_{l i} X_{l s}.
-	 *
-	 * The hedge ratios are reconstructed pathwise as
-	 *
-	 *     phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
-	 *
-	 * @param parameterIDsByName Map of parameter IDs.
-	 * @param evaluationTime The time t at which the hedge ratios are calculated.
-	 * @param derivative The product V (financial derivative).
-	 * @param hedgePortfolio The products P_j (hedge instruments).
-	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
-	 *                       To match the derivation literally, pass empirically
-	 *                       orthonormal basis functions. See orthonormalizeBasis below.
-	 * @param regularizationLambda The lambda in ||Bz-g||^2 + lambda ||z||^2.
-	 *                             Use 0.0 for unregularized least squares.
-	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 *     <(A phi^r - b)_i, X_s>_N = 0.
 	 */
 	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
 			final Map<String, Long> parameterIDsByName,
@@ -111,35 +172,78 @@ public class ForwardSensitivities {
 			final RandomVariable[] basisFunctions,
 			final double regularizationLambda) throws CalculationException {
 
-		if(parameterIDsByName == null || parameterIDsByName.size() == 0) {
-			throw new IllegalArgumentException("parameterIDsByName must contain at least one parameter.");
-		}
-		if(derivativeValue == null) {
-			throw new IllegalArgumentException("derivativeValue must not be null.");
-		}
-		if(hedgePortfolioValues == null || hedgePortfolioValues.length == 0) {
-			throw new IllegalArgumentException("hedgePortfolioValues must contain at least one hedge instrument.");
-		}
-		if(basisFunctions == null || basisFunctions.length == 0) {
-			throw new IllegalArgumentException("basisFunctions must contain at least one basis function.");
-		}
-		if(regularizationLambda < 0.0) {
-			throw new IllegalArgumentException("regularizationLambda must be non-negative.");
-		}
+		return getHedgeRatiosReduced(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				basisFunctions,
+				regularizationLambda,
+				ReductionMethod.PROJECTED_GALERKIN);
+	}
+
+	/**
+	 * Reduced empirical L2 stochastic hedge-ratio calculation.
+	 *
+	 * This solves
+	 *
+	 *     min_xi 1/N sum_l ||A_l phi_l^r - b_l||_2^2 + lambda ||xi||_2^2,
+	 *
+	 * without projecting the output residual onto the hedge-ratio basis.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosEmpiricalL2(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] basisFunctions,
+			final double regularizationLambda) throws CalculationException {
+
+		return getHedgeRatiosReduced(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				basisFunctions,
+				regularizationLambda,
+				ReductionMethod.EMPIRICAL_L2);
+	}
+
+	/**
+	 * General reduced stochastic hedge-ratio calculation supporting both coefficient criteria.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
+	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
+	 * @param reductionMethod The reduced coefficient criterion.
+	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosReduced(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] basisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) throws CalculationException {
+
+		validateInputs(
+				parameterIDsByName,
+				derivativeValue,
+				hedgePortfolioValues,
+				basisFunctions,
+				regularizationLambda,
+				reductionMethod);
 
 		final int numberOfPaths = derivativeValue.size();
 		final int numberOfHedges = hedgePortfolioValues.length;
 		final int numberOfBasisFunctions = basisFunctions.length;
 
-		if(parameterIDsByName.isEmpty()) {
-			throw new IllegalArgumentException(
-					"The model exposes no differentiable model parameters. "
-					+ "Check that the simulation was created with RandomVariableDifferentiableAADFactory.");
-		}
-
 		final List<String> riskFactorNames = new ArrayList<>(parameterIDsByName.keySet());
 		final Set<Long> independentIDs = new HashSet<>(parameterIDsByName.values());
-		final int numberOfRiskFactors = riskFactorNames.size();
 
 		/*
 		 * b_{l i} = dV / dM_i, pathwise.
@@ -156,7 +260,6 @@ public class ForwardSensitivities {
 		 */
 		final List<Map<String, RandomVariable>> hedgeSensitivities = new ArrayList<>();
 		for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-
 
 			/*
 			 * A hedge may be deterministic at evaluationTime, e.g. a matured bond.
@@ -183,92 +286,37 @@ public class ForwardSensitivities {
 			basisValues[basisIndex] = getPathValues(basisFunctions[basisIndex], numberOfPaths);
 		}
 
-		/*
-		 * Flattened system:
-		 *
-		 * row(i,s) = s * n + i,
-		 * col(j,q) = q * m + j.
-		 */
-		final int numberOfRows = numberOfRiskFactors * numberOfBasisFunctions;
-		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;
+		final ReducedSystem reducedSystem;
+		switch(reductionMethod) {
+		case PROJECTED_GALERKIN:
+			reducedSystem = assembleProjectedGalerkinSystem(
+					riskFactorNames,
+					productSensitivities,
+					hedgeSensitivities,
+					basisValues,
+					numberOfPaths,
+					numberOfHedges);
+			break;
 
-		final double[][] reducedMatrix = new double[numberOfRows][numberOfColumns];
-		final double[]   reducedRhs = new double[numberOfRows];
+		case EMPIRICAL_L2:
+			reducedSystem = assembleEmpiricalL2NormalSystem(
+					riskFactorNames,
+					productSensitivities,
+					hedgeSensitivities,
+					basisValues,
+					numberOfPaths,
+					numberOfHedges);
+			break;
 
-		for(int riskFactorIndex = 0; riskFactorIndex < numberOfRiskFactors; riskFactorIndex++) {
-
-			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
-
-			final double[] productGradient =
-					getPathValuesOrZero(productSensitivities.get(riskFactorName), numberOfPaths);
-
-			final double[][] hedgeGradient = new double[numberOfHedges][];
-			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-				hedgeGradient[hedgeIndex] =
-						getPathValuesOrZero(
-								hedgeSensitivities.get(hedgeIndex).get(riskFactorName),
-								numberOfPaths);
-			}
-
-			for(int testBasisIndex = 0; testBasisIndex < numberOfBasisFunctions; testBasisIndex++) {
-
-				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);
-
-				/*
-				 * beta_i^s = 1/N sum_l b_{l i} X_{l s}.
-				 */
-				double beta = 0.0;
-				for(int path = 0; path < numberOfPaths; path++) {
-					beta += productGradient[path] * basisValues[testBasisIndex][path];
-				}
-				reducedRhs[row] = beta / numberOfPaths;
-
-				/*
-				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} X_{l s}.
-				 */
-				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-					for(int coefficientBasisIndex = 0;
-							coefficientBasisIndex < numberOfBasisFunctions;
-							coefficientBasisIndex++) {
-
-						double entry = 0.0;
-						for(int path = 0; path < numberOfPaths; path++) {
-							entry += hedgeGradient[hedgeIndex][path]
-									* basisValues[coefficientBasisIndex][path]
-									* basisValues[testBasisIndex][path];
-						}
-
-						final int column = columnIndex(
-								hedgeIndex,
-								coefficientBasisIndex,
-								numberOfHedges);
-
-						reducedMatrix[row][column] = entry / numberOfPaths;
-					}
-				}
-			}
+		default:
+			throw new IllegalArgumentException("Unsupported reductionMethod: " + reductionMethod);
 		}
 
-		/*
-		 * Solve reduced system.
-		 *
-		 * finmath's solveLinearEquationTikonov(A,b,lambdaFinmath) solves the
-		 * augmented least-squares problem with lambdaFinmath * I. Hence it corresponds
-		 * to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
-		 *
-		 * Our input regularizationLambda is the lambda in
-		 * ||Az-b||^2 + lambda ||z||^2, so we pass sqrt(lambda).
-		 */
-		final double[] solution;
-		if(regularizationLambda > 0.0) {
-			solution = LinearAlgebra.solveLinearEquationTikonov(
-					reducedMatrix,
-					reducedRhs,
-					Math.sqrt(regularizationLambda));
-		}
-		else {
-			solution = LinearAlgebra.solveLinearEquationLeastSquare(reducedMatrix, reducedRhs);
-		}
+		final double[] solution = solveReducedSystem(
+				reducedSystem.matrix,
+				reducedSystem.rhs,
+				regularizationLambda,
+				reducedSystem.isNormalEquationSystem);
 
 		/*
 		 * Unflatten xi_j^q.
@@ -281,38 +329,19 @@ public class ForwardSensitivities {
 			}
 		}
 
-		/*
-		 * Reconstruct stochastic hedge ratios:
-		 *
-		 * phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
-		 */
-		final RandomVariableFactory outputRandomVariableFactory = new RandomVariableFromArrayFactory();
-		final RandomVariable[] hedgeRatios = new RandomVariable[numberOfHedges];
-
-		for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-
-			final double[] hedgeRatioPathValues = new double[numberOfPaths];
-
-			for(int path = 0; path < numberOfPaths; path++) {
-				double value = 0.0;
-
-				for(int basisIndex = 0; basisIndex < numberOfBasisFunctions; basisIndex++) {
-					value += coefficients[hedgeIndex][basisIndex] * basisValues[basisIndex][path];
-				}
-
-				hedgeRatioPathValues[path] = value;
-			}
-
-			hedgeRatios[hedgeIndex] =
-					outputRandomVariableFactory.createRandomVariable(evaluationTime, hedgeRatioPathValues);
-		}
+		final RandomVariable[] hedgeRatios = reconstructHedgeRatios(
+				evaluationTime,
+				coefficients,
+				basisValues,
+				numberOfPaths);
 
 		return new ProjectedHedgeRatioResult(
 				hedgeRatios,
 				coefficients,
-				reducedMatrix,
-				reducedRhs,
-				Collections.unmodifiableList(riskFactorNames));
+				reducedSystem.matrix,
+				reducedSystem.rhs,
+				Collections.unmodifiableList(riskFactorNames),
+				reductionMethod);
 	}
 
 	/**
@@ -323,6 +352,9 @@ public class ForwardSensitivities {
 	 *     <X,Y>_N = 1/N sum_l X_l Y_l.
 	 *
 	 * The returned basis satisfies <X_k, X_q>_N approximately delta_{kq}.
+	 *
+	 * Orthonormality is convenient for interpreting projected coefficients. It is
+	 * not required for the empirical L2 residual formulation.
 	 */
 	static RandomVariable[] orthonormalizeBasis(
 			final RandomVariable[] rawBasis,
@@ -446,6 +478,271 @@ public class ForwardSensitivities {
 		return gradientByName;
 	}
 
+	private static ReducedSystem assembleProjectedGalerkinSystem(
+			final List<String> riskFactorNames,
+			final Map<String, RandomVariable> productSensitivities,
+			final List<Map<String, RandomVariable>> hedgeSensitivities,
+			final double[][] basisValues,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+		final int numberOfRiskFactors = riskFactorNames.size();
+		final int numberOfBasisFunctions = basisValues.length;
+
+		/*
+		 * Flattened system:
+		 *
+		 * row(i,s) = s * n + i,
+		 * col(j,q) = q * m + j.
+		 */
+		final int numberOfRows = numberOfRiskFactors * numberOfBasisFunctions;
+		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;
+
+		final double[][] reducedMatrix = new double[numberOfRows][numberOfColumns];
+		final double[] reducedRhs = new double[numberOfRows];
+
+		for(int riskFactorIndex = 0; riskFactorIndex < numberOfRiskFactors; riskFactorIndex++) {
+
+			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
+
+			final double[] productGradient =
+					getPathValuesOrZero(productSensitivities.get(riskFactorName), numberOfPaths);
+
+			final double[][] hedgeGradient = new double[numberOfHedges][];
+			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+				hedgeGradient[hedgeIndex] =
+						getPathValuesOrZero(
+								hedgeSensitivities.get(hedgeIndex).get(riskFactorName),
+								numberOfPaths);
+			}
+
+			for(int testBasisIndex = 0; testBasisIndex < numberOfBasisFunctions; testBasisIndex++) {
+
+				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);
+
+				/*
+				 * beta_i^s = 1/N sum_l b_{l i} X_{l s}.
+				 */
+				double beta = 0.0;
+				for(int path = 0; path < numberOfPaths; path++) {
+					beta += productGradient[path] * basisValues[testBasisIndex][path];
+				}
+				reducedRhs[row] = beta / numberOfPaths;
+
+				/*
+				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} X_{l s}.
+				 */
+				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+					for(int coefficientBasisIndex = 0;
+							coefficientBasisIndex < numberOfBasisFunctions;
+							coefficientBasisIndex++) {
+
+						double entry = 0.0;
+						for(int path = 0; path < numberOfPaths; path++) {
+							entry += hedgeGradient[hedgeIndex][path]
+									* basisValues[coefficientBasisIndex][path]
+									* basisValues[testBasisIndex][path];
+						}
+
+						final int column = columnIndex(
+								hedgeIndex,
+								coefficientBasisIndex,
+								numberOfHedges);
+
+						reducedMatrix[row][column] = entry / numberOfPaths;
+					}
+				}
+			}
+		}
+
+		return new ReducedSystem(reducedMatrix, reducedRhs, false);
+	}
+
+	private static ReducedSystem assembleEmpiricalL2NormalSystem(
+			final List<String> riskFactorNames,
+			final Map<String, RandomVariable> productSensitivities,
+			final List<Map<String, RandomVariable>> hedgeSensitivities,
+			final double[][] basisValues,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+		final int numberOfRiskFactors = riskFactorNames.size();
+		final int numberOfBasisFunctions = basisValues.length;
+		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;
+
+		final double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];
+		final double[] normalRhs = new double[numberOfColumns];
+		final double[] designRow = new double[numberOfColumns];
+		final double scale = 1.0 / numberOfPaths;
+
+		for(int riskFactorIndex = 0; riskFactorIndex < numberOfRiskFactors; riskFactorIndex++) {
+
+			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
+
+			final double[] productGradient =
+					getPathValuesOrZero(productSensitivities.get(riskFactorName), numberOfPaths);
+
+			final double[][] hedgeGradient = new double[numberOfHedges][];
+			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+				hedgeGradient[hedgeIndex] =
+						getPathValuesOrZero(
+								hedgeSensitivities.get(hedgeIndex).get(riskFactorName),
+								numberOfPaths);
+			}
+
+			for(int path = 0; path < numberOfPaths; path++) {
+
+				/*
+				 * D_{(l,i),(j,q)} = A_{l i j} X_{l q}.
+				 */
+				for(int coefficientBasisIndex = 0;
+						coefficientBasisIndex < numberOfBasisFunctions;
+						coefficientBasisIndex++) {
+					final double basisValue = basisValues[coefficientBasisIndex][path];
+					for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+						final int column = columnIndex(
+								hedgeIndex,
+								coefficientBasisIndex,
+								numberOfHedges);
+						designRow[column] = hedgeGradient[hedgeIndex][path] * basisValue;
+					}
+				}
+
+				/*
+				 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
+				 */
+				final double rhsValue = productGradient[path];
+				for(int column1 = 0; column1 < numberOfColumns; column1++) {
+					normalRhs[column1] += scale * designRow[column1] * rhsValue;
+				}
+
+				/*
+				 * G_{(j,q),(k,p)} = 1/N sum_l sum_i A_{l i j} A_{l i k} X_{l q} X_{l p}.
+				 * Accumulate the lower triangle and mirror after all paths.
+				 */
+				for(int column1 = 0; column1 < numberOfColumns; column1++) {
+					final double value1 = designRow[column1];
+					for(int column2 = 0; column2 <= column1; column2++) {
+						normalMatrix[column1][column2] += scale * value1 * designRow[column2];
+					}
+				}
+			}
+		}
+
+		for(int column1 = 0; column1 < numberOfColumns; column1++) {
+			for(int column2 = 0; column2 < column1; column2++) {
+				normalMatrix[column2][column1] = normalMatrix[column1][column2];
+			}
+		}
+
+		return new ReducedSystem(normalMatrix, normalRhs, true);
+	}
+
+	private static double[] solveReducedSystem(
+			final double[][] matrix,
+			final double[] rhs,
+			final double regularizationLambda,
+			final boolean matrixIsNormalEquationSystem) throws CalculationException {
+
+		if(matrixIsNormalEquationSystem) {
+			/*
+			 * The matrix is already G = D^T D / N and rhs is h = D^T b / N.
+			 * Tikhonov regularization for
+			 *
+			 *     ||D z - b||_N^2 + lambda ||z||^2
+			 *
+			 * is therefore implemented by solving (G + lambda I) z = h.
+			 * Do not call solveLinearEquationTikonov here, because that would regularize
+			 * the normal equations themselves.
+			 */
+			final double[][] matrixToSolve = copyMatrix(matrix);
+			if(regularizationLambda > 0.0) {
+				for(int index = 0; index < matrixToSolve.length; index++) {
+					matrixToSolve[index][index] += regularizationLambda;
+				}
+			}
+			return LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhs);
+		}
+
+		/*
+		 * Projected/Galerkin system. finmath's solveLinearEquationTikonov(A,b,lambdaFinmath)
+		 * solves the augmented least-squares problem with lambdaFinmath * I. Hence it
+		 * corresponds to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
+		 *
+		 * Our input regularizationLambda is the lambda in ||Az-b||^2 + lambda ||z||^2,
+		 * so we pass sqrt(lambda).
+		 */
+		if(regularizationLambda > 0.0) {
+			return LinearAlgebra.solveLinearEquationTikonov(
+					matrix,
+					rhs,
+					Math.sqrt(regularizationLambda));
+		}
+
+		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, rhs);
+	}
+
+	private static RandomVariable[] reconstructHedgeRatios(
+			final double evaluationTime,
+			final double[][] coefficients,
+			final double[][] basisValues,
+			final int numberOfPaths) {
+
+		final int numberOfHedges = coefficients.length;
+		final int numberOfBasisFunctions = basisValues.length;
+
+		final RandomVariableFactory outputRandomVariableFactory = new RandomVariableFromArrayFactory();
+		final RandomVariable[] hedgeRatios = new RandomVariable[numberOfHedges];
+
+		for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+
+			final double[] hedgeRatioPathValues = new double[numberOfPaths];
+
+			for(int path = 0; path < numberOfPaths; path++) {
+				double value = 0.0;
+
+				for(int basisIndex = 0; basisIndex < numberOfBasisFunctions; basisIndex++) {
+					value += coefficients[hedgeIndex][basisIndex] * basisValues[basisIndex][path];
+				}
+
+				hedgeRatioPathValues[path] = value;
+			}
+
+			hedgeRatios[hedgeIndex] =
+					outputRandomVariableFactory.createRandomVariable(evaluationTime, hedgeRatioPathValues);
+		}
+
+		return hedgeRatios;
+	}
+
+	private static void validateInputs(
+			final Map<String, Long> parameterIDsByName,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] basisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+
+		if(parameterIDsByName == null || parameterIDsByName.isEmpty()) {
+			throw new IllegalArgumentException("parameterIDsByName must contain at least one parameter.");
+		}
+		if(derivativeValue == null) {
+			throw new IllegalArgumentException("derivativeValue must not be null.");
+		}
+		if(hedgePortfolioValues == null || hedgePortfolioValues.length == 0) {
+			throw new IllegalArgumentException("hedgePortfolioValues must contain at least one hedge instrument.");
+		}
+		if(basisFunctions == null || basisFunctions.length == 0) {
+			throw new IllegalArgumentException("basisFunctions must contain at least one basis function.");
+		}
+		if(regularizationLambda < 0.0) {
+			throw new IllegalArgumentException("regularizationLambda must be non-negative.");
+		}
+		if(reductionMethod == null) {
+			throw new IllegalArgumentException("reductionMethod must not be null.");
+		}
+	}
+
 	private static double[] getPathValuesOrZero(
 			final RandomVariable randomVariable,
 			final int numberOfPaths) {
@@ -479,6 +776,14 @@ public class ForwardSensitivities {
 		}
 
 		return values;
+	}
+
+	private static double[][] copyMatrix(final double[][] matrix) {
+		final double[][] copy = new double[matrix.length][];
+		for(int row = 0; row < matrix.length; row++) {
+			copy[row] = Arrays.copyOf(matrix[row], matrix[row].length);
+		}
+		return copy;
 	}
 
 	/*
@@ -520,5 +825,20 @@ public class ForwardSensitivities {
 
 		return coefficientBasisIndex * numberOfHedges + hedgeIndex;
 	}
-	
+
+	private static final class ReducedSystem {
+
+		private final double[][] matrix;
+		private final double[] rhs;
+		private final boolean isNormalEquationSystem;
+
+		private ReducedSystem(
+				final double[][] matrix,
+				final double[] rhs,
+				final boolean isNormalEquationSystem) {
+			this.matrix = matrix;
+			this.rhs = rhs;
+			this.isNormalEquationSystem = isNormalEquationSystem;
+		}
+	}
 }
