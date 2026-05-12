@@ -92,10 +92,10 @@ public class ForwardSensitivities {
 	 *
 	 *     phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
 	 *
-	 * @param model Term-structure MC model using an AAD random variable factory.
+	 * @param parameterIDsByName Map of parameter IDs.
 	 * @param evaluationTime The time t at which the hedge ratios are calculated.
-	 * @param derivative The derivative V.
-	 * @param hedgePortfolio Hedge instruments P_j.
+	 * @param derivative The product V (financial derivative).
+	 * @param hedgePortfolio The products P_j (hedge instruments).
 	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
 	 *                       To match the derivation literally, pass empirically
 	 *                       orthonormal basis functions. See orthonormalizeBasis below.
@@ -104,15 +104,15 @@ public class ForwardSensitivities {
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
 	 */
 	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
-			final IndependentModelParameterProvider parameterProvider,
+			final Map<String, Long> parameterIDsByName,
 			final double evaluationTime,
 			final RandomVariable derivativeValue,
 			final RandomVariable[] hedgePortfolioValues,
 			final RandomVariable[] basisFunctions,
 			final double regularizationLambda) throws CalculationException {
 
-		if(parameterProvider == null) {
-			throw new IllegalArgumentException("parameterProvider must not be null.");
+		if(parameterIDsByName == null || parameterIDsByName.size() == 0) {
+			throw new IllegalArgumentException("parameterIDsByName must contain at least one parameter.");
 		}
 		if(derivativeValue == null) {
 			throw new IllegalArgumentException("derivativeValue must not be null.");
@@ -130,12 +130,6 @@ public class ForwardSensitivities {
 		final int numberOfPaths = derivativeValue.size();
 		final int numberOfHedges = hedgePortfolioValues.length;
 		final int numberOfBasisFunctions = basisFunctions.length;
-
-		/*
-		 * Risk factors M_i are the differentiable model parameters exposed by the model.
-		 * We keep a deterministic order via LinkedHashMap.
-		 */
-		final Map<String, Long> parameterIDsByName = getDifferentiableModelParameterIDs(parameterProvider);
 
 		if(parameterIDsByName.isEmpty()) {
 			throw new IllegalArgumentException(
@@ -385,7 +379,7 @@ public class ForwardSensitivities {
 	/**
 	 * Extract differentiable model parameters M_i and their AAD IDs.
 	 */
-	private static Map<String, Long> getDifferentiableModelParameterIDs(
+	public static Map<String, Long> getDifferentiableModelParameterIDs(
 			final IndependentModelParameterProvider parameterProvider) {
 
 		final Map<String, RandomVariable> modelParameters = parameterProvider.getModelParameters();
