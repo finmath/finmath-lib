@@ -35,96 +35,96 @@ import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
  */
 public class PathDependentOptionTreeTest {
 
-    @Test
-    public void testAsianOptionTreeVsMonteCarlo() throws CalculationException {
+	@Test
+	public void testAsianOptionTreeVsMonteCarlo() throws CalculationException {
 
-        // -------------------------
-        // Common contract parameters
-        // -------------------------
-        final double S0 = 100.0;
-        final double r  = 0.04;
-        final double sigma = 0.25;
+		// -------------------------
+		// Common contract parameters
+		// -------------------------
+		final double S0 = 100.0;
+		final double r  = 0.04;
+		final double sigma = 0.25;
 
-        final double maturity = 1.0;
-        final double strike   = 90.0;
+		final double maturity = 1.0;
+		final double strike   = 90.0;
 
-        // -------------------------
-        // Discretization
-        // -------------------------
-        // Keep time steps modest because your tree Asian is exponential: 2^N nodes at maturity.
-        final int numberOfTimeSteps = 12;      // => 2^12 = 4096 terminal nodes
-        final double dt = maturity / numberOfTimeSteps;
+		// -------------------------
+		// Discretization
+		// -------------------------
+		// Keep time steps modest because your tree Asian is exponential: 2^N nodes at maturity.
+		final int numberOfTimeSteps = 12;      // => 2^12 = 4096 terminal nodes
+		final double dt = maturity / numberOfTimeSteps;
 
-        // Averaging schedule (subset of the grid):
-        // Example: fixings from time index 1..N inclusive (exclude t=0).
-        final int[] fixingTimeIndices = IntStream.rangeClosed(0, numberOfTimeSteps).toArray();
+		// Averaging schedule (subset of the grid):
+		// Example: fixings from time index 1..N inclusive (exclude t=0).
+		final int[] fixingTimeIndices = IntStream.rangeClosed(0, numberOfTimeSteps).toArray();
 
-        // Convert fixing indices to fixing times for the MC product
-        final double[] fixingTimes = IntStream.of(fixingTimeIndices)
-                .mapToDouble(k -> k * dt)
-                .toArray();
+		// Convert fixing indices to fixing times for the MC product
+		final double[] fixingTimes = IntStream.of(fixingTimeIndices)
+				.mapToDouble(k -> k * dt)
+				.toArray();
 
-        // -------------------------
-        // Monte Carlo pricing
-        // -------------------------
-        final int numberOfPaths = 200_000;
-        final int seed = 31415;
+		// -------------------------
+		// Monte Carlo pricing
+		// -------------------------
+		final int numberOfPaths = 200_000;
+		final int seed = 31415;
 
-        final TimeDiscretization timeDiscretization =
-                new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, dt);
+		final TimeDiscretization timeDiscretization =
+				new TimeDiscretizationFromArray(0.0, numberOfTimeSteps, dt);
 
-        final BlackScholesModel bsModel = new BlackScholesModel(S0, r, sigma);
+		final BlackScholesModel bsModel = new BlackScholesModel(S0, r, sigma);
 
-        final MonteCarloProcessFromProcessModel process =
-                new EulerSchemeFromProcessModel(
-                        bsModel,
-                        new BrownianMotionFromMersenneRandomNumbers(
-                                timeDiscretization,
-                                1,              // numberOfFactors
-                                numberOfPaths,
-                                seed
-                        )
-                );
+		final MonteCarloProcessFromProcessModel process =
+				new EulerSchemeFromProcessModel(
+						bsModel,
+						new BrownianMotionFromMersenneRandomNumbers(
+								timeDiscretization,
+								1,              // numberOfFactors
+								numberOfPaths,
+								seed
+						)
+				);
 
-        final AssetModelMonteCarloSimulationModel mcSimulation =
-                new MonteCarloAssetModel(bsModel, process);
+		final AssetModelMonteCarloSimulationModel mcSimulation =
+				new MonteCarloAssetModel(bsModel, process);
 
-        final AsianOption mcAsian =
-                new AsianOption(
-                        maturity,
-                        strike,
-                        new TimeDiscretizationFromArray(fixingTimes)
-                );
+		final AsianOption mcAsian =
+				new AsianOption(
+						maturity,
+						strike,
+						new TimeDiscretizationFromArray(fixingTimes)
+				);
 
-        final RandomVariable mcValueRV = mcAsian.getValue(0.0, mcSimulation);
-        final double mcValue = mcValueRV.getAverage();
+		final RandomVariable mcValueRV = mcAsian.getValue(0.0, mcSimulation);
+		final double mcValue = mcValueRV.getAverage();
 
-        // -------------------------
-        // Tree pricing (CRR + AsianOption)
-        // -------------------------
-        final TreeModel treeModel =
-                new CoxRossRubinsteinModel(S0, r, sigma, maturity, dt);
+		// -------------------------
+		// Tree pricing (CRR + AsianOption)
+		// -------------------------
+		final TreeModel treeModel =
+				new CoxRossRubinsteinModel(S0, r, sigma, maturity, dt);
 
-        final net.finmath.tree.assetderivativevaluation.products.AsianOption treeAsian =
-                new net.finmath.tree.assetderivativevaluation.products.AsianOption(
-                        maturity,
-                        strike,
-                        fixingTimeIndices
-                );
+		final net.finmath.tree.assetderivativevaluation.products.AsianOption treeAsian =
+				new net.finmath.tree.assetderivativevaluation.products.AsianOption(
+						maturity,
+						strike,
+						fixingTimeIndices
+				);
 
-        final double treeValue = treeAsian.getValue(treeModel);
+		final double treeValue = treeAsian.getValue(treeModel);
 
-        // -------------------------
-        // Comparison
-        // -------------------------
-        System.out.println("Asian option (MC BS)   : " + mcValue);
-        System.out.println("Asian option (Tree CRR): " + treeValue);
-        System.out.println("Abs difference         : " + Math.abs(mcValue - treeValue));
+		// -------------------------
+		// Comparison
+		// -------------------------
+		System.out.println("Asian option (MC BS)   : " + mcValue);
+		System.out.println("Asian option (Tree CRR): " + treeValue);
+		System.out.println("Abs difference         : " + Math.abs(mcValue - treeValue));
 
-        // Tolerance: MC error ~ O(1/sqrt(paths)). With 200k paths, this is typically a few 1e-3..1e-2.
-        // Tree has discretization error too (CRR + dt).
-        final double tolerance = 1.0e-1;
+		// Tolerance: MC error ~ O(1/sqrt(paths)). With 200k paths, this is typically a few 1e-3..1e-2.
+		// Tree has discretization error too (CRR + dt).
+		final double tolerance = 1.0e-1;
 
-        Assert.assertEquals("Tree vs Monte Carlo price mismatch", mcValue, treeValue, tolerance);
-    }
+		Assert.assertEquals("Tree vs Monte Carlo price mismatch", mcValue, treeValue, tolerance);
+	}
 }

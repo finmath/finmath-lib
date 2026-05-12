@@ -37,7 +37,7 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 	 * @param emissionIntensityRateDecay Exponential decay rate for the decay rate.
 	 */
 	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
-			double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
+												double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.emissionIntensityInitial = emissionIntensityInitial;

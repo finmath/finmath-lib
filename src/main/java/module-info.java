@@ -6,9 +6,6 @@ module net.finmath.lib {
 	exports net.finmath.concurrency;
 	exports net.finmath.exception;
 	//	exports net.finmath.finitedifference;
-	exports net.finmath.finitedifference.experimental;
-	exports net.finmath.finitedifference.models;
-	exports net.finmath.finitedifference.products;
 	exports net.finmath.finitedifference.solvers;
 	exports net.finmath.fouriermethod;
 	exports net.finmath.fouriermethod.calibration;
