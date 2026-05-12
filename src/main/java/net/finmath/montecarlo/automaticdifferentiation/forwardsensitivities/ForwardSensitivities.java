@@ -21,7 +21,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
  *
- * The hedge ratios are represented in a finite basis
+ * The hedge ratios are represented in a finite solution basis
  *
  *     phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l).
  *
@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariable;
  *   <li>{@link ReductionMethod#EMPIRICAL_L2}: minimize the full empirical pathwise residual
  *       1/N sum_l ||A_l phi_l^r - b_l||^2.</li>
  *   <li>{@link ReductionMethod#PROJECTED_GALERKIN}: impose the projected moment equations
- *       &lt;A phi^r - b, X_s&gt;_N = 0.</li>
+ *       &lt;A phi^r - b, Y_s&gt;_N = 0, where Y_s may differ from the solution basis X_q.</li>
  * </ul>
  *
  * Here b_l is the pathwise derivative of the derivative value with respect to model
@@ -58,9 +58,12 @@ public class ForwardSensitivities {
 		EMPIRICAL_L2,
 
 		/**
-		 * Projected/Galerkin moment matching:
+		 * Projected/Galerkin, or Petrov-Galerkin, moment matching:
 		 *
-		 *     <(A phi^r - b)_i, X_s>_N = 0.
+		 *     <(A phi^r - b)_i, Y_s>_N = 0.
+		 *
+		 * If Y_s = X_s, this is the usual Galerkin case. If the test basis differs
+		 * from the solution basis, it is a Petrov-Galerkin projected moment system.
 		 *
 		 * If the system is not solved exactly, the code solves the reduced least-squares
 		 * problem ||B xi - beta||^2 + lambda ||xi||^2.
@@ -72,12 +75,12 @@ public class ForwardSensitivities {
 	 * Result container for a reduced stochastic hedge-ratio calculation.
 	 *
 	 * hedgeRatios[j] is the reconstructed stochastic hedge ratio phi_j^r(t, omega).
-	 * coefficients[j][q] is xi_j^q.
+	 * coefficients[j][q] is xi_j^q with respect to the solution basis X_q.
 	 */
 	public static final class ProjectedHedgeRatioResult {
 
 		private final RandomVariable[] hedgeRatios;
-		private final double[][] coefficients;      // [hedgeIndex][basisIndex] = xi_j^q
+		private final double[][] coefficients;      // [hedgeIndex][solutionBasisIndex] = xi_j^q
 		private final double[][] reducedMatrix;     // method-dependent reduced system matrix
 		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
 		private final List<String> riskFactorNames; // row risk factors M_i
@@ -128,7 +131,8 @@ public class ForwardSensitivities {
 		 * Method-dependent reduced system matrix.
 		 *
 		 * <ul>
-		 *   <li>PROJECTED_GALERKIN: B with rows (i,s) and columns (j,q).</li>
+		 *   <li>PROJECTED_GALERKIN: B with rows (i,s) for test basis Y_s
+		 *       and columns (j,q) for solution basis X_q.</li>
 		 *   <li>EMPIRICAL_L2: normal matrix G = D^T D / N with columns (j,q).</li>
 		 * </ul>
 		 */
@@ -140,7 +144,7 @@ public class ForwardSensitivities {
 		 * Method-dependent reduced right-hand side.
 		 *
 		 * <ul>
-		 *   <li>PROJECTED_GALERKIN: beta with rows (i,s).</li>
+		 *   <li>PROJECTED_GALERKIN: beta with rows (i,s) for test basis Y_s.</li>
 		 *   <li>EMPIRICAL_L2: h = D^T b / N with columns (j,q).</li>
 		 * </ul>
 		 */
@@ -160,7 +164,8 @@ public class ForwardSensitivities {
 	/**
 	 * Backwards-compatible projected stochastic hedge-ratio calculation.
 	 *
-	 * This solves the projected/Galerkin moment equations
+	 * This solves the projected/Galerkin moment equations using the same basis
+	 * for the solution and test spaces,
 	 *
 	 *     <(A phi^r - b)_i, X_s>_N = 0.
 	 */
@@ -178,6 +183,41 @@ public class ForwardSensitivities {
 				derivativeValue,
 				hedgePortfolioValues,
 				basisFunctions,
+				basisFunctions,
+				regularizationLambda,
+				ReductionMethod.PROJECTED_GALERKIN);
+	}
+
+	/**
+	 * Projected stochastic hedge-ratio calculation with separate solution and test bases.
+	 *
+	 * The hedge ratios use the solution basis X_q,
+	 *
+	 *     phi_j^r = sum_q xi_j^q X_q,
+	 *
+	 * while the residual is tested against Y_s,
+	 *
+	 *     <(A phi^r - b)_i, Y_s>_N = 0.
+	 *
+	 * Taking Y_s = X_s gives the Galerkin case. Different Y_s give a
+	 * Petrov-Galerkin projected moment system.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda) throws CalculationException {
+
+		return getHedgeRatiosReduced(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				solutionBasisFunctions,
+				testBasisFunctions,
 				regularizationLambda,
 				ReductionMethod.PROJECTED_GALERKIN);
 	}
@@ -205,6 +245,7 @@ public class ForwardSensitivities {
 				derivativeValue,
 				hedgePortfolioValues,
 				basisFunctions,
+				null,
 				regularizationLambda,
 				ReductionMethod.EMPIRICAL_L2);
 	}
@@ -217,6 +258,8 @@ public class ForwardSensitivities {
 	 * @param derivativeValue The product value V.
 	 * @param hedgePortfolioValues The hedge-instrument values P_j.
 	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
+	 *                       For PROJECTED_GALERKIN this basis is used both as solution
+	 *                       and test basis.
 	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
@@ -230,17 +273,54 @@ public class ForwardSensitivities {
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) throws CalculationException {
 
+		return getHedgeRatiosReduced(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				basisFunctions,
+				basisFunctions,
+				regularizationLambda,
+				reductionMethod);
+	}
+
+	/**
+	 * General reduced stochastic hedge-ratio calculation supporting both coefficient criteria.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
+	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
+	 *                           May be null for EMPIRICAL_L2. If null for PROJECTED_GALERKIN,
+	 *                           the solution basis is used as the test basis.
+	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
+	 * @param reductionMethod The reduced coefficient criterion.
+	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosReduced(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) throws CalculationException {
+
 		validateInputs(
 				parameterIDsByName,
 				derivativeValue,
 				hedgePortfolioValues,
-				basisFunctions,
+				solutionBasisFunctions,
+				testBasisFunctions,
 				regularizationLambda,
 				reductionMethod);
 
 		final int numberOfPaths = derivativeValue.size();
 		final int numberOfHedges = hedgePortfolioValues.length;
-		final int numberOfBasisFunctions = basisFunctions.length;
+		final int numberOfSolutionBasisFunctions = solutionBasisFunctions.length;
 
 		final List<String> riskFactorNames = new ArrayList<>(parameterIDsByName.keySet());
 		final Set<Long> independentIDs = new HashSet<>(parameterIDsByName.values());
@@ -276,14 +356,34 @@ public class ForwardSensitivities {
 		}
 
 		/*
-		 * X[q][path] = X_q(omega_path).
+		 * X[q][path] = X_q(omega_path), the solution basis.
 		 */
-		final double[][] basisValues = new double[numberOfBasisFunctions][numberOfPaths];
-		for(int basisIndex = 0; basisIndex < numberOfBasisFunctions; basisIndex++) {
-			if(basisFunctions[basisIndex] == null) {
-				throw new IllegalArgumentException("basisFunctions[" + basisIndex + "] is null.");
+		final double[][] solutionBasisValues = new double[numberOfSolutionBasisFunctions][numberOfPaths];
+		for(int basisIndex = 0; basisIndex < numberOfSolutionBasisFunctions; basisIndex++) {
+			if(solutionBasisFunctions[basisIndex] == null) {
+				throw new IllegalArgumentException("solutionBasisFunctions[" + basisIndex + "] is null.");
 			}
-			basisValues[basisIndex] = getPathValues(basisFunctions[basisIndex], numberOfPaths);
+			solutionBasisValues[basisIndex] = getPathValues(solutionBasisFunctions[basisIndex], numberOfPaths);
+		}
+
+		/*
+		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
+		 * PROJECTED_GALERKIN. If no test basis is supplied, use X as Y.
+		 */
+		final double[][] testBasisValues;
+		if(reductionMethod == ReductionMethod.PROJECTED_GALERKIN) {
+			final RandomVariable[] effectiveTestBasisFunctions =
+					testBasisFunctions != null ? testBasisFunctions : solutionBasisFunctions;
+			testBasisValues = new double[effectiveTestBasisFunctions.length][numberOfPaths];
+			for(int basisIndex = 0; basisIndex < effectiveTestBasisFunctions.length; basisIndex++) {
+				if(effectiveTestBasisFunctions[basisIndex] == null) {
+					throw new IllegalArgumentException("testBasisFunctions[" + basisIndex + "] is null.");
+				}
+				testBasisValues[basisIndex] = getPathValues(effectiveTestBasisFunctions[basisIndex], numberOfPaths);
+			}
+		}
+		else {
+			testBasisValues = null;
 		}
 
 		final ReducedSystem reducedSystem;
@@ -293,7 +393,8 @@ public class ForwardSensitivities {
 					riskFactorNames,
 					productSensitivities,
 					hedgeSensitivities,
-					basisValues,
+					solutionBasisValues,
+					testBasisValues,
 					numberOfPaths,
 					numberOfHedges);
 			break;
@@ -303,7 +404,7 @@ public class ForwardSensitivities {
 					riskFactorNames,
 					productSensitivities,
 					hedgeSensitivities,
-					basisValues,
+					solutionBasisValues,
 					numberOfPaths,
 					numberOfHedges);
 			break;
@@ -321,9 +422,9 @@ public class ForwardSensitivities {
 		/*
 		 * Unflatten xi_j^q.
 		 */
-		final double[][] coefficients = new double[numberOfHedges][numberOfBasisFunctions];
+		final double[][] coefficients = new double[numberOfHedges][numberOfSolutionBasisFunctions];
 		for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-			for(int basisIndex = 0; basisIndex < numberOfBasisFunctions; basisIndex++) {
+			for(int basisIndex = 0; basisIndex < numberOfSolutionBasisFunctions; basisIndex++) {
 				coefficients[hedgeIndex][basisIndex] =
 						solution[columnIndex(hedgeIndex, basisIndex, numberOfHedges)];
 			}
@@ -332,7 +433,7 @@ public class ForwardSensitivities {
 		final RandomVariable[] hedgeRatios = reconstructHedgeRatios(
 				evaluationTime,
 				coefficients,
-				basisValues,
+				solutionBasisValues,
 				numberOfPaths);
 
 		return new ProjectedHedgeRatioResult(
@@ -482,12 +583,14 @@ public class ForwardSensitivities {
 			final List<String> riskFactorNames,
 			final Map<String, RandomVariable> productSensitivities,
 			final List<Map<String, RandomVariable>> hedgeSensitivities,
-			final double[][] basisValues,
+			final double[][] solutionBasisValues,
+			final double[][] testBasisValues,
 			final int numberOfPaths,
 			final int numberOfHedges) {
 
 		final int numberOfRiskFactors = riskFactorNames.size();
-		final int numberOfBasisFunctions = basisValues.length;
+		final int numberOfSolutionBasisFunctions = solutionBasisValues.length;
+		final int numberOfTestBasisFunctions = testBasisValues.length;
 
 		/*
 		 * Flattened system:
@@ -495,8 +598,8 @@ public class ForwardSensitivities {
 		 * row(i,s) = s * n + i,
 		 * col(j,q) = q * m + j.
 		 */
-		final int numberOfRows = numberOfRiskFactors * numberOfBasisFunctions;
-		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;
+		final int numberOfRows = numberOfRiskFactors * numberOfTestBasisFunctions;
+		final int numberOfColumns = numberOfHedges * numberOfSolutionBasisFunctions;
 
 		final double[][] reducedMatrix = new double[numberOfRows][numberOfColumns];
 		final double[] reducedRhs = new double[numberOfRows];
@@ -516,32 +619,32 @@ public class ForwardSensitivities {
 								numberOfPaths);
 			}
 
-			for(int testBasisIndex = 0; testBasisIndex < numberOfBasisFunctions; testBasisIndex++) {
+			for(int testBasisIndex = 0; testBasisIndex < numberOfTestBasisFunctions; testBasisIndex++) {
 
 				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);
 
 				/*
-				 * beta_i^s = 1/N sum_l b_{l i} X_{l s}.
+				 * beta_i^s = 1/N sum_l b_{l i} Y_{l s}.
 				 */
 				double beta = 0.0;
 				for(int path = 0; path < numberOfPaths; path++) {
-					beta += productGradient[path] * basisValues[testBasisIndex][path];
+					beta += productGradient[path] * testBasisValues[testBasisIndex][path];
 				}
 				reducedRhs[row] = beta / numberOfPaths;
 
 				/*
-				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} X_{l s}.
+				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} Y_{l s}.
 				 */
 				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
 					for(int coefficientBasisIndex = 0;
-							coefficientBasisIndex < numberOfBasisFunctions;
+							coefficientBasisIndex < numberOfSolutionBasisFunctions;
 							coefficientBasisIndex++) {
 
 						double entry = 0.0;
 						for(int path = 0; path < numberOfPaths; path++) {
 							entry += hedgeGradient[hedgeIndex][path]
-									* basisValues[coefficientBasisIndex][path]
-									* basisValues[testBasisIndex][path];
+									* solutionBasisValues[coefficientBasisIndex][path]
+									* testBasisValues[testBasisIndex][path];
 						}
 
 						final int column = columnIndex(
@@ -719,7 +822,8 @@ public class ForwardSensitivities {
 			final Map<String, Long> parameterIDsByName,
 			final RandomVariable derivativeValue,
 			final RandomVariable[] hedgePortfolioValues,
-			final RandomVariable[] basisFunctions,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) {
 
@@ -732,8 +836,13 @@ public class ForwardSensitivities {
 		if(hedgePortfolioValues == null || hedgePortfolioValues.length == 0) {
 			throw new IllegalArgumentException("hedgePortfolioValues must contain at least one hedge instrument.");
 		}
-		if(basisFunctions == null || basisFunctions.length == 0) {
-			throw new IllegalArgumentException("basisFunctions must contain at least one basis function.");
+		if(solutionBasisFunctions == null || solutionBasisFunctions.length == 0) {
+			throw new IllegalArgumentException("solutionBasisFunctions must contain at least one basis function.");
+		}
+		if(reductionMethod == ReductionMethod.PROJECTED_GALERKIN
+				&& testBasisFunctions != null
+				&& testBasisFunctions.length == 0) {
+			throw new IllegalArgumentException("testBasisFunctions must be null or contain at least one basis function.");
 		}
 		if(regularizationLambda < 0.0) {
 			throw new IllegalArgumentException("regularizationLambda must be non-negative.");
