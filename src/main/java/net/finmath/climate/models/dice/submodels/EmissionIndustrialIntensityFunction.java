@@ -37,7 +37,7 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 	 * @param emissionIntensityRateDecay Exponential decay rate for the decay rate.
 	 */
 	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
-	                                           double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
+												double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
 		super();
 		this.timeDiscretization = timeDiscretization;
 		this.emissionIntensityInitial = emissionIntensityInitial;
@@ -50,8 +50,14 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 		this(timeDiscretization, sigma0, 0.0152, -Math.log(1-0.001));
 	}
 
+	/**
+	 * Update the emissionIntensity to the next time at timeIndex+1.
+	 * 
+	 * @param timeIndex current time index.
+	 * @param emissionIntensityCurrent current emission intensity at time index.
+	 */
 	@Override
-	public Double apply(Integer timeIndex, Double _emissionIntensity) {
+	public Double apply(Integer timeIndex, Double emissionIntensityCurrent) {
 		double time = timeDiscretization.getTime(timeIndex);
 		final double emissionIntensityRate = emissionIntensityRateInitial * Math.exp(-emissionIntensityRateDecay * time);
 

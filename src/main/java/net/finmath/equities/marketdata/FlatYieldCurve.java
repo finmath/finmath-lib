@@ -32,10 +32,9 @@ public class FlatYieldCurve extends YieldCurve {
 	}
 
 	public FlatYieldCurve rollToDate(LocalDate date) {
-		assert date.isAfter(baseCurve.getReferenceDate()) : "can only roll to future dates";
+		assert date.isAfter(getBaseCurve().getReferenceDate()) : "can only roll to future dates";
 		return new FlatYieldCurve(
 				date,
-				getRate(baseCurve.getReferenceDate().plusYears(LONG_TIME)),
-				dayCounter);
+				getRate(getBaseCurve().getReferenceDate().plusYears(LONG_TIME)), getDayCounter());
 	}
 }

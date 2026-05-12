@@ -395,11 +395,11 @@ public class PdeOptionValuation implements OptionValuation {
 			final var dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);
 
 			final var delta = discountFactor
-					* 0.5 * (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1))
+				 * 0.5 * (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1))
 					/ spaceStepSize * dFdS / dFdX;
 
 			final var gamma = discountFactor
-					* (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1) - 2 * prices.getEntry(spotIndex))
+				 * (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1) - 2 * prices.getEntry(spotIndex))
 					/ spaceStepSq * dFdS * dFdS / dFdX / dFdX;
 
 			final var discountFactorTheta = discountCurve.getDiscountFactor(expiryTime - dt);

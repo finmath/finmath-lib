@@ -129,7 +129,7 @@ public class NormalDistribution {
 		if (Math.abs(q) <= split1) {
 			r = const1 - q * q;
 			return q
-					* (((((((a7 * r + a6) * r + a5) * r + a4) * r + a3) * r + a2) * r + a1) * r + a0)
+				 * (((((((a7 * r + a6) * r + a5) * r + a4) * r + a3) * r + a2) * r + a1) * r + a0)
 					/ (((((((b7 * r + b6) * r + b5) * r + b4) * r + b3) * r + b2) * r + b1) * r + one);
 		} else {
 			if (q < zero) {

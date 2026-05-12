@@ -16,10 +16,10 @@ import net.finmath.time.daycount.DayCountConvention;
  */
 public class YieldCurve {
 
-	protected final LocalDate referenceDate;
-	protected final LocalDate[] discountDates;
-	protected final DayCountConvention dayCounter;
-	protected final DiscountCurveInterpolation baseCurve;
+	private final LocalDate referenceDate;
+	private final LocalDate[] discountDates;
+	private final DayCountConvention dayCounter;
+	private final DiscountCurveInterpolation baseCurve;
 
 	public YieldCurve(
 			final String name,
@@ -50,6 +50,23 @@ public class YieldCurve {
 
 		this.referenceDate = referenceDate;
 	}
+
+	public LocalDate getReferenceDate() {
+		return referenceDate;
+	}
+
+	public LocalDate[] getDiscountDates() {
+		return discountDates;
+	}
+
+	public DayCountConvention getDayCounter() {
+		return dayCounter;
+	}
+
+	public DiscountCurveInterpolation getBaseCurve() {
+		return baseCurve;
+	}
+
 
 	public YieldCurve rollToDate(LocalDate date) {
 		assert date.isAfter(referenceDate) : "can only roll to future dates";

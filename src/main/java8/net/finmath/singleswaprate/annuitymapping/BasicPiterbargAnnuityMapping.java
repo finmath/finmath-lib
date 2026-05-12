@@ -205,7 +205,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		for(int index = 0; index < numberOfPeriods; index++){
 			value += (Math.pow(term, -exponents[index])) *periodLengths[index] /denominators[index];
 			innerDerivative += (Math.pow(term, -exponents[index] -1)) *periodLengths[index]
-					*-exponents[index] /denominators[index];
+				 *-exponents[index] /denominators[index];
 		}
 
 		innerDerivative *= periodLengths[numberOfPeriods-1]  /exponentialDriverMeans[numberOfPeriods -1]
@@ -227,9 +227,9 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 		for(int index = 0; index < numberOfPeriods; index++){
 			value += (Math.pow(term, -exponents[0])) *periodLengths[index] /denominators[index];
 			innerFirst +=(Math.pow(term, -exponents[index] -1)) *periodLengths[index]
-					*-exponents[index] /denominators[index];
+				 *-exponents[index] /denominators[index];
 			innerSecond += (Math.pow(term, -exponents[index] -2)) *periodLengths[index]
-					*exponents[index] *(exponents[index] +1.0) /denominators[index];
+				 *exponents[index] *(exponents[index] +1.0) /denominators[index];
 		}
 
 		innerFirst *= periodLengths[numberOfPeriods-1] /(periodLengths[numberOfPeriods-1] *initialSwapRates[numberOfPeriods -1] +1.0)
@@ -290,7 +290,7 @@ public class BasicPiterbargAnnuityMapping implements AnnuityMapping {
 			}
 			for(int sumIndex = 0; sumIndex < index; sumIndex++){
 				adjustment += periodLengths[sumIndex] *adjustmentSummands[sumIndex] *Math.exp(maturity *volatilitySums[sumIndex]
-						*volatilitySums[sumIndex] /2);
+					 *volatilitySums[sumIndex] /2);
 			}
 
 			//finalize exponentialMeans

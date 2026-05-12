@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.0 (10.05.2026)
+## 6.1.0 (12.05.2026)
 
 ### Numerical Methods: Tree Framework (contributed by A. Gnoatto)
 
@@ -18,6 +18,7 @@ finmath lib Release Notes
 ### Algorithmic Differentiation
 
 - Fixed implementation of `getGradient(Set<Long> independentIDs)` in `RandomVariableDifferentiableAAD` to conform with JavaDoc (retain (not filter/remove) the provided IDs). (The current workaround was to use `getGradient()` and perform the desired filtering.
+- NOTE: The behaviour of  `getGradient(Set<Long> independentIDs)`  has changed.
 
 
 ---

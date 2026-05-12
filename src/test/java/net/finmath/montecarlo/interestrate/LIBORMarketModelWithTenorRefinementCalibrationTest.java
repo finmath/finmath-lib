@@ -269,7 +269,7 @@ public class LIBORMarketModelWithTenorRefinementCalibrationTest {
 				null,
 				forwardCurveInterpolation, new DiscountCurveFromForwardCurve(forwardCurveInterpolation),
 				new TermStructCovarianceModelFromLIBORCovarianceModelParametric(null, covarianceModelParametric), calibrationProducts.toArray(new CalibrationProduct[0]), properties);
-		*/
+	 */
 
 
 		/*

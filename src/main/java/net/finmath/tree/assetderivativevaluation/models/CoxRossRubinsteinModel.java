@@ -64,7 +64,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	}
 
 	/** Abstract hook to implement in the underlying classes
-	* Binomial: at k level there are k+1 states
+ * Binomial: at k level there are k+1 states
 	 * @param  k level of depth
 	 * */
 	@Override

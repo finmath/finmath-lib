@@ -1,16 +1,178 @@
-    name: finmath lib
+name: finmath lib build
 
-    on: [push]
+on:
+  push:
+  pull_request:
 
-    jobs:
-      build:
-        name: Java 17 build and unit testing
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v2
-          - name: Set up Java
-            uses: actions/setup-java@v1
-            with:
-              java-version: 17
-          - name: Build with Maven
-            run: mvn -B package --file pom.xml
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 🧪 Testing
+    runs-on: ubuntu-latest
+
+    outputs:
+      test_suites: ${{ steps.collect_test_summary.outputs.test_suites }}
+      test_total: ${{ steps.collect_test_summary.outputs.test_total }}
+      test_passed: ${{ steps.collect_test_summary.outputs.test_passed }}
+      test_failures: ${{ steps.collect_test_summary.outputs.test_failures }}
+      test_errors: ${{ steps.collect_test_summary.outputs.test_errors }}
+      test_skipped: ${{ steps.collect_test_summary.outputs.test_skipped }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn -B -Dcheckstyle.skip=true test
+
+      - name: Collect unit test summary
+        id: collect_test_summary
+        if: ${{ always() }}
+        run: |
+          python3 <<'PY'
+          import glob
+          import os
+          import xml.etree.ElementTree as ET
+
+          suites = 0
+          total = 0
+          failures = 0
+          errors = 0
+          skipped = 0
+
+          for file in glob.glob("**/target/surefire-reports/TEST-*.xml", recursive=True):
+              try:
+                  root = ET.parse(file).getroot()
+              except ET.ParseError:
+                  continue
+
+              if root.tag == "testsuite":
+                  test_suites = [root]
+              elif root.tag == "testsuites":
+                  test_suites = root.findall("testsuite")
+              else:
+                  test_suites = []
+
+              for suite in test_suites:
+                  suites += 1
+                  total += int(float(suite.attrib.get("tests", 0)))
+                  failures += int(float(suite.attrib.get("failures", 0)))
+                  errors += int(float(suite.attrib.get("errors", 0)))
+                  skipped += int(float(suite.attrib.get("skipped", 0)))
+
+          passed = max(total - failures - errors - skipped, 0)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"test_suites={suites}\n")
+              out.write(f"test_total={total}\n")
+              out.write(f"test_passed={passed}\n")
+              out.write(f"test_failures={failures}\n")
+              out.write(f"test_errors={errors}\n")
+              out.write(f"test_skipped={skipped}\n")
+          PY
+
+  checkstyle:
+    name: 🔍 Checkstyle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: maven
+
+      - name: Run Checkstyle
+        run: mvn -B -DskipTests checkstyle:check
+
+  javadoc:
+    name: 📚 JavaDoc
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: maven
+
+      - name: Generate JavaDoc
+        run: |
+          mvn -B \
+            -Dmaven.test.skip=true \
+            -DskipTests=true \
+            -Dcheckstyle.skip=true \
+            -Ddoclint=none \
+            package javadoc:javadoc
+
+  summary:
+    name: 📊 Summary
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - checkstyle
+      - javadoc
+    if: ${{ always() }}
+
+    steps:
+      - name: Write workflow summary
+        env:
+          TEST_RESULT: "${{ needs.test.result }}"
+          CHECKSTYLE_RESULT: "${{ needs.checkstyle.result }}"
+          JAVADOC_RESULT: "${{ needs.javadoc.result }}"
+          TEST_SUITES: "${{ needs.test.outputs.test_suites }}"
+          TEST_TOTAL: "${{ needs.test.outputs.test_total }}"
+          TEST_PASSED: "${{ needs.test.outputs.test_passed }}"
+          TEST_FAILURES: "${{ needs.test.outputs.test_failures }}"
+          TEST_ERRORS: "${{ needs.test.outputs.test_errors }}"
+          TEST_SKIPPED: "${{ needs.test.outputs.test_skipped }}"
+        run: |
+          status() {
+            case "$1" in
+              success) echo "✅ success" ;;
+              failure) echo "❌ failure" ;;
+              cancelled) echo "🚫 cancelled" ;;
+              skipped) echo "⏭️ skipped" ;;
+              *) echo "${1:-unknown}" ;;
+            esac
+          }
+
+          TEST_SUITES="${TEST_SUITES:-0}"
+          TEST_TOTAL="${TEST_TOTAL:-0}"
+          TEST_PASSED="${TEST_PASSED:-0}"
+          TEST_FAILURES="${TEST_FAILURES:-0}"
+          TEST_ERRORS="${TEST_ERRORS:-0}"
+          TEST_SKIPPED="${TEST_SKIPPED:-0}"
+
+          {
+            echo "### 📊 CI Summary"
+            echo
+            echo "| Job | Result |"
+            echo "|---|---:|"
+            echo "| 🧪 Testing | $(status "$TEST_RESULT") |"
+            echo "| 🔍 Checkstyle | $(status "$CHECKSTYLE_RESULT") |"
+            echo "| 📚 JavaDoc | $(status "$JAVADOC_RESULT") |"
+            echo
+            echo "### 🧪 Unit tests"
+            echo
+            echo "| Test suites | Tests | Passed | Failures | Errors | Skipped |"
+            echo "|---:|---:|---:|---:|---:|---:|"
+            echo "| $TEST_SUITES | $TEST_TOTAL | $TEST_PASSED | $TEST_FAILURES | $TEST_ERRORS | $TEST_SKIPPED |"
+          } >> "$GITHUB_STEP_SUMMARY"

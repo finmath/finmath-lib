@@ -49,7 +49,7 @@ public class FDMBlackScholesModel implements FiniteDifference1DModel {
 	@Override
 	public double varianceOfStockPrice(final double time) {
 		return Math.pow(initialValue, 2) * Math.exp(2 * riskFreeRate * time)
-				* (Math.exp(Math.pow(volatility, 2) * time) - 1);
+			 * (Math.exp(Math.pow(volatility, 2) * time) - 1);
 	}
 
 	@Override

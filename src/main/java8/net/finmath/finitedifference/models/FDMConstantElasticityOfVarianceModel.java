@@ -57,7 +57,7 @@ public class FDMConstantElasticityOfVarianceModel implements FiniteDifference1DM
 	@Override
 	public double varianceOfStockPrice(double time) {
 		return Math.pow(initialValue, 2) * Math.exp(2 * riskFreeRate * time)
-				* (Math.exp(Math.pow(volatility, 2) * time) - 1);
+			 * (Math.exp(Math.pow(volatility, 2) * time) - 1);
 	}
 
 	/* (non-Javadoc)
