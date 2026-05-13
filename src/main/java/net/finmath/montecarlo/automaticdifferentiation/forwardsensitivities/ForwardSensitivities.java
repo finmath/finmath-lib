@@ -38,6 +38,8 @@ import net.finmath.stochastic.RandomVariable;
  * primitives M_i, and A_l is the pathwise derivative of hedge instruments P_j
  * with respect to the same primitives.
  *
+ * See https://ssrn.com/abstract=6758541 for documentation.
+ * 
  * @author Christian Fries
  */
 public class ForwardSensitivities {
@@ -177,7 +179,7 @@ public class ForwardSensitivities {
 			final RandomVariable[] basisFunctions,
 			final double regularizationLambda) throws CalculationException {
 
-		return getHedgeRatiosReduced(
+		return getHedgeRatios(
 				parameterIDsByName,
 				evaluationTime,
 				derivativeValue,
@@ -211,7 +213,7 @@ public class ForwardSensitivities {
 			final RandomVariable[] testBasisFunctions,
 			final double regularizationLambda) throws CalculationException {
 
-		return getHedgeRatiosReduced(
+		return getHedgeRatios(
 				parameterIDsByName,
 				evaluationTime,
 				derivativeValue,
@@ -239,7 +241,7 @@ public class ForwardSensitivities {
 			final RandomVariable[] basisFunctions,
 			final double regularizationLambda) throws CalculationException {
 
-		return getHedgeRatiosReduced(
+		return getHedgeRatios(
 				parameterIDsByName,
 				evaluationTime,
 				derivativeValue,
@@ -273,7 +275,7 @@ public class ForwardSensitivities {
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) throws CalculationException {
 
-		return getHedgeRatiosReduced(
+		return getHedgeRatios(
 				parameterIDsByName,
 				evaluationTime,
 				derivativeValue,
@@ -299,7 +301,7 @@ public class ForwardSensitivities {
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
 	 */
-	public static ProjectedHedgeRatioResult getHedgeRatiosReduced(
+	public static ProjectedHedgeRatioResult getHedgeRatios(
 			final Map<String, Long> parameterIDsByName,
 			final double evaluationTime,
 			final RandomVariable derivativeValue,
