@@ -55,7 +55,7 @@ public class SwapTest {
 	}
 
 	@Test
-	void testRegularSchedule() {
+	public void testRegularSchedule() {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();
@@ -106,7 +106,7 @@ public class SwapTest {
 	}
 
 	@Test
-	void testMetadataSchedule() {
+	public void testMetadataSchedule() {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();
