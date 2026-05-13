@@ -34,7 +34,7 @@ public class SwapTest {
 	 * independend of a system.
 	 */
 	@BeforeAll
-	static void calibrateDuration() {
+	public static void calibrateDuration() {
 
 		long timeStart = System.nanoTime();
 
