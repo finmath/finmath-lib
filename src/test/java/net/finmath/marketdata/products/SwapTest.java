@@ -1,7 +1,5 @@
 package net.finmath.marketdata.products;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.time.LocalDate;
 import java.util.Random;
 
@@ -12,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
 import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.DiscountCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
-import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
 import net.finmath.time.RegularSchedule;
 import net.finmath.time.Schedule;
 import net.finmath.time.ScheduleGenerator;
@@ -37,7 +34,7 @@ public class SwapTest {
 	 * independend of a system.
 	 */
 	@BeforeAll
-	static void calibrateDuration() {
+	public static void calibrateDuration() {
 
 		long timeStart = System.nanoTime();
 
@@ -58,7 +55,7 @@ public class SwapTest {
 	}
 
 	@Test
-	void testRegularSchedule() {
+	public void testRegularSchedule() {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();
@@ -109,7 +106,7 @@ public class SwapTest {
 	}
 
 	@Test
-	void testMetadataSchedule() {
+	public void testMetadataSchedule() {
 
 		double sum = 0.0;
 		long timeStart = System.nanoTime();

@@ -58,10 +58,10 @@ mvn release:perform
 
 # deploy the other profiles (we do this skipping tests) (the clean is important here!)
 cd target/checkout/
-mvn clean verify javadoc:jar source:jar gpg:sign deploy:deploy -P java-8 -D skipTests
+mvn clean verify javadoc:jar source:jar gpg:sign deploy -P java-8 -D skipTests
 
 # re-deploy the java-11 profile to deploy the right source and javadoc files to Maven central
-mvn clean verify javadoc:jar source:jar gpg:sign deploy:deploy -P java-11 -D skipTests
+mvn clean verify javadoc:jar source:jar gpg:sign deploy -P java-11 -D skipTests
 
 echo Turn to http://oss.sonatype.org to release the artifact.
 echo Then release the new site.
