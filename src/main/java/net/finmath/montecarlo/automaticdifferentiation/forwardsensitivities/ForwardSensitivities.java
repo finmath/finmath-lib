@@ -62,7 +62,7 @@ public class ForwardSensitivities {
 		/**
 		 * Projected/Galerkin, or Petrov-Galerkin, moment matching:
 		 *
-		 *     <(A phi^r - b)_i, Y_s>_N = 0.
+		 *     &lt;(A phi^r - b)_i, Y_s&gt;_N = 0.
 		 *
 		 * If Y_s = X_s, this is the usual Galerkin case. If the test basis differs
 		 * from the solution basis, it is a Petrov-Galerkin projected moment system.
@@ -169,7 +169,7 @@ public class ForwardSensitivities {
 	 * This solves the projected/Galerkin moment equations using the same basis
 	 * for the solution and test spaces,
 	 *
-	 *     <(A phi^r - b)_i, X_s>_N = 0.
+	 *     &lt;(A phi^r - b)_i, X_s&gt;_N = 0.
 	 */
 	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
 			final Map<String, Long> parameterIDsByName,
@@ -199,7 +199,7 @@ public class ForwardSensitivities {
 	 *
 	 * while the residual is tested against Y_s,
 	 *
-	 *     <(A phi^r - b)_i, Y_s>_N = 0.
+	 *     &lt;(A phi^r - b)_i, Y_s&gt;_N = 0.
 	 *
 	 * Taking Y_s = X_s gives the Galerkin case. Different Y_s give a
 	 * Petrov-Galerkin projected moment system.
