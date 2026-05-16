@@ -1,5 +1,7 @@
 package net.finmath.finitedifference.assetderivativevaluation.boundaries;
 
+import java.lang.reflect.Constructor;
+
 import net.finmath.finitedifference.FiniteDifferenceModel;
 import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
 
@@ -48,7 +50,7 @@ public final class FDBoundaryFactory {
 
 		final String modelSimpleName = model.getClass().getSimpleName();
 		final String modelCoreName = modelSimpleName.replaceFirst("^FDM", "");
-		final String packageName = FDBoundaryFactory.class.getPackageName();
+		final String packageName = FDBoundaryFactory.class.getPackage().getName();
 
 		Class<?> productClass = product.getClass();
 
@@ -63,7 +65,7 @@ public final class FDBoundaryFactory {
 
 			try {
 				final Class<?> boundaryClass = Class.forName(boundaryClassName);
-				final var constructor = boundaryClass.getConstructor(model.getClass());
+				final Constructor<?> constructor = boundaryClass.getConstructor(model.getClass());
 				return (FiniteDifferenceBoundary) constructor.newInstance(model);
 			}
 			catch (final ClassNotFoundException ignored) {

@@ -129,6 +129,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the referenceDate
 	 */
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
@@ -136,6 +137,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the initialValue
 	 */
+	@Override
 	public double getInitialValue() {
 		return initialValue;
 	}

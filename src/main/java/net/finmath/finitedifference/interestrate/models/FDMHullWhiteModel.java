@@ -9,6 +9,7 @@ import net.finmath.marketdata.model.AnalyticModel;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurve;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * One-factor Hull-White interest-rate model for finite-difference valuation.
@@ -254,7 +255,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 			return 0.0;
 		}
 
-		final var timeDiscretization = volatilityModel.getTimeDiscretization();
+		final TimeDiscretization timeDiscretization = volatilityModel.getTimeDiscretization();
 
 		final int timeIndexStart = getVolatilityIntervalIndex(time);
 		final int timeIndexEnd = getVolatilityIntervalIndex(maturity);
@@ -416,7 +417,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 			return 0.0;
 		}
 
-		final var timeDiscretization = volatilityModel.getTimeDiscretization();
+		final TimeDiscretization timeDiscretization = volatilityModel.getTimeDiscretization();
 
 		final int timeIndexStart = getVolatilityIntervalIndex(time);
 		final int timeIndexEnd = getVolatilityIntervalIndex(maturity);
@@ -461,7 +462,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 			return 0.0;
 		}
 
-		final var timeDiscretization = volatilityModel.getTimeDiscretization();
+		final TimeDiscretization timeDiscretization = volatilityModel.getTimeDiscretization();
 
 		final int timeIndexStart = getVolatilityIntervalIndex(time);
 		final int timeIndexEnd = getVolatilityIntervalIndex(maturity);
@@ -531,7 +532,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 	}
 
 	private int getVolatilityIntervalIndex(final double time) {
-		final var timeDiscretization = volatilityModel.getTimeDiscretization();
+		final TimeDiscretization timeDiscretization = volatilityModel.getTimeDiscretization();
 
 		int timeIndex = timeDiscretization.getTimeIndex(time);
 		if (timeIndex < 0) {
@@ -593,7 +594,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 			return 0.0;
 		}
 
-		final var timeDiscretization = volatilityModel.getTimeDiscretization();
+		final TimeDiscretization timeDiscretization = volatilityModel.getTimeDiscretization();
 
 		final int timeIndexStart = getVolatilityIntervalIndex(time);
 		final int timeIndexEnd = getVolatilityIntervalIndex(maturity);

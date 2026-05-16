@@ -9,6 +9,7 @@ import net.finmath.finitedifference.solvers.FDMSolverFactory;
 import net.finmath.modelling.BermudanExercise;
 import net.finmath.modelling.Exercise;
 import net.finmath.modelling.products.CallOrPut;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * Finite difference valuation of a Bermudan option on a single asset.
@@ -153,7 +154,7 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 	private SpaceTimeDiscretization getRefinedSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
 		final SpaceTimeDiscretization base = model.getSpaceTimeDiscretization();
 
-		final var refinedTimeDiscretization =
+		final TimeDiscretization refinedTimeDiscretization =
 				FiniteDifferenceExerciseUtil.refineTimeDiscretization(
 						base.getTimeDiscretization(),
 						exercise

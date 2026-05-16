@@ -395,10 +395,27 @@ public class BatesModel implements CharacteristicFunctionModel {
 	}
 
 	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+		return discountCurveForForwardRate;
+	}
+
+	/**
 	 * @return the riskFreeRate
 	 */
+	@Override
 	public double getRiskFreeRate() {
 		return riskFreeRate;
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+		return discountCurveForDiscountRate;
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package net.finmath.finitedifference.interestrate.boundaries;
 
+import java.lang.reflect.Constructor;
+
 import net.finmath.finitedifference.FiniteDifferenceModel;
 import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
 
@@ -54,11 +56,11 @@ public final class FDInterestRateBoundaryFactory {
 			final String modelCoreName = modelSimpleName.replace("FDM", "");
 			final String boundarySimpleName = productSimpleName + modelCoreName + "Boundary";
 
-			final String packageName = FDInterestRateBoundaryFactory.class.getPackageName();
+			final String packageName = FDInterestRateBoundaryFactory.class.getPackage().getName();
 			final String boundaryClassName = packageName + "." + boundarySimpleName;
 
 			final Class<?> boundaryClass = Class.forName(boundaryClassName);
-			final var constructor = boundaryClass.getConstructor(model.getClass());
+			final Constructor<?> constructor = boundaryClass.getConstructor(model.getClass());
 
 			return (FiniteDifferenceInterestRateBoundary) constructor.newInstance(model);
 		} catch (final ReflectiveOperationException exception) {
