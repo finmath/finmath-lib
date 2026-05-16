@@ -22,13 +22,13 @@ import net.finmath.time.Schedule;
  *
  * @author Rebecca Declara
  * @author Christian Fries
- * @version 1.0
+ * @version 1.1
  */
 public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 
 	private final Schedule	schedule;
-	private final double				rate;
-	private final String				discountCurveName;
+	private final double	rate;
+	private final String	discountCurveName;
 
 	/**
 	 * @param schedule The schedule of the deposit consisting of one period, providing start, payment and periodLength.
@@ -69,7 +69,10 @@ public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
 		final double discountFactor = discountCurve.getDiscountFactor(model, maturity);
 		final double discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);
 
-		if (evaluationTime > payoutDate) {
+		if (evaluationTime > maturity) {
+			return 0.0; // matured
+		}
+		else if (evaluationTime > payoutDate) {
 			return discountFactor * (1.0 + rate * periodLength);
 		}
 		else {
