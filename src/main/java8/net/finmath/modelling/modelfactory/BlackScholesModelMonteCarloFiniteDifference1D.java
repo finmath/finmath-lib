@@ -5,13 +5,14 @@
  */
 package net.finmath.modelling.modelfactory;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.finmath.finitedifference.models.FDMBlackScholesModel;
-import net.finmath.finitedifference.models.FiniteDifference1DModel;
-import net.finmath.finitedifference.products.FDMEuropeanCallOption;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.utilities.FiniteDifferenceValueInterpolator;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
 import net.finmath.modelling.Model;
@@ -20,7 +21,12 @@ import net.finmath.modelling.ProductDescriptor;
 import net.finmath.modelling.SingleAssetProductDescriptor;
 import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
 import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.modelling.products.CallOrPut;
 import net.finmath.time.FloatingpointDate;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.UniformGrid;
 
 /**
  * @author Christian Fries
@@ -36,25 +42,50 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 	}
 
 	@Override
-	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(final BlackScholesModelDescriptor modelDescriptor) {
+	public DescribedModel<BlackScholesModelDescriptor> getModelFromDescriptor(
+			final BlackScholesModelDescriptor modelDescriptor) {
 
 		final double initialValue = modelDescriptor.getInitialValue();
-		// @TODO The model does not support a curve for the forward
-		final double riskFreeRate = -Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));
+
+		// @TODO The model does not support a curve for the forward.
+		final double riskFreeRate =
+				-Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));
+
 		final double volatility = modelDescriptor.getVolatility();
 
-		final int numTimesteps = 35;
-		final int numSpacesteps = 120;
+		final int numTimesteps = 100;
+		final int numSpacesteps = 200;
 		final int numStandardDeviations = 5;
-		final double center = initialValue;
 
-		class BlackScholesFDModel extends FDMBlackScholesModel implements DescribedModel<BlackScholesModelDescriptor> {
+		/*
+		 * The old implementation used theta in the old FDMBlackScholesModel
+		 * constructor. Keep the same theta here.
+		 *
+		 * If theta already exists as a field of this class, remove this local
+		 * declaration and use the field instead.
+		 */
+		final double theta = 0.5;
+
+		class BlackScholesFDModel extends FDMBlackScholesModel
+				implements DescribedModel<BlackScholesModelDescriptor> {
 
 			BlackScholesFDModel() {
-				super(numTimesteps, numSpacesteps, numStandardDeviations, center, theta, initialValue, riskFreeRate, volatility);
-				// TODO Auto-generated constructor stub
+				super(
+						initialValue,
+						riskFreeRate,
+						volatility,
+						createSpaceTimeDiscretization(
+								initialValue,
+								riskFreeRate,
+								volatility,
+								1.0,
+								numTimesteps,
+								numSpacesteps,
+								numStandardDeviations,
+								theta
+						)
+				);
 			}
-
 
 			@Override
 			public BlackScholesModelDescriptor getDescriptor() {
@@ -62,42 +93,72 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 			}
 
 			@Override
-			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+			public DescribedProduct<? extends ProductDescriptor> getProductFromDescriptor(
+					final ProductDescriptor productDescriptor) {
+
 				if(productDescriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {
 
-					class FDCallOptionProduct extends FDMEuropeanCallOption implements DescribedProduct<SingleAssetProductDescriptor> {
+					final SingleAssetEuropeanOptionProductDescriptor europeanOptionDescriptor =
+							(SingleAssetEuropeanOptionProductDescriptor) productDescriptor;
+
+					final double maturity = FloatingpointDate.getFloatingPointDateFromDate(
+							modelDescriptor.getReferenceDate(),
+							europeanOptionDescriptor.getMaturity()
+					);
+
+					final double strike = europeanOptionDescriptor.getStrike();
+
+					class FDCallOptionProduct extends EuropeanOption
+							implements DescribedProduct<SingleAssetProductDescriptor> {
 
 						FDCallOptionProduct() {
-							super(FloatingpointDate.getFloatingPointDateFromDate(modelDescriptor.getReferenceDate(),
-									((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getMaturity()),
-									((SingleAssetEuropeanOptionProductDescriptor)productDescriptor).getStrike());
-							// TODO Auto-generated constructor stub
+							super(maturity, strike, CallOrPut.CALL);
 						}
 
 						@Override
 						public Object getValue(final double evaluationTime, final Model model) {
-							// TODO Check return type - should be RandomVariable
-							return getValues(evaluationTime, model);
+							return getValues(evaluationTime, model).get("value");
 						}
 
 						@Override
-						public Map<String, Object> getValues(final double evaluationTime, final Model model) {
-							// TODO This implementation should go into a class
-							final double[][] valueFDM = this.getValue(0.0, (FiniteDifference1DModel)model);
-							final double[] initialStockPrice = valueFDM[0];
-							final double[] optionValue = valueFDM[1];
+						public Map<String, Object> getValues(
+								final double evaluationTime,
+								final Model model) {
 
-							final int indexOfSpot = Arrays.binarySearch(initialStockPrice, initialValue);
+							if(!(model instanceof FiniteDifferenceEquityModel)) {
+								throw new IllegalArgumentException(
+										"Model must be a FiniteDifferenceEquityModel.");
+							}
 
-							double value;
-							if(indexOfSpot >= 0) {
-								value = optionValue[indexOfSpot];
-							}
-							else {
-								final int indexOfSpotLow	= -indexOfSpot-2;
-								final double alpha = (initialValue-initialStockPrice[indexOfSpotLow])/(initialStockPrice[indexOfSpotLow+1]-initialStockPrice[indexOfSpotLow]);
-								value = (1-alpha) * optionValue[indexOfSpotLow] + alpha * optionValue[indexOfSpotLow+1];
-							}
+							final SpaceTimeDiscretization valuationDiscretization =
+									createSpaceTimeDiscretization(
+											initialValue,
+											riskFreeRate,
+											volatility,
+											maturity,
+											numTimesteps,
+											numSpacesteps,
+											numStandardDeviations,
+											theta
+									);
+
+							final FDMBlackScholesModel valuationModel =
+									new FDMBlackScholesModel(
+											initialValue,
+											riskFreeRate,
+											volatility,
+											valuationDiscretization
+									);
+
+							final double[] optionValues =
+									super.getValue(evaluationTime, valuationModel);
+
+							final double value =
+									FiniteDifferenceValueInterpolator.interpolateValue(
+											optionValues,
+											valuationDiscretization,
+											initialValue
+									);
 
 							final Map<String, Object> results = new HashMap<>();
 							results.put("value", value);
@@ -106,18 +167,68 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 
 						@Override
 						public SingleAssetProductDescriptor getDescriptor() {
-							return (SingleAssetProductDescriptor) productDescriptor;
+							return europeanOptionDescriptor;
 						}
 					}
+
 					return new FDCallOptionProduct();
 				}
-				else {
-					final String name = modelDescriptor.name();
-					throw new IllegalArgumentException("Unsupported product type " + name);
-				}
+
+				final String name = modelDescriptor.name();
+				throw new IllegalArgumentException("Unsupported product type " + name);
 			}
 		}
 
 		return new BlackScholesFDModel();
+	}
+
+	private static SpaceTimeDiscretization createSpaceTimeDiscretization(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double maturity,
+			final int numTimesteps,
+			final int numSpacesteps,
+			final int numStandardDeviations,
+			final double theta) {
+
+		final double timeHorizon = Math.max(maturity, 1.0E-8);
+
+		final double forwardValue = initialValue * Math.exp(riskFreeRate * timeHorizon);
+
+		final double varianceStock =
+				initialValue
+				* initialValue
+				* Math.exp(2.0 * riskFreeRate * timeHorizon)
+				* (Math.exp(volatility * volatility * timeHorizon) - 1.0);
+
+		final double standardDeviationStock =
+				Math.sqrt(Math.max(varianceStock, 0.0));
+
+		final double minimumStockPrice =
+				Math.max(
+						forwardValue - numStandardDeviations * standardDeviationStock,
+						0.0
+				);
+
+		final double maximumStockPrice =
+				forwardValue + numStandardDeviations * standardDeviationStock;
+
+		final Grid spaceGrid =
+				new UniformGrid(numSpacesteps, minimumStockPrice, maximumStockPrice);
+
+		final TimeDiscretization timeDiscretization =
+				new TimeDiscretizationFromArray(
+						0.0,
+						numTimesteps,
+						timeHorizon / numTimesteps
+				);
+
+		return new SpaceTimeDiscretization(
+				spaceGrid,
+				timeDiscretization,
+				theta,
+				new double[] {initialValue}
+		);
 	}
 }

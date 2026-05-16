@@ -28,7 +28,7 @@ import net.finmath.stochastic.Scalar;
  * @version 1.3
  * @date 06.12.2009
  */
-public class BermudanSwaption extends AbstractLIBORMonteCarloProduct implements RegressionBasisFunctionsProvider {
+public class BermudanSwaption extends AbstractTermStructureMonteCarloProduct implements RegressionBasisFunctionsProvider {
 
 	private final boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
 	private final double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)

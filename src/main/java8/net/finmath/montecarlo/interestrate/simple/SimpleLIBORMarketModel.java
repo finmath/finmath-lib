@@ -6,8 +6,8 @@ package net.finmath.montecarlo.interestrate.simple;
 import java.util.Arrays;
 import java.util.Map;
 
-import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotionLazyInit;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModel;
@@ -21,6 +21,11 @@ import net.finmath.time.TimeDiscretization;
 
 /**
  * Implements a basic LIBOR market model with a some drift approximation methods.
+ *
+ * This is a simpler version. Useful for studying.
+ *
+ * A more flexible / complex version of the model can be created by using {@link net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel}
+ * as an input to an {@link net.finmath.montecarlo.process.EulerSchemeFromProcessModel}.
  *
  * @author Christian Fries
  * @version 0.5
@@ -41,21 +46,21 @@ public class SimpleLIBORMarketModel extends AbstractLIBORMarketModel {
 	/**
 	 * Creates a LIBOR Market Model for given covariance.
 	 *
-	 * @param timeDiscretizationFromArray The time discretization of the process (simulation time).
+	 * @param timeDiscretization The time discretization of the process (simulation time).
 	 * @param liborPeriodDiscretization The discretization of the interest rate curve into forward rates (tenor structure).
 	 * @param numberOfPaths The number of paths.
 	 * @param liborInitialValues The initial values for the forward rates.
 	 * @param covarianceModel  The covariance model to use.
 	 */
 	public SimpleLIBORMarketModel(
-			final TimeDiscretization	timeDiscretizationFromArray,
+			final TimeDiscretization	timeDiscretization,
 			final TimeDiscretization	liborPeriodDiscretization,
-			final int                 numberOfPaths,
-			final double[]            liborInitialValues,
-			final LIBORCovarianceModel covarianceModel
+			final int               	numberOfPaths,
+			final double[]          	liborInitialValues,
+			final LIBORCovarianceModel	covarianceModel
 			) {
 		super(  liborPeriodDiscretization,
-				new BrownianMotionLazyInit(timeDiscretizationFromArray, covarianceModel.getNumberOfFactors(), numberOfPaths, 3141 /* seed */)
+				new BrownianMotionFromMersenneRandomNumbers(timeDiscretization, covarianceModel.getNumberOfFactors(), numberOfPaths, 3141 /* seed */)
 				);
 		this.liborInitialValues = liborInitialValues;
 		this.covarianceModel    = covarianceModel;
@@ -70,10 +75,10 @@ public class SimpleLIBORMarketModel extends AbstractLIBORMarketModel {
 	 * @param brownianMotion The brownian driver for the Monte-Carlo simulation.
 	 */
 	public SimpleLIBORMarketModel(
-			final TimeDiscretization		liborPeriodDiscretization,
-			final double[]                liborInitialValues,
-			final LIBORCovarianceModel covarianceModel,
-			final BrownianMotionLazyInit	brownianMotion
+			final TimeDiscretization	liborPeriodDiscretization,
+			final double[]            	liborInitialValues,
+			final LIBORCovarianceModel	covarianceModel,
+			final BrownianMotion		brownianMotion
 			) {
 		super(liborPeriodDiscretization, brownianMotion);
 
@@ -104,7 +109,7 @@ public class SimpleLIBORMarketModel extends AbstractLIBORMarketModel {
 			final LIBORCorrelationModel	correlationModel
 			) {
 		super(  liborPeriodDiscretization,
-				new BrownianMotionLazyInit(timeDiscretizationFromArray, correlationModel.getNumberOfFactors(), numberOfPaths, 3141 /* seed */)
+				new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, correlationModel.getNumberOfFactors(), numberOfPaths, 3141 /* seed */)
 				);
 		this.liborInitialValues = liborInitialValues;
 		covarianceModel    = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray, liborPeriodDiscretization, volatilityModel, correlationModel);
@@ -127,7 +132,7 @@ public class SimpleLIBORMarketModel extends AbstractLIBORMarketModel {
 			final LIBORVolatilityModel	volatilityModel
 			) {
 		super(  liborPeriodDiscretization,
-				new BrownianMotionLazyInit(timeDiscretizationFromArray, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */)
+				new BrownianMotionFromMersenneRandomNumbers(timeDiscretizationFromArray, 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */)
 				);
 		this.liborInitialValues = liborInitialValues;
 		covarianceModel    = new LIBORCovarianceModelFromVolatilityAndCorrelation(timeDiscretizationFromArray, liborPeriodDiscretization, volatilityModel, new LIBORCorrelationModelExponentialDecay(timeDiscretizationFromArray, liborPeriodDiscretization, 1, 0.0, false));
@@ -425,7 +430,7 @@ public class SimpleLIBORMarketModel extends AbstractLIBORMarketModel {
 				getLiborPeriodDiscretization(),
 				liborInitialValues,
 				getCovarianceModel(),
-				new BrownianMotionLazyInit(getTimeDiscretization(), covarianceModel.getNumberOfFactors(), getNumberOfPaths(), seed)
+				new BrownianMotionFromMersenneRandomNumbers(getTimeDiscretization(), covarianceModel.getNumberOfFactors(), getNumberOfPaths(), seed)
 				);
 	}
 

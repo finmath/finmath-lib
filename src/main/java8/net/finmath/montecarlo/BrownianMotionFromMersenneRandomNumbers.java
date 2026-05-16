@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.Validate;
 
+import net.finmath.functions.NormalDistribution;
 import net.finmath.randomnumbers.MersenneTwister;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
@@ -28,7 +29,7 @@ import net.finmath.time.TimeDiscretization;
  * use a different number of factors to generate Ito processes of different
  * dimension.
  *
- * The quadruppel (time discretization, number of factors, number of paths, seed)
+ * The quadruple (time discretization, number of factors, number of paths, seed)
  * defines the state of an object of this class, i.e., BrownianMotionLazyInit for which
  * there parameters agree, generate the same random numbers.
  *
@@ -157,17 +158,21 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 		/*
 		 * Generate normal distributed independent increments.
 		 *
-		 * The inner loop goes over time and factors.
+		 * The inner loop goes over time and factors. Time and factors determine the dimension
+		 * of a vector of independent random variables (i.i.d., apart from the scaling with the sqrt(timeStep) size).
+
 		 * MersenneTwister is known to generate "independent" increments in 623 dimensions.
-		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
+		 * Since we want to generate samples of that vector, the loop over path is the outer loop.
 		 */
 		for(int path=0; path<numberOfPaths; path++) {
 			for(int timeIndex=0; timeIndex<timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {
 				final double sqrtDeltaT = sqrtOfTimeStep[timeIndex];
 				// Generate uncorrelated Brownian increment
 				for(int factor=0; factor<numberOfFactors; factor++) {
+					// Get uniform random number
 					final double uniformIncrement = mersenneTwister.nextDoubleFast();
-					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
+					// Transform uniform to normal using ICDF method
+					brownianIncrementsArray[timeIndex][factor][path] = NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;
 				}
 			}
 		}

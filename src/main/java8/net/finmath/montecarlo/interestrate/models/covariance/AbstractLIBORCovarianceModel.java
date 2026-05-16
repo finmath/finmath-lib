@@ -23,9 +23,9 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 
 	private static final long serialVersionUID = 5364544247367259329L;
 
-	private final	TimeDiscretization		timeDiscretization;
+	private final TimeDiscretization		timeDiscretization;
 	private final TimeDiscretization		liborPeriodDiscretization;
-	private final	int								numberOfFactors;
+	private final int						numberOfFactors;
 
 	/**
 	 * Constructor consuming time discretizations, which are handled by the super class.
@@ -50,9 +50,6 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 		return getFactorLoading(time, componentIndex, realizationAtTimeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getFactorLoading(double, int, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public	RandomVariable[]	getFactorLoading(final double time, final int component, final RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
@@ -62,21 +59,12 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getFactorLoading(int, int, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public abstract	RandomVariable[]	getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex);
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getFactorLoadingPseudoInverse(int, int, int, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public abstract RandomVariable	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex);
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCovariance(double, int, int, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public RandomVariable getCovariance(final double time, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
 		int timeIndex = timeDiscretization.getTimeIndex(time);
@@ -87,9 +75,6 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 		return getCovariance(timeIndex, component1, component2, realizationAtTimeIndex);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCovariance(int, int, int, net.finmath.stochastic.RandomVariable[])
-	 */
 	@Override
 	public RandomVariable getCovariance(final int timeIndex, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
 
@@ -123,9 +108,6 @@ public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBO
 		return numberOfFactors;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel#getCloneWithModifiedData()
-	 */
 	@Override
 	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map<String, Object> dataModified) throws CalculationException;
 }

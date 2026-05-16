@@ -26,7 +26,7 @@ import net.finmath.time.Schedule;
  * @author Christian Fries
  * @version 1.0
  */
-public class Swap extends AbstractLIBORMonteCarloProduct {
+public class Swap extends AbstractTermStructureMonteCarloProduct {
 
 	private final TermStructureMonteCarloProduct legReceiver;
 	private final TermStructureMonteCarloProduct legPayer;

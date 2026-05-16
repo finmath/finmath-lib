@@ -13,19 +13,22 @@ import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.FloatingpointDate;
 
 /**
- * This class implements the valuation of a zero coupon bond.
+ * This class implements the valuation of a zero coupon bond, P(T).
  *
  * @author Christian Fries
  * @version 1.1
  */
-public class Bond extends AbstractLIBORMonteCarloProduct {
+public class Bond extends AbstractTermStructureMonteCarloProduct {
 
 	private LocalDateTime referenceDate;
 	private double maturity;
 
 	/**
+	 * Create a zero coupon bond with maturity T.
+	 * Here T is specified as a double offset to a given reference date \( t = 0 \).
+	 *
 	 * @param referenceDate The date corresponding to \( t = 0 \).
-	 * @param maturity The maturity given as double.
+	 * @param maturity The maturity given as double (following the {@link FloatingpointDate} convention as an offset to referenceDate.
 	 */
 	public Bond(final LocalDateTime referenceDate, final double maturity) {
 		super();

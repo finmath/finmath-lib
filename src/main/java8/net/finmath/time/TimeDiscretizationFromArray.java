@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.DoublePredicate;
 import java.util.function.IntToDoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -314,6 +315,11 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 		}
 
 		return new TimeDiscretizationFromArray(newTimeDiscretization);
+	}
+
+	@Override
+	public TimeDiscretization filter(DoublePredicate timesToKeep) {
+		return new TimeDiscretizationFromArray(Arrays.stream(timeDiscretization).filter(timesToKeep), getTickSize());
 	}
 
 	/**

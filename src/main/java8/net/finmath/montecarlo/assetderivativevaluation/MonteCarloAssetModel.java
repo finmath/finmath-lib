@@ -91,14 +91,14 @@ public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel
 	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
 		final double time = getTime(timeIndex);
 
-		// TODO Add caching of the numerare here!
+		// TODO Consider adding caching of the numerare here!
 		return model.getNumeraire(process, time);
 	}
 
 	@Override
 	public RandomVariable getNumeraire(final double time) throws CalculationException {
 
-		// TODO Add caching of the numerare here!
+		// TODO Consider adding of the numerare here!
 		return model.getNumeraire(process, time);
 	}
 

@@ -23,7 +23,7 @@ import net.finmath.time.TimeDiscretization;
 public abstract class MonteCarloProcessFromProcessModel implements MonteCarloProcess, Cloneable {
 
 	private final ProcessModel			model;
-	private final TimeDiscretization		timeDiscretization;
+	private final TimeDiscretization	timeDiscretization;
 
 	/**
 	 * Create a discretization scheme / a time discrete process.

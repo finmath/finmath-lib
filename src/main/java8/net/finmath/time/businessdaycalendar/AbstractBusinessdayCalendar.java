@@ -61,9 +61,10 @@ public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar
 
 	@Override
 	public LocalDate getRolledDate(final LocalDate baseDate, int businessDays) {
-		LocalDate			rolledDate			= baseDate;
 		final int					direction			= businessDays >= 0 ? 1: -1;
 		final DateRollConvention	dateRollConvention	= direction > 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;
+
+		LocalDate rolledDate = baseDate;
 		while(businessDays != 0) {
 			rolledDate = rolledDate.plusDays(direction);
 			rolledDate = getAdjustedDate(rolledDate, dateRollConvention);

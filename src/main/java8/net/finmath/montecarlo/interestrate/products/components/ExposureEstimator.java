@@ -12,7 +12,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -27,13 +27,13 @@ import net.finmath.stochastic.RandomVariable;
  *
  * @author Christian Fries
  * @version 1.3
- * @see net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct
+ * @see net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct
  */
 public class ExposureEstimator extends AbstractProductComponent {
 
 	private static final long serialVersionUID = 2987369289230532162L;
 
-	private final AbstractLIBORMonteCarloProduct	underlying;
+	private final AbstractTermStructureMonteCarloProduct	underlying;
 
 
 	/**
@@ -46,7 +46,7 @@ public class ExposureEstimator extends AbstractProductComponent {
 	 *
 	 * @param underlying The underlying.
 	 */
-	public ExposureEstimator(final AbstractLIBORMonteCarloProduct underlying) {
+	public ExposureEstimator(final AbstractTermStructureMonteCarloProduct underlying) {
 		super();
 		this.underlying		= underlying;
 	}

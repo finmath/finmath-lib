@@ -16,7 +16,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class Caplet extends AbstractLIBORMonteCarloProduct {
+public class Caplet extends AbstractTermStructureMonteCarloProduct {
 
 	public enum ValueUnit {
 		VALUE,

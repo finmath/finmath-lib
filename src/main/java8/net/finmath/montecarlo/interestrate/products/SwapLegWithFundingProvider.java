@@ -11,7 +11,7 @@ import java.time.LocalTime;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.FundingCapacity;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacity;
 import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
@@ -23,7 +23,7 @@ import net.finmath.time.Schedule;
  *
  * @version 1.0
  */
-public class SwapLegWithFundingProvider extends AbstractLIBORMonteCarloProduct {
+public class SwapLegWithFundingProvider extends AbstractTermStructureMonteCarloProduct {
 
 	private final Schedule legSchedule;
 	private final double[] notionals;

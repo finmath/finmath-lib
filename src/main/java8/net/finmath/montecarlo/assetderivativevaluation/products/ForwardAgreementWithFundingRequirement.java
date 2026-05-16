@@ -11,7 +11,7 @@ import java.util.Map;
 import net.finmath.exception.CalculationException;
 import net.finmath.modelling.Model;
 import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.models.FundingCapacity;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacity;
 import net.finmath.stochastic.RandomVariable;
 
 /**

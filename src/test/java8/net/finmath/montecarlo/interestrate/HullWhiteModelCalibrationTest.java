@@ -43,7 +43,7 @@ import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.interestrate.models.covariance.AbstractShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelPiecewiseConstant;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.SolverException;
@@ -224,7 +224,7 @@ public class HullWhiteModelCalibrationTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(hullWhiteModelSimulation);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();

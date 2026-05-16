@@ -30,7 +30,7 @@ public class Portfolio extends AbstractProductComponent {
 
 	private static final long serialVersionUID = -1360506093081238482L;
 
-	private final AbstractLIBORMonteCarloProduct[]	products;
+	private final AbstractTermStructureMonteCarloProduct[]	products;
 	private final double[]							weights;
 
 	/**
@@ -41,9 +41,9 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param product A product.
 	 * @param weight A weight.
 	 */
-	public Portfolio(final AbstractLIBORMonteCarloProduct product, final double weight) {
+	public Portfolio(final AbstractTermStructureMonteCarloProduct product, final double weight) {
 		super(product.getCurrency());
-		products = new AbstractLIBORMonteCarloProduct[] { product };
+		products = new AbstractTermStructureMonteCarloProduct[] { product };
 		weights = new double[] { weight };
 	}
 
@@ -55,10 +55,10 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
 	 */
-	public Portfolio(final AbstractLIBORMonteCarloProduct[] products, final double[] weights) {
+	public Portfolio(final AbstractTermStructureMonteCarloProduct[] products, final double[] weights) {
 		super();
 		final String currency = products[0].getCurrency();
-		for(final AbstractLIBORMonteCarloProduct product : products) {
+		for(final AbstractTermStructureMonteCarloProduct product : products) {
 			if(currency != null && !currency.equals(product.getCurrency())) {
 				throw new IllegalArgumentException("Product currencies do not match. Please use a constructor providing the currency of the result.");
 			}
@@ -77,10 +77,10 @@ public class Portfolio extends AbstractProductComponent {
 	 * @param products An array of products.
 	 * @param weights An array of weights (having the same lengths as the array of products).
 	 */
-	public Portfolio(final String currency, final AbstractLIBORMonteCarloProduct[] products, final double[] weights) {
+	public Portfolio(final String currency, final AbstractTermStructureMonteCarloProduct[] products, final double[] weights) {
 		super(currency);
 
-		for(final AbstractLIBORMonteCarloProduct product : products) {
+		for(final AbstractTermStructureMonteCarloProduct product : products) {
 			if(!currency.equals(product.getCurrency())) {
 				throw new IllegalArgumentException("Product currencies do not match. Currency conversion (via model FX) is not supported yet.");
 			}

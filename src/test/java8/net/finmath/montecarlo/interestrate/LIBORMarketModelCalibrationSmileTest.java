@@ -7,38 +7,21 @@ package net.finmath.montecarlo.interestrate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.functions.AnalyticFormulas;
-import net.finmath.marketdata.calibration.ParameterObject;
-import net.finmath.marketdata.calibration.Solver;
-import net.finmath.marketdata.model.AnalyticModel;
-import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
-import net.finmath.marketdata.model.curves.Curve;
-import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
-import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
-import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
 import net.finmath.marketdata.model.curves.DiscountCurve;
 import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
-import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
 import net.finmath.marketdata.model.curves.ForwardCurve;
-import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
 import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
-import net.finmath.marketdata.products.AnalyticProduct;
-import net.finmath.marketdata.products.Swap;
 import net.finmath.marketdata.products.SwapAnnuity;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionView;
@@ -49,17 +32,13 @@ import net.finmath.montecarlo.interestrate.models.covariance.AbstractLIBORCovari
 import net.finmath.montecarlo.interestrate.models.covariance.BlendedLocalVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelExponentialForm5Param;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelStochasticVolatility;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.SwaptionGeneralizedAnalyticApproximation;
 import net.finmath.montecarlo.interestrate.products.SwaptionSimple;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.OptimizerFactory;
 import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
-import net.finmath.optimizer.SolverException;
-import net.finmath.time.Schedule;
-import net.finmath.time.ScheduleGenerator;
 import net.finmath.time.TimeDiscretizationFromArray;
-import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
 
 /**
  * This class tests the LIBOR market model and products.
@@ -113,7 +92,7 @@ public class LIBORMarketModelCalibrationSmileTest {
 		}
 
 
-		AbstractLIBORMonteCarloProduct product;
+		AbstractTermStructureMonteCarloProduct product;
 		switch(productType) {
 		case "MONTECARLO":
 			product = new SwaptionSimple(swaprate, swapTenor, SwaptionSimple.ValueUnit.valueOf(targetVolatilityType));
@@ -171,18 +150,18 @@ public class LIBORMarketModelCalibrationSmileTest {
 				2.67 / 100.0, 2.64 / 100.0, 2.64 / 100.0
 		};
 
-		final double liborPeriodLength = 0.5;
+		final double tenorPeriodLength = 0.5;
 
 		// Create the forward curve (initial value of the LIBOR market model)
 		final ForwardCurveInterpolation forwardCurveInterpolation = ForwardCurveInterpolation.createForwardCurveFromForwards(
 				"forwardCurve"		/* name of the curve */,
 				fixingTimes			/* fixings of the forward */,
 				forwardRates		/* forwards */,
-				liborPeriodLength	/* tenor / period length */
+				tenorPeriodLength	/* tenor / period length */
 				);
 
 
-		final DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurveInterpolation, liborPeriodLength);
+		final DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurveInterpolation, tenorPeriodLength);
 
 		/*
 		 * Create a set of calibration products.
@@ -224,7 +203,7 @@ public class LIBORMarketModelCalibrationSmileTest {
 		 * Create the libor tenor structure and the initial values
 		 */
 		final double liborRateTimeHorzion	= 20.0;
-		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / liborPeriodLength), liborPeriodLength);
+		final TimeDiscretizationFromArray liborPeriodDiscretization = new TimeDiscretizationFromArray(0.0, (int) (liborRateTimeHorzion / tenorPeriodLength), tenorPeriodLength);
 
 		/*
 		 * Create a simulation time discretization
@@ -311,7 +290,7 @@ public class LIBORMarketModelCalibrationSmileTest {
 		double deviationSum			= 0.0;
 		double deviationSquaredSum	= 0.0;
 		for (int i = 0; i < calibrationProducts.size(); i++) {
-			final AbstractLIBORMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
+			final AbstractTermStructureMonteCarloProduct calibrationProduct = calibrationProducts.get(i).getProduct();
 			try {
 				final double valueModel = calibrationProduct.getValue(simulationCalibrated);
 				final double valueTarget = calibrationProducts.get(i).getTargetValue().getAverage();
@@ -333,141 +312,6 @@ public class LIBORMarketModelCalibrationSmileTest {
 		System.out.println("__________________________________________________________________________________________\n");
 
 		Assert.assertTrue(Math.abs(averageDeviation) < 1E-2);
-	}
-
-	public AnalyticModel getCalibratedCurve() throws SolverException {
-		final String[] maturity					= { "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "11Y", "12Y", "15Y", "20Y", "25Y", "30Y", "35Y", "40Y", "45Y", "50Y" };
-		final String[] frequency				= { "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual", "annual" };
-		final String[] frequencyFloat			= { "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual", "semiannual" };
-		final String[] daycountConventions		= { "ACT/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360", "E30/360" };
-		final String[] daycountConventionsFloat	= { "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360", "ACT/360" };
-		final double[] rates					= { -0.00216 ,-0.00208 ,-0.00222 ,-0.00216 ,-0.0019 ,-0.0014 ,-0.00072 ,0.00011 ,0.00103 ,0.00196 ,0.00285 ,0.00367 ,0.0044 ,0.00604 ,0.00733 ,0.00767 ,0.00773 ,0.00765 ,0.00752 ,0.007138 ,0.007 };
-
-		final HashMap<String, Object> parameters = new HashMap<>();
-
-		parameters.put("referenceDate", LocalDate.of(2016, Month.SEPTEMBER, 30));
-		parameters.put("currency", "EUR");
-		parameters.put("forwardCurveTenor", "6M");
-		parameters.put("maturities", maturity);
-		parameters.put("fixLegFrequencies", frequency);
-		parameters.put("floatLegFrequencies", frequencyFloat);
-		parameters.put("fixLegDaycountConventions", daycountConventions);
-		parameters.put("floatLegDaycountConventions", daycountConventionsFloat);
-		parameters.put("rates", rates);
-
-		return getCalibratedCurve(null, parameters);
-	}
-
-	private static AnalyticModel getCalibratedCurve(final AnalyticModel model2, final Map<String, Object> parameters) throws SolverException {
-
-		final LocalDate	referenceDate		= (LocalDate) parameters.get("referenceDate");
-		final String	currency			= (String) parameters.get("currency");
-		final String	forwardCurveTenor	= (String) parameters.get("forwardCurveTenor");
-		final String[]	maturities			= (String[]) parameters.get("maturities");
-		final String[]	frequency			= (String[]) parameters.get("fixLegFrequencies");
-		final String[]	frequencyFloat		= (String[]) parameters.get("floatLegFrequencies");
-		final String[]	daycountConventions	= (String[]) parameters.get("fixLegDaycountConventions");
-		final String[]	daycountConventionsFloat	= (String[]) parameters.get("floatLegDaycountConventions");
-		final double[]	rates						= (double[]) parameters.get("rates");
-
-		Assert.assertEquals(maturities.length, frequency.length);
-		Assert.assertEquals(maturities.length, daycountConventions.length);
-		Assert.assertEquals(maturities.length, rates.length);
-
-		Assert.assertEquals(frequency.length, frequencyFloat.length);
-		Assert.assertEquals(daycountConventions.length, daycountConventionsFloat.length);
-
-		final int		spotOffsetDays = 2;
-		final String	forwardStartPeriod = "0D";
-
-		final String curveNameDiscount = "discountCurve-" + currency;
-
-		/*
-		 * We create a forward curve by referencing the same discount curve, since
-		 * this is a single curve setup.
-		 *
-		 * Note that using an independent NSS forward curve with its own NSS parameters
-		 * would result in a problem where both, the forward curve and the discount curve
-		 * have free parameters.
-		 */
-		final ForwardCurve forwardCurve		= new ForwardCurveFromDiscountCurve(curveNameDiscount, referenceDate, forwardCurveTenor);
-
-		// Create a collection of objective functions (calibration products)
-		final Vector<AnalyticProduct> calibrationProducts = new Vector<>();
-		final double[] curveMaturities	= new double[rates.length+1];
-		final double[] curveValue			= new double[rates.length+1];
-		final boolean[] curveIsParameter	= new boolean[rates.length+1];
-		curveMaturities[0] = 0.0;
-		curveValue[0] = 1.0;
-		curveIsParameter[0] = false;
-		for(int i=0; i<rates.length; i++) {
-
-			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequency[i], daycountConventions[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-			final Schedule scheduleRec = ScheduleGenerator.createScheduleFromConventions(referenceDate, spotOffsetDays, forwardStartPeriod, maturities[i], frequencyFloat[i], daycountConventionsFloat[i], "first", "following", new BusinessdayCalendarExcludingTARGETHolidays(), -2, 0);
-
-			curveMaturities[i+1] = Math.max(schedulePay.getPayment(schedulePay.getNumberOfPeriods()-1),scheduleRec.getPayment(scheduleRec.getNumberOfPeriods()-1));
-			curveValue[i+1] = 1.0;
-			curveIsParameter[i+1] = true;
-			calibrationProducts.add(new Swap(schedulePay, null, rates[i], curveNameDiscount, scheduleRec, forwardCurve.getName(), 0.0, curveNameDiscount));
-		}
-
-		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;
-
-		// Create a discount curve
-		final DiscountCurveInterpolation discountCurveInterpolation = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(
-				curveNameDiscount								/* name */,
-				referenceDate	/* referenceDate */,
-				curveMaturities	/* maturities */,
-				curveValue		/* discount factors */,
-				curveIsParameter,
-				interpolationMethod ,
-				ExtrapolationMethod.CONSTANT,
-				InterpolationEntity.LOG_OF_VALUE
-				);
-
-		/*
-		 * Model consists of the two curves, but only one of them provides free parameters.
-		 */
-		AnalyticModel model = new AnalyticModelFromCurvesAndVols(new Curve[] { discountCurveInterpolation, forwardCurve });
-
-		/*
-		 * Create a collection of curves to calibrate
-		 */
-		final Set<ParameterObject> curvesToCalibrate = new HashSet<>();
-		curvesToCalibrate.add(discountCurveInterpolation);
-
-		/*
-		 * Calibrate the curve
-		 */
-		final Solver solver = new Solver(model, calibrationProducts, 0.0, 1E-4 /* target accuracy */);
-		final AnalyticModel calibratedModel = solver.getCalibratedModel(curvesToCalibrate);
-		System.out.println("Solver reported acccurary....: " + solver.getAccuracy());
-
-		Assert.assertEquals("Calibration accurarcy", 0.0, solver.getAccuracy(), 1E-3);
-
-		// Get best parameters
-		final double[] parametersBest = calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getParameter();
-
-		// Test calibration
-		model			= calibratedModel;
-
-		double squaredErrorSum = 0.0;
-		for(final AnalyticProduct c : calibrationProducts) {
-			final double value = c.getValue(0.0, model);
-			final double valueTaget = 0.0;
-			final double error = value - valueTaget;
-			squaredErrorSum += error*error;
-		}
-		final double rms = Math.sqrt(squaredErrorSum/calibrationProducts.size());
-
-		System.out.println("Independent checked acccurary: " + rms);
-
-		System.out.println("Calibrated discount curve: ");
-		for(int i=0; i<curveMaturities.length; i++) {
-			final double maturity = curveMaturities[i];
-			System.out.println(maturity + "\t" + calibratedModel.getDiscountCurve(discountCurveInterpolation.getName()).getDiscountFactor(maturity));
-		}
-		return model;
 	}
 
 	private static double getParSwaprate(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final double[] swapTenor) {

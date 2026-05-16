@@ -26,7 +26,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public class MoneyMarketAccount extends AbstractLIBORMonteCarloProduct {
+public class MoneyMarketAccount extends AbstractTermStructureMonteCarloProduct {
 
 	private double inceptionTime	= 0.0;
 	private double initialValue		= 1.0;

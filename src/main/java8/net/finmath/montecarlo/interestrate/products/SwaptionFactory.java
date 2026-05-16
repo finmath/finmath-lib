@@ -8,7 +8,7 @@ package net.finmath.montecarlo.interestrate.products;
 import net.finmath.time.TimeDiscretization;
 
 /**
- * A factory (helper class) to create swaptions extending {@link AbstractLIBORMonteCarloProduct}
+ * A factory (helper class) to create swaptions extending {@link AbstractTermStructureMonteCarloProduct}
  * according to some (simplified) specifications.
  *
  * The class is useful if you like to create, e.g., calibration products depending

@@ -613,7 +613,7 @@ public class AnalyticFormulas {
 			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));
 			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);
 
-			final double theta = volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue + riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
+			final double theta = -volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue - riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);
 
 			return theta;
 		}
@@ -1783,5 +1783,78 @@ public class AnalyticFormulas {
 		} else {
 			return -initialStockValue * P1.cumulativeDistribution(y) + optionStrike * Math.exp(-riskFreeRate * optionMaturity) * (1 - P2.cumulativeDistribution(x));
 		}
+	}
+
+	/**
+	 * Returns the Margrabe price of a European exchange option with payoff
+	 * {@code max(S1(T) - S2(T), 0)}.
+	 *
+	 * @param initialValueFirstAsset Initial value of the first asset.
+	 * @param initialValueSecondAsset Initial value of the second asset.
+	 * @param dividendYieldFirstAsset Continuous dividend yield of the first
+	 *     asset.
+	 * @param dividendYieldSecondAsset Continuous dividend yield of the second
+	 *     asset.
+	 * @param volatilityFirstAsset Volatility of the first asset.
+	 * @param volatilitySecondAsset Volatility of the second asset.
+	 * @param correlation Instantaneous correlation between the two assets.
+	 * @param maturity Option maturity.
+	 * @return The Margrabe price.
+	 */
+	public static double margrabeExchangeOptionValue(
+			final double initialValueFirstAsset,
+			final double initialValueSecondAsset,
+			final double dividendYieldFirstAsset,
+			final double dividendYieldSecondAsset,
+			final double volatilityFirstAsset,
+			final double volatilitySecondAsset,
+			final double correlation,
+			final double maturity) {
+
+		if (initialValueFirstAsset <= 0.0 || initialValueSecondAsset <= 0.0) {
+			throw new IllegalArgumentException("Initial asset values must be strictly positive.");
+		}
+		if (volatilityFirstAsset < 0.0 || volatilitySecondAsset < 0.0) {
+			throw new IllegalArgumentException("Volatilities must be non-negative.");
+		}
+		if (correlation < -1.0 || correlation > 1.0) {
+			throw new IllegalArgumentException("Correlation must lie in [-1,1].");
+		}
+		if (maturity < 0.0) {
+			throw new IllegalArgumentException("Maturity must be non-negative.");
+		}
+
+		if (maturity == 0.0) {
+			return Math.max(initialValueFirstAsset - initialValueSecondAsset, 0.0);
+		}
+
+		final double effectiveVolatilitySquared =
+				volatilityFirstAsset * volatilityFirstAsset
+				+ volatilitySecondAsset * volatilitySecondAsset
+				- 2.0 * correlation * volatilityFirstAsset * volatilitySecondAsset;
+
+		final double effectiveVolatility = Math.sqrt(Math.max(effectiveVolatilitySquared, 0.0));
+		final double sqrtMaturity = Math.sqrt(maturity);
+
+		if (effectiveVolatility == 0.0) {
+			final double deterministicForwardDifference =
+					initialValueFirstAsset * Math.exp(-dividendYieldFirstAsset * maturity)
+					- initialValueSecondAsset * Math.exp(-dividendYieldSecondAsset * maturity);
+
+			return Math.max(deterministicForwardDifference, 0.0);
+		}
+
+		final double d1 =
+				(
+						Math.log(initialValueFirstAsset / initialValueSecondAsset)
+						+ (dividendYieldSecondAsset - dividendYieldFirstAsset
+								+ 0.5 * effectiveVolatilitySquared) * maturity
+				)
+				/ (effectiveVolatility * sqrtMaturity);
+
+		final double d2 = d1 - effectiveVolatility * sqrtMaturity;
+
+		return initialValueFirstAsset * Math.exp(-dividendYieldFirstAsset * maturity) * NormalDistribution.cumulativeDistribution(d1)
+				- initialValueSecondAsset * Math.exp(-dividendYieldSecondAsset * maturity) * NormalDistribution.cumulativeDistribution(d2);
 	}
 }

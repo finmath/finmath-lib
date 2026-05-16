@@ -9,7 +9,7 @@ import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.BrownianMotion;
 import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
-import net.finmath.montecarlo.interestrate.models.FundingCapacity;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacityWithMemory;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
@@ -47,8 +47,8 @@ public class ForwardAgreementWithFundingRequirementTest {
 		probsHalf.put(Double.MAX_VALUE, 0.5);
 
 		final AbstractAssetMonteCarloProduct product = new ForwardAgreement(maturity, forwardValue, 0);
-		final AbstractAssetMonteCarloProduct product2 = new ForwardAgreementWithFundingRequirement(maturity, forwardValue, 0, new FundingCapacity(currency, new Scalar(0.0), probsHalf));
-		final AbstractAssetMonteCarloProduct product3 = new ForwardAgreementWithFundingRequirement(maturity, forwardValue, 0, new FundingCapacity(currency, new Scalar(0.0), probs));
+		final AbstractAssetMonteCarloProduct product2 = new ForwardAgreementWithFundingRequirement(maturity, forwardValue, 0, new FundingCapacityWithMemory(currency, new Scalar(0.0), probsHalf));
+		final AbstractAssetMonteCarloProduct product3 = new ForwardAgreementWithFundingRequirement(maturity, forwardValue, 0, new FundingCapacityWithMemory(currency, new Scalar(0.0), probs));
 		final AbstractAssetMonteCarloProduct product4 = new EuropeanOption(maturity, forwardValue+survivalProbLevelBoundary, 0);
 		final AbstractAssetMonteCarloProduct product6 = new EuropeanOption(maturity, forwardValue-survivalProbLevelBoundary, 0);
 		final AbstractAssetMonteCarloProduct product5 = new DigitalOption(maturity, forwardValue+survivalProbLevelBoundary, 0);

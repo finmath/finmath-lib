@@ -6,8 +6,8 @@ import java.util.TreeMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import net.finmath.montecarlo.interestrate.models.FundingCapacity;
-import net.finmath.montecarlo.interestrate.models.FundingCapacity.DefaultFactors;
+import net.finmath.montecarlo.interestrate.models.funding.DefaultFactors;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacityWithMemory;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 
@@ -26,7 +26,7 @@ public class FundingCapacityTest {
 		instSurvProb.put(5.0, 0.7);
 		instSurvProb.put(10.0, 0.5);
 
-		final FundingCapacity fc = new FundingCapacity("EUR", new Scalar(0.0), instSurvProb);
+		final FundingCapacityWithMemory fc = new FundingCapacityWithMemory("EUR", new Scalar(0.0), instSurvProb);
 
 		final DefaultFactors df = fc.getDefaultFactors(1.0, new Scalar(1.0));
 
