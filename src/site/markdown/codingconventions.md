@@ -6,11 +6,24 @@ Below you find some high level design principles. With respect to the low-level 
 
 ## Design Principles
 
+### Implementation Against Interfaces
 
-### Implementation against Interfaces
+The library is developed to allow users to focus on its interfaces. Code should be written against interfaces where possible. For example, the left-hand side of an assignment should usually be an interface type.
 
-The library is developed to allow users to focus on its interfaces. Code should implement against an interface (e.g., the left hand side of an assignment should be an interface).
+#### Type Inference
 
+Type inference may be handy, especially if a variable is named according to its type, e.g., as in
+
+```Java
+	TimeDiscretization timeDiscretization = new TimeDiscretizationFromArray(0.0, 100, 0.1);
+```
+which can be written less redundantly as
+```Java
+	var timeDiscretization = new TimeDiscretizationFromArray(0.0, 100, 0.1);
+```
+
+However, for the time being, **type inference, i.e., usage of var, should be avoided**.
+Specifying the left-hand side explicitly as an interface has some advantages: the reader does not need to perform the type inference and can stop before the assignment operator =, if they are not interested in the way the object is constructed. In addition, the following code is ensured to rely on the interface only.
 
 ### Naming, Code is Documentation
 
