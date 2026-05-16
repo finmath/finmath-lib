@@ -80,6 +80,47 @@ jobs:
               out.write(f"test_skipped={skipped}\n")
           PY
 
+  test-java8:
+    name: 🧪 Testing Java 8
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event_name == 'pull_request' ||
+      github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check whether Java 8 build is affected
+        id: changes
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+
+          if git diff --name-only "$BASE" "$GITHUB_SHA" | grep -E '^(src/main/java8/|src/test/java8/|pom.xml|\.github/workflows/)'; then
+            echo "run_java8=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_java8=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Java 8
+        if: steps.changes.outputs.run_java8 == 'true'
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '8'
+          cache: maven
+
+      - name: Run Java 8 tests
+        if: steps.changes.outputs.run_java8 == 'true'
+        run: mvn -B -P java-8 -Dcheckstyle.skip=true test
   checkstyle:
     name: 🔍 Checkstyle
     runs-on: ubuntu-latest
