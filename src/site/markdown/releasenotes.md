@@ -5,7 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.0 (12.05.2026)
+## 6.1.2 (17.05.2026)
+
+### General
+
+- Java 8 backport of all classes and methods. The maven artifact -java8 will be Java 8 compatible.
+
+## 6.1.1 (12.05.2026)
 
 ### Numerical Methods: Tree Framework (contributed by A. Gnoatto)
 
