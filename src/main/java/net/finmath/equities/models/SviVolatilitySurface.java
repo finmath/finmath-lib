@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.finmath.equities.marketdata.VolatilityPoint;
@@ -69,7 +71,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 		this.useStickyStrike = useStickyStrike;
 		this.volShift = volShift;
 
-		final var sortedSmiles = Arrays.asList(smiles);
+		final List<SviVolatilitySmile> sortedSmiles = Arrays.asList(smiles);
 		sortedSmiles.sort(Comparator.comparing(pt -> pt.getSmileDate()));
 		smileTimes = new double[sortedSmiles.size() + 1];
 		smileTimes[0] = 0.0;
@@ -116,7 +118,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			LocalDate expiryDate,
 			EquityForwardStructure currentForwardStructure)
 	{
-		final var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+		final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 		return 	getVolatility(strike, timeToMaturity, currentForwardStructure);
 	}
 
@@ -146,8 +148,8 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			double timeShift)
 	{
 		assert isCalibrated : "Surface is not calibrated yet";
-	final var logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
-	final var timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+	final double logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
+	final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 	return getLocalVolatility(logStrike, timeToMaturity, currentForwardStructure, strikeShift, timeShift);
 	}
 
@@ -165,7 +167,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 	// to log-strike w.r.t. forward structure prevailing during surface calbration
 	if (useStickyStrike)
 	{
-		final var expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
+		final double expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
 				valuationDate, currentForwardStructure.getValuationDate());
 		logStrike += Math.log(currentForwardStructure.getForward(timeToMaturity)
 				/ forwardStructure.getForward(expiryTimeAsofCalib));
@@ -173,14 +175,14 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 
 	if (timeToMaturity >= 1e-16)
 	{
-		final var f = interpolateTotalVariance(logStrike, timeToMaturity);
-		var f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);
+		final double f = interpolateTotalVariance(logStrike, timeToMaturity);
+		double f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);
 		f_t = (f_t - f) / timeShift;
-		final var f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
-		final var f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
-		final var f_x = 0.5 * (f_plu - f_min) / strikeShift;
-		final var f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
-		var lv = 0.5 * f_x * logStrike / f - 1.0;
+		final double f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
+		final double f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
+		final double f_x = 0.5 * (f_plu - f_min) / strikeShift;
+		final double f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
+		double lv = 0.5 * f_x * logStrike / f - 1.0;
 		lv *= lv;
 		lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;
 		return Math.sqrt(f_t / lv);
@@ -205,8 +207,8 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 
 	private double interpolateTotalVariance(double logStrike, double timeToMaturity)
 	{
-		final var len = smileTimes.length;
-		final var totalVariances = new double[len];
+		final int len = smileTimes.length;
+		final double[] totalVariances = new double[len];
 		totalVariances[0] = 0.0;
 		for (int i = 1; i< len; i++) {
 			totalVariances[i] = smiles[i-1].getTotalVariance(logStrike);
@@ -217,7 +219,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 				totalVariances,
 				RationalFunctionInterpolation.InterpolationMethod.LINEAR,
 				RationalFunctionInterpolation.ExtrapolationMethod.LINEAR);
-		final var totalVariance = interpolator.getValue(timeToMaturity);
+		final double totalVariance = interpolator.getValue(timeToMaturity);
 
 		if (volShift == 0.0) {
 			return totalVariance;
@@ -242,23 +244,23 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 		assert volShift == 0.0 : "A shifted SVI surface cannot be calibrated";
 		setForwardStructure(forwardStructure);
 
-		final var groupedPoints =
+		final Map<LocalDate, java.util.List<VolatilityPoint>> groupedPoints =
 				volaPoints.stream().collect(Collectors.groupingBy(VolatilityPoint::getDate));
-		final var sortedSmileDates = Arrays.asList(groupedPoints.keySet().toArray(new LocalDate[0]));
+		final List<LocalDate> sortedSmileDates = Arrays.asList(groupedPoints.keySet().toArray(new LocalDate[0]));
 		sortedSmileDates.sort(Comparator.comparing(pt -> pt));
 		smileTimes = new double[sortedSmileDates.size() + 1];
 		smileTimes[0] = 0.0;
 		smiles = new SviVolatilitySmile[sortedSmileDates.size()];
 		for (int i = 0; i < sortedSmileDates.size(); i++)
 		{
-			final var date = sortedSmileDates.get(i);
-			final var thisPoints = groupedPoints.get(date);
+			final LocalDate date = sortedSmileDates.get(i);
+			final List<VolatilityPoint> thisPoints = groupedPoints.get(date);
 			thisPoints.sort(Comparator.comparing(pt -> pt.getStrike()));
-			final var forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;
-			final var ttm = dayCounter.getDaycountFraction(valuationDate, date);
-			final var logStrikes = new ArrayList<Double>();
-			final var totalVariances = new ArrayList<Double>();
-			for (final var pt : thisPoints)
+			final double forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;
+			final double ttm = dayCounter.getDaycountFraction(valuationDate, date);
+			final List<Double> logStrikes = new ArrayList<Double>();
+			final List<Double> totalVariances = new ArrayList<Double>();
+			for (final VolatilityPoint pt : thisPoints)
 			{
 				totalVariances.add(ttm * pt.getVolatility() * pt.getVolatility());
 				logStrikes.add(Math.log(forwardStructure.getDividendAdjustedStrike(pt.getStrike(), date) / forward));
@@ -280,7 +282,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 		isCalibrated = true;
 	}
 
-	private static double[] calibrateSviSmile(double ttm, ArrayList<Double> logStrikes, ArrayList<Double> totalVariances) throws SolverException
+	private static double[] calibrateSviSmile(double ttm, List<Double> logStrikes, List<Double> totalVariances) throws SolverException
 	{
 		final LevenbergMarquardt optimizer = new LevenbergMarquardt() {
 			private static final long serialVersionUID = -2542034123359128169L;
@@ -299,9 +301,9 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 				}
 			}
 		};
-		final var initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
-		final var weights = new double[logStrikes.size()];
-		final var targetValues = new double[logStrikes.size()];
+		final double[] initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
+		final double[] weights = new double[logStrikes.size()];
+		final double[] targetValues = new double[logStrikes.size()];
 		for (int i = 0; i < logStrikes.size(); i++)
 		{
 			weights[i] = 1.0;

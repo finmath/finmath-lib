@@ -9,6 +9,7 @@ Below you find some high level design principles. With respect to the low-level 
 ### Implementation Against Interfaces
 
 The library is developed to allow users to focus on its interfaces. Code should be written against interfaces where possible. For example, the left-hand side of an assignment should usually be an interface type.
+Example: Write `List<Double> = new ArrayList<Double>();`. Do not write `ArrayList<Double> = new ArrayList<Double>();` to allow easy change of the implementation. Arguments and return types should be interfaces.
 
 #### Type Inference
 

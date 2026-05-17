@@ -1,6 +1,6 @@
 package net.finmath.equities.pricer;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
 
@@ -13,12 +13,12 @@ import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType
 public class EquityValuationResult {
 
 	private final EquityValuationRequest request;
-	private final HashMap<CalculationRequestType, Double> results;
+	private final Map<CalculationRequestType, Double> results;
 
 	public EquityValuationResult(
-			final EquityValuationRequest request, final HashMap<CalculationRequestType, Double> results)
+			final EquityValuationRequest request, final Map<CalculationRequestType, Double> results2)
 	{
 		this.request = request;
-		this.results = results;
+		this.results = results2;
 	}
 }

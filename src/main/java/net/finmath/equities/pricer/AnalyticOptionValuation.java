@@ -33,8 +33,8 @@ public class AnalyticOptionValuation implements OptionValuation {
 			YieldCurve discountCurve,
 			VolatilitySurface volaSurface) {
 
-		final var results = new HashMap<CalculationRequestType, Double>();
-		for(final var calcType : request.getCalcsRequested()) {
+		final HashMap<CalculationRequestType, Double> results = new HashMap<CalculationRequestType, Double>();
+		for(final CalculationRequestType calcType : request.getCalcsRequested()) {
 			results.put(
 					calcType,
 					calculate(request.getOption(), forwardStructure, discountCurve, volaSurface, calcType));
@@ -52,15 +52,15 @@ public class AnalyticOptionValuation implements OptionValuation {
 
 		assert !option.isAmericanOption() : "Analytic pricer cannot handle American options.";
 
-		final var valDate = forwardStructure.getValuationDate();
-		final var expiryDate = option.getExpiryDate();
-		final var ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);
-		final var forward = forwardStructure.getForward(expiryDate);
-		final var discountFactor = discountCurve.getDiscountFactor(expiryDate);
-		final var discountRate = discountCurve.getRate(expiryDate);
-		final var adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);
-		final var adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);
-		final var volatility = volaSurface.getVolatility(option.getStrike(), option.getExpiryDate(), forwardStructure);
+		final java.time.LocalDate valDate = forwardStructure.getValuationDate();
+		final java.time.LocalDate expiryDate = option.getExpiryDate();
+		final double ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);
+		final double forward = forwardStructure.getForward(expiryDate);
+		final double discountFactor = discountCurve.getDiscountFactor(expiryDate);
+		final double discountRate = discountCurve.getRate(expiryDate);
+		final double adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);
+		final double adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);
+		final double volatility = volaSurface.getVolatility(option.getStrike(), option.getExpiryDate(), forwardStructure);
 
 		switch(calcType) {
 		case Price:
@@ -73,7 +73,7 @@ public class AnalyticOptionValuation implements OptionValuation {
 					discountFactor * adjustedForward);
 
 		case EqDelta:
-			final var dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);
+			final double dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);
 			return dFdS * Black76Model.optionDelta(
 					1.0,
 					adjustedStrike / adjustedForward,
@@ -83,7 +83,7 @@ public class AnalyticOptionValuation implements OptionValuation {
 					discountFactor);
 
 		case EqGamma:
-			final var dFdS2 = Math.pow(forwardStructure.getGrowthDiscountFactor(valDate, expiryDate), 2);
+			final double dFdS2 = Math.pow(forwardStructure.getGrowthDiscountFactor(valDate, expiryDate), 2);
 			return dFdS2 * Black76Model.optionGamma(
 					1.0,
 					adjustedStrike / adjustedForward,
@@ -164,13 +164,13 @@ public class AnalyticOptionValuation implements OptionValuation {
 
 		assert !option.isAmericanOption() : "Analytic pricer cannot handle American options.";
 
-		final var expiryDate = option.getExpiryDate();
-		final var ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);
-		final var forward = forwardStructure.getForward(expiryDate);
-		final var discount = discountCurve.getDiscountFactor(expiryDate);
-		final var adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);
-		final var adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);
-		final var undiscountedPrice = price / discount / adjustedForward;
+		final java.time.LocalDate expiryDate = option.getExpiryDate();
+		final double ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);
+		final double forward = forwardStructure.getForward(expiryDate);
+		final double discount = discountCurve.getDiscountFactor(expiryDate);
+		final double adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);
+		final double adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);
+		final double undiscountedPrice = price / discount / adjustedForward;
 
 		return Black76Model.optionImpliedVolatility(
 				1.0,

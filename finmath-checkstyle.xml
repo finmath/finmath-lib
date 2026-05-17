@@ -182,5 +182,13 @@
 			<property name="message"
 				value="Indent must use tab characters" />
 		</module>
+
+		<!-- Avoid Java local variable type inference.
+			Prefer explicit declaration, ideally using the interface type. -->
+		<module name="MatchXpath">
+			<property name="query" value="//VARIABLE_DEF[./TYPE/IDENT[@text='var']]"/>
+			<message key="matchxpath.match"
+				value="Avoid local variable type inference: declare the variable using the interface type explicitly."/>
+		</module>
 	</module>
 </module>

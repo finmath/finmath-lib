@@ -1,8 +1,8 @@
 package net.finmath.equities.models;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -34,7 +34,7 @@ public class SviVolatilitySmile {
 	public static double sviTotalVariance(
 			double logStrike, double a, double b, double rho, double m, double sigma)
 	{
-		final var kShifted = logStrike - m;
+		final double kShifted = logStrike - m;
 		return a + b * (rho * kShifted + Math.sqrt(kShifted * kShifted + sigma * sigma));
 	}
 
@@ -44,62 +44,62 @@ public class SviVolatilitySmile {
 		return Math.sqrt(sviTotalVariance(logStrike, a, b, rho, m, sigma) / ttm);
 	}
 
-	public static double[] sviInitialGuess(ArrayList<Double> logStrikes, ArrayList<Double> totalVariances)
+	public static double[] sviInitialGuess(List<Double> logStrikes, List<Double> totalVariances)
 	{
 		// Use the Jump Wing parametrization from Gatheral's 2013 paper to derive an initial guess
-		final var nPoints = logStrikes.size();
+		final int nPoints = logStrikes.size();
 		assert nPoints >= 5 : "An initial guess for SVI is not sensible with less than 5 points.";
-		final var minIndex = totalVariances.indexOf(Collections.min(totalVariances));
-		final var k0 = logStrikes.get(minIndex);
+		final int minIndex = totalVariances.indexOf(Collections.min(totalVariances));
+		final double k0 = logStrikes.get(minIndex);
 		if(k0 == 0.0)
 		{
-			final var atmIndex = logStrikes.indexOf(0.0);
-			final var w = totalVariances.get(atmIndex);
-			final var d2wdk2 = 2 * (totalVariances.get(atmIndex + 1) * totalVariances.get(atmIndex - 1) - 2 * w)
+			final int atmIndex = logStrikes.indexOf(0.0);
+			final double w = totalVariances.get(atmIndex);
+			final double d2wdk2 = 2 * (totalVariances.get(atmIndex + 1) * totalVariances.get(atmIndex - 1) - 2 * w)
 					/ (Math.pow(logStrikes.get(atmIndex + 1), 2) + Math.pow(logStrikes.get(atmIndex - 1), 2));
-			final var c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))
+			final double c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))
 					/ (logStrikes.get(nPoints - 1) - logStrikes.get(nPoints - 2));
-			final var p = (totalVariances.get(0) - totalVariances.get(1))
+			final double p = (totalVariances.get(0) - totalVariances.get(1))
 					/ (logStrikes.get(1) - logStrikes.get(0));
-			final var b = 0.5 * (c + p);
-			final var rho = 1 - 2 * p / (c + p);
-			final var m = b * (1 - rho * rho) * Math.abs(rho) / d2wdk2;
-			final var sigma = m * Math.sqrt(1 - rho * rho) / rho;
-			final var a = w - b * sigma * Math.sqrt(1 - rho * rho);
+			final double b = 0.5 * (c + p);
+			final double rho = 1 - 2 * p / (c + p);
+			final double m = b * (1 - rho * rho) * Math.abs(rho) / d2wdk2;
+			final double sigma = m * Math.sqrt(1 - rho * rho) / rho;
+			final double a = w - b * sigma * Math.sqrt(1 - rho * rho);
 			return new double[] {a, b, rho, m, sigma};
 		}
 		else
 		{
-			final var wMin = totalVariances.get(minIndex);
+			final double wMin = totalVariances.get(minIndex);
 			double w, dwdk;
 			if (logStrikes.contains(0.0))
 			{
-				final var atmIndex = logStrikes.indexOf(0.0);
+				final int atmIndex = logStrikes.indexOf(0.0);
 				w = totalVariances.get(atmIndex);
 				dwdk = 0.5 * ((totalVariances.get(atmIndex + 1) - w) / (logStrikes.get(atmIndex + 1))
 						+ (totalVariances.get(atmIndex - 1) - w) / (logStrikes.get(atmIndex - 1)));
 			}
 			else
 			{
-				final var maxNegIndex = logStrikes.indexOf(
+				final int maxNegIndex = logStrikes.indexOf(
 						Collections.max(logStrikes.stream().filter(s -> s < 0.0).collect(Collectors.toList())));
 				dwdk = (totalVariances.get(maxNegIndex + 1) - totalVariances.get(maxNegIndex))
 						/ (logStrikes.get(maxNegIndex + 1) - logStrikes.get(maxNegIndex));
 				w = totalVariances.get(maxNegIndex) - dwdk * logStrikes.get(maxNegIndex);
 			}
-			final var c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))
+			final double c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))
 					/ (logStrikes.get(nPoints - 1) - logStrikes.get(nPoints - 2));
-			final var p = (totalVariances.get(0) - totalVariances.get(1))
+			final double p = (totalVariances.get(0) - totalVariances.get(1))
 					/ (logStrikes.get(1) - logStrikes.get(0));
 
-			final var b = 0.5 * (c + p);
-			final var rho = 1 - 2 * p / (c + p);
-			final var beta = rho - dwdk / b;
-			final var alpha = Math.signum(beta) * Math.sqrt(1 / beta / beta - 1);
-			final var m = (w - wMin) / b / (Math.signum(alpha) * Math.sqrt(1 + alpha * alpha)
+			final double b = 0.5 * (c + p);
+			final double rho = 1 - 2 * p / (c + p);
+			final double beta = rho - dwdk / b;
+			final double alpha = Math.signum(beta) * Math.sqrt(1 / beta / beta - 1);
+			final double m = (w - wMin) / b / (Math.signum(alpha) * Math.sqrt(1 + alpha * alpha)
 					- alpha * Math.sqrt(1 - rho * rho) - rho);
-			final var sigma = alpha * m;
-			final var a = wMin - b * sigma * Math.sqrt(1 - rho * rho);
+			final double sigma = alpha * m;
+			final double a = wMin - b * sigma * Math.sqrt(1 - rho * rho);
 			return new double[] {a, b, rho, m, sigma};
 		}
 	}

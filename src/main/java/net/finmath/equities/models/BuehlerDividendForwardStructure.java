@@ -36,7 +36,7 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 		this.dayCounter = dayCounter;
 
 		dividendTimes = new HashMap<LocalDate, Double>();
-		for(final var date : dividendStream.getDividendDates()) {
+		for(final LocalDate date : dividendStream.getDividendDates()) {
 			dividendTimes.put(date, dayCounter.getDaycountFraction(valuationDate, date));
 		}
 
@@ -94,9 +94,9 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 
 	@Override
 	public double getGrowthDiscountFactor(double startTime, double endTime) {
-		var df = 1.0;
-		for(final var date : dividendStream.getDividendDates()) {
-			final var dividendTime = dividendTimes.get(date);
+		double df = 1.0;
+		for(final LocalDate date : dividendStream.getDividendDates()) {
+			final double dividendTime = dividendTimes.get(date);
 			if(dividendTime > startTime && dividendTime <= endTime) {
 				df *= (1.0 - dividendStream.getProportionalDividendFactor(date));
 			}
@@ -107,16 +107,16 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 
 	@Override
 	public double getGrowthDiscountFactor(LocalDate startDate, LocalDate endDate) {
-		final var startTime = dayCounter.getDaycountFraction(valuationDate, startDate);
-		final var endTime = dayCounter.getDaycountFraction(valuationDate, endDate);
+		final double startTime = dayCounter.getDaycountFraction(valuationDate, startDate);
+		final double endTime = dayCounter.getDaycountFraction(valuationDate, endDate);
 		return getGrowthDiscountFactor(startTime, endTime);
 	}
 
 	@Override
 	public double getFutureDividendFactor(double valTime) {
-		var df = 0.0;
-		for(final var date : dividendStream.getDividendDates()) {
-			final var dividendTime = dividendTimes.get(date);
+		double df = 0.0;
+		for(final LocalDate date : dividendStream.getDividendDates()) {
+			final double dividendTime = dividendTimes.get(date);
 			if(dividendTime > valTime) {
 				df += dividendStream.getCashDividend(date) / getGrowthDiscountFactor(valTime, dividendTime);
 			}
@@ -126,15 +126,15 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 
 	@Override
 	public double getFutureDividendFactor(LocalDate valDate) {
-		final var valTime = dayCounter.getDaycountFraction(valuationDate, valDate);
+		final double valTime = dayCounter.getDaycountFraction(valuationDate, valDate);
 		return getFutureDividendFactor(valTime);
 	}
 
 	@Override
 	public double getForward(double expiryTime) {
-		var forward = spot * getGrowthDiscountFactor(0.0, expiryTime);
-		for(final var date : dividendStream.getDividendDates()) {
-			final var dividendTime = dividendTimes.get(date);
+		double forward = spot * getGrowthDiscountFactor(0.0, expiryTime);
+		for(final LocalDate date : dividendStream.getDividendDates()) {
+			final double dividendTime = dividendTimes.get(date);
 			if(dividendTime <= expiryTime) {
 				forward -= dividendStream.getCashDividend(date) * getGrowthDiscountFactor(dividendTime, expiryTime);
 			}
@@ -144,7 +144,7 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 
 	@Override
 	public double getForward(LocalDate expiryDate) {
-		final var expiryTime = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+		final double expiryTime = dayCounter.getDaycountFraction(valuationDate, expiryDate);
 		return getForward(expiryTime);
 	}
 
