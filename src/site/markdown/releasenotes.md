@@ -11,6 +11,10 @@ finmath lib Release Notes
 
 - Java 8 backport of all classes and methods. The maven artifact -java8 will be Java 8 compatible.
 
+### Algorithmic Differentiation
+
+- Added `ForwardSensitivities`, a class to obtain forward sensitivites dV(t)/dP(t) for general Monte-Carlo products V and P.
+
 ## 6.1.1 (12.05.2026)
 
 ### Numerical Methods: Tree Framework (contributed by A. Gnoatto)
