@@ -232,7 +232,7 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 	@Override
 	public void calibrate(
 			EquityForwardStructure forwardStructure,
-			ArrayList<VolatilityPoint> volaPoints)
+			List<VolatilityPoint> volaPoints)
 	{
 		/*TODO The current calibration is smile by smile. It does not ensure absence of arbitrage.
 		 * An improved calibration would use optimization constraints obtained from

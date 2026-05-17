@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to store and handle a stream of affine dividends
@@ -59,7 +60,7 @@ public class AffineDividendStream {
 
 	public static AffineDividendStream getAffineDividendsFromCashDividends(
 			AffineDividendStream cashDividends,
-			HashMap<LocalDate, Double> transformationFactors,
+			Map<LocalDate, Double> conversionRates,
 			LocalDate valDate,
 			double spot,
 			YieldCurve repoCurve) {
@@ -94,13 +95,13 @@ public class AffineDividendStream {
 				}
 			}
 
-			final double q = transformationFactors.get(date) * cashDividend
+			final double q = conversionRates.get(date) * cashDividend
 				 * repoCurve.getForwardDiscountFactor(valDate, date) / fwd;
 
 			affineDividends.add(
 					new AffineDividend(
 							date,
-							(1.0 - transformationFactors.get(date)) * cashDividend,
+							(1.0 - conversionRates.get(date)) * cashDividend,
 							q));
 		}
 

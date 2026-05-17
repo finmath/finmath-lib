@@ -2,6 +2,7 @@ package net.finmath.equities.models;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.finmath.equities.marketdata.VolatilityPoint;
 
@@ -73,7 +74,7 @@ public class FlatVolatilitySurface  implements VolatilitySurface, ShiftedVolatil
 
 	public void calibrate(
 			EquityForwardStructure forwardStructure,
-			ArrayList<VolatilityPoint> volaPoints)
+			List<VolatilityPoint> volaPoints)
 	{
 		assert false : "A flat surface cannot be calibrated";
 	}

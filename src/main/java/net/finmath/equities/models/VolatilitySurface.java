@@ -2,6 +2,7 @@ package net.finmath.equities.models;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import net.finmath.equities.marketdata.VolatilityPoint;
 
@@ -40,7 +41,7 @@ public interface VolatilitySurface extends Cloneable {
 
 	void calibrate(
 			EquityForwardStructure forwardStructure,
-			ArrayList<VolatilityPoint> volaPoints);
+			List<VolatilityPoint> volaPoints);
 
 	ShiftedVolatilitySurface getShiftedSurface(double shift);
 }
