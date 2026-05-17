@@ -13,8 +13,8 @@ package net.finmath.finitedifference.assetderivativevaluation.models;
  * where {@code y} denotes the log-jump size. The associated Levy density is
  * \[ \nu(y) = \left\{
  * \begin{array}{ll}
- *   C \cdot exp(-M y) / y, &amp; \text{for\,} y &gt; 0, \\
- *   C \cdot exp(-G |y|) / |y|, &amp; \text{for\,} y &lt; 0.
+ *   C \cdot exp(-M y) / y,     &amp; \text{for} \, y &gt; 0, \\
+ *   C \cdot exp(-G |y|) / |y|, &amp; \text{for} \, y &lt; 0.
  * \end{array} \right. \]
  * This is the standard Variance Gamma Levy density in {@code (C,G,M)}
  * parameterization. The process has infinite activity and finite variation.
