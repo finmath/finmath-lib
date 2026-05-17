@@ -142,51 +142,54 @@ Small improvements. Larger extensions ahead.
 
 ### General
 
- - Improved JavaDoc documentation
- 
+- Improved JavaDoc documentation
+
 ### Analytic Formulas / Linear Algebra
 
- - Fixed a bug in the definition / calculation of Theta (opposite to the sign).
- - Added a wrapper to perform a Cholesky decomposition on `double[][]`-matrix.
+- Fixed a bug in the definition / calculation of Theta (opposite to the sign).
+- Added a wrapper to perform a Cholesky decomposition on `double[][]`-matrix.
 
 ### Monte-Carlo
 
- - Added a more general version of a Brownian bridge.
+- Added a more general version of a Brownian bridge.
  
 ### Climate Models (IAM)
 
- - Added a version of the DICE model
+- Added a version of the DICE model
 
 
 ## 6.0.0 (30.12.2021)
 
 ### General
 
- In version 6.0.x several small refactorings will be done. This may take place over multiple patch versions x.
- 
- - Refactor rename: AbstractLIBORMonteCarloProduct to AbstractTermStructureMonteCarloProduct
- 
+In version 6.0.x several small refactorings will be done. This may take place over multiple patch versions x.
+
+- Refactor rename: AbstractLIBORMonteCarloProduct to AbstractTermStructureMonteCarloProduct
+
+
+---
+
 
 ## 5.1.3 (12.03.2021)
 
 ### RandomVariableFactory
 
- - Fixed issue where default value is used if value is of type RandomVariable. (The bug was not relevant in the current implementation of the models, since models used the method with type Double).
+- Fixed issue where default value is used if value is of type RandomVariable. (The bug was not relevant in the current implementation of the models, since models used the method with type Double).
 
 
 ## 5.1.2 (11.03.2021)
 
 ### General
 
- - Performance improvements for the LIBOR Market Model / Discrete Term Structure Model.
- - Added log messages to Levenberg Marquardt algorithm.
+- Performance improvements for the LIBOR Market Model / Discrete Term Structure Model.
+- Added log messages to Levenberg Marquardt algorithm.
 
 
 ## 5.1.1 (24.01.2021)
 
 ### Monte-Carlo Interest Rate Models
 
- - Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
+- Added a property to the `LIBORMarketModelFromCovarianceModel` to choose the interpolation method of simulation time: either rounding down or rounding to the nearest time. The "rounding down" preserves the propery, that the rate is (at least) F_t-measurable. The "rounding nearest" improves the interpolation of options with respect to option  maturity.
 
 
 ## 5.1.0 (24.01.2021)
@@ -195,398 +198,398 @@ Small improvements. Larger extensions ahead.
 
 #### Refactorings
 
- - The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
- - The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.
- - Interest rate Monte-Carlo simulations implement the slightly weaker interface `TermStructureMonteCarloSimulationModel`. The class `TermStructureMonteCarloSimulationFromTermStructureModel` implements the weaker interface `TermStructureMonteCarloSimulationFromTermStructureModel`. This is used in valuation of interest rate products. This interface does not provide the methods related to forward rate period discretizations - `getLIBORPeriodDiscretization`. In case it is needed, there is still a `LIBORMonteCarloSimulationFromTermStructureModel` implementing `LIBORModelMonteCarloSimulationModel` for backward compatibility (however, here the corresponding methods thrown an exception). (This was the case in the previous version). As before, the class `LIBORMonteCarloSimulationFromLIBORModel` implements `LIBORModelMonteCarloSimulationModel` and provides a getLIBORPeriodDiscretization(). 
- - Refactor rename TermStructureFactorLoadingsModelInterface to TermStructureFactorLoadingsModel
- - Refactor rename TermStructureFactorLoadingsModelParametricnterface to TermStructureFactorLoadingsModelParametric
- - Refactor rename TermStructureCovarianceModelInterface to TermStructureCovarianceModel
- - Refactor rename TermStructureTenorTimeScalingInterface to TermStructureTenorTimeScaling
+- The `TermStructureMonteCarloProduct` getValue method requires only a `TermStructureMonteCarloSimulationModel` as model. The stronger interface `LIBORModelMonteCarloSimulationModel` is rarely needed. Cases where it is used should be checked in future versions.
+- The name of the method `getLIBOR` has been replaced by `getForwardRate`. A default implementation provides `getLIBOR` for backward compatibility.
+- Interest rate Monte-Carlo simulations implement the slightly weaker interface `TermStructureMonteCarloSimulationModel`. The class `TermStructureMonteCarloSimulationFromTermStructureModel` implements the weaker interface `TermStructureMonteCarloSimulationFromTermStructureModel`. This is used in valuation of interest rate products. This interface does not provide the methods related to forward rate period discretizations- `getLIBORPeriodDiscretization`. In case it is needed, there is still a `LIBORMonteCarloSimulationFromTermStructureModel` implementing `LIBORModelMonteCarloSimulationModel` for backward compatibility (however, here the corresponding methods thrown an exception). (This was the case in the previous version). As before, the class `LIBORMonteCarloSimulationFromLIBORModel` implements `LIBORModelMonteCarloSimulationModel` and provides a getLIBORPeriodDiscretization(). 
+- Refactor rename TermStructureFactorLoadingsModelInterface to TermStructureFactorLoadingsModel
+- Refactor rename TermStructureFactorLoadingsModelParametricnterface to TermStructureFactorLoadingsModelParametric
+- Refactor rename TermStructureCovarianceModelInterface to TermStructureCovarianceModel
+- Refactor rename TermStructureTenorTimeScalingInterface to TermStructureTenorTimeScaling
 
 
 ## 5.0.10 (24.01-2021)
 
 ### Analytic Formulas
 
- - Some minor additions to the analytic formulas.
+- Some minor additions to the analytic formulas.
 
 ### Monte-Carlo Interest Rate Models
 
- - Fixed a bug in the volatility return type (ValueUnit) of the Caplet.
+- Fixed a bug in the volatility return type (ValueUnit) of the Caplet.
 
 
 ## 5.0.9 (26.12-2020)
 
 ### Analytic Formulas
 
- - Some minor additions to the analytic formulas.
+- Some minor additions to the analytic formulas.
 
 ### Bond curves and Bond valuation
 
- - Bonds can be valued on a single discount curve
+- Bonds can be valued on a single discount curve
  (instead a set of three curves consisting of (separate risk free curve, basis curve, survival prob. curve)).
  
 ### Algorithmic Differentiation / Automatic Differentiation
 
- - Added unit tests.
+- Added unit tests.
 
 ### Java 8
 
- - Backporting fixes from 5.0.6 to the Java 8 branch.
+- Backporting fixes from 5.0.6 to the Java 8 branch.
 
 
 ## 5.0.6 (03.10-2020)
 
 ### General
 
- - Improved exceptions.
+- Improved exceptions.
  
 ### Algorithmic Differentiation / Automatic Differentiation
 
- - Improvement to AAD for indicators.
- - Fixed an issue where (in a very special non-default setting), an algorithmic differentiation of an indicator function did not carry out the inner derivative.
+- Improvement to AAD for indicators.
+- Fixed an issue where (in a very special non-default setting), an algorithmic differentiation of an indicator function did not carry out the inner derivative.
  
 ### Monte-Carlo Single Asset Model
 
- - Monte-Carlo Merton model supports use of RandomVariableFactory. (Hence:)
- - Monte-Carlo Merton model supports AAD.
+- Monte-Carlo Merton model supports use of RandomVariableFactory. (Hence:)
+- Monte-Carlo Merton model supports AAD.
  
 
 ## 5.0.5 (16.08-2020)
 
 ### Equity European and American Options with Local Volatility (SVI) and Dividents (Bühler 2007)
 
- - Under the package `net.finmath.equities` the valuation of European and American options with Local Volatility (SVI) and Dividents (Bühler 2007) has been contributed by Andreas Grotz.
+- Under the package `net.finmath.equities` the valuation of European and American options with Local Volatility (SVI) and Dividents (Bühler 2007) has been contributed by Andreas Grotz.
 
 ### Monte-Carlo Single Asset Model
 
- - Fixed a bug in the implementation of `DigitalOptionDeltaLikelihood` related to weighted Monte-Carlo simulation (weights were ignored).
- - Added some getters.
+- Fixed a bug in the implementation of `DigitalOptionDeltaLikelihood` related to weighted Monte-Carlo simulation (weights were ignored).
+- Added some getters.
 
 
 ## 5.0.4 (28.07.2020)
 
 ### General
 
- - Removed Kotlin dependency - there is a separate project now: finmath-lib-kotlin.
+- Removed Kotlin dependency- there is a separate project now: finmath-lib-kotlin.
 
 ### Monte-Carlo Single Asset Model
 
- - Fixes to getCloneWithModifiedData to support more parameters.
+- Fixes to getCloneWithModifiedData to support more parameters.
 
 ### Monte-Carlo Multi-Asset Black-Scholes Model
 
- - Multi-asset Black-Scholes model allows construction from factor loadings and volatility-and-correlation.
- - Added unit tests.
+- Multi-asset Black-Scholes model allows construction from factor loadings and volatility-and-correlation.
+- Added unit tests.
  
 
 ## 5.0.3 (05.07.2020)
 
 ### General
 
- - Added some convenient methods in AnalyticFomulas consuming RandomVariable parameters.
- - Interface RandomVariable contains convenient default methods for variance and covariance.
- - TimeDiscretization can be used as DoubleStream.
+- Added some convenient methods in AnalyticFomulas consuming RandomVariable parameters.
+- Interface RandomVariable contains convenient default methods for variance and covariance.
+- TimeDiscretization can be used as DoubleStream.
 
 ### Monte-Carlo Single Asset Model
 
- - MonteCarloBlackScholesModel extends MonteCarloAssetModel
+- MonteCarloBlackScholesModel extends MonteCarloAssetModel
  
 
 ## 5.0.2 (12.06.2020)
 
 ### General
 
- - Minor improvements (additional c'tors).
+- Minor improvements (additional c'tors).
 
 ### Random number generators
 
- - Added some quasi random number generators.
+- Added some quasi random number generators.
 
 
 ## 5.0.1 (10.05.2020)
 
 ### Numerical Integration
 
- - Exact integration of functions of piecewise constant functions (useful for intensity models). See `net.finmath.integrationnet.finmath.integration.PiecewiseContantDoubleUnaryOperator`.
+- Exact integration of functions of piecewise constant functions (useful for intensity models). See `net.finmath.integrationnet.finmath.integration.PiecewiseContantDoubleUnaryOperator`.
  
 ### Analytic valuation models
 
- - CDS valuation (contributed by Matthias Föhr).
+- CDS valuation (contributed by Matthias Föhr).
 
 
 ## 5.0.0 (12.04.2020)
 
- - Refactoring and cleanup (deprecation) from 4.1.8. See [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
+- Refactoring and cleanup (deprecation) from 4.1.8. See [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
 
 ### Monte-Carlo Simulation Models
 
- - The state space transform is time dependent, i.e., has timeIndex as addition argument. This allows more accurate numerical schemes.
- - The `ProcessModel` has to be passed as the first argument to the methods `getInitalState`, `getDrift`, `getFactorLoading`, `applyStateSpaceTransfrom`.
+- The state space transform is time dependent, i.e., has timeIndex as addition argument. This allows more accurate numerical schemes.
+- The `ProcessModel` has to be passed as the first argument to the methods `getInitalState`, `getDrift`, `getFactorLoading`, `applyStateSpaceTransfrom`.
  
 
 ## 4.1.8 (12.04.2020)
 
 ### General
 
- - RandomOperator is a synonym for Function<RandomVariable,RandomVariable>
- - RandomVariables come with apply(RandomOperator).
+- RandomOperator is a synonym for Function<RandomVariable,RandomVariable>
+- RandomVariables come with apply(RandomOperator).
  
 ### Analytic Formulas
 
- - More convenient variants of Bachelier formula (classic, homogeneous, inhomogeneous).
+- More convenient variants of Bachelier formula (classic, homogeneous, inhomogeneous).
 
 ### Interest Rate Models (Monte-Carlo)
 
- - Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
- - LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
- - Improve analytic calibration of normal LIBOR Market Model.
+- Generic Cross-Currency LIBOR Market Model (with generic quanto adjustment).
+- LIBOR Market Model with SABR and ZABR stochastic volatility (unit test).
+- Improve analytic calibration of normal LIBOR Market Model.
 
 ### Equity Models (Monte-Carlo)
 
- - Reworked Monte-Carlo implementation of Displaced Lognormal Models.
+- Reworked Monte-Carlo implementation of Displaced Lognormal Models.
 
 
 ## 4.1.7 (22.03.2020)
 
 ### General
 
- - Prepearation of the refactoring introduces in 5.0. The `ProcessModel` and `MonteCarloProcess` model do not hold a reference to the process anymore.
+- Prepearation of the refactoring introduces in 5.0. The `ProcessModel` and `MonteCarloProcess` model do not hold a reference to the process anymore.
    Instead, a reference to the `ProcessModel` has to be passed as the first argument of methods like `getInitalState`, `getDrift`, `getFactorLoading`.
    Starting with version 4.1.4 of the library default implementations of these methods are introduces while the old methods are marked as deprecated.
    For a guideline of migrating any implementation see [migration/4.1.x-to-5.0.0](migration/4.1.x-to-5.0.0).
 
 ### Random Number Generators
 
- - An interface `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator1D` has been added, using default implementation to extend `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator`.
+- An interface `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator1D` has been added, using default implementation to extend `net.finmath.randomnumbers.RandomNumberGenerator1DRandomNumberGenerator`.
 
 ### Fourier Methods
 
- - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
+- Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
 
 
 ## 4.1.2
 
 ### General
 
- - Moved site to GitHub pages.
- - Improved JavaDoc.
- - Improved Documentation.
+- Moved site to GitHub pages.
+- Improved JavaDoc.
+- Improved Documentation.
 
 
 ## 4.1.1
 
 ### General
 
- - Improved toString() for nicer output in jshell
+- Improved toString() for nicer output in jshell
 
 ### Refactorings
 
- - Removed deprecated methods (setXxx) in AnalyticModel - the class is now immutable
+- Removed deprecated methods (setXxx) in AnalyticModel- the class is now immutable
 
- - Refactoring rename RandomVariableDifferentiableFactory: AbstractRandomVariableDifferentiableFactory extract interface RandomVariableDifferentiableFactory
+- Refactoring rename RandomVariableDifferentiableFactory: AbstractRandomVariableDifferentiableFactory extract interface RandomVariableDifferentiableFactory
 
 ## 4.1.0 (26.01.2020)
 
 ### General
 
- - Clean up. Arguments of methods are final (when possible).
+- Clean up. Arguments of methods are final (when possible).
 
 ### Refactorings
 
- - Refactoring rename RandomVariableFactory: RandomVariableFactory to RandomVariableFromArrayFactory
- - Refactoring rename RandomVariableFactory: AbstractRandomVariableFactory extract interface RandomVariableFactory
+- Refactoring rename RandomVariableFactory: RandomVariableFactory to RandomVariableFromArrayFactory
+- Refactoring rename RandomVariableFactory: AbstractRandomVariableFactory extract interface RandomVariableFactory
 
- - Refactoring rename Notional: Notional to NotionalFromConstant
- - Refactoring rename Notional: AbstractNotional to Notional
+- Refactoring rename Notional: Notional to NotionalFromConstant
+- Refactoring rename Notional: AbstractNotional to Notional
 
- - Refactoring rename SwaptionMarketData: SwaptionMarketData to SwaptionATMMarketDataFromArray
- - Refactoring rename SwaptionMarketData: AbstractSwaptionMarketData to SwaptionMarketData
+- Refactoring rename SwaptionMarketData: SwaptionMarketData to SwaptionATMMarketDataFromArray
+- Refactoring rename SwaptionMarketData: AbstractSwaptionMarketData to SwaptionMarketData
  
 ### Documentation
 
- - Added documentation of Model and Product interfaces.
- - Added script (Eclipse) for refactorings 4.0.x to 4.1.0
- - Added documentation for refactorings 4.0.x to 4.1.0
+- Added documentation of Model and Product interfaces.
+- Added script (Eclipse) for refactorings 4.0.x to 4.1.0
+- Added documentation for refactorings 4.0.x to 4.1.0
  
 ### Interest Rate Models (Analytic)
 
- - Added code for caplet bootstrapping and caplet volatility tenor conversion.
+- Added code for caplet bootstrapping and caplet volatility tenor conversion.
 
 
 ## 4.0.15 (26.01.2020)
 
 ### General
 
- - Minor clean up.
+- Minor clean up.
  
 ### Market Data
 
- - Discount Curves carry a reference date.
+- Discount Curves carry a reference date.
  
 ### Monte-Carlo Simulation / AAD
 
- - Added PREDICTOR_CORRECTOR_FUNCTIONAL scheme, being compatible with AAD.
+- Added PREDICTOR_CORRECTOR_FUNCTIONAL scheme, being compatible with AAD.
 
-### Interest Rate Models - Monte-Carlo Simulation
+### Interest Rate Models- Monte-Carlo Simulation
 
- - Changed scaling of numeraire if default curve is given for measures where N(0) is not equal to 1.
+- Changed scaling of numeraire if default curve is given for measures where N(0) is not equal to 1.
 
 
 ## 4.0.13 (05.10.2019)
 
 ### General
 
- - Added some constructors for convenience.
+- Added some constructors for convenience.
  
 ### Monte-Carlo Simulation / AAD
 
- - Improved compatibility with AAD valuations - EULER_FUNCTIONAL is default in Euler scheme.
+- Improved compatibility with AAD valuations- EULER_FUNCTIONAL is default in Euler scheme.
 
 
 ## 4.0.12 (02.06.2019)
 
 ### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
 
- -  Variance Gamma Model:  Fourier and Monte-Carlo implementations for the Variance Gamma Model.
+-  Variance Gamma Model:  Fourier and Monte-Carlo implementations for the Variance Gamma Model.
 
-### Interest Rate Models - Analytic and Semi-Analytic (this part is still under development / refactoring) - see `net.finmath.singleswaprate`
+### Interest Rate Models- Analytic and Semi-Analytic (this part is still under development / refactoring)- see `net.finmath.singleswaprate`
 
- - SABR Volatility Cube Calibration (contributed by Roland Bachl)
- - Cash-Settled Swaption and CMS Valuation via Replication using different Annuity Mappings (contributed by Roland Bachl)
+- SABR Volatility Cube Calibration (contributed by Roland Bachl)
+- Cash-Settled Swaption and CMS Valuation via Replication using different Annuity Mappings (contributed by Roland Bachl)
  
-### Interest Rate Models - Monte-Carlo Simulation
+### Interest Rate Models- Monte-Carlo Simulation
 
- - Improved implementation of the Bermudan Swaption. See `BermudanSwaptionFromSwapSchedules`.
+- Improved implementation of the Bermudan Swaption. See `BermudanSwaptionFromSwapSchedules`.
 
 
 ## 4.0.11 (22.04.2019)
 
 ### General
 
- - The `net.finmath.time.TimeDiscretizationFromArray` comes with an additional (optional) argument to allow duplicate simulation time discretization points (i.e., time step sizes of 0) (this is useful to ensure path-consistent Monte-Carlo simulations).
+- The `net.finmath.time.TimeDiscretizationFromArray` comes with an additional (optional) argument to allow duplicate simulation time discretization points (i.e., time step sizes of 0) (this is useful to ensure path-consistent Monte-Carlo simulations).
 
 ### Market Data / Curves
 
- - Allowing access to interpolation points for interpolated curve.
+- Allowing access to interpolation points for interpolated curve.
 
 ### Fourier Methods (contributed and maintained by Prof. A. Gnoatto)
 
- - Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.
+- Implementation of the Merton Model. See `net.finmath.fouriermethod.models.MertonModel`.
  
 ### Monte-Carlo Simulation
 
- - The LIBOR Market Model () and the Hull White Model () may be used with simulation time discretizations having duplicate entries (this is useful to ensure path-consistent Monte-Carlo simulations).
+- The LIBOR Market Model () and the Hull White Model () may be used with simulation time discretizations having duplicate entries (this is useful to ensure path-consistent Monte-Carlo simulations).
  
- - Introduced `MonteCarloConditionalExpectationRegressionFactory`.
+- Introduced `MonteCarloConditionalExpectationRegressionFactory`.
 
-### Single Asset (Equity/FX) Models - Monte-Carlo Simulation
+### Single Asset (Equity/FX) Models- Monte-Carlo Simulation
 
- - Implementation of the Variance Gamma Process (contributed and maintained by Prof. A. Gnoatto). See `net.finmath.montecarlo.VarianceGammaProcess`.
+- Implementation of the Variance Gamma Process (contributed and maintained by Prof. A. Gnoatto). See `net.finmath.montecarlo.VarianceGammaProcess`.
 
-### Interest Rate Models - Monte-Carlo Simulation
+### Interest Rate Models- Monte-Carlo Simulation
 
- - Improved implementation of the Bermudan Swaption allowing arbitrary swap schedules (consistent with AnalyticModel) and injection of custom method for estimation of conditional expectation. See `BermudanSwaptionFromSwapSchedules`.
+- Improved implementation of the Bermudan Swaption allowing arbitrary swap schedules (consistent with AnalyticModel) and injection of custom method for estimation of conditional expectation. See `BermudanSwaptionFromSwapSchedules`.
 
 
 ## 4.0.9 (07.04.2019)
 
 ### General
 
- - Introduced the interface `net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider` which can be implemented by products to give a hint on a preferred time discretization of a model.
+- Introduced the interface `net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider` which can be implemented by products to give a hint on a preferred time discretization of a model.
  
- - Stricter checkstyle rules: checking for visibility of filed. Fields have to be private.
+- Stricter checkstyle rules: checking for visibility of filed. Fields have to be private.
 
 ### Market Data
 
- - Improved serialization for ScheduleDescriptors.
+- Improved serialization for ScheduleDescriptors.
 
- - Improved serialization for Swaps.
+- Improved serialization for Swaps.
  
 ### Interest Rate Models
 
- - Added `net.finmath.montecarlo.interestrate.products.BermudanSwaptionFromSwapSchedules` - an implementation of a Monte-Carlo valuation of a Bermudan swaption using exact swap schedules.
+- Added `net.finmath.montecarlo.interestrate.products.BermudanSwaptionFromSwapSchedules`- an implementation of a Monte-Carlo valuation of a Bermudan swaption using exact swap schedules.
  
- - `SwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
+- `SwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
 
- - `BermudanSwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
+- `BermudanSwaptionFromSwapSchedules` implements `ProcessTimeDiscretizationProvider`.
 
  
 ## 4.0.8 (31.03.2019)
 
 ### Interest Rate Models
 
- - Added `net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules` - an implementation of a Monte-Carlo valuation of a swaption based on swap schedules, being compatible with AAD.
+- Added `net.finmath.montecarlo.interestrate.products.SwaptionFromSwapSchedules`- an implementation of a Monte-Carlo valuation of a swaption based on swap schedules, being compatible with AAD.
 
 
 ## 4.0.7 (24.03.2019)
 
 ### General
 
- - The `getCloneWithModifiedData` allows to create a copy of models with modified random variable factory. This allow to create AAD enabled models from model without AAD support. The typical use is to perform a model calibration without AAD random variables, then inject the AAD dependency and calculate sensitivities.
+- The `getCloneWithModifiedData` allows to create a copy of models with modified random variable factory. This allow to create AAD enabled models from model without AAD support. The typical use is to perform a model calibration without AAD random variables, then inject the AAD dependency and calculate sensitivities.
  
- - Minor updates to documentation.
+- Minor updates to documentation.
 
 ### Interest Rate Models
 
- - Added support for different interest rate curve interpolation methods.
+- Added support for different interest rate curve interpolation methods.
 
 
 ## 4.0.5 (27.01.2019)
 
 ### General
 
- - Some minor refactorings:
-    - `CurveFromInterpolationPoints` renamed to `CurveInterpolation`.
-    - Fixed typo in class name `AnalyticModelFromCurvesAndVols`.
+- Some minor refactorings:
+   - `CurveFromInterpolationPoints` renamed to `CurveInterpolation`.
+   - Fixed typo in class name `AnalyticModelFromCurvesAndVols`.
     
 ### Algorithmic Differentiation / Interest Rate Models
 
- - The Hull White Model (`HullWhiteModel`) and the Short Rate Volatility Models (implementing `ShortRateVolatilityParametricModel` support
+- The Hull White Model (`HullWhiteModel`) and the Short Rate Volatility Models (implementing `ShortRateVolatilityParametricModel` support
    objects implementing `RandomVariable` as parameters.
    This enables the model to use Algorithmic Differentiation and Adjoint Algorithmic Differentiation.
 
 ### Interest Rate Models
 
- - A unit test for the calibration of the Hull-White model has been added.
+- A unit test for the calibration of the Hull-White model has been added.
  
 
 ## 4.0.1 (20.01.2019)
 
 ### General
 
- - *Refactoring of names*. Interfaces come with plain names like `RandomVariable` 
+- *Refactoring of names*. Interfaces come with plain names like `RandomVariable` 
    while implementation come with implementation details as in `RandomVariableFromDoubleArray`.
    Details can be found in docs/refactoring-3.6.x-to-4.0.0.
 
- - *Refactoring of `RandomVariable`*. Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
+- *Refactoring of `RandomVariable`*. Removed deprecated methods: The method `barrier` has been removed from RandomVariable. 
    Use `choose` instead.
 
- - *Refactoring: Interest rate model plugins (covariance models)*. Refactoring of methods: the method `getParameter` returns a
+- *Refactoring: Interest rate model plugins (covariance models)*. Refactoring of methods: the method `getParameter` returns a
    `RandomVariable[]` to allow for generic parameters, possibly enabling AAD. A method getParameterAsDoubleArray is provided
    for convenience in case the random variable parameter is deterministic.
 
- - The packages `net.finmath.montecarlo.interestrate.models.modelplugins` and `net.finmath.montecarlo.interestrate.models.covariancemodels` 
+- The packages `net.finmath.montecarlo.interestrate.models.modelplugins` and `net.finmath.montecarlo.interestrate.models.covariancemodels` 
    have been merged. The resulting package has been renamed to `net.finmath.montecarlo.interestrate.models.covariance`.
  
- - Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced.
+- Refactoring: Package hierarchy. 1) A package `net.finmath.montecarlo.interestrate.models` is introduced.
    The classes implementing `ProcessModel` (or extending `AbstractProcessModel`) for the `HullWhiteModel` and LMM are moved into this package (from `net.finmath.montecarlo.interestrate`). The packages covariancemodels, modelplugins, factordrift are moved into this package. 2) A package `net.finmath.montecarlo.assetderivativevaluation.models` is introduced. The classes implementing ProcessModel (or extending `AbstractProcessModel`) for the `BlackScholes`, `Bacheler`, `Merton`, `Bates`, etc. are moved into this package (from `net.finmath.montecarlo.assetderivativevaluation`).
 
 ### Linear Algebra
 
- - Added *solve linear equation* with *Tikhonov regularization*.
+- Added *solve linear equation* with *Tikhonov regularization*.
     
 
 ## 3.6.3 (15.01.2019)
 
 ### General
 
- - Some interfaces have default methods to allow compatibility with the 4.0.0 classes
+- Some interfaces have default methods to allow compatibility with the 4.0.0 classes
 
 
 ### Hull-White Model
 
- - Added generic calibration of Hull-White model (adaption of the LMM calibration)
+- Added generic calibration of Hull-White model (adaption of the LMM calibration)
    (adaption contributed by Ruben).
 
 
@@ -594,11 +597,11 @@ Small improvements. Larger extensions ahead.
 
 ### General
 
- - Added interface for models which generically report the independent model parameters.
+- Added interface for models which generically report the independent model parameters.
    
 ### Automatic Differentiation
 
- - Added unit test showing the generic calculation of sensitivities (implicit function 
+- Added unit test showing the generic calculation of sensitivities (implicit function 
    theorem).
 
 
@@ -635,7 +638,7 @@ Small improvements. Larger extensions ahead.
 ### LIBOR Market Model
 
 - The LIBORMarletModel provides the numeraire adjustments through a method. This method  
-  is required for - e.g. - a sensitivity based calculation of an MVA.
+  is required for- e.g.- a sensitivity based calculation of an MVA.
 
 
 ## 3.4.4 (02.11.2018)
@@ -815,7 +818,7 @@ call
 
 ## 3.2.0 (18.02.2018)
 
-### General Refactoring - Interfaces (see Concepts / Separation of Model and Products)
+### General Refactoring- Interfaces (see Concepts / Separation of Model and Products)
 
 - The interface `net.finmath.modelling.ModelInterface` has been renamed/refactored to `net.finmath.modelling.Model<T extends ModelDescriptor>`. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
 - The interface `net.finmath.modelling.ProductInterface` has been renamed/refactored to `net.finmath.modelling.Product<T extends ProductDescriptor>`. This is related to the introduction of ModelDescriptors and ProductDescriptors. The interface was previously a marker interface, but now comes with two methods.
@@ -830,7 +833,7 @@ call
 
 ## 3.1.3 (28.10.2017)
 
-### Analytic models - Curves
+### Analytic models- Curves
 
 - Added serializability. For example for AnalytModel and curves. The AnalyticModel may be serialized to disk and loaded from disk. This is useful in curve calibration spreadsheets.
 
@@ -841,7 +844,7 @@ call
 - RandomVariableInterface gets an additional method doubleValue() which will return the value of random variable if it is deterministic. So instead of getAverage() you may call average().doubleValue(). This addition is to allow the consistent use of
 deterministic random variables in analytic model. The advantage of this approach is the possibility of dependency injection (using stochastic automatic differentiation) and the possiblity to use stochastic quantities in analytic models ("stochastic curves").
 
-### Analytic models - Curves
+### Analytic models- Curves
 
 - Introduction of "stochastic curves". The package net.finmath.analytic is a port of net.finmath.marketdata where all curve object operate on RandomVariableInterface. This allows AAD calibration and "stochastic curves".
 
@@ -864,8 +867,8 @@ deterministic random variables in analytic model. The advantage of this approach
 
 ### Valuation using Fourier transforms
 
-- Added characteristic function of Heston model - allows semi-analytic valuation of option prices under Heston model.
-- Added characteristic function of Bates model - allows semi-analytic valuation of option prices under Bates model.
+- Added characteristic function of Heston model- allows semi-analytic valuation of option prices under Heston model.
+- Added characteristic function of Bates model- allows semi-analytic valuation of option prices under Bates model.
 
 ### Support for finmath-lib automatic differentiation extensions: Interface chances to RandomVariableInterface and Monte-Carlo models
 
@@ -1060,13 +1063,13 @@ of `getValue` in `SwaptionAnalyticApproximation` for an example).
 
 ### Swaps
 
--	Additional constructor for Swap (using SwapLegs).
+- Additional constructor for Swap (using SwapLegs).
 
 ### Monte Carlo
 
--	BrownianMotion allows to use a custom AbstractRandomVariableFactory. Useful to switch to single precision floating point numbers (to save memory).
--	ProcessEulerScheme has an addition constructor (to directly construct a predictor corrector scheme).
--	Swaption is now compatible multi-curve LMM (using collateral curve).
+- BrownianMotion allows to use a custom AbstractRandomVariableFactory. Useful to switch to single precision floating point numbers (to save memory).
+    - ProcessEulerScheme has an addition constructor (to directly construct a predictor corrector scheme).
+    - Swaption is now compatible multi-curve LMM (using collateral curve).
 
 ### Exposure
 
