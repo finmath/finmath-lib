@@ -18,8 +18,8 @@ package net.finmath.finitedifference.assetderivativevaluation.models;
  * </p>
  *
  * <pre>
- * nu(y) = C * exp(-M y) / y,      for y > 0,
- * nu(y) = C * exp(-G |y|) / |y|,  for y < 0.
+ * nu(y) = C * exp(-M y) / y,      for y &gt; 0,
+ * nu(y) = C * exp(-G |y|) / |y|,  for y &lt; 0.
  * </pre>
  *
  * <p>
