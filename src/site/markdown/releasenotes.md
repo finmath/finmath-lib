@@ -17,9 +17,9 @@ finmath lib Release Notes
 
 - Added a tree framework `net.finmath.tree` with similar package layout as `net.finmath.montecarlo` (models / products).
 
-### Numerical Methods: Finite Difference Framework
+### Numerical Methods: finite Difference Framework
 
-- Complete rewrite of fineite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
+- Complete rewrite of finite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
 
 ### Algorithmic Differentiation
 
