@@ -24,7 +24,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @author Christian Fries
  * @version 1.2
  */
-public class SwaptionSimple extends AbstractLIBORMonteCarloProduct implements net.finmath.modelling.products.Swaption {
+public class SwaptionSimple extends AbstractTermStructureMonteCarloProduct implements net.finmath.modelling.products.Swaption {
 
 	private final TimeDiscretization	tenor;
 	private final double						swaprate;

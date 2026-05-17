@@ -44,7 +44,7 @@ import net.finmath.time.TimeDiscretizationFromArray;
  * @date 06.12.2009
  * @date 07.04.2019
  */
-public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloProduct implements RegressionBasisFunctionsProvider, ProcessTimeDiscretizationProvider, Swaption {
+public class BermudanSwaptionFromSwapSchedules extends AbstractTermStructureMonteCarloProduct implements RegressionBasisFunctionsProvider, ProcessTimeDiscretizationProvider, Swaption {
 
 	private static Logger logger = Logger.getLogger("net.finmath");
 
@@ -200,7 +200,7 @@ public class BermudanSwaptionFromSwapSchedules extends AbstractLIBORMonteCarloPr
 		for(int exerciseIndex = exerciseDates.length - 1; exerciseIndex >=0; exerciseIndex--) {
 			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);
 
-			final RandomVariable discountedCashflowFixLeg			= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
+			final RandomVariable discountedCashflowFixLeg		= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);
 			final RandomVariable discountedCashflowFloatingLeg	= getValueUnderlyingNumeraireRelative(model, floatSchedules[exerciseIndex], true, 0.0, notionals[exerciseIndex]);
 
 			// Distinguish whether the swaption is of type "Payer" or "Receiver":

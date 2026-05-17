@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.stochastic.RandomVariable;
 
 /**
@@ -31,7 +31,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.0
  */
-public abstract class AbstractProductComponent extends AbstractLIBORMonteCarloProduct  implements Serializable {
+public abstract class AbstractProductComponent extends AbstractTermStructureMonteCarloProduct  implements Serializable {
 
 	/**
 	 *

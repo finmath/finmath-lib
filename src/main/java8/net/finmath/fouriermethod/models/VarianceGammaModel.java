@@ -125,8 +125,8 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 
 	/**
 	 * @return the referenceDate: The date corresponding to t = 0 (when dealing with {@link FloatingpointDate}s.
-
 	 */
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
@@ -134,6 +134,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the initialValue
 	 */
+	@Override
 	public double getInitialValue() {
 		return initialValue;
 	}
@@ -141,6 +142,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForForwardRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForForwardRate() {
 		return discountCurveForForwardRate;
 	}
@@ -148,6 +150,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the riskFreeRate
 	 */
+	@Override
 	public double getRiskFreeRate() {
 		return riskFreeRate;
 	}
@@ -155,6 +158,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForDiscountRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForDiscountRate() {
 		return discountCurveForDiscountRate;
 	}
@@ -162,6 +166,7 @@ public class VarianceGammaModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountRate
 	 */
+	@Override
 	public double getDiscountRate() {
 		return discountRate;
 	}

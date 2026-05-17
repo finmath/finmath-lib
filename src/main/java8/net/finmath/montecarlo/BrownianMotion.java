@@ -35,7 +35,6 @@ public interface BrownianMotion extends IndependentIncrements {
 	 */
 	RandomVariable getBrownianIncrement(int timeIndex, int factor);
 
-
 	/**
 	 * Return the Brownian increment for a given timeIndex.
 	 *
@@ -49,6 +48,11 @@ public interface BrownianMotion extends IndependentIncrements {
 	 */
 	default RandomVariable getBrownianIncrement(final double time, final int factor) {
 		return getBrownianIncrement(getTimeDiscretization().getTimeIndex(time), factor);
+	}
+
+	@Override
+	default RandomVariable getIncrement(int timeIndex, int factor) {
+		return getBrownianIncrement(timeIndex, factor);
 	}
 
 	/**

@@ -31,7 +31,7 @@ import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovariance
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.Swap;
 import net.finmath.montecarlo.interestrate.products.SwapLeg;
 import net.finmath.montecarlo.interestrate.products.Swaption;
@@ -90,7 +90,7 @@ public class ExposureTest {
 
 		final SwapLeg swapLegRec = new SwapLeg(legScheduleRec, notional, null, fixedCoupon /* spread */, false /* isNotionalExchanged */);
 		final SwapLeg swapLegPay = new SwapLeg(legSchedulePay, notional, index, 0.0 /* spread */, false /* isNotionalExchanged */);
-		final AbstractLIBORMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
+		final AbstractTermStructureMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
 		final TermStructureMonteCarloProduct swapExposureEstimator = new ExposureEstimator(swap);
 
 
@@ -136,7 +136,7 @@ public class ExposureTest {
 
 		final SwapLeg swapLegRec = new SwapLeg(schedule, notional, index, 0.0 /* spread */, false /* isNotionalExchanged */);
 		final SwapLeg swapLegPay = new SwapLeg(schedule, notional, null, fixedCoupon /* spread */, false /* isNotionalExchanged */);
-		final AbstractLIBORMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
+		final AbstractTermStructureMonteCarloProduct swap = new Swap(swapLegRec, swapLegPay);
 		final TermStructureMonteCarloProduct swapExposureEstimator = new ExposureEstimator(swap);
 
 		final LIBORModelMonteCarloSimulationModel lmm = createLIBORMarketModel(Measure.SPOT, 10000, 5, 0.1);

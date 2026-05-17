@@ -19,7 +19,7 @@ import net.finmath.stochastic.Scalar;
  * @author Christian Fries
  * @version 1.0
  */
-public class LIBORBond extends AbstractLIBORMonteCarloProduct {
+public class LIBORBond extends AbstractTermStructureMonteCarloProduct {
 	private final double maturity;
 
 	/**

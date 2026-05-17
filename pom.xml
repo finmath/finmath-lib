@@ -30,10 +30,11 @@
 		<maven.jar-plugin.version>3.2.0</maven.jar-plugin.version>
 		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
 		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
-		<checkstyle-plugin.version>3.1.1</checkstyle-plugin.version>
+		<checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
 		<clover-plugin.version>4.4.1</clover-plugin.version>
 		<maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-		<maven-central-publishing-maven.version>0.8.0</maven-central-publishing-maven.version>
+		<maven-central-publishing-maven.version>0.10.0</maven-central-publishing-maven.version>
+		<build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
 		<maven-buildnumber-maven-plugin.version>1.4</maven-buildnumber-maven-plugin.version>
 		<maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
 		<maven-scm-publish-plugin.version>3.1.0</maven-scm-publish-plugin.version>
@@ -211,8 +212,9 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
+						<phase>package</phase>
 						<goals>
-							<goal>jar</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -221,7 +223,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven.javadoc-plugin.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -239,7 +240,11 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${checkstyle-plugin.version}</version>
 				<configuration>
-					<configLocation>finmath-checkstyle.xml</configLocation>
+					<configLocation>checkstyle/finmath-checkstyle.xml</configLocation>
+					<encoding>UTF-8</encoding>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<linkXRef>false</linkXRef>
 					<excludes>**/module-info.java</excludes>
 				</configuration>
 			</plugin>
@@ -498,6 +503,7 @@
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
+							<phase>package</phase>
 							<goals>
 								<goal>jar</goal>
 							</goals>
@@ -505,8 +511,7 @@
 					</executions>
 				</plugin>
 
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -529,6 +534,25 @@
 									</pluginExecutionFilter>
 									<action>
 										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-checkstyle-plugin
+										</artifactId>
+										<versionRange>
+											[3.1.2,)
+										</versionRange>
+										<goals>
+											<goal>check</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -591,6 +615,41 @@
 							<compilerVersion>1.8</compilerVersion>
 							<fork>true</fork>
 						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>attach-java8-artifact</id>
+			<activation>
+				<property>
+					<name>java8.artifact</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>${build-helper-maven-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>attach-java8-artifact</id>
+								<phase>package</phase>
+								<goals>
+									<goal>attach-artifact</goal>
+								</goals>
+								<configuration>
+									<artifacts>
+										<artifact>
+											<file>${java8.artifact}</file>
+											<type>jar</type>
+											<classifier>java8</classifier>
+										</artifact>
+									</artifacts>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

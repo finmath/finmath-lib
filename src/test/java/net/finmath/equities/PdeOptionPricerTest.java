@@ -9,6 +9,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import net.finmath.equities.models.VolatilitySurface;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.marketdata.AffineDividend;
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.FlatYieldCurve;
@@ -43,31 +46,31 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test European option price");
 		System.out.println("===========================================");
 
-		final var anaPricer = new AnalyticOptionValuation(dcc);
-		final var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.25;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.05;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final AnalyticOptionValuation anaPricer = new AnalyticOptionValuation(dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.25;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.05;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.03),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 12.0, 0.03),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2020-12-24");
-		final var strike = 90.0;
+		final LocalDate expiryDate = LocalDate.parse("2020-12-24");
+		final double strike = 90.0;
 
 		final boolean[] callput = {true, false};
-		for (final var isCall : callput)
+		for (final boolean isCall : callput)
 		{
-			final var option = new EuropeanOption(expiryDate, strike, isCall);
+			final Option option = new EuropeanOption(expiryDate, strike, isCall);
 
-			final var anaPrice = anaPricer.getPrice(option, fwdStructure, curve, flatVol);
-			final var pdePrice = pdePricer.getPrice(option, fwdStructure, curve, flatVol);
+			final double anaPrice = anaPricer.getPrice(option, fwdStructure, curve, flatVol);
+			final double pdePrice = pdePricer.getPrice(option, fwdStructure, curve, flatVol);
 
 			System.out.println("Ana " + (isCall ? "Call" : "Put") + " : " + anaPrice);
 			System.out.println("Pde " + (isCall ? "Call" : "Put") + " : " + pdePrice);
@@ -84,34 +87,34 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American option price");
 		System.out.println("===========================================");
 
-		final var anaPricer = new AnalyticOptionValuation(dcc);
-		final var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, true);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.25;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.05;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final AnalyticOptionValuation anaPricer = new AnalyticOptionValuation(dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, true);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.25;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.05;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2019-09-17"), 5.0, 0.00),
 						new AffineDividend(LocalDate.parse("2020-09-17"), 3.0, 0.03),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 0.0, 0.05),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2021-10-15");
-		final var strike = 100.0;
+		final LocalDate expiryDate = LocalDate.parse("2021-10-15");
+		final double strike = 100.0;
 
 		final boolean[] callput = {true, false};
-		for (final var isCall : callput)
+		for (final boolean isCall : callput)
 		{
-			final var americanOption = new AmericanOption(expiryDate, strike, isCall);
-			final var europeanOption = new EuropeanOption(expiryDate, strike, isCall);
+			final Option americanOption = new AmericanOption(expiryDate, strike, isCall);
+			final Option europeanOption = new EuropeanOption(expiryDate, strike, isCall);
 
-			final var anaPrice = anaPricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
-			final var pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
-			final var pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
+			final double anaPrice = anaPricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
+			final double pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
+			final double pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
 
 			System.out.println("Ana Eu " + (isCall ? "Call" : "Put") + " : " + anaPrice);
 			System.out.println("Pde Eu " + (isCall ? "Call" : "Put") + " : " + pdePriceEu);
@@ -129,26 +132,26 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American call early exercise");
 		System.out.println("==================================================");
 
-		final var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.0000001;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.0;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.0000001;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.0;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-06-15"), 10.0, 0.00),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2021-06-15");
-		final var strike = 90.0;
+		final LocalDate expiryDate = LocalDate.parse("2021-06-15");
+		final double strike = 90.0;
 
-		final var americanOption = new AmericanOption(expiryDate, strike, true);
-		final var europeanOption = new EuropeanOption(expiryDate, strike, true);
-		final var pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
-		final var pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
+		final Option americanOption = new AmericanOption(expiryDate, strike, true);
+		final Option europeanOption = new EuropeanOption(expiryDate, strike, true);
+		final double pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
+		final double pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
 
 		System.out.println("Pde Eu Call: " + pdePriceEu);
 		System.out.println("Pde Am Call: " + pdePriceAm);
@@ -166,25 +169,25 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American put early exercise");
 		System.out.println("=================================================");
 
-		final var pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 50.0;
-		final var volatility = 0.5;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.25;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 3.0, 50, 30, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 50.0;
+		final double volatility = 0.5;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.25;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[0]);
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[0]);
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2021-06-15");
-		final var strike = 100.0;
+		final LocalDate expiryDate = LocalDate.parse("2021-06-15");
+		final double strike = 100.0;
 
-		final var americanOption = new AmericanOption(expiryDate, strike, false);
-		final var europeanOption = new EuropeanOption(expiryDate, strike, false);
-		final var pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
-		final var pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
+		final Option americanOption = new AmericanOption(expiryDate, strike, false);
+		final Option europeanOption = new EuropeanOption(expiryDate, strike, false);
+		final double pdePriceEu = pdePricer.getPrice(europeanOption, fwdStructure, curve, flatVol);
+		final double pdePriceAm = pdePricer.getPrice(americanOption, fwdStructure, curve, flatVol);
 
 		System.out.println("Pde Eu Put: " + pdePriceEu);
 		System.out.println("Pde Am Put: " + pdePriceAm);
@@ -202,33 +205,33 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test local volatility price");
 		System.out.println("============================================");
 
-		final var pdePricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, false, false);
-		final var pdeLvPricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, true, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var rate = 0.05;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, false, false);
+		final PdeOptionValuation pdeLvPricer = new PdeOptionValuation(0.1, 3.0, 75, 50, dcc, true, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double rate = 0.05;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.03),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 10.0, 0.03),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var smile = new SviVolatilitySmile(LocalDate.parse("2021-06-15"), 0.0078, 0.052, -0.449, 0.356, 0.348);
-		final var smiles = new SviVolatilitySmile[] {smile, };
-		final var surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
+		final SviVolatilitySmile smile = new SviVolatilitySmile(LocalDate.parse("2021-06-15"), 0.0078, 0.052, -0.449, 0.356, 0.348);
+		final SviVolatilitySmile[] smiles = new SviVolatilitySmile[] {smile, };
+		final VolatilitySurface surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
 
-		final var expiryDate = LocalDate.parse("2020-12-24");
-		final var strike = 90.0;
+		final LocalDate expiryDate = LocalDate.parse("2020-12-24");
+		final double strike = 90.0;
 
-		final var volatility = surface.getVolatility(strike, expiryDate, fwdStructure);
+		final double volatility = surface.getVolatility(strike, expiryDate, fwdStructure);
 
 		final boolean[] callOrPut = {true, false};
 		final boolean[] americanOrEuropean = {true, false};
-		for (final var isCall : callOrPut)
+		for (final boolean isCall : callOrPut)
 		{
-			for (final var isAmerican : americanOrEuropean)
+			for (final boolean isAmerican : americanOrEuropean)
 			{
 				Option option;
 				if (isAmerican) {
@@ -237,8 +240,8 @@ public class PdeOptionPricerTest {
 					option = new EuropeanOption(expiryDate, strike, isCall);
 				}
 
-				final var pdePrice = pdePricer.getPrice(option, fwdStructure, curve, surface);
-				final var pdeLvPrice = pdeLvPricer.getPrice(option, fwdStructure, curve, surface);
+				final double pdePrice = pdePricer.getPrice(option, fwdStructure, curve, surface);
+				final double pdeLvPrice = pdeLvPricer.getPrice(option, fwdStructure, curve, surface);
 
 				System.out.println("Vol: " + volatility);
 				System.out.println("Pde " + (isAmerican ? "American " : "European ") + (isCall ? "Call" : "Put") + " : " + pdePrice);
@@ -259,30 +262,30 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test American option arbitrage");
 		System.out.println("===============================================");
 
-		final var pricer = new PdeOptionValuation(0.1, 3.0, 50, 40, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.25;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.05;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pricer = new PdeOptionValuation(0.1, 3.0, 50, 40, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.25;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.05;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.0),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 10.0, 0.0),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDateBefore = LocalDate.parse("2020-09-16");
-		final var strike = 100.0;
-		final var expiryDateAfter = LocalDate.parse("2020-09-17");
+		final LocalDate expiryDateBefore = LocalDate.parse("2020-09-16");
+		final double strike = 100.0;
+		final LocalDate expiryDateAfter = LocalDate.parse("2020-09-17");
 
 		final boolean isCall = true;
-		final var optionBefore = new AmericanOption(expiryDateBefore, strike, isCall);
-		final var optionAfter = new AmericanOption(expiryDateAfter, strike, isCall);
+		final Option optionBefore = new AmericanOption(expiryDateBefore, strike, isCall);
+		final Option optionAfter = new AmericanOption(expiryDateAfter, strike, isCall);
 
-		final var priceBefore = pricer.getPrice(optionBefore, fwdStructure, curve, flatVol);
-		final var priceAfter = pricer.getPrice(optionAfter, fwdStructure, curve, flatVol);
+		final double priceBefore = pricer.getPrice(optionBefore, fwdStructure, curve, flatVol);
+		final double priceAfter = pricer.getPrice(optionAfter, fwdStructure, curve, flatVol);
 
 		System.out.println("Price " + (isCall ? "Call" : "Put") + " before: " + priceBefore);
 		System.out.println("Price " + (isCall ? "Call" : "Put") + " after: " + priceAfter);
@@ -298,35 +301,35 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test European Greeks");
 		System.out.println("==================================================");
 
-		final var anaPricer = new AnalyticOptionValuation(dcc);
-		final var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.35;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.15;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final AnalyticOptionValuation anaPricer = new AnalyticOptionValuation(dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.35;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.15;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2019-09-17"), 12.0, 0.02),
 						new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.04),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2020-06-15");
-		final var strike = 100.0;
+		final LocalDate expiryDate = LocalDate.parse("2020-06-15");
+		final double strike = 100.0;
 
 		final boolean[] callput = {true, false};
-		for (final var isCall : callput)
+		for (final boolean isCall : callput)
 		{
-			final var option = new EuropeanOption(expiryDate, strike, isCall);
+			final Option option = new EuropeanOption(expiryDate, strike, isCall);
 
-			final var pdeSensis = pdePricer.getPdeSensis(option, fwdStructure, curve, flatVol);
-			final var pdeVega = pdePricer.getVega(option, fwdStructure, curve, flatVol, pdeSensis[0], 1e-3);
-			final var anaDelta = anaPricer.getDelta(option, fwdStructure, curve, flatVol);
-			final var anaGamma = anaPricer.getGamma(option, fwdStructure, curve, flatVol);
-			final var anaTheta = anaPricer.getTheta(option, fwdStructure, curve, flatVol);
-			final var anaVega = anaPricer.getVega(option, fwdStructure, curve, flatVol);
+			final double[] pdeSensis = pdePricer.getPdeSensis(option, fwdStructure, curve, flatVol);
+			final double pdeVega = pdePricer.getVega(option, fwdStructure, curve, flatVol, pdeSensis[0], 1e-3);
+			final double anaDelta = anaPricer.getDelta(option, fwdStructure, curve, flatVol);
+			final double anaGamma = anaPricer.getGamma(option, fwdStructure, curve, flatVol);
+			final double anaTheta = anaPricer.getTheta(option, fwdStructure, curve, flatVol);
+			final double anaVega = anaPricer.getVega(option, fwdStructure, curve, flatVol);
 
 			System.out.println("Ana Delta " + (isCall ? "Call" : "Put") + " : " + anaDelta);
 			System.out.println("Pricer Delta " + (isCall ? "Call" : "Put") + " : " + pdeSensis[1]);
@@ -355,30 +358,30 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Test implied volatility");
 		System.out.println("========================================");
 
-		final var pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var volatility = 0.35;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.05;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 5.0, 50, 30, dcc, false, false);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double volatility = 0.35;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.05;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2019-09-17"), 12.0, 0.02),
 						new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.04),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2021-06-15");
-		final var strike =100.0;
+		final LocalDate expiryDate = LocalDate.parse("2021-06-15");
+		final double strike =100.0;
 
 		final boolean[] callput = {true, false};
-		for (final var isCall : callput)
+		for (final boolean isCall : callput)
 		{
-			final var option = new AmericanOption(expiryDate, strike, isCall);
-			final var price = pdePricer.getPrice(option, fwdStructure, curve, flatVol);
-			final var impVol = pdePricer.getImpliedVolatility(option, fwdStructure, curve, price);
-			final var priceFromImpVol = pdePricer.getPrice(option, fwdStructure, curve, new FlatVolatilitySurface(impVol));
+			final Option option = new AmericanOption(expiryDate, strike, isCall);
+			final double price = pdePricer.getPrice(option, fwdStructure, curve, flatVol);
+			final double impVol = pdePricer.getImpliedVolatility(option, fwdStructure, curve, price);
+			final double priceFromImpVol = pdePricer.getPrice(option, fwdStructure, curve, new FlatVolatilitySurface(impVol));
 
 			System.out.println("Price " + (isCall ? "Call" : "Put") + " : " + price);
 			System.out.println("Price from impl vol " + (isCall ? "Call" : "Put") + " : " + priceFromImpVol);
@@ -397,42 +400,42 @@ public class PdeOptionPricerTest {
 		System.out.println("PdeOptionPricer: Provide sensitivities for stability analysis");
 		System.out.println("=============================================================");
 
-		final var pdePricer = new PdeOptionValuation(0.1, 3.0, 70, 0, dcc, false, true);
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var volatility = 0.35;
-		//var volatility = 0.2;
-		final var flatVol = new FlatVolatilitySurface(volatility);
-		final var rate = 0.05;
-		//var rate = 0.1;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final PdeOptionValuation pdePricer = new PdeOptionValuation(0.1, 3.0, 70, 0, dcc, false, true);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double volatility = 0.35;
+		//double volatility = 0.2;
+		final VolatilitySurface flatVol = new FlatVolatilitySurface(volatility);
+		final double rate = 0.05;
+		//double rate = 0.1;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2019-09-17"), 5.0, 0.00),
 						new AffineDividend(LocalDate.parse("2020-09-17"), 3.0, 0.02),
 						new AffineDividend(LocalDate.parse("2021-09-17"), 0.0, 0.045),});
-		//var dividends = new AffineDividendStream(new AffineDividend[0]);
+		//AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[0]);
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, 100.0, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, 100.0, curve, dividends, dcc);
 
-		final var expiryDate = LocalDate.parse("2020-12-15");
-		//var expiryDate = LocalDate.parse("2019-09-15");
-		final var strike = 100.0;
+		final LocalDate expiryDate = LocalDate.parse("2020-12-15");
+		//LocalDate expiryDate = LocalDate.parse("2019-09-15");
+		final double strike = 100.0;
 
 		final boolean[] callput = {true, false};
 		final boolean[] american = {true, false};
-		final var spots = new ArrayList<Double>();
+		final ArrayList<Double> spots = new ArrayList<Double>();
 		for (int i = 50; i <= 150; i++) {
 			spots.add(1.0 * i);
 		}
 		//spots = new ArrayList<Double>() {{add(80.0);}};
 		System.out.println("Exercise,Type,Spot,Price,Delta,Gamma,Vega,Theta");
-		for (final var isAmerican : american)
+		for (final boolean isAmerican : american)
 		{
-			for (final var isCall : callput)
+			for (final boolean isCall : callput)
 			{
-				for (final var spot : spots)
+				for (final double spot : spots)
 				{
-					final var thisStructure = fwdStructure.cloneWithNewSpot(spot);
+					final EquityForwardStructure thisStructure = fwdStructure.cloneWithNewSpot(spot);
 					Option option;
 					if(isAmerican) {
 						option = new AmericanOption(expiryDate, strike, isCall);
@@ -440,9 +443,9 @@ public class PdeOptionPricerTest {
 						option = new EuropeanOption(expiryDate, strike, isCall);
 					}
 
-					final var pdeSensis = pdePricer.getPdeSensis(option, thisStructure, curve, flatVol);
-					final var pdeVega = pdePricer.getVega(option, thisStructure, curve, flatVol, pdeSensis[0], 1e-6);
-					//var pdeTheta = pdePricer.getTheta(option, thisStructure, curve, flatVol, pdeSensis[0]);
+					final double[] pdeSensis = pdePricer.getPdeSensis(option, thisStructure, curve, flatVol);
+					final double pdeVega = pdePricer.getVega(option, thisStructure, curve, flatVol, pdeSensis[0], 1e-6);
+					//double pdeTheta = pdePricer.getTheta(option, thisStructure, curve, flatVol, pdeSensis[0]);
 
 					System.out.println((isAmerican ? "American" : "European") + "," + (isCall ? "Call" : "Put") + "," + spot +"," + pdeSensis[0] + "," + pdeSensis[1] + "," + pdeSensis[2] + "," + pdeVega + "," + pdeSensis[3]);
 				}

@@ -43,7 +43,7 @@ import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceMode
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORVolatilityModelFromGivenMatrix;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
 import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelAsGiven;
-import net.finmath.montecarlo.interestrate.products.AbstractLIBORMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
 import net.finmath.montecarlo.interestrate.products.BermudanSwaption;
 import net.finmath.montecarlo.interestrate.products.Bond;
 import net.finmath.montecarlo.interestrate.products.Caplet;
@@ -390,7 +390,7 @@ public class HullWhiteModelTest {
 			final TermStructureMonteCarloProduct fixLeg = new SwapLeg(fixLegSchedule, new NotionalFromConstant(1.0), null, swaprate, false);
 
 			//Create swap
-			final AbstractLIBORMonteCarloProduct swap = new Swap(floatLeg, fixLeg);
+			final AbstractTermStructureMonteCarloProduct swap = new Swap(floatLeg, fixLeg);
 
 			System.out.print("(" + startDate + "," + endDate + "," + floatMetaSchedule.getFrequency().name() + ")" + "\t");
 

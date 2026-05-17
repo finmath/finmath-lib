@@ -89,7 +89,6 @@ public class MertonModelTest {
 			monteCarloHestonModel = new MonteCarloAssetModel(model, process);
 		}
 
-
 		AssetModelMonteCarloSimulationModel monteCarloMertonModel;
 		{
 			final double m = 1.0;
@@ -102,7 +101,6 @@ public class MertonModelTest {
 			monteCarloMertonModel = new MonteCarloMertonModel(
 					timeDiscretization, numberOfPaths, seed, initialValue, riskFreeRate, volatility,
 					lambda, jumpSizeMean, jumpSizeStdDev);
-
 		}
 
 		/*

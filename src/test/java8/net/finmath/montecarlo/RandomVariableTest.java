@@ -7,6 +7,8 @@ package net.finmath.montecarlo;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 import org.apache.commons.math3.random.MersenneTwister;
 import org.junit.Assert;
@@ -225,5 +227,48 @@ public class RandomVariableTest {
 
 		// The random variable has variance value 0
 		Assert.assertEquals(valueFloored.getVariance(), Math.pow(1.0/5.0,2)*4.0/5.0 + Math.pow(1.0-1.0/5-0,2)*1.0/5.0, 1E-15);
+	}
+
+	@Test
+	public void testApply() {
+
+		try {
+			DoubleUnaryOperator operator = x -> Math.exp(x * 2.0);
+
+			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+			RandomVariable result1 = randomVariable.apply(operator);
+			RandomVariable result2 = randomVariable.mult(2.0).exp();
+
+			RandomVariable diff = result1.sub(result2);
+			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
+		}
+		catch(UnsupportedOperationException e) {
+			// apply is not supported by all implementations. we ignore those.
+		}
+	}
+
+	@Test
+	public void testApply2() {
+
+		try {
+			DoubleBinaryOperator operator = (x,y) -> Math.exp(x * y);
+
+			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
+
+			final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
+					new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
+
+			RandomVariable result1 = randomVariable.apply(operator, randomVariable2);
+			RandomVariable result2 = randomVariable.mult(randomVariable2).exp();
+
+			RandomVariable diff = result1.sub(result2);
+			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
+		}
+		catch(UnsupportedOperationException e) {
+			// apply is not supported by all implementations. we ignore those.
+		}
 	}
 }

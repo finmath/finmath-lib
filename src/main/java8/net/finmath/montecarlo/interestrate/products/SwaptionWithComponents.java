@@ -24,7 +24,7 @@ import net.finmath.stochastic.RandomVariable;
  * @author Christian Fries
  * @version 1.2
  */
-public class SwaptionWithComponents extends AbstractLIBORMonteCarloProduct {
+public class SwaptionWithComponents extends AbstractTermStructureMonteCarloProduct {
 
 	private final TermStructureMonteCarloProduct option;
 

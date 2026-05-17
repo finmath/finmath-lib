@@ -8,6 +8,9 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import net.finmath.equities.models.VolatilitySurface;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.marketdata.AffineDividend;
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.FlatYieldCurve;
@@ -37,28 +40,28 @@ public class SviVolatiltitySurfaceTest {
 		System.out.println("SviVolatiltitySurface: Test for arbitrage");
 		System.out.println("========================================");
 
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var rate = 0.01;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double rate = 0.01;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 20.0, 0.0),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var smileBefore = new SviVolatilitySmile(LocalDate.parse("2020-09-01"), 0.02, 0.01, 0.0, 0.0, 0.001);
-		final var smileAfter = new SviVolatilitySmile(LocalDate.parse("2020-10-01"), 0.04, 0.01, 0.0, 0.0, 0.001);
-		final var smiles = new SviVolatilitySmile[] {smileBefore, smileAfter};
-		final var surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
+		final SviVolatilitySmile smileBefore = new SviVolatilitySmile(LocalDate.parse("2020-09-01"), 0.02, 0.01, 0.0, 0.0, 0.001);
+		final SviVolatilitySmile smileAfter = new SviVolatilitySmile(LocalDate.parse("2020-10-01"), 0.04, 0.01, 0.0, 0.0, 0.001);
+		final SviVolatilitySmile[] smiles = new SviVolatilitySmile[] {smileBefore, smileAfter};
+		final VolatilitySurface surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
 
-		final var expiryDateBefore = LocalDate.parse("2020-09-16");
-		final var strikeBefore = 100.0;
-		final var expiryDateAfter = LocalDate.parse("2020-09-17");
-		final var strikeAfter = 80.0;
+		final LocalDate expiryDateBefore = LocalDate.parse("2020-09-16");
+		final double strikeBefore = 100.0;
+		final LocalDate expiryDateAfter = LocalDate.parse("2020-09-17");
+		final double strikeAfter = 80.0;
 
-		final var volBefore = surface.getVolatility(strikeBefore, expiryDateBefore, fwdStructure);
-		final var volAfter = surface.getVolatility(strikeAfter, expiryDateAfter, fwdStructure);
+		final double volBefore = surface.getVolatility(strikeBefore, expiryDateBefore, fwdStructure);
+		final double volAfter = surface.getVolatility(strikeAfter, expiryDateAfter, fwdStructure);
 
 		System.out.println("Vol before: " + volBefore);
 		System.out.println("Vol after: " + volAfter);
@@ -73,40 +76,40 @@ public class SviVolatiltitySurfaceTest {
 		System.out.println("SviVolatiltitySurface: Test stickyness");
 		System.out.println("======================================");
 
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var rate = 0.0;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
-		final var dividends = new AffineDividendStream(new AffineDividend[0]);
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double rate = 0.0;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[0]);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var smileBefore = new SviVolatilitySmile(LocalDate.parse("2020-09-01"), 0.02, 0.01, 0.0, 0.0, 0.001);
-		final var smileAfter = new SviVolatilitySmile(LocalDate.parse("2020-10-01"), 0.04, 0.01, 0.0, 0.0, 0.001);
-		final var smiles = new SviVolatilitySmile[] {smileBefore, smileAfter};
-		final var surfaceStickyMoneyness = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
-		final var surfaceStickyStrike = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, true);
+		final SviVolatilitySmile smileBefore = new SviVolatilitySmile(LocalDate.parse("2020-09-01"), 0.02, 0.01, 0.0, 0.0, 0.001);
+		final SviVolatilitySmile smileAfter = new SviVolatilitySmile(LocalDate.parse("2020-10-01"), 0.04, 0.01, 0.0, 0.0, 0.001);
+		final SviVolatilitySmile[] smiles = new SviVolatilitySmile[] {smileBefore, smileAfter};
+		final VolatilitySurface surfaceStickyMoneyness = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
+		final VolatilitySurface surfaceStickyStrike = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, true);
 
-		final var strike = 80.0;
+		final double strike = 80.0;
 
-		final var newSpot = 1.1 * spot;
-		final var newFwdStructure = new BuehlerDividendForwardStructure(valDate, newSpot, curve, dividends, dcc);
-		final var newStrikeForStickyMoneyness = 1.1 * strike;
-		final var testDate = LocalDate.parse("2020-09-20");
+		final double newSpot = 1.1 * spot;
+		final EquityForwardStructure newFwdStructure = new BuehlerDividendForwardStructure(valDate, newSpot, curve, dividends, dcc);
+		final double newStrikeForStickyMoneyness = 1.1 * strike;
+		final LocalDate testDate = LocalDate.parse("2020-09-20");
 
-		final var volStickyMoneyness = surfaceStickyMoneyness.getVolatility(strike, testDate, fwdStructure);
-		final var newVolStickyMoneyness = surfaceStickyMoneyness.getVolatility(newStrikeForStickyMoneyness, testDate, newFwdStructure);
-		final var volStickyStrike = surfaceStickyStrike.getVolatility(strike, testDate, fwdStructure);
-		final var newVolStickyStrike = surfaceStickyStrike.getVolatility(strike, testDate, newFwdStructure);
+		final double volStickyMoneyness = surfaceStickyMoneyness.getVolatility(strike, testDate, fwdStructure);
+		final double newVolStickyMoneyness = surfaceStickyMoneyness.getVolatility(newStrikeForStickyMoneyness, testDate, newFwdStructure);
+		final double volStickyStrike = surfaceStickyStrike.getVolatility(strike, testDate, fwdStructure);
+		final double newVolStickyStrike = surfaceStickyStrike.getVolatility(strike, testDate, newFwdStructure);
 
 		System.out.println("Vol sticky money: " + volStickyMoneyness);
 		System.out.println("New vol sticky money: " + newVolStickyMoneyness);
 		System.out.println("Vol sticky strike: " + volStickyStrike);
 		System.out.println("New vol sticky strike: " + newVolStickyStrike);
 
-		final var localVolStickyMoneyness = surfaceStickyMoneyness.getLocalVolatility(strike, testDate, fwdStructure, 1e-4, 1e-4);
-		final var newLocalVolStickyMoneyness = surfaceStickyMoneyness.getLocalVolatility(newStrikeForStickyMoneyness, testDate, newFwdStructure, 1e-4, 1e-4);
-		final var localVolStickyStrike = surfaceStickyStrike.getLocalVolatility(strike, testDate, fwdStructure, 1e-4, 1e-4);
-		final var newLocalVolStickyStrike = surfaceStickyStrike.getLocalVolatility(strike, testDate, newFwdStructure, 1e-4, 1e-4);
+		final double localVolStickyMoneyness = surfaceStickyMoneyness.getLocalVolatility(strike, testDate, fwdStructure, 1e-4, 1e-4);
+		final double newLocalVolStickyMoneyness = surfaceStickyMoneyness.getLocalVolatility(newStrikeForStickyMoneyness, testDate, newFwdStructure, 1e-4, 1e-4);
+		final double localVolStickyStrike = surfaceStickyStrike.getLocalVolatility(strike, testDate, fwdStructure, 1e-4, 1e-4);
+		final double newLocalVolStickyStrike = surfaceStickyStrike.getLocalVolatility(strike, testDate, newFwdStructure, 1e-4, 1e-4);
 
 		System.out.println("LV sticky money: " + localVolStickyMoneyness);
 		System.out.println("New LV sticky money: " + newLocalVolStickyMoneyness);
@@ -126,50 +129,50 @@ public class SviVolatiltitySurfaceTest {
 		System.out.println("SviVolatiltitySurface: Test calibration");
 		System.out.println("=======================================");
 
-		final var valDate = LocalDate.parse("2019-06-15");
-		final var spot = 100.0;
-		final var rate = 0.01;
-		final var curve = new FlatYieldCurve(valDate, rate, dcc);
+		final LocalDate valDate = LocalDate.parse("2019-06-15");
+		final double spot = 100.0;
+		final double rate = 0.01;
+		final YieldCurve curve = new FlatYieldCurve(valDate, rate, dcc);
 
-		final var dividends = new AffineDividendStream(new AffineDividend[]
+		final AffineDividendStream dividends = new AffineDividendStream(new AffineDividend[]
 				{new AffineDividend(LocalDate.parse("2020-09-17"), 10.0, 0.0),});
 
-		final var fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
+		final EquityForwardStructure fwdStructure = new BuehlerDividendForwardStructure(valDate, spot, curve, dividends, dcc);
 
-		final var a = 0.0078;
-		final var b = 0.052;
-		final var rho = -0.449;
-		final var m = 0.0356;
-		final var sigma = 0.348;
+		final double a = 0.0078;
+		final double b = 0.052;
+		final double rho = -0.449;
+		final double m = 0.0356;
+		final double sigma = 0.348;
 
-		final var logStrikes = new ArrayList<Double>();
-		final var totalVariances = new ArrayList<Double>();
+		final ArrayList<Double> logStrikes = new ArrayList<Double>();
+		final ArrayList<Double> totalVariances = new ArrayList<Double>();
 		for (int i = -20; i <= 20; i++)
 		{
-			final var strike = 0.1 * i;
+			final double strike = 0.1 * i;
 			logStrikes.add(strike);
 			totalVariances.add(SviVolatilitySmile.sviTotalVariance(strike, a, b, rho, m, sigma));
 		}
-		final var initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
+		final double[] initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);
 
-		final var smileDate = LocalDate.parse("2021-06-15");
-		final var smile = new SviVolatilitySmile(smileDate, a, b, rho, m, sigma);
-		final var smiles = new SviVolatilitySmile[] {smile, };
-		final var surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
-		final var forward = fwdStructure.getForward(smileDate);
+		final LocalDate smileDate = LocalDate.parse("2021-06-15");
+		final SviVolatilitySmile smile = new SviVolatilitySmile(smileDate, a, b, rho, m, sigma);
+		final SviVolatilitySmile[] smiles = new SviVolatilitySmile[] {smile, };
+		final VolatilitySurface surface = new SviVolatilitySurface(valDate, dcc, fwdStructure, smiles, false);
+		final double forward = fwdStructure.getForward(smileDate);
 
-		final var strikes = new ArrayList<Double>();
-		final var volaPoints = new ArrayList<VolatilityPoint>();
+		final ArrayList<Double> strikes = new ArrayList<Double>();
+		final ArrayList<VolatilityPoint> volaPoints = new ArrayList<VolatilityPoint>();
 		for (int i = -5; i <= 5; i++)
 		{
 			strikes.add(forward + 5 * i);
 			volaPoints.add(new VolatilityPoint(smileDate, forward + 5 * i,
 					surface.getVolatility(forward + 5 * i, smileDate, fwdStructure)));
 		}
-		final var newSurface = new SviVolatilitySurface(dcc, false);
+		final SviVolatilitySurface newSurface = new SviVolatilitySurface(dcc, false);
 		newSurface.calibrate(fwdStructure, volaPoints);
 
-		final var newSmile = newSurface.getSmiles()[0];
+		final SviVolatilitySmile newSmile = newSurface.getSmiles()[0];
 
 		System.out.println("a in: " + a);
 		System.out.println("a guess: " + initialGuess[0]);

@@ -209,6 +209,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the referenceDate
 	 */
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
@@ -216,6 +217,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the initialValue
 	 */
+	@Override
 	public double getInitialValue() {
 		return initialValue;
 	}
@@ -223,6 +225,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForForwardRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForForwardRate() {
 		return discountCurveForForwardRate;
 	}
@@ -230,6 +233,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the riskFreeRate
 	 */
+	@Override
 	public double getRiskFreeRate() {
 		return riskFreeRate;
 	}
@@ -237,6 +241,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForDiscountRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForDiscountRate() {
 		return discountCurveForDiscountRate;
 	}
@@ -244,6 +249,7 @@ public class HestonModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountRate
 	 */
+	@Override
 	public double getDiscountRate() {
 		return discountRate;
 	}

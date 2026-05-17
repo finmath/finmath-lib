@@ -5,15 +5,21 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.0 (12.05.2026)
+## 6.1.2 (17.05.2026)
+
+### General
+
+- Java 8 backport of all classes and methods. The maven artifact -java8 will be Java 8 compatible.
+
+## 6.1.1 (12.05.2026)
 
 ### Numerical Methods: Tree Framework (contributed by A. Gnoatto)
 
 - Added a tree framework `net.finmath.tree` with similar package layout as `net.finmath.montecarlo` (models / products).
 
-### Numerical Methods: Finite Difference Framework
+### Numerical Methods: finite Difference Framework
 
-- Complete rewrite of fineite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
+- Complete rewrite of finite difference framework (contributed by A. Gnoatto) `net.finmath.finitedifference`.
 
 ### Algorithmic Differentiation
 

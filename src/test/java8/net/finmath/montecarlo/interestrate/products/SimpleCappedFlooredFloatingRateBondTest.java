@@ -83,7 +83,7 @@ public class SimpleCappedFlooredFloatingRateBondTest {
 		final double[] caps = null;
 		final double[] spreads = null;
 
-		final AbstractLIBORMonteCarloProduct product = new SimpleCappedFlooredFloatingRateBond("", fixingDates, paymentDates, spreads, floors, caps, maturity);
+		final AbstractTermStructureMonteCarloProduct product = new SimpleCappedFlooredFloatingRateBond("", fixingDates, paymentDates, spreads, floors, caps, maturity);
 
 		final double value = product.getValue(model);
 

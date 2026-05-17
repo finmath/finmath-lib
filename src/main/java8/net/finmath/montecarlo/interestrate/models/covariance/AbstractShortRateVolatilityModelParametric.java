@@ -25,7 +25,6 @@ import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
 import net.finmath.montecarlo.interestrate.ShortRateModel;
-import net.finmath.montecarlo.interestrate.models.HullWhiteModel;
 import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.optimizer.Optimizer;
 import net.finmath.optimizer.Optimizer.ObjectiveFunction;
@@ -328,9 +327,9 @@ public abstract class AbstractShortRateVolatilityModelParametric extends Abstrac
 
 				// Create a HullWhiteModel with the new volatility structure.
 				// TODO the case has be removed after the interface has been refactored:
-				final HullWhiteModel model = (HullWhiteModel)calibrationModel.getCloneWithModifiedVolatilityModel(calibrationVolatilityModel);
+				final ShortRateModel model = calibrationModel.getCloneWithModifiedVolatilityModel(calibrationVolatilityModel);
 				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);
-				final LIBORMonteCarloSimulationFromLIBORModel modelMonteCarloSimulation = new LIBORMonteCarloSimulationFromLIBORModel(model, process);
+				final LIBORMonteCarloSimulationFromLIBORModel modelMonteCarloSimulation = new LIBORMonteCarloSimulationFromLIBORModel(process);
 
 				final ArrayList<Future<RandomVariable>> valueFutures = new ArrayList<>(calibrationProducts.length);
 				for(int calibrationProductIndex=0; calibrationProductIndex<calibrationProducts.length; calibrationProductIndex++) {
