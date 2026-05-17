@@ -1,10 +1,10 @@
 package net.finmath.tree.assetderivativevaluation.products;
 
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.tree.TreeModel;
-
-import java.util.function.DoubleUnaryOperator;
 
 /**
  * American (non–path-dependent) option priced on a recombining TreeModel.

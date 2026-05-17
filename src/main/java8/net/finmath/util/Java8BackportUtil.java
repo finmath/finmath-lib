@@ -1,6 +1,5 @@
 package net.finmath.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Java8BackportUtil {

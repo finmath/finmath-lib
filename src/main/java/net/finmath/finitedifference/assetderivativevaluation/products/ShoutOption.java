@@ -5,9 +5,9 @@ import java.util.function.DoubleBinaryOperator;
 
 import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
 import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
-import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
 import net.finmath.finitedifference.solvers.FDMSolver;
 import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
 import net.finmath.finitedifference.solvers.adi.AbstractADI2D;
 import net.finmath.modelling.EuropeanExercise;
 import net.finmath.modelling.products.CallOrPut;

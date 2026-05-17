@@ -3,8 +3,8 @@ package net.finmath.finitedifference.assetderivativevaluation.products;
 import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
 import net.finmath.finitedifference.solvers.FDMSolver;
 import net.finmath.finitedifference.solvers.FDMSolverFactory;
-import net.finmath.modelling.Exercise;
 import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
 import net.finmath.modelling.products.CallOrPut;
 
 /**

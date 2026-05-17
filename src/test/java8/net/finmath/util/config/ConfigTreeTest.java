@@ -7,9 +7,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import net.finmath.util.config.nodes.SpecialNodes;
-
 import net.finmath.util.Java8BackportUtil;
+import net.finmath.util.config.nodes.SpecialNodes;
 
 /**
  * Configuration Test

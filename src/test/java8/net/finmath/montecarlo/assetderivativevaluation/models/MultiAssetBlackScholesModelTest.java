@@ -16,8 +16,7 @@ import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
 import net.finmath.montecarlo.process.MonteCarloProcess;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
-
-import static net.finmath.util.Java8BackportUtil.Map;
+import net.finmath.util.Java8BackportUtil.Map;
 
 /**
  *

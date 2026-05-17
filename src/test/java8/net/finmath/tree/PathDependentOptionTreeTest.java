@@ -16,7 +16,6 @@ import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
-
 // Tree side:
 import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
 

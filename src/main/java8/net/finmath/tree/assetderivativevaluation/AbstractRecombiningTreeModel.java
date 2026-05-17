@@ -1,10 +1,11 @@
 package net.finmath.tree.assetderivativevaluation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.finmath.montecarlo.RandomVariableFromDoubleArray;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.tree.OneDimensionalRiskFactorTreeModel;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *

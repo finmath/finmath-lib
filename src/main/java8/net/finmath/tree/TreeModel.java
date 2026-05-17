@@ -1,8 +1,9 @@
 package net.finmath.tree;
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.modelling.Model;
 import net.finmath.stochastic.RandomVariable;
-import java.util.function.DoubleUnaryOperator;
 
 /**
  * General interface rappresenting a tree model with all the common methods

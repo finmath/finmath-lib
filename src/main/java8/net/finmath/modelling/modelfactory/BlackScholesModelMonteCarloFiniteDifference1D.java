@@ -11,7 +11,9 @@ import java.util.Map;
 import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
 import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
 import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.grids.Grid;
 import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.grids.UniformGrid;
 import net.finmath.finitedifference.utilities.FiniteDifferenceValueInterpolator;
 import net.finmath.modelling.DescribedModel;
 import net.finmath.modelling.DescribedProduct;
@@ -25,8 +27,6 @@ import net.finmath.modelling.products.CallOrPut;
 import net.finmath.time.FloatingpointDate;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
-import net.finmath.finitedifference.grids.Grid;
-import net.finmath.finitedifference.grids.UniformGrid;
 
 /**
  * @author Christian Fries

@@ -1,10 +1,10 @@
 package net.finmath.tree.assetderivativevaluation.products;
 
+import java.util.function.DoubleUnaryOperator;
+
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.tree.AbstractTreeProduct;
 import net.finmath.tree.TreeModel;
-
-import java.util.function.DoubleUnaryOperator;
 
 
 /**
