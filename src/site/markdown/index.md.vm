@@ -56,7 +56,10 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Heston Model (as Monte-Carlo Simulation)
     - Variance Gamma model (as Monte-Carlo Simulation, contributed and maintained by Alessandro Gnoatto)
 - **American Monte-Carlo**: Estimation of conditional expectations in a Monte-Carlo framework
-- **Stochastic Automatic Differentiation** (AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
+- **Stochastic Automatic Differentiation** (AD/AAD) (part of the package `net.finmath.montecarlo.automaticdifferentiation`)
+    - Adjoint algorithmic differentiation of random variables
+    - Monte-Carlo algorithmic differentiation of indicator functions
+    - General Monte-Carlo forward sensitivities
 - **Monte-Carlo Simulation on GPGPUs** (via Cuda) (requires finmath-lib-cuda-extensions https://github.com/finmath/finmath-lib-cuda-extensions )
 - Dependency injection on numerical algorithms (Monte-Carlo simulations) with custom return type priorities (see http://ssrn.com/abstract=3246127 ).
 - **Dividend model for equity option valuation** (European and American) (contributed by Andreas Grotz)
