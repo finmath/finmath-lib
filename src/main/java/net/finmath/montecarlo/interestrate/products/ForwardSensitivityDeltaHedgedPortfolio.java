@@ -22,6 +22,7 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
 
 /**
  * A self-financing hedge simulator for term-structure products using stochastic
@@ -722,6 +723,10 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	 * @return A primitive provider based on model.getProcess().getProcessValue(timeIndex).
 	 */
 	public static ParameterIDProvider getProcessStateParameterIDProvider() {
+		return getProcessStateParameterIDProvider(0);
+	}
+
+	public static ParameterIDProvider getProcessStateParameterIDProvider(int lag) {
 		return (evaluationTime, model) -> {
 
 			int processTimeIndex = model.getTimeIndex(evaluationTime);
@@ -732,7 +737,13 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				throw new IllegalArgumentException("Could not find process time index for evaluationTime " + evaluationTime + ".");
 			}
 
-			final RandomVariable[] modelPrimitives = model.getProcess().getProcessValue(processTimeIndex);
+			List<RandomVariable> modelPrimitivesList = new ArrayList<>();
+			for(int processTimeIndexLagged = Math.max(processTimeIndex-lag, 0); processTimeIndexLagged<=processTimeIndex; processTimeIndexLagged++) {
+				final RandomVariable[] modelPrimitivesLagged = model.getProcess().getProcessValue(processTimeIndexLagged);
+				modelPrimitivesList.addAll(Arrays.asList(modelPrimitivesLagged));
+			}
+			final RandomVariable[] modelPrimitives = modelPrimitivesList.toArray(RandomVariable[]::new);
+
 			final Map<String, Long> parameterIDsByName = new LinkedHashMap<>();
 
 			for(int componentIndex = 0; componentIndex < modelPrimitives.length; componentIndex++) {
@@ -742,9 +753,60 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 							"Process primitive (" + evaluationTime + "," + componentIndex + ") is not differentiable. "
 							+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
 				}
+				
 				parameterIDsByName.put(
+					"(" + evaluationTime + "," + componentIndex + ")",
+					((RandomVariableDifferentiable)primitive).getID());
+			}
+
+			if(parameterIDsByName.isEmpty()) {
+				throw new IllegalArgumentException("No differentiable process primitives found at time " + evaluationTime + ".");
+			}
+
+			return parameterIDsByName;
+		};
+	}
+
+	/**
+	 * Default primitive provider: use the differentiable process state at the
+	 * rebalancing time.
+	 *
+	 * @return A primitive provider based on model.getProcess().getProcessValue(timeIndex).
+	 */
+	public static ParameterIDProvider getForwardRateIDProvider(TimeDiscretization tenorDiscretization) {
+		return (evaluationTime, model) -> {
+
+			int processTimeIndex = model.getTimeIndex(evaluationTime);
+			if(processTimeIndex < 0) {
+				processTimeIndex = model.getProcess().getTimeDiscretization().getTimeIndexNearestLessOrEqual(evaluationTime);
+			}
+			if(processTimeIndex < 0) {
+				throw new IllegalArgumentException("Could not find process time index for evaluationTime " + evaluationTime + ".");
+			}
+
+			List<RandomVariable> forwardRates = new ArrayList<>();
+			int indexRateStart = tenorDiscretization.getTimeIndexNearestGreaterOrEqual(evaluationTime);
+			int indexRateEnd = tenorDiscretization.getNumberOfTimes()-1;
+			for(int indexPeriodStart = indexRateStart; indexPeriodStart<indexRateEnd; indexPeriodStart++) {
+				RandomVariable forwardRate = model.getForwardRate(evaluationTime, tenorDiscretization.getTime(indexPeriodStart), tenorDiscretization.getTime(indexPeriodStart+1));
+				forwardRates.add(forwardRate);
+			}
+
+			final RandomVariable[] modelPrimitives = forwardRates.toArray(RandomVariable[]::new);
+			
+			final Map<String, Long> parameterIDsByName = new LinkedHashMap<>();
+			for(int componentIndex = 0; componentIndex < modelPrimitives.length; componentIndex++) {
+				final RandomVariable primitive = modelPrimitives[componentIndex];
+				if(!(primitive instanceof RandomVariableDifferentiable)) {
+					throw new IllegalArgumentException(
+							"Process primitive (" + evaluationTime + "," + componentIndex + ") is not differentiable. "
+							+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
+				}
+				else {
+					parameterIDsByName.put(
 						"(" + evaluationTime + "," + componentIndex + ")",
 						((RandomVariableDifferentiable)primitive).getID());
+				}
 			}
 
 			if(parameterIDsByName.isEmpty()) {
