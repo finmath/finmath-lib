@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.2 (17.05.2026)
+## 6.1.2 (18.05.2026)
 
 ### General
 
