@@ -129,7 +129,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				interpolationMethod,
 				extrapolationMethod,
 				interpolationEntity
-		);
+				);
 
 		this.sigma = sigma;
 		this.beta = beta;
@@ -171,7 +171,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				interpolationMethodR,
 				extrapolationMethodR,
 				interpolationEntityR
-		);
+				);
 
 		final double[] timesQ = new double[] {0.0, 1.0 };
 		final double[] zeroRatesQ = new double[] {dividendYieldRate, dividendYieldRate };
@@ -187,7 +187,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				interpolationMethodQ,
 				extrapolationMethodQ,
 				interpolationEntityQ
-		);
+				);
 
 		this.sigma = sigma;
 		this.beta = beta;
@@ -227,7 +227,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				interpolationMethodR,
 				extrapolationMethodR,
 				interpolationEntityR
-		);
+				);
 
 		final double[] timesQ = new double[] {0.0, 1.0 };
 		final double[] zeroRatesQ = new double[] {0.0, 0.0 };
@@ -243,7 +243,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				interpolationMethodQ,
 				extrapolationMethodQ,
 				interpolationEntityQ
-		);
+				);
 
 		this.sigma = sigma;
 		this.beta = beta;
@@ -265,6 +265,7 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 	 *
 	 * @return The initial spot.
 	 */
+	@Override
 	public double[] getInitialValue() {
 		return new double[] {initialValue};
 	}
@@ -352,6 +353,6 @@ public class FDMCevModel implements FiniteDifferenceEquityModel {
 				sigma,
 				beta,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

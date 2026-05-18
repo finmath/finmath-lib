@@ -800,7 +800,7 @@ public abstract class LevenbergMarquardt implements Serializable, Cloneable, Opt
 
 			try {
 				// Calculate new increment
-//				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+				//				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
 				parameterIncrement = LinearAlgebra.solveLinearEquationSVD(hessianMatrix, beta);
 			} catch (final Exception e) {
 				// Matrix not invertable, increase lambda

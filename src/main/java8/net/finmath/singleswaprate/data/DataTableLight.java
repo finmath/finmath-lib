@@ -250,14 +250,7 @@ public class DataTableLight implements DataTable, Cloneable {
 				return true;
 			}
 
-			if(other == null) {
-				return false;
-			}
-			if(other.getClass() != getClass()) {
-				return false;
-			}
-
-			if(maturity 	!= ((DataKey) other).maturity ) {
+			if((other == null) || (other.getClass() != getClass()) || (maturity 	!= ((DataKey) other).maturity) ) {
 				return false;
 			}
 			return termination == ((DataKey) other).termination;

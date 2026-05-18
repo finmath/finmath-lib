@@ -126,7 +126,7 @@ public final class FiniteDifferenceGreekProvider {
 						index,
 						grid,
 						timeIndex
-				);
+						);
 			}
 		}
 
@@ -171,7 +171,7 @@ public final class FiniteDifferenceGreekProvider {
 						index,
 						grid,
 						timeIndex
-				);
+						);
 			}
 		}
 
@@ -226,7 +226,7 @@ public final class FiniteDifferenceGreekProvider {
 		if (timeDiscretization.getNumberOfTimes() != values[0].length) {
 			throw new IllegalArgumentException(
 					"Value surface time dimension does not match the time discretization."
-			);
+					);
 		}
 
 		final double[][] theta = createEmptySurfaceLike(values);
@@ -237,7 +237,7 @@ public final class FiniteDifferenceGreekProvider {
 						values[flatIndex],
 						timeDiscretization,
 						timeIndex
-				);
+						);
 			}
 		}
 
@@ -267,7 +267,7 @@ public final class FiniteDifferenceGreekProvider {
 					grid.length - 1,
 					grid,
 					timeIndex
-			);
+					);
 		}
 
 		return threePointFirstDerivative(
@@ -277,7 +277,7 @@ public final class FiniteDifferenceGreekProvider {
 				grid[index - 1],
 				grid[index],
 				grid[index + 1]
-		);
+				);
 	}
 
 	private static double secondDerivativeAt(
@@ -300,7 +300,7 @@ public final class FiniteDifferenceGreekProvider {
 				grid[lowerIndex],
 				grid[centerIndex],
 				grid[upperIndex]
-		);
+				);
 	}
 
 	private static double timeToMaturityDerivativeAt(
@@ -326,7 +326,7 @@ public final class FiniteDifferenceGreekProvider {
 				timeDiscretization.getTime(timeIndex - 1),
 				timeDiscretization.getTime(timeIndex),
 				timeDiscretization.getTime(timeIndex + 1)
-		);
+				);
 	}
 
 	private static double forwardSlope(
@@ -369,7 +369,7 @@ public final class FiniteDifferenceGreekProvider {
 				f0 / ((x0 - x1) * (x0 - x2))
 				+ f1 / ((x1 - x0) * (x1 - x2))
 				+ f2 / ((x2 - x0) * (x2 - x1))
-		);
+				);
 	}
 
 	private static double valueAt(

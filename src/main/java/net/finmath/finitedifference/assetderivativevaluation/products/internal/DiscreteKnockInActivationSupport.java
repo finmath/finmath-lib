@@ -156,7 +156,7 @@ public final class DiscreteKnockInActivationSupport {
 					activatedDiscretization,
 					targetDiscretization,
 					gridTolerance
-			);
+					);
 		}
 
 		if (dims == 2) {
@@ -166,7 +166,7 @@ public final class DiscreteKnockInActivationSupport {
 					activatedDiscretization,
 					targetDiscretization,
 					gridTolerance
-			);
+					);
 		}
 
 		throw new IllegalArgumentException("Only 1D and 2D grids are supported.");
@@ -214,7 +214,7 @@ public final class DiscreteKnockInActivationSupport {
 				getColumn(activatedSurface, timeIndex),
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT
-		);
+				);
 
 		for (int i = 0; i < targetGrid.length; i++) {
 			activatedVector[i] = interpolator.getValue(targetGrid[i]);
@@ -259,7 +259,7 @@ public final class DiscreteKnockInActivationSupport {
 				|| !hasSameGrid(sourceX1, targetX1, gridTolerance)) {
 			throw new IllegalArgumentException(
 					"Discrete 2D knock-in currently requires activated and target grids to match."
-			);
+					);
 		}
 
 		final int n0 = targetX0.length;

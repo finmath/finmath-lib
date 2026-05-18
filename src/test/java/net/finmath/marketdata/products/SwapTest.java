@@ -26,10 +26,10 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 public class SwapTest {
 	private final LocalDate referenceDate = LocalDate.of(2017, 6, 15);
 	private static double calibrateMilli;
-	
+
 	/**
 	 * We calibrate a duration that corresponds to a millisecond on an Apple M1 with Java 17.
-	 * 
+	 *
 	 * This is just to have a rough (large) independend bound for the timings that is roughly
 	 * independend of a system.
 	 */
@@ -45,10 +45,10 @@ public class SwapTest {
 			sum += 2*random.nextDouble();
 		}
 		double average = sum/numberOfRuns;
-		
+
 		long timeEnd = System.nanoTime();
 		double durationMillis = (double)(timeEnd-timeStart)/1000000;
-		
+
 		// Approximate 1 ms
 		calibrateMilli = durationMillis / 10;
 		System.out.println("Calibrated millisecond.......: " + calibrateMilli);
@@ -93,7 +93,7 @@ public class SwapTest {
 			AnalyticProduct swap = new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve");
 
 			double value = swap.getValue(0, curveModel);
-			
+
 			// Use the value to avoid optimization
 			sum += value;
 		}
@@ -101,7 +101,7 @@ public class SwapTest {
 
 		double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
 		System.out.println("Swap valuation required......: " + durationMillis + " ms");
-		
+
 		Assertions.assertTrue(durationMillis < calibrateMilli);
 	}
 
@@ -156,7 +156,7 @@ public class SwapTest {
 			AnalyticProduct swap = new Swap(schedule2, null, 0.04, "discountCurve", schedule2, "forwardCurve", 0.0, "discountCurve");
 
 			double value = swap.getValue(0, curveModel);
-			
+
 			// Use the value to avoid optimization
 			sum += value;
 		}

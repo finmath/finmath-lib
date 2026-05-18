@@ -84,7 +84,7 @@ public class SwaptionHullWhiteModelBoundary implements FiniteDifferenceInterestR
 		if (model.getInitialValue() == null || model.getInitialValue().length != 1) {
 			throw new IllegalArgumentException(
 					"SwaptionHullWhiteModelBoundary requires a one-dimensional Hull-White model."
-			);
+					);
 		}
 
 		this.model = model;
@@ -126,7 +126,7 @@ public class SwaptionHullWhiteModelBoundary implements FiniteDifferenceInterestR
 		if (!(product instanceof Swaption)) {
 			throw new IllegalArgumentException(
 					"SwaptionHullWhiteModelBoundary requires a Swaption product."
-			);
+					);
 		}
 
 		return (Swaption) product;
@@ -191,8 +191,8 @@ public class SwaptionHullWhiteModelBoundary implements FiniteDifferenceInterestR
 							scheduleIndex,
 							stateVariable,
 							model
-					)
-			);
+							)
+					);
 		}
 
 		return value;

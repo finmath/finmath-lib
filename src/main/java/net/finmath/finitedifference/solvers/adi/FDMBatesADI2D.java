@@ -80,7 +80,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 				spaceTimeDiscretization,
 				exercise,
 				DEFAULT_QUADRATURE_POINTS_PER_SIDE
-		);
+				);
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 		if (optionalJumpComponent.get().getStateVariableIndex() != 0) {
 			throw new IllegalArgumentException(
 					"FDMBatesADI2D currently supports jumps only on state variable index 0."
-			);
+					);
 		}
 
 		this.model = model;
@@ -193,7 +193,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 						lowerBound,
 						upperBound,
 						i
-				);
+						);
 			}
 		}
 
@@ -242,7 +242,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 						negativeUpper,
 						quadraturePointsPerSide,
 						stockIndex
-				);
+						);
 			}
 		}
 
@@ -259,7 +259,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 						upperBound,
 						quadraturePointsPerSide,
 						stockIndex
-				);
+						);
 			}
 		}
 
@@ -310,7 +310,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 			final double integrand =
 					shiftedValue
 					- slice[stockIndex]
-					- stock * (Math.exp(y) - 1.0) * derivativeAtStock;
+							- stock * (Math.exp(y) - 1.0) * derivativeAtStock;
 
 			integral += integrand * levyDensity;
 		}
@@ -358,8 +358,8 @@ public class FDMBatesADI2D extends AbstractADI2D {
 
 				derivative[i] =
 						lowerWeight * values[i - 1]
-						+ diagWeight * values[i]
-						+ upperWeight * values[i + 1];
+								+ diagWeight * values[i]
+										+ upperWeight * values[i + 1];
 			}
 		}
 
@@ -392,11 +392,11 @@ public class FDMBatesADI2D extends AbstractADI2D {
 
 		while (right - left > 1) {
 			final int mid = (left + right) >>> 1;
-			if (grid[mid] <= x) {
-				left = mid;
-			} else {
-				right = mid;
-			}
+		if (grid[mid] <= x) {
+			left = mid;
+		} else {
+			right = mid;
+		}
 		}
 
 		final double x0 = grid[left];
@@ -413,6 +413,7 @@ public class FDMBatesADI2D extends AbstractADI2D {
 	 *
 	 * @return The Bates model.
 	 */
+	@Override
 	public FDMBatesModel getModel() {
 		return model;
 	}

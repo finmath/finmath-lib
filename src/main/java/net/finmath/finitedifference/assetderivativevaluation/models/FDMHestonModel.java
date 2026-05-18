@@ -319,6 +319,7 @@ public class FDMHestonModel implements FiniteDifferenceEquityModel {
 	 *
 	 * @return The initial spot.
 	 */
+	@Override
 	public double[] getInitialValue() {
 		return new double[] {initialSpot, initialVariance};
 	}
@@ -436,8 +437,8 @@ public class FDMHestonModel implements FiniteDifferenceEquityModel {
 		final double a11 = factorLoading[1][0] * factorLoading[1][0] + factorLoading[1][1] * factorLoading[1][1];
 
 		return new double[][] {
-				{a00, a01},
-				{a01, a11}
+			{a00, a01},
+			{a01, a11}
 		};
 	}
 
@@ -478,6 +479,6 @@ public class FDMHestonModel implements FiniteDifferenceEquityModel {
 				sigma,
 				rho,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

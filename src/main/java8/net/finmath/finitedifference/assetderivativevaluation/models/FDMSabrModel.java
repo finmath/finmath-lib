@@ -302,6 +302,7 @@ public class FDMSabrModel implements FiniteDifferenceEquityModel {
 	 *
 	 * @return The initial state vector.
 	 */
+	@Override
 	public double[] getInitialValue() {
 		return new double[] {initialSpot, initialAlpha};
 	}
@@ -418,8 +419,8 @@ public class FDMSabrModel implements FiniteDifferenceEquityModel {
 		final double a11 = b[1][0] * b[1][0] + b[1][1] * b[1][1];
 
 		return new double[][] {
-				{a00, a01},
-				{a01, a11}
+			{a00, a01},
+			{a01, a11}
 		};
 	}
 
@@ -455,6 +456,6 @@ public class FDMSabrModel implements FiniteDifferenceEquityModel {
 				nu,
 				rho,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

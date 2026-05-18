@@ -274,12 +274,12 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 				integral += volatility * volatility * (timeNext - timePrevious);
 			} else {
 				integral += volatility * volatility
-					 * (Math.exp(-getMRTime(timeNext, maturity))
+						* (Math.exp(-getMRTime(timeNext, maturity))
 								- Math.exp(-getMRTime(timePrevious, maturity)))
 						/ (meanReversion * meanReversion);
 
 				integral -= volatility * volatility
-					 * (Math.exp(-2.0 * getMRTime(timeNext, maturity))
+						* (Math.exp(-2.0 * getMRTime(timeNext, maturity))
 								- Math.exp(-2.0 * getMRTime(timePrevious, maturity)))
 						/ (2.0 * meanReversion * meanReversion);
 			}
@@ -297,12 +297,12 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 			integral += volatility * volatility * (timeNext - timePrevious);
 		} else {
 			integral += volatility * volatility
-				 * (Math.exp(-getMRTime(timeNext, maturity))
+					* (Math.exp(-getMRTime(timeNext, maturity))
 							- Math.exp(-getMRTime(timePrevious, maturity)))
 					/ (meanReversion * meanReversion);
 
 			integral -= volatility * volatility
-				 * (Math.exp(-2.0 * getMRTime(timeNext, maturity))
+					* (Math.exp(-2.0 * getMRTime(timeNext, maturity))
 							- Math.exp(-2.0 * getMRTime(timePrevious, maturity)))
 					/ (2.0 * meanReversion * meanReversion);
 		}
@@ -363,7 +363,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 				discountCurve,
 				volatilityModel,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -481,7 +481,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 					maturity,
 					meanReversion,
 					volatility
-			);
+					);
 
 			timePrev = timeNext;
 		}
@@ -496,7 +496,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 				maturity,
 				meanReversion,
 				volatility
-		);
+				);
 
 		return integral;
 	}
@@ -643,7 +643,7 @@ public class FDMHullWhiteModel implements FiniteDifferenceInterestRateModel {
 		}
 
 		return volatility * volatility
-			 * (Math.exp(-2.0 * getMRTime(timeNext, maturity))
+				* (Math.exp(-2.0 * getMRTime(timeNext, maturity))
 						- Math.exp(-2.0 * getMRTime(timePrevious, maturity)))
 				/ (2.0 * meanReversion);
 	}

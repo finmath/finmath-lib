@@ -12,7 +12,7 @@ import net.finmath.modelling.products.CallOrPut;
  * {@link FDMCevModel}.
  */
 public class BermudanOptionCevModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.

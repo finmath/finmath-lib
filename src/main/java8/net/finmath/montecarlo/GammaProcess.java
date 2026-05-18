@@ -230,13 +230,7 @@ public class GammaProcess implements IndependentIncrements, Serializable {
 
 		final GammaProcess that = (GammaProcess) o;
 
-		if (numberOfFactors != that.numberOfFactors) {
-			return false;
-		}
-		if (numberOfPaths != that.numberOfPaths) {
-			return false;
-		}
-		if (seed != that.seed) {
+		if ((numberOfFactors != that.numberOfFactors) || (numberOfPaths != that.numberOfPaths) || (seed != that.seed)) {
 			return false;
 		}
 		return timeDiscretization.equals(that.timeDiscretization);

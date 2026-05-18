@@ -86,15 +86,15 @@ public class Swap implements FiniteDifferenceInterestRateProduct {
 						notionalsReceive,
 						spreadsReceive,
 						isNotionalExchanged
-				),
+						),
 				new SwapLeg(
 						schedulePayLeg,
 						forwardCurvePayName,
 						notionalsPay,
 						spreadsPay,
 						isNotionalExchanged
-				)
-		);
+						)
+				);
 	}
 
 	@Override
@@ -214,20 +214,20 @@ public class Swap implements FiniteDifferenceInterestRateProduct {
 				forwardCurveName,
 				0.0,
 				false
-		);
+				);
 
 		final double valueFloatLeg = floatingLeg.getValueAt(
 				evaluationTime,
 				stateVariables[0],
 				model
-		);
+				);
 
 		final double swapAnnuity = SwapAnnuity.getSwapAnnuity(
 				evaluationTime,
 				fixSchedule,
 				model,
 				stateVariables[0]
-		);
+				);
 
 		if (Math.abs(swapAnnuity) < 1E-15) {
 			throw new IllegalArgumentException("Swap annuity is numerically zero.");

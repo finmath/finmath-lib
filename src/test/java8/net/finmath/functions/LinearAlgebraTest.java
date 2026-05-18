@@ -111,7 +111,7 @@ public class LinearAlgebraTest {
 			{ 0.0, 0.0, 0.1, 1.0 }
 		};
 
-		int numberOfSteps = 5;
+		final int numberOfSteps = 5;
 		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
 
 		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();
@@ -133,7 +133,7 @@ public class LinearAlgebraTest {
 			{ 0.0, 0.0, 0.1, 1.0 }
 		};
 
-		int numberOfSteps = 5;
+		final int numberOfSteps = 5;
 		final double[][] A = LinearAlgebra.matrixPow(M, 1.0/numberOfSteps);
 
 		double[][] testMatrix = MatrixUtils.createRealIdentityMatrix(M.length).getData();

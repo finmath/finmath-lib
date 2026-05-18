@@ -644,7 +644,9 @@ public class LinearAlgebra {
 			// Symmetric matrix: try to use eigenvalue decomposition.
 			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
 			RealMatrix diag = eigenDecomposition.getD();
-			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));
+			for(int i=0; i<diag.getRowDimension(); i++) {
+				diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));
+			}
 			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
 		}
 		else {
@@ -663,7 +665,9 @@ public class LinearAlgebra {
 			// Symmetric matrix: try to use eigenvalue decomposition.
 			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
 			RealMatrix diag = eigenDecomposition.getD();
-			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));
+			for(int i=0; i<diag.getRowDimension(); i++) {
+				diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));
+			}
 			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
 		}
 		else {

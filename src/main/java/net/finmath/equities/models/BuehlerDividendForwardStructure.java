@@ -162,13 +162,13 @@ public class BuehlerDividendForwardStructure implements EquityForwardStructure {
 	public double getLogMoneyness(double strike, double expiryTime) {
 		return Math.log(
 				getDividendAdjustedStrike(strike, expiryTime)
-						/ getDividendAdjustedStrike(getForward(expiryTime), expiryTime));
+				/ getDividendAdjustedStrike(getForward(expiryTime), expiryTime));
 	}
 
 	@Override
 	public double getLogMoneyness(double strike, LocalDate expiryDate) {
 		return Math.log(
 				getDividendAdjustedStrike(strike, expiryDate)
-						/ getDividendAdjustedStrike(getForward(expiryDate), expiryDate));
+				/ getDividendAdjustedStrike(getForward(expiryDate), expiryDate));
 	}
 }

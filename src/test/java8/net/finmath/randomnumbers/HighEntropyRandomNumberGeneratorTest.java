@@ -29,45 +29,46 @@ public class HighEntropyRandomNumberGeneratorTest {
 
 	@Test
 	public void distributionTest() {
-		RandomNumberGenerator1D highEntropyGenerator = new HighEntropyRandomNumberGenerator();
-		double[] samples = new double[NUM_SAMPLES];
+		final RandomNumberGenerator1D highEntropyGenerator = new HighEntropyRandomNumberGenerator();
+		final double[] samples = new double[NUM_SAMPLES];
 		for (int i = 0; i < NUM_SAMPLES; i++) {
 			samples[i] = highEntropyGenerator.nextDouble();
 		}
-		boolean ksTestResult = (new KolmogorovSmirnovTest()).kolmogorovSmirnovTest(new UniformRealDistribution(),
+		final boolean ksTestResult = (new KolmogorovSmirnovTest()).kolmogorovSmirnovTest(new UniformRealDistribution(),
 				samples, ALPHA);
 
-		if (ksTestResult)
+		if (ksTestResult) {
 			fail("The sampled distribution is not uniform (confidence level " + (1 - ALPHA) + ").");
+		}
 	}
 
 	@Test
 	public void testRNGWithConcurrency() throws InterruptedException {
-		ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
-		RandomNumberGenerator1D highEntropyGenerator = new HighEntropyRandomNumberGenerator();
+		final ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
+		final RandomNumberGenerator1D highEntropyGenerator = new HighEntropyRandomNumberGenerator();
 
-		Callable<Double> rngCallable = () -> {
+		final Callable<Double> rngCallable = () -> {
 			return highEntropyGenerator.nextDouble();
 		};
 
-		List<Callable<Double>> rngCallables = new ArrayList<>();
+		final List<Callable<Double>> rngCallables = new ArrayList<>();
 
 		for (int i = 0; i < NUM_THREADS; i++) {
 			rngCallables.add(rngCallable);
 		}
 
-		List<Future<Double>> rngNextDoubleFutures = executorService.invokeAll(rngCallables);
-		List<Double> returnValues = new ArrayList<>();
-		for (Future<Double> rngNextDoubleFuture : rngNextDoubleFutures) {
+		final List<Future<Double>> rngNextDoubleFutures = executorService.invokeAll(rngCallables);
+		final List<Double> returnValues = new ArrayList<>();
+		for (final Future<Double> rngNextDoubleFuture : rngNextDoubleFutures) {
 			try {
 				returnValues.add(rngNextDoubleFuture.get());
-			} catch (ExecutionException e) {
+			} catch (final ExecutionException e) {
 				System.err.println(e.getMessage());
 				e.printStackTrace();
 			}
 		}
 		System.out.println(returnValues.toArray(new Double[0]).length);
-		boolean testResult = (new KolmogorovSmirnovTest()).kolmogorovSmirnovTest(new UniformRealDistribution(),
+		final boolean testResult = (new KolmogorovSmirnovTest()).kolmogorovSmirnovTest(new UniformRealDistribution(),
 				ArrayUtils.toPrimitive(returnValues.toArray(new Double[0])), ALPHA);
 
 		executorService.shutdown();
@@ -75,11 +76,12 @@ public class HighEntropyRandomNumberGeneratorTest {
 			if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
 				executorService.shutdownNow();
 			}
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			executorService.shutdownNow();
 		}
-		if (testResult)
+		if (testResult) {
 			fail("Heavy multithreading caused loss of statistical properties. The sampled distribution is not uniform (confidence level "
 					+ (1 - ALPHA) + ").");
+		}
 	}
 }

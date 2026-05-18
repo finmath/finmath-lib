@@ -651,7 +651,7 @@ public class RandomVariableDifferentiableAAD implements RandomVariableDifferenti
 	 * The method calculates the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes <code>this</code>.
 	 *
 	 * Performs a backward automatic differentiation.
-	 * 
+	 *
 	 * @param independentIDs {@link Set} of IDs of random variables \( v \) with respect to which the gradients \( \frac{d u}{d v} \) will be calculated. If null, derivatives w.r.t. all known independents are returned.
 	 * @return The gradient map.
 	 */

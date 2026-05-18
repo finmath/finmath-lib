@@ -31,6 +31,7 @@ public class FlatVolatilitySurface  implements VolatilitySurface, ShiftedVolatil
 		return new FlatVolatilitySurface(this.volatility, shift);
 	}
 
+	@Override
 	public double getShift() {
 		return volShift;
 	}
@@ -71,6 +72,7 @@ public class FlatVolatilitySurface  implements VolatilitySurface, ShiftedVolatil
 		return volatility + volShift;
 	}
 
+	@Override
 	public void calibrate(
 			EquityForwardStructure forwardStructure,
 			List<VolatilityPoint> volaPoints)

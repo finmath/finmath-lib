@@ -60,7 +60,7 @@ public class PiecewiseConstantVolatility implements LocalVolatility {
 		this.timeDiscretization = Objects.requireNonNull(
 				timeDiscretization,
 				"timeDiscretization"
-		);
+				);
 
 		if (volatilities == null || volatilities.length == 0) {
 			throw new IllegalArgumentException("The volatility array must not be null or empty.");
@@ -74,7 +74,7 @@ public class PiecewiseConstantVolatility implements LocalVolatility {
 							+ " volatility values and "
 							+ timeDiscretization.getNumberOfTimes()
 							+ " time points."
-			);
+					);
 		}
 
 		this.volatilities = volatilities.clone();
@@ -128,7 +128,7 @@ public class PiecewiseConstantVolatility implements LocalVolatility {
 		if (timeIndex < 0 || timeIndex >= volatilities.length) {
 			throw new IllegalArgumentException(
 					"Time index out of bounds: " + timeIndex
-			);
+					);
 		}
 
 		return volatilities[timeIndex];
@@ -184,7 +184,7 @@ public class PiecewiseConstantVolatility implements LocalVolatility {
 		return new PiecewiseConstantVolatility(
 				timeDiscretization,
 				newVolatilities
-		);
+				);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class PiecewiseConstantVolatility implements LocalVolatility {
 		return new PiecewiseConstantVolatility(
 				newTimeDiscretization,
 				volatilities
-		);
+				);
 	}
 
 	private static void checkVolatility(final double volatility) {

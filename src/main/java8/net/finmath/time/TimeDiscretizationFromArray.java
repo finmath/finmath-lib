@@ -374,10 +374,7 @@ public class TimeDiscretizationFromArray implements Serializable, TimeDiscretiza
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
 		}
 		final TimeDiscretizationFromArray other = (TimeDiscretizationFromArray) obj;

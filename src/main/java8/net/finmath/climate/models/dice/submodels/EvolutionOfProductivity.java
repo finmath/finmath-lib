@@ -42,10 +42,10 @@ public class EvolutionOfProductivity implements Function<Integer, Function<Doubl
 
 	@Override
 	public Function<Double, Double> apply(Integer timeIndex) {
-		double time = timeDiscretization.getTime(timeIndex);
-		double timeStep = timeDiscretization.getTimeStep(timeIndex);
+		final double time = timeDiscretization.getTime(timeIndex);
+		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double productivity) -> {
-			double productivityGrowthRate = productivityGrowthRateInitial * Math.exp(-productivityGrowthRateDecayRate * time);
+			final double productivityGrowthRate = productivityGrowthRateInitial * Math.exp(-productivityGrowthRateDecayRate * time);
 			return productivity / (Math.exp(Math.log(1 - (productivityGrowthRate))*timeStep/5.0));
 		};
 	}

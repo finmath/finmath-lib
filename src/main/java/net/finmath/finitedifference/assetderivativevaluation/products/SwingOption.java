@@ -248,7 +248,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				callOrPut,
 				quantityMode,
 				quantityGridStep
-		);
+				);
 	}
 
 	/**
@@ -288,7 +288,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				callOrPut,
 				quantityMode,
 				quantityGridStep
-		);
+				);
 	}
 
 	/**
@@ -328,7 +328,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				callOrPut,
 				quantityMode,
 				quantityGridStep
-		);
+				);
 	}
 
 	/**
@@ -352,7 +352,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 			throw new UnsupportedOperationException(
 					"SwingOption v1 supports getValue only at evaluationTime = 0. "
 							+ "For later times, cumulative consumed quantity would need to be supplied explicitly."
-			);
+					);
 		}
 		if (model == null) {
 			throw new IllegalArgumentException("model must not be null.");
@@ -388,7 +388,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 						model,
 						segmentLength,
 						nextDecisionValueSlices
-				);
+						);
 			}
 
 			nextDecisionValueSlices = applySwingStepConditionAtDecision(
@@ -397,7 +397,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					previousQuantityGrid,
 					nextQuantityGrid,
 					continuationSlicesAtCurrentDecision
-			);
+					);
 		}
 
 		if (nextDecisionValueSlices == null || nextDecisionValueSlices.size() != 1) {
@@ -414,7 +414,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				model,
 				decisionTimes[0],
 				Arrays.asList(valueAtFirstDecision)
-		);
+				);
 
 		return valueAtTimeZero.get(0);
 	}
@@ -437,7 +437,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				"SwingOption carries an additional cumulative-quantity state. "
 						+ "A path-state-aware value surface container is required. "
 						+ "Use getValue(0.0, model) in this v1 implementation."
-		);
+				);
 	}
 
 	private List<double[]> applySwingStepConditionAtDecision(
@@ -459,12 +459,12 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					decisionIndex,
 					previousQuantity,
 					nextQuantityGrid
-			);
+					);
 
 			if (admissibleDestinationIndices.length == 0) {
 				throw new IllegalStateException(
 						"No admissible next quantities found from previous cumulative quantity " + previousQuantity
-				);
+						);
 			}
 
 			final double[] valueSlice = new double[numberOfStates];
@@ -476,7 +476,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				final double exercisedQuantity = nextQuantity - previousQuantity;
 				final double[] continuation = continuationSlicesAtCurrentDecision == null
 						? null
-						: continuationSlicesAtCurrentDecision.get(nextIndex);
+								: continuationSlicesAtCurrentDecision.get(nextIndex);
 
 				for (int stateIndex = 0; stateIndex < numberOfStates; stateIndex++) {
 					final double candidate =
@@ -507,7 +507,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 		final SpaceTimeDiscretization segmentDiscretization = createSegmentDiscretization(
 				model.getSpaceTimeDiscretization(),
 				segmentLength
-		);
+				);
 
 		final FiniteDifferenceEquityModel segmentModel =
 				model.getCloneWithModifiedSpaceTimeDiscretization(segmentDiscretization);
@@ -524,7 +524,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					proxyProduct,
 					segmentDiscretization,
 					new EuropeanExercise(segmentLength)
-			);
+					);
 
 			for (final double[] terminalSlice : terminalSlicesAtSegmentEnd) {
 				propagated.add(solver.getValue(0.0, segmentLength, terminalSlice));
@@ -535,7 +535,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					proxyProduct,
 					segmentDiscretization,
 					new EuropeanExercise(segmentLength)
-			);
+					);
 
 			final double[] x0Grid = segmentDiscretization.getSpaceGrid(0).getGrid();
 			final double[] x1Grid = segmentDiscretization.getSpaceGrid(1).getGrid();
@@ -548,9 +548,9 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 								x1Grid,
 								x0,
 								x1
-						);
+								);
 
-				propagated.add(solver.getValue(0.0, segmentLength, terminalFunction));
+						propagated.add(solver.getValue(0.0, segmentLength, terminalFunction));
 			}
 		} else {
 			throw new IllegalArgumentException("Only 1D and 2D models are supported.");
@@ -589,12 +589,12 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					final boolean canStillReachGlobalMinimum =
 							nextQuantity + suffixMax[decisionIndex + 1] >= globalMinQuantity - EPS;
 
-					final boolean canStillRespectGlobalMaximum =
-							nextQuantity + suffixMin[decisionIndex + 1] <= globalMaxQuantity + EPS;
+							final boolean canStillRespectGlobalMaximum =
+									nextQuantity + suffixMin[decisionIndex + 1] <= globalMaxQuantity + EPS;
 
-					if (canStillReachGlobalMinimum && canStillRespectGlobalMaximum) {
-						nextGridCandidates.add(nextQuantity);
-					}
+							if (canStillReachGlobalMinimum && canStillRespectGlobalMaximum) {
+								nextGridCandidates.add(nextQuantity);
+							}
 				}
 			}
 
@@ -602,7 +602,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 			if (nextGrid.length == 0) {
 				throw new IllegalArgumentException(
 						"No feasible cumulative quantity states found at decision index " + decisionIndex
-				);
+						);
 			}
 
 			grids.add(nextGrid);
@@ -703,13 +703,13 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 		final int segmentNumberOfTimeSteps = Math.max(
 				1,
 				(int) Math.round(baseNumberOfTimeSteps * segmentLength / baseLastTime)
-		);
+				);
 
 		final TimeDiscretization segmentTimeDiscretization = new TimeDiscretizationFromArray(
 				0.0,
 				segmentNumberOfTimeSteps,
 				segmentLength / segmentNumberOfTimeSteps
-		);
+				);
 
 		if (baseDiscretization.getNumberOfSpaceGrids() == 1) {
 			return new SpaceTimeDiscretization(
@@ -717,7 +717,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 					segmentTimeDiscretization,
 					baseDiscretization.getTheta(),
 					new double[] {baseDiscretization.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = baseDiscretization.getNumberOfSpaceGrids();
@@ -734,7 +734,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 				segmentTimeDiscretization,
 				baseDiscretization.getTheta(),
 				center
-		);
+				);
 	}
 
 	private int getNumberOfStates(final SpaceTimeDiscretization discretization) {
@@ -742,7 +742,7 @@ public class SwingOption implements FiniteDifferenceEquityProduct {
 			return discretization.getSpaceGrid(0).getGrid().length;
 		}
 		return discretization.getSpaceGrid(0).getGrid().length
-			 * discretization.getSpaceGrid(1).getGrid().length;
+				* discretization.getSpaceGrid(1).getGrid().length;
 	}
 
 	private double interpolate2DWithConstantExtrapolation(

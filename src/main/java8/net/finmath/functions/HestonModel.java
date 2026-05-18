@@ -54,7 +54,7 @@ public class HestonModel {
 	static final int numberOfPoints = 4096*2;
 	static final double gridSpacing = 0.4;
 
-	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
+	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA}
 
 	/**
 	 * Calculates the delta of a call option under a Heston model.
@@ -84,7 +84,7 @@ public class HestonModel {
 			final double optionStrike)
 	{
 
-		HestonGreek whatToCompute = HestonGreek.DELTA;
+		final HestonGreek whatToCompute = HestonGreek.DELTA;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -128,7 +128,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.GAMMA;
+		final HestonGreek whatToCompute = HestonGreek.GAMMA;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -172,7 +172,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.THETA;
+		final HestonGreek whatToCompute = HestonGreek.THETA;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -216,7 +216,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.RHO;
+		final HestonGreek whatToCompute = HestonGreek.RHO;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -293,7 +293,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.VEGA1;
+		final HestonGreek whatToCompute = HestonGreek.VEGA1;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -337,7 +337,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.VANNA;
+		final HestonGreek whatToCompute = HestonGreek.VANNA;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -381,7 +381,7 @@ public class HestonModel {
 			final double optionMaturity,
 			final double optionStrike)
 	{
-		HestonGreek whatToCompute = HestonGreek.VOLGA;
+		final HestonGreek whatToCompute = HestonGreek.VOLGA;
 
 		return hestonGreekCalculator(initialStockValue,
 				riskFreeRate,
@@ -438,8 +438,8 @@ public class HestonModel {
 		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing);
 		final double v0 = sigma*sigma;
 
-		double x = Math.log(initialStockValue);
-		double a = kappa * theta;
+		final double x = Math.log(initialStockValue);
+		final double a = kappa * theta;
 
 		Complex b, u, d, g, c, D, G, C;
 
@@ -448,16 +448,16 @@ public class HestonModel {
 		b = new Complex(kappa + lambda, 0.0);
 
 		// Compute d
-		Complex term1 = (Complex.I.multiply(rho * xi).multiply(zeta)).subtract(b); // (ρσiφ - b)
-		Complex powPart = term1.pow(2.0); // (...)
-		Complex term2 = new Complex(xi * xi, 0.0)
+		final Complex term1 = (Complex.I.multiply(rho * xi).multiply(zeta)).subtract(b); // (ρσiφ - b)
+		final Complex powPart = term1.pow(2.0); // (...)
+		final Complex term2 = new Complex(xi * xi, 0.0)
 				.multiply((u.multiply(2.0).multiply(Complex.I).multiply(zeta))
 						.subtract(zeta.multiply(zeta))); // σ²(2u i φ - φ²)
 		d = powPart.subtract(term2).sqrt();
 
 		// Compute g
-		Complex numerator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).add(d);
-		Complex denominator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).subtract(d);
+		final Complex numerator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).add(d);
+		final Complex denominator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).subtract(d);
 		g = numerator.divide(denominator);
 
 		// Initialize remaining
@@ -471,8 +471,8 @@ public class HestonModel {
 		c = Complex.ONE.divide(g);
 
 		// Precompute some recurring parts
-		Complex exp_dT = d.multiply(-optionMaturity).exp(); // exp(-d*T)
-		Complex bMinusRhoSigmaIphiMinusD = b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).subtract(d);
+		final Complex exp_dT = d.multiply(-optionMaturity).exp(); // exp(-d*T)
+		final Complex bMinusRhoSigmaIphiMinusD = b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).subtract(d);
 
 		// D = (b - rho*sigma*i*phi - d) / (sigma^2) * ((1 - exp(-d*T)) / (1 - c * exp(-d*T)))
 		D = bMinusRhoSigmaIphiMinusD
@@ -487,8 +487,8 @@ public class HestonModel {
 				.divide(Complex.ONE.subtract(c));
 
 		// C = (r - q) * i * phi * T + a / sigma^2 * ((b - rho*sigma*i*phi - d) * T - 2.0 * Complex.Log(G))
-		Complex firstTerm = Complex.I.multiply(zeta).multiply(riskFreeRate * optionMaturity);
-		Complex secondTerm = new Complex(a / (xi * xi), 0.0)
+		final Complex firstTerm = Complex.I.multiply(zeta).multiply(riskFreeRate * optionMaturity);
+		final Complex secondTerm = new Complex(a / (xi * xi), 0.0)
 				.multiply(
 						(bMinusRhoSigmaIphiMinusD.multiply(optionMaturity))
 						.subtract(Complex.valueOf(2.0).multiply(G.log()))
@@ -497,7 +497,7 @@ public class HestonModel {
 		C = firstTerm.add(secondTerm);
 
 		// The characteristic function (discounted)
-		Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-discountRate * optionMaturity).exp();
+		final Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-discountRate * optionMaturity).exp();
 
 		// Return depending on the requested Greek
 		switch (whichGreek) {
@@ -509,14 +509,14 @@ public class HestonModel {
 					.multiply(Complex.I.multiply(zeta).subtract(Complex.ONE))
 					.divide(initialStockValue * initialStockValue);
 		case THETA:
-			Complex numerator_dDdT = d.multiply(exp_dT)
+			final Complex numerator_dDdT = d.multiply(exp_dT)
 			.multiply(b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
 			.multiply(g.subtract(Complex.ONE));
-			Complex denominator_dDdT = Complex.valueOf(xi * xi)
+			final Complex denominator_dDdT = Complex.valueOf(xi * xi)
 					.multiply(Complex.ONE.subtract(g.multiply(exp_dT)).pow(2.0));
-			Complex dDdT = numerator_dDdT.divide(denominator_dDdT);
+			final Complex dDdT = numerator_dDdT.divide(denominator_dDdT);
 
-			Complex innerTerm = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
+			final Complex innerTerm = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))
 					.add(
 							Complex.valueOf(2.0)
 							.multiply(g)
@@ -525,7 +525,7 @@ public class HestonModel {
 							.divide(Complex.ONE.subtract(g.multiply(exp_dT)))
 							);
 
-			Complex dCdT = Complex.I.multiply(zeta).multiply(riskFreeRate)
+			final Complex dCdT = Complex.I.multiply(zeta).multiply(riskFreeRate)
 					.add(
 							Complex.valueOf(kappa * theta / (xi * xi))
 							.multiply(innerTerm)
@@ -537,7 +537,7 @@ public class HestonModel {
 							f.multiply(dCdT.add(dDdT.multiply(v0)))
 							);
 		case RHO:
-			Complex dCdr = Complex.I.multiply(zeta).multiply(optionMaturity);
+			final Complex dCdr = Complex.I.multiply(zeta).multiply(optionMaturity);
 			return f.multiply(dCdr).subtract(f.multiply(optionMaturity));
 		case VEGA1:
 			return f.multiply(D);

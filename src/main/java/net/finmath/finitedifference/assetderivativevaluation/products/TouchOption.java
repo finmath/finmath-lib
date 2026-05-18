@@ -93,9 +93,9 @@ import net.finmath.time.TimeDiscretization;
  * @author Alessandro Gnoatto
  */
 public class TouchOption implements
-	FiniteDifferenceEquityEventProduct,
-	FiniteDifferenceInternalStateConstraint,
-	FiniteDifferenceOneDimensionalKnockInProduct {
+FiniteDifferenceEquityEventProduct,
+FiniteDifferenceInternalStateConstraint,
+FiniteDifferenceOneDimensionalKnockInProduct {
 
 	private enum PricingMode {
 		/**
@@ -187,7 +187,7 @@ public class TouchOption implements
 				exercise,
 				MonitoringType.CONTINUOUS,
 				null
-		);
+				);
 	}
 
 	/**
@@ -280,7 +280,7 @@ public class TouchOption implements
 				payoffAmount,
 				settlementTiming,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_EXPIRY,
 				exercise
-		);
+				);
 	}
 
 	/**
@@ -334,7 +334,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_EXPIRY,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class TouchOption implements
 				payoffAmount,
 				settlementTiming,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -384,7 +384,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_EXPIRY,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class TouchOption implements
 				exercise,
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -448,7 +448,7 @@ public class TouchOption implements
 				exercise,
 				MonitoringType.CONTINUOUS,
 				null
-		);
+				);
 	}
 
 	/**
@@ -480,7 +480,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_EXPIRY,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -529,7 +529,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_HIT,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -578,7 +578,7 @@ public class TouchOption implements
 				payoffAmount,
 				TouchSettlementTiming.AT_EXPIRY,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -781,12 +781,12 @@ public class TouchOption implements
 				this,
 				model.getSpaceTimeDiscretization(),
 				exercise
-		);
+				);
 
 		return solver.getValues(
 				maturity,
 				buildDiscreteMonitoringTerminalValues(model.getSpaceTimeDiscretization())
-		);
+				);
 	}
 
 	private double[] buildDiscreteMonitoringTerminalValues(final SpaceTimeDiscretization discretization) {
@@ -808,7 +808,7 @@ public class TouchOption implements
 				this,
 				model.getSpaceTimeDiscretization(),
 				exercise
-		);
+				);
 
 		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() == 1) {
 			final double[] terminalValues =
@@ -836,18 +836,18 @@ public class TouchOption implements
 				exercise,
 				createActiveBoundaryProvider(knockInModel),
 				createActivationPolicy()
-		);
+				);
 
 		final double[][] knockInValuesOnAuxiliaryGrid = solver.getValues(
 				maturity,
 				buildActiveTerminalValues(knockInModel.getSpaceTimeDiscretization())
-		);
+				);
 
 		return interpolateSurfaceToOriginalGrid1D(
 				knockInValuesOnAuxiliaryGrid,
 				knockInModel.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 				model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid()
-		);
+				);
 	}
 
 	private double[][] priceInOptionDirectly2D(final FiniteDifferenceEquityModel model) {
@@ -877,7 +877,7 @@ public class TouchOption implements
 						new EuropeanExercise(maturity),
 						BarrierPDEMode.IN_PRE_HIT,
 						preHitSpecification
-				);
+						);
 
 		final double[][] preHitValues =
 				preHitSolver.getValues(maturity, assetValue -> getInactiveValueAtMaturity());
@@ -886,7 +886,7 @@ public class TouchOption implements
 				model,
 				preHitModel,
 				preHitValues
-		);
+				);
 	}
 
 	private TwoStateActiveBoundaryProvider createActiveBoundaryProvider(final FiniteDifferenceEquityModel model) {
@@ -1003,7 +1003,7 @@ public class TouchOption implements
 					getColumn(valuesOnAuxiliaryGrid, timeIndex),
 					InterpolationMethod.LINEAR,
 					ExtrapolationMethod.CONSTANT
-			);
+					);
 
 			for (int i = 0; i < originalGrid.length; i++) {
 				interpolatedValues[i][timeIndex] = interpolator.getValue(originalGrid[i]);
@@ -1057,7 +1057,7 @@ public class TouchOption implements
 						auxiliarySlice,
 						InterpolationMethod.LINEAR,
 						ExtrapolationMethod.CONSTANT
-				);
+						);
 
 				for (int i = 0; i < originalN0; i++) {
 					final int k = flatten(i, j, originalN0);
@@ -1107,7 +1107,7 @@ public class TouchOption implements
 				timeDiscretization,
 				thetaValue,
 				new double[] {initialValue }
-		);
+				);
 
 		return originalModel.getCloneWithModifiedSpaceTimeDiscretization(knockInDiscretization);
 	}
@@ -1149,7 +1149,7 @@ public class TouchOption implements
 				spotMax,
 				numberOfSpotSteps,
 				trace
-		);
+				);
 	}
 
 	private FiniteDifferenceEquityModel createAuxiliaryPreHitModel2D(
@@ -1163,13 +1163,13 @@ public class TouchOption implements
 				preHitSpecification.getNumberOfSpotSteps(),
 				preHitSpecification.getSpotMin(),
 				preHitSpecification.getSpotMax()
-		);
+				);
 
 		final Grid preservedSecondGrid = new UniformGrid(
 				secondGrid.length - 1,
 				secondGrid[0],
 				secondGrid[secondGrid.length - 1]
-		);
+				);
 
 		final SpaceTimeDiscretization preHitDiscretization =
 				new SpaceTimeDiscretization(
@@ -1177,7 +1177,7 @@ public class TouchOption implements
 						base.getTimeDiscretization(),
 						base.getTheta(),
 						model.getInitialValue()
-				);
+						);
 
 		return model.getCloneWithModifiedSpaceTimeDiscretization(preHitDiscretization);
 	}
@@ -1206,7 +1206,7 @@ public class TouchOption implements
 				secondGrid,
 				timeDiscretization,
 				traceValues
-		);
+				);
 	}
 
 	private double getActivatedValueForTau(
@@ -1284,7 +1284,7 @@ public class TouchOption implements
 						preHitValues,
 						preHitModel.getSpaceTimeDiscretization(),
 						originalDiscretization
-				);
+						);
 
 		final double[] x0 = originalDiscretization.getSpaceGrid(0).getGrid();
 		final double[] x1 = originalDiscretization.getSpaceGrid(1).getGrid();
@@ -1299,12 +1299,12 @@ public class TouchOption implements
 						? x0[i] <= barrierValue
 						: x0[i] >= barrierValue;
 
-				final int k = flatten(i, j, x0.length);
-				final double[][] source = alreadyHit ? activatedOnOriginalGrid : preHitOnOriginalGrid;
+						final int k = flatten(i, j, x0.length);
+						final double[][] source = alreadyHit ? activatedOnOriginalGrid : preHitOnOriginalGrid;
 
-				for (int timeIndex = 0; timeIndex < numberOfColumns; timeIndex++) {
-					result[k][timeIndex] = source[k][timeIndex];
-				}
+						for (int timeIndex = 0; timeIndex < numberOfColumns; timeIndex++) {
+							result[k][timeIndex] = source[k][timeIndex];
+						}
 			}
 		}
 
@@ -1363,7 +1363,7 @@ public class TouchOption implements
 			return discretization.getSpaceGrid(0).getGrid().length;
 		} else if (dims == 2) {
 			return discretization.getSpaceGrid(0).getGrid().length
-				 * discretization.getSpaceGrid(1).getGrid().length;
+					* discretization.getSpaceGrid(1).getGrid().length;
 		} else {
 			throw new IllegalArgumentException("Only 1D and 2D grids are supported.");
 		}
@@ -1383,7 +1383,7 @@ public class TouchOption implements
 				monitoringTimes,
 				maturity,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private boolean isBarrierBreached(final double assetValue) {
@@ -1414,11 +1414,7 @@ public class TouchOption implements
 			final double time,
 			final FiniteDifferenceEquityModel model) {
 
-		if (settlementTiming == TouchSettlementTiming.AT_HIT) {
-			return payoffAmount;
-		}
-
-		if (time >= maturity - DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE) {
+		if ((settlementTiming == TouchSettlementTiming.AT_HIT) || (time >= maturity - DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE)) {
 			return payoffAmount;
 		}
 
@@ -1442,7 +1438,7 @@ public class TouchOption implements
 						base.getTimeDiscretization(),
 						maturity,
 						monitoringTimes
-				);
+						);
 
 		if (base.getNumberOfSpaceGrids() == 1) {
 			return new SpaceTimeDiscretization(
@@ -1450,7 +1446,7 @@ public class TouchOption implements
 					refinedTimeDiscretization,
 					base.getTheta(),
 					new double[] {base.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();
@@ -1467,7 +1463,7 @@ public class TouchOption implements
 				refinedTimeDiscretization,
 				base.getTheta(),
 				center
-		);
+				);
 	}
 
 	private FiniteDifferenceEquityModel getEffectiveModelForValuation(final FiniteDifferenceEquityModel model) {
@@ -1483,11 +1479,7 @@ public class TouchOption implements
 
 	@Override
 	public boolean isConstraintActive(final double time, final double... stateVariables) {
-		if (usesDiscreteMonitoring()) {
-			return false;
-		}
-
-		if (!isOutOption()) {
+		if (usesDiscreteMonitoring() || !isOutOption()) {
 			return false;
 		}
 
@@ -1587,7 +1579,7 @@ public class TouchOption implements
 	}
 
 	private static final class DiscountedCashAtExpiryActiveBoundaryProvider
-			implements TwoStateActiveBoundaryProvider {
+	implements TwoStateActiveBoundaryProvider {
 
 		/**
 		 * The epsilon.
@@ -1647,7 +1639,7 @@ public class TouchOption implements
 	}
 
 	private static final class ImmediateCashActiveBoundaryProvider
-			implements TwoStateActiveBoundaryProvider {
+	implements TwoStateActiveBoundaryProvider {
 
 		/**
 		 * The payoff amount.

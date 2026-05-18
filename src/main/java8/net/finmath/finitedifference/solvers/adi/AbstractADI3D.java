@@ -178,6 +178,7 @@ public abstract class AbstractADI3D implements FDMSolver {
 	 * @param valueAtMaturity The value.
 	 * @return The value.
 	 */
+	@Override
 	public double[][] getValues(final double time, final DoubleBinaryOperator valueAtMaturity) {
 		return getValues(
 				time,
@@ -279,6 +280,7 @@ public abstract class AbstractADI3D implements FDMSolver {
 	 * @param valueAtMaturity The value.
 	 * @return The value.
 	 */
+	@Override
 	public double[] getValue(
 			final double evaluationTime,
 			final double time,
@@ -434,28 +436,28 @@ public abstract class AbstractADI3D implements FDMSolver {
 					final double d0d1 =
 							(
 									u[flatten(k0 + 1, k1 + 1, k2)]
-									- u[flatten(k0 + 1, k1 - 1, k2)]
-									- u[flatten(k0 - 1, k1 + 1, k2)]
-									+ u[flatten(k0 - 1, k1 - 1, k2)]
-							)
+											- u[flatten(k0 + 1, k1 - 1, k2)]
+													- u[flatten(k0 - 1, k1 + 1, k2)]
+															+ u[flatten(k0 - 1, k1 - 1, k2)]
+									)
 							/ ((dx0Down + dx0Up) * (dx1Down + dx1Up));
 
 					final double d0d2 =
 							(
 									u[flatten(k0 + 1, k1, k2 + 1)]
-									- u[flatten(k0 + 1, k1, k2 - 1)]
-									- u[flatten(k0 - 1, k1, k2 + 1)]
-									+ u[flatten(k0 - 1, k1, k2 - 1)]
-							)
+											- u[flatten(k0 + 1, k1, k2 - 1)]
+													- u[flatten(k0 - 1, k1, k2 + 1)]
+															+ u[flatten(k0 - 1, k1, k2 - 1)]
+									)
 							/ ((dx0Down + dx0Up) * (dx2Down + dx2Up));
 
 					final double d1d2 =
 							(
 									u[flatten(k0, k1 + 1, k2 + 1)]
-									- u[flatten(k0, k1 + 1, k2 - 1)]
-									- u[flatten(k0, k1 - 1, k2 + 1)]
-									+ u[flatten(k0, k1 - 1, k2 - 1)]
-							)
+											- u[flatten(k0, k1 + 1, k2 - 1)]
+													- u[flatten(k0, k1 - 1, k2 + 1)]
+															+ u[flatten(k0, k1 - 1, k2 - 1)]
+									)
 							/ ((dx1Down + dx1Up) * (dx2Down + dx2Up));
 
 					out[k] = a01 * d0d1 + a02 * d0d2 + a12 * d1d2 - r * u[k];
@@ -501,7 +503,7 @@ public abstract class AbstractADI3D implements FDMSolver {
 							2.0 * (
 									(u[flatten(k0 + 1, k1, k2)] - u[k]) / dxUp
 									- (u[k] - u[flatten(k0 - 1, k1, k2)]) / dxDown
-							)
+									)
 							/ (dxDown + dxUp);
 
 					out[k] = mu0 * d1 + 0.5 * a00 * d2;
@@ -547,7 +549,7 @@ public abstract class AbstractADI3D implements FDMSolver {
 							2.0 * (
 									(u[flatten(k0, k1 + 1, k2)] - u[k]) / dxUp
 									- (u[k] - u[flatten(k0, k1 - 1, k2)]) / dxDown
-							)
+									)
 							/ (dxDown + dxUp);
 
 					out[k] = mu1 * d1 + 0.5 * a11 * d2;
@@ -593,7 +595,7 @@ public abstract class AbstractADI3D implements FDMSolver {
 							2.0 * (
 									(u[flatten(k0, k1, k2 + 1)] - u[k]) / dxUp
 									- (u[k] - u[flatten(k0, k1, k2 - 1)]) / dxDown
-							)
+									)
 							/ (dxDown + dxUp);
 
 					out[k] = mu2 * d1 + 0.5 * a22 * d2;

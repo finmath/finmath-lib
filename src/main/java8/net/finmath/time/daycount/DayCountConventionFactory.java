@@ -49,29 +49,29 @@ public class DayCountConventionFactory implements Serializable {
 		convention = convention.replace('.', ' ').toLowerCase();
 
 		switch(convention) {
-			case "30e/360 isda":
-			case "e30/360 isda":
-			case "30/360":
-				return new DayCountConvention_30E_360_ISDA();
-			case "30e/360":
-			case "e30/360":
-				return new DayCountConvention_30E_360();
-			case "30u/360":
-			case "u30/360":
-				return new DayCountConvention_30U_360();
-			case "act/360":
-				return new DayCountConvention_ACT_360();
-			case "act/365":
-			case "act/365 fixed":
-				return new DayCountConvention_ACT_365();
-			case "act/act":
-			case "act/act isda":
-				return new DayCountConvention_ACT_ACT_ISDA();
-			case "act/act yearfrac":
-				return new DayCountConvention_ACT_ACT_YEARFRAC();
-			case "act/act afb":
-				return new DayCountConvention_ACT_ACT_AFB();
-			default:
+		case "30e/360 isda":
+		case "e30/360 isda":
+		case "30/360":
+			return new DayCountConvention_30E_360_ISDA();
+		case "30e/360":
+		case "e30/360":
+			return new DayCountConvention_30E_360();
+		case "30u/360":
+		case "u30/360":
+			return new DayCountConvention_30U_360();
+		case "act/360":
+			return new DayCountConvention_ACT_360();
+		case "act/365":
+		case "act/365 fixed":
+			return new DayCountConvention_ACT_365();
+		case "act/act":
+		case "act/act isda":
+			return new DayCountConvention_ACT_ACT_ISDA();
+		case "act/act yearfrac":
+			return new DayCountConvention_ACT_ACT_YEARFRAC();
+		case "act/act afb":
+			return new DayCountConvention_ACT_ACT_AFB();
+		default:
 		}
 		throw new IllegalArgumentException("Unknow day count convention: " + convention);
 	}

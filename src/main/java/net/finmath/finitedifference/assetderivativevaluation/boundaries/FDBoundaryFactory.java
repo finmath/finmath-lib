@@ -59,9 +59,9 @@ public final class FDBoundaryFactory {
 
 			final String boundaryClassName =
 					packageName + "."
-					+ productClass.getSimpleName()
-					+ modelCoreName
-					+ "Boundary";
+							+ productClass.getSimpleName()
+							+ modelCoreName
+							+ "Boundary";
 
 			try {
 				final Class<?> boundaryClass = Class.forName(boundaryClassName);
@@ -77,15 +77,15 @@ public final class FDBoundaryFactory {
 						+ " for model type " + model.getClass()
 						+ " and product type " + product.getClass(),
 						e
-				);
+						);
 			}
 		}
 
 		throw new IllegalArgumentException(
 				"Cannot create boundary for model type "
-				+ model.getClass()
-				+ " and product type "
-				+ product.getClass()
-		);
+						+ model.getClass()
+						+ " and product type "
+						+ product.getClass()
+				);
 	}
 }

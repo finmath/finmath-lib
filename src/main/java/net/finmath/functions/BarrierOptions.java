@@ -130,29 +130,29 @@ public final class BarrierOptions {
 		final double y2 = Math.log(barrierValue / initialStockValue) / volTime + muVolTime;
 
 		final double A = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)
-			 * n(phi * x1)
+				* n(phi * x1)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-			 * n(phi * (x1 - volTime));
+				* n(phi * (x1 - volTime));
 		final double B = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)
-			 * n(phi * x2)
+				* n(phi * x2)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-			 * n(phi * (x2 - volTime));
+				* n(phi * (x2 - volTime));
 		final double C = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)
-			 * Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
-			 * n(eta * y1)
+				* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
+				* n(eta * y1)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-			 * Math.pow(barrierValue / initialStockValue, 2.0 * mu)
-			 * n(eta * (y1 - volTime));
+				* Math.pow(barrierValue / initialStockValue, 2.0 * mu)
+				* n(eta * (y1 - volTime));
 		final double D = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)
-			 * Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
-			 * n(eta * y2)
+				* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
+				* n(eta * y2)
 				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)
-			 * Math.pow(barrierValue / initialStockValue, 2.0 * mu)
-			 * n(eta * (y2 - volTime));
+				* Math.pow(barrierValue / initialStockValue, 2.0 * mu)
+				* n(eta * (y2 - volTime));
 		final double E = rebate * Math.exp(-riskFreeRate * optionMaturity)
-			 * (n(eta * (x2 - volTime))
-				- Math.pow(barrierValue / initialStockValue, 2.0 * mu)
-			 * n(eta * (y2 - volTime)));
+				* (n(eta * (x2 - volTime))
+						- Math.pow(barrierValue / initialStockValue, 2.0 * mu)
+						* n(eta * (y2 - volTime)));
 		final double F = rebate * (Math.pow(barrierValue / initialStockValue, mu + lambda) * n(eta * z)
 				+ Math.pow(barrierValue / initialStockValue, mu - lambda) * n(eta * (z - 2.0 * lambda * volTime)));
 
@@ -293,44 +293,44 @@ public final class BarrierOptions {
 			if (isCall) {
 				alpha = optionStrike >= barrierValue
 						? hs2mu * cumY1
-						: cumX1 - cumX2 + hs2mu * cumY2;
+								: cumX1 - cumX2 + hs2mu * cumY2;
 			} else {
 				alpha = optionStrike >= barrierValue
 						? cumX2 + hs2mu * (-cumY1 + cumY2)
-						: cumX1;
+								: cumX1;
 			}
 			break;
 		case UP_IN:
 			if (isCall) {
 				alpha = optionStrike >= barrierValue
 						? cumX1
-						: cumX2 + hs2mu * (-cumY1 + cumY2);
+								: cumX2 + hs2mu * (-cumY1 + cumY2);
 			} else {
 				alpha = optionStrike >= barrierValue
 						? cumX1 - cumX2 + hs2mu * cumY2
-						: hs2mu * cumY1;
+								: hs2mu * cumY1;
 			}
 			break;
 		case DOWN_OUT:
 			if (isCall) {
 				alpha = optionStrike >= barrierValue
 						? cumX1 - hs2mu * cumY1
-						: cumX2 - hs2mu * cumY2;
+								: cumX2 - hs2mu * cumY2;
 			} else {
 				alpha = optionStrike >= barrierValue
 						? cumX1 - cumX2 + hs2mu * (cumY1 - cumY2)
-						: 0.0;
+								: 0.0;
 			}
 			break;
 		case UP_OUT:
 			if (isCall) {
 				alpha = optionStrike >= barrierValue
 						? 0.0
-						: cumX1 - cumX2 + hs2mu * (cumY1 - cumY2);
+								: cumX1 - cumX2 + hs2mu * (cumY1 - cumY2);
 			} else {
 				alpha = optionStrike >= barrierValue
 						? cumX2 - hs2mu * cumY2
-						: cumX1 - hs2mu * cumY1;
+								: cumX1 - hs2mu * cumY1;
 			}
 			break;
 		default:
@@ -388,7 +388,7 @@ public final class BarrierOptions {
 			return barrierType == DoubleBarrierType.KNOCK_IN
 					? vanillaBlackScholesValue(initialStockValue, riskFreeRate, dividendYield, volatility,
 							optionMaturity, optionStrike, isCall)
-					: 0.0;
+							: 0.0;
 		}
 
 		final double volatilitySquared = volatility * volatility;
@@ -414,14 +414,14 @@ public final class BarrierOptions {
 						/ (upperBarrier * initialStockValue * U2n)) / stdDeviation + bsigma;
 
 				acc1 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1)
-					 * (n(d1) - n(d2))
+						* (n(d1) - n(d2))
 						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1)
-					 * (n(d3) - n(d4));
+						* (n(d3) - n(d4));
 
 				acc2 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1 - 2.0)
-					 * (n(d1 - stdDeviation) - n(d2 - stdDeviation))
+						* (n(d1 - stdDeviation) - n(d2 - stdDeviation))
 						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1 - 2.0)
-					 * (n(d3 - stdDeviation) - n(d4 - stdDeviation));
+						* (n(d3 - stdDeviation) - n(d4 - stdDeviation));
 			}
 			knockOutValue = Math.max(0.0,
 					initialStockValue * dividendDiscount * acc1 - optionStrike * riskFreeDiscount * acc2);
@@ -439,14 +439,14 @@ public final class BarrierOptions {
 						/ (optionStrike * initialStockValue * U2n)) / stdDeviation + bsigma;
 
 				acc1 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1 - 2.0)
-					 * (n(y1 - stdDeviation) - n(y2 - stdDeviation))
+						* (n(y1 - stdDeviation) - n(y2 - stdDeviation))
 						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1 - 2.0)
-					 * (n(y3 - stdDeviation) - n(y4 - stdDeviation));
+						* (n(y3 - stdDeviation) - n(y4 - stdDeviation));
 
 				acc2 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1)
-					 * (n(y1) - n(y2))
+						* (n(y1) - n(y2))
 						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1)
-					 * (n(y3) - n(y4));
+						* (n(y3) - n(y4));
 			}
 			knockOutValue = Math.max(0.0,
 					optionStrike * riskFreeDiscount * acc1 - initialStockValue * dividendDiscount * acc2);
@@ -625,8 +625,8 @@ public final class BarrierOptions {
 		final double e4 = e3 - (mu - 0.5) * volatility * sqrtT;
 
 		double term1 = eta * initialStockValue * Math.exp((b - r) * optionMaturity)
-			 * Math.pow(initialStockValue, -2.0 * mu)
-			 * Math.pow(SX, mu + 0.5)
+				* Math.pow(initialStockValue, -2.0 * mu)
+				* Math.pow(SX, mu + 0.5)
 				/ (2.0 * (mu + 0.5));
 		term1 *= Math.pow((upperBarrier * upperBarrier) / SX, mu + 0.5) * n(eta * d1)
 				- lambda1 * n(eta * d2)
@@ -634,8 +634,8 @@ public final class BarrierOptions {
 				+ lambda1 * n(eta * e2);
 
 		double term2 = eta * optionStrike * Math.exp(-r * optionMaturity)
-			 * Math.pow(initialStockValue, -2.0 * (mu - 1.0))
-			 * Math.pow(SX, mu - 0.5)
+				* Math.pow(initialStockValue, -2.0 * (mu - 1.0))
+				* Math.pow(SX, mu - 0.5)
 				/ (2.0 * (mu - 0.5));
 		term2 *= Math.pow((upperBarrier * upperBarrier) / SX, mu - 0.5) * n(eta * d3)
 				- lambda2 * n(eta * d4)
@@ -754,7 +754,7 @@ public final class BarrierOptions {
 		if (optionMaturity <= 0.0 || volatility <= 0.0) {
 			final double intrinsicIndicator = isCall
 					? (initialStockValue > optionStrike ? 1.0 : 0.0)
-					: (initialStockValue < optionStrike ? 1.0 : 0.0);
+							: (initialStockValue < optionStrike ? 1.0 : 0.0);
 			if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {
 				return Math.exp(-riskFreeRate * Math.max(optionMaturity, 0.0)) * cashPayoff * intrinsicIndicator;
 			}
@@ -923,11 +923,7 @@ public final class BarrierOptions {
 			return barrierValue;
 		}
 
-		if (optionMaturity <= 0.0) {
-			return 0.0;
-		}
-
-		if (volatility <= 0.0) {
+		if ((optionMaturity <= 0.0) || (volatility <= 0.0)) {
 			return 0.0;
 		}
 
@@ -942,8 +938,8 @@ public final class BarrierOptions {
 		final double hs = barrierValue / initialStockValue;
 
 		return payoffAmount
-			 * (Math.pow(hs, mu + lambda) * n(eta * z)
-				+ Math.pow(hs, mu - lambda) * n(eta * (z - 2.0 * lambda * volTime)));
+				* (Math.pow(hs, mu + lambda) * n(eta * z)
+						+ Math.pow(hs, mu - lambda) * n(eta * (z - 2.0 * lambda * volTime)));
 	}
 
 	/**
@@ -1010,11 +1006,7 @@ public final class BarrierOptions {
 			return 0.0;
 		}
 
-		if (optionMaturity <= 0.0) {
-			return 0.0;
-		}
-
-		if (volatility <= 0.0) {
+		if ((optionMaturity <= 0.0) || (volatility <= 0.0)) {
 			return 0.0;
 		}
 
@@ -1036,8 +1028,8 @@ public final class BarrierOptions {
 		} else {
 			final double A2 = initialStockValue * Math.exp(-dividendYield * optionMaturity) * n(phi * x2);
 			final double A4 = initialStockValue * Math.exp(-dividendYield * optionMaturity)
-				 * Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
-				 * n(eta * y2);
+					* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))
+					* n(eta * y2);
 			return isKnockIn ? A2 + A4 : A2 - A4;
 		}
 	}

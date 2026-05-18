@@ -254,7 +254,7 @@ public final class Black76Model {
 			final double fPrime = twoPi * zSquare * normDistOfZ * normDistOfZ * Math.exp(zSquare + sigmaLowerSquare / 8.0);
 			final double fPrime2 = Math.PI * zSquare * normDistOfZ * Math.exp(2.0 * zSquare + sigmaLowerSquare / 4.0)
 					/ 6.0 / sigmaLowerSquare / sigmaLower
-				 * (-8 * sqrtThree * sigmaLower * x
+					* (-8 * sqrtThree * sigmaLower * x
 							+ (3.0 * sigmaLowerSquare * (sigmaLowerSquare - 8.0) - 8.0 * x * x) * normDistOfZ / NormalDistribution.density(z));
 			final double r = (0.5 * fPrime2 * bLower + fPrime - 1.0) / (fPrime - fOfZ / bLower);
 			final double fRationalCubic = rationalCubicInterpol(beta, 0.0, bLower, 0.0, fOfZ, 1.0, fPrime, r);

@@ -19,11 +19,15 @@ public class RandomVariableOperator {
 	 */
 	static RandomOperator expectedShortFall(final Double percentageLevel) {
 
-		if(percentageLevel < 0 || percentageLevel > 1) throw new IllegalArgumentException("");
+		if(percentageLevel < 0 || percentageLevel > 1) {
+			throw new IllegalArgumentException("");
+		}
 
 		return (RandomVariable x) -> {
 			// Special case: constant will result in that constant
-			if(x.isDeterministic() || x.getVariance() == 0) return x;
+			if(x.isDeterministic() || x.getVariance() == 0) {
+				return x;
+			}
 
 			double quantileValue = x.getQuantile(percentageLevel);
 			RandomVariable indicator = x.sub(quantileValue).choose(Scalar.of(0.0), Scalar.of(1.0));

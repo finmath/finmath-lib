@@ -72,7 +72,7 @@ public class TouchOptionSabrModelBoundary implements FiniteDifferenceBoundary {
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedCashValue(option, time)
-			);
+					);
 		}
 
 		/* Alpha lower boundary left free. */
@@ -105,7 +105,7 @@ public class TouchOptionSabrModelBoundary implements FiniteDifferenceBoundary {
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedCashValue(option, time)
-			);
+					);
 		}
 
 		/* Alpha upper boundary left free. */

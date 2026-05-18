@@ -234,6 +234,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 	 * @param valueAtMaturity Terminal payoff.
 	 * @return Value surface indexed by flattened space index and time index.
 	 */
+	@Override
 	public double[][] getValues(final double time, final DoubleBinaryOperator valueAtMaturity) {
 		return getValues(
 				time,
@@ -274,7 +275,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 
 		final RealMatrix values = new Array2DRowRealMatrix(
 				getValuesWithContinuousObstacle(time, valueAtMaturity, continuousObstacleValue)
-		);
+				);
 		final double tau = time - evaluationTime;
 		final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);
 		return values.getColumn(timeIndex);
@@ -387,6 +388,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 	 * @param valueAtMaturity Terminal payoff.
 	 * @return Value vector on the flattened space grid.
 	 */
+	@Override
 	public double[] getValue(
 			final double evaluationTime,
 			final double time,
@@ -515,10 +517,10 @@ public abstract class AbstractADI2D implements FDMSolver {
 				final double d0d1 =
 						(
 								u[flatten(i + 1, j + 1)]
-								- u[flatten(i + 1, j - 1)]
-								- u[flatten(i - 1, j + 1)]
-								+ u[flatten(i - 1, j - 1)]
-						)
+										- u[flatten(i + 1, j - 1)]
+												- u[flatten(i - 1, j + 1)]
+														+ u[flatten(i - 1, j - 1)]
+								)
 						/ ((dx0Down + dx0Up) * (dx1Down + dx1Up));
 
 				out[k] = a01 * d0d1 - r * u[k];
@@ -560,7 +562,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 						2.0 * (
 								(u[flatten(i + 1, j)] - u[k]) / dxUp
 								- (u[k] - u[flatten(i - 1, j)]) / dxDown
-						)
+								)
 						/ (dxDown + dxUp);
 
 				out[k] = mu0 * d1 + 0.5 * a00 * d2;
@@ -602,7 +604,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 						2.0 * (
 								(u[flatten(i, j + 1)] - u[k]) / dxUp
 								- (u[k] - u[flatten(i, j - 1)]) / dxDown
-						)
+								)
 						/ (dxDown + dxUp);
 
 				out[k] = mu1 * d1 + 0.5 * a11 * d2;
@@ -751,7 +753,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 						runningTime,
 						getX0Grid()[i],
 						getX1Grid()[j]
-				);
+						);
 
 				u[k] = Math.max(u[k], obstacle);
 			}
@@ -911,7 +913,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 				time,
 				valuesAfterEvent,
 				getModel()
-		);
+				);
 	}
 
 	protected ADI2DStencilBuilder getStencilBuilder() {

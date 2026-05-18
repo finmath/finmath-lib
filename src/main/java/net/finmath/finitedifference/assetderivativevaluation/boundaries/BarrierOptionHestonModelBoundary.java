@@ -95,7 +95,7 @@ public class BarrierOptionHestonModelBoundary implements FiniteDifferenceBoundar
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedIntrinsicValue(option, time, stock)
-			);
+					);
 		}
 
 		// v -> lower boundary
@@ -137,7 +137,7 @@ public class BarrierOptionHestonModelBoundary implements FiniteDifferenceBoundar
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedIntrinsicValue(option, time, stock)
-			);
+					);
 		}
 
 		// v -> upper boundary

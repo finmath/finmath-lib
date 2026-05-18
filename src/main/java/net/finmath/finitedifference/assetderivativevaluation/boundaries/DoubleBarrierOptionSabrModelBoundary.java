@@ -68,7 +68,7 @@ public class DoubleBarrierOptionSabrModelBoundary implements FiniteDifferenceBou
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, s)
-		);
+				);
 
 		// alpha -> lower boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();
@@ -91,7 +91,7 @@ public class DoubleBarrierOptionSabrModelBoundary implements FiniteDifferenceBou
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, s)
-		);
+				);
 
 		// alpha -> upper boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();

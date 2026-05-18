@@ -28,14 +28,14 @@ public class AnalyticFormulasTest {
 
 	@Test
 	public void testBlackModelCapletImpliedVol() {
-		double forward = 0.04;
-		double volatility = 0.30;
-		double optionMaturity = 4.0;
-		double optionStrike = 0.045;
-		double periodLength = 0.5;
-		double discountFactor = 0.9;
+		final double forward = 0.04;
+		final double volatility = 0.30;
+		final double optionMaturity = 4.0;
+		final double optionStrike = 0.045;
+		final double periodLength = 0.5;
+		final double discountFactor = 0.9;
 
-		double optionValue = AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, optionStrike, periodLength, discountFactor);
+		final double optionValue = AnalyticFormulas.blackModelCapletValue(forward, volatility, optionMaturity, optionStrike, periodLength, discountFactor);
 
 		final double impliedVol1 = AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, discountFactor, optionValue/periodLength);
 		final double impliedVol2 = AnalyticFormulas.blackModelCapletImpliedVolatility(forward, optionMaturity, optionStrike, periodLength, discountFactor, optionValue);
@@ -325,7 +325,7 @@ public class AnalyticFormulasTest {
 		final DecimalFormat numberFormatValue			= new DecimalFormat(" 0.000%");
 		final DecimalFormat numberFormatProbability	= new DecimalFormat("  0.00%; -0.00%");
 
-		final Double riskFreeRate = 0.01;
+		final double riskFreeRate = 0.01;
 		final Double volatilityN = 0.0065;
 		final Double volatilityLN = 0.849;
 		final Double optionMaturity = 10.0;

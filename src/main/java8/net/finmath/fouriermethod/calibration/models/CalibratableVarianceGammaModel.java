@@ -69,9 +69,9 @@ public class CalibratableVarianceGammaModel implements CalibratableProcess {
 	public CalibratableProcess getCloneForModifiedParameters(double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		final double sigma = sigmaInfo.getIsParameterToCalibrate() == true ? sigmaInfo.getConstraint().apply(parameters[0]) : descriptor.getSigma();
-		final double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
-		final double nu = nuInfo.getIsParameterToCalibrate() == true ? nuInfo.getConstraint().apply(parameters[2]) : descriptor.getNu();
+		final double sigma = sigmaInfo.getIsParameterToCalibrate() ? sigmaInfo.getConstraint().apply(parameters[0]) : descriptor.getSigma();
+		final double theta = thetaInfo.getIsParameterToCalibrate() ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
+		final double nu = nuInfo.getIsParameterToCalibrate() ? nuInfo.getConstraint().apply(parameters[2]) : descriptor.getNu();
 
 		final VarianceGammaModelDescriptor newDescriptor = new VarianceGammaModelDescriptor(descriptor.getReferenceDate(),
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForDiscountRate(),

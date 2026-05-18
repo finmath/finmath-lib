@@ -90,12 +90,12 @@ public class AffineDividendStream {
 			for(final LocalDate otherDate : dates) {
 				if(otherDate.isBefore(date) && !otherDate.isBefore(valDate)) {
 					fwd -= cashDividends.getCashDividend(otherDate)
-						 * repoCurve.getForwardDiscountFactor(valDate, otherDate);
+							* repoCurve.getForwardDiscountFactor(valDate, otherDate);
 				}
 			}
 
 			final double q = conversionRates.get(date) * cashDividend
-				 * repoCurve.getForwardDiscountFactor(valDate, date) / fwd;
+					* repoCurve.getForwardDiscountFactor(valDate, date) / fwd;
 
 			affineDividends.add(
 					new AffineDividend(

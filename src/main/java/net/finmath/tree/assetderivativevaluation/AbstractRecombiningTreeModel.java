@@ -93,8 +93,11 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 	@Override
 	public double getVolatility()     { return volatility; }
 
+	@Override
 	public double getTimeStep()       { return timeStep; }
+	@Override
 	public double getLastTime()       { return lastTime; }
+	@Override
 	public int getNumberOfTimes()     { return numberOfTimes; }
 	public double getSpot()           {return getInitialPrice(); } //Redefinition
 

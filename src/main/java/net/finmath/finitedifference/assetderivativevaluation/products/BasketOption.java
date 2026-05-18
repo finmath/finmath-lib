@@ -164,7 +164,7 @@ public class BasketOption implements FiniteDifferenceEquityProduct {
 				quantities,
 				strike,
 				mapCallOrPut(callOrPutSign)
-		);
+				);
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class BasketOption implements FiniteDifferenceEquityProduct {
 				evaluationTime,
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	@Override
@@ -204,7 +204,7 @@ public class BasketOption implements FiniteDifferenceEquityProduct {
 		return solver.getValues(
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	private double terminalPayoff(final double firstAssetValue, final double secondAssetValue) {

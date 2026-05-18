@@ -67,7 +67,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 		final double theta = 0.5;
 
 		class BlackScholesFDModel extends FDMBlackScholesModel
-				implements DescribedModel<BlackScholesModelDescriptor> {
+		implements DescribedModel<BlackScholesModelDescriptor> {
 
 			BlackScholesFDModel() {
 				super(
@@ -83,8 +83,8 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 								numSpacesteps,
 								numStandardDeviations,
 								theta
-						)
-				);
+								)
+						);
 			}
 
 			@Override
@@ -104,12 +104,12 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 					final double maturity = FloatingpointDate.getFloatingPointDateFromDate(
 							modelDescriptor.getReferenceDate(),
 							europeanOptionDescriptor.getMaturity()
-					);
+							);
 
 					final double strike = europeanOptionDescriptor.getStrike();
 
 					class FDCallOptionProduct extends EuropeanOption
-							implements DescribedProduct<SingleAssetProductDescriptor> {
+					implements DescribedProduct<SingleAssetProductDescriptor> {
 
 						FDCallOptionProduct() {
 							super(maturity, strike, CallOrPut.CALL);
@@ -140,7 +140,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 											numSpacesteps,
 											numStandardDeviations,
 											theta
-									);
+											);
 
 							final FDMBlackScholesModel valuationModel =
 									new FDMBlackScholesModel(
@@ -148,7 +148,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 											riskFreeRate,
 											volatility,
 											valuationDiscretization
-									);
+											);
 
 							final double[] optionValues =
 									super.getValue(evaluationTime, valuationModel);
@@ -158,7 +158,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 											optionValues,
 											valuationDiscretization,
 											initialValue
-									);
+											);
 
 							final Map<String, Object> results = new HashMap<>();
 							results.put("value", value);
@@ -209,7 +209,7 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 				Math.max(
 						forwardValue - numStandardDeviations * standardDeviationStock,
 						0.0
-				);
+						);
 
 		final double maximumStockPrice =
 				forwardValue + numStandardDeviations * standardDeviationStock;
@@ -222,13 +222,13 @@ public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFacto
 						0.0,
 						numTimesteps,
 						timeHorizon / numTimesteps
-				);
+						);
 
 		return new SpaceTimeDiscretization(
 				spaceGrid,
 				timeDiscretization,
 				theta,
 				new double[] {initialValue}
-		);
+				);
 	}
 }

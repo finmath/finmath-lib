@@ -126,7 +126,7 @@ public class CorrelationProviderTenorBasis implements CorrelationProvider {
 
 			for (int k = 0; k < nu[0].length; k++) {
 				nu[i][k] = shortTenorTau[k]
-					 * (1.0 + longTenorTau * iCap6MCapletVolBootrapper.getForwardCurve().getForward(
+						* (1.0 + longTenorTau * iCap6MCapletVolBootrapper.getForwardCurve().getForward(
 								iCap6MCapletVolBootrapper.getParsedModel(), capletFixingTimeVectorInYears[i * 2 + 1]))
 						/ (longTenorTau * (1.0 + shortTenorTau[k] * iCap3MCapletVolBootrapper.getForwardCurve()
 								.getForward(iCap3MCapletVolBootrapper.getParsedModel(),

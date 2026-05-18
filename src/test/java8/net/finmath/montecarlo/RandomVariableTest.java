@@ -233,18 +233,18 @@ public class RandomVariableTest {
 	public void testApply() {
 
 		try {
-			DoubleUnaryOperator operator = x -> Math.exp(x * 2.0);
+			final DoubleUnaryOperator operator = x -> Math.exp(x * 2.0);
 
 			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
 
-			RandomVariable result1 = randomVariable.apply(operator);
-			RandomVariable result2 = randomVariable.mult(2.0).exp();
+			final RandomVariable result1 = randomVariable.apply(operator);
+			final RandomVariable result2 = randomVariable.mult(2.0).exp();
 
-			RandomVariable diff = result1.sub(result2);
+			final RandomVariable diff = result1.sub(result2);
 			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
 		}
-		catch(UnsupportedOperationException e) {
+		catch(final UnsupportedOperationException e) {
 			// apply is not supported by all implementations. we ignore those.
 		}
 	}
@@ -253,7 +253,7 @@ public class RandomVariableTest {
 	public void testApply2() {
 
 		try {
-			DoubleBinaryOperator operator = (x,y) -> Math.exp(x * y);
+			final DoubleBinaryOperator operator = (x,y) -> Math.exp(x * y);
 
 			final RandomVariable randomVariable = randomVariableFactory.createRandomVariable(0.0,
 					new double[] {-4.0, -2.0, 0.0, 2.0, 4.0} );
@@ -261,13 +261,13 @@ public class RandomVariableTest {
 			final RandomVariable randomVariable2 = randomVariableFactory.createRandomVariable(0.0,
 					new double[] {3.0, 3.0, 3.0, 3.0, 3.0} );
 
-			RandomVariable result1 = randomVariable.apply(operator, randomVariable2);
-			RandomVariable result2 = randomVariable.mult(randomVariable2).exp();
+			final RandomVariable result1 = randomVariable.apply(operator, randomVariable2);
+			final RandomVariable result2 = randomVariable.mult(randomVariable2).exp();
 
-			RandomVariable diff = result1.sub(result2);
+			final RandomVariable diff = result1.sub(result2);
 			Assert.assertEquals(0.0, diff.squared().getMax(), 0.0);
 		}
-		catch(UnsupportedOperationException e) {
+		catch(final UnsupportedOperationException e) {
 			// apply is not supported by all implementations. we ignore those.
 		}
 	}

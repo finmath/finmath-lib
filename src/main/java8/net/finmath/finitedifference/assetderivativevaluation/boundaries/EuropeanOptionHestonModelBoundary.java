@@ -65,7 +65,7 @@ public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBounda
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, stock)
-		);
+				);
 
 		// v -> lower boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();
@@ -88,7 +88,7 @@ public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBounda
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, S)
-		);
+				);
 
 		// v -> upper boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();

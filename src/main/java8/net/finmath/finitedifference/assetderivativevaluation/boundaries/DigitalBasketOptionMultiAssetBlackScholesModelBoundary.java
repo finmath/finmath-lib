@@ -112,8 +112,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								1,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 
 			if (isAtLowerBoundary(1, s2)) {
@@ -126,8 +126,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								0,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 			break;
 
@@ -141,8 +141,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								1,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 
 			if (isAtLowerBoundary(1, s2)) {
@@ -154,8 +154,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								0,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 			break;
 
@@ -166,7 +166,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 					digitalBasketOption.getStrike(),
 					tau,
 					digitalBasketOption.getCashPayoff()
-			);
+					);
 
 			if (isAtLowerBoundary(0, s1)) {
 				conditions[0] = StandardBoundaryCondition.dirichlet(deterministicLowerFaceValue);
@@ -216,8 +216,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								1,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 
 			if (isAtUpperBoundary(1, s2)) {
@@ -230,8 +230,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								0,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 			break;
 
@@ -246,8 +246,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								1,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 
 			if (isAtUpperBoundary(1, s2)) {
@@ -260,8 +260,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								0,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 			break;
 
@@ -276,8 +276,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								1,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 
 			if (isAtUpperBoundary(1, s2)) {
@@ -290,8 +290,8 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 								0,
 								tau,
 								digitalBasketOption.getCashPayoff()
-						)
-				);
+								)
+						);
 			}
 			break;
 
@@ -404,7 +404,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 					remainingAssetIndex,
 					tau,
 					cashPayoff
-			);
+					);
 		}
 
 		if (boundarySpot >= strike) {
@@ -417,7 +417,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 				remainingAssetIndex,
 				tau,
 				cashPayoff
-		);
+				);
 	}
 
 	private double getWorstOfUpperFaceValue(
@@ -440,7 +440,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 					remainingAssetIndex,
 					tau,
 					cashPayoff
-			);
+					);
 		}
 
 		if (boundarySpot < strike) {
@@ -453,7 +453,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 				remainingAssetIndex,
 				tau,
 				cashPayoff
-		);
+				);
 	}
 
 	private double getDeterministicDigitalValue(
@@ -465,7 +465,7 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 
 		return callOrPut.toInteger() * (underlyingValue - strike) > 0.0
 				? cashPayoff * getRiskFreeDiscountFactor(tau)
-				: 0.0;
+						: 0.0;
 	}
 
 	private double getCashOrNothingCallValue(
@@ -497,14 +497,14 @@ public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements F
 		final double payoffUnit = Math.exp(-riskFreeRate * tau);
 
 		return cashPayoff
-			 * payoffUnit
-			 * AnalyticFormulas.blackScholesDigitalOptionValue(
+				* payoffUnit
+				* AnalyticFormulas.blackScholesDigitalOptionValue(
 						forward,
 						0.0,
 						model.getVolatilities()[assetIndex],
 						tau,
 						strike
-				);
+						);
 	}
 
 	private double getCashOrNothingPutValue(

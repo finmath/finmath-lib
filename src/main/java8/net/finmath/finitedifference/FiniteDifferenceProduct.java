@@ -54,7 +54,7 @@ public interface FiniteDifferenceProduct<M extends FiniteDifferenceModel> extend
 					+ model.getClass() + ". "
 					+ "It requires a model of type "
 					+ getModelClass() + "."
-			);
+					);
 		}
 	}
 }

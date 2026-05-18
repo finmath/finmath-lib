@@ -298,6 +298,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 			Map<String,Object> calibrationParameters = null;
 			if(properties != null && properties.containsKey("calibrationParameters")) {
 				@SuppressWarnings("unchecked")
+				final
 				Map<String, Object> calibrationParametersProperty	= (Map<String, Object>)properties.get("calibrationParameters");
 				calibrationParameters = calibrationParametersProperty;
 			}
@@ -416,6 +417,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 		Map<String, Object> calibrationParameters = null;
 		if(properties != null && properties.containsKey("calibrationParameters")) {
 			@SuppressWarnings("unchecked")
+			final
 			Map<String, Object> calibrationParametersProperty	= (Map<String, Object>)properties.get("calibrationParameters");
 			calibrationParameters = calibrationParametersProperty;
 		}
@@ -789,10 +791,7 @@ public class LIBORMarketModelFromCovarianceModel extends AbstractProcessModel im
 				final double exerciseDate	= optionMaturities.getTime(exerciseIndex);
 				final double swapLength	= tenor.getTime(tenorIndex);
 
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) {
-					continue;
-				}
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate)) {
+				if((liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) || (liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate))) {
 					continue;
 				}
 

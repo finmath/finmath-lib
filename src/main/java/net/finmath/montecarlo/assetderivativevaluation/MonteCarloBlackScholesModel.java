@@ -159,6 +159,7 @@ public class MonteCarloBlackScholesModel extends MonteCarloAssetModel {
 	 *
 	 * @return the model
 	 */
+	@Override
 	public BlackScholesModel getModel() {
 		return (BlackScholesModel)super.getModel();
 	}

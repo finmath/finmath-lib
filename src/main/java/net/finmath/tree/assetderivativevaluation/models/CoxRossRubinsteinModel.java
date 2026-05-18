@@ -64,7 +64,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	}
 
 	/** Abstract hook to implement in the underlying classes
- * Binomial: at k level there are k+1 states
+	 * Binomial: at k level there are k+1 states
 	 * @param  k level of depth
 	 * */
 	@Override
@@ -91,6 +91,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	/**
 	 * Discounted conditional expectation : V_k[i] = df() * ( q * V_{k+1}[i] + (1-q) * V_{k+1}[i+1] ).
 	 */
+	@Override
 	protected RandomVariable conditionalExpectation(RandomVariable vNext, int k) {
 		double[] next = vNext.getRealizations();
 		double[] vK = new double[statesAt(k)];
@@ -111,9 +112,9 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
 		// Convention: 0 = up, 1 = down
 		switch(branchIndex) {
-			case 0: return q;
-			case 1: return 1.0 - q;
-			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
+		case 0: return q;
+		case 1: return 1.0 - q;
+		default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
 		}
 	}
 

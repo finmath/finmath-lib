@@ -37,8 +37,9 @@ public class HighEntropyRandomNumberGeneratorTest {
 		boolean ksTestResult = (new KolmogorovSmirnovTest()).kolmogorovSmirnovTest(new UniformRealDistribution(),
 				samples, ALPHA);
 
-		if (ksTestResult)
+		if (ksTestResult) {
 			fail("The sampled distribution is not uniform (confidence level " + (1 - ALPHA) + ").");
+		}
 	}
 
 	@Test
@@ -78,8 +79,9 @@ public class HighEntropyRandomNumberGeneratorTest {
 		} catch (InterruptedException e) {
 			executorService.shutdownNow();
 		}
-		if (testResult)
+		if (testResult) {
 			fail("Heavy multithreading caused loss of statistical properties. The sampled distribution is not uniform (confidence level "
 					+ (1 - ALPHA) + ").");
+		}
 	}
 }

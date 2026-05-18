@@ -20,7 +20,7 @@ import net.finmath.modelling.products.CallOrPut;
  * </p>
  */
 public class BermudanOptionHestonModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.
@@ -65,7 +65,7 @@ public class BermudanOptionHestonModelBoundary
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					strike * Math.exp(-riskFreeRate * (maturity - time))
-			);
+					);
 		}
 
 		result[1] = StandardBoundaryCondition.none();
@@ -103,7 +103,7 @@ public class BermudanOptionHestonModelBoundary
 			result[0] = StandardBoundaryCondition.dirichlet(
 					dividendAdjustedStockPrice
 					- strike * Math.exp(-riskFreeRate * (maturity - time))
-			);
+					);
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(0.0);
 		}

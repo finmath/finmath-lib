@@ -170,6 +170,7 @@ public class FDMBachelierModel implements FiniteDifferenceEquityModel {
 	 *
 	 * @return Initial underlying value.
 	 */
+	@Override
 	public double[] getInitialValue() {
 		return new double[] {initialValue};
 	}
@@ -262,6 +263,6 @@ public class FDMBachelierModel implements FiniteDifferenceEquityModel {
 				dividendYieldCurve,
 				volatility,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

@@ -9,16 +9,16 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import net.finmath.equities.models.VolatilitySurface;
-import net.finmath.equities.models.EquityForwardStructure;
-import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.marketdata.AffineDividend;
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.models.BuehlerDividendForwardStructure;
+import net.finmath.equities.models.EquityForwardStructure;
 import net.finmath.equities.models.FlatVolatilitySurface;
 import net.finmath.equities.models.SviVolatilitySmile;
 import net.finmath.equities.models.SviVolatilitySurface;
+import net.finmath.equities.models.VolatilitySurface;
 import net.finmath.equities.pricer.AnalyticOptionValuation;
 import net.finmath.equities.pricer.PdeOptionValuation;
 import net.finmath.equities.products.AmericanOption;

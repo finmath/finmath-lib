@@ -384,12 +384,14 @@ public class BatesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the referenceDate
 	 */
+	@Override
 	public LocalDate getReferenceDate() {
 		return referenceDate;
 	}
 	/**
 	 * @return the initialValue
 	 */
+	@Override
 	public double getInitialValue() {
 		return initialValue;
 	}
@@ -428,6 +430,7 @@ public class BatesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountRate
 	 */
+	@Override
 	public double getDiscountRate() {
 		return discountRate;
 	}

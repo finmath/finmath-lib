@@ -81,10 +81,10 @@ public class CalibratableMertonModel implements  CalibratableProcess{
 	@Override
 	public CalibratableProcess getCloneForModifiedParameters(final double[] parameters) {
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		final double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
-		final double jumpIntensity = jumpIntensityInfo.getIsParameterToCalibrate() == true ? jumpIntensityInfo.getConstraint().apply(parameters[1]) : descriptor.getJumpIntensity();
-		final double jumpSizeMean = jumpSizeMeanInfo.getIsParameterToCalibrate() == true ? jumpSizeMeanInfo.getConstraint().apply(parameters[2]) : descriptor.getJumpSizeMean();
-		final double jumpSizeStdDev = jumpSizeStdDevInfo.getIsParameterToCalibrate() == true ? jumpSizeStdDevInfo.getConstraint().apply(parameters[3]) : descriptor.getJumpSizeStdDev();
+		final double volatility = volatilityInfo.getIsParameterToCalibrate() ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
+		final double jumpIntensity = jumpIntensityInfo.getIsParameterToCalibrate() ? jumpIntensityInfo.getConstraint().apply(parameters[1]) : descriptor.getJumpIntensity();
+		final double jumpSizeMean = jumpSizeMeanInfo.getIsParameterToCalibrate() ? jumpSizeMeanInfo.getConstraint().apply(parameters[2]) : descriptor.getJumpSizeMean();
+		final double jumpSizeStdDev = jumpSizeStdDevInfo.getIsParameterToCalibrate() ? jumpSizeStdDevInfo.getConstraint().apply(parameters[3]) : descriptor.getJumpSizeStdDev();
 
 		final MertonModelDescriptor newDescriptor = new MertonModelDescriptor(descriptor.getReferenceDate(),
 				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),descriptor.getDiscountCurveForDiscountRate(),

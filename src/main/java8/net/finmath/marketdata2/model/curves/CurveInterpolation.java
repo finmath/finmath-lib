@@ -374,7 +374,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
 				boolean containsOne = false; int index=0;
 				for(int i = 0; i< value.size(); i++){if(value.get(i)==1.0) {containsOne = true; index=i; break;}}
-				if(containsOne && isParameter == false) {
+				if(containsOne && !isParameter) {
 					return;
 				} else {
 					throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received 1 at index" + index + ").");

@@ -73,7 +73,7 @@ public class EuropeanOptionVarianceGammaModelBoundary implements FiniteDifferenc
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						strike * Math.exp(-riskFreeRate * (maturity - time))
-				)
+						)
 		};
 	}
 
@@ -111,7 +111,7 @@ public class EuropeanOptionVarianceGammaModelBoundary implements FiniteDifferenc
 				StandardBoundaryCondition.dirichlet(
 						dividendAdjustedStockPrice
 						- strike * Math.exp(-riskFreeRate * (maturity - time))
-				)
+						)
 		};
 	}
 }

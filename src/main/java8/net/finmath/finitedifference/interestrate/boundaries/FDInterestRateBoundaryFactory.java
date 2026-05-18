@@ -69,8 +69,8 @@ public final class FDInterestRateBoundaryFactory {
 							+ model.getClass()
 							+ " and product type "
 							+ product.getClass(),
-					exception
-			);
+							exception
+					);
 		}
 	}
 }

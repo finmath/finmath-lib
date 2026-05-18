@@ -82,7 +82,7 @@ public class FDMBatesModel extends FDMHestonModel {
 				sigma,
 				rho,
 				spaceTimeDiscretization
-		);
+				);
 
 		if (jumpComponent == null) {
 			throw new IllegalArgumentException("Jump component must not be null.");
@@ -143,9 +143,9 @@ public class FDMBatesModel extends FDMHestonModel {
 						jumpIntensity,
 						jumpMean,
 						jumpStdDev
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class FDMBatesModel extends FDMHestonModel {
 				sigma,
 				rho,
 				spaceTimeDiscretization
-		);
+				);
 
 		if (jumpComponent == null) {
 			throw new IllegalArgumentException("Jump component must not be null.");
@@ -240,9 +240,9 @@ public class FDMBatesModel extends FDMHestonModel {
 						jumpIntensity,
 						jumpMean,
 						jumpStdDev
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class FDMBatesModel extends FDMHestonModel {
 				sigma,
 				rho,
 				spaceTimeDiscretization
-		);
+				);
 
 		if (jumpComponent == null) {
 			throw new IllegalArgumentException("Jump component must not be null.");
@@ -343,9 +343,9 @@ public class FDMBatesModel extends FDMHestonModel {
 						jumpIntensity,
 						jumpMean,
 						jumpStdDev
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class FDMBatesModel extends FDMHestonModel {
 				sigma,
 				rho,
 				spaceTimeDiscretization
-		);
+				);
 
 		if (jumpComponent == null) {
 			throw new IllegalArgumentException("Jump component must not be null.");
@@ -440,9 +440,9 @@ public class FDMBatesModel extends FDMHestonModel {
 						jumpIntensity,
 						jumpMean,
 						jumpStdDev
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	@Override
@@ -473,6 +473,6 @@ public class FDMBatesModel extends FDMHestonModel {
 				getRho(),
 				jumpComponent,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

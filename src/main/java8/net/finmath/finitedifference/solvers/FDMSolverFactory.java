@@ -109,14 +109,14 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMMultiAssetBlackScholesModel) {
 			return createMultiAssetBlackScholesSolver(
 					(FDMMultiAssetBlackScholesModel) model,
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMBlackScholesModel
 				|| model instanceof FDMCevModel
 				|| model instanceof FDMBachelierModel) {
@@ -125,28 +125,28 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMBatesModel) {
 			return new FDMBatesADI2D(
 					(FDMBatesModel) model,
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMHestonModel) {
 			return new FDMHestonADI2D(
 					(FDMHestonModel) model,
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMSabrModel) {
 			return new FDMSabrADI2D(
 					(FDMSabrModel) model,
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else {
 			throw new IllegalArgumentException(
 					"Unsupported model type: " + model.getClass().getName());
@@ -178,7 +178,7 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMMultiAssetBlackScholesModel) {
 			if (barrierMode != null) {
 				throw new IllegalArgumentException(
@@ -190,7 +190,7 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMBlackScholesModel
 				|| model instanceof FDMCevModel
 				|| model instanceof FDMBachelierModel) {
@@ -199,7 +199,7 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMBatesModel) {
 			/*
 			 * Barrier-specific Bates handling is not implemented yet.
@@ -211,7 +211,7 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (model instanceof FDMHestonModel) {
 			if (barrierMode == null) {
 				return new FDMHestonADI2D(
@@ -219,7 +219,7 @@ public final class FDMSolverFactory {
 						product,
 						spaceTimeDiscretization,
 						exercise
-				);
+						);
 			}
 
 			return new FDMBarrierHestonADI2D(
@@ -229,7 +229,7 @@ public final class FDMSolverFactory {
 					exercise,
 					barrierMode,
 					preHitSpecification
-			);
+					);
 		} else if (model instanceof FDMSabrModel) {
 			if (barrierMode == null) {
 				return new FDMSabrADI2D(
@@ -237,7 +237,7 @@ public final class FDMSolverFactory {
 						product,
 						spaceTimeDiscretization,
 						exercise
-				);
+						);
 			}
 
 			return new FDMBarrierSabrADI2D(
@@ -247,7 +247,7 @@ public final class FDMSolverFactory {
 					exercise,
 					barrierMode,
 					preHitSpecification
-			);
+					);
 		} else {
 			throw new IllegalArgumentException(
 					"Unsupported model type: " + model.getClass().getName());
@@ -292,7 +292,7 @@ public final class FDMSolverFactory {
 				exercise,
 				barrierMode,
 				preHitSpecification
-		);
+				);
 	}
 
 	private static FDMSolver createMultiAssetBlackScholesSolver(
@@ -309,14 +309,14 @@ public final class FDMSolverFactory {
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else if (dimension == 2) {
 			return new FDMMultiAssetBlackScholesADI2D(
 					model,
 					product,
 					spaceTimeDiscretization,
 					exercise
-			);
+					);
 		} else {
 			throw new IllegalArgumentException(
 					"MultiAssetBlackScholesModel is currently supported only in dimensions 1 and 2.");

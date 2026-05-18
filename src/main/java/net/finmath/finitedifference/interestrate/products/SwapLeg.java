@@ -113,12 +113,12 @@ public class SwapLeg implements FiniteDifferenceInterestRateProduct {
 		if (notionals == null || notionals.length != legSchedule.getNumberOfPeriods()) {
 			throw new IllegalArgumentException(
 					"notionals must have the same length as the number of schedule periods."
-			);
+					);
 		}
 		if (spreads == null || spreads.length != legSchedule.getNumberOfPeriods()) {
 			throw new IllegalArgumentException(
 					"spreads must have the same length as the number of schedule periods."
-			);
+					);
 		}
 
 		this.legSchedule = legSchedule;
@@ -150,7 +150,7 @@ public class SwapLeg implements FiniteDifferenceInterestRateProduct {
 				createConstantArray(legSchedule, 1.0),
 				createConstantArray(legSchedule, spread),
 				isNotionalExchanged
-		);
+				);
 	}
 
 	/**
@@ -253,13 +253,13 @@ public class SwapLeg implements FiniteDifferenceInterestRateProduct {
 						fixingDate,
 						paymentDate,
 						stateVariable
-				);
+						);
 			}
 
 			value += notional
-				 * couponRate
-				 * periodLength
-				 * model.getDiscountBond(evaluationTime, paymentDate, stateVariable);
+					* couponRate
+					* periodLength
+					* model.getDiscountBond(evaluationTime, paymentDate, stateVariable);
 
 			if (isNotionalExchanged) {
 				if (periodStart > evaluationTime + TIME_TOLERANCE) {
@@ -270,7 +270,7 @@ public class SwapLeg implements FiniteDifferenceInterestRateProduct {
 							evaluationTime,
 							legSchedule.getPeriodEnd(periodIndex),
 							stateVariable
-					);
+							);
 				}
 			}
 		}
@@ -366,7 +366,7 @@ public class SwapLeg implements FiniteDifferenceInterestRateProduct {
 		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {
 			throw new IllegalArgumentException(
 					"SwapLeg currently supports only one-dimensional finite-difference interest-rate models."
-			);
+					);
 		}
 	}
 

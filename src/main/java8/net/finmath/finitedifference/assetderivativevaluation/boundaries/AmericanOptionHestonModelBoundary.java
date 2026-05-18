@@ -22,7 +22,7 @@ import net.finmath.modelling.products.CallOrPut;
  * @author Alessandro Gnoatto
  */
 public class AmericanOptionHestonModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.
@@ -68,7 +68,7 @@ public class AmericanOptionHestonModelBoundary
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					strike * Math.exp(-riskFreeRate * (maturity - time))
-			);
+					);
 		}
 
 		// v -> lower boundary: leave PDE row intact
@@ -108,7 +108,7 @@ public class AmericanOptionHestonModelBoundary
 			result[0] = StandardBoundaryCondition.dirichlet(
 					dividendAdjustedStockPrice
 					- strike * Math.exp(-riskFreeRate * (maturity - time))
-			);
+					);
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(0.0);
 		}

@@ -139,8 +139,8 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike - quantities[0] * s1,
 							1,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		if (isAtLowerBoundary(1, s2)) {
@@ -152,8 +152,8 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike - quantities[1] * s2,
 							0,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		return conditions;
@@ -190,8 +190,8 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							s2,
 							0,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		if (isAtUpperBoundary(1, s2)) {
@@ -204,8 +204,8 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							s2,
 							1,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		return conditions;
@@ -268,7 +268,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 						strike - quantities[0] * s1,
 						1,
 						tau
-				);
+						);
 			}
 			return getReducedOneDimensionalValue(
 					callOrPut,
@@ -277,7 +277,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 					strike - quantities[1] * s2,
 					0,
 					tau
-			);
+					);
 		}
 
 		if (sign * quantityBoundaryAsset < 0.0) {
@@ -319,7 +319,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 						effectiveStrike,
 						assetIndex,
 						tau
-				);
+						);
 			}
 
 			if (effectiveStrike <= 0.0) {
@@ -330,7 +330,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 					effectiveStrike,
 					assetIndex,
 					tau
-			);
+					);
 		}
 
 		final double absoluteQuantity = -quantity;
@@ -345,7 +345,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 					transformedStrike,
 					assetIndex,
 					tau
-			);
+					);
 		}
 
 		if (transformedStrike <= 0.0) {
@@ -357,7 +357,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 				transformedStrike,
 				assetIndex,
 				tau
-		);
+				);
 	}
 
 	private double getBlackScholesCallValue(
@@ -384,7 +384,7 @@ public class BasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 				tau,
 				strike,
 				payoffUnit
-		);
+				);
 	}
 
 	private double getBlackScholesPutValue(

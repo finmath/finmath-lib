@@ -63,7 +63,7 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 				exerciseTimes,
 				strike,
 				mapCallOrPut(callOrPutSign)
-		);
+				);
 	}
 
 	/**
@@ -129,13 +129,13 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 					evaluationTime,
 					maturity,
 					assetValue -> Math.max(assetValue - strike, 0.0)
-			);
+					);
 		} else {
 			return solver.getValue(
 					evaluationTime,
 					maturity,
 					assetValue -> Math.max(strike - assetValue, 0.0)
-			);
+					);
 		}
 	}
 
@@ -158,7 +158,7 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 				FiniteDifferenceExerciseUtil.refineTimeDiscretization(
 						base.getTimeDiscretization(),
 						exercise
-				);
+						);
 
 		if (base.getNumberOfSpaceGrids() == 1) {
 			return new SpaceTimeDiscretization(
@@ -166,7 +166,7 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 					refinedTimeDiscretization,
 					base.getTheta(),
 					new double[] {base.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();
@@ -183,7 +183,7 @@ public class BermudanOption implements FiniteDifferenceEquityProduct {
 				refinedTimeDiscretization,
 				base.getTheta(),
 				center
-		);
+				);
 	}
 
 	private static CallOrPut mapCallOrPut(final double callOrPutSign) {

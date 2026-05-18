@@ -74,7 +74,7 @@ public class BondHullWhiteModelBoundary implements FiniteDifferenceInterestRateB
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						getExactBondValue(bond, time, stateVariables[0])
-				)
+						)
 		};
 	}
 
@@ -90,7 +90,7 @@ public class BondHullWhiteModelBoundary implements FiniteDifferenceInterestRateB
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						getExactBondValue(bond, time, stateVariables[0])
-				)
+						)
 		};
 	}
 

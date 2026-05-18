@@ -182,7 +182,7 @@ public class VarianceGammaJumpComponent extends AbstractStateIndependentJumpComp
 				c,
 				g,
 				m
-		);
+				);
 	}
 
 	@Override

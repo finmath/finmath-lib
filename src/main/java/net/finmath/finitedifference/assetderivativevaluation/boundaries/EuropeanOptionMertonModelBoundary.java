@@ -72,7 +72,7 @@ public class EuropeanOptionMertonModelBoundary implements FiniteDifferenceBounda
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						strike * Math.exp(-riskFreeRate * (maturity - time))
-				)
+						)
 		};
 	}
 
@@ -110,7 +110,7 @@ public class EuropeanOptionMertonModelBoundary implements FiniteDifferenceBounda
 				StandardBoundaryCondition.dirichlet(
 						dividendAdjustedStockPrice
 						- strike * Math.exp(-riskFreeRate * (maturity - time))
-				)
+						)
 		};
 	}
 }

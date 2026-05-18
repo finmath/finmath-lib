@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -64,6 +65,10 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 			}
 		}
 		catch(final UnsupportedOperationException e) {}
+
+		if(evaluationTime > maturity) {
+			return Scalar.of(0.0);
+		}
 
 		// Get random variables
 		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);

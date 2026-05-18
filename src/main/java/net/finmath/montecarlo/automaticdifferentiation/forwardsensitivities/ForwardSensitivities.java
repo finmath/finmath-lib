@@ -22,7 +22,7 @@ import net.finmath.stochastic.RandomVariable;
  * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
  *
  * The hedge ratios are represented in a finite solution basis
- * 
+ *
  *\[ phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l) \text{.} \]
  *
  * Two reduced coefficient criteria are supported:
@@ -39,7 +39,7 @@ import net.finmath.stochastic.RandomVariable;
  * with respect to the same primitives.
  *
  * See https://ssrn.com/abstract=6758541 for documentation.
- * 
+ *
  * @author Christian Fries
  */
 public class ForwardSensitivities {
@@ -490,7 +490,7 @@ public class ForwardSensitivities {
 			if(norm <= tolerance) {
 				throw new IllegalArgumentException(
 						"rawBasis[" + basisIndex + "] is linearly dependent "
-						+ "under the empirical inner product. Norm = " + norm);
+								+ "under the empirical inner product. Norm = " + norm);
 			}
 
 			for(int path = 0; path < numberOfPaths; path++) {
@@ -550,7 +550,7 @@ public class ForwardSensitivities {
 			if(requireDifferentiable) {
 				throw new IllegalArgumentException(
 						"The product value is not a RandomVariableDifferentiable. "
-						+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
+								+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
 			}
 			return Collections.emptyMap();
 		}
@@ -646,7 +646,7 @@ public class ForwardSensitivities {
 						for(int path = 0; path < numberOfPaths; path++) {
 							entry += hedgeGradient[hedgeIndex][path]
 									* solutionBasisValues[coefficientBasisIndex][path]
-									* testBasisValues[testBasisIndex][path];
+											* testBasisValues[testBasisIndex][path];
 						}
 
 						final int column = columnIndex(
@@ -781,7 +781,7 @@ public class ForwardSensitivities {
 			return LinearAlgebra.solveLinearEquationTikonov(
 					matrix,
 					rhs,
-					Math.sqrt(regularizationLambda));
+					regularizationLambda);
 		}
 
 		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, rhs);

@@ -130,7 +130,7 @@ public class WorstOfOptionMultiAssetBlackScholesModelBoundary implements FiniteD
 				worstOfOption.getCallOrPut(),
 				worstOfOption.getStrike(),
 				tau
-		);
+				);
 
 		if (isAtLowerBoundary(0, s1)) {
 			conditions[0] = StandardBoundaryCondition.dirichlet(deterministicLowerFaceValue);
@@ -174,8 +174,8 @@ public class WorstOfOptionMultiAssetBlackScholesModelBoundary implements FiniteD
 							strike,
 							1,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		/*
@@ -189,8 +189,8 @@ public class WorstOfOptionMultiAssetBlackScholesModelBoundary implements FiniteD
 							strike,
 							0,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		return conditions;
@@ -322,7 +322,7 @@ public class WorstOfOptionMultiAssetBlackScholesModelBoundary implements FiniteD
 				tau,
 				strike,
 				payoffUnit
-		);
+				);
 	}
 
 	/**

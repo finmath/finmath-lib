@@ -36,5 +36,6 @@ public interface ShortRateModel extends TermStructureModel{
 	 *
 	 * @return The number of factors.
 	 */
+	@Override
 	int getNumberOfFactors();
 }

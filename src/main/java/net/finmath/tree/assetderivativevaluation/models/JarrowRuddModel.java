@@ -109,9 +109,9 @@ public class JarrowRuddModel extends AbstractRecombiningTreeModel {
 	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
 		// Convention: 0 = up, 1 = down (Jarrow-Rudd uses p=0.5)
 		switch(branchIndex) {
-			case 0: return 0.5;
-			case 1: return 0.5;
-			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
+		case 0: return 0.5;
+		case 1: return 0.5;
+		default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
 		}
 	}
 

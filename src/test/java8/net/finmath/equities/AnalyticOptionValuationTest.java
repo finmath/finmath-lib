@@ -173,7 +173,7 @@ public class AnalyticOptionValuationTest {
 		final LocalDate valDate = LocalDate.parse("2019-06-15");
 		final double spot = 100.0;
 
-		LocalDate[] curveDates = new LocalDate[] { LocalDate.parse("2019-09-15"), LocalDate.parse("2019-12-15"),
+		final LocalDate[] curveDates = new LocalDate[] { LocalDate.parse("2019-09-15"), LocalDate.parse("2019-12-15"),
 				LocalDate.parse("2020-03-15"), LocalDate.parse("2020-06-15"), LocalDate.parse("2020-12-15"),
 				LocalDate.parse("2021-06-15") };
 		final YieldCurve discountCurve = new YieldCurve("discount", valDate, dcc, curveDates,

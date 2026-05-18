@@ -113,11 +113,11 @@ public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessMod
 		try {
 			model.applyStateSpaceTransformInverse(null, 0, 0, null);
 		}
-		catch(UnsupportedOperationException e) {
+		catch(final UnsupportedOperationException e) {
 			// If the inverse is not specified we cannot perform the function EULER
 			scheme = Scheme.EULER;
 		}
-		catch(Exception e) {}
+		catch(final Exception e) {}
 
 		this.scheme = scheme;
 	}

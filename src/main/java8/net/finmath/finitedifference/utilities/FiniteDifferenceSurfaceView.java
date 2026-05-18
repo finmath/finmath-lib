@@ -93,7 +93,7 @@ public final class FiniteDifferenceSurfaceView {
 				discretization,
 				timeIndex,
 				coordinates
-		);
+				);
 	}
 
 	/**
@@ -114,7 +114,7 @@ public final class FiniteDifferenceSurfaceView {
 				evaluationTime,
 				maturity,
 				coordinates
-		);
+				);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public final class FiniteDifferenceSurfaceView {
 				values,
 				discretization,
 				timeIndex
-		);
+				);
 	}
 
 	/**
@@ -207,7 +207,7 @@ public final class FiniteDifferenceSurfaceView {
 				title,
 				xAxisLabel,
 				yAxisLabel
-		);
+				);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public final class FiniteDifferenceSurfaceView {
 				"",
 				"x",
 				"value"
-		);
+				);
 	}
 
 	/**
@@ -271,7 +271,7 @@ public final class FiniteDifferenceSurfaceView {
 				xAxisLabel,
 				yAxisLabel,
 				zAxisLabel
-		);
+				);
 	}
 
 	/**
@@ -297,7 +297,7 @@ public final class FiniteDifferenceSurfaceView {
 				"x",
 				"y",
 				"value"
-		);
+				);
 	}
 
 	/**
@@ -338,7 +338,7 @@ public final class FiniteDifferenceSurfaceView {
 			if (fixedCoordinates.length != layout.getDimension()) {
 				throw new IllegalArgumentException(
 						"fixedCoordinates must either be empty or have one entry per spatial dimension."
-				);
+						);
 			}
 
 			for (int i = 0; i < fixedCoordinates.length; i++) {

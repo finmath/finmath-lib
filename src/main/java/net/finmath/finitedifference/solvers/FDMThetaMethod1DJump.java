@@ -110,7 +110,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 				spaceTimeDiscretization,
 				exercise,
 				DEFAULT_QUADRATURE_POINTS_PER_SIDE
-		);
+				);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 		if (optionalJumpComponent.isPresent() && optionalJumpComponent.get().getStateVariableIndex() != 0) {
 			throw new IllegalArgumentException(
 					"FDMThetaMethod1DJump currently supports jumps only on state variable index 0."
-			);
+					);
 		}
 
 		this.model = model;
@@ -387,14 +387,14 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 		if (exerciseValue != null && continuousObstacleValue != null) {
 			throw new IllegalArgumentException(
 					"Provide either a discrete exercise payoff or a continuous obstacle, not both."
-			);
+					);
 		}
 		if ((exercise.isBermudan() || exercise.isAmerican())
 				&& exerciseValue == null
 				&& continuousObstacleValue == null) {
 			throw new IllegalArgumentException(
 					"Non-European exercise requires a pointwise exercise payoff function."
-			);
+					);
 		}
 
 		final Optional<JumpComponent> optionalJumpComponent = model.getJumpComponent();
@@ -433,7 +433,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 					coefficientsMp1.getShortRate(),
 					deltaTau,
 					theta
-			);
+					);
 
 			ThetaMethod1DAssembly.buildThetaRightHandSide(
 					rhsOperator,
@@ -443,7 +443,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 					coefficientsM.getShortRate(),
 					deltaTau,
 					theta
-			);
+					);
 
 			final double[] rhs = ThetaMethod1DAssembly.apply(rhsOperator, u);
 
@@ -453,7 +453,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						xGrid,
 						u,
 						tm
-				);
+						);
 
 				for (int i = 0; i < nX; i++) {
 					rhs[i] += deltaTau * jumpContribution[i];
@@ -485,7 +485,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 							rhs,
 							i,
 							getInternalConstrainedValue(boundaryTime, x)
-					);
+							);
 				}
 			}
 
@@ -501,7 +501,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						continuousObstacleValue,
 						lowerCondition,
 						upperCondition
-				);
+						);
 
 				nextU = ProjectedTridiagonalSOR.solve(
 						lhs,
@@ -511,7 +511,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						1.2,
 						500,
 						1E-10
-				);
+						);
 
 				reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -523,7 +523,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						exerciseValue,
 						lowerCondition,
 						upperCondition
-				);
+						);
 
 				nextU = ProjectedTridiagonalSOR.solve(
 						lhs,
@@ -533,7 +533,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						1.2,
 						500,
 						1E-10
-				);
+						);
 
 				reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -548,7 +548,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 							exerciseValue,
 							lowerCondition,
 							upperCondition
-					);
+							);
 				} else {
 					reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 					reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -604,7 +604,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 					time,
 					lowerBound,
 					upperBound
-			);
+					);
 		}
 
 		return result;
@@ -651,7 +651,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						lowerBound,
 						negativeUpper,
 						quadraturePointsPerSide
-				);
+						);
 			}
 		}
 
@@ -669,7 +669,7 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 						positiveLower,
 						upperBound,
 						quadraturePointsPerSide
-				);
+						);
 			}
 		}
 
@@ -777,8 +777,8 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 
 				derivative[i] =
 						lowerWeight * values[i - 1]
-						+ diagWeight * values[i]
-						+ upperWeight * values[i + 1];
+								+ diagWeight * values[i]
+										+ upperWeight * values[i + 1];
 			}
 		}
 
@@ -811,11 +811,11 @@ public class FDMThetaMethod1DJump implements FDMSolver {
 
 		while (right - left > 1) {
 			final int mid = (left + right) >>> 1;
-			if (xGrid[mid] <= x) {
-				left = mid;
-			} else {
-				right = mid;
-			}
+		if (xGrid[mid] <= x) {
+			left = mid;
+		} else {
+			right = mid;
+		}
 		}
 
 		final double x0 = xGrid[left];

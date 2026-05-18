@@ -380,7 +380,7 @@ public class CurveInterpolation extends AbstractCurve implements Serializable, C
 	protected void addPoint(final double time, final double value, final boolean isParameter) {
 		synchronized (rationalFunctionInterpolationLazyInitLock) {
 			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME && time == 0) {
-				if(value == 1.0 && isParameter == false) {
+				if(value == 1.0 && !isParameter) {
 					return;
 				} else {
 					throw new IllegalArgumentException("The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received " + value + ").");

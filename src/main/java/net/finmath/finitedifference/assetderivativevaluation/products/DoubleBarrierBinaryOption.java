@@ -81,8 +81,8 @@ import net.finmath.time.TimeDiscretization;
  * @author Alessandro Gnoatto
  */
 public class DoubleBarrierBinaryOption implements
-		FiniteDifferenceEquityEventProduct,
-		FiniteDifferenceInternalStateConstraint {
+FiniteDifferenceEquityEventProduct,
+FiniteDifferenceInternalStateConstraint {
 
 	/**
 	 * The underlying name.
@@ -155,7 +155,7 @@ public class DoubleBarrierBinaryOption implements
 				exercise,
 				MonitoringType.CONTINUOUS,
 				null
-		);
+				);
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class DoubleBarrierBinaryOption implements
 				upperBarrier,
 				doubleBarrierType,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -280,7 +280,7 @@ public class DoubleBarrierBinaryOption implements
 				new EuropeanExercise(maturity),
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -307,7 +307,7 @@ public class DoubleBarrierBinaryOption implements
 				upperBarrier,
 				doubleBarrierType,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -340,7 +340,7 @@ public class DoubleBarrierBinaryOption implements
 				new EuropeanExercise(maturity),
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -368,7 +368,7 @@ public class DoubleBarrierBinaryOption implements
 				upperBarrier,
 				doubleBarrierType,
 				exercise
-		);
+				);
 	}
 
 	/**
@@ -402,7 +402,7 @@ public class DoubleBarrierBinaryOption implements
 				exercise,
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	private ProductEventStateStack<ActivatedVectorEventState> getActivatedVectorEventStateStack() {
@@ -419,7 +419,7 @@ public class DoubleBarrierBinaryOption implements
 		return new ActivatedVectorEventState(
 				buildActivatedVectorsAtEventTimes(model),
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private ActivatedVectorEventState getCurrentActivatedVectorEventState() {
@@ -429,7 +429,7 @@ public class DoubleBarrierBinaryOption implements
 		if (state == null) {
 			throw new IllegalStateException(
 					"Discrete knock-in event condition requires cached activated vectors."
-			);
+					);
 		}
 
 		return state;
@@ -517,11 +517,11 @@ public class DoubleBarrierBinaryOption implements
 				this,
 				valuationDiscretization,
 				solverExercise
-		);
+				);
 
 		final double[] terminalValues = usesDiscreteMonitoring()
 				? buildDiscreteTerminalValues1D(valuationDiscretization)
-				: buildCellAveragedTerminalValues(valuationDiscretization);
+						: buildCellAveragedTerminalValues(valuationDiscretization);
 
 		if (solverExercise.isEuropean()) {
 			return solver.getValues(maturity, terminalValues);
@@ -531,7 +531,7 @@ public class DoubleBarrierBinaryOption implements
 				maturity,
 				terminalValues,
 				this::pointwiseExercisePayoff
-		);
+				);
 	}
 
 	private double[][] getValues2D(
@@ -559,26 +559,26 @@ public class DoubleBarrierBinaryOption implements
 				this,
 				valuationDiscretization,
 				solverExercise
-		);
+				);
 
 		final DoubleBinaryOperator terminalPayoff2D = usesDiscreteMonitoring()
 				? getDiscreteTerminalPayoff2D()
-				: (assetValue, secondState) -> pointwiseTerminalPayoff(assetValue);
+						: (assetValue, secondState) -> pointwiseTerminalPayoff(assetValue);
 
-		if (solverExercise.isEuropean()) {
-			return solver.getValues(maturity, terminalPayoff2D);
-		}
+						if (solverExercise.isEuropean()) {
+							return solver.getValues(maturity, terminalPayoff2D);
+						}
 
-		if (!(solver instanceof AbstractADI2D)) {
-			throw new IllegalArgumentException(
-					"Two-dimensional Bermudan/American double-barrier binary pricing requires an ADI solver.");
-		}
+						if (!(solver instanceof AbstractADI2D)) {
+							throw new IllegalArgumentException(
+									"Two-dimensional Bermudan/American double-barrier binary pricing requires an ADI solver.");
+						}
 
-		return ((AbstractADI2D) solver).getValues(
-				maturity,
-				terminalPayoff2D,
-				(runningTime, assetValue, secondState) -> pointwiseExercisePayoff(assetValue)
-		);
+						return ((AbstractADI2D) solver).getValues(
+								maturity,
+								terminalPayoff2D,
+								(runningTime, assetValue, secondState) -> pointwiseExercisePayoff(assetValue)
+								);
 	}
 
 	@Override
@@ -636,7 +636,7 @@ public class DoubleBarrierBinaryOption implements
 		final double[] valuesBeforeEvent = valuesAfterEvent.clone();
 		final double[] activatedVector = requiresActivatedEventState()
 				? getCurrentActivatedVectorEventState().getActivatedVector(time)
-				: null;
+						: null;
 
 		for (int i = 0; i < xGrid.length; i++) {
 			final double assetValue = xGrid[i];
@@ -687,7 +687,7 @@ public class DoubleBarrierBinaryOption implements
 		final double[] valuesBeforeEvent = valuesAfterEvent.clone();
 		final double[] activatedVector = requiresActivatedEventState()
 				? getCurrentActivatedVectorEventState().getActivatedVector(time)
-				: null;
+						: null;
 
 		final int n0 = x0.length;
 
@@ -750,13 +750,13 @@ public class DoubleBarrierBinaryOption implements
 						evaluationTime,
 						model,
 						valuesAtEvaluationTime.length
-				)
-		);
+						)
+				);
 
 		final ActivatedVectorEventState state = new ActivatedVectorEventState(
 				activatedVectorsAtEventTimes,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 
 		try(ProductEventStateStack.Scope ignored =
 				getActivatedVectorEventStateStack().push(state)) {
@@ -778,8 +778,8 @@ public class DoubleBarrierBinaryOption implements
 							eventTime,
 							model,
 							numberOfSpacePoints
-					)
-			);
+							)
+					);
 		}
 
 		return activatedVectorsAtEventTimes;
@@ -1074,7 +1074,7 @@ public class DoubleBarrierBinaryOption implements
 				time,
 				monitoringTimes,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private void validateMonitoringSpecification() {
@@ -1083,7 +1083,7 @@ public class DoubleBarrierBinaryOption implements
 				monitoringTimes,
 				maturity,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private SpaceTimeDiscretization getValuationSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
@@ -1097,7 +1097,7 @@ public class DoubleBarrierBinaryOption implements
 					FiniteDifferenceExerciseUtil.refineTimeDiscretization(
 							refinedTimeDiscretization,
 							exercise
-					);
+							);
 			requiresModifiedDiscretization = true;
 		}
 
@@ -1107,7 +1107,7 @@ public class DoubleBarrierBinaryOption implements
 							refinedTimeDiscretization,
 							maturity,
 							monitoringTimes
-					);
+							);
 			requiresModifiedDiscretization = true;
 		}
 
@@ -1121,7 +1121,7 @@ public class DoubleBarrierBinaryOption implements
 					refinedTimeDiscretization,
 					base.getTheta(),
 					new double[] {base.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();
@@ -1138,7 +1138,7 @@ public class DoubleBarrierBinaryOption implements
 				refinedTimeDiscretization,
 				base.getTheta(),
 				center
-		);
+				);
 	}
 
 	private FiniteDifferenceEquityModel getEffectiveModelForValuation(final FiniteDifferenceEquityModel model) {
@@ -1158,7 +1158,7 @@ public class DoubleBarrierBinaryOption implements
 			return discretization.getSpaceGrid(0).getGrid().length;
 		} else if (dims == 2) {
 			return discretization.getSpaceGrid(0).getGrid().length
-				 * discretization.getSpaceGrid(1).getGrid().length;
+					* discretization.getSpaceGrid(1).getGrid().length;
 		} else {
 			throw new IllegalArgumentException("Only 1D and 2D grids are supported.");
 		}

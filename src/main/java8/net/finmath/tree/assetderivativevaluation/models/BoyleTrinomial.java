@@ -44,30 +44,32 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 		this.u  = Math.exp(getVolatility() * Math.sqrt(2.0 * dt));
 		this.d  = 1.0 / u;
 
-		double M2 = Math.exp(2.0 * getRiskFreeRate() * dt + Math.pow(getVolatility(), 2) * dt);
+		final double M2 = Math.exp(2.0 * getRiskFreeRate() * dt + Math.pow(getVolatility(), 2) * dt);
 
-		double b1 = r  - 1.0;
-		double b2 = M2 - 1.0;
+		final double b1 = r  - 1.0;
+		final double b2 = M2 - 1.0;
 
-		double A11 = (u - 1.0);
-		double A12 = (d - 1.0);
-		double A21 = (u*u - 1.0);
-		double A22 = (d*d - 1.0);
+		final double A11 = (u - 1.0);
+		final double A12 = (d - 1.0);
+		final double A21 = (u*u - 1.0);
+		final double A22 = (d*d - 1.0);
 
-		double det = A11*A22 - A12*A21;
+		final double det = A11*A22 - A12*A21;
 		if(Math.abs(det) < 1e-14) {
 			throw new IllegalArgumentException("Degenerate system for trinomial probabilities (det≈0).");
 		}
 
-		double puTmp = ( b1*A22 - b2*A12 ) / det;
-		double pdTmp = ( A11*b2 - A21*b1 ) / det;
-		double pmTmp = 1.0 - puTmp - pdTmp;
+		final double puTmp = ( b1*A22 - b2*A12 ) / det;
+		final double pdTmp = ( A11*b2 - A21*b1 ) / det;
+		final double pmTmp = 1.0 - puTmp - pdTmp;
 
-		double puC = Math.max(0.0, Math.min(1.0, puTmp));
-		double pmC = Math.max(0.0, Math.min(1.0, pmTmp));
-		double pdC = Math.max(0.0, Math.min(1.0, pdTmp));
-		double sum = puC + pmC + pdC;
-		if(sum <= 0.0) throw new IllegalArgumentException("Invalid probabilities in Boyle trinomial.");
+		final double puC = Math.max(0.0, Math.min(1.0, puTmp));
+		final double pmC = Math.max(0.0, Math.min(1.0, pmTmp));
+		final double pdC = Math.max(0.0, Math.min(1.0, pdTmp));
+		final double sum = puC + pmC + pdC;
+		if(sum <= 0.0) {
+			throw new IllegalArgumentException("Invalid probabilities in Boyle trinomial.");
+		}
 		this.pu = puC / sum;
 		this.pm = pmC / sum;
 		this.pd = pdC / sum;
@@ -98,15 +100,15 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 	 * @param  k level of depth  */
 	@Override
 	protected RandomVariable buildSpotLevel(int k) {
-		double[] level = new double[2*k + 1];
-		double S0 = getSpot();
+		final double[] level = new double[2*k + 1];
+		final double S0 = getSpot();
 		for(int j=-k; j<=k; j++) {
-			int idx = j + k;
-			int upCount   = Math.max( j, 0);
-			int downCount = Math.max(-j, 0);
+			final int idx = j + k;
+			final int upCount   = Math.max( j, 0);
+			final int downCount = Math.max(-j, 0);
 			level[idx] = S0 * Math.pow(u, upCount) * Math.pow(d, downCount);
 		}
-		double time = k * dt;
+		final double time = k * dt;
 		return new RandomVariableFromDoubleArray(time, level);
 	}
 
@@ -116,24 +118,24 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 	 */
 	@Override
 	protected RandomVariable conditionalExpectation(RandomVariable vNext, int k) {
-		double[] next = vNext.getRealizations();
-		int expectedLen = 2*(k+1) + 1; // = 2k+3
+		final double[] next = vNext.getRealizations();
+		final int expectedLen = 2*(k+1) + 1; // = 2k+3
 		if(next.length != expectedLen) {
 			throw new IllegalArgumentException("vNext length "+next.length+" != expected "+expectedLen+" for level k="+k);
 		}
 
-		double[] now = new double[2*k + 1];
+		final double[] now = new double[2*k + 1];
 		for(int j=-k; j<=k; j++) {
-			int idxNow = j + k;
+			final int idxNow = j + k;
 
-			double up   = next[j + k + 2];
-			double mid  = next[j + k + 1];
-			double down = next[j + k    ];
+			final double up   = next[j + k + 2];
+			final double mid  = next[j + k + 1];
+			final double down = next[j + k    ];
 
 			now[idxNow] = (pu * up + pm * mid + pd * down) / r;
 		}
 
-		double time = k * dt;
+		final double time = k * dt;
 		return new RandomVariableFromDoubleArray(time, now);
 	}
 
@@ -146,10 +148,10 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
 		// Convention: 0 = up, 1 = middle, 2 = down
 		switch(branchIndex) {
-			case 0: return pu;
-			case 1: return pm;
-			case 2: return pd;
-			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for trinomial model.");
+		case 0: return pu;
+		case 1: return pm;
+		case 2: return pd;
+		default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for trinomial model.");
 		}
 	}
 

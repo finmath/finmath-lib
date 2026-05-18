@@ -145,6 +145,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForForwardRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForForwardRate() {
 		return discountCurveForForwardRate;
 	}
@@ -152,6 +153,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the riskFreeRate
 	 */
+	@Override
 	public double getRiskFreeRate() {
 		return riskFreeRate;
 	}
@@ -159,6 +161,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountCurveForDiscountRate
 	 */
+	@Override
 	public DiscountCurve getDiscountCurveForDiscountRate() {
 		return discountCurveForDiscountRate;
 	}
@@ -166,6 +169,7 @@ public class BlackScholesModel implements CharacteristicFunctionModel {
 	/**
 	 * @return the discountRate
 	 */
+	@Override
 	public double getDiscountRate() {
 		return discountRate;
 	}

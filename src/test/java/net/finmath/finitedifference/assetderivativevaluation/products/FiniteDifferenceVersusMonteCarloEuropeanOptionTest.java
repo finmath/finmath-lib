@@ -108,7 +108,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					final MonteCarloEstimate monteCarloPrice =
 							getMonteCarloEuropeanOptionValue(
@@ -116,7 +116,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					assertFiniteDifferenceCloseToMonteCarlo(
 							"Black-Scholes",
@@ -126,7 +126,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 							finiteDifferencePrice,
 							monteCarloPrice,
 							BLACK_SCHOLES_FD_ALLOWANCE
-					);
+							);
 				}
 			}
 		}
@@ -152,7 +152,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					final MonteCarloEstimate monteCarloPrice =
 							getMonteCarloEuropeanOptionValue(
@@ -160,7 +160,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					assertFiniteDifferenceCloseToMonteCarlo(
 							"Heston",
@@ -170,7 +170,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 							finiteDifferencePrice,
 							monteCarloPrice,
 							HESTON_FD_ALLOWANCE
-					);
+							);
 				}
 			}
 		}
@@ -196,7 +196,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					final MonteCarloEstimate monteCarloPrice =
 							getMonteCarloEuropeanOptionValue(
@@ -204,7 +204,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 									maturity,
 									strike,
 									callOrPut
-							);
+									);
 
 					assertFiniteDifferenceCloseToMonteCarlo(
 							"Variance Gamma",
@@ -214,7 +214,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 							finiteDifferencePrice,
 							monteCarloPrice,
 							VARIANCE_GAMMA_FD_ALLOWANCE
-					);
+							);
 				}
 			}
 		}
@@ -229,7 +229,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				DIVIDEND_YIELD,
 				BLACK_SCHOLES_VOLATILITY,
 				createOneDimensionalSpaceTimeDiscretization(maturity)
-		);
+				);
 	}
 
 	private static FDMHestonModel createHestonFiniteDifferenceModel(
@@ -240,21 +240,21 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						0.0,
 						NUMBER_OF_TIME_STEPS_FD_HESTON,
 						maturity / NUMBER_OF_TIME_STEPS_FD_HESTON
-				);
+						);
 
 		final Grid spotGrid =
 				new UniformGrid(
 						NUMBER_OF_SPACE_STEPS_FD_HESTON_SPOT,
 						0.0,
 						250.0
-				);
+						);
 
 		final Grid varianceGrid =
 				new UniformGrid(
 						NUMBER_OF_SPACE_STEPS_FD_HESTON_VARIANCE,
 						0.0,
 						0.50
-				);
+						);
 
 		final SpaceTimeDiscretization spaceTimeDiscretization =
 				new SpaceTimeDiscretization(
@@ -268,7 +268,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 								INITIAL_VALUE,
 								HESTON_INITIAL_VARIANCE
 						}
-				);
+						);
 
 		return new FDMHestonModel(
 				INITIAL_VALUE,
@@ -280,7 +280,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				HESTON_XI,
 				HESTON_RHO,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	private static FDMVarianceGammaModel createVarianceGammaFiniteDifferenceModel(
@@ -296,7 +296,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				VARIANCE_GAMMA_LOWER_INTEGRATION_BOUND,
 				VARIANCE_GAMMA_UPPER_INTEGRATION_BOUND,
 				createOneDimensionalSpaceTimeDiscretization(maturity)
-		);
+				);
 	}
 
 	private static SpaceTimeDiscretization createOneDimensionalSpaceTimeDiscretization(
@@ -307,14 +307,14 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						0.0,
 						NUMBER_OF_TIME_STEPS_FD_1D,
 						maturity / NUMBER_OF_TIME_STEPS_FD_1D
-				);
+						);
 
 		final Grid spotGrid =
 				new UniformGrid(
 						NUMBER_OF_SPACE_STEPS_FD_1D,
 						20.0,
 						220.0
-				);
+						);
 
 		return new SpaceTimeDiscretization(
 				spotGrid,
@@ -323,7 +323,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				new double[] {
 						INITIAL_VALUE
 				}
-		);
+				);
 	}
 
 	private static AssetModelMonteCarloSimulationModel createBlackScholesMonteCarloModel(
@@ -334,7 +334,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						0.0,
 						NUMBER_OF_TIME_STEPS_MC,
 						maturity / NUMBER_OF_TIME_STEPS_MC
-				);
+						);
 
 		final BrownianMotion brownianMotion =
 				new BrownianMotionFromMersenneRandomNumbers(
@@ -342,14 +342,14 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						1,
 						NUMBER_OF_PATHS_MC,
 						RANDOM_SEED
-				);
+						);
 
 		return new MonteCarloBlackScholesModel(
 				INITIAL_VALUE,
 				RISK_FREE_RATE,
 				BLACK_SCHOLES_VOLATILITY,
 				brownianMotion
-		);
+				);
 	}
 
 	private static AssetModelMonteCarloSimulationModel createHestonMonteCarloModel(
@@ -360,7 +360,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						0.0,
 						NUMBER_OF_TIME_STEPS_MC,
 						maturity / NUMBER_OF_TIME_STEPS_MC
-				);
+						);
 
 		final BrownianMotion brownianMotion =
 				new BrownianMotionFromMersenneRandomNumbers(
@@ -368,7 +368,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						2,
 						NUMBER_OF_PATHS_MC,
 						RANDOM_SEED
-				);
+						);
 
 		final HestonModel hestonModel =
 				new HestonModel(
@@ -381,7 +381,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						HESTON_XI,
 						HESTON_RHO,
 						Scheme.FULL_TRUNCATION
-				);
+						);
 
 		final EulerSchemeFromProcessModel process =
 				new EulerSchemeFromProcessModel(hestonModel, brownianMotion);
@@ -397,7 +397,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 						0.0,
 						NUMBER_OF_TIME_STEPS_MC,
 						maturity / NUMBER_OF_TIME_STEPS_MC
-				);
+						);
 
 		return new MonteCarloVarianceGammaModel(
 				timeDiscretization,
@@ -408,7 +408,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				VARIANCE_GAMMA_SIGMA,
 				VARIANCE_GAMMA_THETA,
 				VARIANCE_GAMMA_NU
-		);
+				);
 	}
 
 	private static double getFiniteDifferencePrice(
@@ -426,7 +426,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				valuesOnGrid,
 				model.getSpaceTimeDiscretization(),
 				model.getInitialValue()
-		);
+				);
 	}
 
 	private static MonteCarloEstimate getMonteCarloEuropeanOptionValue(
@@ -456,7 +456,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 		return new MonteCarloEstimate(
 				discountedPayoff.getAverage(),
 				discountedPayoff.getStandardError()
-		);
+				);
 	}
 
 	private static void assertFiniteDifferenceCloseToMonteCarlo(
@@ -471,22 +471,22 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 		assertTrue(
 				"Finite difference price must be finite for " + modelName,
 				Double.isFinite(finiteDifferencePrice)
-		);
+				);
 
 		assertTrue(
 				"Monte Carlo price must be finite for " + modelName,
 				Double.isFinite(monteCarloPrice.getValue())
-		);
+				);
 
 		assertTrue(
 				"Finite difference price must be non-negative for " + modelName,
 				finiteDifferencePrice >= -1E-10
-		);
+				);
 
 		assertTrue(
 				"Monte Carlo price must be non-negative for " + modelName,
 				monteCarloPrice.getValue() >= -1E-10
-		);
+				);
 
 		final double tolerance =
 				finiteDifferenceAllowance
@@ -514,7 +514,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				+ tolerance
 				+ " abs diff="
 				+ absoluteDifference
-		);
+				);
 
 		assertTrue(
 				modelName
@@ -527,7 +527,7 @@ public class FiniteDifferenceVersusMonteCarloEuropeanOptionTest {
 				+ ", standardError=" + monteCarloPrice.getStandardError()
 				+ ", tolerance=" + tolerance,
 				absoluteDifference <= tolerance
-		);
+				);
 	}
 
 	private static final class MonteCarloEstimate {

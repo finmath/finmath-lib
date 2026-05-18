@@ -138,6 +138,7 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 
 	}
 
+	@Override
 	public double getMaturity() {
 		return maturity;
 	}

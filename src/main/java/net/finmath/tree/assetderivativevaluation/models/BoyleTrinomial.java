@@ -67,7 +67,9 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 		double pmC = Math.max(0.0, Math.min(1.0, pmTmp));
 		double pdC = Math.max(0.0, Math.min(1.0, pdTmp));
 		double sum = puC + pmC + pdC;
-		if(sum <= 0.0) throw new IllegalArgumentException("Invalid probabilities in Boyle trinomial.");
+		if(sum <= 0.0) {
+			throw new IllegalArgumentException("Invalid probabilities in Boyle trinomial.");
+		}
 		this.pu = puC / sum;
 		this.pm = pmC / sum;
 		this.pd = pdC / sum;
@@ -146,10 +148,10 @@ public class BoyleTrinomial extends AbstractRecombiningTreeModel {
 	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
 		// Convention: 0 = up, 1 = middle, 2 = down
 		switch(branchIndex) {
-			case 0: return pu;
-			case 1: return pm;
-			case 2: return pd;
-			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for trinomial model.");
+		case 0: return pu;
+		case 1: return pm;
+		case 2: return pd;
+		default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for trinomial model.");
 		}
 	}
 

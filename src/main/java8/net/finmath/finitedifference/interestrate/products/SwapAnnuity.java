@@ -68,19 +68,16 @@ public final class SwapAnnuity {
 			final double periodStart = schedule.getPeriodStart(periodIndex);
 			final double paymentDate = schedule.getPayment(periodIndex);
 
-			if (periodStart < evaluationTime - TIME_TOLERANCE) {
-				continue;
-			}
-			if (paymentDate <= evaluationTime + TIME_TOLERANCE) {
+			if ((periodStart < evaluationTime - TIME_TOLERANCE) || (paymentDate <= evaluationTime + TIME_TOLERANCE)) {
 				continue;
 			}
 
 			value += schedule.getPeriodLength(periodIndex)
-				 * model.getDiscountBond(
+					* model.getDiscountBond(
 							evaluationTime,
 							paymentDate,
 							stateVariables[0]
-					);
+							);
 		}
 
 		return value;

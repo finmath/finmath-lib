@@ -62,7 +62,7 @@ public class EvolutionOfTemperature implements TriFunction<Integer, Temperature2
 	public EvolutionOfTemperature(TimeDiscretization timeDiscretization) {
 		Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
 		this.timeDiscretization = timeDiscretization;
-		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, (Double)timeStep/5.0)));
+		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, timeStep/5.0)));
 		this.forcingToTemp = forcingToTemp5YDefault/5; // Rescale to per 1 Y
 	}
 

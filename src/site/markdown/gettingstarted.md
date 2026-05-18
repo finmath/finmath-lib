@@ -17,34 +17,38 @@ If you have git installed, you can checkout finmath lib via
 ```
 git clone https://github.com/finmath/finmath-lib
 ```
+
+Note: You may skip this step an directly do the checkout in your IDE (Eclipse, IntelliJ IDEA, NetBeans). See below.
 	
 ####  Importing the finmath lib source code into Eclipse
 
 To import the source code into your Eclipse workspace:
 
-The recommended way is to import the project as a maven project. To do so:
-
-* File -> Import… -> Maven -> Existing Maven Projects
-* Select the local git repository folder.
-
 If you did not yet checked out the project form git, you may perfom both steps in Eclipse:
 
-* File -> Import… -> Git -> Projects from Git (with smart import) -> Clone URI
-* Enter the URI https://github.com/finmath/finmath-lib.git
-* Select "Next".
-* Select "master".
-* "Next" and "Finish".
+- Select "File -> Import… -> Git -> Projects from Git (with smart import)" - Note: Use **with smart import**.
+- Select "Clone URI".
+- Enter the URI https://github.com/finmath/finmath-lib.git
+- Select "Next".
+- Select "main".
+- "Next" and "Finish".
+
+If you already checked out the project via get to a *local git repository folder* import the project as a maven project:
+
+- File -> Import… -> Maven -> Existing Maven Projects
+- Select the *local git repository folder*.
+
 
 ####  Importing the finmath lib source code into IntelliJ IDEA
 
 To import the source code into IntelliJ IDEA:
 
-* File -> New -> Project from Version Control
-* Enter the URL https://github.com/finmath/finmath-lib.git
-* Select "Clone".
-* After the project has been imported: Select "Add as Maven Project", e.g. by
-  * context menu (right click) on pom.xml or
-  * select "+" in the Maven projects tab.
+- File -> New -> Project from Version Control
+- Enter the URL https://github.com/finmath/finmath-lib.git
+- Select "Clone".
+- After the project has been imported: Select "Add as Maven Project", e.g. by
+    - context menu (right click) on pom.xml or
+     - select "+" in the Maven projects tab.
 
 ### Inspecting the source code / running some tests.
 

@@ -98,7 +98,7 @@ public class GaussianGrid extends AbstractGrid {
 					pMin + (i / (double) numberOfSteps) * (pMax - pMin);
 			grid[i] =
 					centering + sigma
-						 * NormalDistribution.inverseCumulativeDistribution(p);
+					* NormalDistribution.inverseCumulativeDistribution(p);
 		}
 
 		grid[0] = minimumValue;

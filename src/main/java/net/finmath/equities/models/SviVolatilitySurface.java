@@ -130,13 +130,13 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 	{
 		// sticky moneyness
 		assert isCalibrated : "Surface is not calibrated yet";
-	double logStrike;
-	if(useStickyStrike) {
-		logStrike = forwardStructure.getLogMoneyness(strike, timeToMaturity);
-	} else {
-		logStrike = currentForwardStructure.getLogMoneyness(strike, timeToMaturity);
-	}
-	return interpolateVolatility(logStrike, timeToMaturity);
+		double logStrike;
+		if(useStickyStrike) {
+			logStrike = forwardStructure.getLogMoneyness(strike, timeToMaturity);
+		} else {
+			logStrike = currentForwardStructure.getLogMoneyness(strike, timeToMaturity);
+		}
+		return interpolateVolatility(logStrike, timeToMaturity);
 	}
 
 	@Override
@@ -148,9 +148,9 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			double timeShift)
 	{
 		assert isCalibrated : "Surface is not calibrated yet";
-	final double logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
-	final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
-	return getLocalVolatility(logStrike, timeToMaturity, currentForwardStructure, strikeShift, timeShift);
+		final double logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);
+		final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);
+		return getLocalVolatility(logStrike, timeToMaturity, currentForwardStructure, strikeShift, timeShift);
 	}
 
 	@Override
@@ -162,36 +162,36 @@ public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilit
 			double timeShift)
 	{
 		assert isCalibrated : "Surface is not calibrated yet";
-	// Log-strike is provided w.r.t. current forward structure.
-	// When using sticky strike, we need to transform
-	// to log-strike w.r.t. forward structure prevailing during surface calbration
-	if (useStickyStrike)
-	{
-		final double expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
-				valuationDate, currentForwardStructure.getValuationDate());
-		logStrike += Math.log(currentForwardStructure.getForward(timeToMaturity)
-				/ forwardStructure.getForward(expiryTimeAsofCalib));
-	}
+		// Log-strike is provided w.r.t. current forward structure.
+		// When using sticky strike, we need to transform
+		// to log-strike w.r.t. forward structure prevailing during surface calbration
+		if (useStickyStrike)
+		{
+			final double expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(
+					valuationDate, currentForwardStructure.getValuationDate());
+			logStrike += Math.log(currentForwardStructure.getForward(timeToMaturity)
+					/ forwardStructure.getForward(expiryTimeAsofCalib));
+		}
 
-	if (timeToMaturity >= 1e-16)
-	{
-		final double f = interpolateTotalVariance(logStrike, timeToMaturity);
-		double f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);
-		f_t = (f_t - f) / timeShift;
-		final double f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
-		final double f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
-		final double f_x = 0.5 * (f_plu - f_min) / strikeShift;
-		final double f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
-		double lv = 0.5 * f_x * logStrike / f - 1.0;
-		lv *= lv;
-		lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;
-		return Math.sqrt(f_t / lv);
-	}
-	else if (timeToMaturity >= 0.0) {
-		return getLocalVolatility(logStrike, 1e-16, currentForwardStructure, strikeShift, timeShift);
-	} else {
-		return 0.0;
-	}
+		if (timeToMaturity >= 1e-16)
+		{
+			final double f = interpolateTotalVariance(logStrike, timeToMaturity);
+			double f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);
+			f_t = (f_t - f) / timeShift;
+			final double f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);
+			final double f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);
+			final double f_x = 0.5 * (f_plu - f_min) / strikeShift;
+			final double f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;
+			double lv = 0.5 * f_x * logStrike / f - 1.0;
+			lv *= lv;
+			lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;
+			return Math.sqrt(f_t / lv);
+		}
+		else if (timeToMaturity >= 0.0) {
+			return getLocalVolatility(logStrike, 1e-16, currentForwardStructure, strikeShift, timeShift);
+		} else {
+			return 0.0;
+		}
 	}
 
 	private double interpolateVolatility(double logStrike, double timeToMaturity)

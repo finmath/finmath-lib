@@ -26,29 +26,29 @@ import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHo
 public class SwapTest {
 	private final LocalDate referenceDate = LocalDate.of(2017, 6, 15);
 	private static double calibrateMilli;
-	
+
 	/**
 	 * We calibrate a duration that corresponds to a millisecond on an Apple M1 with Java 17.
-	 * 
+	 *
 	 * This is just to have a rough (large) independend bound for the timings that is roughly
 	 * independend of a system.
 	 */
 	@BeforeAll
 	public static void calibrateDuration() {
 
-		long timeStart = System.nanoTime();
+		final long timeStart = System.nanoTime();
 
-		Random random = new Random(3141);
-		double numberOfRuns = 100000;
+		final Random random = new Random(3141);
+		final double numberOfRuns = 100000;
 		double sum = 0.0;
 		for(int i = 0; i<numberOfRuns; i++) {
 			sum += 2*random.nextDouble();
 		}
-		double average = sum/numberOfRuns;
-		
-		long timeEnd = System.nanoTime();
-		double durationMillis = (double)(timeEnd-timeStart)/1000000;
-		
+		final double average = sum/numberOfRuns;
+
+		final long timeEnd = System.nanoTime();
+		final double durationMillis = (double)(timeEnd-timeStart)/1000000;
+
 		// Approximate 1 ms
 		calibrateMilli = durationMillis / 10;
 		System.out.println("Calibrated millisecond.......: " + calibrateMilli);
@@ -58,8 +58,8 @@ public class SwapTest {
 	public void testRegularSchedule() {
 
 		double sum = 0.0;
-		long timeStart = System.nanoTime();
-		int numberOfRuns = 100000;
+		final long timeStart = System.nanoTime();
+		final int numberOfRuns = 100000;
 
 		for(int i=0; i< numberOfRuns; i++) {
 			// Create the discount curve
@@ -90,18 +90,18 @@ public class SwapTest {
 
 			curveModel = curveModel.addCurves(forwardCurve);
 
-			AnalyticProduct swap = new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve");
+			final AnalyticProduct swap = new Swap(new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), null, 0.04, "discountCurve", new RegularSchedule(new TimeDiscretizationFromArray(0.0, 10, 0.5)), "forwardCurve", 0.0, "discountCurve");
 
-			double value = swap.getValue(0, curveModel);
-			
+			final double value = swap.getValue(0, curveModel);
+
 			// Use the value to avoid optimization
 			sum += value;
 		}
-		long timeEnd = System.nanoTime();
+		final long timeEnd = System.nanoTime();
 
-		double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
+		final double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
 		System.out.println("Swap valuation required......: " + durationMillis + " ms");
-		
+
 		Assertions.assertTrue(durationMillis < calibrateMilli);
 	}
 
@@ -109,8 +109,8 @@ public class SwapTest {
 	public void testMetadataSchedule() {
 
 		double sum = 0.0;
-		long timeStart = System.nanoTime();
-		int numberOfRuns = 100000;
+		final long timeStart = System.nanoTime();
+		final int numberOfRuns = 100000;
 		for(int i=0; i< numberOfRuns; i++) {
 
 			// Create the forward curve (initial value of the LIBOR market model)
@@ -153,16 +153,16 @@ public class SwapTest {
 					0,
 					0);
 
-			AnalyticProduct swap = new Swap(schedule2, null, 0.04, "discountCurve", schedule2, "forwardCurve", 0.0, "discountCurve");
+			final AnalyticProduct swap = new Swap(schedule2, null, 0.04, "discountCurve", schedule2, "forwardCurve", 0.0, "discountCurve");
 
-			double value = swap.getValue(0, curveModel);
-			
+			final double value = swap.getValue(0, curveModel);
+
 			// Use the value to avoid optimization
 			sum += value;
 		}
-		long timeEnd = System.nanoTime();
+		final long timeEnd = System.nanoTime();
 
-		double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
+		final double durationMillis = (double)(timeEnd-timeStart)/1000000/numberOfRuns;
 		System.out.println("Swap valuation required......: " + durationMillis + " ms");
 
 		Assertions.assertTrue(durationMillis < calibrateMilli);

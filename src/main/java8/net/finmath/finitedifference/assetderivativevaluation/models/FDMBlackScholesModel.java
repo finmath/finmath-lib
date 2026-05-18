@@ -79,7 +79,7 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 				dividendYieldCurve,
 				new ConstantLocalVolatility(volatility),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 				riskFreeCurve,
 				new ConstantLocalVolatility(volatility),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 				dividendYieldRate,
 				new ConstantLocalVolatility(volatility),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -279,7 +279,7 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 				riskFreeRate,
 				new ConstantLocalVolatility(volatility),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -350,6 +350,7 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 	 *
 	 * @return The initial value.
 	 */
+	@Override
 	public double[] getInitialValue() {
 		return new double[] {initialValue};
 	}
@@ -447,6 +448,6 @@ public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
 				dividendYieldCurve,
 				volatility,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 }

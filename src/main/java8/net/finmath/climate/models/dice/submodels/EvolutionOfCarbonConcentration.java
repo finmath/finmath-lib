@@ -62,9 +62,9 @@ public class EvolutionOfCarbonConcentration implements TriFunction<Integer, Carb
 	}
 
 	public EvolutionOfCarbonConcentration(TimeDiscretization timeDiscretization) {
-		Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
+		final Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
 		this.timeDiscretization = timeDiscretization;
-		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, (Double)timeStep/5.0)));
+		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, timeStep/5.0)));
 	}
 
 	/**
@@ -73,6 +73,7 @@ public class EvolutionOfCarbonConcentration implements TriFunction<Integer, Carb
 	 * @param carbonConcentration The CarbonConcentration in time \( t_{i} \)
 	 * @param emissions The emissions in GtCO2 / year.
 	 */
+	@Override
 	public CarbonConcentration3DScalar apply(Integer timeIndex, CarbonConcentration3DScalar carbonConcentration, Double emissions) {
 		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		final double[] carbonConcentrationNext = LinearAlgebra.multMatrixVector(transitionMatrices.apply(timeIndex), carbonConcentration.getAsDoubleArray());

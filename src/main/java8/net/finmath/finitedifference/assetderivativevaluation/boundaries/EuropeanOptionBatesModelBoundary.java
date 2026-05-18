@@ -68,7 +68,7 @@ public class EuropeanOptionBatesModelBoundary implements FiniteDifferenceBoundar
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, stock)
-		);
+				);
 
 		result[1] = StandardBoundaryCondition.none();
 
@@ -90,7 +90,7 @@ public class EuropeanOptionBatesModelBoundary implements FiniteDifferenceBoundar
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, stock)
-		);
+				);
 
 		result[1] = StandardBoundaryCondition.none();
 

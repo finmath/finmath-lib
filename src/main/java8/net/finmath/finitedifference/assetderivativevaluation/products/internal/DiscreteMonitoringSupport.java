@@ -113,7 +113,7 @@ public final class DiscreteMonitoringSupport {
 			if (monitoringTimes != null && monitoringTimes.length > 0) {
 				throw new IllegalArgumentException(
 						"Continuous monitoring must not specify monitoringTimes."
-				);
+						);
 			}
 			return;
 		}
@@ -121,7 +121,7 @@ public final class DiscreteMonitoringSupport {
 		if (monitoringTimes == null || monitoringTimes.length == 0) {
 			throw new IllegalArgumentException(
 					"Discrete monitoring requires a non-empty monitoringTimes array."
-			);
+					);
 		}
 
 		double previousTime = -Double.MAX_VALUE;
@@ -129,13 +129,13 @@ public final class DiscreteMonitoringSupport {
 			if (monitoringTime < -tolerance || monitoringTime > maturity + tolerance) {
 				throw new IllegalArgumentException(
 						"Monitoring times must lie in [0,maturity]."
-				);
+						);
 			}
 
 			if (monitoringTime <= previousTime + tolerance) {
 				throw new IllegalArgumentException(
 						"Monitoring times must be strictly increasing."
-				);
+						);
 			}
 
 			previousTime = monitoringTime;

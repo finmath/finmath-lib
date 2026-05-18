@@ -338,14 +338,7 @@ public class DataTableBasic implements DataTable, Cloneable {
 				return true;
 			}
 
-			if(other == null) {
-				return false;
-			}
-			if(other.getClass() != getClass()) {
-				return false;
-			}
-
-			if(maturity 	!= ((DoubleKey) other).maturity ) {
+			if((other == null) || (other.getClass() != getClass()) || (maturity 	!= ((DoubleKey) other).maturity) ) {
 				return false;
 			}
 			return (termination == ((DoubleKey) other).termination);
