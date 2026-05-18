@@ -235,7 +235,9 @@ public class DICEModel implements ClimateModel {
 			 */
 			double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIntensity/(1-abatement[0]);
 			double gdpNet2 = gdp[timeIndex] * (1-damage[timeIndex] - abatementCost);
-			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) logger.warning("Calculation of relative and absolute net GDP does not match.");
+			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) > 1E-10) {
+				logger.warning("Calculation of relative and absolute net GDP does not match.");
+			}
 
 			// Evolve emission intensity
 			emissionIntensity = emissionIndustrialIntensityFunction.apply(timeIndex, emissionIntensity);

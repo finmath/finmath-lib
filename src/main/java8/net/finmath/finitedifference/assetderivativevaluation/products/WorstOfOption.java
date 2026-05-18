@@ -144,7 +144,7 @@ public class WorstOfOption implements FiniteDifferenceEquityProduct {
 				maturity,
 				strike,
 				mapCallOrPut(callOrPutSign)
-		);
+				);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class WorstOfOption implements FiniteDifferenceEquityProduct {
 				evaluationTime,
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	@Override
@@ -196,7 +196,7 @@ public class WorstOfOption implements FiniteDifferenceEquityProduct {
 		return solver.getValues(
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	/**

@@ -225,7 +225,7 @@ public final class ThetaMethod1DAssembly {
 				localDiscountRate,
 				deltaTau,
 				theta
-		);
+				);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public final class ThetaMethod1DAssembly {
 					drift[i],
 					variance[i],
 					localDiscountRate[i]
-			);
+					);
 
 			lhs.getLowerDiagonal()[i] = -alpha * spatial.lower;
 			lhs.getMainDiagonal()[i] = 1.0 - alpha * spatial.diag;
@@ -309,7 +309,7 @@ public final class ThetaMethod1DAssembly {
 				localDiscountRate,
 				deltaTau,
 				theta
-		);
+				);
 	}
 
 	/**
@@ -348,7 +348,7 @@ public final class ThetaMethod1DAssembly {
 					drift[i],
 					variance[i],
 					localDiscountRate[i]
-			);
+					);
 
 			rhsOperator.getLowerDiagonal()[i] = alpha * spatial.lower;
 			rhsOperator.getMainDiagonal()[i] = 1.0 + alpha * spatial.diag;
@@ -454,6 +454,6 @@ public final class ThetaMethod1DAssembly {
 				drift * firstDerivativeLower + halfVariance * secondDerivativeLower,
 				drift * firstDerivativeDiagonal + halfVariance * secondDerivativeDiagonal - localDiscountRate,
 				drift * firstDerivativeUpper + halfVariance * secondDerivativeUpper
-		);
+				);
 	}
 }

@@ -129,8 +129,8 @@ import net.finmath.time.TimeDiscretization;
  * @author Alessandro Gnoatto
  */
 public class DoubleBarrierOption implements
-		FiniteDifferenceEquityEventProduct,
-		FiniteDifferenceInternalStateConstraint {
+FiniteDifferenceEquityEventProduct,
+FiniteDifferenceInternalStateConstraint {
 
 	private enum PricingMode {
 		/**
@@ -238,7 +238,7 @@ public class DoubleBarrierOption implements
 				exercise,
 				MonitoringType.CONTINUOUS,
 				null
-		);
+				);
 	}
 
 	/**
@@ -341,7 +341,7 @@ public class DoubleBarrierOption implements
 				callOrPutSign,
 				doubleBarrierType,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -378,7 +378,7 @@ public class DoubleBarrierOption implements
 				new EuropeanExercise(maturity),
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -407,7 +407,7 @@ public class DoubleBarrierOption implements
 				callOrPutSign,
 				doubleBarrierType,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -442,7 +442,7 @@ public class DoubleBarrierOption implements
 				new EuropeanExercise(maturity),
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -472,7 +472,7 @@ public class DoubleBarrierOption implements
 				mapCallOrPut(callOrPutSign),
 				doubleBarrierType,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -508,7 +508,7 @@ public class DoubleBarrierOption implements
 				new EuropeanExercise(maturity),
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -542,7 +542,7 @@ public class DoubleBarrierOption implements
 				mapCallOrPut(callOrPutSign),
 				doubleBarrierType,
 				exercise
-		);
+				);
 	}
 
 	/**
@@ -582,7 +582,7 @@ public class DoubleBarrierOption implements
 				exercise,
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	/**
@@ -613,7 +613,7 @@ public class DoubleBarrierOption implements
 				callOrPutSign,
 				doubleBarrierType,
 				exercise
-		);
+				);
 	}
 
 	/**
@@ -650,7 +650,7 @@ public class DoubleBarrierOption implements
 				exercise,
 				monitoringType,
 				monitoringTimes
-		);
+				);
 	}
 
 	private ProductEventStateStack<ActivatedVectorEventState> getActivatedVectorEventStateStack() {
@@ -668,7 +668,7 @@ public class DoubleBarrierOption implements
 		return new ActivatedVectorEventState(
 				buildActivatedVectorsAtEventTimes(effectiveModel, activatedProduct),
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private ActivatedVectorEventState getCurrentActivatedVectorEventState() {
@@ -678,7 +678,7 @@ public class DoubleBarrierOption implements
 		if (state == null) {
 			throw new IllegalStateException(
 					"Discrete knock-in event condition requires cached activated continuation data."
-			);
+					);
 		}
 
 		return state;
@@ -815,11 +815,7 @@ public class DoubleBarrierOption implements
 	private void validateDiscreteMonitoringScope(final FiniteDifferenceEquityModel model) {
 		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();
 
-		if (dims == 1) {
-			return;
-		}
-
-		if (dims == 2 && supportsDirect2D(model)) {
+		if ((dims == 1) || (dims == 2 && supportsDirect2D(model))) {
 			return;
 		}
 
@@ -856,7 +852,7 @@ public class DoubleBarrierOption implements
 				this,
 				valuationDiscretization,
 				exercise
-		);
+				);
 
 		final boolean isOneDimensional = valuationDiscretization.getNumberOfSpaceGrids() == 1;
 
@@ -871,7 +867,7 @@ public class DoubleBarrierOption implements
 					maturity,
 					terminalValues,
 					this::pointwisePayoffForDirectOutPricing
-			);
+					);
 		}
 
 		return solver.getValues(maturity, this::pointwisePayoffForDirectOutPricing);
@@ -901,12 +897,12 @@ public class DoubleBarrierOption implements
 				activatedModel,
 				activatedValues,
 				lowerBarrier
-		);
+				);
 		final DoubleBarrierTrace1D upperTrace = extractActivatedBoundaryTrace1D(
 				activatedModel,
 				activatedValues,
 				upperBarrier
-		);
+				);
 
 		/*
 		 * Step 3: solve pre-hit PDE on the alive band only.
@@ -915,14 +911,14 @@ public class DoubleBarrierOption implements
 				effectiveModel,
 				lowerTrace,
 				upperTrace
-		);
+				);
 
 		final FDMSolver preHitSolver = new FDMThetaMethod1D(
 				preHitModel,
 				this,
 				preHitModel.getSpaceTimeDiscretization(),
 				new EuropeanExercise(maturity)
-		);
+				);
 
 		final double[] zeroTerminal = buildZeroTerminalValues(preHitModel.getSpaceTimeDiscretization());
 		final double[][] preHitValues = preHitSolver.getValues(maturity, zeroTerminal);
@@ -937,7 +933,7 @@ public class DoubleBarrierOption implements
 				activatedValues,
 				preHitModel,
 				preHitValues
-		);
+				);
 	}
 
 	private double[][] priceInOptionDiscrete1D(final FiniteDifferenceEquityModel model) {
@@ -947,14 +943,14 @@ public class DoubleBarrierOption implements
 		try(ProductEventStateStack.Scope ignored =
 				getActivatedVectorEventStateStack().push(
 						createActivatedVectorEventState(effectiveModel, activatedProduct)
-				)) {
+						)) {
 
 			final FDMSolver solver = FDMSolverFactory.createSolver(
 					effectiveModel,
 					this,
 					effectiveModel.getSpaceTimeDiscretization(),
 					new EuropeanExercise(maturity)
-			);
+					);
 
 			final double[] zeroTerminal = buildZeroTerminalValues(effectiveModel.getSpaceTimeDiscretization());
 			return solver.getValues(maturity, zeroTerminal);
@@ -986,12 +982,12 @@ public class DoubleBarrierOption implements
 				activatedModel,
 				activatedValues,
 				lowerBarrier
-		);
+				);
 		final DoubleBarrierTrace2D upperTrace = extractActivatedBoundaryTrace2D(
 				activatedModel,
 				activatedValues,
 				upperBarrier
-		);
+				);
 
 		/*
 		 * Step 3: solve pre-hit PDE on the alive band using ordinary 2D ADI,
@@ -1001,14 +997,14 @@ public class DoubleBarrierOption implements
 				effectiveModel,
 				lowerTrace,
 				upperTrace
-		);
+				);
 
 		final FDMSolver preHitSolver = FDMSolverFactory.createSolver(
 				preHitModel,
 				this,
 				preHitModel.getSpaceTimeDiscretization(),
 				new EuropeanExercise(maturity)
-		);
+				);
 
 		final double[][] preHitValues = preHitSolver.getValues(maturity, assetValue -> 0.0);
 
@@ -1022,7 +1018,7 @@ public class DoubleBarrierOption implements
 				activatedValues,
 				preHitModel,
 				preHitValues
-		);
+				);
 	}
 
 	private double[][] priceInOptionDiscrete2D(final FiniteDifferenceEquityModel model) {
@@ -1032,14 +1028,14 @@ public class DoubleBarrierOption implements
 		try(ProductEventStateStack.Scope ignored =
 				getActivatedVectorEventStateStack().push(
 						createActivatedVectorEventState(effectiveModel, activatedProduct)
-				)) {
+						)) {
 
 			final FDMSolver solver = FDMSolverFactory.createSolver(
 					effectiveModel,
 					this,
 					effectiveModel.getSpaceTimeDiscretization(),
 					new EuropeanExercise(maturity)
-			);
+					);
 
 			return solver.getValues(maturity, assetValue -> 0.0);
 		}
@@ -1059,7 +1055,7 @@ public class DoubleBarrierOption implements
 			activatedVectorsAtEventTimes.put(
 					eventTime,
 					activatedProduct.getValue(eventTime, effectiveModel).clone()
-			);
+					);
 		}
 
 		return activatedVectorsAtEventTimes;
@@ -1120,7 +1116,7 @@ public class DoubleBarrierOption implements
 					timeDiscretization,
 					thetaValue,
 					new double[] {initialSpot }
-			);
+					);
 			return baseModel.getCloneWithModifiedSpaceTimeDiscretization(activatedDiscretization);
 		} else if (base.getNumberOfSpaceGrids() == 2) {
 			final double[] secondGrid = base.getSpaceGrid(1).getGrid();
@@ -1129,14 +1125,14 @@ public class DoubleBarrierOption implements
 					secondGrid.length - 1,
 					secondGrid[0],
 					secondGrid[secondGrid.length - 1]
-			);
+					);
 
 			final SpaceTimeDiscretization activatedDiscretization = new SpaceTimeDiscretization(
 					new Grid[] {activatedSpotGrid, preservedSecondGrid },
 					timeDiscretization,
 					thetaValue,
 					baseModel.getInitialValue()
-			);
+					);
 			return baseModel.getCloneWithModifiedSpaceTimeDiscretization(activatedDiscretization);
 		} else {
 			throw new IllegalArgumentException("Only 1D and 2D grids are supported.");
@@ -1166,7 +1162,7 @@ public class DoubleBarrierOption implements
 				base.getTimeDiscretization(),
 				base.getTheta(),
 				new double[] {baseModel.getInitialValue()[0] }
-		);
+				);
 
 		final FiniteDifferenceEquityModel wrappedBase =
 				baseModel.getCloneWithModifiedSpaceTimeDiscretization(preHitDiscretization);
@@ -1176,7 +1172,7 @@ public class DoubleBarrierOption implements
 				preHitDiscretization,
 				lowerTrace,
 				upperTrace
-		);
+				);
 	}
 
 	private FiniteDifferenceEquityModel createAuxiliaryPreHitModel2D(
@@ -1196,14 +1192,14 @@ public class DoubleBarrierOption implements
 				secondGrid.length - 1,
 				secondGrid[0],
 				secondGrid[secondGrid.length - 1]
-		);
+				);
 
 		final SpaceTimeDiscretization preHitDiscretization = new SpaceTimeDiscretization(
 				new Grid[] {preHitSpotGrid, preservedSecondGrid },
 				base.getTimeDiscretization(),
 				base.getTheta(),
 				baseModel.getInitialValue()
-		);
+				);
 
 		if (baseModel instanceof FDMHestonModel) {
 			final FDMHestonModel hestonBase = (FDMHestonModel)baseModel;
@@ -1212,7 +1208,7 @@ public class DoubleBarrierOption implements
 					preHitDiscretization,
 					lowerTrace,
 					upperTrace
-			);
+					);
 		} else if (baseModel instanceof FDMSabrModel) {
 			final FDMSabrModel sabrBase = (FDMSabrModel)baseModel;
 			return new DoubleBarrierPreHitSabrModel(
@@ -1220,7 +1216,7 @@ public class DoubleBarrierOption implements
 					preHitDiscretization,
 					lowerTrace,
 					upperTrace
-			);
+					);
 		} else {
 			throw new IllegalArgumentException(
 					"Two-dimensional pre-hit double-barrier model currently supports only Heston and SABR.");
@@ -1250,7 +1246,7 @@ public class DoubleBarrierOption implements
 					getColumn(activatedValues, timeIndex),
 					InterpolationMethod.LINEAR,
 					ExtrapolationMethod.CONSTANT
-			);
+					);
 			traceValues[timeIndex] = interpolator.getValue(barrier);
 		}
 
@@ -1258,7 +1254,7 @@ public class DoubleBarrierOption implements
 				maturity,
 				disc.getTimeDiscretization(),
 				traceValues
-		);
+				);
 	}
 
 	private DoubleBarrierTrace2D extractActivatedBoundaryTrace2D(
@@ -1289,7 +1285,7 @@ public class DoubleBarrierOption implements
 						slice,
 						InterpolationMethod.LINEAR,
 						ExtrapolationMethod.CONSTANT
-				);
+						);
 
 				traceValues[j][timeIndex] = interpolator.getValue(barrier);
 			}
@@ -1300,7 +1296,7 @@ public class DoubleBarrierOption implements
 				secondGrid,
 				disc.getTimeDiscretization(),
 				traceValues
-		);
+				);
 	}
 
 	/*
@@ -1322,13 +1318,13 @@ public class DoubleBarrierOption implements
 				activatedValues,
 				activatedModel.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 				originalGrid
-		);
+				);
 
 		final double[][] preHitOnOriginalGrid = interpolateSurfaceToOriginalGrid1D(
 				preHitValues,
 				preHitModel.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 				originalGrid
-		);
+				);
 
 		final int numberOfColumns = activatedOnOriginalGrid[0].length;
 		final double[][] result = new double[originalGrid.length][numberOfColumns];
@@ -1358,13 +1354,13 @@ public class DoubleBarrierOption implements
 				activatedValues,
 				activatedModel.getSpaceTimeDiscretization(),
 				originalDiscretization
-		);
+				);
 
 		final double[][] preHitOnOriginalGrid = interpolateSurfaceToOriginalGrid2DAlongFirstState(
 				preHitValues,
 				preHitModel.getSpaceTimeDiscretization(),
 				originalDiscretization
-		);
+				);
 
 		final double[] x0 = originalDiscretization.getSpaceGrid(0).getGrid();
 		final double[] x1 = originalDiscretization.getSpaceGrid(1).getGrid();
@@ -1407,7 +1403,7 @@ public class DoubleBarrierOption implements
 					getColumn(valuesOnAuxiliaryGrid, timeIndex),
 					InterpolationMethod.LINEAR,
 					ExtrapolationMethod.CONSTANT
-			);
+					);
 
 			for (int i = 0; i < originalGrid.length; i++) {
 				interpolatedValues[i][timeIndex] = interpolator.getValue(originalGrid[i]);
@@ -1459,7 +1455,7 @@ public class DoubleBarrierOption implements
 						auxiliarySlice,
 						InterpolationMethod.LINEAR,
 						ExtrapolationMethod.CONSTANT
-				);
+						);
 
 				for (int i = 0; i < originalN0; i++) {
 					interpolatedValues[flatten(i, j, originalN0)][timeIndex] =
@@ -1623,7 +1619,7 @@ public class DoubleBarrierOption implements
 						valuesAfterEvent,
 						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid()
-				);
+						);
 			}
 		} else {
 			final ActivatedVectorEventState eventState = getCurrentActivatedVectorEventState();
@@ -1634,7 +1630,7 @@ public class DoubleBarrierOption implements
 						valuesAfterEvent,
 						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 						eventState
-				);
+						);
 			} else if (dims == 2) {
 				return applyDiscreteInEvent2D(
 						time,
@@ -1642,7 +1638,7 @@ public class DoubleBarrierOption implements
 						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid(),
 						eventState
-				);
+						);
 			}
 		}
 
@@ -1668,7 +1664,7 @@ public class DoubleBarrierOption implements
 						valuesAtEvaluationTime,
 						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid()
-				);
+						);
 			}
 			return valuesAtEvaluationTime;
 		}
@@ -1680,12 +1676,12 @@ public class DoubleBarrierOption implements
 		activatedVectorsAtEventTimes.put(
 				evaluationTime,
 				activatedProduct.getValue(evaluationTime, effectiveModel).clone()
-		);
+				);
 
 		final ActivatedVectorEventState eventState = new ActivatedVectorEventState(
 				activatedVectorsAtEventTimes,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 
 		if (dims == 1) {
 			return applyDiscreteInEvent1D(
@@ -1693,7 +1689,7 @@ public class DoubleBarrierOption implements
 					valuesAtEvaluationTime,
 					model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 					eventState
-			);
+					);
 		} else if (dims == 2) {
 			return applyDiscreteInEvent2D(
 					evaluationTime,
@@ -1701,7 +1697,7 @@ public class DoubleBarrierOption implements
 					model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),
 					model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid(),
 					eventState
-			);
+					);
 		}
 
 		return valuesAtEvaluationTime;
@@ -1790,7 +1786,7 @@ public class DoubleBarrierOption implements
 				monitoringTimes,
 				maturity,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	private boolean isMonitoringTime(final double time) {
@@ -1798,7 +1794,7 @@ public class DoubleBarrierOption implements
 				time,
 				monitoringTimes,
 				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
-		);
+				);
 	}
 
 	/*
@@ -1816,11 +1812,7 @@ public class DoubleBarrierOption implements
 	 */
 	@Override
 	public boolean isConstraintActive(final double time, final double... stateVariables) {
-		if (!isOutOption()) {
-			return false;
-		}
-
-		if (usesDiscreteMonitoring()) {
+		if (!isOutOption() || usesDiscreteMonitoring()) {
 			return false;
 		}
 
@@ -1874,7 +1866,7 @@ public class DoubleBarrierOption implements
 					FiniteDifferenceExerciseUtil.refineTimeDiscretization(
 							refinedTimeDiscretization,
 							exercise
-					);
+							);
 		}
 
 		if (usesDiscreteMonitoring()) {
@@ -1883,7 +1875,7 @@ public class DoubleBarrierOption implements
 							refinedTimeDiscretization,
 							maturity,
 							monitoringTimes
-					);
+							);
 		}
 
 		if (base.getNumberOfSpaceGrids() == 1) {
@@ -1892,7 +1884,7 @@ public class DoubleBarrierOption implements
 					refinedTimeDiscretization,
 					base.getTheta(),
 					new double[] {base.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();
@@ -1909,7 +1901,7 @@ public class DoubleBarrierOption implements
 				refinedTimeDiscretization,
 				base.getTheta(),
 				center
-		);
+				);
 	}
 
 	private FiniteDifferenceEquityModel getEffectiveModelForValuation(final FiniteDifferenceEquityModel model) {
@@ -1928,7 +1920,7 @@ public class DoubleBarrierOption implements
 			return discretization.getSpaceGrid(0).getGrid().length;
 		} else if (dims == 2) {
 			return discretization.getSpaceGrid(0).getGrid().length
-				 * discretization.getSpaceGrid(1).getGrid().length;
+					* discretization.getSpaceGrid(1).getGrid().length;
 		} else {
 			throw new IllegalArgumentException("Only 1D and 2D grids are supported.");
 		}
@@ -2187,7 +2179,7 @@ public class DoubleBarrierOption implements
 	 */
 
 	private static final class DoubleBarrierPreHitModel1D
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.
@@ -2291,7 +2283,7 @@ public class DoubleBarrierOption implements
 					newSpaceTimeDiscretization,
 					lowerTrace,
 					upperTrace
-			);
+					);
 		}
 	}
 
@@ -2302,8 +2294,8 @@ public class DoubleBarrierOption implements
 	 */
 
 	private static final class DoubleBarrierPreHitHestonModel
-			extends FDMHestonModel
-			implements FiniteDifferenceBoundary {
+	extends FDMHestonModel
+	implements FiniteDifferenceBoundary {
 
 		/**
 		 * The base model.
@@ -2338,7 +2330,7 @@ public class DoubleBarrierOption implements
 					baseModel.getSigma(),
 					baseModel.getRho(),
 					discretization
-			);
+					);
 
 			this.baseModel = baseModel;
 			this.discretization = discretization;
@@ -2371,7 +2363,7 @@ public class DoubleBarrierOption implements
 			 */
 			result[0] = StandardBoundaryCondition.dirichlet(
 					lowerTrace.getBoundaryValue(time, secondState)
-			);
+					);
 
 			return result;
 		}
@@ -2396,7 +2388,7 @@ public class DoubleBarrierOption implements
 			 */
 			result[0] = StandardBoundaryCondition.dirichlet(
 					upperTrace.getBoundaryValue(time, secondState)
-			);
+					);
 
 			return result;
 		}
@@ -2415,20 +2407,20 @@ public class DoubleBarrierOption implements
 					baseModel.getSigma(),
 					baseModel.getRho(),
 					newSpaceTimeDiscretization
-			);
+					);
 
 			return new DoubleBarrierPreHitHestonModel(
 					clonedBaseModel,
 					newSpaceTimeDiscretization,
 					lowerTrace,
 					upperTrace
-			);
+					);
 		}
 	}
 
 	private static final class DoubleBarrierPreHitSabrModel
-			extends FDMSabrModel
-			implements FiniteDifferenceBoundary {
+	extends FDMSabrModel
+	implements FiniteDifferenceBoundary {
 
 		/**
 		 * The base model.
@@ -2462,7 +2454,7 @@ public class DoubleBarrierOption implements
 					baseModel.getNu(),
 					baseModel.getRho(),
 					discretization
-			);
+					);
 
 			this.baseModel = baseModel;
 			this.discretization = discretization;
@@ -2495,7 +2487,7 @@ public class DoubleBarrierOption implements
 			 */
 			result[0] = StandardBoundaryCondition.dirichlet(
 					lowerTrace.getBoundaryValue(time, secondState)
-			);
+					);
 
 			return result;
 		}
@@ -2520,7 +2512,7 @@ public class DoubleBarrierOption implements
 			 */
 			result[0] = StandardBoundaryCondition.dirichlet(
 					upperTrace.getBoundaryValue(time, secondState)
-			);
+					);
 
 			return result;
 		}
@@ -2538,14 +2530,14 @@ public class DoubleBarrierOption implements
 					baseModel.getNu(),
 					baseModel.getRho(),
 					newSpaceTimeDiscretization
-			);
+					);
 
 			return new DoubleBarrierPreHitSabrModel(
 					clonedBaseModel,
 					newSpaceTimeDiscretization,
 					lowerTrace,
 					upperTrace
-			);
+					);
 		}
 	}
 }

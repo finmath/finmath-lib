@@ -68,7 +68,7 @@ public class DigitalOptionBachelierModelBoundary implements FiniteDifferenceBoun
 		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {
 			final double value = isEuropeanExercise(exercise)
 					? getDiscountedCashValue(option, time)
-					: option.getCashPayoff();
+							: option.getCashPayoff();
 
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(value)
@@ -77,7 +77,7 @@ public class DigitalOptionBachelierModelBoundary implements FiniteDifferenceBoun
 			final double stateVariable = stateVariables[0];
 			final double value = isEuropeanExercise(exercise)
 					? getDiscountedAssetValue(stateVariable, option, time)
-					: stateVariable;
+							: stateVariable;
 
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(value)
@@ -109,7 +109,7 @@ public class DigitalOptionBachelierModelBoundary implements FiniteDifferenceBoun
 		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {
 			final double value = isEuropeanExercise(exercise)
 					? getDiscountedCashValue(option, time)
-					: option.getCashPayoff();
+							: option.getCashPayoff();
 
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(value)
@@ -118,7 +118,7 @@ public class DigitalOptionBachelierModelBoundary implements FiniteDifferenceBoun
 			final double stateVariable = stateVariables[0];
 			final double value = isEuropeanExercise(exercise)
 					? getDiscountedAssetValue(stateVariable, option, time)
-					: stateVariable;
+							: stateVariable;
 
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(value)

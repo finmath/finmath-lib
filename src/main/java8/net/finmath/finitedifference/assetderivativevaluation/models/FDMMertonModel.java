@@ -147,7 +147,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 						jumpMean,
 						jumpStdDev),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 				volatility,
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -212,7 +212,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 						jumpMean,
 						jumpStdDev),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 				volatility,
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -283,7 +283,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 						jumpMean,
 						jumpStdDev),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -309,7 +309,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 				volatility,
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -350,7 +350,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 						jumpMean,
 						jumpStdDev),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	@Override
@@ -429,7 +429,7 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 				volatility,
 				jumpComponent,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -462,6 +462,6 @@ public class FDMMertonModel implements FiniteDifferenceEquityModel {
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
 				InterpolationEntity.VALUE
-		);
+				);
 	}
 }

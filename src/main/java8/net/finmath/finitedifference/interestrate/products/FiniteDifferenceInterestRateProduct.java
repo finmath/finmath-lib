@@ -59,7 +59,7 @@ import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterest
  * @author Alessandro Gnoatto
  */
 public interface FiniteDifferenceInterestRateProduct
-	extends FiniteDifferenceProduct<FiniteDifferenceInterestRateModel> {
+extends FiniteDifferenceProduct<FiniteDifferenceInterestRateModel> {
 
 	@Override
 	default Class<FiniteDifferenceInterestRateModel> getModelClass() {

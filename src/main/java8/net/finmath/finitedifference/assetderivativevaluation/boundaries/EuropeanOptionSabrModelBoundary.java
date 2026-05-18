@@ -63,7 +63,7 @@ public class EuropeanOptionSabrModelBoundary implements FiniteDifferenceBoundary
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, stock)
-		);
+				);
 
 		// alpha -> lower boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();
@@ -86,7 +86,7 @@ public class EuropeanOptionSabrModelBoundary implements FiniteDifferenceBoundary
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, stock)
-		);
+				);
 
 		// alpha -> upper boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();

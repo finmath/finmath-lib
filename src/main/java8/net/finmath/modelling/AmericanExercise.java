@@ -72,7 +72,7 @@ public class AmericanExercise extends AbstractExercise {
 		this(
 				FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseStartDate),
 				FloatingpointDate.getFloatingPointDateFromDate(referenceDate, maturityDate)
-		);
+				);
 	}
 
 	/**

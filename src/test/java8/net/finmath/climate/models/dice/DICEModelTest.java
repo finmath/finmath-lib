@@ -37,8 +37,8 @@ public class DICEModelTest {
 
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
-		double value = climateModel.getValue().getAverage();
-		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
+		final double value = climateModel.getValue().getAverage();
+		final double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
 		System.out.println("\nDice with timeStep=" + timeStep);
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
@@ -67,8 +67,8 @@ public class DICEModelTest {
 
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
-		double value = climateModel.getValue().getAverage();
-		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
+		final double value = climateModel.getValue().getAverage();
+		final double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
 		System.out.println("\nDice with timeStep=" + timeStep);
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);
@@ -97,8 +97,8 @@ public class DICEModelTest {
 
 		final ClimateModel climateModel = new DICEModel(timeDiscretization, t -> abatementFunction.apply(t).doubleValue(), t -> savingsRate, discountRate);
 
-		double value = climateModel.getValue().getAverage();
-		double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
+		final double value = climateModel.getValue().getAverage();
+		final double temperature = Arrays.stream(climateModel.getTemperature()).map(Temperature::getExpectedTemperatureOfAtmosphere).max(Comparator.naturalOrder()).orElseGet(() -> Double.NaN);
 		System.out.println("\nDice with timeStep=" + timeStep);
 		System.out.println("\tValue.......... " + value);
 		System.out.println("\tTemperature.... " + temperature);

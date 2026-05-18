@@ -3,7 +3,6 @@ package net.finmath.singleswaprate.data;
 import java.time.LocalDate;
 import java.util.List;
 
-import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.time.SchedulePrototype;
 
 /**

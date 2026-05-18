@@ -135,7 +135,7 @@ public class RandomVariableAAD implements RandomVariable {
 			aadRandomVariables[randomVariableIndex] = (randomVariableInterfaces[randomVariableIndex] instanceof RandomVariableAAD) ?
 					(RandomVariableAAD)randomVariableInterfaces[randomVariableIndex] : constructNewAADRandomVariable(randomVariableInterfaces[randomVariableIndex]);
 
-					futureParentIndices[randomVariableIndex] = aadRandomVariables[randomVariableIndex].getFunctionIndex();
+			futureParentIndices[randomVariableIndex] = aadRandomVariables[randomVariableIndex].getFunctionIndex();
 		}
 
 		RandomVariable resultrandomvariable;
@@ -638,7 +638,7 @@ public class RandomVariableAAD implements RandomVariable {
 	}
 
 	private boolean isVariable() {
-		return (isConstant() == false && getParentIDs() == null);
+		return (!isConstant() && getParentIDs() == null);
 	}
 
 	private ArrayList<RandomVariableAAD> getFunctionList(){

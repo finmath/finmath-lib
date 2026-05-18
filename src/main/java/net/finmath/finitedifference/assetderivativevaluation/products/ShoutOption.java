@@ -193,7 +193,7 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 				maximumNumberOfShouts,
 				callOrPut,
 				0.0
-		);
+				);
 	}
 
 	/**
@@ -267,25 +267,25 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 						sliceProduct,
 						discretization,
 						new EuropeanExercise(maturity)
-				);
+						);
 
 				final double[][][] nextPlaneForObstacle = nextPlane;
 
 				final DoubleBinaryOperator continuousObstacle =
 						(runningTime, currentSpot) ->
-								interpolateNextPlaneAtResetStrike1D(
-										nextPlaneForObstacle,
-										discretization,
-										xGrid,
-										currentSpot,
-										runningTime
-								) + shoutCashAdjustment;
+				interpolateNextPlaneAtResetStrike1D(
+						nextPlaneForObstacle,
+						discretization,
+						xGrid,
+						currentSpot,
+						runningTime
+						) + shoutCashAdjustment;
 
 				currentPlane[strikeIndex] = solver.getValues(
 						maturity,
 						terminalValues,
 						continuousObstacle
-				);
+						);
 			}
 
 			nextPlane = currentPlane;
@@ -315,7 +315,7 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 						model,
 						sliceProduct,
 						new EuropeanExercise(maturity)
-				);
+						);
 
 				if (!(solver instanceof AbstractADI2D)) {
 					throw new IllegalArgumentException("2D shout recursion requires an ADI-style solver.");
@@ -325,21 +325,21 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 
 				final AbstractADI2D.DoubleTernaryOperator continuousObstacle =
 						(runningTime, currentSpot, secondState) ->
-								interpolateNextPlaneAtResetStrike2D(
-										nextPlaneForObstacle,
-										discretization,
-										x0Grid,
-										x1Grid,
-										currentSpot,
-										secondState,
-										runningTime
-								) + shoutCashAdjustment;
+				interpolateNextPlaneAtResetStrike2D(
+						nextPlaneForObstacle,
+						discretization,
+						x0Grid,
+						x1Grid,
+						currentSpot,
+						secondState,
+						runningTime
+						) + shoutCashAdjustment;
 
 				currentPlane[strikeIndex] = ((AbstractADI2D) solver).getValuesWithContinuousObstacle(
 						maturity,
 						(assetValue, secondState) -> terminalPayoff(assetValue, strike),
 						continuousObstacle
-				);
+						);
 			}
 
 			nextPlane = currentPlane;
@@ -406,14 +406,14 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 					xGrid,
 					timeIndex,
 					currentSpot
-			);
+					);
 		}
 
 		return interpolateLinearWithConstantExtrapolation(
 				strikeGrid,
 				valuesAcrossStrikes,
 				resetStrike(currentSpot)
-		);
+				);
 	}
 
 	private double interpolateNextPlaneAtResetStrike2D(
@@ -436,14 +436,14 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 					timeIndex,
 					currentSpot,
 					secondState
-			);
+					);
 		}
 
 		return interpolateLinearWithConstantExtrapolation(
 				strikeGrid,
 				valuesAcrossStrikes,
 				resetStrike(currentSpot)
-		);
+				);
 	}
 
 	private double[][] interpolatePlaneAtInitialStrike1D(
@@ -467,7 +467,7 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 						strikeGrid,
 						valuesAcrossStrikes,
 						strike
-				);
+						);
 			}
 		}
 
@@ -497,7 +497,7 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 						strikeGrid,
 						valuesAcrossStrikes,
 						strike
-				);
+						);
 			}
 		}
 
@@ -663,7 +663,7 @@ public class ShoutOption implements FiniteDifferenceEquityProduct {
 		if (strikeGrid[0] > effectiveLower || strikeGrid[strikeGrid.length - 1] < effectiveUpper) {
 			throw new IllegalArgumentException(
 					"For v1 with K* = S, strikeGrid should cover the interior range of the first-state grid."
-			);
+					);
 		}
 	}
 

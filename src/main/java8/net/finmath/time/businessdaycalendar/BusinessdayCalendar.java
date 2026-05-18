@@ -36,10 +36,7 @@ public interface BusinessdayCalendar extends Serializable {
 			if(string.equalsIgnoreCase("d")) {
 				return DAYS;
 			}
-			if(string.equalsIgnoreCase("b")) {
-				return BUSINESS_DAYS;
-			}
-			if(string.equalsIgnoreCase("bd")) {
+			if(string.equalsIgnoreCase("b") || string.equalsIgnoreCase("bd")) {
 				return BUSINESS_DAYS;
 			}
 			if(string.equalsIgnoreCase("w")) {

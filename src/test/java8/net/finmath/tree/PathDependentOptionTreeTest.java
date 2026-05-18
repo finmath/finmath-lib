@@ -82,8 +82,8 @@ public class PathDependentOptionTreeTest {
 								1,              // numberOfFactors
 								numberOfPaths,
 								seed
-						)
-				);
+								)
+						);
 
 		final AssetModelMonteCarloSimulationModel mcSimulation =
 				new MonteCarloAssetModel(bsModel, process);
@@ -93,7 +93,7 @@ public class PathDependentOptionTreeTest {
 						maturity,
 						strike,
 						new TimeDiscretizationFromArray(fixingTimes)
-				);
+						);
 
 		final RandomVariable mcValueRV = mcAsian.getValue(0.0, mcSimulation);
 		final double mcValue = mcValueRV.getAverage();
@@ -109,7 +109,7 @@ public class PathDependentOptionTreeTest {
 						maturity,
 						strike,
 						fixingTimeIndices
-				);
+						);
 
 		final double treeValue = treeAsian.getValue(treeModel);
 

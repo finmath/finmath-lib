@@ -248,7 +248,7 @@ public final class ProjectedTridiagonalSOR {
 			final double ax =
 					(i > 0 ? lower[i] * x[i - 1] : 0.0)
 					+ diag[i] * x[i]
-					+ (i < diag.length - 1 ? upper[i] * x[i + 1] : 0.0);
+							+ (i < diag.length - 1 ? upper[i] * x[i + 1] : 0.0);
 
 			final double primalViolation = Math.max(0.0, obstacle[i] - x[i]);
 			final double dualViolation = Math.max(0.0, rhs[i] - ax);

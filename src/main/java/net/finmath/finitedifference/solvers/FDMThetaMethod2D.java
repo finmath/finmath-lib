@@ -183,6 +183,7 @@ public class FDMThetaMethod2D implements FDMSolver {
 	 * @throws IllegalArgumentException If the discretization does not provide
 	 *     two spatial grids.
 	 */
+	@Override
 	public double[][] getValues(final double time, final DoubleBinaryOperator valueAtMaturity) {
 
 		final Grid x0GridObject = spaceTimeDiscretization.getSpaceGrid(0);
@@ -288,6 +289,7 @@ public class FDMThetaMethod2D implements FDMSolver {
 	 *     variables.
 	 * @return The flattened value vector at the requested evaluation time.
 	 */
+	@Override
 	public double[] getValue(final double evaluationTime, final double time, final DoubleBinaryOperator valueAtMaturity) {
 		final RealMatrix values = new Array2DRowRealMatrix(getValues(time, valueAtMaturity));
 		final double tau = time - evaluationTime;

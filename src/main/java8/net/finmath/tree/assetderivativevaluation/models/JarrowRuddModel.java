@@ -53,21 +53,21 @@ public class JarrowRuddModel extends AbstractRecombiningTreeModel {
 	 * @param  k level of depth */
 	@Override
 	protected RandomVariable buildSpotLevel(int k) {
-		double s0    = getInitialPrice();
-		double dt    = getTimeStep();
-		double sigma = getVolatility();
-		double r     = getRiskFreeRate();
+		final double s0    = getInitialPrice();
+		final double dt    = getTimeStep();
+		final double sigma = getVolatility();
+		final double r     = getRiskFreeRate();
 
-		double muStar = (r - 0.5*sigma*sigma) * dt;
-		double nu     = sigma * Math.sqrt(dt);
+		final double muStar = (r - 0.5*sigma*sigma) * dt;
+		final double nu     = sigma * Math.sqrt(dt);
 
-		double u = Math.exp(muStar + nu);
-		double d = Math.exp(muStar - nu);
+		final double u = Math.exp(muStar + nu);
+		final double d = Math.exp(muStar - nu);
 
-		double[] level = new double[k + 1];
+		final double[] level = new double[k + 1];
 		for (int i = 0; i <= k; i++) {
-			int ups   = k - i;
-			int downs = i;
+			final int ups   = k - i;
+			final int downs = i;
 			level[i] = s0 * Math.pow(u, ups) * Math.pow(d, downs);
 		}
 		return new RandomVariableFromDoubleArray(k * dt, level);
@@ -109,9 +109,9 @@ public class JarrowRuddModel extends AbstractRecombiningTreeModel {
 	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
 		// Convention: 0 = up, 1 = down (Jarrow-Rudd uses p=0.5)
 		switch(branchIndex) {
-			case 0: return 0.5;
-			case 1: return 0.5;
-			default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
+		case 0: return 0.5;
+		case 1: return 0.5;
+		default: throw new IllegalArgumentException("Invalid branchIndex " + branchIndex + " for binomial model.");
 		}
 	}
 

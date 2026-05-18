@@ -21,7 +21,7 @@ import net.finmath.modelling.products.CallOrPut;
  * @author Alessandro Gnoatto
  */
 public class EuropeanOptionBlackScholesModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.

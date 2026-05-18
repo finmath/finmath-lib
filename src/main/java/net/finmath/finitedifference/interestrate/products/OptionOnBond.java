@@ -121,13 +121,13 @@ public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
 				this,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(exerciseDate)
-		);
+				);
 
 		return solver.getValue(
 				evaluationTime,
 				exerciseDate,
 				buildTerminalValues(model)
-		);
+				);
 	}
 
 	@Override
@@ -140,12 +140,12 @@ public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
 				this,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(exerciseDate)
-		);
+				);
 
 		return solver.getValues(
 				exerciseDate,
 				buildTerminalValues(model)
-		);
+				);
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
 		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {
 			throw new IllegalArgumentException(
 					"OptionOnBond currently supports only one-dimensional finite-difference interest-rate models."
-			);
+					);
 		}
 	}
 
@@ -205,7 +205,7 @@ public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
 			terminalValues[i] = Math.max(
 					callOrPut.toInteger() * (bondValueAtExercise - strike),
 					0.0
-			);
+					);
 		}
 
 		return terminalValues;
@@ -229,7 +229,7 @@ public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
 					exerciseDate,
 					paymentTime,
 					stateVariable
-			);
+					);
 		}
 
 		return value;

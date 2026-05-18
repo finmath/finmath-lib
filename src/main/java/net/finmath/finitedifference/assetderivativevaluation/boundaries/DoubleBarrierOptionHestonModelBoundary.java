@@ -68,7 +68,7 @@ public class DoubleBarrierOptionHestonModelBoundary implements FiniteDifferenceB
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, s)
-		);
+				);
 
 		// v -> lower boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();
@@ -91,7 +91,7 @@ public class DoubleBarrierOptionHestonModelBoundary implements FiniteDifferenceB
 
 		result[0] = StandardBoundaryCondition.dirichlet(
 				getDiscountedIntrinsicValue(option, time, s)
-		);
+				);
 
 		// v -> upper boundary: leave PDE row intact
 		result[1] = StandardBoundaryCondition.none();

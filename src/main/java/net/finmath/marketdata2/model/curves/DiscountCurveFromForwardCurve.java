@@ -187,10 +187,7 @@ public class DiscountCurveFromForwardCurve extends AbstractCurve implements Seri
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if ((obj == null) || (getClass() != obj.getClass())) {
 			return false;
 		}
 		final DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;

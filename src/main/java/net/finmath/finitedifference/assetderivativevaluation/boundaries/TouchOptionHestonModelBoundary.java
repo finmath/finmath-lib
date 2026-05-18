@@ -74,7 +74,7 @@ public class TouchOptionHestonModelBoundary implements FiniteDifferenceBoundary 
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedCashValue(option, time)
-			);
+					);
 		}
 
 		/* Variance lower boundary left free. */
@@ -109,7 +109,7 @@ public class TouchOptionHestonModelBoundary implements FiniteDifferenceBoundary 
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedCashValue(option, time)
-			);
+					);
 		}
 
 		/* Variance upper boundary left free. */

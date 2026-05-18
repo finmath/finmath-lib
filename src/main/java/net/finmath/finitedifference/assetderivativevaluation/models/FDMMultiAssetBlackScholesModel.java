@@ -233,7 +233,7 @@ public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityMod
 				volatilities,
 				correlationMatrix,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityMod
 				volatilities,
 				correlationMatrix,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	@Override
@@ -401,7 +401,7 @@ public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityMod
 				volatilities,
 				correlationMatrix,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 
 	private void validateStateVariables(final double[] stateVariables) {
@@ -451,7 +451,7 @@ public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityMod
 			throw new IllegalArgumentException(
 					"correlationMatrix must be positive definite for Cholesky decomposition.",
 					exception
-			);
+					);
 		}
 	}
 
@@ -506,14 +506,14 @@ public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityMod
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
 				InterpolationEntity.VALUE
-		);
+				);
 	}
 
 	@Override
 	public String toString() {
 		return "MultiAssetBlackScholesModel [initialValues=" + Arrays.toString(initialValues)
-				+ ", volatilities=" + Arrays.toString(volatilities)
-				+ ", dimension=" + initialValues.length
-				+ "]";
+		+ ", volatilities=" + Arrays.toString(volatilities)
+		+ ", dimension=" + initialValues.length
+		+ "]";
 	}
 }

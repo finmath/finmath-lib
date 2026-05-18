@@ -208,7 +208,7 @@ public class PdeOptionValuation implements OptionValuation {
 		final double expiryTime = dayCounter.getDaycountFraction(valDate, expiryDate);
 
 		assert !forwardStructure.getValuationDate().isAfter(expiryDate)
-				: "Valuation date must not be after option expiry";
+		: "Valuation date must not be after option expiry";
 
 		final double impliedVol = volSurface.getVolatility(option.getStrike(), expiryDate, forwardStructure);
 		double forward = forwardStructure.getForward(expiryDate);
@@ -368,7 +368,7 @@ public class PdeOptionValuation implements OptionValuation {
 
 						if(penaltyMatrix.equals(oldPenaltyMatrix)
 								|| (prices.subtract(oldPrices).getLInfNorm())
-										/ Math.max(oldPrices.getLInfNorm(), 1.0) < tol) {
+								/ Math.max(oldPrices.getLInfNorm(), 1.0) < tol) {
 							break;
 						}
 
@@ -399,11 +399,11 @@ public class PdeOptionValuation implements OptionValuation {
 			final double dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);
 
 			final double delta = discountFactor
-				 * 0.5 * (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1))
+					* 0.5 * (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1))
 					/ spaceStepSize * dFdS / dFdX;
 
 			final double gamma = discountFactor
-				 * (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1) - 2 * prices.getEntry(spotIndex))
+					* (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1) - 2 * prices.getEntry(spotIndex))
 					/ spaceStepSq * dFdS * dFdS / dFdX / dFdX;
 
 			final double discountFactorTheta = discountCurve.getDiscountFactor(expiryTime - dt);

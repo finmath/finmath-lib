@@ -52,7 +52,7 @@ public class ResolvedSwaptionHullWhiteModelBoundary implements FiniteDifferenceI
 				originalSwaption,
 				time,
 				stateVariables
-		);
+				);
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public class ResolvedSwaptionHullWhiteModelBoundary implements FiniteDifferenceI
 				originalSwaption,
 				time,
 				stateVariables
-		);
+				);
 	}
 
 	private Swaption unwrap(final FiniteDifferenceInterestRateProduct product) {
 		if (!(product instanceof Swaption.ResolvedSwaption)) {
 			throw new IllegalArgumentException(
 					"ResolvedSwaptionHullWhiteModelBoundary requires a Swaption.ResolvedSwaption product."
-			);
+					);
 		}
 
 		return ((Swaption.ResolvedSwaption) product).getOriginalSwaption();

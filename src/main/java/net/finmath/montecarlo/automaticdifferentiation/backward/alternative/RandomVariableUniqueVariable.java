@@ -151,7 +151,7 @@ public class RandomVariableUniqueVariable implements RandomVariable {
 	}
 
 	public boolean isVariable(){
-		return parentsVariables == null && isConstant() == false;
+		return parentsVariables == null && !isConstant();
 
 	}
 

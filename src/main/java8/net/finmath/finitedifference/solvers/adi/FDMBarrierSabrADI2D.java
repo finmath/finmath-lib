@@ -188,7 +188,7 @@ public class FDMBarrierSabrADI2D extends AbstractADI2D {
 					matrix.getMainDiagonal(),
 					matrix.getUpperDiagonal(),
 					lineRhs
-			);
+					);
 
 			for (int i = 0; i < getN0(); i++) {
 				out[flatten(i, j)] = solved[i];
@@ -275,7 +275,7 @@ public class FDMBarrierSabrADI2D extends AbstractADI2D {
 				Math.max(
 						0.0,
 						getSpaceTimeDiscretization().getTimeDiscretization().getLastTime() - runningTime
-				);
+						);
 
 		return preHitSpecification.getActivatedTrace().getValue(secondIndex, tau);
 	}

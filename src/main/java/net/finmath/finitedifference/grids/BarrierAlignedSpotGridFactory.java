@@ -292,7 +292,7 @@ public final class BarrierAlignedSpotGridFactory {
 				if (valuesOnGrid.length != grid.length) {
 					throw new IllegalArgumentException(
 							"valuesOnGrid length must match grid length."
-					);
+							);
 				}
 
 				delta = new double[valuesOnGrid.length - 1];

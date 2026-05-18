@@ -20,7 +20,7 @@ import net.finmath.modelling.products.CallOrPut;
  * @author Alessandro Gnoatto
  */
 public class AmericanOptionBachelierModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.

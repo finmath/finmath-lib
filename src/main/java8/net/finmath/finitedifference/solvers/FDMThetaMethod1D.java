@@ -389,7 +389,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 					coefficientsAtNextTime.getLocalDiscountRate(),
 					deltaTau,
 					theta
-			);
+					);
 
 			ThetaMethod1DAssembly.buildThetaRightHandSide(
 					rhsOperator,
@@ -399,7 +399,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 					coefficientsAtCurrentTime.getLocalDiscountRate(),
 					deltaTau,
 					theta
-			);
+					);
 
 			final double[] rhs = ThetaMethod1DAssembly.apply(rhsOperator, u);
 
@@ -425,7 +425,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 							rhs,
 							i,
 							getInternalConstrainedValue(boundaryTime, x)
-					);
+							);
 				}
 			}
 
@@ -441,7 +441,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 						continuousObstacleValue,
 						lowerCondition,
 						upperCondition
-				);
+						);
 
 				nextU = ProjectedTridiagonalSOR.solve(
 						lhs,
@@ -451,7 +451,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 						1.2,
 						500,
 						1E-10
-				);
+						);
 
 				reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -463,7 +463,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 						exerciseValue,
 						lowerCondition,
 						upperCondition
-				);
+						);
 
 				nextU = ProjectedTridiagonalSOR.solve(
 						lhs,
@@ -473,7 +473,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 						1.2,
 						500,
 						1E-10
-				);
+						);
 
 				reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -488,7 +488,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 							exerciseValue,
 							lowerCondition,
 							upperCondition
-					);
+							);
 				} else {
 					reimposeInternalConstraints(nextU, xGrid, boundaryTime);
 					reimposeBoundaryValues(nextU, lowerCondition, upperCondition);
@@ -592,7 +592,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 					time,
 					valuesAfterEvent,
 					(FiniteDifferenceInterestRateModel) model
-			);
+					);
 		}
 
 		if (product instanceof FiniteDifferenceEquityEventProduct) {
@@ -600,7 +600,7 @@ public class FDMThetaMethod1D implements FDMSolver {
 					time,
 					valuesAfterEvent,
 					(FiniteDifferenceEquityModel) model
-			);
+					);
 		}
 
 		return valuesAfterEvent;

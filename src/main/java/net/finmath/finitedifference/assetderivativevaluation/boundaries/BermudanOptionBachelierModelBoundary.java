@@ -12,7 +12,7 @@ import net.finmath.modelling.products.CallOrPut;
  * {@link FDMBachelierModel}.
  */
 public class BermudanOptionBachelierModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.

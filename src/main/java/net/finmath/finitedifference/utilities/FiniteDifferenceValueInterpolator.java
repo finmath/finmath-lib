@@ -119,7 +119,7 @@ public final class FiniteDifferenceValueInterpolator {
 				evaluationTime,
 				maturity,
 				values
-		);
+				);
 
 		return interpolateTimeIndex(values, discretization, timeIndex, coordinates);
 	}
@@ -166,7 +166,7 @@ public final class FiniteDifferenceValueInterpolator {
 				evaluationTime,
 				maturity,
 				values
-		);
+				);
 
 		return getTimeSlice(values, discretization, timeIndex);
 	}
@@ -253,18 +253,14 @@ public final class FiniteDifferenceValueInterpolator {
 			brackets[dimension] = getBracket(
 					discretization.getSpaceGrid(dimension).getGrid(),
 					coordinates[dimension]
-			);
+					);
 		}
 
 		return brackets;
 	}
 
 	private static Bracket getBracket(final double[] grid, final double coordinate) {
-		if (grid.length == 1) {
-			return new Bracket(0, 0, 0.0);
-		}
-
-		if (coordinate <= grid[0]) {
+		if ((grid.length == 1) || (coordinate <= grid[0])) {
 			return new Bracket(0, 0, 0.0);
 		}
 

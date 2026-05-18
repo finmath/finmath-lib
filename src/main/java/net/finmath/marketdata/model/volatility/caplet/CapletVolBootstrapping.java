@@ -238,7 +238,7 @@ public class CapletVolBootstrapping {
 					final BisectionSearch bisectionSearch = new BisectionSearch(leftPoint, rightPoint);
 					bisectionSearch.setValue(leftValue);
 					bisectionSearch.setValue(rightValue);
-					while (bisectionSearch.isDone() != true) {
+					while (!bisectionSearch.isDone()) {
 						for (int l = i; l > lastCaplet; l--) {
 							capletVolMatrix[l-1][j] = bisectionSearch.getNextPoint();
 							if (j+1 < capVolMarketData.getNumberOfStrikes()) {
@@ -343,7 +343,7 @@ public class CapletVolBootstrapping {
 					final BisectionSearch bisectionSearch = new BisectionSearch(leftPoint, rightPoint);
 					bisectionSearch.setValue(leftValue);
 					bisectionSearch.setValue(rightValue);
-					while (bisectionSearch.isDone() != true) {
+					while (!bisectionSearch.isDone()) {
 						capletVolatilities = new CapletVolatilitySurface("Cap volatility surface", localDate, bisectionSearch.getNextPoint(), capletFixingTimeVectorInYears, capVolMarketData.getStrikeVector(), forwardCurve, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);
 						capPrice = cap.getValueAsPrice(0, analyticModel.addVolatilitySurfaces(capletVolatilities));
 						bisectionSearch.setValue(capPrice - sumCapletPrices);

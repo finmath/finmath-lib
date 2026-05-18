@@ -29,7 +29,6 @@ import net.finmath.montecarlo.interestrate.CalibrationProduct;
 import net.finmath.montecarlo.interestrate.LIBORMarketModel;
 import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.LIBORMonteCarloSimulationFromLIBORModel;
-import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.montecarlo.interestrate.models.LIBORMarketModelFromCovarianceModel;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCorrelationModelExponentialDecay;
 import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModelFromVolatilityAndCorrelation;
@@ -91,7 +90,7 @@ public class LIBORMarketModelHierarchyTest {
 		 */
 		final Map<String, Object> valueLIBORModelMonteCarloSimulation = leg.getValues(0.0, model);
 		final Map<String, Object> valueLIBORModelMonteCarloSimulationInterface = leg.getValues(0.0, model);
-		final Map<String, Object> valueTermStructureModelMonteCarloSimulationInterface = leg.getValues(0.0, (TermStructureMonteCarloSimulationModel)model);
+		final Map<String, Object> valueTermStructureModelMonteCarloSimulationInterface = leg.getValues(0.0, model);
 		final Map<String, Object> valueMonteCarloSimulationInterface = leg.getValues(0.0, (MonteCarloSimulationModel)model);
 		final Map<String, Object> valueModelInterface = leg.getValues(0.0, (Model)model);
 

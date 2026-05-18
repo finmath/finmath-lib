@@ -211,7 +211,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 				notionals,
 				fixSchedules,
 				floatSchedules
-		);
+				);
 	}
 
 	@Override
@@ -229,13 +229,13 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 				resolvedProduct,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(lastExerciseTime)
-		);
+				);
 
 		return solver.getValue(
 				evaluationTime,
 				lastExerciseTime,
 				buildZeroTerminalValues(model)
-		);
+				);
 	}
 
 	@Override
@@ -251,12 +251,12 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 				resolvedProduct,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(lastExerciseTime)
-		);
+				);
 
 		return solver.getValues(
 				lastExerciseTime,
 				buildZeroTerminalValues(model)
-		);
+				);
 	}
 
 	@Override
@@ -264,8 +264,8 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 		if (exercise.isAmerican()) {
 			throw new UnsupportedOperationException(
 					"American swaption exercise times depend on the model time grid. "
-					+ "Use getValue(...) or getValues(...), which resolve the exercise times internally."
-			);
+							+ "Use getValue(...) or getValues(...), which resolve the exercise times internally."
+					);
 		}
 
 		return resolveDiscreteExerciseTimes();
@@ -444,7 +444,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 		if (exercise.isAmerican() && fixSchedules.length != 1) {
 			throw new IllegalArgumentException(
 					"American exercise currently requires exactly one master underlying swap definition."
-			);
+					);
 		}
 	}
 
@@ -462,7 +462,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 			if (schedule.getPayment(periodIndex) <= schedule.getFixing(periodIndex)) {
 				throw new IllegalArgumentException(
 						name + " must satisfy payment > fixing for every period."
-				);
+						);
 			}
 		}
 	}
@@ -474,7 +474,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {
 			throw new IllegalArgumentException(
 					"Swaption currently supports only one-dimensional finite-difference interest-rate models."
-			);
+					);
 		}
 	}
 
@@ -520,7 +520,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 		if (fixSchedules.length != exerciseTimes.length) {
 			throw new IllegalArgumentException(
 					"The number of underlying swap definitions must be either 1 or equal to the number of exercise dates."
-			);
+					);
 		}
 
 		final int[] scheduleIndices = new int[exerciseTimes.length];
@@ -571,8 +571,8 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 		if (Math.abs(fixStart - floatStart) > TIME_TOLERANCE) {
 			throw new IllegalArgumentException(
 					"Cannot infer a unique exercise date from schedule pair "
-					+ scheduleIndex + ": first fixed-leg start and first float-leg start differ."
-			);
+							+ scheduleIndex + ": first fixed-leg start and first float-leg start differ."
+					);
 		}
 
 		return fixStart;
@@ -627,10 +627,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 			 * date is already the remaining forward swap from that date onward.
 			 * We therefore ignore already-started periods here.
 			 */
-			if (fixingTime < time - TIME_TOLERANCE) {
-				continue;
-			}
-			if (paymentTime <= time + TIME_TOLERANCE) {
+			if ((fixingTime < time - TIME_TOLERANCE) || (paymentTime <= time + TIME_TOLERANCE)) {
 				continue;
 			}
 
@@ -641,7 +638,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 					fixingTime,
 					paymentTime,
 					stateVariable
-			);
+					);
 			final double discountBond = model.getDiscountBond(time, paymentTime, stateVariable);
 
 			value += notional * forwardRate * accrualFactor * discountBond;
@@ -817,7 +814,7 @@ public class Swaption implements FiniteDifferenceInterestRateProduct {
 						scheduleIndex,
 						xGrid[i],
 						model
-				);
+						);
 				valuesBeforeEvent[i] = Math.max(valuesBeforeEvent[i], intrinsicValue);
 			}
 

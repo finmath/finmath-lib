@@ -58,7 +58,7 @@ public class BatesJumpComponent extends MertonJumpComponent {
 				intensity,
 				jumpMean,
 				jumpStdDev
-		);
+				);
 	}
 
 	/**
@@ -87,6 +87,6 @@ public class BatesJumpComponent extends MertonJumpComponent {
 				intensity,
 				jumpMean,
 				jumpStdDev
-		);
+				);
 	}
 }

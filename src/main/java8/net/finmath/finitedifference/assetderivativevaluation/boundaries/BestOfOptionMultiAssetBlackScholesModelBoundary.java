@@ -127,8 +127,8 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike,
 							1,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		/*
@@ -142,8 +142,8 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike,
 							0,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		return conditions;
@@ -177,8 +177,8 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike,
 							0,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		if (isAtUpperBoundary(1, s2)) {
@@ -189,8 +189,8 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 							strike,
 							1,
 							tau
-					)
-			);
+							)
+					);
 		}
 
 		return conditions;
@@ -250,7 +250,7 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 				boundarySpot * getDividendDiscountFactor(assetIndex, tau)
 				- strike * getRiskFreeDiscountFactor(tau),
 				0.0
-		);
+				);
 	}
 
 	private double getBlackScholesCallValue(
@@ -281,7 +281,7 @@ public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDi
 				tau,
 				strike,
 				payoffUnit
-		);
+				);
 	}
 
 	private double getBlackScholesPutValue(

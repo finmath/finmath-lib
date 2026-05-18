@@ -865,11 +865,7 @@ public class SwaptionDataLattice implements Serializable {
 				return true;
 			}
 
-			if(other == null || other.getClass() != getClass()) {
-				return false;
-			}
-
-			if(maturity 	!= ((DataKey) other).maturity || tenor != ((DataKey) other).tenor) {
+			if(other == null || other.getClass() != getClass() || maturity 	!= ((DataKey) other).maturity || tenor != ((DataKey) other).tenor) {
 				return false;
 			}
 			return moneyness == ((DataKey) other).moneyness;

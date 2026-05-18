@@ -325,7 +325,7 @@ public class AnalyticFormulasTest {
 		final DecimalFormat numberFormatValue			= new DecimalFormat(" 0.000%");
 		final DecimalFormat numberFormatProbability	= new DecimalFormat("  0.00%; -0.00%");
 
-		final Double riskFreeRate = 0.01;
+		final double riskFreeRate = 0.01;
 		final Double volatilityN = 0.0065;
 		final Double volatilityLN = 0.849;
 		final Double optionMaturity = 10.0;

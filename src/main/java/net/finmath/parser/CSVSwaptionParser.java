@@ -250,12 +250,8 @@ public class CSVSwaptionParser {
 
 			final String[] tokens = inputs[3].split("/");
 
-			if(tokens.length < 8) {
-				continue;
-			}
-
 			//Ignore puts, being mirror of calls.
-			if(tokens[7].equalsIgnoreCase("P")) {
+			if((tokens.length < 8) || tokens[7].equalsIgnoreCase("P")) {
 				continue;
 			}
 

@@ -81,7 +81,7 @@ public class CashSettledPayerSwaption extends AbstractSingleSwapRateProduct {
 		value *= swapRate -strike;
 
 		value += (annuityMapping.getFirstDerivative(swapRate) *cashFunction(swapRate) +annuityMapping.getValue(swapRate)
-	 *cashFunctionFirstDerivative(swapRate)) *2;
+		*cashFunctionFirstDerivative(swapRate)) *2;
 		return value;
 	}
 

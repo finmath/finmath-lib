@@ -66,7 +66,9 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 		}
 		catch(final UnsupportedOperationException e) {}
 
-		if(evaluationTime > maturity) return Scalar.of(0.0);
+		if(evaluationTime > maturity) {
+			return Scalar.of(0.0);
+		}
 
 		// Get random variables
 		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);

@@ -56,7 +56,7 @@ public interface TwoStateActivationPolicy {
 			double stateVariable,
 			double activePayoffValue,
 			double inactiveNoHitValue
-	);
+			);
 
 	/**
 	 * Returns the inactive-regime value on the already-hit region during
@@ -71,7 +71,7 @@ public interface TwoStateActivationPolicy {
 			double currentTime,
 			double stateVariable,
 			double activeValue
-	);
+			);
 
 	/**
 	 * Returns the interface value seen by the continuation-side inactive PDE at
@@ -86,5 +86,5 @@ public interface TwoStateActivationPolicy {
 			double currentTime,
 			double barrierStateVariable,
 			double activeValueAtBarrier
-	);
+			);
 }

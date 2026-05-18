@@ -220,10 +220,7 @@ public class LIBORMarketModelStandard extends AbstractProcessModel implements LI
 				final double exerciseDate	= optionMaturities.getTime(exerciseIndex);
 				final double swapLength	= tenor.getTime(tenorIndex);
 
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) {
-					continue;
-				}
-				if(liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate)) {
+				if((liborPeriodDiscretization.getTimeIndex(exerciseDate) < 0) || (liborPeriodDiscretization.getTimeIndex(exerciseDate+swapLength) <= liborPeriodDiscretization.getTimeIndex(exerciseDate))) {
 					continue;
 				}
 

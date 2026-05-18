@@ -123,14 +123,14 @@ public class TenorConverter {
 					for (int k1 = 0; k1 < n; k1++) {
 						for (int k2 = 0; k2 < n; k2++) {
 							newCapletVolatilities[i][j] += nu[k1] * nu[k2]
-								 * correlationProvider.getCorrelation(currentTenorInMonths,
+									* correlationProvider.getCorrelation(currentTenorInMonths,
 											newCapletFixingTimeVectorInYears[i] + k1 * currentTenorInMonths / 12.0,
 											newCapletFixingTimeVectorInYears[i] + k2 * currentTenorInMonths / 12.0,
 											analyticModel, indexForDiscount)
-								 * capletVolatilitySurface.getValue(analyticModel,
+									* capletVolatilitySurface.getValue(analyticModel,
 											newCapletFixingTimeVectorInYears[i] + k1 * currentTenorInMonths / 12.0,
 											K[k1], QuotingConvention.VOLATILITYLOGNORMAL)
-								 * capletVolatilitySurface.getValue(analyticModel,
+									* capletVolatilitySurface.getValue(analyticModel,
 											newCapletFixingTimeVectorInYears[i] + k2 * currentTenorInMonths / 12.0,
 											K[k2], QuotingConvention.VOLATILITYLOGNORMAL);
 						}

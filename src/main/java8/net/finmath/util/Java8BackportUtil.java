@@ -3,7 +3,7 @@ package net.finmath.util;
 import java.util.HashMap;
 
 public class Java8BackportUtil {
-	
+
 	/**
 	 * Handy replacement if we use List.of(o1,...) which is not available in Java 8.
 	 * Just replace the import java.util.List by import static net.finmath.util.Java8BackportUtil.List
@@ -27,7 +27,7 @@ public class Java8BackportUtil {
 	 */
 	public static class Map<K, V> extends java.util.HashMap<K, V> {
 		public static java.util.Map of(final Object... objs) {
-			java.util.Map map = new HashMap();
+			final java.util.Map map = new HashMap();
 			for(int i=0; i<objs.length; i+=2) {
 				map.put(objs[i],objs[i+1]);
 			}

@@ -94,7 +94,7 @@ public class GridWithMandatoryPoint extends AbstractGrid {
 				minimumValue,
 				maximumValue,
 				mandatoryPoint
-		);
+				);
 
 		grid = new double[numberOfSteps + 1];
 
@@ -272,7 +272,7 @@ public class GridWithMandatoryPoint extends AbstractGrid {
 		if (!(mandatoryPoint > minimumValue && mandatoryPoint < maximumValue)) {
 			throw new IllegalArgumentException(
 					"mandatoryPoint must lie strictly inside (minimumValue, maximumValue)."
-			);
+					);
 		}
 	}
 }

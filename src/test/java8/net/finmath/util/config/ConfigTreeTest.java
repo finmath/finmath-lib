@@ -23,15 +23,15 @@ public class ConfigTreeTest {
 		/**
 		 * Create a list of map of configs (this is the config file - each map is a row, the keys are the columns)
 		 */
-		List<Object> prop1Values = Java8BackportUtil.List.of(0.5, 1.0, SpecialNodes.DEFAULT_VALUE);
-		List<Object> prop2Values = Java8BackportUtil.List.of(1, 2, SpecialNodes.DEFAULT_VALUE);
-		List<Object> prop3Values =Java8BackportUtil.List.of("a", "b", "c", SpecialNodes.DEFAULT_VALUE);
+		final List<Object> prop1Values = Java8BackportUtil.List.of(0.5, 1.0, SpecialNodes.DEFAULT_VALUE);
+		final List<Object> prop2Values = Java8BackportUtil.List.of(1, 2, SpecialNodes.DEFAULT_VALUE);
+		final List<Object> prop3Values =Java8BackportUtil.List.of("a", "b", "c", SpecialNodes.DEFAULT_VALUE);
 
 		Double valueForConfig = 0.0;
-		List<Map<String, Object>> configs = new ArrayList<>();
-		for(Object prop1Value : prop1Values) {
-			for(Object prop2Value : prop2Values) {
-				for(Object prop3Value : prop3Values) {
+		final List<Map<String, Object>> configs = new ArrayList<>();
+		for(final Object prop1Value : prop1Values) {
+			for(final Object prop2Value : prop2Values) {
+				for(final Object prop3Value : prop3Values) {
 					configs.add(Java8BackportUtil.Map.of(
 							"prop1", prop1Value,
 							"prop2", prop2Value,
@@ -48,7 +48,7 @@ public class ConfigTreeTest {
 		System.out.println("_______________________________________________________________________________");
 
 		// Build configTree
-		ConfigTree configTree = new ConfigTree(Java8BackportUtil.List.of("prop1", "prop2", "prop3"), configs);
+		final ConfigTree configTree = new ConfigTree(Java8BackportUtil.List.of("prop1", "prop2", "prop3"), configs);
 
 		// Fetch some stuff
 
@@ -75,7 +75,7 @@ public class ConfigTreeTest {
 	}
 
 	private static void print(ConfigTree configTree, Map<String, Object> selector, Object expected) {
-		Object value = configTree.getConfig(selector);
+		final Object value = configTree.getConfig(selector);
 		System.out.print(value + "\tfor\t" + selector.toString());
 		Assertions.assertEquals(expected, value);
 		System.out.println("\tOK");

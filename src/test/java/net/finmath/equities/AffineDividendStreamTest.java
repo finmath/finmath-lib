@@ -11,12 +11,12 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import net.finmath.equities.models.EquityForwardStructure;
-import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.marketdata.AffineDividend;
 import net.finmath.equities.marketdata.AffineDividendStream;
 import net.finmath.equities.marketdata.FlatYieldCurve;
+import net.finmath.equities.marketdata.YieldCurve;
 import net.finmath.equities.models.BuehlerDividendForwardStructure;
+import net.finmath.equities.models.EquityForwardStructure;
 import net.finmath.exception.CalculationException;
 import net.finmath.time.daycount.DayCountConvention;
 import net.finmath.time.daycount.DayCountConventionFactory;

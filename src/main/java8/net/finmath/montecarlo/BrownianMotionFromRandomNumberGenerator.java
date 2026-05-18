@@ -221,13 +221,7 @@ public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, 
 
 		final BrownianMotionFromRandomNumberGenerator that = (BrownianMotionFromRandomNumberGenerator) o;
 
-		if (numberOfFactors != that.numberOfFactors) {
-			return false;
-		}
-		if (numberOfPaths != that.numberOfPaths) {
-			return false;
-		}
-		if (randomNumberGenerator != that.randomNumberGenerator) {
+		if ((numberOfFactors != that.numberOfFactors) || (numberOfPaths != that.numberOfPaths) || (randomNumberGenerator != that.randomNumberGenerator)) {
 			return false;
 		}
 		return timeDiscretization.equals(that.timeDiscretization);

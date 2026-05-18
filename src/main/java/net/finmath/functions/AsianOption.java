@@ -58,7 +58,7 @@ public final class AsianOption {
 		if (stdDev == 0.0) {
 			final double intrinsic = optionType == CallOrPut.CALL
 					? Math.max(forward - strike, 0.0)
-					: Math.max(strike - forward, 0.0);
+							: Math.max(strike - forward, 0.0);
 			return discountFactor * intrinsic;
 		}
 
@@ -252,7 +252,7 @@ public final class AsianOption {
 			final double discountedGeomAverage = Math.exp(muG + 0.5 * variance - riskFreeRate * residualTime);
 			return optionType == CallOrPut.CALL
 					? Math.max(discountedSpot - discountedGeomAverage, 0.0)
-					: Math.max(discountedGeomAverage - discountedSpot, 0.0);
+							: Math.max(discountedGeomAverage - discountedSpot, 0.0);
 		}
 
 		final double sqrtSigmaSum = Math.sqrt(safeSigmaSum2);
@@ -331,7 +331,7 @@ public final class AsianOption {
 		if (X <= 0.0) {
 			final double intrinsic = optionType == CallOrPut.CALL
 					? Math.max(Se - X * discount, 0.0)
-					: Math.max(X * discount - Se, 0.0);
+							: Math.max(X * discount - Se, 0.0);
 			return intrinsic;
 		}
 
@@ -363,7 +363,7 @@ public final class AsianOption {
 		if (safeV == 0.0) {
 			final double intrinsic = optionType == CallOrPut.CALL
 					? Math.max(Se - X * discount, 0.0)
-					: Math.max(X * discount - Se, 0.0);
+							: Math.max(X * discount - Se, 0.0);
 			return intrinsic;
 		}
 
@@ -441,7 +441,7 @@ public final class AsianOption {
 			final double realizedAverage = pastFixings == 0 ? 0.0 : runningSum / pastFixings;
 			final double payoff = optionType == CallOrPut.CALL
 					? Math.max(realizedAverage - strike, 0.0)
-					: Math.max(strike - realizedAverage, 0.0);
+							: Math.max(strike - realizedAverage, 0.0);
 			return discount * payoff;
 		}
 

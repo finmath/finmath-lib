@@ -121,7 +121,7 @@ public abstract class AbstractPathDependentProduct extends AbstractTreeProduct {
 			if(childStateShift.length != branchingFactor) {
 				throw new IllegalArgumentException(
 						"childStateShift length (" + childStateShift.length + ") "
-						+ "does not match branching factor (" + branchingFactor + ").");
+								+ "does not match branching factor (" + branchingFactor + ").");
 			}
 			return childStateShift;
 		}

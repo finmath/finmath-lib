@@ -145,7 +145,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 				digitalPayoffType,
 				cashPayoff,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 				digitalPayoffType,
 				cashPayoff,
 				exercise
-		);
+				);
 	}
 
 	/**
@@ -241,7 +241,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 				digitalPayoffType,
 				cashPayoff,
 				new EuropeanExercise(maturity)
-		);
+				);
 	}
 
 	@Override
@@ -261,7 +261,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 						maturity,
 						terminalValues,
 						getExercisePayoffFunction()
-				);
+						);
 			}
 		}
 
@@ -284,7 +284,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 						maturity,
 						terminalValues,
 						getExercisePayoffFunction()
-				);
+						);
 			}
 		}
 
@@ -315,7 +315,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 				FiniteDifferenceExerciseUtil.refineTimeDiscretization(
 						base.getTimeDiscretization(),
 						exercise
-				);
+						);
 
 		if (base.getNumberOfSpaceGrids() == 1) {
 			return new SpaceTimeDiscretization(
@@ -323,7 +323,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 					refinedTimeDiscretization,
 					base.getTheta(),
 					new double[] {base.getCenter(0) }
-			);
+					);
 		}
 
 		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();
@@ -340,7 +340,7 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 				refinedTimeDiscretization,
 				base.getTheta(),
 				center
-		);
+				);
 	}
 
 	/**
@@ -388,21 +388,21 @@ public class DigitalOption implements FiniteDifferenceEquityProduct {
 
 		final boolean inTheMoney =
 				callOrPutSign == CallOrPut.CALL
-						? assetValue > strike
+				? assetValue > strike
 						: assetValue < strike;
 
-		if (!inTheMoney) {
-			return 0.0;
-		}
+				if (!inTheMoney) {
+					return 0.0;
+				}
 
-		switch (digitalPayoffType) {
-		case CASH_OR_NOTHING:
-			return cashPayoff;
-		case ASSET_OR_NOTHING:
-			return assetValue;
-		default:
-			throw new IllegalStateException("Unsupported digital payoff type.");
-		}
+				switch (digitalPayoffType) {
+				case CASH_OR_NOTHING:
+					return cashPayoff;
+				case ASSET_OR_NOTHING:
+					return assetValue;
+				default:
+					throw new IllegalStateException("Unsupported digital payoff type.");
+				}
 	}
 
 	/**

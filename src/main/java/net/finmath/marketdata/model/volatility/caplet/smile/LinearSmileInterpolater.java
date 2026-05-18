@@ -39,14 +39,11 @@ public class LinearSmileInterpolater implements SmileInterpolationExtrapolationM
 			indexLargestStrikeLeftOfInterpolationStrike = i;
 			i++;
 		}
-		if (volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike+1] == 0.0) {
-			return volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike];
-		}
-		if (strike == strikeVector[indexLargestStrikeLeftOfInterpolationStrike]) {
+		if ((volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike+1] == 0.0) || (strike == strikeVector[indexLargestStrikeLeftOfInterpolationStrike])) {
 			return volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike];
 		}
 		return ((strike - strikeVector[indexLargestStrikeLeftOfInterpolationStrike])
-			 * (volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike + 1]
+				* (volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike + 1]
 						- volatilityMatrix[rowIndex][indexLargestStrikeLeftOfInterpolationStrike])
 				/ (strikeVector[indexLargestStrikeLeftOfInterpolationStrike + 1]
 						- strikeVector[indexLargestStrikeLeftOfInterpolationStrike])

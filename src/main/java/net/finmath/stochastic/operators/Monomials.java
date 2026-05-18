@@ -17,7 +17,7 @@ public class Monomials {
 	/**
 	 * Create a generator for monimials \( x^{k} \) with k from powerStartInclusive (inclusive) and powerEndExclusive (exclusive).
 	 * If {@code powerStartInclusive > powerEndExclusive+1} an empty list is returned.
-	 * 
+	 *
 	 * @param powerStartInclusive Smallest power.
 	 * @param powerEndExclusive Largest power plus one.
 	 */
@@ -26,11 +26,11 @@ public class Monomials {
 		this.powerStartInclusive = powerStartInclusive;
 		this.powerEndExclusive = powerEndExclusive;
 	}
-	
+
 	/**
 	 * Create a list of monimials \( x^{k} \) with k from powerStartInclusive (inclusive) and powerEndExclusive (exclusive).
 	 * If {@code powerStartInclusive > powerEndExclusive+1} an empty list is returned.
-	 * 
+	 *
 	 * @param randomVariable The random variable x.
 	 * @param powerStartInclusive Smallest power.
 	 * @param powerEndExclusive Largest power plus one.
@@ -38,8 +38,10 @@ public class Monomials {
 	 */
 	public static List<RandomVariable> of(RandomVariable randomVariable, int powerStartInclusive, int powerEndExclusive) {
 		List<RandomVariable> monomials = new ArrayList<>();
-		if(powerStartInclusive > powerEndExclusive+1) return monomials;
-		
+		if(powerStartInclusive > powerEndExclusive+1) {
+			return monomials;
+		}
+
 		int power = powerStartInclusive;
 		RandomVariable monomial = randomVariable.pow(power);
 		monomials.add(monomial);
@@ -49,10 +51,10 @@ public class Monomials {
 		}
 		return monomials;
 	}
-	
+
 	/**
 	 * Create a list of monimials \( x^{k} \) with k from powerStartInclusive (inclusive) and powerEndExclusive (exclusive).
-	 * 
+	 *
 	 * @param randomVariable The random variable x.
 	 * @return The list of monomials.
 	 */

@@ -235,7 +235,7 @@ public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
 				strike,
 				cashPayoff,
 				callOrPut
-		);
+				);
 	}
 
 	/**
@@ -262,7 +262,7 @@ public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
 				strike,
 				cashPayoff,
 				callOrPut
-		);
+				);
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
 				strike,
 				cashPayoff,
 				callOrPut
-		);
+				);
 	}
 
 	@Override
@@ -301,7 +301,7 @@ public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
 				evaluationTime,
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	@Override
@@ -312,7 +312,7 @@ public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
 		return solver.getValues(
 				maturity,
 				this::terminalPayoff
-		);
+				);
 	}
 
 	/**

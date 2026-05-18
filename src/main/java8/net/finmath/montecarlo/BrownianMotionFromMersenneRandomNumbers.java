@@ -235,13 +235,7 @@ public class BrownianMotionFromMersenneRandomNumbers implements BrownianMotion, 
 
 		final BrownianMotionFromMersenneRandomNumbers that = (BrownianMotionFromMersenneRandomNumbers) o;
 
-		if (numberOfFactors != that.numberOfFactors) {
-			return false;
-		}
-		if (numberOfPaths != that.numberOfPaths) {
-			return false;
-		}
-		if (seed != that.seed) {
+		if ((numberOfFactors != that.numberOfFactors) || (numberOfPaths != that.numberOfPaths) || (seed != that.seed)) {
 			return false;
 		}
 		return timeDiscretization.equals(that.timeDiscretization);

@@ -99,10 +99,7 @@ public class FPMLParser implements XMLParser {
 
 		final NodeList tradeWrapper = node.getOwnerDocument().getElementsByTagName("trade").item(0).getChildNodes();
 		for(int index = 0; index < tradeWrapper.getLength(); index++) {
-			if(tradeWrapper.item(index).getNodeType() != Node.ELEMENT_NODE) {
-				continue;
-			}
-			if(tradeWrapper.item(index).getNodeName().equalsIgnoreCase("tradeHeader")) {
+			if((tradeWrapper.item(index).getNodeType() != Node.ELEMENT_NODE) || tradeWrapper.item(index).getNodeName().equalsIgnoreCase("tradeHeader")) {
 				continue;
 			}
 			trade = (Element) tradeWrapper.item(index);
@@ -110,7 +107,9 @@ public class FPMLParser implements XMLParser {
 			break;
 		}
 
-		if(Objects.isNull(trade)) throw new IllegalArgumentException("<trade> node is missing.");
+		if(Objects.isNull(trade)) {
+			throw new IllegalArgumentException("<trade> node is missing.");
+		}
 
 		if("SWAP".equals(tradeName)) {
 			return getSwapProductDescriptor(trade);

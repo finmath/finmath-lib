@@ -12,7 +12,7 @@ import net.finmath.modelling.products.CallOrPut;
  * {@link FDMBlackScholesModel}.
  */
 public class BermudanOptionBlackScholesModelBoundary
-		implements FiniteDifferenceBoundary {
+implements FiniteDifferenceBoundary {
 
 	/**
 	 * The epsilon.

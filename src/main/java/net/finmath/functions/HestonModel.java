@@ -54,7 +54,7 @@ public class HestonModel {
 	static final int numberOfPoints = 4096*2;
 	static final double gridSpacing = 0.4;
 
-	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA};
+	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA}
 
 	/**
 	 * Calculates the delta of a call option under a Heston model.

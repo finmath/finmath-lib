@@ -90,7 +90,7 @@ public class BarrierOptionSabrModelBoundary implements FiniteDifferenceBoundary 
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedIntrinsicValue(option, time, stock)
-			);
+					);
 		}
 
 		// alpha -> lower boundary
@@ -131,7 +131,7 @@ public class BarrierOptionSabrModelBoundary implements FiniteDifferenceBoundary 
 		} else {
 			result[0] = StandardBoundaryCondition.dirichlet(
 					getDiscountedIntrinsicValue(option, time, stock)
-			);
+					);
 		}
 
 		// alpha -> upper boundary

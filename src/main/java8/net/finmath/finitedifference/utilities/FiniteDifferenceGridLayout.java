@@ -215,7 +215,7 @@ public final class FiniteDifferenceGridLayout {
 		if (values.length != numberOfSpatialPoints) {
 			throw new IllegalArgumentException(
 					"Value vector length does not match the spatial grid layout."
-			);
+					);
 		}
 	}
 
@@ -234,7 +234,7 @@ public final class FiniteDifferenceGridLayout {
 		if (values.length != numberOfSpatialPoints) {
 			throw new IllegalArgumentException(
 					"Value surface first dimension does not match the spatial grid layout."
-			);
+					);
 		}
 		if (values.length > 0 && values[0] == null) {
 			throw new IllegalArgumentException("Value surface rows must not be null.");

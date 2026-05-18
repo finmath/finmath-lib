@@ -114,7 +114,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				exercise,
 				activeBoundaryProvider,
 				new ContinuationActivationPolicy()
-		);
+				);
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 							x,
 							payoff,
 							product.getInactiveValueAtMaturity())
-					: product.getInactiveValueAtMaturity();
+							: product.getInactiveValueAtMaturity();
 		}
 
 		final double[][] solutionSurface = new double[nX][timeLength];
@@ -281,7 +281,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 						lowerActiveBoundary,
 						upperActiveBoundary,
 						valueAtMaturity
-				);
+						);
 			} else {
 				final double[] nextActiveContinuation = solveVanillaStep(
 						xGrid,
@@ -291,7 +291,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 						deltaTau,
 						lowerActiveBoundary,
 						upperActiveBoundary
-				);
+						);
 
 				if (exercise.isBermudan() && isExerciseDate) {
 					nextActive = applyBermudanExerciseProjection(
@@ -300,7 +300,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 							valueAtMaturity,
 							lowerActiveBoundary,
 							upperActiveBoundary
-					);
+							);
 				} else {
 					nextActive = nextActiveContinuation;
 				}
@@ -409,7 +409,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 					currentTime,
 					xGrid[i],
 					activeNext[i]
-			);
+					);
 		}
 
 		if (barrierIndex == xGrid.length - 1) {
@@ -427,7 +427,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				tm,
 				xGrid[barrierIndex],
 				activePrevious[barrierIndex]
-		);
+				);
 
 		final double discountedNoHitValue = getDiscountedNoHitValue(currentTime);
 
@@ -435,7 +435,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				currentTime,
 				xGrid[barrierIndex],
 				activeNext[barrierIndex]
-		);
+				);
 
 		final double[] nextSub = solveVanillaStep(
 				subGrid,
@@ -455,7 +455,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 					currentTime,
 					xGrid[i],
 					activeNext[i]
-			);
+					);
 		}
 	}
 
@@ -476,7 +476,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 					currentTime,
 					xGrid[i],
 					activeNext[i]
-			);
+					);
 		}
 
 		if (barrierIndex == 0) {
@@ -494,7 +494,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				tm,
 				xGrid[barrierIndex],
 				activePrevious[barrierIndex]
-		);
+				);
 
 		final double discountedNoHitValue = getDiscountedNoHitValue(currentTime);
 
@@ -502,7 +502,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				currentTime,
 				xGrid[barrierIndex],
 				activeNext[barrierIndex]
-		);
+				);
 
 		final double[] nextSub = solveVanillaStep(
 				subGrid,
@@ -522,7 +522,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 					currentTime,
 					xGrid[i],
 					activeNext[i]
-			);
+					);
 		}
 	}
 
@@ -719,7 +719,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				exerciseValue,
 				lowerBoundaryValue,
 				upperBoundaryValue
-		);
+				);
 
 		final double[] next = ProjectedTridiagonalSOR.solve(
 				lhs,
@@ -729,7 +729,7 @@ public class FDMThetaMethod1DTwoState implements FDMSolver {
 				1.2,
 				500,
 				1E-10
-		);
+				);
 
 		next[0] = lowerBoundaryValue;
 		next[n - 1] = upperBoundaryValue;

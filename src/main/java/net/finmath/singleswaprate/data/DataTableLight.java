@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
-import net.finmath.singleswaprate.data.DataTable.TableConvention;
 import net.finmath.time.SchedulePrototype;
 
 
@@ -251,14 +250,7 @@ public class DataTableLight implements DataTable, Cloneable {
 				return true;
 			}
 
-			if(other == null) {
-				return false;
-			}
-			if(other.getClass() != getClass()) {
-				return false;
-			}
-
-			if(maturity 	!= ((DataKey) other).maturity ) {
+			if((other == null) || (other.getClass() != getClass()) || (maturity 	!= ((DataKey) other).maturity) ) {
 				return false;
 			}
 			return termination == ((DataKey) other).termination;

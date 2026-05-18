@@ -269,8 +269,8 @@ public class ADI2DStencilBuilder {
 			final int k = flatten(i, x1Index);
 			out[k] =
 					c.getLower() * u[flatten(i - 1, x1Index)]
-					+ c.getDiag() * u[k]
-					+ c.getUpper() * u[flatten(i + 1, x1Index)];
+							+ c.getDiag() * u[k]
+									+ c.getUpper() * u[flatten(i + 1, x1Index)];
 		}
 	}
 
@@ -294,8 +294,8 @@ public class ADI2DStencilBuilder {
 			final int k = flatten(x0Index, j);
 			out[k] =
 					c.getLower() * u[flatten(x0Index, j - 1)]
-					+ c.getDiag() * u[k]
-					+ c.getUpper() * u[flatten(x0Index, j + 1)];
+							+ c.getDiag() * u[k]
+									+ c.getUpper() * u[flatten(x0Index, j + 1)];
 		}
 	}
 

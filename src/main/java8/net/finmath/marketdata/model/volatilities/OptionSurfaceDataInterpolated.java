@@ -68,7 +68,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 	 */
 	private static final Comparator<OptionData> OPTION_QUOTE_COMPARATOR =
 			Comparator.comparingDouble(OptionData::getMaturity)
-					.thenComparingDouble(OptionData::getStrike);
+			.thenComparingDouble(OptionData::getStrike);
 
 	/**
 	 * The option smile comparator.
@@ -146,7 +146,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
 				DEFAULT_MATURITY_INTERPOLATION_METHOD,
 				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
-		);
+				);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
 				DEFAULT_MATURITY_INTERPOLATION_METHOD,
 				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
-		);
+				);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -358,7 +358,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
 				DEFAULT_MATURITY_INTERPOLATION_METHOD,
 				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
-		);
+				);
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -480,7 +480,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -509,7 +509,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
 				DEFAULT_MATURITY_INTERPOLATION_METHOD,
 				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
-		);
+				);
 	}
 
 	/**
@@ -550,7 +550,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -639,7 +639,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 						valuesAtStrike,
 						maturityInterpolationMethod,
 						maturityExtrapolationMethod
-				);
+						);
 
 		return maturityInterpolator.getValue(maturity);
 	}
@@ -682,7 +682,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 								strike,
 								originalValue,
 								newQuotingConvention
-						);
+								);
 			}
 
 			convertedSmiles.add(
@@ -693,8 +693,8 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 							maturity,
 							convertedValues,
 							newQuotingConvention
-					)
-			);
+							)
+					);
 		}
 
 		return new OptionSurfaceDataInterpolated(
@@ -705,7 +705,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				strikeExtrapolationMethod,
 				maturityInterpolationMethod,
 				maturityExtrapolationMethod
-		);
+				);
 	}
 
 	/**
@@ -814,7 +814,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					maturity,
 					strike,
 					discountFactor
-			);
+					);
 		}
 
 		if (sourceConvention == QuotingConvention.PRICE
@@ -826,7 +826,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					strike,
 					discountFactor,
 					value
-			);
+					);
 		}
 
 		if (sourceConvention == QuotingConvention.VOLATILITYNORMAL
@@ -838,7 +838,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					maturity,
 					strike,
 					discountFactor
-			);
+					);
 		}
 
 		if (sourceConvention == QuotingConvention.PRICE
@@ -850,7 +850,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					strike,
 					discountFactor,
 					value
-			);
+					);
 		}
 
 		if (sourceConvention == QuotingConvention.VOLATILITYLOGNORMAL
@@ -862,7 +862,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					maturity,
 					strike,
 					discountFactor
-			);
+					);
 
 			return AnalyticFormulas.bachelierOptionImpliedVolatility(
 					forward,
@@ -870,7 +870,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					strike,
 					discountFactor,
 					price
-			);
+					);
 		}
 
 		if (sourceConvention == QuotingConvention.VOLATILITYNORMAL
@@ -882,7 +882,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					maturity,
 					strike,
 					discountFactor
-			);
+					);
 
 			return AnalyticFormulas.blackScholesOptionImpliedVolatility(
 					forward,
@@ -890,13 +890,13 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 					strike,
 					discountFactor,
 					price
-			);
+					);
 		}
 
 		throw new IllegalArgumentException(
 				"Unsupported quoting convention conversion from "
 						+ sourceConvention + " to " + targetConvention
-		);
+				);
 	}
 
 	private SmileInterpolator[] buildSmileInterpolators(final OptionSmileData[] smiles) {
@@ -919,7 +919,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 							values,
 							strikeInterpolationMethod,
 							strikeExtrapolationMethod
-					);
+							);
 		}
 
 		return interpolators;
@@ -973,8 +973,8 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 							maturity,
 							values,
 							quotes[startIndex].getConvention()
-					)
-			);
+							)
+					);
 
 			startIndex = endIndex;
 		}
@@ -1032,8 +1032,8 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 			if (option == null) {
 				throw new IllegalArgumentException(
 						"Smile for maturity " + smile.getMaturity()
-								+ " does not contain a quote for strike " + strikes[strikeIndex]
-				);
+						+ " does not contain a quote for strike " + strikes[strikeIndex]
+						);
 			}
 
 			values[strikeIndex] = option.getValue();
@@ -1046,7 +1046,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				smile.getMaturity(),
 				values,
 				smile.getSmile().get(strikes[0]).getConvention()
-		);
+				);
 	}
 
 	private static PreparedSurface flatten(final OptionSmileData[] smiles) {
@@ -1090,7 +1090,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				nodeStrikes,
 				nodeValues,
 				uniqueMaturities
-		);
+				);
 	}
 
 	private static void checkOptionQuotes(final OptionData[] optionQuotes) {
@@ -1129,7 +1129,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				throw new IllegalArgumentException(
 						"Option quotes must be sorted by maturity and strike. "
 								+ "Use ofUnsorted(...) for unsorted input."
-				);
+						);
 			}
 		}
 	}
@@ -1163,7 +1163,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 								+ quote.getMaturity()
 								+ " and strike "
 								+ quote.getStrike()
-				);
+						);
 			}
 		}
 	}
@@ -1206,8 +1206,8 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				if (option == null) {
 					throw new IllegalArgumentException(
 							"Smile for maturity " + smile.getMaturity()
-									+ " does not contain a quote for strike " + strike
-					);
+							+ " does not contain a quote for strike " + strike
+							);
 				}
 
 				checkFinite(option.getValue(), "value");
@@ -1223,7 +1223,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				throw new IllegalArgumentException(
 						"Option smiles must be sorted by maturity. "
 								+ "Use ofUnsorted(...) for unsorted input."
-				);
+						);
 			}
 		}
 
@@ -1256,7 +1256,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 
 				throw new IllegalArgumentException(
 						"Duplicate option smile for maturity " + smile.getMaturity()
-				);
+						);
 			}
 
 			final double[] strikes = smile.getStrikes();
@@ -1282,7 +1282,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				if (Double.compare(option.getMaturity(), smile.getMaturity()) != 0) {
 					throw new IllegalArgumentException(
 							"Option quote maturity does not match smile maturity."
-					);
+							);
 				}
 			}
 		}
@@ -1299,7 +1299,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 				throw new IllegalArgumentException(
 						name + " must be strictly increasing. Received: "
 								+ Arrays.toString(points)
-				);
+						);
 			}
 		}
 	}
@@ -1386,7 +1386,7 @@ public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements 
 								this.values,
 								interpolationMethod,
 								extrapolationMethod
-						);
+								);
 			}
 		}
 

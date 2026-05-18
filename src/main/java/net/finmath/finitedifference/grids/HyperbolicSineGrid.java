@@ -92,13 +92,13 @@ public class HyperbolicSineGrid extends AbstractGrid {
 		for (int i = 1; i <= numberOfSteps; i++) {
 
 			final double argument =
-					(c2 * i / (double) numberOfSteps)
-							+ c1 * (1.0 - i / (double) numberOfSteps);
+					(c2 * i / numberOfSteps)
+					+ c1 * (1.0 - i / (double) numberOfSteps);
 
 			grid[i] =
 					centering
-							+ alpha
-						 * (Math.exp(argument) - Math.exp(-argument)) / 2.0;
+					+ alpha
+					* (Math.exp(argument) - Math.exp(-argument)) / 2.0;
 		}
 	}
 

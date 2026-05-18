@@ -42,7 +42,7 @@ public final class ActiveBoundaryProviderFactory {
 					strike,
 					maturity,
 					callOrPut
-			);
+					);
 		}
 
 		if (model instanceof FDMBachelierModel) {
@@ -51,7 +51,7 @@ public final class ActiveBoundaryProviderFactory {
 					strike,
 					maturity,
 					callOrPut
-			);
+					);
 		}
 
 		if (model instanceof FDMCevModel) {
@@ -60,7 +60,7 @@ public final class ActiveBoundaryProviderFactory {
 					strike,
 					maturity,
 					callOrPut
-			);
+					);
 		}
 
 		throw new IllegalArgumentException(

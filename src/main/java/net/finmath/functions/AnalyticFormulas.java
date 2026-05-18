@@ -1849,7 +1849,7 @@ public class AnalyticFormulas {
 						Math.log(initialValueFirstAsset / initialValueSecondAsset)
 						+ (dividendYieldSecondAsset - dividendYieldFirstAsset
 								+ 0.5 * effectiveVolatilitySquared) * maturity
-				)
+						)
 				/ (effectiveVolatility * sqrtMaturity);
 
 		final double d2 = d1 - effectiveVolatility * sqrtMaturity;

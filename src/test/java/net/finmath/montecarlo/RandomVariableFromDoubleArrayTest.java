@@ -131,8 +131,8 @@ public class RandomVariableFromDoubleArrayTest {
 		RandomVariable variable = new RandomVariableFromDoubleArray(0.0, values);
 
 		double expectedVariance = ((values[0] - variable.average().doubleValue()) * (values[0] - variable.average().doubleValue())
-			+ (values[1] - variable.average().doubleValue()) * (values[1] - variable.average().doubleValue())
-			+ (values[2] - variable.average().doubleValue()) * (values[2] - variable.average().doubleValue())) / (values.length);
+				+ (values[1] - variable.average().doubleValue()) * (values[1] - variable.average().doubleValue())
+				+ (values[2] - variable.average().doubleValue()) * (values[2] - variable.average().doubleValue())) / (values.length);
 		double actualVariance = variable.variance().doubleValue();
 
 		assertEquals(expectedVariance, actualVariance, 0.0);

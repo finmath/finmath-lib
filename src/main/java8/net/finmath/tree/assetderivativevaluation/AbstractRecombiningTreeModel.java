@@ -48,7 +48,7 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 		this.volatility = volatility;
 		this.lastTime = lastTime;
 		this.timeStep = timeStep;
-		int steps = (int)Math.round(lastTime / timeStep);
+		final int steps = (int)Math.round(lastTime / timeStep);
 		this.numberOfTimes = steps + 1;
 		spotLevels.add(new RandomVariableFromDoubleArray(0.0, new double[] { initialPrice }));
 	}
@@ -93,8 +93,11 @@ public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFac
 	@Override
 	public double getVolatility()     { return volatility; }
 
+	@Override
 	public double getTimeStep()       { return timeStep; }
+	@Override
 	public double getLastTime()       { return lastTime; }
+	@Override
 	public int getNumberOfTimes()     { return numberOfTimes; }
 	public double getSpot()           {return getInitialPrice(); } //Redefinition
 

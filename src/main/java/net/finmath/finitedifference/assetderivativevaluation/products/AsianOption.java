@@ -243,9 +243,9 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 				underlyingName,
 				maturity,
 				asianStrike == AsianStrike.FLOATING_STRIKE ? Double.NaN : 0.0,
-				callOrPutSign,
-				asianStrike,
-				new EuropeanExercise(maturity));
+						callOrPutSign,
+						asianStrike,
+						new EuropeanExercise(maturity));
 	}
 
 	/**
@@ -323,7 +323,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 		};
 
 		final AbstractADI2D.DoubleTernaryOperator exercisePayoff2D = (runningTime, S, I) ->
-				getExercisePayoff(runningTime, S, I);
+		getExercisePayoff(runningTime, S, I);
 
 		final AbstractADI3D.DoubleTernaryOperator payoffAtMaturity3D = (S, v, I) -> {
 			final double averageAtMaturity = I / maturity;
@@ -331,7 +331,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 		};
 
 		final AbstractADI3D.DoubleQuaternaryOperator exercisePayoff3D = (runningTime, S, v, I) ->
-				getExercisePayoff(runningTime, S, I);
+		getExercisePayoff(runningTime, S, I);
 
 		if (solver instanceof AbstractADI2D) {
 			return ((AbstractADI2D) solver).getValues(maturity, payoffAtMaturity2D, exercisePayoff2D);
@@ -544,7 +544,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 	 * where I(t) = integral_0^t S(u) du.
 	 */
 	private static final class LiftedFDMBlackScholesModelDecorator
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.
@@ -728,7 +728,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 	 * where I(t) = integral_0^t S(u) du.
 	 */
 	private static final class LiftedFDMCevModelDecorator
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.
@@ -915,7 +915,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 	 * where I(t) = integral_0^t S(u) du.
 	 */
 	private static final class LiftedFDMBachelierModelDecorator
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.
@@ -1103,7 +1103,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 	 * where I(t) = integral_0^t S(u) du.
 	 */
 	private static final class LiftedFDMHestonModelDecorator
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.
@@ -1318,7 +1318,7 @@ public class AsianOption implements FiniteDifferenceEquityProduct {
 	 * where I(t) = integral_0^t S(u) du.
 	 */
 	private static final class LiftedFDMSabrModelDecorator
-			implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
 
 		/**
 		 * The delegate.

@@ -89,11 +89,11 @@ public class CalibratableHestonModel implements  CalibratableProcess {
 	public CalibratableHestonModel getCloneForModifiedParameters(final double[] parameters) {
 
 		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
-		final double volatility = volatilityInfo.getIsParameterToCalibrate() == true ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
-		double theta = thetaInfo.getIsParameterToCalibrate() == true ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
-		final double kappa = kappaInfo.getIsParameterToCalibrate() == true ? kappaInfo.getConstraint().apply(parameters[2]) : descriptor.getKappa();
-		final double xi = xiInfo.getIsParameterToCalibrate() == true ? xiInfo.getConstraint().apply(parameters[3]) : descriptor.getXi();
-		final double rho = rhoInfo.getIsParameterToCalibrate() == true ? rhoInfo.getConstraint().apply(parameters[4]) : descriptor.getRho();
+		final double volatility = volatilityInfo.getIsParameterToCalibrate() ? volatilityInfo.getConstraint().apply(parameters[0]) : descriptor.getVolatility();
+		double theta = thetaInfo.getIsParameterToCalibrate() ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();
+		final double kappa = kappaInfo.getIsParameterToCalibrate() ? kappaInfo.getConstraint().apply(parameters[2]) : descriptor.getKappa();
+		final double xi = xiInfo.getIsParameterToCalibrate() ? xiInfo.getConstraint().apply(parameters[3]) : descriptor.getXi();
+		final double rho = rhoInfo.getIsParameterToCalibrate() ? rhoInfo.getConstraint().apply(parameters[4]) : descriptor.getRho();
 
 		if(applyFellerConstraint && 2*kappa*theta < xi*xi) {
 			//bump long term volatility so that the Feller test is satisfied.

@@ -71,9 +71,9 @@ public class LinearAlgebra {
 	 * @return A lower triangle matrix representing the CholeskyDecomposition.
 	 */
 	public static double[][] getCholeskyDecomposition(double[][] symmetricMatrix) {
-		CholeskyDecomposition decomposition = new CholeskyDecomposition(new Array2DRowRealMatrix(symmetricMatrix));
+		final CholeskyDecomposition decomposition = new CholeskyDecomposition(new Array2DRowRealMatrix(symmetricMatrix));
 
-		double[][] choleskyDecomposition = decomposition.getL().getData();
+		final double[][] choleskyDecomposition = decomposition.getL().getData();
 
 		return choleskyDecomposition;
 	}
@@ -642,9 +642,11 @@ public class LinearAlgebra {
 	private static RealMatrix matrixExp(RealMatrix matrix) {
 		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {
 			// Symmetric matrix: try to use eigenvalue decomposition.
-			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
-			RealMatrix diag = eigenDecomposition.getD();
-			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));
+			final EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
+			final RealMatrix diag = eigenDecomposition.getD();
+			for(int i=0; i<diag.getRowDimension(); i++) {
+				diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));
+			}
 			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
 		}
 		else {
@@ -661,13 +663,15 @@ public class LinearAlgebra {
 	private static RealMatrix matrixLog(RealMatrix matrix) {
 		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {
 			// Symmetric matrix: try to use eigenvalue decomposition.
-			EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
-			RealMatrix diag = eigenDecomposition.getD();
-			for(int i=0; i<diag.getRowDimension(); i++)	diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));
+			final EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);
+			final RealMatrix diag = eigenDecomposition.getD();
+			for(int i=0; i<diag.getRowDimension(); i++) {
+				diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));
+			}
 			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());
 		}
 		else {
-			RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
+			final RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));
 			RealMatrix log = m.copy();
 			for(int k=2; k<15; k++) {
 				log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));

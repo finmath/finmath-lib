@@ -22,24 +22,24 @@ public class HyperbolicSineGrid extends AbstractGrid {
 	/**
 	 * The number of steps.
 	 */
-	private int numberOfSteps;
+	private final int numberOfSteps;
 	/**
 	 * The minimum value.
 	 */
-	private double minimumValue;
+	private final double minimumValue;
 	/**
 	 * The maximum value.
 	 */
-	private double maximumValue;
+	private final double maximumValue;
 
 	/**
 	 * The centering.
 	 */
-	private double centering;
+	private final double centering;
 	/**
 	 * The alpha.
 	 */
-	private double alpha;
+	private final double alpha;
 
 	/**
 	 * The grid.
@@ -92,13 +92,13 @@ public class HyperbolicSineGrid extends AbstractGrid {
 		for (int i = 1; i <= numberOfSteps; i++) {
 
 			final double argument =
-					(c2 * i / (double) numberOfSteps)
-							+ c1 * (1.0 - i / (double) numberOfSteps);
+					(c2 * i / numberOfSteps)
+					+ c1 * (1.0 - i / (double) numberOfSteps);
 
 			grid[i] =
 					centering
-							+ alpha
-						 * (Math.exp(argument) - Math.exp(-argument)) / 2.0;
+					+ alpha
+					* (Math.exp(argument) - Math.exp(-argument)) / 2.0;
 		}
 	}
 

@@ -81,7 +81,7 @@ public class CashSettledReceiverSwaption extends AbstractSingleSwapRateProduct {
 		value *= strike -swapRate;
 
 		value -= (annuityMapping.getFirstDerivative(swapRate) *cashFunction(swapRate) +annuityMapping.getValue(swapRate)
-	 *cashFunctionFirstDerivative(swapRate)) *2;
+		*cashFunctionFirstDerivative(swapRate)) *2;
 		return value;
 	}
 

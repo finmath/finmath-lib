@@ -47,13 +47,7 @@ public class DigitalBarrierOptionBachelierModelBoundary implements FiniteDiffere
 		final CallOrPut sign = option.getCallOrPut();
 		final DigitalPayoffType payoffType = option.getDigitalPayoffType();
 
-		if (barrierType == BarrierType.DOWN_OUT) {
-			return new BoundaryCondition[] {
-					StandardBoundaryCondition.dirichlet(0.0)
-			};
-		}
-
-		if (sign == CallOrPut.CALL) {
+		if ((barrierType == BarrierType.DOWN_OUT) || (sign == CallOrPut.CALL)) {
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(0.0)
 			};
@@ -86,13 +80,7 @@ public class DigitalBarrierOptionBachelierModelBoundary implements FiniteDiffere
 		final CallOrPut sign = option.getCallOrPut();
 		final DigitalPayoffType payoffType = option.getDigitalPayoffType();
 
-		if (barrierType == BarrierType.UP_OUT) {
-			return new BoundaryCondition[] {
-					StandardBoundaryCondition.dirichlet(0.0)
-			};
-		}
-
-		if (sign == CallOrPut.PUT) {
+		if ((barrierType == BarrierType.UP_OUT) || (sign == CallOrPut.PUT)) {
 			return new BoundaryCondition[] {
 					StandardBoundaryCondition.dirichlet(0.0)
 			};

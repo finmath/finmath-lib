@@ -416,7 +416,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
 			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null
 					? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model)
-					: null;
+							: null;
 			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
 			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 
@@ -585,7 +585,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public static HedgeInstrumentTradeValueProvider getAnalyticBondTradeValueProvider(final double tenorPeriodLength) {
 		final HedgeInstrumentValueProvider valueProvider = getAnalyticBondValueProvider(tenorPeriodLength);
 		return (evaluationTime, model, hedgeInstruments, hedgeInstrumentProtoValues, conditioningBasisFunctions) ->
-				valueProvider.getValues(evaluationTime, model, hedgeInstruments);
+		valueProvider.getValues(evaluationTime, model, hedgeInstruments);
 	}
 
 	/**
@@ -751,12 +751,12 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				if(!(primitive instanceof RandomVariableDifferentiable)) {
 					throw new IllegalArgumentException(
 							"Process primitive (" + evaluationTime + "," + componentIndex + ") is not differentiable. "
-							+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
+									+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
 				}
-				
+
 				parameterIDsByName.put(
-					"(" + evaluationTime + "," + componentIndex + ")",
-					((RandomVariableDifferentiable)primitive).getID());
+						"(" + evaluationTime + "," + componentIndex + ")",
+						((RandomVariableDifferentiable)primitive).getID());
 			}
 
 			if(parameterIDsByName.isEmpty()) {
@@ -793,19 +793,19 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			}
 
 			final RandomVariable[] modelPrimitives = forwardRates.toArray(RandomVariable[]::new);
-			
+
 			final Map<String, Long> parameterIDsByName = new LinkedHashMap<>();
 			for(int componentIndex = 0; componentIndex < modelPrimitives.length; componentIndex++) {
 				final RandomVariable primitive = modelPrimitives[componentIndex];
 				if(!(primitive instanceof RandomVariableDifferentiable)) {
 					throw new IllegalArgumentException(
 							"Process primitive (" + evaluationTime + "," + componentIndex + ") is not differentiable. "
-							+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
+									+ "Check that the model was created with RandomVariableDifferentiableAADFactory.");
 				}
 				else {
 					parameterIDsByName.put(
-						"(" + evaluationTime + "," + componentIndex + ")",
-						((RandomVariableDifferentiable)primitive).getID());
+							"(" + evaluationTime + "," + componentIndex + ")",
+							((RandomVariableDifferentiable)primitive).getID());
 				}
 			}
 

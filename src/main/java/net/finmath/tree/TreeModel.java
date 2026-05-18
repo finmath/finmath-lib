@@ -93,22 +93,22 @@ public interface TreeModel extends Model {
 
 
 	/**
- * Returns the model's child-index shift convention for recombining state indices.
- *
- * Convention: childIndex = parentIndex + shift[branchIndex].
- *
- * Examples:
- *  - Binomial CRR/JR: {0, 1} interpreted as {up, down}
- *  - Trinomial Boyle: {0, 1, 2} interpreted as {up, mid, down}
- *
- * Path-dependent products that build a full non-recombining tree (exponential growth)
- * can use this to map their parent recombining state index to the child's recombining
- * state index when querying model spots.
- *
- * Default throws: models supporting path-dependent products should override this.
- *
- * @return shift array of length = number of branches.
- */
+	 * Returns the model's child-index shift convention for recombining state indices.
+	 *
+	 * Convention: childIndex = parentIndex + shift[branchIndex].
+	 *
+	 * Examples:
+	 *  - Binomial CRR/JR: {0, 1} interpreted as {up, down}
+	 *  - Trinomial Boyle: {0, 1, 2} interpreted as {up, mid, down}
+	 *
+	 * Path-dependent products that build a full non-recombining tree (exponential growth)
+	 * can use this to map their parent recombining state index to the child's recombining
+	 * state index when querying model spots.
+	 *
+	 * Default throws: models supporting path-dependent products should override this.
+	 *
+	 * @return shift array of length = number of branches.
+	 */
 	default int[] getChildStateIndexShift() {
 		throw new UnsupportedOperationException("Child state index shift not implemented by this TreeModel.");
 	}

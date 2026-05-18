@@ -189,13 +189,13 @@ public class Bond implements FiniteDifferenceInterestRateProduct {
 				this,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(maturity)
-		);
+				);
 
 		return solver.getValue(
 				evaluationTime,
 				maturity,
 				buildZeroTerminalValues(model)
-		);
+				);
 	}
 
 	@Override
@@ -208,12 +208,12 @@ public class Bond implements FiniteDifferenceInterestRateProduct {
 				this,
 				model.getSpaceTimeDiscretization(),
 				new EuropeanExercise(maturity)
-		);
+				);
 
 		return solver.getValues(
 				maturity,
 				buildZeroTerminalValues(model)
-		);
+				);
 	}
 
 	@Override
@@ -351,7 +351,7 @@ public class Bond implements FiniteDifferenceInterestRateProduct {
 		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {
 			throw new IllegalArgumentException(
 					"Bond currently supports only one-dimensional finite-difference interest-rate models."
-			);
+					);
 		}
 	}
 

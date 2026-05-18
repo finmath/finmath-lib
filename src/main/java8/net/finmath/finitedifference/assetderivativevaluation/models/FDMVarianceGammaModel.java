@@ -141,9 +141,9 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 						sigma,
 						nu,
 						theta
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				createFlatDiscountCurve("dividendCurve", 0.0),
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				lowerIntegrationBound,
 				upperIntegrationBound,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				createFlatDiscountCurve("dividendCurve", dividendYieldRate),
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -267,7 +267,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				lowerIntegrationBound,
 				upperIntegrationBound,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -290,7 +290,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				0.0,
 				jumpComponent,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -328,7 +328,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				lowerIntegrationBound,
 				upperIntegrationBound,
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -366,9 +366,9 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 						c,
 						g,
 						m
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -403,9 +403,9 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 						c,
 						g,
 						m
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -442,9 +442,9 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 						c,
 						g,
 						m
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	/**
@@ -480,9 +480,9 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 						c,
 						g,
 						m
-				),
+						),
 				spaceTimeDiscretization
-		);
+				);
 	}
 
 	@Override
@@ -569,7 +569,7 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				dividendYieldCurve,
 				jumpComponent,
 				newSpaceTimeDiscretization
-		);
+				);
 	}
 
 	private static DiscountCurve createFlatDiscountCurve(final String name, final double zeroRate) {
@@ -584,6 +584,6 @@ public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
 				InterpolationMethod.LINEAR,
 				ExtrapolationMethod.CONSTANT,
 				InterpolationEntity.VALUE
-		);
+				);
 	}
 }

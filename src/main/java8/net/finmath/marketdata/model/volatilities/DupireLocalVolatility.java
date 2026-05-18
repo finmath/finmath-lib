@@ -160,7 +160,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 				DEFAULT_STRIKE_EPSILON_FACTOR,
 				DEFAULT_VARIANCE_FLOOR,
 				NegativeLocalVarianceHandling.FLOOR_AT_ZERO
-		);
+				);
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 				DEFAULT_STRIKE_EPSILON_FACTOR,
 				DEFAULT_VARIANCE_FLOOR,
 				NegativeLocalVarianceHandling.FLOOR_AT_ZERO
-		);
+				);
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 			throw new ArithmeticException(
 					"Dupire denominator is numerically zero at time "
 							+ t + " and strike " + k + "."
-			);
+					);
 		}
 
 		return numerator / denominator;
@@ -326,7 +326,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 				k,
 				QuotingConvention.VOLATILITYLOGNORMAL,
 				volatility
-		);
+				);
 
 		final double dK = getFirstStrikeDerivative(
 				formulaSurface,
@@ -334,7 +334,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 				k,
 				QuotingConvention.VOLATILITYLOGNORMAL,
 				volatility
-		);
+				);
 
 		final double dKK = getSecondStrikeDerivative(
 				formulaSurface,
@@ -342,28 +342,28 @@ public class DupireLocalVolatility implements LocalVolatility {
 				k,
 				QuotingConvention.VOLATILITYLOGNORMAL,
 				volatility
-		);
+				);
 
 		final double h1 =
 				(Math.log(getSpot() / k) + (drift + 0.5 * volatility * volatility) * t)
-						/ volatility;
+				/ volatility;
 
 		final double h2 = h1 - volatility * t;
 
 		final double numerator =
 				volatility * volatility
-						+ 2.0 * volatility * t * (dT + drift * k * dK);
+				+ 2.0 * volatility * t * (dT + drift * k * dK);
 
 		final double denominator =
 				1.0
-						+ 2.0 * h1 * k * dK
-						+ k * k * (h1 * h2 * dK * dK + t * volatility * dKK);
+				+ 2.0 * h1 * k * dK
+				+ k * k * (h1 * h2 * dK * dK + t * volatility * dKK);
 
 		if (Math.abs(denominator) < 1E-16) {
 			throw new ArithmeticException(
 					"Gatheral denominator is numerically zero at time "
 							+ t + " and strike " + k + "."
-			);
+					);
 		}
 
 		return numerator / denominator;
@@ -476,7 +476,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 		throw new IllegalArgumentException(
 				"Automatic local volatility formula selection supports only PRICE "
 						+ "and VOLATILITYLOGNORMAL surfaces."
-		);
+				);
 	}
 
 	private static OptionSurfaceDataInterpolated createFormulaSurface(
@@ -486,13 +486,13 @@ public class DupireLocalVolatility implements LocalVolatility {
 		if (formula == LocalVolatilityFormula.DUPIRE_FROM_PRICES) {
 			return surface.getQuotingConvention() == QuotingConvention.PRICE
 					? surface
-					: surface.getCloneForQuotingConvention(QuotingConvention.PRICE);
+							: surface.getCloneForQuotingConvention(QuotingConvention.PRICE);
 		}
 
 		if (formula == LocalVolatilityFormula.GATHERAL_FROM_IMPLIED_VOLATILITIES) {
 			return surface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL
 					? surface
-					: surface.getCloneForQuotingConvention(QuotingConvention.VOLATILITYLOGNORMAL);
+							: surface.getCloneForQuotingConvention(QuotingConvention.VOLATILITYLOGNORMAL);
 		}
 
 		throw new IllegalArgumentException("Unsupported formula: " + formula);
@@ -571,7 +571,7 @@ public class DupireLocalVolatility implements LocalVolatility {
 			throw new ArithmeticException(
 					"Local variance is not finite at time "
 							+ time + " and strike " + strike + "."
-			);
+					);
 		}
 
 		if (localVariance >= varianceFloor) {
@@ -588,9 +588,9 @@ public class DupireLocalVolatility implements LocalVolatility {
 
 		throw new ArithmeticException(
 				"Negative local variance " + localVariance
-						+ " at time " + time
-						+ " and strike " + strike + "."
-		);
+				+ " at time " + time
+				+ " and strike " + strike + "."
+				);
 	}
 
 	private double makeTimeSafe(final double time) {

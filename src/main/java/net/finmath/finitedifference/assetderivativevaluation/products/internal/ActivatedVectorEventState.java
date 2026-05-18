@@ -83,6 +83,6 @@ public final class ActivatedVectorEventState {
 
 		throw new IllegalArgumentException(
 				"No activated vector found for event time " + eventTime + "."
-		);
+				);
 	}
 }

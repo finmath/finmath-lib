@@ -119,7 +119,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						getExactOptionValue(optionOnBond, time, stateVariables[0])
-				)
+						)
 		};
 	}
 
@@ -135,7 +135,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 		return new BoundaryCondition[] {
 				StandardBoundaryCondition.dirichlet(
 						getExactOptionValue(optionOnBond, time, stateVariables[0])
-				)
+						)
 		};
 	}
 
@@ -173,7 +173,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 					underlyingBond,
 					exerciseDate,
 					currentStateVariable
-			);
+					);
 			return Math.max(sign * (bondValue - strike), 0.0);
 		}
 
@@ -187,7 +187,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 						underlyingBond,
 						time,
 						currentStateVariable
-				);
+						);
 			}
 			return 0.0;
 		}
@@ -208,7 +208,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 					exerciseDate,
 					paymentTime,
 					exerciseBoundaryState
-			);
+					);
 
 			value += cashflow * getZeroCouponBondOptionValue(
 					time,
@@ -217,7 +217,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 					paymentTime,
 					zeroCouponStrike,
 					callOrPut
-			);
+					);
 		}
 
 		return value;
@@ -241,7 +241,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 					time,
 					paymentTime,
 					stateVariable
-			);
+					);
 		}
 
 		return value;
@@ -265,7 +265,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 					time,
 					paymentTime,
 					stateVariable
-			);
+					);
 		}
 
 		return value;
@@ -346,7 +346,7 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 				currentTime,
 				exerciseDate,
 				currentStateVariable
-		);
+				);
 
 		/*
 		 * If bond maturity equals exercise, the underlying zero-coupon bond
@@ -361,12 +361,12 @@ public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInter
 				currentTime,
 				bondMaturity,
 				currentStateVariable
-		);
+				);
 
 		final double bondVolatilitySquared =
 				model.getShortRateConditionalVariance(currentTime, exerciseDate)
-			 * model.getB(exerciseDate, bondMaturity)
-			 * model.getB(exerciseDate, bondMaturity);
+				* model.getB(exerciseDate, bondMaturity)
+				* model.getB(exerciseDate, bondMaturity);
 
 		if (bondVolatilitySquared <= TIME_TOLERANCE) {
 			final double forwardBondPrice = discountBondToMaturity / discountBondToExercise;

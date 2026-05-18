@@ -8,9 +8,8 @@ import net.finmath.modelling.products.CallOrPut;
 import net.finmath.tree.assetderivativevaluation.models.BoyleTrinomial;
 import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
 import net.finmath.tree.assetderivativevaluation.models.JarrowRuddModel;
-import net.finmath.tree.assetderivativevaluation.products.EuropeanNonPathDependent;
-import net.finmath.tree.assetderivativevaluation.products.EuropeanOption;
 import net.finmath.tree.assetderivativevaluation.products.AmericanNonPathDependent;
+import net.finmath.tree.assetderivativevaluation.products.EuropeanOption;
 
 public class EuropeanAndAmericanOptionPricingTest {
 

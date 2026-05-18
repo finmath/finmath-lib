@@ -16,7 +16,6 @@ import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.time.TimeDiscretization;
 import net.finmath.time.TimeDiscretizationFromArray;
-
 // Tree side:
 import net.finmath.tree.assetderivativevaluation.models.CoxRossRubinsteinModel;
 
@@ -83,8 +82,8 @@ public class PathDependentOptionTreeTest {
 								1,              // numberOfFactors
 								numberOfPaths,
 								seed
-						)
-				);
+								)
+						);
 
 		final AssetModelMonteCarloSimulationModel mcSimulation =
 				new MonteCarloAssetModel(bsModel, process);
@@ -94,7 +93,7 @@ public class PathDependentOptionTreeTest {
 						maturity,
 						strike,
 						new TimeDiscretizationFromArray(fixingTimes)
-				);
+						);
 
 		final RandomVariable mcValueRV = mcAsian.getValue(0.0, mcSimulation);
 		final double mcValue = mcValueRV.getAverage();
@@ -110,7 +109,7 @@ public class PathDependentOptionTreeTest {
 						maturity,
 						strike,
 						fixingTimeIndices
-				);
+						);
 
 		final double treeValue = treeAsian.getValue(treeModel);
 
