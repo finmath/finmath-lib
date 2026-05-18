@@ -43,7 +43,7 @@ public class Monomials {
 		int power = powerStartInclusive;
 		RandomVariable monomial = randomVariable.pow(power);
 		monomials.add(monomial);
-		while(power++ < powerEndExclusive) {
+		while(++power < powerEndExclusive) {
 			monomial = monomial.mult(randomVariable);
 			monomials.add(monomial);
 		}
