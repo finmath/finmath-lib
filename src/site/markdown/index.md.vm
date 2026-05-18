@@ -35,6 +35,8 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
         - ADI schemes for two- and three-dimensional PDEs
     - Models
         - Equity models: Black-Scholes, Bachelier, Constant Elasticity of Variance, Heston, SABR, Bates, Merton and Variance Gamma
+        - Black Scholes model with general local volatility functions
+            - Dupire local volatility bootstraped both from option prices or implied volatilities
         - Multi-asset Black-Scholes model
         - Hull-White short rate model
     - Products
