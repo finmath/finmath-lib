@@ -781,7 +781,7 @@ public class ForwardSensitivities {
 			return LinearAlgebra.solveLinearEquationTikonov(
 					matrix,
 					rhs,
-					Math.sqrt(regularizationLambda));
+					regularizationLambda);
 		}
 
 		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, rhs);
