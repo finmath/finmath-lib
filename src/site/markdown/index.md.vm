@@ -29,14 +29,19 @@ The finmath lib libraries provides (JVM) implementations of methodologies relate
     - Two factor Bates model
     - Merton model
     - Variance Gamma model (contributed and maintained by Alessandro Gnoatto)
-- **Finite difference methods** (contributed by Ralph Rudd and Jörg Kienitz)
+- **Finite difference methods** (originally contributed by Ralph Rudd and Jörg Kienitz; redesigned and extended by Alessandro Gnoatto and others)
     - Numerical schemes using finite differences
-        - Theta-scheme
+        - Theta-schemes for one-dimensional PDEs and PIDEs
+        - ADI schemes for two- and three-dimensional PDEs
     - Models
-        - Black-Scholes model
-        - Constant Elasticity of Variance model
+        - Equity models: Black-Scholes, Bachelier, Constant Elasticity of Variance, Heston, SABR, Bates, Merton and Variance Gamma
+        - Multi-asset Black-Scholes model
+        - Hull-White short rate model
     - Products
-        - European option
+        - Equity options: European, American, Bermudan, barrier, digital, touch, Asian, basket, best-/worst-of, swing and shout options
+        - Interest-rate products: bonds, swaps, swaptions and options on bonds
+    - Utilities
+        - Grids, boundary conditions, interpolation, Greeks and plot data
 - **Monte-Carlo simulation** of multi-dimensional, multi-factor stochastic differential equations (SDEs)
     - Hull-White Short Rate Model (with time dependent parameters)
     - LIBOR Market Model (Forward Rate Model) (in various forms)
