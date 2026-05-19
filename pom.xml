@@ -713,7 +713,11 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${checkstyle-plugin.version}</version>
 				<configuration>
-					<configLocation>finmath-checkstyle.xml</configLocation>
+					<configLocation>checkstyle/finmath-checkstyle.xml</configLocation>
+					<encoding>UTF-8</encoding>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<linkXRef>false</linkXRef>
 					<excludes>**/module-info.java</excludes>
 				</configuration>
 				<reportSets>
