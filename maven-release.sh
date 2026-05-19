@@ -46,7 +46,8 @@ cd target/checkout/
 
 VERSION="$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
 ATTACH_DIR="$(pwd)/../release-artifacts"
-JAVA8_ARTIFACT="${ATTACH_DIR}/finmath-lib-${VERSION}-java8.jar"
+STAGED_JAVA8_ARTIFACT="${ATTACH_DIR}/finmath-lib-${VERSION}-java8.jar"
+JAVA8_ARTIFACT="$(pwd)/target/release-artifacts/finmath-lib-${VERSION}-java8.jar"
 
 rm -rf "${ATTACH_DIR}"
 mkdir -p "${ATTACH_DIR}"
@@ -64,15 +65,19 @@ if [ ! -f "target/finmath-lib-${VERSION}-java8.jar" ]; then
 	exit 1
 fi
 
-cp "target/finmath-lib-${VERSION}-java8.jar" "${JAVA8_ARTIFACT}"
+cp "target/finmath-lib-${VERSION}-java8.jar" "${STAGED_JAVA8_ARTIFACT}"
 
-# Final deploy: build the Java 11 main artifact, attach Java 11 sources/javadocs
-# and the pre-built Java 8 classifier jar, sign everything, and create exactly
-# one Central Portal deployment.
-mvn clean deploy \
-	-P=java-11,attach-java8-artifact,-java-8 \
-	-Djava8.artifact="${JAVA8_ARTIFACT}" \
-	-DskipTests
+# Final deploy: clean the Java 8 build output, then copy the Java 8 artifact
+# back into the Java 11 build directory before deploy. This avoids attaching an
+# artifact via a ../ path, which can confuse the GPG plugin's signature path.
+mvn clean
+mkdir -p "$(dirname "${JAVA8_ARTIFACT}")"
+cp "${STAGED_JAVA8_ARTIFACT}" "${JAVA8_ARTIFACT}"
+
+mvn deploy \
+ 	-P=java-11,attach-java8-artifact,-java-8 \
+ 	-Djava8.artifact="${JAVA8_ARTIFACT}" \
+ 	-DskipTests
 
 echo "Turn to https://central.sonatype.com/publishing/deployments to publish/release the deployment."
 echo "Then release the new site."
