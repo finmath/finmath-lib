@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities;
 import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities.ProjectedHedgeRatioResult;
@@ -22,7 +24,9 @@ import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpect
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * A self-financing hedge simulator for term-structure products using stochastic
@@ -156,12 +160,13 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 	private final TermStructureMonteCarloProduct productToReplicate;
 	private final List<TermStructureMonteCarloProduct> hedgeInstruments;
-	private final double[] rebalancingTimes;
+	private final TimeDiscretization rebalancingTimes;
 	private final BasisFunctionProvider solutionBasisFunctionProvider;
 	private final BasisFunctionProvider testBasisFunctionProvider;
 	private final ParameterIDProvider parameterIDProvider;
 	private final HedgeInstrumentValueProvider hedgeInstrumentValueProvider;
 	private final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider;
+	private final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider;
 	private final double regularizationLambda;
 	private final ReductionMethod reductionMethod;
 
@@ -190,7 +195,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public ForwardSensitivityDeltaHedgedPortfolio(
 			final TermStructureMonteCarloProduct productToReplicate,
 			final List<TermStructureMonteCarloProduct> hedgeInstruments,
-			final double[] rebalancingTimes,
+			final TimeDiscretization rebalancingTimes,
 			final BasisFunctionProvider basisFunctionProvider,
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) {
@@ -221,7 +226,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public ForwardSensitivityDeltaHedgedPortfolio(
 			final TermStructureMonteCarloProduct productToReplicate,
 			final List<TermStructureMonteCarloProduct> hedgeInstruments,
-			final double[] rebalancingTimes,
+			final TimeDiscretization rebalancingTimes,
 			final BasisFunctionProvider solutionBasisFunctionProvider,
 			final BasisFunctionProvider testBasisFunctionProvider,
 			final double regularizationLambda,
@@ -256,7 +261,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public ForwardSensitivityDeltaHedgedPortfolio(
 			final TermStructureMonteCarloProduct productToReplicate,
 			final List<TermStructureMonteCarloProduct> hedgeInstruments,
-			final double[] rebalancingTimes,
+			final TimeDiscretization rebalancingTimes,
 			final BasisFunctionProvider solutionBasisFunctionProvider,
 			final BasisFunctionProvider testBasisFunctionProvider,
 			final ParameterIDProvider parameterIDProvider,
@@ -278,7 +283,10 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 	/**
 	 * Full constructor allowing custom primitive, hedge-instrument value and
-	 * trade-value providers.
+	 * trade-value providers. The final portfolio is marked using the product
+	 * value convention. This preserves the previous behavior and is appropriate
+	 * when the evaluation time is the payment time and the hedge instruments are
+	 * interpreted as their cashflow products.
 	 *
 	 * @param productToReplicate The product to replicate.
 	 * @param hedgeInstruments The hedge instruments P_j.
@@ -294,12 +302,56 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public ForwardSensitivityDeltaHedgedPortfolio(
 			final TermStructureMonteCarloProduct productToReplicate,
 			final List<TermStructureMonteCarloProduct> hedgeInstruments,
-			final double[] rebalancingTimes,
+			final TimeDiscretization rebalancingTimes,
 			final BasisFunctionProvider solutionBasisFunctionProvider,
 			final BasisFunctionProvider testBasisFunctionProvider,
 			final ParameterIDProvider parameterIDProvider,
 			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
 			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+		this(
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+				parameterIDProvider,
+				hedgeInstrumentValueProvider,
+				hedgeInstrumentTradeValueProvider,
+				getProductValueProvider(),
+				regularizationLambda,
+				reductionMethod);
+	}
+
+	/**
+	 * Full constructor allowing custom primitive, hedge-instrument value, trade-value
+	 * and final marking providers. The final marking provider is useful for
+	 * diagnostics where the hedge is stopped at the fixing time and should be
+	 * marked with adapted tradable prices instead of product proto-values.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments \( P_{j} \).
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param solutionBasisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param testBasisFunctionProvider The basis functions Y_s used for PROJECTED_GALERKIN moments. May be null.
+	 * @param parameterIDProvider Provides the primitive AAD IDs used by ForwardSensitivities.
+	 * @param hedgeInstrumentValueProvider Provides the hedge-instrument values used in ForwardSensitivities.
+	 * @param hedgeInstrumentTradeValueProvider Provides adapted trade values for the self-financing update.
+	 * @param finalHedgeInstrumentValueProvider Provides hedge-instrument values used for final portfolio marking.
+	 * @param regularizationLambda Tikhonov regularization parameter. Use 0.0 for none.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List<TermStructureMonteCarloProduct> hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider,
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) {
 
@@ -313,11 +365,10 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		this.hedgeInstruments = Collections.unmodifiableList(new ArrayList<>(hedgeInstruments));
 
 		Objects.requireNonNull(rebalancingTimes, "rebalancingTimes must not be null.");
-		if(rebalancingTimes.length == 0) {
+		if(rebalancingTimes.size() == 0) {
 			throw new IllegalArgumentException("rebalancingTimes must contain at least one time.");
 		}
-		this.rebalancingTimes = rebalancingTimes.clone();
-		Arrays.sort(this.rebalancingTimes);
+		this.rebalancingTimes = rebalancingTimes;
 
 		this.solutionBasisFunctionProvider = Objects.requireNonNull(
 				solutionBasisFunctionProvider,
@@ -330,6 +381,9 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		this.hedgeInstrumentTradeValueProvider = Objects.requireNonNull(
 				hedgeInstrumentTradeValueProvider,
 				"hedgeInstrumentTradeValueProvider must not be null.");
+		this.finalHedgeInstrumentValueProvider = Objects.requireNonNull(
+				finalHedgeInstrumentValueProvider,
+				"finalHedgeInstrumentValueProvider must not be null.");
 
 		if(regularizationLambda < 0.0) {
 			throw new IllegalArgumentException("regularizationLambda must be non-negative.");
@@ -351,7 +405,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public ForwardSensitivityDeltaHedgedPortfolio(
 			final TermStructureMonteCarloProduct productToReplicate,
 			final TermStructureMonteCarloProduct[] hedgeInstruments,
-			final double[] rebalancingTimes,
+			final TimeDiscretization rebalancingTimes,
 			final BasisFunctionProvider basisFunctionProvider,
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) {
@@ -416,7 +470,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
 			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null
 					? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model)
-							: null;
+					: null;
 			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
 			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 
@@ -487,7 +541,10 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		 */
 		final long timingFinalValuationStart = System.currentTimeMillis();
 		RandomVariable portfolioValue = amountOfNumeraireAsset.mult(model.getNumeraire(evaluationTime));
-		final RandomVariable[] hedgeInstrumentValuesAtEvaluationTime = getHedgeInstrumentProductValues(evaluationTime, model);
+		final RandomVariable[] hedgeInstrumentValuesAtEvaluationTime = finalHedgeInstrumentValueProvider.getValues(
+				evaluationTime,
+				model,
+				hedgeInstruments);
 		for(int hedgeIndex = 0; hedgeIndex < hedgeInstrumentPositions.length; hedgeIndex++) {
 			portfolioValue = portfolioValue.add(
 					hedgeInstrumentPositions[hedgeIndex].mult(hedgeInstrumentValuesAtEvaluationTime[hedgeIndex]));
@@ -567,8 +624,17 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 							tenorPeriodLength,
 							model);
 				}
+				else if(hedgeInstrument instanceof DiscreteTenorRollOver) {
+					values[hedgeIndex] = getAnalyticBondValue(
+							evaluationTime,
+							((DiscreteTenorRollOver)hedgeInstrument).getFixingTime(),
+							tenorPeriodLength,
+							model);
+				}
 				else {
-					values[hedgeIndex] = hedgeInstrument.getValue(evaluationTime, model);
+					// Using the proto value will generate biases, due to correlation (need cond. exp. first).
+					// TODO: Option: Add numerical cond. expectation.
+					throw new UnsupportedOperationException("The hedge instrument does not have an analytic proxy. We need an analytic proxy here for benchmarking.");
 				}
 			}
 			return values;
@@ -585,7 +651,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public static HedgeInstrumentTradeValueProvider getAnalyticBondTradeValueProvider(final double tenorPeriodLength) {
 		final HedgeInstrumentValueProvider valueProvider = getAnalyticBondValueProvider(tenorPeriodLength);
 		return (evaluationTime, model, hedgeInstruments, hedgeInstrumentProtoValues, conditioningBasisFunctions) ->
-		valueProvider.getValues(evaluationTime, model, hedgeInstruments);
+			valueProvider.getValues(evaluationTime, model, hedgeInstruments);
 	}
 
 	/**
@@ -625,11 +691,25 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			 * Bond.getValue(t, model), used only as a safe fallback. Dynamic trading
 			 * in already matured bonds should normally be avoided.
 			 */
-			return model.getRandomVariableForConstant(1.0)
-					.div(model.getNumeraire(maturity))
-					.mult(model.getMonteCarloWeights(maturity))
-					.mult(model.getNumeraire(evaluationTime))
-					.div(model.getMonteCarloWeights(evaluationTime));
+			int maturityBondModel = 1;
+			if(maturityBondModel == 0) {
+				return Scalar.of(0.0);
+			}
+			else if(maturityBondModel == 1) {
+				// Works: return the accrued bond, adapted to maturity.
+				return model.getModel().getForwardDiscountBond(
+						model.getProcess(),
+						maturity,
+						evaluationTime).invert();
+			}
+			else {
+				// Biased: return the accrued bond, adapted to evaluationTime > maturity.
+				return model.getRandomVariableForConstant(0.0)
+						.div(model.getNumeraire(maturity))
+						.mult(model.getMonteCarloWeights(maturity))
+						.mult(model.getNumeraire(evaluationTime))
+						.div(model.getMonteCarloWeights(evaluationTime));
+			}
 		}
 
 		return model.getModel().getForwardDiscountBond(
@@ -861,8 +941,8 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		return hedgeInstruments;
 	}
 
-	public double[] getRebalancingTimes() {
-		return rebalancingTimes.clone();
+	public TimeDiscretization getRebalancingTimes() {
+		return rebalancingTimes;
 	}
 
 	public double getRegularizationLambda() {
@@ -907,5 +987,9 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 	public RandomVariable getLastNumerairePosition() {
 		return lastNumerairePosition;
+	}
+
+	public HedgeInstrumentValueProvider getFinalHedgeInstrumentValueProvider() {
+		return finalHedgeInstrumentValueProvider;
 	}
 }
