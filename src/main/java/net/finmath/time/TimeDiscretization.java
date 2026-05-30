@@ -24,6 +24,11 @@ public interface TimeDiscretization extends Iterable<Double> {
 	/**
 	 * @return Returns the number of time discretization points.
 	 */
+	default int size() { return getNumberOfTimes(); }
+
+	/**
+	 * @return Returns the number of time discretization points.
+	 */
 	int getNumberOfTimes();
 
 	/**
