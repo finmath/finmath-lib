@@ -21,7 +21,7 @@ import net.finmath.time.FloatingpointDate;
  */
 public class Bond extends AbstractTermStructureMonteCarloProduct {
 
-	private LocalDateTime referenceDate;
+	private final LocalDateTime referenceDate;
 	private double maturity;
 
 	/**
@@ -42,6 +42,7 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 	 */
 	public Bond(final double maturity) {
 		super();
+		this.referenceDate = null;
 		this.maturity = maturity;
 	}
 
@@ -97,6 +98,7 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 	/**
 	 * @param maturity The maturity to set.
 	 */
+	@Deprecated
 	public void setMaturity(final double maturity) {
 		this.maturity = maturity;
 	}
