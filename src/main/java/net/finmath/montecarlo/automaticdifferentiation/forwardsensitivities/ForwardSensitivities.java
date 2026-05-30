@@ -746,7 +746,7 @@ public class ForwardSensitivities {
 	private static double[] solveReducedSystem(
 			final double[][] matrix,
 			final double[] rhs,
-			final double regularizationLambda,
+			final double relativeRegularization,
 			final boolean matrixIsNormalEquationSystem) throws CalculationException {
 
 		if(matrixIsNormalEquationSystem) {
@@ -760,33 +760,56 @@ public class ForwardSensitivities {
 			 * Do not call solveLinearEquationTikonov here, because that would regularize
 			 * the normal equations themselves.
 			 */
-			final double[][] matrixToSolve = copyMatrix(matrix);
-			if(regularizationLambda > 0.0) {
-				for(int index = 0; index < matrixToSolve.length; index++) {
-					matrixToSolve[index][index] += regularizationLambda;
-				}
-			}
-			return LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhs);
-		}
+		    final double scale = trace(matrix) / matrix.length;
+		    final double lambdaAbsolute = relativeRegularization * scale;
 
-		/*
-		 * Projected/Galerkin system. finmath's solveLinearEquationTikonov(A,b,lambdaFinmath)
-		 * solves the augmented least-squares problem with lambdaFinmath * I. Hence it
-		 * corresponds to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
-		 *
-		 * Our input regularizationLambda is the lambda in ||Az-b||^2 + lambda ||z||^2,
-		 * so we pass sqrt(lambda).
-		 */
-		if(regularizationLambda > 0.0) {
-			return LinearAlgebra.solveLinearEquationTikonov(
-					matrix,
-					rhs,
-					regularizationLambda);
+		    final double[][] matrixToSolve = copyMatrix(matrix);
+		    for(int index = 0; index < matrixToSolve.length; index++) {
+		        matrixToSolve[index][index] += lambdaAbsolute;
+		    }
+
+		    return LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhs);
+		}
+		else if(relativeRegularization > 0.0) {
+			/*
+			 * Projected/Galerkin system. finmath's solveLinearEquationTikonov(A,b,lambdaFinmath)
+			 * solves the augmented least-squares problem with lambdaFinmath * I. Hence it
+			 * corresponds to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
+			 *
+			 * Our input regularizationLambda is the lambda in ||Az-b||^2 + lambda ||z||^2,
+			 * so we pass sqrt(lambda).
+			 */
+		    final int numberOfColumns = matrix[0].length;
+		    final double scale = frobeniusNormSquared(matrix) / numberOfColumns;
+		    final double lambdaAbsolute = relativeRegularization * scale;
+
+		    return LinearAlgebra.solveLinearEquationTikonov(
+		            matrix,
+		            rhs,
+		            Math.sqrt(lambdaAbsolute));
 		}
 
 		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, rhs);
 	}
 
+	private static double frobeniusNormSquared(final double[][] matrix) {
+	    double sum = 0.0;
+	    for(final double[] row : matrix) {
+	        for(final double entry : row) {
+	            sum += entry * entry;
+	        }
+	    }
+	    return sum;
+	}
+
+	private static double trace(final double[][] matrix) {
+	    double sum = 0.0;
+	    for(int i = 0; i < Math.min(matrix.length, matrix[0].length); i++) {
+	        sum += matrix[i][i];
+	    }
+	    return sum;
+	}
+	
 	private static RandomVariable[] reconstructHedgeRatios(
 			final double evaluationTime,
 			final double[][] coefficients,
