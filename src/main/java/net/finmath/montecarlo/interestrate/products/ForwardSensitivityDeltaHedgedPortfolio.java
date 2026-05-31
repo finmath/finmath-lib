@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import net.finmath.exception.CalculationException;
-import net.finmath.montecarlo.BrownianMotion;
-import net.finmath.montecarlo.BrownianMotionFromMersenneRandomNumbers;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities;
 import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities.ProjectedHedgeRatioResult;
@@ -26,7 +24,6 @@ import net.finmath.stochastic.ConditionalExpectationEstimator;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
 import net.finmath.time.TimeDiscretization;
-import net.finmath.time.TimeDiscretizationFromArray;
 
 /**
  * A self-financing hedge simulator for term-structure products using stochastic
