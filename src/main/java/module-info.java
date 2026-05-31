@@ -99,6 +99,7 @@ module net.finmath.lib {
 	exports net.finmath.singleswaprate.model.volatilities;
 	exports net.finmath.singleswaprate.products;
 	exports net.finmath.stochastic;
+	exports net.finmath.stochastic.operators;
 	exports net.finmath.swing;
 	exports net.finmath.time;
 	exports net.finmath.time.businessdaycalendar;
