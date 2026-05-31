@@ -12,9 +12,7 @@ import net.finmath.stochastic.RandomVariable;
 /**
  * A diagnostic hedge instrument representing a discretely rolled unit bond.
  *
- * <p>
  * The product pays
- * </p>
  *
  * \[
  *     1 + (T_{i+1}-T_{i}) L(T_{i},T_{i+1};T_{i})
@@ -25,8 +23,7 @@ import net.finmath.stochastic.RandomVariable;
  * from a matured \(T_{i}\)-bond is rolled from \( T_{i} \) to
  * {\( T_{i+1} \) at the fixing Libor, rather than through the model's
  * short-rate money-market numeraire.
- * </p>
- *
+ * 
  * <p>
  * The class is mainly meant as a diagnostic product for comparing LMM and
  * short-rate/Hull-White roll-over conventions. For {@code t < T_i} its value is
