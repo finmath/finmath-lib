@@ -467,7 +467,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
 			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null
 					? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model)
-					: null;
+							: null;
 			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
 			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 
@@ -648,7 +648,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	public static HedgeInstrumentTradeValueProvider getAnalyticBondTradeValueProvider(final double tenorPeriodLength) {
 		final HedgeInstrumentValueProvider valueProvider = getAnalyticBondValueProvider(tenorPeriodLength);
 		return (evaluationTime, model, hedgeInstruments, hedgeInstrumentProtoValues, conditioningBasisFunctions) ->
-			valueProvider.getValues(evaluationTime, model, hedgeInstruments);
+		valueProvider.getValues(evaluationTime, model, hedgeInstruments);
 	}
 
 	/**
@@ -688,7 +688,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			 * Bond.getValue(t, model), used only as a safe fallback. Dynamic trading
 			 * in already matured bonds should normally be avoided.
 			 */
-			int maturityBondModel = 1;
+			final int maturityBondModel = 1;
 			if(maturityBondModel == 0) {
 				return Scalar.of(0.0);
 			}
@@ -814,7 +814,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				throw new IllegalArgumentException("Could not find process time index for evaluationTime " + evaluationTime + ".");
 			}
 
-			List<RandomVariable> modelPrimitivesList = new ArrayList<>();
+			final List<RandomVariable> modelPrimitivesList = new ArrayList<>();
 			for(int processTimeIndexLagged = Math.max(processTimeIndex-lag, 0); processTimeIndexLagged<=processTimeIndex; processTimeIndexLagged++) {
 				final RandomVariable[] modelPrimitivesLagged = model.getProcess().getProcessValue(processTimeIndexLagged);
 				modelPrimitivesList.addAll(Arrays.asList(modelPrimitivesLagged));
@@ -861,11 +861,11 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				throw new IllegalArgumentException("Could not find process time index for evaluationTime " + evaluationTime + ".");
 			}
 
-			List<RandomVariable> forwardRates = new ArrayList<>();
-			int indexRateStart = tenorDiscretization.getTimeIndexNearestGreaterOrEqual(evaluationTime);
-			int indexRateEnd = tenorDiscretization.getNumberOfTimes()-1;
+			final List<RandomVariable> forwardRates = new ArrayList<>();
+			final int indexRateStart = tenorDiscretization.getTimeIndexNearestGreaterOrEqual(evaluationTime);
+			final int indexRateEnd = tenorDiscretization.getNumberOfTimes()-1;
 			for(int indexPeriodStart = indexRateStart; indexPeriodStart<indexRateEnd; indexPeriodStart++) {
-				RandomVariable forwardRate = model.getForwardRate(evaluationTime, tenorDiscretization.getTime(indexPeriodStart), tenorDiscretization.getTime(indexPeriodStart+1));
+				final RandomVariable forwardRate = model.getForwardRate(evaluationTime, tenorDiscretization.getTime(indexPeriodStart), tenorDiscretization.getTime(indexPeriodStart+1));
 				forwardRates.add(forwardRate);
 			}
 
