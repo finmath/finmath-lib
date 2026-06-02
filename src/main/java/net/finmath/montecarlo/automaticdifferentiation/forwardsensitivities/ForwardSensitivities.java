@@ -273,7 +273,7 @@ public class ForwardSensitivities {
 	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
 	 *                       For PROJECTED_GALERKIN this basis is used both as solution
 	 *                       and test basis.
-	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
 	 */
@@ -308,7 +308,7 @@ public class ForwardSensitivities {
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
 	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
 	 *                           the solution basis is used as the test basis.
-	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
 	 */
@@ -358,7 +358,7 @@ public class ForwardSensitivities {
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
 	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
 	 *                           the solution basis is used as the test basis.
-	 * @param regularizationLambda Lambda in the selected regularized criterion. Use 0.0 for unregularized.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
 	 */
@@ -921,7 +921,7 @@ public class ForwardSensitivities {
 	private static double[] solveReducedSystem(
 			final double[][] matrix,
 			final double[] rhs,
-			final double relativeRegularization,
+			final double regularizationLambda,
 			final boolean matrixIsNormalEquationSystem) throws CalculationException {
 
 		if(matrixIsNormalEquationSystem) {
@@ -935,54 +935,29 @@ public class ForwardSensitivities {
 			 * Do not call solveLinearEquationTikonov here, because that would regularize
 			 * the normal equations themselves.
 			 */
-			final double scale = trace(matrix) / matrix.length;
-			final double lambdaAbsolute = relativeRegularization * scale;
-
 			final double[][] matrixToSolve = copyMatrix(matrix);
 			for(int index = 0; index < matrixToSolve.length; index++) {
-				matrixToSolve[index][index] += lambdaAbsolute;
+				matrixToSolve[index][index] += regularizationLambda;
 			}
 
 			return LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhs);
 		}
-		else if(relativeRegularization > 0.0) {
+		else if(regularizationLambda > 0.0) {
 			/*
 			 * Projected/Galerkin system. finmath's solveLinearEquationTikonov(A,b,lambdaFinmath)
 			 * solves the augmented least-squares problem with lambdaFinmath * I. Hence it
 			 * corresponds to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
 			 *
-			 * Our input regularizationLambda is the lambda in ||Az-b||^2 + lambda ||z||^2,
-			 * so we pass sqrt(lambda).
+			 * Our input regularizationLambda is the absolute lambda in
+			 * ||Az-b||^2 + lambda ||z||^2, so we pass sqrt(lambda).
 			 */
-			final int numberOfColumns = matrix[0].length;
-			final double scale = frobeniusNormSquared(matrix) / numberOfColumns;
-			final double lambdaAbsolute = relativeRegularization * scale;
-
 			return LinearAlgebra.solveLinearEquationTikonov(
 					matrix,
 					rhs,
-					Math.sqrt(lambdaAbsolute));
+					Math.sqrt(regularizationLambda));
 		}
 
 		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, rhs);
-	}
-
-	private static double frobeniusNormSquared(final double[][] matrix) {
-		double sum = 0.0;
-		for(final double[] row : matrix) {
-			for(final double entry : row) {
-				sum += entry * entry;
-			}
-		}
-		return sum;
-	}
-
-	private static double trace(final double[][] matrix) {
-		double sum = 0.0;
-		for(int i = 0; i < Math.min(matrix.length, matrix[0].length); i++) {
-			sum += matrix[i][i];
-		}
-		return sum;
 	}
 
 	private static RandomVariable[] reconstructHedgeRatios(
