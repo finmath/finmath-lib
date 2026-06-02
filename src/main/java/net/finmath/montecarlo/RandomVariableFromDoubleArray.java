@@ -322,7 +322,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 		double error = 0.0;														// Running error compensation
 		for(int i=0; i<realizations.length; i++)  {
 			final double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value
-			final double newSum = sum + value;				// New sum
+			final double newSum = sum + value;			// New sum
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
