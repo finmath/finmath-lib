@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
@@ -443,6 +444,19 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		final List<Map<String, Long>> parameterIDsByNameHistory = new ArrayList<>();
 		final List<ProjectedHedgeRatioResult> hedgeRatioResults = new ArrayList<>();
 
+		/*
+		 * Note: There are two possible ways of doing this here:
+		 * 1) we can use the proto values V(0) and P(0) to calculate dV(0)/dM(t) and dP(0)/dM(t) and infer dV(t)/dP(t), or,
+		 * 2) we can use the proto values V(t) and P(t) to calculate dV(t)/dM(t) and dP(t)/dM(t) and infer dV(t)/dP(t).
+		 * The second option is much slower. The first works, because for the proto values the V(t)/N(t) - V(0)/N(0) does not depend on M(t).
+		 */
+		final RandomVariable derivativeProtoValue = productToReplicate.getValue(0.0, model);
+		final RandomVariable[] hedgeInstrumentProtoValues = hedgeInstrumentValueProvider.getValues(0.0, model, hedgeInstruments);
+		final Map<Long, RandomVariable> derivativeGradient = ((RandomVariableDifferentiable)derivativeProtoValue).getGradient();
+		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = Arrays.stream(hedgeInstrumentProtoValues).map(hedgeInstrumentProtoValue ->
+				hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable ? ((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient() : Map.<Long, RandomVariable>of())
+				.collect(Collectors.toList());
+
 		for(final double rebalancingTime : rebalancingTimes) {
 
 			if(rebalancingTime < 0.0 || rebalancingTime >= evaluationTime) {
@@ -459,18 +473,13 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			timingValuationMillis += System.currentTimeMillis() - timingParameterStart;
 
 			final long timingValuationStart = System.currentTimeMillis();
-			final RandomVariable derivativeProtoValue = productToReplicate.getValue(rebalancingTime, model);
-			final RandomVariable[] hedgeInstrumentProtoValues = hedgeInstrumentValueProvider.getValues(
-					rebalancingTime,
-					model,
-					hedgeInstruments);
-			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
-			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null
-					? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model)
-							: null;
-			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
-			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 
+			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
+			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null ? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;
+
+			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
+
+			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 			if(hedgeInstrumentProtoValues.length != hedgeInstrumentPositions.length) {
 				throw new IllegalStateException(
 						"Hedge-instrument value provider returned " + hedgeInstrumentProtoValues.length
@@ -490,12 +499,12 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final ProjectedHedgeRatioResult hedgeRatioResult = ForwardSensitivities.getHedgeRatios(
 					parameterIDsByName,
 					rebalancingTime,
-					derivativeProtoValue,
-					hedgeInstrumentProtoValues,
+					derivativeGradient,
+					hedgePortfolioGradients,
 					solutionBasisFunctions,
 					testBasisFunctions,
 					regularizationLambda,
-					reductionMethod);
+					reductionMethod, derivativeProtoValue.size());
 			timingHedgeRatioMillis += System.currentTimeMillis() - timingHedgeRatioStart;
 
 			final RandomVariable[] newHedgeInstrumentPositions = hedgeRatioResult.getHedgeRatios();
