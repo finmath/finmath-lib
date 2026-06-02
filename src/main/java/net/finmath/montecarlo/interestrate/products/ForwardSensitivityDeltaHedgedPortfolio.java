@@ -171,6 +171,8 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	private double lastOperationTimingTotal = Double.NaN;
 	private double lastOperationTimingValuation = Double.NaN;
 	private double lastOperationTimingHedgeRatios = Double.NaN;
+	private double lastOperationTimingHedgeRatioProject = Double.NaN;;
+	private double lastOperationTimingHedgeRatioSolve = Double.NaN;;
 	private double lastOperationTimingTradeValues = Double.NaN;
 
 	private List<Double> lastRebalancingTimes = Collections.emptyList();
@@ -425,6 +427,8 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		long timingValuationMillis = 0L;
 		long timingHedgeRatioMillis = 0L;
 		long timingTradeValueMillis = 0L;
+		long timingHedgeRatioProjectMillis = 0L;
+		long timingHedgeRatioSolveMillis = 0L;
 
 		/*
 		 * Initial funding: start with the time-0 price of the product in the
@@ -506,6 +510,9 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 					regularizationLambda,
 					reductionMethod, derivativeProtoValue.size());
 			timingHedgeRatioMillis += System.currentTimeMillis() - timingHedgeRatioStart;
+			
+			timingHedgeRatioProjectMillis += hedgeRatioResult.getTimings().getTimingProjectSystem();
+			timingHedgeRatioSolveMillis += hedgeRatioResult.getTimings().getTimingSolveSystem();
 
 			final RandomVariable[] newHedgeInstrumentPositions = hedgeRatioResult.getHedgeRatios();
 			if(newHedgeInstrumentPositions.length != hedgeInstrumentPositions.length) {
@@ -560,6 +567,8 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		lastOperationTimingTotal = (System.currentTimeMillis() - timingStart) / 1000.0;
 		lastOperationTimingValuation = timingValuationMillis / 1000.0;
 		lastOperationTimingHedgeRatios = timingHedgeRatioMillis / 1000.0;
+		lastOperationTimingHedgeRatioProject = timingHedgeRatioProjectMillis / 1000.0;
+		lastOperationTimingHedgeRatioSolve = timingHedgeRatioSolveMillis / 1000.0;
 		lastOperationTimingTradeValues = timingTradeValueMillis / 1000.0;
 		lastRebalancingTimes = Collections.unmodifiableList(new ArrayList<>(rebalancedTimes));
 		lastParameterIDsByName = Collections.unmodifiableList(new ArrayList<>(parameterIDsByNameHistory));
@@ -969,6 +978,14 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 	public double getLastOperationTimingHedgeRatios() {
 		return lastOperationTimingHedgeRatios;
+	}
+
+	public double getLastOperationTimingHedgeRatioProject() {
+		return lastOperationTimingHedgeRatioProject;
+	}
+
+	public double getLastOperationTimingHedgeRatioSolve() {
+		return lastOperationTimingHedgeRatioSolve;
 	}
 
 	public double getLastOperationTimingTradeValues() {

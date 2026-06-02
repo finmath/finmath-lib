@@ -90,24 +90,7 @@ public class ForwardSensitivities {
 		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
 		private final List<String> riskFactorNames; // row risk factors M_i
 		private final ReductionMethod reductionMethod;
-
-		/**
-		 * Backwards-compatible constructor. The method is assumed to be PROJECTED_GALERKIN.
-		 */
-		public ProjectedHedgeRatioResult(
-				final RandomVariable[] hedgeRatios,
-				final double[][] coefficients,
-				final double[][] reducedMatrix,
-				final double[] reducedRhs,
-				final List<String> riskFactorNames) {
-			this(
-					hedgeRatios,
-					coefficients,
-					reducedMatrix,
-					reducedRhs,
-					riskFactorNames,
-					ReductionMethod.PROJECTED_GALERKIN);
-		}
+		private Timings timings;
 
 		public ProjectedHedgeRatioResult(
 				final RandomVariable[] hedgeRatios,
@@ -115,13 +98,15 @@ public class ForwardSensitivities {
 				final double[][] reducedMatrix,
 				final double[] reducedRhs,
 				final List<String> riskFactorNames,
-				final ReductionMethod reductionMethod) {
+				final ReductionMethod reductionMethod,
+				final Timings timings) {
 			this.hedgeRatios = hedgeRatios;
 			this.coefficients = coefficients;
 			this.reducedMatrix = reducedMatrix;
 			this.reducedRhs = reducedRhs;
 			this.riskFactorNames = riskFactorNames;
 			this.reductionMethod = reductionMethod;
+			this.timings = timings;
 		}
 
 		public RandomVariable[] getHedgeRatios() {
@@ -163,6 +148,29 @@ public class ForwardSensitivities {
 
 		public ReductionMethod getReductionMethod() {
 			return reductionMethod;
+		}
+
+		public Timings getTimings() {
+			return timings;
+		}		
+	}
+
+	public static final class Timings {
+		private final long timingSolveSystem;
+		private final long timingProjectSystem;
+		
+		public Timings(long timingSolveSystem, long timingProjectSystem) {
+			super();
+			this.timingSolveSystem = timingSolveSystem;
+			this.timingProjectSystem = timingProjectSystem;
+		}
+
+		public long getTimingSolveSystem() {
+			return timingSolveSystem;
+		}
+
+		public long getTimingProjectSystem() {
+			return timingProjectSystem;
 		}
 	}
 
@@ -382,6 +390,8 @@ public class ForwardSensitivities {
 		final List<String> riskFactorNames = new ArrayList<>(parameterIDsByName.keySet());
 		final Set<Long> independentIDs = new HashSet<>(parameterIDsByName.values());
 
+		final long timingProjectSystemStart = System.currentTimeMillis();
+
 		/*
 		 * b_{l i} = dV / dM_i, pathwise.
 		 */
@@ -450,11 +460,16 @@ public class ForwardSensitivities {
 			throw new IllegalArgumentException("Unsupported reductionMethod: " + reductionMethod);
 		}
 
+		final long timingProjectSystem = System.currentTimeMillis() - timingProjectSystemStart;
+		final long timingSolveSystemStart = System.currentTimeMillis();
+
 		final double[] solution = solveReducedSystem(
 				reducedSystem.matrix,
 				reducedSystem.rhs,
 				regularizationLambda,
 				reducedSystem.isNormalEquationSystem);
+
+		final long timingSolveSystem = System.currentTimeMillis() - timingSolveSystemStart;
 
 		/*
 		 * Unflatten xi_j^q.
@@ -478,7 +493,8 @@ public class ForwardSensitivities {
 				reducedSystem.matrix,
 				reducedSystem.rhs,
 				Collections.unmodifiableList(riskFactorNames),
-				reductionMethod);
+				reductionMethod,
+				new Timings(timingProjectSystem, timingSolveSystem));
 	}
 
 	/**
