@@ -5,6 +5,17 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.1.3 (18.05.2026)
+
+### General
+
+- Minor additions to `net.finmath.functions.LinearAlgebra`
+
+### Algorithmic Differentiation
+
+- Minor performance improvement to `ForwardSensitivities`.
+
+
 ## 6.1.2 (18.05.2026)
 
 ### General
