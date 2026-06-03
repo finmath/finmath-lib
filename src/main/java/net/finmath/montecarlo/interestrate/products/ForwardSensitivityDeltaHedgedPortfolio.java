@@ -648,7 +648,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				}
 				else {
 					// Using the proto value will generate biases, due to correlation (need cond. exp. first).
-					// TODO: Option: Add numerical cond. expectation.
+					// Option: Add numerical cond. expectation.
 					throw new UnsupportedOperationException("The hedge instrument does not have an analytic proxy. We need an analytic proxy here for benchmarking.");
 				}
 			}
