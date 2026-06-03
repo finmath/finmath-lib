@@ -90,7 +90,7 @@ public class ForwardSensitivities {
 		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
 		private final List<String> riskFactorNames; // row risk factors M_i
 		private final ReductionMethod reductionMethod;
-		private Timings timings;
+		private final Timings timings;
 
 		public ProjectedHedgeRatioResult(
 				final RandomVariable[] hedgeRatios,
@@ -152,13 +152,13 @@ public class ForwardSensitivities {
 
 		public Timings getTimings() {
 			return timings;
-		}		
+		}
 	}
 
 	public static final class Timings {
 		private final long timingSolveSystem;
 		private final long timingProjectSystem;
-		
+
 		public Timings(long timingSolveSystem, long timingProjectSystem) {
 			super();
 			this.timingSolveSystem = timingSolveSystem;
@@ -429,7 +429,7 @@ public class ForwardSensitivities {
 			}
 			solutionBasisValues[basisIndex] = getPathValues(solutionBasisFunctions[basisIndex], numberOfPaths);
 		}
-		*/
+		 */
 
 		/*
 		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
@@ -599,7 +599,9 @@ public class ForwardSensitivities {
 
 		for(final Entry<String, Long> parameterEntry : parameterIDsByName.entrySet()) {
 			// TODO Check if this is a performance impact
-			if(!independentIDs.contains(parameterEntry.getValue())) continue;
+			if(!independentIDs.contains(parameterEntry.getValue())) {
+				continue;
+			}
 			final RandomVariable derivative = gradientByID.get(parameterEntry.getValue());
 
 			if(derivative != null) {
@@ -656,17 +658,17 @@ public class ForwardSensitivities {
 				/*
 				 * beta_i^s = 1/N sum_l b_{l i} Y_{l s}.
 				 */
-				double beta = productGradient != null ? productGradient.getAverage(testBasisFunction) : 0.0;
+				final double beta = productGradient != null ? productGradient.getAverage(testBasisFunction) : 0.0;
 				reducedRhs[row] = beta;
 
 				/*
 				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} Y_{l s}.
 				 */
 				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-					RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;
+					final RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;
 					for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfSolutionBasisFunctions; coefficientBasisIndex++) {
 
-						double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverage(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;
+						final double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverage(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;
 
 						final int column = columnIndex(
 								hedgeIndex,

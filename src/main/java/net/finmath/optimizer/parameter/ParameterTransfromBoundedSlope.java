@@ -21,7 +21,7 @@ public class ParameterTransfromBoundedSlope implements ParameterTransfrom {
 
 	@Override
 	public RandomVariable[] getModelParametersFrom(RandomVariable[] optimizerParameters) {
-		RandomVariable[] modelParameters = new RandomVariable[optimizerParameters.length];
+		final RandomVariable[] modelParameters = new RandomVariable[optimizerParameters.length];
 		// From (-infty, infty) to (0,infty)
 		for(int i=0; i<optimizerParameters.length; i++) {
 			modelParameters[i] = optimizerParameters[i].mult(-1).exp();

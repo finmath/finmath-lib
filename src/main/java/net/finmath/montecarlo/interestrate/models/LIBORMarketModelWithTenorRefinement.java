@@ -149,6 +149,7 @@ public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel im
 		Map<String,Object> calibrationParameters = null;
 		if(properties != null && properties.containsKey("calibrationParameters")) {
 			@SuppressWarnings("unchecked")
+			final
 			Map<String, Object> calibrationParametersProperty	= (Map<String, Object>)properties.get("calibrationParameters");
 			calibrationParameters = calibrationParametersProperty;
 		}

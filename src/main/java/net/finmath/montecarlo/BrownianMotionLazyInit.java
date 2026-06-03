@@ -50,6 +50,7 @@ public class BrownianMotionLazyInit extends BrownianMotionFromMersenneRandomNumb
 	 * @param seed The seed of the random number generator.
 	 * @param randomVariableFactory Factory to be used to create random variable.
 	 */
+	@Deprecated
 	public BrownianMotionLazyInit(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfFactors,
@@ -67,6 +68,7 @@ public class BrownianMotionLazyInit extends BrownianMotionFromMersenneRandomNumb
 	 * @param numberOfPaths Number of paths to simulate.
 	 * @param seed The seed of the random number generator.
 	 */
+	@Deprecated
 	public BrownianMotionLazyInit(
 			final TimeDiscretization timeDiscretization,
 			final int numberOfFactors,

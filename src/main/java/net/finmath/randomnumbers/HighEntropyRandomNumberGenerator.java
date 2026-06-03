@@ -24,7 +24,7 @@ import java.security.SecureRandom;
 public class HighEntropyRandomNumberGenerator implements RandomNumberGenerator1D {
 
 	private static final long serialVersionUID = -818028598001664L;
-	private SecureRandom secureRandomNumberGenerator;
+	private final SecureRandom secureRandomNumberGenerator;
 
 	public HighEntropyRandomNumberGenerator() {
 		super();

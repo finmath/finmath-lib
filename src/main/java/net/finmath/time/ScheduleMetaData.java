@@ -33,6 +33,7 @@ public class ScheduleMetaData extends SchedulePrototype {
 	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
 	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
 	 */
+	@Deprecated
 	public ScheduleMetaData(final Frequency frequency, final DaycountConvention daycountConvention,
 			final ShortPeriodConvention shortPeriodConvention, final DateRollConvention dateRollConvention,
 			final BusinessdayCalendar businessdayCalendar, final int fixingOffsetDays, final int paymentOffsetDays,

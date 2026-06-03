@@ -26,24 +26,24 @@ public class GaussianGrid extends AbstractGrid {
 	/**
 	 * The number of steps.
 	 */
-	private int numberOfSteps;
+	private final int numberOfSteps;
 	/**
 	 * The minimum value.
 	 */
-	private double minimumValue;
+	private final double minimumValue;
 	/**
 	 * The maximum value.
 	 */
-	private double maximumValue;
+	private final double maximumValue;
 
 	/**
 	 * The centering.
 	 */
-	private double centering;
+	private final double centering;
 	/**
 	 * The sigma.
 	 */
-	private double sigma;
+	private final double sigma;
 
 	/**
 	 * The grid.

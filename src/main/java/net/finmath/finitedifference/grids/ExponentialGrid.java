@@ -26,19 +26,19 @@ public class ExponentialGrid extends AbstractGrid {
 	/**
 	 * The number of steps.
 	 */
-	private int numberOfSteps;
+	private final int numberOfSteps;
 	/**
 	 * The minimum value.
 	 */
-	private double minimumValue;
+	private final double minimumValue;
 	/**
 	 * The maximum value.
 	 */
-	private double maximumValue;
+	private final double maximumValue;
 	/**
 	 * The alpha.
 	 */
-	private double alpha;
+	private final double alpha;
 
 	/**
 	 * The grid.

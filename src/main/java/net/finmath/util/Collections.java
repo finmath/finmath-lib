@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Utilities for collections
- * 
+ *
  * @author Christian Fries
  */
 public class Collections {
@@ -14,7 +14,7 @@ public class Collections {
 	 * The Java (here Java 11) Map.of implementation does not guarantee that the
 	 * entrySet retains the ordering, The following implementation generates a map
 	 * that retains the ordering of the arguments.
-	 * 
+	 *
 	 * @param <K>     Type of the key.
 	 * @param <V>     Type of the value.
 	 * @param entries The map entries.
@@ -22,9 +22,9 @@ public class Collections {
 	 */
 	@SafeVarargs
 	public static <K, V> Map<K, V> orderedMapOf(Map.Entry<K, V>... entries) {
-		Map<K, V> map = new LinkedHashMap<>();
+		final Map<K, V> map = new LinkedHashMap<>();
 
-		for (Map.Entry<K, V> entry : entries) {
+		for (final Map.Entry<K, V> entry : entries) {
 			if (map.containsKey(entry.getKey())) {
 				throw new IllegalArgumentException("Duplicate key: " + entry.getKey());
 			}
@@ -35,12 +35,14 @@ public class Collections {
 	}
 
 	public static <K, V> Map<K, V> orderedMapOf(Object... keyAndValues) {
-		Map<K, V> map = new LinkedHashMap<>();
+		final Map<K, V> map = new LinkedHashMap<>();
 
 		for (int i = 0; i < keyAndValues.length; i += 2) {
 			@SuppressWarnings("unchecked")
+			final
 			K key = (K) keyAndValues[i];
 			@SuppressWarnings("unchecked")
+			final
 			V value = (V) keyAndValues[i + 1];
 			if (map.containsKey(key)) {
 				throw new IllegalArgumentException("Duplicate key: " + key);

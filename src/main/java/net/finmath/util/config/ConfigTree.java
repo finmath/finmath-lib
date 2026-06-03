@@ -111,7 +111,7 @@ public class ConfigTree {
 
 		// Traverse the tree where each route is selected though the value of a specific key in the selector.
 		while(node instanceof ConfigNode) {
-			ConfigNode configNode = (ConfigNode)node;
+			final ConfigNode configNode = (ConfigNode)node;
 			if(selector.containsKey(configNode.getKey()) && configNode.getValueToConfig().keySet().contains(selector.get(configNode.getKey()))) {
 				node = configNode.getValueToConfig().get(selector.get(configNode.getKey()));
 			}
@@ -125,7 +125,7 @@ public class ConfigTree {
 
 		// Having reached the value node, return it.
 		if(node instanceof ValueNode) {
-			ValueNode valueNode = (ValueNode)node;
+			final ValueNode valueNode = (ValueNode)node;
 			return valueNode.getValue();
 		}
 		else {
@@ -143,12 +143,12 @@ public class ConfigTree {
 	private Node group(List<String> keyOrder, List<Map<String, Object>> configs) {
 		if(keyOrder.size() > 0) {
 			// Group all elements by the first key in keyOrder....
-			String key = keyOrder.get(0);
-			Map<Object, List<Map<String, Object>>> grouped = configs.stream().collect(Collectors.groupingBy(map -> map.get(key)));
+			final String key = keyOrder.get(0);
+			final Map<Object, List<Map<String, Object>>> grouped = configs.stream().collect(Collectors.groupingBy(map -> map.get(key)));
 
 			// ...call group (recursive) for all values below this key taking the remainder of keyOrder...
-			List<String> keyOrderRemain = keyOrder.subList(1, keyOrder.size());
-			Map<Object, Node> valueToConfig = grouped.entrySet().stream().collect(Collectors.toMap(
+			final List<String> keyOrderRemain = keyOrder.subList(1, keyOrder.size());
+			final Map<Object, Node> valueToConfig = grouped.entrySet().stream().collect(Collectors.toMap(
 					Map.Entry::getKey, entry -> group(keyOrderRemain, entry.getValue())));
 
 			// ...create a ConfigNode for this key.
@@ -157,8 +157,8 @@ public class ConfigTree {
 		else {
 			// If no keys are left in key order, create the leaf node
 			if(configs.size() == 1) {
-				Map<String, Object> config = configs.get(0);
-				Object value = config.get("value");
+				final Map<String, Object> config = configs.get(0);
+				final Object value = config.get("value");
 				return new ValueNode( value);
 			}
 			else {

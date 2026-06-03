@@ -23,10 +23,12 @@ public class Caplet extends AbstractTermStructureMonteCarloProduct {
 		/**
 		 * @deprecated Use INTEGRATEDLOGNORMALVARIANCE
 		 */
+		@Deprecated
 		INTEGRATEDVARIANCE,
 		/**
 		 * @deprecated Use LOGNORMALVOLATILITY
 		 */
+		@Deprecated
 		VOLATILITY,
 		INTEGRATEDLOGNORMALVARIANCE,
 		LOGNORMALVOLATILITY,

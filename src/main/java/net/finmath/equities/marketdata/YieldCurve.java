@@ -31,8 +31,8 @@ public class YieldCurve {
 		this.dayCounter = dayCounter;
 		this.discountDates = discountDates;
 
-		double[] times = new double[discountDates.length];
-		boolean[] isParameter = new boolean[discountDates.length];
+		final double[] times = new double[discountDates.length];
+		final boolean[] isParameter = new boolean[discountDates.length];
 
 		for(int i = 0; i < times.length; i++) {
 			times[i] = dayCounter.getDaycountFraction(referenceDate, discountDates[i]);
@@ -71,11 +71,11 @@ public class YieldCurve {
 	public YieldCurve rollToDate(LocalDate date) {
 		assert date.isAfter(referenceDate) : "can only roll to future dates";
 
-		LocalDate[] rolledDiscountDates = Arrays.stream(discountDates)
+		final LocalDate[] rolledDiscountDates = Arrays.stream(discountDates)
 				.filter(p -> p.isAfter(date))
 				.toArray(LocalDate[]::new);
 
-		double[] rolledDiscountFactors = new double[rolledDiscountDates.length];
+		final double[] rolledDiscountFactors = new double[rolledDiscountDates.length];
 		for(int i = 0; i < rolledDiscountDates.length; i++) {
 			rolledDiscountFactors[i] = getForwardDiscountFactor(date, rolledDiscountDates[i]);
 		}

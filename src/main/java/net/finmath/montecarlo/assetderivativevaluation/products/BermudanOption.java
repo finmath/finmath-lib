@@ -217,7 +217,7 @@ public class BermudanOption extends AbstractAssetMonteCarloProduct {
 			case ESTIMATE_COND_EXPECTATION:
 				// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
 				ArrayList<RandomVariable> basisFunctions;
-				RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise.sub(strike).floor(0.0) : underlyingAtExercise;
+				final RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise.sub(strike).floor(0.0) : underlyingAtExercise;
 				basisFunctions = useBinning ? getRegressionBasisFunctionsBinning(basisFunctionUnderlying) : getRegressionBasisFunctions(basisFunctionUnderlying);
 
 				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));

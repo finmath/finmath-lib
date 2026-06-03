@@ -52,8 +52,8 @@ public class EvolutionOfEmissionIndustrialIntensity implements BiFunction<Intege
 
 	@Override
 	public Double apply(Integer timeIndex, Double emissionIntensity) {
-		double time = timeDiscretization.getTime(timeIndex);
-		double timeStep = timeDiscretization.getTimeStep(timeIndex);
+		final double time = timeDiscretization.getTime(timeIndex);
+		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		final double emissionIntensityRate = emissionIntensityRateInitial * Math.exp(-emissionIntensityRateDecay * time);
 
 		return emissionIntensity*Math.exp(-emissionIntensityRate*timeStep);

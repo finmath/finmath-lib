@@ -34,7 +34,7 @@ public class EvolutionOfPopulation implements Function<Integer, Function<Double,
 
 	@Override
 	public Function<Double, Double> apply(Integer timeIndex) {
-		double timeStep = timeDiscretization.getTimeStep(timeIndex);
+		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double population) -> {
 			return population * Math.pow(populationAsymptotic/population,populationGrowth*timeStep);
 		};

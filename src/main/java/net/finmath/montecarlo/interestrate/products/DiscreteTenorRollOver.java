@@ -23,7 +23,7 @@ import net.finmath.stochastic.RandomVariable;
  * from a matured \(T_{i}\)-bond is rolled from \( T_{i} \) to
  * {\( T_{i+1} \) at the fixing Libor, rather than through the model's
  * short-rate money-market numeraire.
- * 
+ *
  * <p>
  * The class is mainly meant as a diagnostic product for comparing LMM and
  * short-rate/Hull-White roll-over conventions. For {@code t < T_i} its value is

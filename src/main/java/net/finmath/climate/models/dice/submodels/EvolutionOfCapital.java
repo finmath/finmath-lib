@@ -31,7 +31,7 @@ public class EvolutionOfCapital implements Function<Integer, BiFunction<Double, 
 
 	@Override
 	public BiFunction<Double, Double, Double> apply(Integer timeIndex) {
-		double timeStep = timeDiscretization.getTimeStep(timeIndex);
+		final double timeStep = timeDiscretization.getTimeStep(timeIndex);
 		return (Double capital, Double investment) -> capital * Math.exp(-capitalDeprecation * timeStep) + investment * timeStep;
 	}
 }

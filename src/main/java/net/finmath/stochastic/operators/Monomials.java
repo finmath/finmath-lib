@@ -37,7 +37,7 @@ public class Monomials {
 	 * @return The list of monomials.
 	 */
 	public static List<RandomVariable> of(RandomVariable randomVariable, int powerStartInclusive, int powerEndExclusive) {
-		List<RandomVariable> monomials = new ArrayList<>();
+		final List<RandomVariable> monomials = new ArrayList<>();
 		if(powerStartInclusive > powerEndExclusive+1) {
 			return monomials;
 		}
