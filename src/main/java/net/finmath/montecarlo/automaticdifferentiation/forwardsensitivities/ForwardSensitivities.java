@@ -248,9 +248,9 @@ public class ForwardSensitivities {
 		}
 
 		final Map<Long, RandomVariable> derivativeGradient = ((RandomVariableDifferentiable)derivativeValue).getGradient();
-		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = new ArrayList<Map<Long, RandomVariable>>(hedgeInstrumentProtoValues.length);
+		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = new ArrayList<Map<Long, RandomVariable>>(hedgePortfolioValues.length);
 
-		for(final RandomVariable hedgeInstrumentProtoValue : hedgeInstrumentProtoValues) {
+		for(final RandomVariable hedgeInstrumentProtoValue : hedgePortfolioValues) {
 			if(hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable) {
 				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());
 			}
