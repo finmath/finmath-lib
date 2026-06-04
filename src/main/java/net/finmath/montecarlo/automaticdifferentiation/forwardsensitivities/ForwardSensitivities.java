@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
@@ -357,7 +356,7 @@ public class ForwardSensitivities {
 		/*
 		double[][] testBasisValues = null;
 		if(testBasisFunctions != null) {
-			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];		
+			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];
 			for(int basisIndex = 0; basisIndex < testBasisFunctions.length; basisIndex++) {
 				if(testBasisFunctions[basisIndex] == null) {
 					throw new IllegalArgumentException("testBasisFunctions[" + basisIndex + "] is null.");
