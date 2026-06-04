@@ -5,7 +5,7 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.5 (04.06.2026)
+## 6.1.6 (04.06.2026)
 
 ### RandomVariable
 

@@ -705,7 +705,8 @@ public class ForwardSensitivities {
 		{
 			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
 
-			final RandomVariable productGradient = productSensitivities.get(riskFactorName).getValues();
+			final RandomVariable productGradient = productSensitivities.get(riskFactorName);
+			if(productGradient == null) return;
 
 			final RandomVariable[] hedgeGradient = new RandomVariable[numberOfHedges];
 			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
@@ -741,7 +742,7 @@ public class ForwardSensitivities {
 					if(basisFunction == null) continue;
 					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
 					designRow[column] = hedgeGradient[hedgeIndex].getValues().mult(basisFunction.getValues());
-					final double value = productGradient.getAverageFast(designRow[column]);
+					final double value = productGradient.getValues().getAverageFast(designRow[column]);
 					synchronized(normalRhs) {
 						normalRhs[column] += value;
 					}
