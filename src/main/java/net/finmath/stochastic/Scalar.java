@@ -20,14 +20,14 @@ import net.finmath.functions.DoubleTernaryOperator;
  */
 public class Scalar implements RandomVariable {
 
-	private static final long serialVersionUID = -729437972787062992L;
+	private static final long serialVersionUID = -3216862708399401052L;
 
 	/*
 	 * Frequently used values
 	 */
-	public static Scalar ZERO = Scalar.of(0.0);
-	public static Scalar ONE = Scalar.of(1.0);
-	
+	public static final Scalar ZERO = Scalar.of(0.0);
+	public static final Scalar ONE = Scalar.of(1.0);
+
 	private final double value;
 
 	public static Scalar of(final double value) {
@@ -37,9 +37,9 @@ public class Scalar implements RandomVariable {
 	public Scalar(final double value) {
 		super();
 		this.value = value;
-		//		if(Double.isNaN(value)) {
-		//			throw new ArithmeticException("Not a Numbber");
-		//		}
+//		if(Double.isNaN(value)) {
+//			throw new ArithmeticException("Not a Numbber");
+//		}
 	}
 
 	public static Scalar[] arrayOf(final double[] arrayOfDoubles) {
