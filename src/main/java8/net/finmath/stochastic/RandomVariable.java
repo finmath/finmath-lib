@@ -149,6 +149,23 @@ public interface RandomVariable extends Serializable {
 	double getAverage(RandomVariable probabilities);
 
 	/**
+	 * Possibly faster but less accurate implementation of {@code RandomVariable#getAverage(RandomVariable)}.
+	 * Returns the expectation of this random variable for a given probability measure (weight).
+	 *
+	 * The result of this method is (mathematically) equivalent to
+	 * <br>
+	 * <code>this.mult(probabilities).getAverage() / probabilities.getAverage()</code>
+	 * <br>
+	 * while the internal implementation may differ, e.g. being more efficient by performing multiplication and summation in the same loop.
+	 *
+	 * @param probabilities The probability weights.
+	 * @return The average assuming the given probability weights.
+	 */
+	default double getAverageFast(final RandomVariable probabilities) {
+		return getAverage(probabilities);
+	}
+
+	/**
 	 * Returns the variance of this random variable, i.e.,
 	 * V where V = ((X-m)^2).getAverage() and X = this and m = X.getAverage().
 	 *

@@ -86,6 +86,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 *
 	 * @return Parameter vector.
 	 */
+	@Override
 	public RandomVariable[]	getParameter() {
 		final double[] parameterAsDouble = this.getParameterAsDouble();
 		final RandomVariable[] parameter = new RandomVariable[parameterAsDouble.length];
@@ -102,6 +103,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 *
 	 * @return Parameter vector.
 	 */
+	@Override
 	public abstract double[]	getParameterAsDouble();
 
 	@Override
@@ -114,6 +116,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
+	@Override
 	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
 		final double[] parameterAsDouble = new double[parameters.length];
 		for(int i=0; i<parameterAsDouble.length; i++) {
@@ -129,6 +132,7 @@ public abstract class AbstractLIBORCovarianceModelParametric extends AbstractLIB
 	 * @param parameters The new set of parameters.
 	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
 	 */
+	@Override
 	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
 
 	public AbstractLIBORCovarianceModelParametric getCloneCalibrated(final LIBORMarketModel calibrationModel, final CalibrationProduct[] calibrationProducts) throws CalculationException {

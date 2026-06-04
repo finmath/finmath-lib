@@ -635,6 +635,50 @@ public class LinearAlgebra {
 		return matrixLog(new Array2DRowRealMatrix(matrix)).getData();
 	}
 
+	/**
+	 * Matrix Frobenius norm squared ||M||^2.
+	 *
+	 * @param matrix The matrix M
+	 * @return The norm squared ||M||^2.
+	 */
+	public static double matrixNormFrobeniusSquared(final double[][] matrix) {
+		/*
+		 * Kahan summation on entry * entry
+		 */
+		double sum = 0.0;
+		double error = 0.0;														// Running error compensation
+		for(final double[] row : matrix) {
+			for(final double entry : row) {
+				final double value = entry * entry - error;		// Error corrected value
+				final double newSum = sum + value;				// New sum
+				error = (newSum - sum) - value;					// New numerical error
+				sum	= newSum;
+			}
+		}
+		return sum;
+	}
+
+	/**
+	 * Matrix trace tr(M).
+	 *
+	 * @param matrix The matrix M
+	 * @return The trace tr(M)
+	 */
+	public static double matrixTrace(final double[][] matrix) {
+		/*
+		 * Kahan summation on matrix[i][i]
+		 */
+		double sum = 0.0;
+		double error = 0.0;														// Running error compensation
+		for(int i = 0; i < Math.min(matrix.length, matrix[0].length); i++) {
+			final double value = matrix[i][i] - error;		// Error corrected value
+			final double newSum = sum + value;				// New sum
+			error = (newSum - sum) - value;					// New numerical error
+			sum	= newSum;
+		}
+		return sum;
+	}
+
 	/*
 	 * There are better ways doing this - but this here is sufficient for some less crital purposes.
 	 */

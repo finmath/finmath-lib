@@ -17,7 +17,7 @@ import net.finmath.montecarlo.interestrate.LIBORMarketModel;
  * @author Christian Fries
  * @version 1.0
  */
-public interface LIBORCovarianceModelCalibrateable extends LIBORCovarianceModel {
+public interface LIBORCovarianceModelCalibrateable extends LIBORCovarianceModelParametric {
 
 	/**
 	 * Performs a calibration of the model by
