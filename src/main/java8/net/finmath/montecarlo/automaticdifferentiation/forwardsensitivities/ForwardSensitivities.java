@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import net.finmath.exception.CalculationException;
@@ -20,6 +19,7 @@ import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameter
 import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
 import net.finmath.stochastic.RandomVariable;
 import net.finmath.stochastic.Scalar;
+import net.finmath.util.Java8BackportUtil;
 
 /**
  * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
