@@ -22,6 +22,12 @@ public class Scalar implements RandomVariable {
 
 	private static final long serialVersionUID = -729437972787062992L;
 
+	/*
+	 * Frequently used values
+	 */
+	public static Scalar ZERO = Scalar.of(0.0);
+	public static Scalar ONE = Scalar.of(1.0);
+	
 	private final double value;
 
 	public static Scalar of(final double value) {

@@ -315,6 +315,10 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			return Double.NaN;
 		}
 
+		if(probabilities.isDeterministic()) {
+			return getAverage() * probabilities.getAverage();
+		}
+
 		/*
 		 * Kahan summation on (realizations[i] * probabilities.get(i))
 		 */
@@ -326,6 +330,38 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 			error = (newSum - sum) - value;				// New numerical error
 			sum	= newSum;
 		}
+		return sum / realizations.length;
+	}
+
+	@Override
+	public double getAverageFast(final RandomVariable probabilities) {
+		if(isDeterministic()) {
+			return valueIfNonStochastic * probabilities.getAverage();
+		}
+		if(size() == 0) {
+			return Double.NaN;
+		}
+
+		if(probabilities.isDeterministic()) {
+			return getAverage() * probabilities.getAverage();
+		}
+
+		double sum = 0.0;
+		if(probabilities instanceof RandomVariableFromDoubleArray) {
+			final double[] probabilitiesRealizations = ((RandomVariableFromDoubleArray)probabilities).realizations;
+			for(int i=0; i<realizations.length; i++)  {
+				sum += realizations[i] * probabilitiesRealizations[i];
+			}
+		}
+		else {
+			/*
+			 * Summation on (realizations[i] * probabilities.get(i))
+			 */
+			for(int i=0; i<realizations.length; i++)  {
+				sum += realizations[i] * probabilities.get(i);
+			}
+		}
+		
 		return sum / realizations.length;
 	}
 
