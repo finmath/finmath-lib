@@ -248,7 +248,16 @@ public class ForwardSensitivities {
 		}
 
 		final Map<Long, RandomVariable> derivativeGradient = ((RandomVariableDifferentiable)derivativeValue).getGradient();
-		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = Arrays.stream(hedgePortfolioValues).map(RandomVariableDifferentiable.class::cast).map(RandomVariableDifferentiable::getGradient).collect(Collectors.toList());
+		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = new ArrayList<Map<Long, RandomVariable>>(hedgeInstrumentProtoValues.length);
+
+		for(final RandomVariable hedgeInstrumentProtoValue : hedgeInstrumentProtoValues) {
+			if(hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable) {
+				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());
+			}
+			else {
+				hedgePortfolioGradients.add(Java8BackportUtil.Map.<Long, RandomVariable>of());
+			}
+		}
 
 		return getHedgeRatios(parameterIDsByName, evaluationTime, derivativeGradient, hedgePortfolioGradients,solutionBasisFunctions,
 				testBasisFunctions,
@@ -705,7 +714,8 @@ public class ForwardSensitivities {
 		{
 			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
 
-			final RandomVariable productGradient = productSensitivities.get(riskFactorName).getValues();
+			final RandomVariable productGradient = productSensitivities.get(riskFactorName);
+			if(productGradient == null) return;
 
 			final RandomVariable[] hedgeGradient = new RandomVariable[numberOfHedges];
 			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
@@ -741,7 +751,7 @@ public class ForwardSensitivities {
 					if(basisFunction == null) continue;
 					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
 					designRow[column] = hedgeGradient[hedgeIndex].getValues().mult(basisFunction.getValues());
-					final double value = productGradient.getAverageFast(designRow[column]);
+					final double value = productGradient.getValues().getAverageFast(designRow[column]);
 					synchronized(normalRhs) {
 						normalRhs[column] += value;
 					}
