@@ -5,6 +5,21 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.1.5 (04.06.2026)
+
+### RandomVariable
+
+- Introduced `double getAverageFast(final RandomVariable probabilities)` in `RandomVariable` with default implementation delegating to `double getAverage(final RandomVariable probabilities)`.
+
+### Monte Carlo
+
+- Added a faster version of `RandomVariableFromDoubleArray#getAverage(RandomVariable)` under `getAverageFast(final RandomVariable probabilities)` that does not use Kahan summation. It's appoximately 60 % faster.
+
+### Algorithmic Differentiation
+
+- Minor performance improvement to `ForwardSensitivities` using parallelization (50 % faster) and use of `getAverageFast` (60 % faster).
+
+
 ## 6.1.4 (03.06.2026)
 
 ### General
