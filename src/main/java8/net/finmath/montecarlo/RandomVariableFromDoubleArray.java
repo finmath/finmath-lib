@@ -361,7 +361,7 @@ public class RandomVariableFromDoubleArray implements RandomVariable {
 				sum += realizations[i] * probabilities.get(i);
 			}
 		}
-		
+
 		return sum / realizations.length;
 	}
 
