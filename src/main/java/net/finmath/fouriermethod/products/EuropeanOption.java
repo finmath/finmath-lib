@@ -141,7 +141,7 @@ public class EuropeanOption extends AbstractFourierTransformProduct {
 			//It is a call, just use the existing implementation
 			return super.getValue(model);
 		}else {
-			double df = model.getDiscountCurveForDiscountRate() == null ?
+			final double df = model.getDiscountCurveForDiscountRate() == null ?
 					Math.exp(- model.getDiscountRate())
 					: model.getDiscountCurveForDiscountRate().getDiscountFactor(maturity);
 			//It is a put, use the put call parity

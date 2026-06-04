@@ -171,8 +171,8 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	private double lastOperationTimingTotal = Double.NaN;
 	private double lastOperationTimingValuation = Double.NaN;
 	private double lastOperationTimingHedgeRatios = Double.NaN;
-	private double lastOperationTimingHedgeRatioProject = Double.NaN;;
-	private double lastOperationTimingHedgeRatioSolve = Double.NaN;;
+	private double lastOperationTimingHedgeRatioProject = Double.NaN;
+	private double lastOperationTimingHedgeRatioSolve = Double.NaN;
 	private double lastOperationTimingTradeValues = Double.NaN;
 
 	private List<Double> lastRebalancingTimes = Collections.emptyList();
@@ -458,7 +458,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		final RandomVariable[] hedgeInstrumentProtoValues = hedgeInstrumentValueProvider.getValues(0.0, model, hedgeInstruments);
 		final Map<Long, RandomVariable> derivativeGradient = ((RandomVariableDifferentiable)derivativeProtoValue).getGradient();
 		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = Arrays.stream(hedgeInstrumentProtoValues).map(hedgeInstrumentProtoValue ->
-				hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable ? ((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient() : Map.<Long, RandomVariable>of())
+		hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable ? ((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient() : Map.<Long, RandomVariable>of())
 				.collect(Collectors.toList());
 
 		for(final double rebalancingTime : rebalancingTimes) {
@@ -510,7 +510,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 					regularizationLambda,
 					reductionMethod, derivativeProtoValue.size());
 			timingHedgeRatioMillis += System.currentTimeMillis() - timingHedgeRatioStart;
-			
+
 			timingHedgeRatioProjectMillis += hedgeRatioResult.getTimings().getTimingProjectSystem();
 			timingHedgeRatioSolveMillis += hedgeRatioResult.getTimings().getTimingSolveSystem();
 
@@ -648,7 +648,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				}
 				else {
 					// Using the proto value will generate biases, due to correlation (need cond. exp. first).
-					// TODO: Option: Add numerical cond. expectation.
+					// Option: Add numerical cond. expectation.
 					throw new UnsupportedOperationException("The hedge instrument does not have an analytic proxy. We need an analytic proxy here for benchmarking.");
 				}
 			}

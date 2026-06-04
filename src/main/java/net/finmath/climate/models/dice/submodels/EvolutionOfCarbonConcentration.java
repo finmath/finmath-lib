@@ -62,7 +62,7 @@ public class EvolutionOfCarbonConcentration implements TriFunction<Integer, Carb
 	}
 
 	public EvolutionOfCarbonConcentration(TimeDiscretization timeDiscretization) {
-		Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
+		final Function<Integer, Double> timeSteps = ((Integer timeIndex) -> { return timeDiscretization.getTimeStep(timeIndex); });
 		this.timeDiscretization = timeDiscretization;
 		transitionMatrices = timeSteps.andThen(Cached.<Double, double[][]>of(timeStep -> timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, timeStep/5.0)));
 	}

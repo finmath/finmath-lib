@@ -49,6 +49,13 @@ ATTACH_DIR="$(pwd)/../release-artifacts"
 STAGED_JAVA8_ARTIFACT="${ATTACH_DIR}/finmath-lib-${VERSION}-java8.jar"
 JAVA8_ARTIFACT="$(pwd)/target/release-artifacts/finmath-lib-${VERSION}-java8.jar"
 
+if [[ "${VERSION}" == *-SNAPSHOT ]]; then
+	echo "ERROR: release checkout has SNAPSHOT version: ${VERSION}" >&2
+	echo "This means release:perform checked out a non-release tag or stale release.properties." >&2
+	echo "Do not deploy. Run mvn release:clean and recreate the release with -Dresume=false." >&2
+	exit 1
+fi
+
 rm -rf "${ATTACH_DIR}"
 mkdir -p "${ATTACH_DIR}"
 

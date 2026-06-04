@@ -27,6 +27,7 @@ public interface Swaption {
 		 * Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i>.
 		 * @deprecated Use INTEGRATEDVARIANCELOGNORMAL instead.
 		 */
+		@Deprecated
 		INTEGRATEDLOGNORMALVARIANCE,
 		/** Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i>. **/
 		VOLATILITYLOGNORMAL,
@@ -36,6 +37,7 @@ public interface Swaption {
 		 * Returns the Bachelier implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i>.
 		 * @deprecated Use INTEGRATEDVARIANCENORMAL instead.
 		 */
+		@Deprecated
 		INTEGRATEDNORMALVARIANCE,
 		/** Returns the Bachelier implied volatility, i.e., <i>&sigma;</i>. **/
 		VOLATILITYNORMAL,
@@ -43,11 +45,13 @@ public interface Swaption {
 		 * Returns the Black-Scholes implied integrated variance, i.e., <i>&sigma;<sup>2</sup> T</i>.
 		 * @deprecated Use INTEGRATEDVARIANCELOGNORMAL instead
 		 */
+		@Deprecated
 		INTEGRATEDVARIANCE,
 		/**
 		 * Returns the Black-Scholes implied volatility, i.e., <i>&sigma;</i>.
 		 * @deprecated Use VOLATILITYLOGNORMAL instead
 		 */
+		@Deprecated
 		VOLATILITY,
 
 		/**

@@ -143,7 +143,7 @@ public class BlackScholesModelWithStockNumeraire extends AbstractProcessModel {
 	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
 		try {
 			return process.getProcessValue(process.getTimeIndex(time), 0);
-		} catch (CalculationException e) {
+		} catch (final CalculationException e) {
 			throw new RuntimeException(e);
 		}
 	}

@@ -29,9 +29,9 @@ public class RandomVariableOperator {
 				return x;
 			}
 
-			double quantileValue = x.getQuantile(percentageLevel);
-			RandomVariable indicator = x.sub(quantileValue).choose(Scalar.of(0.0), Scalar.of(1.0));
-			RandomVariable averageVar = x.mult(indicator).average().div(percentageLevel);
+			final double quantileValue = x.getQuantile(percentageLevel);
+			final RandomVariable indicator = x.sub(quantileValue).choose(Scalar.of(0.0), Scalar.of(1.0));
+			final RandomVariable averageVar = x.mult(indicator).average().div(percentageLevel);
 
 			return averageVar;
 		};

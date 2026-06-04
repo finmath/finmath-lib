@@ -67,7 +67,7 @@ public class FundingCapacityWithoutMemory extends AbstractProductComponent imple
 	private final SortedMap<Double, Double>	instantaneousSurvivalProbability;
 
 	private Double				currentTime;
-	private RandomVariable		currentCapacity;
+	private final RandomVariable		currentCapacity;
 
 	public FundingCapacityWithoutMemory(String currency, RandomVariable intialCapacity, SortedMap<Double, Double> instantaneouseSurvivalProbability) {
 		super(currency);

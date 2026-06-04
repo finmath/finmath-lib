@@ -58,7 +58,7 @@ public class EmissionIndustrialIntensityFunction implements BiFunction<Integer, 
 	 */
 	@Override
 	public Double apply(Integer timeIndex, Double emissionIntensityCurrent) {
-		double time = timeDiscretization.getTime(timeIndex);
+		final double time = timeDiscretization.getTime(timeIndex);
 		final double emissionIntensityRate = emissionIntensityRateInitial * Math.exp(-emissionIntensityRateDecay * time);
 
 		final double emissionIntensity = emissionIntensityInitial * Math.exp((emissionIntensityRate-emissionIntensityRateInitial) / emissionIntensityRateDecay);

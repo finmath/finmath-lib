@@ -90,7 +90,7 @@ public class ForwardSensitivities {
 		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
 		private final List<String> riskFactorNames; // row risk factors M_i
 		private final ReductionMethod reductionMethod;
-		private Timings timings;
+		private final Timings timings;
 
 		public ProjectedHedgeRatioResult(
 				final RandomVariable[] hedgeRatios,
@@ -152,7 +152,7 @@ public class ForwardSensitivities {
 
 		public Timings getTimings() {
 			return timings;
-		}		
+		}
 	}
 
 	public static final class Timings {
@@ -171,95 +171,6 @@ public class ForwardSensitivities {
 		public long getTimingSolveSystem() {
 			return timingSolveSystem;
 		}
-	}
-
-	/**
-	 * Backwards-compatible projected stochastic hedge-ratio calculation.
-	 *
-	 * This solves the projected/Galerkin moment equations using the same basis
-	 * for the solution and test spaces,
-	 *
-	 *     &lt;(A phi^r - b)_i, X_s&gt;_N = 0.
-	 */
-	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
-			final Map<String, Long> parameterIDsByName,
-			final double evaluationTime,
-			final RandomVariable derivativeValue,
-			final RandomVariable[] hedgePortfolioValues,
-			final RandomVariable[] basisFunctions,
-			final double regularizationLambda) throws CalculationException {
-
-		return getHedgeRatios(
-				parameterIDsByName,
-				evaluationTime,
-				derivativeValue,
-				hedgePortfolioValues,
-				basisFunctions,
-				basisFunctions,
-				regularizationLambda,
-				ReductionMethod.PROJECTED_GALERKIN);
-	}
-
-	/**
-	 * Projected stochastic hedge-ratio calculation with separate solution and test bases.
-	 *
-	 * The hedge ratios use the solution basis X_q,
-	 *
-	 *     phi_j^r = sum_q xi_j^q X_q,
-	 *
-	 * while the residual is tested against Y_s,
-	 *
-	 *     &lt;(A phi^r - b)_i, Y_s&gt;_N = 0.
-	 *
-	 * Taking Y_s = X_s gives the Galerkin case. Different Y_s give a
-	 * Petrov-Galerkin projected moment system.
-	 */
-	public static ProjectedHedgeRatioResult getHedgeRatiosProjected(
-			final Map<String, Long> parameterIDsByName,
-			final double evaluationTime,
-			final RandomVariable derivativeValue,
-			final RandomVariable[] hedgePortfolioValues,
-			final RandomVariable[] solutionBasisFunctions,
-			final RandomVariable[] testBasisFunctions,
-			final double regularizationLambda) throws CalculationException {
-
-		return getHedgeRatios(
-				parameterIDsByName,
-				evaluationTime,
-				derivativeValue,
-				hedgePortfolioValues,
-				solutionBasisFunctions,
-				testBasisFunctions,
-				regularizationLambda,
-				ReductionMethod.PROJECTED_GALERKIN);
-	}
-
-	/**
-	 * Reduced empirical L2 stochastic hedge-ratio calculation.
-	 *
-	 * This solves
-	 *
-	 *     min_xi 1/N sum_l ||A_l phi_l^r - b_l||_2^2 + lambda ||xi||_2^2,
-	 *
-	 * without projecting the output residual onto the hedge-ratio basis.
-	 */
-	public static ProjectedHedgeRatioResult getHedgeRatiosEmpiricalL2(
-			final Map<String, Long> parameterIDsByName,
-			final double evaluationTime,
-			final RandomVariable derivativeValue,
-			final RandomVariable[] hedgePortfolioValues,
-			final RandomVariable[] basisFunctions,
-			final double regularizationLambda) throws CalculationException {
-
-		return getHedgeRatios(
-				parameterIDsByName,
-				evaluationTime,
-				derivativeValue,
-				hedgePortfolioValues,
-				basisFunctions,
-				null,
-				regularizationLambda,
-				ReductionMethod.L2);
 	}
 
 	/**
@@ -351,8 +262,8 @@ public class ForwardSensitivities {
 	 *
 	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
 	 * @param evaluationTime The time t at which the hedge ratios are calculated.
-	 * @param derivativeValue The product value V.
-	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param derivativeGradient The product gradient d V / dM  (getGradient of a {@code RandomVariableDifferentiable} of the derivative V.
+	 * @param hedgePortfolioGradients The gradients (getGradient of a {@code RandomVariableDifferentiable} of the hedge-instrument values P_j.
 	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
 	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
@@ -428,7 +339,7 @@ public class ForwardSensitivities {
 			}
 			solutionBasisValues[basisIndex] = getPathValues(solutionBasisFunctions[basisIndex], numberOfPaths);
 		}
-		*/
+		 */
 
 		/*
 		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
@@ -613,7 +524,9 @@ public class ForwardSensitivities {
 
 		for(final Entry<String, Long> parameterEntry : parameterIDsByName.entrySet()) {
 			// TODO Check if this is a performance impact
-			if(!independentIDs.contains(parameterEntry.getValue())) continue;
+			if(!independentIDs.contains(parameterEntry.getValue())) {
+				continue;
+			}
 			final RandomVariable derivative = gradientByID.get(parameterEntry.getValue());
 
 			if(derivative != null) {
@@ -676,9 +589,8 @@ public class ForwardSensitivities {
 				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} Y_{l s}.
 				 */
 				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-					RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;
+					final RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;
 					for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfSolutionBasisFunctions; coefficientBasisIndex++) {
-
 						final double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverageFast(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;
 
 						final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);

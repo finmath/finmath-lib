@@ -7,7 +7,7 @@ package net.finmath.finitedifference.assetderivativevaluation.models;
  * The jump part acts on one selected state variable through multiplicative
  * jumps
  * of the form
- * 
+ *
  * \[ x \mapsto x \cdot exp(y), \]
  *
  * where {@code y} denotes the log-jump size. The associated Levy density is
