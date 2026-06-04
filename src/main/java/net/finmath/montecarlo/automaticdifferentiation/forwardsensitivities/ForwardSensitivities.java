@@ -156,21 +156,20 @@ public class ForwardSensitivities {
 	}
 
 	public static final class Timings {
-		private final long timingSolveSystem;
 		private final long timingProjectSystem;
-		
-		public Timings(long timingSolveSystem, long timingProjectSystem) {
+		private final long timingSolveSystem;
+
+		public Timings(long timingProjectSystem, long timingSolveSystem) {
 			super();
-			this.timingSolveSystem = timingSolveSystem;
 			this.timingProjectSystem = timingProjectSystem;
+			this.timingSolveSystem = timingSolveSystem;
+					}
+		public long getTimingProjectSystem() {
+			return timingProjectSystem;
 		}
 
 		public long getTimingSolveSystem() {
 			return timingSolveSystem;
-		}
-
-		public long getTimingProjectSystem() {
-			return timingProjectSystem;
 		}
 	}
 
@@ -435,6 +434,19 @@ public class ForwardSensitivities {
 		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
 		 * PROJECTED_GALERKIN. If no test basis is supplied, use X as Y.
 		 */
+		/*
+		double[][] testBasisValues = null;
+		if(testBasisFunctions != null) {
+			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];		
+			for(int basisIndex = 0; basisIndex < testBasisFunctions.length; basisIndex++) {
+				if(testBasisFunctions[basisIndex] == null) {
+					throw new IllegalArgumentException("testBasisFunctions[" + basisIndex + "] is null.");
+				}
+				testBasisValues[basisIndex] = getPathValues(testBasisFunctions[basisIndex], numberOfPaths);
+			}
+		}
+		*/
+
 		final ReducedSystem reducedSystem;
 		switch(reductionMethod) {
 		case PROJECTED_GALERKIN:
@@ -444,6 +456,8 @@ public class ForwardSensitivities {
 					hedgeSensitivities,
 					solutionBasisFunctions,
 					testBasisFunctions != null ? testBasisFunctions : solutionBasisFunctions, numberOfPaths, numberOfHedges);
+//					solutionBasisValues,
+//					testBasisFunctions != null ? testBasisValues : solutionBasisValues, numberOfPaths, numberOfHedges);
 			break;
 
 		case L2:
@@ -636,7 +650,6 @@ public class ForwardSensitivities {
 		final double[] reducedRhs = new double[numberOfRows];
 
 		IntStream.range(0, numberOfRiskFactors).parallel().forEach(riskFactorIndex ->
-		//		for(int riskFactorIndex = 0; riskFactorIndex < numberOfRiskFactors; riskFactorIndex++)
 		{
 			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
 
@@ -651,12 +664,12 @@ public class ForwardSensitivities {
 
 				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);
 
-				final RandomVariable testBasisFunction = testBasisFunctions[testBasisIndex];
+				final RandomVariable testBasisFunction = testBasisFunctions[testBasisIndex].getValues();
 
 				/*
 				 * beta_i^s = 1/N sum_l b_{l i} Y_{l s}.
 				 */
-				double beta = productGradient != null ? productGradient.getAverage(testBasisFunction) : 0.0;
+				final double beta = productGradient != null ? productGradient.getAverageFast(testBasisFunction) : 0.0;
 				reducedRhs[row] = beta;
 
 				/*
@@ -666,12 +679,9 @@ public class ForwardSensitivities {
 					RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;
 					for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfSolutionBasisFunctions; coefficientBasisIndex++) {
 
-						double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverage(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;
+						final double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverageFast(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;
 
-						final int column = columnIndex(
-								hedgeIndex,
-								coefficientBasisIndex,
-								numberOfHedges);
+						final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
 
 						reducedMatrix[row][column] = entry;
 					}
@@ -776,17 +786,14 @@ public class ForwardSensitivities {
 		final int numberOfBasisFunctions = basisFunctions.length;
 		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;
 
-		final double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];
-		final double[] normalRhs = new double[numberOfColumns];
-		final RandomVariable[] designRow = new RandomVariable[numberOfColumns];
+		double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];
+		double[] normalRhs = new double[numberOfColumns];
 
-		IntStream.range(0, numberOfRiskFactors).forEach(riskFactorIndex ->
-		//		for(int riskFactorIndex = 0; riskFactorIndex < numberOfRiskFactors; riskFactorIndex++)
+		IntStream.range(0, numberOfRiskFactors).parallel().forEach(riskFactorIndex ->
 		{
-
 			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
 
-			final RandomVariable productGradient = productSensitivities.get(riskFactorName);
+			final RandomVariable productGradient = productSensitivities.get(riskFactorName).getValues();
 
 			final RandomVariable[] hedgeGradient = new RandomVariable[numberOfHedges];
 			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
@@ -796,26 +803,51 @@ public class ForwardSensitivities {
 			/*
 			 * D_{(l,i),(j,q)} = A_{l i j} X_{l q}.
 			 */
-			for(int coefficientBasisIndex = 0;
-					coefficientBasisIndex < numberOfBasisFunctions;
-					coefficientBasisIndex++) {
+			final RandomVariable[] designRow = new RandomVariable[numberOfColumns];
+
+			/*
+			for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfBasisFunctions; coefficientBasisIndex++) {
 				final RandomVariable basisFunction = basisFunctions[coefficientBasisIndex];
 				for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
-					final int column = columnIndex(hedgeIndex,
-							coefficientBasisIndex,
-							numberOfHedges);
-					designRow[column] = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(basisFunction) : Scalar.of(0.0);
+					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
+					designRow[column] = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(basisFunction) : null;
+				}
+			}
+			 */
+
+			/*
+			 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
+			 * A = hedgeSensitivities, j = hedgeIndex,i = riskFactorIndex, l = pathIndex
+			 * b = productSensitivities, j = hedgeIndex,i = riskFactorIndex, l = pathIndex
+			 * X = basisFunctions, q = coefficientBasisIndex, l = pathIndex
+			 */
+			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+				final RandomVariable hedgeDerivative = hedgeGradient[hedgeIndex];
+				if(hedgeDerivative == null) continue;
+				for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfBasisFunctions; coefficientBasisIndex++) {
+					final RandomVariable basisFunction = basisFunctions[coefficientBasisIndex].getValues();
+					if(basisFunction == null) continue;
+					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
+					designRow[column] = hedgeGradient[hedgeIndex].getValues().mult(basisFunction.getValues());
+					final double value = productGradient.getAverageFast(designRow[column]);
+					synchronized(normalRhs) {
+						normalRhs[column] += value;
+					}
 				}
 			}
 
 			/*
 			 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
 			 */
+			/*
 			if(productGradient != null ) {
 				for(int column1 = 0; column1 < numberOfColumns; column1++) {
-					normalRhs[column1] += productGradient.getAverage(designRow[column1]);
+					final RandomVariable value1 = designRow[column1];
+					if(value1 == null) continue;
+					normalRhs[column1] += designRow[column1] != null ? productGradient.getAverage(value1) : 0.0;
 				}
 			}
+			 */
 
 			/*
 			 * G_{(j,q),(k,p)} = 1/N sum_l sum_i A_{l i j} A_{l i k} X_{l q} X_{l p}.
@@ -823,8 +855,14 @@ public class ForwardSensitivities {
 			 */
 			for(int column1 = 0; column1 < numberOfColumns; column1++) {
 				final RandomVariable value1 = designRow[column1];
+				if(value1 == null) continue;
 				for(int column2 = 0; column2 <= column1; column2++) {
-					normalMatrix[column1][column2] += value1.getAverage(designRow[column2]);
+					final RandomVariable value2 = designRow[column2];
+					if(value2 == null) continue;
+					final double value = value1.getAverageFast(value2);
+					synchronized(normalMatrix) {
+						normalMatrix[column1][column2] += value;
+					}
 				}
 			}
 		});

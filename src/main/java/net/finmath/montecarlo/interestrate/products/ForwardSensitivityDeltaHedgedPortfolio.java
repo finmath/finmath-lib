@@ -481,7 +481,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
 			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null ? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;
 
-			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime);
+			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime).getValues();
 
 			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;
 			if(hedgeInstrumentProtoValues.length != hedgeInstrumentPositions.length) {
@@ -715,7 +715,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				return model.getModel().getForwardDiscountBond(
 						model.getProcess(),
 						maturity,
-						evaluationTime).invert();
+						evaluationTime).getValues().invert();
 			}
 			else {
 				// Biased: return the accrued bond, adapted to evaluationTime > maturity.
@@ -730,7 +730,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		return model.getModel().getForwardDiscountBond(
 				model.getProcess(),
 				evaluationTime,
-				maturity);
+				maturity).getValues();
 	}
 
 	/**
