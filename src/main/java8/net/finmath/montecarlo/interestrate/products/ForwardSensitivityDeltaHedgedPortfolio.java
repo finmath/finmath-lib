@@ -458,9 +458,16 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		final RandomVariable derivativeProtoValue = productToReplicate.getValue(0.0, model);
 		final RandomVariable[] hedgeInstrumentProtoValues = hedgeInstrumentValueProvider.getValues(0.0, model, hedgeInstruments);
 		final Map<Long, RandomVariable> derivativeGradient = ((RandomVariableDifferentiable)derivativeProtoValue).getGradient();
-		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = Arrays.stream(hedgeInstrumentProtoValues).map(hedgeInstrumentProtoValue ->
-		hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable ? ((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient() : Java8BackportUtil.Map.<Long, RandomVariable>of())
-				.collect(Collectors.toList());
+		final List<Map<Long, RandomVariable>> hedgePortfolioGradients = new ArrayList<Map<Long, RandomVariable>>(hedgeInstrumentProtoValues.length);
+
+		for(final RandomVariable hedgeInstrumentProtoValue : hedgeInstrumentProtoValues) {
+			if(hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable) {
+				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());
+			}
+			else {
+				hedgePortfolioGradients.add(Java8BackportUtil.Map.<Long, RandomVariable>of());
+			}
+		}
 
 		for(final double rebalancingTime : rebalancingTimes) {
 
