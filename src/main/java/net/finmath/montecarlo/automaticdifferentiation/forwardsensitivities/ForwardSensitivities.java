@@ -255,7 +255,7 @@ public class ForwardSensitivities {
 				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());
 			}
 			else {
-				hedgePortfolioGradients.add(Java8BackportUtil.Map.<Long, RandomVariable>of());
+				hedgePortfolioGradients.add(Map.<Long, RandomVariable>of());
 			}
 		}
 
