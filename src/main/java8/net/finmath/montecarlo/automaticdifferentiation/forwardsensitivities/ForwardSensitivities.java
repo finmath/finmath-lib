@@ -357,7 +357,7 @@ public class ForwardSensitivities {
 		/*
 		double[][] testBasisValues = null;
 		if(testBasisFunctions != null) {
-			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];		
+			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];
 			for(int basisIndex = 0; basisIndex < testBasisFunctions.length; basisIndex++) {
 				if(testBasisFunctions[basisIndex] == null) {
 					throw new IllegalArgumentException("testBasisFunctions[" + basisIndex + "] is null.");
