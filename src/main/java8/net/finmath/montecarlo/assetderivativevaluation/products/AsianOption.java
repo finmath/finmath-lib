@@ -75,12 +75,12 @@ public class AsianOption extends AbstractAssetMonteCarloProduct {
 	@Override
 	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
 		// Calculate average
-		RandomVariable average = model.getRandomVariableForConstant(0.0);
+		RandomVariable sum = model.getRandomVariableForConstant(0.0);
 		for(final double time : timesForAveraging) {
 			final RandomVariable underlying	= model.getAssetValue(time, underlyingIndex);
-			average = average.add(underlying);
+			sum = sum.add(underlying);
 		}
-		average = average.div(timesForAveraging.getNumberOfTimes());
+		RandomVariable average = sum.div(timesForAveraging.getNumberOfTimes());
 
 		// The payoff: values = max(underlying - strike, 0)
 		RandomVariable values = average.sub(strike).floor(0.0);
