@@ -5,6 +5,13 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.1.8 (06.06.2026)
+
+### Algorithmic Differentiation
+
+- Performance improvement to `ForwardSensitivities` by pruding of linear system.
+
+
 ## 6.1.7 (04.06.2026)
 
 ### RandomVariable
