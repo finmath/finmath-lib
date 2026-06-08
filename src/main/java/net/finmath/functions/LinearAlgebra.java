@@ -66,6 +66,18 @@ public class LinearAlgebra {
 		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
 	}
 
+	public static boolean isEigenvalueDecompositionViaSVD() {
+		return isEigenvalueDecompositionViaSVD;
+	}
+
+	public static boolean isSolverUseApacheCommonsMath() {
+		return isSolverUseApacheCommonsMath;
+	}
+
+	public static boolean isJBlasAvailable() {
+		return isJBlasAvailable;
+	}
+
 	/**
 	 * Create a Cholesky decomposition of a symmetric matrix.
 	 *
