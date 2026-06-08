@@ -347,7 +347,7 @@ public class ForwardSensitivities {
 			}
 			solutionBasisValues[basisIndex] = getPathValues(solutionBasisFunctions[basisIndex], numberOfPaths);
 		}
-		 */
+		*/
 
 		/*
 		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
@@ -364,7 +364,7 @@ public class ForwardSensitivities {
 				testBasisValues[basisIndex] = getPathValues(testBasisFunctions[basisIndex], numberOfPaths);
 			}
 		}
-		 */
+		*/
 
 		final ReducedSystem reducedSystem;
 		switch(reductionMethod) {
@@ -375,8 +375,8 @@ public class ForwardSensitivities {
 					hedgeSensitivities,
 					solutionBasisFunctions,
 					testBasisFunctions != null ? testBasisFunctions : solutionBasisFunctions, numberOfPaths, numberOfHedges);
-			//					solutionBasisValues,
-			//					testBasisFunctions != null ? testBasisValues : solutionBasisValues, numberOfPaths, numberOfHedges);
+//					solutionBasisValues,
+//					testBasisFunctions != null ? testBasisValues : solutionBasisValues, numberOfPaths, numberOfHedges);
 			break;
 
 		case L2:
@@ -385,6 +385,7 @@ public class ForwardSensitivities {
 					productSensitivities,
 					hedgeSensitivities,
 					solutionBasisFunctions,
+//					solutionBasisValues,
 					numberOfPaths,
 					numberOfHedges);
 			break;
@@ -711,7 +712,7 @@ public class ForwardSensitivities {
 		double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];
 		double[] normalRhs = new double[numberOfColumns];
 
-		IntStream.range(0, numberOfRiskFactors).parallel().forEach(riskFactorIndex ->
+		for(int riskFactorIndex=0; riskFactorIndex<numberOfRiskFactors; riskFactorIndex++)
 		{
 			final String riskFactorName = riskFactorNames.get(riskFactorIndex);
 
@@ -728,7 +729,7 @@ public class ForwardSensitivities {
 
 			// If A_i = 0, this risk factor cannot affect the coefficients.
 			// A nonzero productDerivative would only add a constant residual term.
-			if(!hasAnyHedgeDerivative) return;
+			if(!hasAnyHedgeDerivative) continue;
 
 			/*
 			 * D_{(l,i),(j,q)} = A_{l i j} X_{l q}.
@@ -763,9 +764,9 @@ public class ForwardSensitivities {
 
 					if(productDerivative != null) {
 						final double value = productDerivative.getAverageFast(designRow[column]);
-						synchronized(normalRhs) {
+//						synchronized(normalRhs) {
 							normalRhs[column] += value;
-						}
+//						}
 					}
 				}
 			}
@@ -787,19 +788,21 @@ public class ForwardSensitivities {
 			 * G_{(j,q),(k,p)} = 1/N sum_l sum_i A_{l i j} A_{l i k} X_{l q} X_{l p}.
 			 * Accumulate the lower triangle and mirror after all paths.
 			 */
-			for(int column1 = 0; column1 < numberOfColumns; column1++) {
+			// Parallelize over columns
+			IntStream.range(0, numberOfColumns).parallel().forEach(column1 -> {
+//			for(int column1 = 0; column1 < numberOfColumns; column1++) {
 				final RandomVariable value1 = designRow[column1];
-				if(value1 == null) continue;
+				if(value1 == null) return;
 				for(int column2 = 0; column2 <= column1; column2++) {
 					final RandomVariable value2 = designRow[column2];
 					if(value2 == null) continue;
 					final double value = value1.getAverageFast(value2);
-					synchronized(normalMatrix) {
+//					synchronized(normalMatrix) {
 						normalMatrix[column1][column2] += value;
-					}
+//					}
 				}
-			}
-		});
+			});
+		}
 
 		for(int column1 = 0; column1 < numberOfColumns; column1++) {
 			for(int column2 = 0; column2 < column1; column2++) {
@@ -890,12 +893,12 @@ public class ForwardSensitivities {
 		return new ReducedSystem(normalMatrix, normalRhs, true);
 	}
 
-	private static double[] solveReducedSystem(
+	public static double[] solveReducedSystem(
 			final double[][] matrix,
 			final double[] rhs,
 			final double regularizationLambda,
 			final boolean matrixIsNormalEquationSystem) throws CalculationException {
-
+	
 		/*
 		 * Perform a pruning
 		 */
@@ -905,17 +908,17 @@ public class ForwardSensitivities {
 			if(matrix.length != rhs.length || matrix[0].length != matrix.length) {
 				throw new IllegalArgumentException("Normal equation system must be square and match the RHS dimension.");
 			}
-
+	
 			// Pruning rows and cols simultaneously only to ensure square matrix.
-			final int[] active = IntStream.range(0, matrix.length)
-					.filter(i -> !isMatrixRowZero(matrix, i) || !isMatrixColZero(matrix, i))
-					.toArray();
+			final int[] active = IntStream.range(0, matrix.length).parallel()
+					.filter(i -> !LinearAlgebra.matrixIsRowZero(matrix, i) || !LinearAlgebra.matrixIsColZero(matrix, i)).toArray();
 
+			// Build a mask of active columns/rows
 			final boolean[] isActive = new boolean[matrix.length];
 			for(final int index : active) {
 				isActive[index] = true;
 			}
-
+	
 			/*
 			 * Sanity check. In a consistent normal equation system G = D^T D, h = D^T b,
 			 * a structurally zero row/column of G must have zero RHS.
@@ -926,31 +929,33 @@ public class ForwardSensitivities {
 							"Inconsistent normal equation system: zero row/column with non-zero RHS at index " + i);
 				}
 			}
-
+	
 			rows = active;
 			cols = active;
 		}
 		else {
-			rows = IntStream.range(0, matrix.length).filter(i -> !isMatrixRowZero(matrix, i)).toArray();
-			cols = IntStream.range(0, matrix[0].length).filter(i -> !isMatrixColZero(matrix, i)).toArray();
+			rows = IntStream.range(0, matrix.length).parallel().
+					filter(i -> !LinearAlgebra.matrixIsRowZero(matrix, i)).toArray();
+			cols = IntStream.range(0, matrix[0].length).parallel()
+					.filter(i -> !LinearAlgebra.matrixIsColZero(matrix, i)).toArray();
 		}
-
+	
 		if(cols.length == 0 || rows.length == 0) {
 			// Nothing to do
 			return new double[matrix[0].length];
 		}
-
+	
 		double[][] matrixPruned = new double[rows.length][cols.length];
 		double[] rhsPrunded = new double[rows.length];
 		double[] solutionPruned;
-
+	
 		for(int row = 0; row<rows.length; row++) {
 			for(int col = 0; col<cols.length; col++) {
 				matrixPruned[row][col] = matrix[rows[row]][cols[col]];
 			}
 			rhsPrunded[row] = rhs[rows[row]];
 		}
-
+	
 		if(matrixIsNormalEquationSystem) {
 			/*
 			 * The matrix is already G = D^T D / N and rhs is h = D^T b / N.
@@ -962,12 +967,26 @@ public class ForwardSensitivities {
 			 * Do not call solveLinearEquationTikonov here, because that would regularize
 			 * the normal equations themselves.
 			 */
-			final double[][] matrixToSolve = matrixPruned;//copyMatrix(matrix);
+			final double[][] matrixToSolve = matrixPruned;
 			for(int index = 0; index < matrixToSolve.length; index++) {
 				matrixToSolve[index][index] += regularizationLambda;
 			}
-
-			solutionPruned = LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhsPrunded);
+	
+			if(regularizationLambda > 0.0) {
+				try {
+					solutionPruned = LinearAlgebra.solveLinearEquationCholesky(matrixToSolve, rhsPrunded);
+				}
+				catch(final RuntimeException choleskyFailed) {
+					/*
+					 * Fallback if the matrix is not numerically SPD due to roundoff
+					 * or because lambda is too small relative to the matrix scale.
+					 */
+					solutionPruned = LinearAlgebra.solveLinearEquation(matrixToSolve, rhsPrunded);
+				}
+			}
+			else {
+				solutionPruned = LinearAlgebra.solveLinearEquationLeastSquare(matrixToSolve, rhsPrunded);
+			}
 		}
 		else if(regularizationLambda > 0.0) {
 			/*
@@ -978,34 +997,43 @@ public class ForwardSensitivities {
 			 * Our input regularizationLambda is the absolute lambda in
 			 * ||Az-b||^2 + lambda ||z||^2, so we pass sqrt(lambda).
 			 */
+	
+			/*
 			solutionPruned = LinearAlgebra.solveLinearEquationTikonov(
 					matrixPruned,
 					rhsPrunded,
 					Math.sqrt(regularizationLambda));
+			 */
+	
+			/*
+			 * Projected/Galerkin system.
+			 *
+			 * Current objective:
+			 *
+			 *     ||B z - beta||^2 + lambda ||z||^2.
+			 *
+			 * Instead of solving the augmented system
+			 *
+			 *     [B; sqrt(lambda) I] z ≈ [beta; 0]
+			 *
+			 * by SVD, solve the equivalent normal equation
+			 *
+			 *     (B^T B + lambda I) z = B^T beta.
+			 */
+			solutionPruned = LinearAlgebra.solveTikhonovViaNormalEquations(
+					matrixPruned,
+					rhsPrunded,
+					regularizationLambda);
 		}
 		else {
 			solutionPruned = LinearAlgebra.solveLinearEquationLeastSquare(matrixPruned, rhsPrunded);
 		}
-
+	
 		double[] solution = new double[matrix[0].length];
 		for(int col = 0; col < cols.length; col++) {
 			solution[cols[col]] = solutionPruned[col];
 		}
 		return solution;
-	}
-
-	private static boolean isMatrixRowZero(double[][] matrix, int i) {
-		for(double value : matrix[i]) {
-			if(value != 0.0) return false;
-		}
-		return true;
-	}
-
-	private static boolean isMatrixColZero(double[][] matrix, int i) {
-		for(int row = 0; row < matrix.length; row++) {
-			if(matrix[row][i] != 0.0) return false;
-		}
-		return true;
 	}
 
 	private static RandomVariable[] reconstructHedgeRatios(
