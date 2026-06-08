@@ -21,6 +21,8 @@ import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
 
+import net.finmath.exception.CalculationException;
+
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
  *
@@ -723,4 +725,90 @@ public class LinearAlgebra {
 			return log;
 		}
 	}
+
+	public static boolean matrixIsRowZero(double[][] matrix, int i) {
+		for(double value : matrix[i]) {
+			if(value != 0.0) return false;
+		}
+		return true;
+	}
+
+	public static boolean matrixIsColZero(double[][] matrix, int i) {
+		for(int row = 0; row < matrix.length; row++) {
+			if(matrix[row][i] != 0.0) return false;
+		}
+		return true;
+	}
+
+	public static double[] solveTikhonovViaNormalEquations(
+			final double[][] matrix,
+			final double[] rhs,
+			final double regularizationLambda) throws CalculationException {
+	
+		final int rows = matrix.length;
+		final int cols = matrix[0].length;
+	
+		final double[][] normalMatrix = new double[cols][cols];
+		final double[] normalRhs = new double[cols];
+	
+		/*
+		 * normalMatrix = B^T B
+		 * normalRhs    = B^T beta
+		 */
+		for(int row = 0; row < rows; row++) {
+			final double[] matrixRow = matrix[row];
+			final double rhsValue = rhs[row];
+	
+			for(int col1 = 0; col1 < cols; col1++) {
+				final double value1 = matrixRow[col1];
+				if(value1 == 0.0) {
+					continue;
+				}
+	
+				normalRhs[col1] += value1 * rhsValue;
+	
+				for(int col2 = 0; col2 <= col1; col2++) {
+					normalMatrix[col1][col2] += value1 * matrixRow[col2];
+				}
+			}
+		}
+	
+		/*
+		 * Add lambda I and mirror the lower triangle.
+		 */
+		for(int col1 = 0; col1 < cols; col1++) {
+			normalMatrix[col1][col1] += regularizationLambda;
+	
+			for(int col2 = 0; col2 < col1; col2++) {
+				normalMatrix[col2][col1] = normalMatrix[col1][col2];
+			}
+		}
+	
+		try {
+			return solveLinearEquationCholesky(normalMatrix, normalRhs);
+		}
+		catch(final RuntimeException choleskyFailed) {
+			/*
+			 * Fallback for numerical non-SPD cases.
+			 */
+			return solveLinearEquation(normalMatrix, normalRhs);
+		}
+	}
+
+	public static double[] solveLinearEquationCholesky(
+			final double[][] matrix,
+			final double[] rhs) {
+
+		final org.apache.commons.math3.linear.DecompositionSolver solver =
+				new org.apache.commons.math3.linear.CholeskyDecomposition(
+						new org.apache.commons.math3.linear.Array2DRowRealMatrix(matrix, false),
+						1.0E-12,
+						1.0E-15)
+				.getSolver();
+
+		return solver.solve(
+				new org.apache.commons.math3.linear.ArrayRealVector(rhs, false))
+				.toArray();
+	}
+
 }
