@@ -22,6 +22,7 @@
 		<commons-math.version>3.6.1</commons-math.version>
 		<commons-lang.version>3.18.0</commons-lang.version>
 		<junit.version>5.6.2</junit.version>
+		<ejml-ddense.version>0.45.1</ejml-ddense.version>
 		<!-- maven plugins -->
 		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
 		<maven.surefire-plugin.version>3.0.0-M5</maven.surefire-plugin.version>
@@ -162,6 +163,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>${commons-lang.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ejml</groupId>
+			<artifactId>ejml-ddense</artifactId>
+			<version>${ejml-ddense.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jblas</groupId>

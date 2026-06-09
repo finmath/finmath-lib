@@ -9,6 +9,7 @@ package net.finmath.functions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -20,13 +21,16 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.QRDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
+import org.ejml.interfaces.linsol.LinearSolverDense;
 
 import net.finmath.exception.CalculationException;
 
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
  *
- * It is basically a functional wrapper using either the Apache commons math or JBlas
+ * It is basically a functional wrapper using either Apache Commons Math, EJML or JBlas
  *
  * @author Christian Fries
  * @version 1.6
@@ -34,48 +38,133 @@ import net.finmath.exception.CalculationException;
 public class LinearAlgebra {
 
 	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD","false"));
+
+	public enum SolverBackend {
+		COMMONS_MATH,
+		EJML,
+		JBLAS
+	}
+
+	private static final String PROPERTY_SOLVER_BACKEND = "net.finmath.functions.LinearAlgebra.solverBackend";
+	private static final String PROPERTY_LEGACY_USE_COMMONS_MATH = "net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath";
+
+	private static volatile SolverBackend solverBackend;
 	private static boolean isSolverUseApacheCommonsMath;
 	private static boolean isJBlasAvailable;
 
 	static {
-		// Default value is true, in which case we will NOT use jblas
-		boolean isSolverUseApacheCommonsMath = Boolean.parseBoolean(System.getProperty("net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath","true"));
+		SolverBackend configuredSolverBackend = getConfiguredSolverBackend();
 
 		/*
-		 * Check if jblas is available
+		 * Check if jblas is available. This check is only done when jblas is requested,
+		 * since loading jblas may fail on platforms without a compatible native library.
 		 */
-		if(!isSolverUseApacheCommonsMath) {
-			try {
-				final double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
-				// The following should not happen.
-				if(x[0] != 1.0 || x[1] != 0.0) {
-					isJBlasAvailable = false;
-				}
-				else {
-					isJBlasAvailable = true;
-				}
-			}
-			catch(final java.lang.UnsatisfiedLinkError e) {
-				isJBlasAvailable = false;
+		if(configuredSolverBackend == SolverBackend.JBLAS) {
+			isJBlasAvailable = checkJBlasAvailability();
+			if(!isJBlasAvailable) {
+				configuredSolverBackend = SolverBackend.EJML;
 			}
 		}
 
-		if(!isJBlasAvailable) {
-			isSolverUseApacheCommonsMath = true;
-		}
-		LinearAlgebra.isSolverUseApacheCommonsMath = isSolverUseApacheCommonsMath;
+		setSolverBackendInternal(configuredSolverBackend);
 	}
 
 	public static boolean isEigenvalueDecompositionViaSVD() {
 		return isEigenvalueDecompositionViaSVD;
 	}
 
+	/**
+	 * Returns the legacy solver flag. This method is kept for backward compatibility
+	 * and returns false only if the current backend is jblas. In particular, it
+	 * returns true for EJML, since methods not converted to the backend enum
+	 * continue to use Commons Math.
+	 *
+	 * @return True if the current solver backend is not jblas.
+	 */
 	public static boolean isSolverUseApacheCommonsMath() {
 		return isSolverUseApacheCommonsMath;
 	}
 
 	public static boolean isJBlasAvailable() {
 		return isJBlasAvailable;
+	}
+
+	public static SolverBackend getSolverBackend() {
+		return solverBackend;
+	}
+
+	/**
+	 * Sets the backend used by the linear equation solve methods.
+	 *
+	 * @param solverBackend The solver backend.
+	 */
+	public static void setSolverBackend(final SolverBackend solverBackend) {
+		if(solverBackend == null) {
+			throw new NullPointerException("solverBackend");
+		}
+
+		if(solverBackend == SolverBackend.JBLAS) {
+			isJBlasAvailable = checkJBlasAvailability();
+			if(!isJBlasAvailable) {
+				throw new IllegalArgumentException("JBLAS backend requested, but jblas is not available.");
+			}
+		}
+
+		setSolverBackendInternal(solverBackend);
+	}
+
+	private static void setSolverBackendInternal(final SolverBackend solverBackend) {
+		LinearAlgebra.solverBackend = solverBackend;
+
+		/*
+		 * Backward compatibility for methods that still use the old boolean.
+		 * If the backend is EJML, those methods should use Commons Math and must
+		 * not accidentally fall through to jblas.
+		 */
+		isSolverUseApacheCommonsMath = solverBackend != SolverBackend.JBLAS;
+	}
+
+	private static SolverBackend getConfiguredSolverBackend() {
+		final String configuredBackend = System.getProperty(PROPERTY_SOLVER_BACKEND);
+
+		if(configuredBackend != null && !configuredBackend.trim().isEmpty()) {
+			return parseSolverBackend(configuredBackend);
+		}
+
+		/*
+		 * Backward compatibility with the old boolean property:
+		 * true  -> COMMONS_MATH
+		 * false -> JBLAS
+		 */
+		final boolean useCommonsMath = Boolean.parseBoolean(System.getProperty(PROPERTY_LEGACY_USE_COMMONS_MATH,"true"));
+		return useCommonsMath ? SolverBackend.COMMONS_MATH : SolverBackend.JBLAS;
+	}
+
+	private static SolverBackend parseSolverBackend(final String configuredBackend) {
+		final String normalizedName = configuredBackend
+				.trim()
+				.replace('-', '_')
+				.replace(' ', '_')
+				.toUpperCase(Locale.ENGLISH);
+
+		if("COMMONS".equals(normalizedName)
+				|| "APACHE".equals(normalizedName)
+				|| "APACHE_COMMONS".equals(normalizedName)
+				|| "APACHE_COMMONS_MATH".equals(normalizedName)) {
+			return SolverBackend.COMMONS_MATH;
+		}
+
+		return SolverBackend.valueOf(normalizedName);
+	}
+
+	private static boolean checkJBlasAvailability() {
+		try {
+			final double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;
+			return Math.abs(x[0] - 1.0) < 1E-12 && Math.abs(x[1]) < 1E-12;
+		}
+		catch(final RuntimeException | LinkageError exception) {
+			return false;
+		}
 	}
 
 	/**
@@ -227,7 +316,32 @@ public class LinearAlgebra {
 	 */
 	public static double[] solveLinearEquation(final double[][] matrixA, final double[] b) {
 
-		if(isSolverUseApacheCommonsMath) {
+		switch(solverBackend) {
+		case EJML:
+			final int numberOfColumns = checkMatrixAndVectorDimensions(matrixA, b);
+
+			final LinearSolverDense<DMatrixRMaj> solverEJML;
+			if(matrixA.length == numberOfColumns) {
+				solverEJML = LinearSolverFactory_DDRM.linear(numberOfColumns);
+			}
+			else if(matrixA.length > numberOfColumns) {
+				solverEJML = LinearSolverFactory_DDRM.leastSquares(matrixA.length, numberOfColumns);
+			}
+			else {
+				solverEJML = LinearSolverFactory_DDRM.pseudoInverse(true);
+			}
+
+			return solveLinearEquationUsingEJML(
+					matrixA,
+					b,
+					solverEJML,
+					"Linear solve failed. Matrix is probably singular or ill-conditioned.");
+
+		case JBLAS:
+			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
+
+		case COMMONS_MATH:
+		default:
 			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
 
 			DecompositionSolver solver;
@@ -242,16 +356,6 @@ public class LinearAlgebra {
 			//			solver = new SingularValueDecomposition(new Array2DRowRealMatrix(A)).getSolver();
 
 			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
-		}
-		else {
-			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
-
-			// For use of colt:
-			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
-			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
-
-			// For use of parallel colt:
-			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
 	}
 
@@ -269,23 +373,27 @@ public class LinearAlgebra {
 	 */
 	public static double[] solveLinearEquationSVD(final double[][] matrixA, final double[] b) {
 
-		if(isSolverUseApacheCommonsMath) {
+		switch(solverBackend) {
+		case EJML:
+			checkMatrixAndVectorDimensions(matrixA, b);
+
+			return solveLinearEquationUsingEJML(
+					matrixA,
+					b,
+					LinearSolverFactory_DDRM.pseudoInverse(true),
+					"SVD solve failed.");
+
+		case JBLAS:
+			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
+
+		case COMMONS_MATH:
+		default:
 			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);
 
 			// Using SVD - very slow
 			final DecompositionSolver solver = new SingularValueDecomposition(matrix).getSolver();
 
 			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);
-		}
-		else {
-			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
-
-			// For use of colt:
-			// cern.colt.matrix.linalg.Algebra linearAlgebra = new cern.colt.matrix.linalg.Algebra();
-			// return linearAlgebra.solve(new DenseDoubleMatrix2D(A), linearAlgebra.transpose(new DenseDoubleMatrix2D(new double[][] { b }))).viewColumn(0).toArray();
-
-			// For use of parallel colt:
-			// return new cern.colt.matrix.tdouble.algo.decomposition.DenseDoubleLUDecomposition(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix2D(A)).solve(new cern.colt.matrix.tdouble.impl.DenseDoubleMatrix1D(b)).toArray();
 		}
 	}
 	/**
@@ -349,9 +457,28 @@ public class LinearAlgebra {
 	 * @return A solution x to A x = b.
 	 */
 	public static double[] solveLinearEquationLeastSquare(final double[][] matrix, final double[] vector) {
-		// We use the linear algebra package apache commons math
-		final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
-		return solver.solve(new ArrayRealVector(vector)).toArray();
+		switch(solverBackend) {
+		case EJML:
+			checkMatrixAndVectorDimensions(matrix, vector);
+
+			/*
+			 * The previous Commons Math implementation uses SVD.
+			 * Use EJML's SVD-based pseudo-inverse to preserve robust behavior.
+			 */
+			return solveLinearEquationUsingEJML(
+					matrix,
+					vector,
+					LinearSolverFactory_DDRM.pseudoInverse(true),
+					"Least-square solve failed.");
+
+		case JBLAS:
+			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(vector)).data;
+
+		case COMMONS_MATH:
+		default:
+			final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+			return solver.solve(new ArrayRealVector(vector)).toArray();
+		}
 	}
 
 	/**
@@ -367,9 +494,28 @@ public class LinearAlgebra {
 	 * @return A solution X to A X = B.
 	 */
 	public static double[][] solveLinearEquationLeastSquare(final double[][] matrix, final double[][] rhs) {
-		// We use the linear algebra package apache commons math
-		final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
-		return solver.solve(new Array2DRowRealMatrix(rhs)).getData();
+		switch(solverBackend) {
+		case EJML:
+			checkMatrixAndMatrixDimensions(matrix, rhs);
+
+			/*
+			 * The previous Commons Math implementation uses SVD.
+			 * Use EJML's SVD-based pseudo-inverse to preserve robust behavior.
+			 */
+			return solveLinearEquationUsingEJML(
+					matrix,
+					rhs,
+					LinearSolverFactory_DDRM.pseudoInverse(true),
+					"Least-square solve failed.");
+
+		case JBLAS:
+			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(rhs)).toArray2();
+
+		case COMMONS_MATH:
+		default:
+			final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();
+			return solver.solve(new Array2DRowRealMatrix(rhs)).getData();
+		}
 	}
 
 	/**
@@ -738,6 +884,127 @@ public class LinearAlgebra {
 		}
 	}
 
+
+	private static double[] solveLinearEquationUsingEJML(
+			final double[][] matrix,
+			final double[] vector,
+			final LinearSolverDense<DMatrixRMaj> solver,
+			final String failureMessage) {
+
+		final DMatrixRMaj matrixEJML = new DMatrixRMaj(matrix);
+		final DMatrixRMaj vectorEJML = new DMatrixRMaj(vector.length, 1);
+		for(int row = 0; row < vector.length; row++) {
+			vectorEJML.set(row, 0, vector[row]);
+		}
+		final DMatrixRMaj solutionEJML = new DMatrixRMaj(matrixEJML.getNumCols(), 1);
+
+		if(!solver.setA(matrixEJML)) {
+			throw new ArithmeticException(failureMessage);
+		}
+
+		solver.solve(vectorEJML, solutionEJML);
+
+		final double[] solution = new double[solutionEJML.getNumRows()];
+		for(int row = 0; row < solution.length; row++) {
+			solution[row] = solutionEJML.get(row, 0);
+		}
+
+		return solution;
+	}
+
+	private static double[][] solveLinearEquationUsingEJML(
+			final double[][] matrix,
+			final double[][] rhs,
+			final LinearSolverDense<DMatrixRMaj> solver,
+			final String failureMessage) {
+
+		final DMatrixRMaj matrixEJML = new DMatrixRMaj(matrix);
+		final DMatrixRMaj rhsEJML = new DMatrixRMaj(rhs);
+		final DMatrixRMaj solutionEJML = new DMatrixRMaj(matrixEJML.getNumCols(), rhsEJML.getNumCols());
+
+		if(!solver.setA(matrixEJML)) {
+			throw new ArithmeticException(failureMessage);
+		}
+
+		solver.solve(rhsEJML, solutionEJML);
+
+		final double[][] solution = new double[solutionEJML.getNumRows()][solutionEJML.getNumCols()];
+		for(int row = 0; row < solution.length; row++) {
+			for(int column = 0; column < solution[row].length; column++) {
+				solution[row][column] = solutionEJML.get(row, column);
+			}
+		}
+
+		return solution;
+	}
+
+	private static int checkMatrixAndVectorDimensions(final double[][] matrix, final double[] vector) {
+		final int numberOfColumns = checkMatrixDimensions(matrix, "matrix");
+
+		if(vector == null) {
+			throw new NullPointerException("vector");
+		}
+		if(matrix.length != vector.length) {
+			throw new IllegalArgumentException(
+					"Incompatible dimensions: matrix has " + matrix.length
+							+ " rows, vector has length " + vector.length + ".");
+		}
+
+		return numberOfColumns;
+	}
+
+	private static int checkMatrixAndMatrixDimensions(final double[][] matrix, final double[][] rhs) {
+		final int numberOfColumns = checkMatrixDimensions(matrix, "matrix");
+		checkMatrixDimensions(rhs, "rhs");
+
+		if(matrix.length != rhs.length) {
+			throw new IllegalArgumentException(
+					"Incompatible dimensions: matrix has " + matrix.length
+							+ " rows, rhs has " + rhs.length + " rows.");
+		}
+
+		return numberOfColumns;
+	}
+
+	private static int checkMatrixDimensions(final double[][] matrix, final String name) {
+		if(matrix == null) {
+			throw new NullPointerException(name);
+		}
+		if(matrix.length == 0) {
+			throw new IllegalArgumentException("Matrix " + name + " has zero rows.");
+		}
+		if(matrix[0] == null) {
+			throw new NullPointerException(name + "[0]");
+		}
+
+		final int numberOfColumns = matrix[0].length;
+
+		if(numberOfColumns == 0) {
+			throw new IllegalArgumentException("Matrix " + name + " has zero columns.");
+		}
+
+		for(int row = 1; row < matrix.length; row++) {
+			if(matrix[row] == null) {
+				throw new NullPointerException(name + "[" + row + "]");
+			}
+			if(matrix[row].length != numberOfColumns) {
+				throw new IllegalArgumentException(
+						"Matrix " + name + " is not rectangular: row 0 has length "
+								+ numberOfColumns + ", row " + row + " has length "
+								+ matrix[row].length + ".");
+			}
+		}
+
+		return numberOfColumns;
+	}
+
+	private static void checkSquareMatrix(final double[][] matrix, final int numberOfColumns) {
+		if(matrix.length != numberOfColumns) {
+			throw new IllegalArgumentException(
+					"Matrix is not square: " + matrix.length + " x " + numberOfColumns + ".");
+		}
+	}
+
 	public static boolean matrixIsRowZero(double[][] matrix, int i) {
 		for(double value : matrix[i]) {
 			if(value != 0.0) return false;
@@ -811,16 +1078,31 @@ public class LinearAlgebra {
 			final double[][] matrix,
 			final double[] rhs) {
 
-		final org.apache.commons.math3.linear.DecompositionSolver solver =
-				new org.apache.commons.math3.linear.CholeskyDecomposition(
-						new org.apache.commons.math3.linear.Array2DRowRealMatrix(matrix, false),
-						1.0E-12,
-						1.0E-15)
-				.getSolver();
+		switch(solverBackend) {
+		case EJML:
+			final int numberOfColumns = checkMatrixAndVectorDimensions(matrix, rhs);
+			checkSquareMatrix(matrix, numberOfColumns);
 
-		return solver.solve(
-				new org.apache.commons.math3.linear.ArrayRealVector(rhs, false))
-				.toArray();
+			return solveLinearEquationUsingEJML(
+					matrix,
+					rhs,
+					LinearSolverFactory_DDRM.chol(matrix.length),
+					"Cholesky decomposition failed. Matrix is probably not symmetric positive definite.");
+
+		case JBLAS:
+			return org.jblas.Solve.solvePositive(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(rhs)).data;
+
+		case COMMONS_MATH:
+		default:
+			final DecompositionSolver solver =
+					new CholeskyDecomposition(
+							new Array2DRowRealMatrix(matrix, false),
+							1.0E-12,
+							1.0E-15)
+					.getSolver();
+
+			return solver.solve(new ArrayRealVector(rhs, false)).toArray();
+		}
 	}
 
 }

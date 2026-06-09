@@ -118,4 +118,6 @@ module net.finmath.lib {
 
 	requires commons.math3;
 	requires jblas;
+	requires ejml.core;
+	requires ejml.ddense;
 }
