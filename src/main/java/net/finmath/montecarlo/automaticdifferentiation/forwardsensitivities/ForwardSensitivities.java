@@ -752,9 +752,10 @@ public class ForwardSensitivities {
 			 * b = productSensitivities, j = hedgeIndex,i = riskFactorIndex, l = pathIndex
 			 * X = basisFunctions, q = coefficientBasisIndex, l = pathIndex
 			 */
-			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
+			IntStream.range(0, numberOfHedges).parallel().forEach(hedgeIndex -> {
+//			for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
 				final RandomVariable hedgeDerivative = hedgesDerivative[hedgeIndex];
-				if(hedgeDerivative == null) continue;
+				if(hedgeDerivative == null) return;
 
 				for(int coefficientBasisIndex = 0; coefficientBasisIndex < numberOfBasisFunctions; coefficientBasisIndex++) {
 					final RandomVariable basisFunction = basisFunctions[coefficientBasisIndex].getValues();
@@ -763,13 +764,10 @@ public class ForwardSensitivities {
 					designRow[column] = hedgeDerivative.mult(basisFunction);
 
 					if(productDerivative != null) {
-						final double value = productDerivative.getAverageFast(designRow[column]);
-//						synchronized(normalRhs) {
-							normalRhs[column] += value;
-//						}
+						normalRhs[column] += productDerivative.getAverageFast(designRow[column]);
 					}
 				}
-			}
+			});
 
 			/*
 			 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
@@ -796,10 +794,7 @@ public class ForwardSensitivities {
 				for(int column2 = 0; column2 <= column1; column2++) {
 					final RandomVariable value2 = designRow[column2];
 					if(value2 == null) continue;
-					final double value = value1.getAverageFast(value2);
-//					synchronized(normalMatrix) {
-						normalMatrix[column1][column2] += value;
-//					}
+					normalMatrix[column1][column2] += value1.getAverageFast(value2);
 				}
 			});
 		}
