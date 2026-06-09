@@ -755,7 +755,7 @@ public class LinearAlgebra {
 	public static double[] solveTikhonovViaNormalEquations(
 			final double[][] matrix,
 			final double[] rhs,
-			final double regularizationLambda) throws CalculationException {
+			final double regularizationLambda) {
 	
 		final int rows = matrix.length;
 		final int cols = matrix[0].length;
