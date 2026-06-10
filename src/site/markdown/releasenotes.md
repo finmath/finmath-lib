@@ -7,6 +7,14 @@ finmath lib Release Notes
 
 ## 6.1.8 (06.06.2026)
 
+### General
+
+- Added option to choose different solver backends for linear equations in `LinearAlgebra`.
+- Added EJML
+
+
+## 6.1.8 (06.06.2026)
+
 ### Algorithmic Differentiation
 
 - Performance improvement to `ForwardSensitivities` by pruding of linear system.
