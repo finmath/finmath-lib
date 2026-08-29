@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import net.finmath.exception.CalculationException;
 import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
 import net.finmath.stochastic.RandomVariable;
-import net.finmath.stochastic.Scalar;
 import net.finmath.time.FloatingpointDate;
 
 /**
@@ -21,6 +20,8 @@ import net.finmath.time.FloatingpointDate;
  */
 public class Bond extends AbstractTermStructureMonteCarloProduct {
 
+	static final double PAYMENT_TIME_TOLERANCE = 1E-12;
+
 	private final LocalDateTime referenceDate;
 	private double maturity;
 
@@ -29,7 +30,8 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 	 * Here T is specified as a double offset to a given reference date \( t = 0 \).
 	 *
 	 * @param referenceDate The date corresponding to \( t = 0 \).
-	 * @param maturity The maturity given as double (following the {@link FloatingpointDate} convention as an offset to referenceDate.
+	 * @param maturity The maturity given as a double, following the
+	 *        {@link FloatingpointDate} convention as an offset to {@code referenceDate}.
 	 */
 	public Bond(final LocalDateTime referenceDate, final double maturity) {
 		super();
@@ -59,21 +61,19 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 	@Override
 	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
 
-		double productToModelTimeOffset = 0;
-		try {
-			if(referenceDate != null) {
-				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), referenceDate);
-			}
-		}
-		catch(final UnsupportedOperationException e) {}
+		final double productToModelTimeOffset = getProductToModelTimeOffset(model);
+		final double paymentTime = productToModelTimeOffset + maturity;
 
-		if(evaluationTime > maturity) {
-			return Scalar.of(0.0);
+		if(paymentTime < evaluationTime - PAYMENT_TIME_TOLERANCE) {
+			return model.getRandomVariableForConstant(0.0);
+		}
+		if(paymentTime <= evaluationTime + PAYMENT_TIME_TOLERANCE) {
+			return model.getRandomVariableForConstant(1.0);
 		}
 
 		// Get random variables
-		final RandomVariable	numeraire				= model.getNumeraire(productToModelTimeOffset + maturity);
-		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(productToModelTimeOffset + maturity);
+		final RandomVariable	numeraire				= model.getNumeraire(paymentTime);
+		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentTime);
 
 		// Calculate numeraire relative value
 		RandomVariable values = model.getRandomVariableForConstant(1.0);
@@ -86,6 +86,36 @@ public class Bond extends AbstractTermStructureMonteCarloProduct {
 
 		// Return values
 		return values;
+	}
+
+	double getProductToModelTimeOffset(final TermStructureMonteCarloSimulationModel model) {
+		if(referenceDate == null) {
+			return 0.0;
+		}
+
+		final LocalDateTime modelReferenceDate;
+		try {
+			modelReferenceDate = model.getReferenceDate();
+		}
+		catch(final UnsupportedOperationException exception) {
+			throw new IllegalArgumentException(
+					"The model must provide a reference date to value a date-based Bond.",
+					exception);
+		}
+		if(modelReferenceDate == null) {
+			throw new IllegalArgumentException(
+					"The model must provide a reference date to value a date-based Bond.");
+		}
+
+		return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, referenceDate);
+	}
+
+	/**
+	 * @return The date relative to which maturity is specified, or null if
+	 *         maturity is already in model time.
+	 */
+	public LocalDateTime getReferenceDate() {
+		return referenceDate;
 	}
 
 	/**

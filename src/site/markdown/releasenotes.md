@@ -5,12 +5,26 @@ finmath lib Release Notes
 
 # Release Notes
 
-## 6.1.8 (06.06.2026)
+## 6.1.9 (29.08.2026)
 
 ### General
 
-- Added option to choose different solver backends for linear equations in `LinearAlgebra`.
-- Added EJML
+- Added immutable, per-instance solver-backend selection to `LinearAlgebra`, with Apache Commons Math, EJML and JBLAS implementations.
+- Improved handling of singular and ill-conditioned linear systems through rank-aware and pseudo-inverse fallbacks.
+- Kept the Java 8 classifier feature-compatible and pinned EJML to the Java 8-compatible 0.41 release.
+
+### Algorithmic Differentiation
+
+- Added pathwise forward sensitivities, including optional projection onto user-provided basis functions.
+- Added a column-scaled, pivoted QR fast path with an SVD minimum-norm fallback for pathwise systems; PATHWISE uses no Tikhonov regularization.
+- Parallelized assembly of projected forward-sensitivity systems.
+
+### Monte Carlo Interest Rate Models
+
+- Extended `ForwardSensitivityDeltaHedgedPortfolio` with configurable hedge-ratio and trade-value providers.
+- Added the Monte Carlo `SwapAnnuity` product for valuation, benchmarking and use as a basis function.
+- Corrected date-reference alignment and payment-boundary handling for `Bond` and `SwapAnnuity`.
+- Documented and enforced that the hedge portfolio does not separately book intermediate hedge-instrument cashflows: known built-in payments before final evaluation are rejected, while custom hedge products must provide total-return values.
 
 
 ## 6.1.8 (06.06.2026)
