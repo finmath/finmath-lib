@@ -20,15 +20,282 @@ public class LinearAlgebraTest {
 		};
 		final double[] rhs = new double[] { 2.0 };
 
-		assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.COMMONS_MATH, matrix, rhs);
-		assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.EJML, matrix, rhs);
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			assertSingularTikhonovFallback(solverBackend, matrix, rhs);
+		}
+	}
 
+	@Test
+	public void testSolveTikhonovViaNormalEquationsIllConditionedFallback() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 0.0 },
+			{ 0.0, 1E-8 }
+		};
+		final double[] rhs = new double[] { 1.0, 1E-8 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[] solution = LinearAlgebra.solveTikhonovViaNormalEquations(
+					solverBackend,
+					matrix,
+					rhs,
+					0.0);
+			Assert.assertArrayEquals(
+					"Ill-conditioned normal equation fallback using " + solverBackend,
+					new double[] { 1.0, 1.0 },
+					solution,
+					1E-10);
+		}
+	}
+
+	@Test
+	public void testSolveTikhonovViaNormalEquationsValidatesInputs() {
+		final double[][] matrix = new double[][] {
+			{ 1.0 },
+			{ 2.0 }
+		};
+		final double[] rhs = new double[] { 1.0, 2.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			for(final double invalidLambda : new double[] { -1.0, Double.NaN, Double.POSITIVE_INFINITY }) {
+				final IllegalArgumentException exception = Assertions.assertThrows(
+						IllegalArgumentException.class,
+						() -> LinearAlgebra.solveTikhonovViaNormalEquations(
+								solverBackend,
+								matrix,
+								rhs,
+								invalidLambda));
+				Assert.assertEquals(
+						"regularizationLambda must be finite and non-negative.",
+						exception.getMessage());
+			}
+
+			final IllegalArgumentException exception = Assertions.assertThrows(
+					IllegalArgumentException.class,
+					() -> LinearAlgebra.solveTikhonovViaNormalEquations(
+							solverBackend,
+							matrix,
+							new double[] { 1.0 },
+							0.0));
+			Assert.assertTrue(exception.getMessage().contains("Incompatible dimensions"));
+		}
+	}
+
+	@Test
+	public void testSolveLinearEquationBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 3.0, 1.0 },
+			{ 1.0, 2.0 }
+		};
+		final double[] rhs = new double[] { 9.0, 8.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[] solution = LinearAlgebra.solveLinearEquation(solverBackend, matrix, rhs);
+			Assert.assertArrayEquals(
+					"Square solve using " + solverBackend,
+					new double[] { 2.0, 3.0 },
+					solution,
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testSolveRankDeficientLeastSquaresBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 1.0 },
+			{ 2.0, 2.0 },
+			{ 3.0, 3.0 }
+		};
+		final double[] rhs = new double[] { 2.0, 4.0, 6.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[] solution = LinearAlgebra.solveLinearEquationLeastSquare(solverBackend, matrix, rhs);
+			Assert.assertArrayEquals(
+					"Rank-deficient least-square solve using " + solverBackend,
+					new double[] { 1.0, 1.0 },
+					solution,
+					1E-10);
+		}
+	}
+
+	@Test
+	public void testSolveMatrixRightHandSideBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 0.0 },
+			{ 0.0, 2.0 },
+			{ 1.0, 2.0 }
+		};
+		final double[][] rhs = new double[][] {
+			{ 1.0, 2.0 },
+			{ 2.0, 4.0 },
+			{ 3.0, 6.0 }
+		};
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[][] solution = LinearAlgebra.solveLinearEquationLeastSquare(solverBackend, matrix, rhs);
+			Assert.assertArrayEquals(
+					"First matrix-RHS solution row using " + solverBackend,
+					new double[] { 1.0, 2.0 },
+					solution[0],
+					1E-12);
+			Assert.assertArrayEquals(
+					"Second matrix-RHS solution row using " + solverBackend,
+					new double[] { 1.0, 2.0 },
+					solution[1],
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testInvertBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 4.0, 1.0 },
+			{ 2.0, 3.0 }
+		};
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[][] inverse = LinearAlgebra.invert(solverBackend, matrix);
+			Assert.assertArrayEquals(
+					"First inverse row using " + solverBackend,
+					new double[] { 0.3, -0.1 },
+					inverse[0],
+					1E-12);
+			Assert.assertArrayEquals(
+					"Second inverse row using " + solverBackend,
+					new double[] { -0.2, 0.4 },
+					inverse[1],
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testPseudoInverseBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 2.0, 0.0, 0.0 },
+			{ 0.0, 4.0, 0.0 }
+		};
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[][] pseudoInverse = LinearAlgebra.pseudoInverse(solverBackend, matrix);
+			Assert.assertArrayEquals(
+					"First pseudo-inverse row using " + solverBackend,
+					new double[] { 0.5, 0.0 },
+					pseudoInverse[0],
+					1E-12);
+			Assert.assertArrayEquals(
+					"Second pseudo-inverse row using " + solverBackend,
+					new double[] { 0.0, 0.25 },
+					pseudoInverse[1],
+					1E-12);
+			Assert.assertArrayEquals(
+					"Third pseudo-inverse row using " + solverBackend,
+					new double[] { 0.0, 0.0 },
+					pseudoInverse[2],
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testSolveLinearEquationSymmetricBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 4.0, 1.0 },
+			{ 1.0, 3.0 }
+		};
+		final double[] rhs = new double[] { 6.0, 7.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[] solution = LinearAlgebra.solveLinearEquationSymmetric(solverBackend, matrix, rhs);
+			Assert.assertArrayEquals(
+					"Symmetric solve using " + solverBackend,
+					new double[] { 1.0, 2.0 },
+					solution,
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testSolveLinearEquationCholeskySolverFacadeBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 4.0, 1.0 },
+			{ 1.0, 3.0 }
+		};
+		final double[] rhs = new double[] { 6.0, 7.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final LinearAlgebra.Solver solver = LinearAlgebra.getSolver(solverBackend);
+			final double[] solution = solver.solveLinearEquationCholesky(matrix, rhs);
+			Assert.assertArrayEquals(
+					"Cholesky facade solve using " + solverBackend,
+					new double[] { 1.0, 2.0 },
+					solution,
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testSolveWideLeastSquaresBackendParity() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 0.0, 1.0 },
+			{ 0.0, 1.0, 1.0 }
+		};
+		final double[] rhs = new double[] { 1.0, 1.0 };
+
+		for(final LinearAlgebra.SolverBackend solverBackend : getAvailableSolverBackends()) {
+			final double[] solution = LinearAlgebra.solveLinearEquationLeastSquare(solverBackend, matrix, rhs);
+			Assert.assertArrayEquals(
+					"Wide minimum-norm least-square solve using " + solverBackend,
+					new double[] { 1.0 / 3.0, 1.0 / 3.0, 2.0 / 3.0 },
+					solution,
+					1E-12);
+		}
+	}
+
+	@Test
+	public void testJBlasAvailabilityMatchesExplicitBackend() {
+		final boolean isJBlasAvailable = LinearAlgebra.isJBlasAvailable();
+
+		if(isJBlasAvailable) {
+			Assert.assertEquals(
+					LinearAlgebra.SolverBackend.JBLAS,
+					LinearAlgebra.getSolver(LinearAlgebra.SolverBackend.JBLAS).getSolverBackend());
+			Assert.assertArrayEquals(
+					new double[] { 2.0 },
+					LinearAlgebra.solveLinearEquation(
+							LinearAlgebra.SolverBackend.JBLAS,
+							new double[][] { { 2.0 } },
+							new double[] { 4.0 }),
+					1E-12);
+		}
+		else {
+			final IllegalArgumentException exception = Assertions.assertThrows(
+					IllegalArgumentException.class,
+					() -> LinearAlgebra.solveLinearEquation(
+							LinearAlgebra.SolverBackend.JBLAS,
+							new double[][] { { 2.0 } },
+							new double[] { 4.0 }));
+			Assert.assertEquals(
+					"JBLAS backend requested, but jblas is not available.",
+					exception.getMessage());
+		}
+	}
+
+	private static LinearAlgebra.SolverBackend[] getAvailableSolverBackends() {
+		/*
+		 * Keep optional-backend detection separate from the test body. An
+		 * IllegalArgumentException raised by a solve or assertion must fail the test.
+		 */
 		try {
 			LinearAlgebra.getSolver(LinearAlgebra.SolverBackend.JBLAS);
-			assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.JBLAS, matrix, rhs);
+			return new LinearAlgebra.SolverBackend[] {
+				LinearAlgebra.SolverBackend.COMMONS_MATH,
+				LinearAlgebra.SolverBackend.EJML,
+				LinearAlgebra.SolverBackend.JBLAS
+			};
 		}
 		catch(final IllegalArgumentException jblasUnavailable) {
-			// JBLAS is optional and does not provide native binaries on every platform.
+			return new LinearAlgebra.SolverBackend[] {
+				LinearAlgebra.SolverBackend.COMMONS_MATH,
+				LinearAlgebra.SolverBackend.EJML
+			};
 		}
 	}
 

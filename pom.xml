@@ -22,7 +22,8 @@
 		<commons-math.version>3.6.1</commons-math.version>
 		<commons-lang.version>3.18.0</commons-lang.version>
 		<junit.version>5.6.2</junit.version>
-		<ejml-ddense.version>0.45.1</ejml-ddense.version>
+		<!-- Keep the shared dependency graph compatible with the published Java 8 classifier. -->
+		<ejml-ddense.version>0.41</ejml-ddense.version>
 		<!-- maven plugins -->
 		<maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
 		<maven.surefire-plugin.version>3.0.0-M5</maven.surefire-plugin.version>

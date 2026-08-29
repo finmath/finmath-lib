@@ -25,8 +25,6 @@ import org.ejml.data.DMatrixRMaj;
 import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
 import org.ejml.interfaces.linsol.LinearSolverDense;
 
-import net.finmath.exception.CalculationException;
-
 /**
  * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
  *
@@ -55,11 +53,9 @@ public class LinearAlgebra {
 	 */
 	private static final SolverBackend solverBackend;
 	private static final boolean isSolverUseApacheCommonsMath;
-	private static final boolean isJBlasAvailable;
 
 	static {
 		SolverBackend configuredSolverBackend = getConfiguredSolverBackend();
-		boolean configuredJBlasAvailable = false;
 
 		/*
 		 * Check if jblas is available only when it is requested, since loading
@@ -68,14 +64,12 @@ public class LinearAlgebra {
 		 * back to the pure-Java EJML backend.
 		 */
 		if(configuredSolverBackend == SolverBackend.JBLAS) {
-			configuredJBlasAvailable = checkJBlasAvailability();
-			if(!configuredJBlasAvailable) {
+			if(!JBlasAvailabilityHolder.IS_AVAILABLE) {
 				configuredSolverBackend = SolverBackend.EJML;
 			}
 		}
 
 		solverBackend = configuredSolverBackend;
-		isJBlasAvailable = configuredJBlasAvailable;
 
 		/*
 		 * Backward compatibility for methods that still use the old boolean.
@@ -102,7 +96,7 @@ public class LinearAlgebra {
 	}
 
 	public static boolean isJBlasAvailable() {
-		return isJBlasAvailable;
+		return JBlasAvailabilityHolder.IS_AVAILABLE;
 	}
 
 	/**
@@ -236,7 +230,7 @@ public class LinearAlgebra {
 	private static SolverBackend requireSolverBackendAvailable(final SolverBackend solverBackend) {
 		requireSolverBackend(solverBackend);
 
-		if(solverBackend == SolverBackend.JBLAS && !checkJBlasAvailability()) {
+		if(solverBackend == SolverBackend.JBLAS && !JBlasAvailabilityHolder.IS_AVAILABLE) {
 			throw new IllegalArgumentException("JBLAS backend requested, but jblas is not available.");
 		}
 
@@ -286,6 +280,18 @@ public class LinearAlgebra {
 		}
 	}
 
+	/*
+	 * Initialization-on-demand holder. Commons Math and EJML use does not load the
+	 * optional native jblas classes. The probe runs at most once when availability
+	 * is queried, JBLAS is explicitly requested, or JBLAS is the configured default.
+	 */
+	private static final class JBlasAvailabilityHolder {
+		private static final boolean IS_AVAILABLE = checkJBlasAvailability();
+
+		private JBlasAvailabilityHolder() {
+		}
+	}
+
 	/**
 	 * Create a Cholesky decomposition of a symmetric matrix.
 	 *
@@ -325,7 +331,7 @@ public class LinearAlgebra {
 			final double[][] matrixA,
 			final double[] b,
 			final double lambda) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		if(lambda == 0) {
 			return solveLinearEquationLeastSquare(solverBackend, matrixA, b);
@@ -386,7 +392,7 @@ public class LinearAlgebra {
 			final double lambda0,
 			final double lambda1,
 			final double lambda2) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		if(lambda0 == 0 && lambda1 ==0 && lambda2 == 0) {
 			return solveLinearEquationLeastSquare(solverBackend, matrixA, b);
@@ -458,7 +464,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrixA,
 			final double[] b) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -532,7 +538,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrixA,
 			final double[] b) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -546,7 +552,8 @@ public class LinearAlgebra {
 		}
 
 		case JBLAS: {
-			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
+			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrixA))
+					.mmul(new org.jblas.DoubleMatrix(b)).data;
 		}
 
 		case COMMONS_MATH:
@@ -571,7 +578,7 @@ public class LinearAlgebra {
 	}
 
 	public static double[][] invert(final SolverBackend solverBackend, final double[][] matrix) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -619,7 +626,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrix,
 			final double[] vector) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -652,6 +659,8 @@ public class LinearAlgebra {
 	 * <li>b is an m - vector given as double[m],</li>
 	 * <li>x is an n - vector given as double[n],</li>
 	 * </ul>
+	 * If the least-squares solution is not unique, the solution with minimum
+	 * Euclidean norm is returned.
 	 *
 	 * @param matrix The matrix A (left hand side of the linear equation).
 	 * @param vector The vector b (right hand of the linear equation).
@@ -665,7 +674,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrix,
 			final double[] vector) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -683,7 +692,8 @@ public class LinearAlgebra {
 		}
 
 		case JBLAS: {
-			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(vector)).data;
+			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix))
+					.mmul(new org.jblas.DoubleMatrix(vector)).data;
 		}
 
 		case COMMONS_MATH:
@@ -701,6 +711,8 @@ public class LinearAlgebra {
 	 * <li>B is an m x k - matrix given as double[m][k],</li>
 	 * <li>X is an n x k - matrix given as double[n][k],</li>
 	 * </ul>
+	 * If a least-squares solution is not unique, each right-hand side is solved
+	 * using the minimum-Euclidean-norm solution.
 	 *
 	 * @param matrix The matrix A (left hand side of the linear equation).
 	 * @param rhs The matrix B (right hand of the linear equation).
@@ -714,7 +726,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrix,
 			final double[][] rhs) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -732,7 +744,8 @@ public class LinearAlgebra {
 		}
 
 		case JBLAS: {
-			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(rhs)).toArray2();
+			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix))
+					.mmul(new org.jblas.DoubleMatrix(rhs)).toArray2();
 		}
 
 		case COMMONS_MATH:
@@ -941,7 +954,7 @@ public class LinearAlgebra {
 	}
 
 	public static double[][] pseudoInverse(final SolverBackend solverBackend, final double[][] matrix){
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
@@ -1285,6 +1298,24 @@ public class LinearAlgebra {
 		return true;
 	}
 
+	/**
+	 * Solves the Tikhonov-regularized normal equations
+	 *
+	 * <pre>
+	 *     (B^T B + lambda I) x = B^T beta.
+	 * </pre>
+	 *
+	 * The normal matrix is assembled explicitly and solved by Cholesky decomposition.
+	 * Forming the unregularized normal matrix squares the spectral condition number
+	 * of B. If Cholesky fails, this method therefore solves the original least-squares
+	 * system for lambda = 0, or its augmented form for lambda &gt; 0, instead of applying
+	 * an SVD to B<sup>T</sup> B.
+	 *
+	 * @param matrix The matrix B.
+	 * @param rhs The right-hand side beta.
+	 * @param regularizationLambda The finite, non-negative regularization parameter lambda.
+	 * @return The Tikhonov-regularized solution x.
+	 */
 	public static double[] solveTikhonovViaNormalEquations(
 			final double[][] matrix,
 			final double[] rhs,
@@ -1292,19 +1323,33 @@ public class LinearAlgebra {
 		return solveTikhonovViaNormalEquations(solverBackend, matrix, rhs, regularizationLambda);
 	}
 
+	/**
+	 * Solves the Tikhonov-regularized normal equations using an explicit backend.
+	 * See {@link #solveTikhonovViaNormalEquations(double[][], double[], double)}
+	 * for the equation and conditioning characteristics.
+	 *
+	 * @param solverBackend The solver backend.
+	 * @param matrix The matrix B.
+	 * @param rhs The right-hand side beta.
+	 * @param regularizationLambda The finite, non-negative regularization parameter lambda.
+	 * @return The Tikhonov-regularized solution x.
+	 */
 	public static double[] solveTikhonovViaNormalEquations(
 			final SolverBackend solverBackend,
 			final double[][] matrix,
 			final double[] rhs,
 			final double regularizationLambda) {
-		requireSolverBackend(solverBackend);
-	
+		requireSolverBackendAvailable(solverBackend);
+		if(!Double.isFinite(regularizationLambda) || regularizationLambda < 0.0) {
+			throw new IllegalArgumentException("regularizationLambda must be finite and non-negative.");
+		}
+
+		final int cols = checkMatrixAndVectorDimensions(matrix, rhs);
 		final int rows = matrix.length;
-		final int cols = matrix[0].length;
-	
+
 		final double[][] normalMatrix = new double[cols][cols];
 		final double[] normalRhs = new double[cols];
-	
+
 		/*
 		 * normalMatrix = B^T B
 		 * normalRhs    = B^T beta
@@ -1312,40 +1357,58 @@ public class LinearAlgebra {
 		for(int row = 0; row < rows; row++) {
 			final double[] matrixRow = matrix[row];
 			final double rhsValue = rhs[row];
-	
+
 			for(int col1 = 0; col1 < cols; col1++) {
 				final double value1 = matrixRow[col1];
 				if(value1 == 0.0) {
 					continue;
 				}
-	
+
 				normalRhs[col1] += value1 * rhsValue;
-	
+
 				for(int col2 = 0; col2 <= col1; col2++) {
 					normalMatrix[col1][col2] += value1 * matrixRow[col2];
 				}
 			}
 		}
-	
+
 		/*
 		 * Add lambda I and mirror the lower triangle.
 		 */
 		for(int col1 = 0; col1 < cols; col1++) {
 			normalMatrix[col1][col1] += regularizationLambda;
-	
+
 			for(int col2 = 0; col2 < col1; col2++) {
 				normalMatrix[col2][col1] = normalMatrix[col1][col2];
 			}
 		}
-	
+
 		try {
 			return solveLinearEquationCholesky(solverBackend, normalMatrix, normalRhs);
 		}
 		catch(final RuntimeException choleskyFailed) {
 			/*
-			 * Fallback for numerical non-SPD cases.
+			 * Avoid applying an SVD to the normal matrix, since that would retain
+			 * the squared conditioning. Solve the original system, augmented with
+			 * sqrt(lambda) I for regularized problems.
 			 */
-			return solveLinearEquationSVD(solverBackend, normalMatrix, normalRhs);
+			if(regularizationLambda == 0.0) {
+				return solveLinearEquationLeastSquare(solverBackend, matrix, rhs);
+			}
+
+			final double[][] augmentedMatrix = new double[rows + cols][cols];
+			final double[] augmentedRhs = new double[rows + cols];
+			for(int row = 0; row < rows; row++) {
+				System.arraycopy(matrix[row], 0, augmentedMatrix[row], 0, cols);
+				augmentedRhs[row] = rhs[row];
+			}
+
+			final double sqrtRegularizationLambda = Math.sqrt(regularizationLambda);
+			for(int col = 0; col < cols; col++) {
+				augmentedMatrix[rows + col][col] = sqrtRegularizationLambda;
+			}
+
+			return solveLinearEquationLeastSquare(solverBackend, augmentedMatrix, augmentedRhs);
 		}
 	}
 
@@ -1359,7 +1422,7 @@ public class LinearAlgebra {
 			final SolverBackend solverBackend,
 			final double[][] matrix,
 			final double[] rhs) {
-		requireSolverBackend(solverBackend);
+		requireSolverBackendAvailable(solverBackend);
 
 		switch(solverBackend) {
 		case EJML: {
