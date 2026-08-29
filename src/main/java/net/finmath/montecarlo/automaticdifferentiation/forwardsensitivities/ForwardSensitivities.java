@@ -34,7 +34,8 @@ import net.finmath.stochastic.Scalar;
  *       1/N sum_l ||A_l phi_l^r - b_l||^2.</li>
  *   <li>{@link ReductionMethod#PROJECTED_GALERKIN}: impose the projected moment equations
  *       &lt;A phi^r - b, Y_s&gt;_N = 0, where Y_s may differ from the solution basis X_q.</li>
- *   <li>{@link ReductionMethod#PATHWISE}: solve dV/dM = phi^T dP/dM path by path,
+ *   <li>{@link ReductionMethod#PATHWISE}: optionally project dV/dM and dP_j/dM onto
+ *       the solution basis first, then solve dV/dM = phi^T dP/dM path by path,
  *       without reducing phi to a finite basis.</li>
  * </ul>
  *
@@ -77,7 +78,9 @@ public class ForwardSensitivities {
 		PROJECTED_GALERKIN,
 
 		/**
-		 * No reduction: solve the pathwise least-squares problem
+		 * No hedge-ratio reduction: optionally project the input derivatives
+		 * b = dV/dM and A_j = dP_j/dM onto the solution basis, then solve the
+		 * pathwise least-squares problem
 		 *
 		 *     min_phi_l ||A_l phi_l - b_l||_2^2
 		 *
@@ -94,7 +97,7 @@ public class ForwardSensitivities {
 	 * hedgeRatios[j] is the reconstructed stochastic hedge ratio phi_j^r(t, omega),
 	 * or the unreduced pathwise hedge ratio phi_j(t, omega) for PATHWISE.
 	 * coefficients[j][q] is xi_j^q with respect to the solution basis X_q.
-	 * For PATHWISE, coefficients is empty since no basis expansion is used.
+	 * For PATHWISE, coefficients is empty since no basis expansion of phi is used.
 	 */
 	public static final class ProjectedHedgeRatioResult {
 
@@ -198,7 +201,8 @@ public class ForwardSensitivities {
 	 * @param hedgePortfolioValues The hedge-instrument values P_j.
 	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
 	 *                       For PROJECTED_GALERKIN this basis is used both as solution
-	 *                       and test basis.
+	 *                       and test basis. For PATHWISE this basis is used only for
+	 *                       the optional derivative projection.
 	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
@@ -231,9 +235,11 @@ public class ForwardSensitivities {
 	 * @param derivativeValue The product value V.
 	 * @param hedgePortfolioValues The hedge-instrument values P_j.
 	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
+	 *                               For PATHWISE, this is optional; if supplied, b=dV/dM
+	 *                               and A_j=dP_j/dM are first projected onto this basis.
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
 	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
-	 *                           the solution basis is used as the test basis.
+	 *                           the solution basis is used as the test basis. Ignored for PATHWISE.
 	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
@@ -290,9 +296,11 @@ public class ForwardSensitivities {
 	 * @param derivativeGradient The product gradient d V / dM  (getGradient of a {@code RandomVariableDifferentiable} of the derivative V.
 	 * @param hedgePortfolioGradients The gradients (getGradient of a {@code RandomVariableDifferentiable} of the hedge-instrument values P_j.
 	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
+	 *                               For PATHWISE, this is optional; if supplied, b=dV/dM
+	 *                               and A_j=dP_j/dM are first projected onto this basis.
 	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
 	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
-	 *                           the solution basis is used as the test basis.
+	 *                           the solution basis is used as the test basis. Ignored for PATHWISE.
 	 * @param regularizationLambda Absolute lambda in the selected regularized criterion. Use 0.0 for unregularized.
 	 * @param reductionMethod The reduced coefficient criterion.
 	 * @return stochastic hedge ratios and reduced-system diagnostics.
@@ -325,6 +333,7 @@ public class ForwardSensitivities {
 					evaluationTime,
 					derivativeGradient,
 					hedgePortfolioGradients,
+					solutionBasisFunctions,
 					numberOfPaths);
 		}
 
@@ -481,7 +490,45 @@ public class ForwardSensitivities {
 			final RandomVariable derivativeValue,
 			final RandomVariable[] hedgePortfolioValues) throws CalculationException {
 
+		return getHedgeRatiosPathwise(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				null);
+	}
+
+	/**
+	 * Pathwise hedge-ratio calculation with optional derivative projection.
+	 *
+	 * If projectionBasisFunctions is non-null, every component of b=dV/dM and
+	 * A_j=dP_j/dM is first replaced by its empirical least-squares projection
+	 *
+	 *     X (X^T X)^{-1} X^T Y,
+	 *
+	 * where X is the matrix of projection basis realizations. The pathwise solve
+	 * is then performed on the projected derivatives. If projectionBasisFunctions
+	 * is null, this method is identical to {@link #getHedgeRatiosPathwise(Map, double, RandomVariable, RandomVariable[])}.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param projectionBasisFunctions Optional basis used for empirical conditional-expectation projection.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] projectionBasisFunctions) throws CalculationException {
+
 		validatePathwiseInputs(parameterIDsByName, derivativeValue, hedgePortfolioValues);
+
+		if(projectionBasisFunctions != null && projectionBasisFunctions.length == 0) {
+			throw new IllegalArgumentException("projectionBasisFunctions must be null or contain at least one basis function.");
+		}
 
 		if(!(derivativeValue instanceof RandomVariableDifferentiable)) {
 			throw new IllegalArgumentException(
@@ -506,6 +553,7 @@ public class ForwardSensitivities {
 				evaluationTime,
 				derivativeGradient,
 				hedgePortfolioGradients,
+				projectionBasisFunctions,
 				derivativeValue.size());
 	}
 
@@ -538,6 +586,39 @@ public class ForwardSensitivities {
 			final List<Map<Long, RandomVariable>> hedgePortfolioGradients,
 			final int numberOfPaths) throws CalculationException {
 
+		return getHedgeRatiosPathwise(
+				parameterIDsByName,
+				evaluationTime,
+				derivativeGradient,
+				hedgePortfolioGradients,
+				null,
+				numberOfPaths);
+	}
+
+	/**
+	 * Pathwise hedge-ratio calculation using pre-computed AAD gradients and optional
+	 * empirical projection of the input derivatives.
+	 *
+	 * If projectionBasisFunctions is non-null, every component of b=dV/dM and
+	 * A_j=dP_j/dM is first replaced by its least-squares projection onto the span
+	 * of projectionBasisFunctions before the pathwise normal equations are formed.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeGradient The product gradient dV/dM.
+	 * @param hedgePortfolioGradients The hedge-instrument gradients dP_j/dM.
+	 * @param projectionBasisFunctions Optional basis used for empirical conditional-expectation projection.
+	 * @param numberOfPaths Number of Monte-Carlo paths.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map<String, Long> parameterIDsByName,
+			final double evaluationTime,
+			final Map<Long, RandomVariable> derivativeGradient,
+			final List<Map<Long, RandomVariable>> hedgePortfolioGradients,
+			final RandomVariable[] projectionBasisFunctions,
+			final int numberOfPaths) throws CalculationException {
+
 		if(parameterIDsByName == null || parameterIDsByName.isEmpty()) {
 			throw new IllegalArgumentException("parameterIDsByName must contain at least one parameter.");
 		}
@@ -550,6 +631,9 @@ public class ForwardSensitivities {
 		if(numberOfPaths <= 0) {
 			throw new IllegalArgumentException("numberOfPaths must be positive.");
 		}
+		if(projectionBasisFunctions != null && projectionBasisFunctions.length == 0) {
+			throw new IllegalArgumentException("projectionBasisFunctions must be null or contain at least one basis function.");
+		}
 
 		final int numberOfHedges = hedgePortfolioGradients.size();
 
@@ -561,7 +645,7 @@ public class ForwardSensitivities {
 		/*
 		 * b_{l i} = dV / dM_i, pathwise.
 		 */
-		final Map<String, RandomVariable> productSensitivities = getGradientByModelParameterName(
+		Map<String, RandomVariable> productSensitivities = getGradientByModelParameterName(
 				derivativeGradient,
 				parameterIDsByName,
 				independentIDs);
@@ -569,7 +653,7 @@ public class ForwardSensitivities {
 		/*
 		 * A_{l i j} = dP_j / dM_i, pathwise.
 		 */
-		final List<Map<String, RandomVariable>> hedgeSensitivities = new ArrayList<>();
+		List<Map<String, RandomVariable>> hedgeSensitivities = new ArrayList<>();
 		for(int hedgeIndex = 0; hedgeIndex < numberOfHedges; hedgeIndex++) {
 			final Map<String, RandomVariable> sensitivities = getGradientByModelParameterName(
 					hedgePortfolioGradients.get(hedgeIndex),
@@ -577,6 +661,12 @@ public class ForwardSensitivities {
 					independentIDs);
 
 			hedgeSensitivities.add(sensitivities);
+		}
+
+		if(projectionBasisFunctions != null) {
+			final EmpiricalProjection projection = new EmpiricalProjection(projectionBasisFunctions, numberOfPaths);
+			productSensitivities = projectSensitivityMap(productSensitivities, projection);
+			hedgeSensitivities = projectSensitivityMaps(hedgeSensitivities, projection);
 		}
 
 		final long timingProjectSystem = System.currentTimeMillis() - timingProjectSystemStart;
@@ -1147,7 +1237,7 @@ public class ForwardSensitivities {
 					 * Fallback if the matrix is not numerically SPD due to roundoff
 					 * or because lambda is too small relative to the matrix scale.
 					 */
-					solutionPruned = LinearAlgebra.solveLinearEquation(matrixToSolve, rhsPrunded);
+					solutionPruned = LinearAlgebra.solveLinearEquationSVD(matrixToSolve, rhsPrunded);
 				}
 			}
 			else {
@@ -1202,6 +1292,174 @@ public class ForwardSensitivities {
 		return solution;
 	}
 
+
+	private static Map<String, RandomVariable> projectSensitivityMap(
+			final Map<String, RandomVariable> sensitivities,
+			final EmpiricalProjection projection) throws CalculationException {
+
+		final Map<String, RandomVariable> projectedSensitivities = new LinkedHashMap<String, RandomVariable>();
+
+		for(final Entry<String, RandomVariable> sensitivity : sensitivities.entrySet()) {
+			final RandomVariable projectedSensitivity = projection.project(sensitivity.getValue());
+			if(projectedSensitivity != null) {
+				projectedSensitivities.put(sensitivity.getKey(), projectedSensitivity);
+			}
+		}
+
+		return projectedSensitivities;
+	}
+
+	private static List<Map<String, RandomVariable>> projectSensitivityMaps(
+			final List<Map<String, RandomVariable>> sensitivities,
+			final EmpiricalProjection projection) throws CalculationException {
+
+		final List<Map<String, RandomVariable>> projectedSensitivities = new ArrayList<Map<String, RandomVariable>>(sensitivities.size());
+
+		for(final Map<String, RandomVariable> sensitivity : sensitivities) {
+			projectedSensitivities.add(projectSensitivityMap(sensitivity, projection));
+		}
+
+		return projectedSensitivities;
+	}
+
+	/**
+	 * Empirical least-squares projection onto span(X): Y -> X (X^T X)^{-1} X^T Y.
+	 *
+	 * Inner products are empirical Monte-Carlo averages. A Cholesky factor of X^T X
+	 * is reused if the Gram matrix is numerically positive definite. If not, each
+	 * projection falls back to the generic least-squares solver used elsewhere in
+	 * this class, which also handles linearly dependent basis functions.
+	 */
+	private static final class EmpiricalProjection {
+
+		private static final double CHOLESKY_TOLERANCE = 1E-14;
+
+		private final RandomVariable[] basisFunctions;
+		private final double[][] gramMatrix;
+		private final double[][] gramMatrixCholeskyFactor;
+
+		private EmpiricalProjection(
+				final RandomVariable[] basisFunctions,
+				final int numberOfPaths) {
+
+			if(basisFunctions == null || basisFunctions.length == 0) {
+				throw new IllegalArgumentException("basisFunctions must contain at least one basis function.");
+			}
+
+			this.basisFunctions = new RandomVariable[basisFunctions.length];
+			for(int basisIndex = 0; basisIndex < basisFunctions.length; basisIndex++) {
+				if(basisFunctions[basisIndex] == null) {
+					throw new IllegalArgumentException("basisFunctions[" + basisIndex + "] is null.");
+				}
+
+				/*
+				 * Check the number of paths for non-deterministic basis functions and strip
+				 * possible AAD information from the basis before repeatedly using it.
+				 */
+				getPathValues(basisFunctions[basisIndex], numberOfPaths);
+				this.basisFunctions[basisIndex] = basisFunctions[basisIndex].getValues();
+			}
+
+			gramMatrix = new double[basisFunctions.length][basisFunctions.length];
+			for(int row = 0; row < basisFunctions.length; row++) {
+				for(int column = 0; column <= row; column++) {
+					gramMatrix[row][column] = this.basisFunctions[row].getAverageFast(this.basisFunctions[column]);
+					gramMatrix[column][row] = gramMatrix[row][column];
+				}
+			}
+
+			gramMatrixCholeskyFactor = getCholeskyFactor(gramMatrix, CHOLESKY_TOLERANCE);
+		}
+
+		private RandomVariable project(final RandomVariable randomVariable) throws CalculationException {
+
+			if(randomVariable == null) {
+				return null;
+			}
+
+			final RandomVariable value = randomVariable.getValues();
+			final double[] rhs = new double[basisFunctions.length];
+			for(int basisIndex = 0; basisIndex < basisFunctions.length; basisIndex++) {
+				rhs[basisIndex] = value.getAverageFast(basisFunctions[basisIndex]);
+			}
+
+			final double[] coefficients = gramMatrixCholeskyFactor != null
+					? solveWithCholeskyFactor(gramMatrixCholeskyFactor, rhs)
+					: solveReducedSystem(copyMatrix(gramMatrix), rhs, 0.0, true);
+
+			RandomVariable projection = Scalar.of(0.0);
+			for(int basisIndex = 0; basisIndex < basisFunctions.length; basisIndex++) {
+				projection = projection.addProduct(basisFunctions[basisIndex], coefficients[basisIndex]);
+			}
+
+			return projection.getValues();
+		}
+	}
+
+	private static double[][] getCholeskyFactor(
+			final double[][] matrix,
+			final double relativeTolerance) {
+
+		final int dimension = matrix.length;
+		if(dimension == 0) {
+			return new double[0][0];
+		}
+
+		double maxDiagonal = 0.0;
+		for(int row = 0; row < dimension; row++) {
+			maxDiagonal = Math.max(maxDiagonal, Math.abs(matrix[row][row]));
+		}
+		final double tolerance = relativeTolerance * Math.max(1.0, maxDiagonal);
+
+		final double[][] factor = new double[dimension][dimension];
+		for(int row = 0; row < dimension; row++) {
+			for(int column = 0; column <= row; column++) {
+				double sum = matrix[row][column];
+				for(int k = 0; k < column; k++) {
+					sum -= factor[row][k] * factor[column][k];
+				}
+
+				if(row == column) {
+					if(sum <= tolerance) {
+						return null;
+					}
+					factor[row][column] = Math.sqrt(sum);
+				}
+				else {
+					factor[row][column] = sum / factor[column][column];
+				}
+			}
+		}
+
+		return factor;
+	}
+
+	private static double[] solveWithCholeskyFactor(
+			final double[][] lowerTriangularFactor,
+			final double[] rhs) {
+
+		final int dimension = rhs.length;
+		final double[] forwardSolution = new double[dimension];
+
+		for(int row = 0; row < dimension; row++) {
+			double value = rhs[row];
+			for(int column = 0; column < row; column++) {
+				value -= lowerTriangularFactor[row][column] * forwardSolution[column];
+			}
+			forwardSolution[row] = value / lowerTriangularFactor[row][row];
+		}
+
+		final double[] solution = new double[dimension];
+		for(int row = dimension-1; row >= 0; row--) {
+			double value = forwardSolution[row];
+			for(int column = row+1; column < dimension; column++) {
+				value -= lowerTriangularFactor[column][row] * solution[column];
+			}
+			solution[row] = value / lowerTriangularFactor[row][row];
+		}
+
+		return solution;
+	}
 
 	private static RandomVariable[] solvePathwiseHedgeRatios(
 			final double evaluationTime,
@@ -1423,6 +1681,11 @@ public class ForwardSensitivities {
 		if(reductionMethod != ReductionMethod.PATHWISE
 				&& (solutionBasisFunctions == null || solutionBasisFunctions.length == 0)) {
 			throw new IllegalArgumentException("solutionBasisFunctions must contain at least one basis function.");
+		}
+		if(reductionMethod == ReductionMethod.PATHWISE
+				&& solutionBasisFunctions != null
+				&& solutionBasisFunctions.length == 0) {
+			throw new IllegalArgumentException("solutionBasisFunctions must be null or contain at least one basis function for PATHWISE.");
 		}
 		if(reductionMethod == ReductionMethod.PROJECTED_GALERKIN
 				&& testBasisFunctions != null
