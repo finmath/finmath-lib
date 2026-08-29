@@ -14,6 +14,39 @@ import org.junit.jupiter.api.Assertions;
 public class LinearAlgebraTest {
 
 	@Test
+	public void testSolveTikhonovViaNormalEquationsSingularFallback() {
+		final double[][] matrix = new double[][] {
+			{ 1.0, 1.0 }
+		};
+		final double[] rhs = new double[] { 2.0 };
+
+		assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.COMMONS_MATH, matrix, rhs);
+		assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.EJML, matrix, rhs);
+
+		try {
+			LinearAlgebra.getSolver(LinearAlgebra.SolverBackend.JBLAS);
+			assertSingularTikhonovFallback(LinearAlgebra.SolverBackend.JBLAS, matrix, rhs);
+		}
+		catch(final IllegalArgumentException jblasUnavailable) {
+			// JBLAS is optional and does not provide native binaries on every platform.
+		}
+	}
+
+	private static void assertSingularTikhonovFallback(
+			final LinearAlgebra.SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[] rhs) {
+
+		final double[] solution = LinearAlgebra.solveTikhonovViaNormalEquations(solverBackend, matrix, rhs, 0.0);
+
+		Assert.assertArrayEquals(
+				"Singular normal equation fallback using " + solverBackend,
+				new double[] { 1.0, 1.0 },
+				solution,
+				1E-12);
+	}
+
+	@Test
 	public void testSolveLinearEquationLeastSquarePseudoInverse0() {
 		final double[][] A = new double[][] {
 			{ -1.0, 2.0, 2.0 },

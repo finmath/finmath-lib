@@ -65,12 +65,12 @@ public class LinearAlgebra {
 		 * Check if jblas is available only when it is requested, since loading
 		 * jblas may fail on platforms without a compatible native library.
 		 * If legacy configuration requested jblas but it is not available, fall
-		 * back to Commons Math, matching the historical behavior.
+		 * back to the pure-Java EJML backend.
 		 */
 		if(configuredSolverBackend == SolverBackend.JBLAS) {
 			configuredJBlasAvailable = checkJBlasAvailability();
 			if(!configuredJBlasAvailable) {
-				configuredSolverBackend = SolverBackend.COMMONS_MATH;
+				configuredSolverBackend = SolverBackend.EJML;
 			}
 		}
 
@@ -546,7 +546,7 @@ public class LinearAlgebra {
 		}
 
 		case JBLAS: {
-			return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
+			return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;
 		}
 
 		case COMMONS_MATH:
@@ -1345,7 +1345,7 @@ public class LinearAlgebra {
 			/*
 			 * Fallback for numerical non-SPD cases.
 			 */
-			return solveLinearEquation(solverBackend, normalMatrix, normalRhs);
+			return solveLinearEquationSVD(solverBackend, normalMatrix, normalRhs);
 		}
 	}
 
