@@ -156,6 +156,30 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 				RandomVariable[] conditioningBasisFunctions) throws CalculationException;
 	}
 
+	/**
+	 * Provides the hedge-ratio estimator used at a rebalancing time.
+	 *
+	 * <p>
+	 * The default provider delegates to {@link ForwardSensitivities#getHedgeRatios(Map, double, Map, List, RandomVariable[], RandomVariable[], double, ReductionMethod, int)}.
+	 * A custom provider may persist the raw pathwise gradients or replace them by
+	 * externally projected gradients before delegating to {@link ForwardSensitivities}.
+	 * </p>
+	 */
+	@FunctionalInterface
+	public interface HedgeRatioProvider {
+
+		ProjectedHedgeRatioResult getHedgeRatios(
+				Map<String, Long> parameterIDsByName,
+				double evaluationTime,
+				Map<Long, RandomVariable> derivativeGradient,
+				List<Map<Long, RandomVariable>> hedgePortfolioGradients,
+				RandomVariable[] solutionBasisFunctions,
+				RandomVariable[] testBasisFunctions,
+				double regularizationLambda,
+				ReductionMethod reductionMethod,
+				int numberOfPaths) throws CalculationException;
+	}
+
 	private final TermStructureMonteCarloProduct productToReplicate;
 	private final List<TermStructureMonteCarloProduct> hedgeInstruments;
 	private final TimeDiscretization rebalancingTimes;
@@ -165,6 +189,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	private final HedgeInstrumentValueProvider hedgeInstrumentValueProvider;
 	private final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider;
 	private final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider;
+	private final HedgeRatioProvider hedgeRatioProvider;
 	private final double regularizationLambda;
 	private final ReductionMethod reductionMethod;
 
@@ -354,6 +379,40 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider,
 			final double regularizationLambda,
 			final ReductionMethod reductionMethod) {
+		this(
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+				parameterIDProvider,
+				hedgeInstrumentValueProvider,
+				hedgeInstrumentTradeValueProvider,
+				finalHedgeInstrumentValueProvider,
+				regularizationLambda,
+				reductionMethod,
+				getDefaultHedgeRatioProvider());
+	}
+
+	/**
+	 * Full constructor with a custom hedge-ratio estimator.
+	 *
+	 * @param hedgeRatioProvider Provider that estimates hedge ratios from the raw
+	 *        pathwise product and hedge-instrument gradients.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List<TermStructureMonteCarloProduct> hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod,
+			final HedgeRatioProvider hedgeRatioProvider) {
 
 		super();
 
@@ -370,9 +429,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		}
 		this.rebalancingTimes = rebalancingTimes;
 
-		this.solutionBasisFunctionProvider = Objects.requireNonNull(
-				solutionBasisFunctionProvider,
-				"solutionBasisFunctionProvider must not be null.");
+		this.solutionBasisFunctionProvider = solutionBasisFunctionProvider;
 		this.testBasisFunctionProvider = testBasisFunctionProvider;
 		this.parameterIDProvider = Objects.requireNonNull(parameterIDProvider, "parameterIDProvider must not be null.");
 		this.hedgeInstrumentValueProvider = Objects.requireNonNull(
@@ -384,6 +441,9 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		this.finalHedgeInstrumentValueProvider = Objects.requireNonNull(
 				finalHedgeInstrumentValueProvider,
 				"finalHedgeInstrumentValueProvider must not be null.");
+		this.hedgeRatioProvider = Objects.requireNonNull(
+				hedgeRatioProvider,
+				"hedgeRatioProvider must not be null.");
 
 		if(regularizationLambda < 0.0) {
 			throw new IllegalArgumentException("regularizationLambda must be non-negative.");
@@ -463,7 +523,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 		for(final double rebalancingTime : rebalancingTimes) {
 
-			if(rebalancingTime < 0.0 || rebalancingTime >= evaluationTime) {
+			if(rebalancingTime < 0.0 || rebalancingTime > evaluationTime) {
 				continue;
 			}
 
@@ -478,7 +538,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 
 			final long timingValuationStart = System.currentTimeMillis();
 
-			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model);
+			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider != null ? solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;
 			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null ? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;
 
 			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime).getValues();
@@ -500,7 +560,7 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			timingTradeValueMillis += System.currentTimeMillis() - timingTradeValueStart;
 
 			final long timingHedgeRatioStart = System.currentTimeMillis();
-			final ProjectedHedgeRatioResult hedgeRatioResult = ForwardSensitivities.getHedgeRatios(
+			final ProjectedHedgeRatioResult hedgeRatioResult = hedgeRatioProvider.getHedgeRatios(
 					parameterIDsByName,
 					rebalancingTime,
 					derivativeGradient,
@@ -579,6 +639,15 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 		return portfolioValue;
 	}
 
+	/**
+	 * Returns the standard in-process hedge-ratio estimator.
+	 *
+	 * @return A provider delegating to {@link ForwardSensitivities}.
+	 */
+	public static HedgeRatioProvider getDefaultHedgeRatioProvider() {
+		return ForwardSensitivities::getHedgeRatios;
+	}
+
 	private RandomVariable[] getHedgeInstrumentProductValues(
 			final double evaluationTime,
 			final TermStructureMonteCarloSimulationModel model) throws CalculationException {
@@ -606,9 +675,9 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 	}
 
 	/**
-	 * Hedge-instrument value provider valuing {@link Bond}s by the model's
-	 * forward-discount-bond implementation and all non-bond instruments by their
-	 * product value.
+	 * Hedge-instrument value provider valuing {@link Bond}s and the bond components
+	 * of {@link SwapAnnuity}s by the model's forward-discount-bond implementation.
+	 * All other instruments are valued using their product value.
 	 *
 	 * <p>
 	 * For a bond with maturity T greater than t, the provider returns the
@@ -633,11 +702,25 @@ public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructur
 			for(int hedgeIndex = 0; hedgeIndex < hedgeInstruments.size(); hedgeIndex++) {
 				final TermStructureMonteCarloProduct hedgeInstrument = hedgeInstruments.get(hedgeIndex);
 				if(hedgeInstrument instanceof Bond) {
+					double maturity = ((Bond)hedgeInstrument).getMaturity();
 					values[hedgeIndex] = getAnalyticBondValue(
 							evaluationTime,
-							((Bond)hedgeInstrument).getMaturity(),
+							maturity,
 							tenorPeriodLength,
 							model);
+				}
+				else if(hedgeInstrument instanceof SwapAnnuity) {
+					values[hedgeIndex] = Scalar.of(0.0);
+					SwapAnnuity swapAnnuity = ((SwapAnnuity)hedgeInstrument);
+					double[] maturities = swapAnnuity.getMaturities();
+					double[] periodLengths = swapAnnuity.getPeriodLengths();
+					for(int timeIndex = 0; timeIndex<maturities.length; timeIndex++) {
+						values[hedgeIndex] = values[hedgeIndex].add(getAnalyticBondValue(
+								evaluationTime,
+								maturities[timeIndex],
+								tenorPeriodLength,
+								model).mult(periodLengths[timeIndex]));
+					}
 				}
 				else if(hedgeInstrument instanceof DiscreteTenorRollOver) {
 					values[hedgeIndex] = getAnalyticBondValue(
